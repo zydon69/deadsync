@@ -322,6 +322,7 @@ enum PracticeNavMode {
 
 pub struct State {
     pub gameplay: gameplay_screen::State,
+    edition: Option<crate::screens::edition::State>,
     runtime: PracticeRuntimeView,
     density_graph: PracticeDensityGraph,
     edit_text: PracticeEditText,
@@ -399,6 +400,10 @@ impl MenuDef {
 
 static MAIN_MENU: MenuDef = MenuDef {
     rows: &[
+        MenuRow {
+            label: lookup_key("Edition", "OpenEditor"),
+            action: Some(action_open_edition),
+        },
         MenuRow {
             label: lookup_key("Practice", "MenuPlayWholeSong"),
             action: Some(action_play_whole_song),
@@ -523,6 +528,7 @@ pub fn init(mut gameplay: gameplay_screen::State, runtime: PracticeRuntimeView) 
     gameplay.set_practice_timing_labels(timing_labels);
     let mut state = State {
         gameplay,
+        edition: None,
         runtime,
         density_graph,
         edit_text: PracticeEditText::new(),
@@ -718,6 +724,9 @@ fn handle_input_inner(
     ev: &InputEvent,
     snap_music_start: MusicStartSnap,
 ) -> ThemeEffect {
+    if state.edition.is_some() {
+        return ThemeEffect::None;
+    }
     if state.menu.is_some() {
         return handle_menu_input(state, ev, snap_music_start);
     }
@@ -799,6 +808,15 @@ fn handle_raw_key_event_inner(
     raw_key: &RawKeyboardEvent,
     snap_music_start: MusicStartSnap,
 ) -> (bool, ThemeEffect) {
+    if let Some(editor) = state.edition.as_mut() {
+        if editor.raw_key(raw_key) {
+            state.edition = None;
+        }
+        return (true, ThemeEffect::None);
+    }
+    if raw_key.pressed && !raw_key.repeat && raw_key.code == KeyCode::F2 {
+        return (true, action_open_edition(state, snap_music_start));
+    }
     match raw_key.code {
         KeyCode::ShiftLeft | KeyCode::ShiftRight => {
             state.shift_held = raw_key.pressed;
@@ -1051,6 +1069,10 @@ fn set_offset_adjust_flash(state: &mut State) {
 }
 
 pub fn push_overlay(actors: &mut Vec<Actor>, state: &mut State) {
+    if let Some(editor) = state.edition.as_ref() {
+        editor.actors(actors);
+        return;
+    }
     if matches!(state.mode, Mode::Editing) {
         append_edit_markers(state, actors);
         append_density_graph(state, actors);
@@ -1211,6 +1233,36 @@ fn action_play_whole_song(state: &mut State, snap_music_start: MusicStartSnap) -
         max_play_beat(state),
         snap_music_start,
     );
+    ThemeEffect::None
+}
+
+fn action_open_edition(state: &mut State, _snap_music_start: MusicStartSnap) -> ThemeEffect {
+    stop_playback(state);
+    clear_cursor_hold_inputs(state);
+    clear_page_hold_inputs(state);
+    clear_music_rate_hold_inputs(state);
+    state.shift_held = false;
+    state.ctrl_held = false;
+    state.tab_held = false;
+    let chart = &state.gameplay.charts()[0];
+    match crate::screens::edition::State::open_selected(
+        &state.gameplay.song().simfile_path,
+        &chart.chart_type,
+        &chart.difficulty,
+        &chart.description,
+        chart.meter,
+    ) {
+        Ok(editor) => {
+            state.edition = Some(editor);
+            state.menu = None;
+        }
+        Err(error) => {
+            state.flash = Some((
+                i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]),
+                8.0,
+            ));
+        }
+    }
     ThemeEffect::None
 }
 

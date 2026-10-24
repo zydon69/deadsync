@@ -1,0 +1,126 @@
+//! Selection transforms preserve owners, sustain tails, and note attributes.
+//! Refer to GrooveAuthor EditorActions/Action*Selection*.cs (MIT).
+use crate::{
+    Error,
+    history::Session,
+    notes::{Kind, Note, Position},
+    pad::Pad,
+};
+use std::collections::{BTreeMap, BTreeSet};
+
+#[derive(Clone, Copy, Debug)]
+pub enum Transform {
+    Mirror,
+    Flip,
+    MirrorAndFlip,
+    ShiftRows(i64),
+    AssignPlayer(u32),
+    Convert {
+        from: Kind,
+        to: Kind,
+        sustain_rows: u64,
+    },
+}
+
+pub fn apply(
+    session: &mut Session,
+    chart: usize,
+    start: u64,
+    end: u64,
+    player: Option<u32>,
+    transform: Transform,
+) -> Result<bool, Error> {
+    if start > end {
+        return Err(Error::InvalidEdit("Selection ends before it starts".into()));
+    }
+    let layout = session
+        .document()
+        .charts()
+        .get(chart)
+        .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?
+        .steps_type
+        .clone();
+    let grid = session.grid(chart)?;
+    let selected: Vec<_> = grid
+        .iter()
+        .filter(|(pos, _)| {
+            pos.row >= start && pos.row <= end && player.is_none_or(|player| pos.player == player)
+        })
+        .map(|(pos, note)| (pos, note.clone()))
+        .collect();
+    let sources: BTreeSet<_> = selected.iter().map(|(pos, _)| *pos).collect();
+    let mut edits: BTreeMap<Position, Option<Note>> =
+        sources.iter().map(|&pos| (pos, None)).collect();
+    let mut targets = BTreeSet::new();
+    let pad = if matches!(
+        transform,
+        Transform::Mirror | Transform::Flip | Transform::MirrorAndFlip
+    ) {
+        Some(Pad::builtin(&layout)?)
+    } else {
+        None
+    };
+    for (mut pos, mut note) in selected {
+        match transform {
+            Transform::Mirror | Transform::Flip | Transform::MirrorAndFlip => {
+                let pad = pad.unwrap();
+                if matches!(transform, Transform::Mirror | Transform::MirrorAndFlip) {
+                    pos.lane = pad.mirror[usize::from(pos.lane)].ok_or_else(|| {
+                        Error::Unsupported("This lane has no mirrored counterpart".into())
+                    })?;
+                }
+                if matches!(transform, Transform::Flip | Transform::MirrorAndFlip) {
+                    pos.lane = pad.flip[usize::from(pos.lane)].ok_or_else(|| {
+                        Error::Unsupported("This lane has no flipped counterpart".into())
+                    })?;
+                }
+            }
+            Transform::ShiftRows(delta) => {
+                pos.row = shift(pos.row, delta)?;
+                note.end = note.end.map(|end| shift(end, delta)).transpose()?;
+            }
+            Transform::AssignPlayer(owner) => pos.player = owner,
+            Transform::Convert {
+                from,
+                to,
+                sustain_rows,
+            } => {
+                if note.kind == from {
+                    if matches!(to, Kind::Keysound | Kind::Attack) {
+                        return Err(Error::Unsupported(
+                            "Conversion to an attributed note needs explicit attributes".into(),
+                        ));
+                    }
+                    note.kind = to;
+                    note.end = if matches!(to, Kind::Hold | Kind::Roll) {
+                        Some(
+                            note.end
+                                .unwrap_or(pos.row.checked_add(sustain_rows).ok_or_else(|| {
+                                    Error::InvalidEdit("Sustain exceeds row range".into())
+                                })?),
+                        )
+                    } else {
+                        note.tail_attributes = "".into();
+                        None
+                    };
+                }
+            }
+        }
+        if !targets.insert(pos) || (grid.get(pos).is_some() && !sources.contains(&pos)) {
+            return Err(Error::InvalidEdit(
+                "Transformation would overwrite an unselected note".into(),
+            ));
+        }
+        edits.insert(pos, Some(note));
+    }
+    session.edit_notes(chart, format!("{transform:?}"), edits)
+}
+
+fn shift(row: u64, delta: i64) -> Result<u64, Error> {
+    if delta >= 0 {
+        row.checked_add(delta as u64)
+    } else {
+        row.checked_sub(delta.unsigned_abs())
+    }
+    .ok_or_else(|| Error::InvalidEdit("Shift exceeds the valid row range".into()))
+}

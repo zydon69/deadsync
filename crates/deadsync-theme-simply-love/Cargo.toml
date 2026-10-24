@@ -8,6 +8,7 @@ license = "GPL-3.0"
 test-support = []
 
 [dependencies]
+deadsync-editor = { path = "../deadsync-editor" }
 deadsync-song-lua = { path = "../deadsync-song-lua" }
 null-or-die = { git = "https://github.com/pnn64/null-or-die", branch = "main" }
 deadsync-smx = { path = "../deadsync-smx" }
@@ -48,6 +49,7 @@ twox-hash = "2.1.5"
 unicode-normalization = "0.1.25"
 
 [dev-dependencies]
+tempfile = "3.27.0"
 deadsync-lights = { path = "../deadsync-lights" }
 deadlib-render-core = { path = "../deadlib-render-core", features = ["test-util"] }
 deadlib-render = { path = "../deadlib-render" }

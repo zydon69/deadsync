@@ -1,0 +1,1758 @@
+{
+  "notice": "Inventory of reference files, not a claim of review, implementation, or test coverage.",
+  "grooveauthor": {
+    "commit": "48e18f71655d0f0d86144c63239331833501fda2",
+    "files": [
+      {
+        "path": ".github/ISSUE_TEMPLATE/bug-report.md",
+        "sha256": "ab334b93b1ee1d386875dbf96d173f6526a91f43cf029b7b41e500b947e745a0",
+        "bytes": 1343
+      },
+      {
+        "path": ".github/ISSUE_TEMPLATE/feature-request.md",
+        "sha256": "c82acc2412c2e34f29f800344d2d38bbc0c6cb936ee27e7721114856c8d93624",
+        "bytes": 682
+      },
+      {
+        "path": ".vscode/launch.json",
+        "sha256": "fdb80fd67d13b0de37e286c346cdca28189232ef5bd1eba3b72729c62398060c",
+        "bytes": 1955
+      },
+      {
+        "path": ".vscode/tasks.json",
+        "sha256": "bd66522df5eee210f7459017b41e9c9b5208ea62d55413c53501e30466bfbcab",
+        "bytes": 4936
+      },
+      {
+        "path": "MonoGameExtensions/ColorUtils.cs",
+        "sha256": "043347ac05af177e90c72075aa809a2b39ba6d8e5a41ef24a1401116354b9f8b",
+        "bytes": 640
+      },
+      {
+        "path": "MonoGameExtensions/DoubleBufferedRenderTarget2D.cs",
+        "sha256": "d6fa80a25f0b6403052cfb5515ef7ea15f50a6f195dd826b3646e4e9b7155b0a",
+        "bytes": 3104
+      },
+      {
+        "path": "MonoGameExtensions/DynamicTextureAtlas.cs",
+        "sha256": "f8a6c335b23fcae1a5f9f580e98b3d2be48328f9009313755279a23cea011d42",
+        "bytes": 9435
+      },
+      {
+        "path": "MonoGameExtensions/MonoGameExtensions.csproj",
+        "sha256": "ef3c53391f06e16d50b8dd06494b162f57d269f85f998f1ad5ef24dc05068390",
+        "bytes": 691
+      },
+      {
+        "path": "MonoGameExtensions/StaticTextureAtlas.cs",
+        "sha256": "5a33a8dc42f7f661336e18b919defc6c83edbf42cd4b27f4720309a0a1521199",
+        "bytes": 4913
+      },
+      {
+        "path": "MonoGameExtensions/TextureAtlas.cs",
+        "sha256": "97fa60b1a91728267f07b79d373d4def3b7170885f920a4c6651958be97574f5",
+        "bytes": 22186
+      },
+      {
+        "path": "MonoGameExtensions/TextureUtils.cs",
+        "sha256": "cb5aba45e3c55def13a422463f483e73fcf40927414f42acee53ce22c7f2723c",
+        "bytes": 10074
+      },
+      {
+        "path": "README.md",
+        "sha256": "301f2abdd987cd553873c7f0c7cece7a13840c4c4d69eb89bba112251beb2811",
+        "bytes": 4427
+      },
+      {
+        "path": "StepManiaEditor/.config/dotnet-tools.json",
+        "sha256": "74603314261a1fc30bdaff8135305ee61f5873cae9d3275f12e4094b1ee06b13",
+        "bytes": 558
+      },
+      {
+        "path": "StepManiaEditor/ActiveEditorChart.cs",
+        "sha256": "60bde1681bba77f08a7c4d772c247c0b6725901fd8b0e2225f3e02e5d728ac3a",
+        "bytes": 112986
+      },
+      {
+        "path": "StepManiaEditor/ArrowGraphicManager.cs",
+        "sha256": "c7e908d1b1ccf31865e3f7b4185e04bf5daadd0629180875352dbf32ab46d400",
+        "bytes": 48994
+      },
+      {
+        "path": "StepManiaEditor/AutoPlayer.cs",
+        "sha256": "7418dcb9ba58b9d51a033522dd9f4c7dd2f7d35935894b8d94d18d8b5a8281fc",
+        "bytes": 7941
+      },
+      {
+        "path": "StepManiaEditor/AutogenConfig/ConfigData.cs",
+        "sha256": "ec883ed081a8871eced9e054d7bc5bee0676c07f350c4afddbf0d4501179192d",
+        "bytes": 3806
+      },
+      {
+        "path": "StepManiaEditor/AutogenConfig/ConfigManager.cs",
+        "sha256": "69c63bd720fd134630e87e838956cec668f6d20746c06dc8381036157560ad67",
+        "bytes": 13005
+      },
+      {
+        "path": "StepManiaEditor/AutogenConfig/EditorConfig.cs",
+        "sha256": "b3b08f8b7582d5b50a7fba1fa7b1342a7d713bdd9cc2925fdfc536670fc5de91",
+        "bytes": 7654
+      },
+      {
+        "path": "StepManiaEditor/AutogenConfig/EditorExpressedChartConfig.cs",
+        "sha256": "1f3b43e3d518f19982be5b0f37b29ffa8a53d7a2a6bd4ac1399502f42fcde60a",
+        "bytes": 8654
+      },
+      {
+        "path": "StepManiaEditor/AutogenConfig/EditorPatternConfig.cs",
+        "sha256": "8abc09c3e1c9a7cf2844829b3e9c9791b58cd03911b5522177ba52e7be703e73",
+        "bytes": 20821
+      },
+      {
+        "path": "StepManiaEditor/AutogenConfig/EditorPerformedChartConfig.cs",
+        "sha256": "880ddddd3efe61b338bff083caa6534b93425c7f04fd0d2deaf9347e55075d1f",
+        "bytes": 31865
+      },
+      {
+        "path": "StepManiaEditor/AutogenConfig/ExpressedChartConfigManager.cs",
+        "sha256": "73ed5dd46997fe6c370dca423bebc2350cb16a01fb23cda8731d9c4766de2f01",
+        "bytes": 5338
+      },
+      {
+        "path": "StepManiaEditor/AutogenConfig/PatternConfigManager.cs",
+        "sha256": "0a45b62c9f8ced7daf42ad602ac4b6ef20e97b79f1da7e0d3e04acefcf8717fb",
+        "bytes": 3241
+      },
+      {
+        "path": "StepManiaEditor/AutogenConfig/PerformedChartConfigManager.cs",
+        "sha256": "7633568f44f9f5ffbf70b03be54d6ac5e44e94a9fb9ad60bb9e01a602a3880b8",
+        "bytes": 9076
+      },
+      {
+        "path": "StepManiaEditor/Content/atlas.json",
+        "sha256": "63fd959ae0ac23de0fd3a41d87670b71c4aba2002b360797d7414b161b559619",
+        "bytes": 50479
+      },
+      {
+        "path": "StepManiaEditor/DefaultChartListProvider.cs",
+        "sha256": "e284aa67904cdd6dce6c949a3301a9f7593a0a8c4c6ff9638a059ddc512f5a6f",
+        "bytes": 1157
+      },
+      {
+        "path": "StepManiaEditor/DisplayTempo.cs",
+        "sha256": "cb6603ef554a0467ea1511e7e2b66871a0958821ed8ae49865198c475f63eee2",
+        "bytes": 3028
+      },
+      {
+        "path": "StepManiaEditor/Documentation.cs",
+        "sha256": "3507c422a78c95a5e1b76d57b8dc3919b0fa699532217def6c6a074f6c8dc3e4",
+        "bytes": 1981
+      },
+      {
+        "path": "StepManiaEditor/Editor.cs",
+        "sha256": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+        "bytes": 239860
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionAddChart.cs",
+        "sha256": "0d1811a3241a1e412a98f999831e0016e8cd25aea30f5508335d334121da8e53",
+        "bytes": 1298
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionAddEditorEvent.cs",
+        "sha256": "aaa8e895394b25536d99d8e74ce78b31c01a4a8c96dbf8da588dd3677d825df0",
+        "bytes": 1166
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionAddExpressedChartConfig.cs",
+        "sha256": "e2be0cf19638839dbe528fc669070006dc7defe494ae0827fc682b034f3f210b",
+        "bytes": 1306
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionAddHoldEvent.cs",
+        "sha256": "f4304e54da9abbc1a2793b16df24cc87bf3338a3575eecbf0a17eb5676a6146e",
+        "bytes": 1143
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionAddModToAttack.cs",
+        "sha256": "038421b03f54e7cfc7939e98ed900739ba0da64766b19be705ec77a6709323da",
+        "bytes": 778
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionAddPatternConfig.cs",
+        "sha256": "4c612b69219592e82d4229803f5e1f9e012b6a56ceee50566e2b8b001c203f4f",
+        "bytes": 864
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionAddPerformedChartConfig.cs",
+        "sha256": "78688fff4cbc0c95df0ef2ff393a9bb5a82740cc9cf601ef03c1248cc2375163",
+        "bytes": 914
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionAutoGenerateCharts.cs",
+        "sha256": "82f6005112c6a5b065d980f69533264b859a18820e3f1f3516cae7122c7dcf06",
+        "bytes": 7632
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionAutoGeneratePatterns.cs",
+        "sha256": "a7f4d360c871ffb371e259144b6e4790c2767468da8f47d6a6dd1820113c32f1",
+        "bytes": 38914
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionChangeHoldLength.cs",
+        "sha256": "059c95a537fdc2c1dcb6b66866ab4f510961be57e233d8a4c4e342f713015706",
+        "bytes": 856
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionChangeHoldType.cs",
+        "sha256": "e47a45040e923b0082c87f7fe25f2f2d28d481a26eac99785b080ef36e9da3f4",
+        "bytes": 974
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionChangeNegativeStopsToWarps.cs",
+        "sha256": "4222fa40b6a50209549b19a4b67d6abb8341cb31e4810e056612d562f27bfa33",
+        "bytes": 4187
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionChangeNotePlayer.cs",
+        "sha256": "80e85008bca268fce240f090bc5764969d3dbaab3ac7085151b82e5f82a845ec",
+        "bytes": 1873
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionChangeNoteType.cs",
+        "sha256": "4e3d23c0327fc8b509933bda72d7d383ca88c8fd1595cb7f86320abf46a2d768",
+        "bytes": 2664
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionChangeWarpsToNegativeStops.cs",
+        "sha256": "9a962c4351200049c5f657dea8f0c4dd907eb0715952c55ec6b84bd790930a05",
+        "bytes": 4023
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionCloneChart.cs",
+        "sha256": "4c35f7cdc3bc5632464c1e6fbe719193ae4266ed213b96a4cd08de2287e9279e",
+        "bytes": 1323
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionCloneExpressedChartConfig.cs",
+        "sha256": "198d9d150c1a799b025bc45f9c77ebfd4b29e06cf6c0981c8f3ef95a47b98c29",
+        "bytes": 1155
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionClonePatternConfig.cs",
+        "sha256": "8296b808c6e433b6eb63715103b90c1d05d9d1fd979566d4ec8f6535d1e949d1",
+        "bytes": 1099
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionClonePerformedChartConfig.cs",
+        "sha256": "44c7e33b4382f21b43f581a9ad355652d7a1b001c0faef19e039733f132f539e",
+        "bytes": 1155
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionCopyEventsBetweenCharts.cs",
+        "sha256": "47e1fd8f92d4171381198c0e3e15d2492b99d7f22c65c916ae79fbf5f0a3c1db",
+        "bytes": 6909
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionDeleteChart.cs",
+        "sha256": "991f354e038d87bcb5d7a2047cf02f0f896f802c7940a6ab542416399d983975",
+        "bytes": 1012
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionDeleteEditorEvents.cs",
+        "sha256": "0bd4e0f1858c67d583f02d812749ca182bdb54b6160a19caf051422ffbada5d3",
+        "bytes": 1291
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionDeleteExpressedChartConfig.cs",
+        "sha256": "6f4d82ba51ed3df1908707b39a5cd4af7ec324f21780788089a84a6f55ce5f4d",
+        "bytes": 1582
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionDeleteModFromAttack.cs",
+        "sha256": "f08fa8265cebe34a312fbadeea7b3a298660a3ad89215f7d84d5c357f01fb990",
+        "bytes": 842
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionDeletePatternConfig.cs",
+        "sha256": "7a83ca2dfa0e276e0eff16699b26cf22ad643be196c629738984bc5a1d1fa630",
+        "bytes": 1589
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionDeletePatternNotes.cs",
+        "sha256": "03c1041f9a953bbc8ab754fcc85723362bc3ef905ca0f16b687507c5d9a59c2e",
+        "bytes": 5014
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionDeletePerformedChartConfig.cs",
+        "sha256": "297f30e6087e356a5c548b884b8e92382bdb3634d4e5f14befaa589c727f5c05",
+        "bytes": 2220
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionFlipSelection.cs",
+        "sha256": "4a0309c310cb626c52c5e8af6173a44f345e4830b58ea7b3d4d19d7db3ba5d5f",
+        "bytes": 1686
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionMirrorAndFlipSelection.cs",
+        "sha256": "e288c321babe2fccdef3f899bfd6acfd5c2e7504abccc861f71fcacd574c1b11",
+        "bytes": 1940
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionMirrorSelection.cs",
+        "sha256": "3e301222ee11f776f5309f6bb29500d32aee6db34ec9803986bc378256a2959a",
+        "bytes": 1696
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionMoveEditorEvent.cs",
+        "sha256": "7479cdb6ee69ffa48224dff3324396a81263e1c8700157a67ca34661c177c171",
+        "bytes": 875
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionPasteEvents.cs",
+        "sha256": "1c86460f2388d8fb413b5e97b297f5db24e2ef305baaa43e4a0ff3a949137534",
+        "bytes": 6298
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionSelectChart.cs",
+        "sha256": "a91ba4aac664034c2212a55d7ef8d878da41a4a31306eba49afe7a5a0ba9a68c",
+        "bytes": 918
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionSetDisplayTempoAllowEditsOfMax.cs",
+        "sha256": "e2bb297bab82f8d8ef1186aef3706a96459f7fc278c09e3e1b77d2cd379f1cd3",
+        "bytes": 1402
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionSetDisplayTempoMode.cs",
+        "sha256": "9066f96294487aba6e49a7c20d7d697d45c41f80b1d9a9d7f3cbe5e2010ce07c",
+        "bytes": 1953
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionSetNoteColorSet.cs",
+        "sha256": "22c19924feb77821dbab4c6b0c0edb81a1d2c553bba7c554a768aa5aa0652f29",
+        "bytes": 1588
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionSetPerformedChartConfigArrowWeight.cs",
+        "sha256": "022cdc9b09b5a91bbbdef2c3afa686af3d19b04ee1d6fc5422e7410c40c1373a",
+        "bytes": 1274
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionSetSongAssets.cs",
+        "sha256": "7db5ac1ae417e5756197848f005bbbf3e30373d348a76e35f90a34b2e97d2ae4",
+        "bytes": 3535
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionShiftSelectionLane.cs",
+        "sha256": "4a9dc4e656c21f06e6cef158471c9cf95256e67cc6b069947d93c2f3a2482662",
+        "bytes": 2277
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionShiftSelectionRow.cs",
+        "sha256": "d77d9d5c2085fbd957def646bb68093572eb8bf38788b7f37b45de991b14d025",
+        "bytes": 6334
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionSwapNotePlayer.cs",
+        "sha256": "d2ad187df4616b6ffe8a571222ac93e1e0c014446e4ed9d12ec3074cacbc6be4",
+        "bytes": 2244
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionTransformSelectionLanes.cs",
+        "sha256": "3959932b7ba7f96b5b4287abf1f39e0895198aa10e4defb3de3c9d183bbdaa23",
+        "bytes": 4576
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ActionUpdateKeyBinding.cs",
+        "sha256": "c2d8010360c233038b112d2bc414e4b1d2d20efa45122d1f23636957cd7e7d40",
+        "bytes": 1568
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/EditorActionUtils.cs",
+        "sha256": "8cb4ff6a3a574f6fb78fe44b77195dcaf533b3a6bc4c71dd79b94a70004f8b19",
+        "bytes": 5439
+      },
+      {
+        "path": "StepManiaEditor/EditorActions/ForceAddSideEffect.cs",
+        "sha256": "e2e8fc1fc2038e3f93d7208fe9858142271f97d3b54907f0d9618717890adc64",
+        "bytes": 1507
+      },
+      {
+        "path": "StepManiaEditor/EditorChart.cs",
+        "sha256": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd",
+        "bytes": 129756
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/Containers/EventIntervalTree.cs",
+        "sha256": "412077d58de3d0183ae7cb92ac8e523b9ff24b1abfe2247f498056dc5fa5c6d8",
+        "bytes": 2645
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/Containers/EventTree.cs",
+        "sha256": "154d1e307368636752879e0f9123af67f43c8c4a6eac6950f5b9159a75cfd94f",
+        "bytes": 12404
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/Containers/EventTreeUtils.cs",
+        "sha256": "debc87e321265b4b694fe902cb9147e66804e75669fef7a842830a925a6ecdee",
+        "bytes": 5257
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/Containers/InterpolatedRateAlteringEventTree.cs",
+        "sha256": "fa89a765bdaa316a6b9776ec7f9da2b4ed10cc1ca44eaa70fa9484c442f06222",
+        "bytes": 2364
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/Containers/RateAlteringEventTree.cs",
+        "sha256": "bd7eab4ce5a62e8c5c300f20e47298ea19c65f55b590978bb99d3d653441d736",
+        "bytes": 13832
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorAttackEvent.cs",
+        "sha256": "07f72d72d572ecce5751b3e756dc1ebf2a9825e5f9a21d4af66bd79dbf621aba",
+        "bytes": 12747
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorDelayEvent.cs",
+        "sha256": "c49013e898ee270e1e93af84a578e37e1df47ebccffc78e748275bb581b035a3",
+        "bytes": 5030
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorEvent.cs",
+        "sha256": "28dbffa43902c9704850bae1fcdaf22b3d29317625ddf82934f71c9fc12eb18c",
+        "bytes": 37805
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorFakeNoteEvent.cs",
+        "sha256": "b5924bec840760118ea84c41d9e3b6ad3c1e47be457ff8af8ae8bd0bfcb8b973",
+        "bytes": 1171
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorFakeSegmentEvent.cs",
+        "sha256": "60ee58ac783c2be7bfb7cd747f657609ac53bc0c6177cbbc02ec367204c91028",
+        "bytes": 5144
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorHoldNoteEvent.cs",
+        "sha256": "f96a616508c6e616cf98a8dbedf2ab8ecbd99b901ddaafae644aa41c61310aab",
+        "bytes": 19300
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorInterpolatedRateAlteringEvent.cs",
+        "sha256": "2d23a5c6a9db4c9baa88949567a37a4e1049c4e8f6a12715c1d709f93b1a9d8a",
+        "bytes": 6012
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorLabelEvent.cs",
+        "sha256": "f8c99606e20e0676f552374a0e4bd31eb5a1dd7978623d9b79874b1b4ebf1a3f",
+        "bytes": 2871
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorLastSecondHintEvent.cs",
+        "sha256": "fbc3171890bcbd4888b65fe8b1f106f98a6dd574b64d8f2f5e3de9c8fdcba548",
+        "bytes": 4563
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorLiftNoteEvent.cs",
+        "sha256": "f64b5343dc40bf2b6902896f73145f9ab2e1fd73b5ed96e7f89a837da75defd6",
+        "bytes": 2094
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorMarkerEvent.cs",
+        "sha256": "0a3cf9522a6549115fe4471e9c26241f8da91b4e50c7025742038f850a2edc6a",
+        "bytes": 2184
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorMineNoteEvent.cs",
+        "sha256": "c6e7c0c4a70604df04006ef24703254fe5b870a1a1847e00ebfda2bc3546e716",
+        "bytes": 1496
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorMultipliersEvent.cs",
+        "sha256": "591f1b0313525d3c7bd3a9b1c0817ec6be4dce60c63ed47227dd9f1e9d198462",
+        "bytes": 3503
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorPatternEvent.cs",
+        "sha256": "c4b41425fb9d78c4030edf3d7a681c44ce3cbd25e0a65c2659b99f1b18989f34",
+        "bytes": 17239
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorPreviewRegionEvent.cs",
+        "sha256": "8f1edf1b0dc900b020185209062920a5d1bf3967f70937e4ffd036ef95425673",
+        "bytes": 6753
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorRateAlteringEvent.cs",
+        "sha256": "65df864234461b543af99e6f640e43998be9343ba64829f3d0d28cb027e481ce",
+        "bytes": 8077
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorScrollRateEvent.cs",
+        "sha256": "b0013bf2ab4ad7cb6ab4de6d58ed800a85aa3b0e02c5d9791b75bc7653a8b055",
+        "bytes": 2924
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorSearchEvent.cs",
+        "sha256": "31d5de34def232e2c34c5b2a40081837c67329f1d9875d31633ec4ad2da152fb",
+        "bytes": 612
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorSelectedRowsEvent.cs",
+        "sha256": "4a73dd776a600dc8109483818b5f88f848b04e0ca5fe7c2d2fe50ed3ca1c60b7",
+        "bytes": 2521
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorStopEvent.cs",
+        "sha256": "0c24d8f4334c9d6886a5f090aff5acdcb0e210584fdcfcd73a396ed5ba5f5680",
+        "bytes": 6205
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorTapNoteEvent.cs",
+        "sha256": "f671f80542f2f23ae51d4c0a242385b66d7ab7252fd7aac6682a0cc92fc29604",
+        "bytes": 1204
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorTempoEvent.cs",
+        "sha256": "1a4574baca02a8703320921c0d6f20fd65ae9a382455ec493afb0db33ea4d667",
+        "bytes": 3086
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorTickCountEvent.cs",
+        "sha256": "f6dc4df3a63608163769a8c441b21a74f90711cb5f30a240766702dd97d761c1",
+        "bytes": 2518
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorTimeSignatureEvent.cs",
+        "sha256": "cf282cf481c8cc2259d1eb65fa60573d757b0775e89b11094e69448f18603fdd",
+        "bytes": 4307
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EditorWarpEvent.cs",
+        "sha256": "fe93c60d0466fff37332f66312645f46f05361d35b3d089a38d3264eeceebe7e",
+        "bytes": 5050
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/EventConfig.cs",
+        "sha256": "58ca7ecc67ba4ada93df51e4499d2defadf565e7e7934adea484e2d8e5dfb816",
+        "bytes": 28565
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/Region.cs",
+        "sha256": "21003a897d2ac2cc39baf09523b0a3e1c55885d3031903963255e53899553bce",
+        "bytes": 3063
+      },
+      {
+        "path": "StepManiaEditor/EditorEvents/SearchEvent.cs",
+        "sha256": "0f1d55b781c9806ae2c1e6da9e6a767556704ad9f298806d762e51fe96338746",
+        "bytes": 349
+      },
+      {
+        "path": "StepManiaEditor/EditorImageData.cs",
+        "sha256": "eeab0a95bc6a55e9f2d55190bebbdccf62569a3e723ec468a3383e57813097d6",
+        "bytes": 4235
+      },
+      {
+        "path": "StepManiaEditor/EditorItgManiaPack.cs",
+        "sha256": "33501312bbc2c7775468fd73bfd86c2cb7d3965c0c39081fb3d25813a9533711",
+        "bytes": 9735
+      },
+      {
+        "path": "StepManiaEditor/EditorMouseState.cs",
+        "sha256": "4fbddf787897eef8a8b4a7e3af1d850ccb40b9f2407850027b5294331c20da77",
+        "bytes": 5952
+      },
+      {
+        "path": "StepManiaEditor/EditorPack.cs",
+        "sha256": "09323a6899920acc2e6aa4358dcced0768d5b9b97e3f44f85816ab31e2b3c574",
+        "bytes": 13166
+      },
+      {
+        "path": "StepManiaEditor/EditorPosition.cs",
+        "sha256": "67cb938ce0b597bb46d4b1c3c94c735a2a22a6befbfafa8b39d7e8deb2c5f0b3",
+        "bytes": 7492
+      },
+      {
+        "path": "StepManiaEditor/EditorSong.cs",
+        "sha256": "066bd606d5138343b444fb0355a125929c7b19baef4832202775eb419a5c60ff",
+        "bytes": 58235
+      },
+      {
+        "path": "StepManiaEditor/EditorSongImageUtils.cs",
+        "sha256": "573be36d261fcfbec601bac2b7c7e40be817edb9130ddbba0311b61c072d2e2a",
+        "bytes": 11079
+      },
+      {
+        "path": "StepManiaEditor/EventSpacingHelper.cs",
+        "sha256": "67deae613750c28f54442f4379f65f7c7e7728b8603bb5ea16c25807bc35fd5b",
+        "bytes": 19335
+      },
+      {
+        "path": "StepManiaEditor/IActiveChartListProvider.cs",
+        "sha256": "71218eae0b71e1b42f14ce28e11e4e1f7736aba9f694a0af6a155c12d52faf87",
+        "bytes": 407
+      },
+      {
+        "path": "StepManiaEditor/IEditorPlatform.cs",
+        "sha256": "2d0a811de4aaaf69d817c9cbcd7d8e1a7432c6fcec9e764a1116ec0d4e81116e",
+        "bytes": 1921
+      },
+      {
+        "path": "StepManiaEditor/ImGui/DrawVertDeclaration.cs",
+        "sha256": "d4f71724d842d87d0fdb30db87af8a1a25fbd517f24ae462211aec2850bed19a",
+        "bytes": 1875
+      },
+      {
+        "path": "StepManiaEditor/ImGui/ImGuiArrowWeightsWidget.cs",
+        "sha256": "104d382565158ccd280178eb817b4e5dabf4fe7c295ce91a95edc4a5a4f055e9",
+        "bytes": 8337
+      },
+      {
+        "path": "StepManiaEditor/ImGui/ImGuiLayoutUtils.cs",
+        "sha256": "26db419be4f6ab04e9e518019dd7a463ed49904b2e45b2b5b24dde9d5861ba59",
+        "bytes": 122593
+      },
+      {
+        "path": "StepManiaEditor/ImGui/ImGuiRenderer.cs",
+        "sha256": "4015005bef737064c3ba51225fed34d84f6ce69cb81617498cae36de45b062c9",
+        "bytes": 16937
+      },
+      {
+        "path": "StepManiaEditor/ImGui/ImGuiUtils.cs",
+        "sha256": "541c6cd925faaca21cc2df541e7bb8deb0a11b2a58f4969fadd5ca8159f95fb0",
+        "bytes": 27405
+      },
+      {
+        "path": "StepManiaEditor/KeyCommandManager.cs",
+        "sha256": "592d0bd8f812e3d0ccbb2e276d413bbb3d9cd450800e1f2f86080a9022bffd62",
+        "bytes": 16136
+      },
+      {
+        "path": "StepManiaEditor/LaneEditState.cs",
+        "sha256": "119eacedc5217aa8174a6838307c290e5eeb3c019f3851d2052e0481d85ec2eb",
+        "bytes": 6258
+      },
+      {
+        "path": "StepManiaEditor/MiniMap.cs",
+        "sha256": "445d6c0532c1e75b679fbee658981de1e152e853952a8a9918b79f5a6d995345",
+        "bytes": 49826
+      },
+      {
+        "path": "StepManiaEditor/MiscEventWidgetLayoutManager.cs",
+        "sha256": "24817f6067ea447abcd17f324cb5e7c31cb506bc516ee5a647938f90a3bc8216",
+        "bytes": 9976
+      },
+      {
+        "path": "StepManiaEditor/PackLoadTask.cs",
+        "sha256": "d9cd7430ff4c8f48fa95a35ed90cda0fb7f7afe7358dd50d31feb98ebd72c984",
+        "bytes": 5772
+      },
+      {
+        "path": "StepManiaEditor/PackSong.cs",
+        "sha256": "78fa452233b28c08f3e6663f5863fdd83b9f6cba85e0b43a56526d1a131441b4",
+        "bytes": 5489
+      },
+      {
+        "path": "StepManiaEditor/PerformanceMonitor.cs",
+        "sha256": "2e718fa33dc17e4ba41466d8021e23ee78e5a9e2a387991087f2e56b78f3e959",
+        "bytes": 12607
+      },
+      {
+        "path": "StepManiaEditor/PerformanceTimings.cs",
+        "sha256": "af20b5f23354ee4c923f32e42d26d37cfc4cc737301970f47557e3a68188b605",
+        "bytes": 1682
+      },
+      {
+        "path": "StepManiaEditor/Preferences/Preferences.cs",
+        "sha256": "91d06e059a3c54fb945edadf5af55c948f3e226f4cec8d28258698f82c281523",
+        "bytes": 8493
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesAudio.cs",
+        "sha256": "c983c61540e2e2162fb0cb3b559aa00cd990b5f027a5cc5e1d2c23ac42355889",
+        "bytes": 9994
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesDark.cs",
+        "sha256": "9411efceed2d16852dd36378870034e409d25283024e36171d5c0a24b696e491",
+        "bytes": 2790
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesDensityGraph.cs",
+        "sha256": "0f171981a2044ebf46bb25ebd00818f8a7293a88ef288806b4c91bf956201cf6",
+        "bytes": 11416
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesKeyBinds.cs",
+        "sha256": "2d73bb9f272a805745319e156bf8e30088cf67201617083729a515a74d7bbc56",
+        "bytes": 61250
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesMiniMap.cs",
+        "sha256": "c1f3c6a055de75ebdd630cabb090619aae77cf013e794c6039606723c2efc7ee",
+        "bytes": 9775
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesNoteColor.cs",
+        "sha256": "86a6b92900bcf32c4d758cc2248334fb426d7a9fce31db122521cdb7186ecc27",
+        "bytes": 49070
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesOptions.cs",
+        "sha256": "cd3ccd5d6b51d13101ea459df7f3ff1cb336c2a1ec886a9eb0dbe241a2d91e46",
+        "bytes": 15088
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesPerformance.cs",
+        "sha256": "acafe5b6e62bec9adf16b6ebfa2b494f1c8eb358ca341184ce846ad5e4f6ade5",
+        "bytes": 3679
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesReceptors.cs",
+        "sha256": "8f5f44f6ef15d87fcfe367c483f798127fa7e60d2bf7bfb08dd8bc31df3674a3",
+        "bytes": 8132
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesScroll.cs",
+        "sha256": "9c4881cd2c9dbe5794d85475a7104450183bf6618b696808318b40059ba8245d",
+        "bytes": 9448
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesSelection.cs",
+        "sha256": "070fa20688a9753e9e6c38a1a70d791a1c717c7004679271315918999ebc5765",
+        "bytes": 2386
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesStream.cs",
+        "sha256": "d3c9fe3fc9a5bd075b03a454b16cad648713c12de0a706a20f9e9bac1863a29a",
+        "bytes": 5784
+      },
+      {
+        "path": "StepManiaEditor/Preferences/PreferencesWaveForm.cs",
+        "sha256": "8a6eca2ff554447d7faa9a98c7cf3a6abca21ea9997280ace6ddb0e002c2a416",
+        "bytes": 9555
+      },
+      {
+        "path": "StepManiaEditor/Preferences/SavedSongInformation.cs",
+        "sha256": "85e2dea94c40863cc2b5f960b9c788c8d25badf7e836ebf7a04f21e863fb4392",
+        "bytes": 9090
+      },
+      {
+        "path": "StepManiaEditor/Receptor.cs",
+        "sha256": "a099b55527ccbe1123eb77c756a09188f2a31e94e2df1a9f655c0753c198be4d",
+        "bytes": 13684
+      },
+      {
+        "path": "StepManiaEditor/SelectedRegion.cs",
+        "sha256": "07ba24eb2d6ec1b45d17b8cac12b9b64216eb3bc33a1af855379bcb9aaf8c459",
+        "bytes": 8866
+      },
+      {
+        "path": "StepManiaEditor/Selection.cs",
+        "sha256": "e7090aab08b8677ee724f0502c520ffebf0c39f7e449cc6f4fd4d53df45ffd46",
+        "bytes": 2382
+      },
+      {
+        "path": "StepManiaEditor/SnapData.cs",
+        "sha256": "95ff88ae84c48d1a9c37c820b4234649b50cfeabc4ce0b9902489377b6773282",
+        "bytes": 810
+      },
+      {
+        "path": "StepManiaEditor/SnapManager.cs",
+        "sha256": "33e9efd7eb00ca94d72a97fe2ecd99255d7d7d366980e2add65b722b733c3bd3",
+        "bytes": 2000
+      },
+      {
+        "path": "StepManiaEditor/SongLoadTask.cs",
+        "sha256": "ce98b79bb327e0ec15ccc045e7a72d84eae4f4b46d1d00d8b6515293b2fa3c2d",
+        "bytes": 3082
+      },
+      {
+        "path": "StepManiaEditor/Sound/EditorSound.cs",
+        "sha256": "f91d9c33141968ddf728a6dffcb0b48d80fc9a3904b6aa0160427f66ecf99f9f",
+        "bytes": 12096
+      },
+      {
+        "path": "StepManiaEditor/Sound/MusicManager.cs",
+        "sha256": "803c43c4019230a7ea2d1c5a6f5e2dd9a3a234292d638fb04144baaa95df8f03",
+        "bytes": 51652
+      },
+      {
+        "path": "StepManiaEditor/Sound/SoundMipMap.cs",
+        "sha256": "065c0d9a1e0fde9846309af712503017e9e1b106656aee4899b081346116d15b",
+        "bytes": 25867
+      },
+      {
+        "path": "StepManiaEditor/Sound/SoundPlaybackState.cs",
+        "sha256": "b85a56aafcef1e918b2217815573c90189b87e4a01bbc9490b71fd0b24db73fe",
+        "bytes": 3973
+      },
+      {
+        "path": "StepManiaEditor/Sound/TimeStretcher.cs",
+        "sha256": "c08d4e2f18a3c8cdb576e6872bad6cbd9db149fa2f5bbd645cab835824a744cc",
+        "bytes": 3371
+      },
+      {
+        "path": "StepManiaEditor/StepDensity.cs",
+        "sha256": "0dc93fb63b7596e062f7babd26c0398b135ee701a34b603d5f8f3583cfa1c72e",
+        "bytes": 20706
+      },
+      {
+        "path": "StepManiaEditor/StepDensityEffect.cs",
+        "sha256": "ea38dff4ae8ef54ff285d748c5d962c189d741b01458dd8eeeefbd3d1d066c07",
+        "bytes": 38562
+      },
+      {
+        "path": "StepManiaEditor/StepManiaEditor.csproj",
+        "sha256": "471e497df4a40c0f17d5a9e4a6f9e96c06790f1d16a3b6689b56411c5945bae2",
+        "bytes": 2667
+      },
+      {
+        "path": "StepManiaEditor/StepTotals.cs",
+        "sha256": "1ccaed6f43b044f5e176ba0f4620c7b249d3ce192f59c5934e92fcb671cd3866",
+        "bytes": 10669
+      },
+      {
+        "path": "StepManiaEditor/SubdivisionType.cs",
+        "sha256": "1fe40d0283e50cf2a7a69dbd5a67d16f6dcc699972fef638efd648e2af28e63b",
+        "bytes": 250
+      },
+      {
+        "path": "StepManiaEditor/Texture/EditorTexture.cs",
+        "sha256": "1cce0c99ab61bc6b21a8ec1365a96918e3c37de99801f68029863c32030d8406",
+        "bytes": 16666
+      },
+      {
+        "path": "StepManiaEditor/Texture/EmptyTexture.cs",
+        "sha256": "de440e284646e658ce5d79d2b12f3276d774e25818927ae6913725c34150e756",
+        "bytes": 2973
+      },
+      {
+        "path": "StepManiaEditor/UI/UIAbout.cs",
+        "sha256": "86e6a207649224142a9f594961b5d2790f55fc72edf82ab524cece64959cbc48",
+        "bytes": 9308
+      },
+      {
+        "path": "StepManiaEditor/UI/UIAttackEvent.cs",
+        "sha256": "004d95f5a3ff99490e36aa2e1ec8153eeefbc069f809e91d1135002a27710dae",
+        "bytes": 4420
+      },
+      {
+        "path": "StepManiaEditor/UI/UIAudioPreferences.cs",
+        "sha256": "23ec38f7338ce38487c86278e52b3a444509bebe7a5bcc56ede66b699d946a53",
+        "bytes": 8025
+      },
+      {
+        "path": "StepManiaEditor/UI/UIAutogenChart.cs",
+        "sha256": "d59ad6ba691007968cb07270ccebeab9823a6b21f7ec2b10b82ce2f438112005",
+        "bytes": 4800
+      },
+      {
+        "path": "StepManiaEditor/UI/UIAutogenChartsForChartType.cs",
+        "sha256": "66d0857de9295ffa1dd0b1fc66c598874a76053a548442b09cb7170cbcd7e16e",
+        "bytes": 5749
+      },
+      {
+        "path": "StepManiaEditor/UI/UIAutogenConfigs.cs",
+        "sha256": "948cefcb25cf95966af008354df5d91d1b0552a66d431af79c1f27ddb73181d3",
+        "bytes": 1393
+      },
+      {
+        "path": "StepManiaEditor/UI/UIChartHeader.cs",
+        "sha256": "7504581f5f3a075ac831552575762a665a1a4564c4b7eaf00b1fa7cbad24df3a",
+        "bytes": 8374
+      },
+      {
+        "path": "StepManiaEditor/UI/UIChartList.cs",
+        "sha256": "3685c25e7277ab29fafca47c246a432f664aab38df112075e091efdd55113543",
+        "bytes": 11043
+      },
+      {
+        "path": "StepManiaEditor/UI/UIChartProperties.cs",
+        "sha256": "150ee1896c167ccd6316b5a822dba079b26ff780f8d7e39f46d23a4e979f4de3",
+        "bytes": 12174
+      },
+      {
+        "path": "StepManiaEditor/UI/UIChartTitleBar.cs",
+        "sha256": "9060bb0b62e3a1a8c6c47056eeedb1d00aad36289766795e7054e2d40dbfa0d6",
+        "bytes": 138
+      },
+      {
+        "path": "StepManiaEditor/UI/UIControls.cs",
+        "sha256": "550fa42311658208c0ddcb897c2df3f5d27fcebfbeb06179874f176b9e9dc20c",
+        "bytes": 14175
+      },
+      {
+        "path": "StepManiaEditor/UI/UICopyEventsBetweenCharts.cs",
+        "sha256": "9b984d657d7da5c0a4f5822718ec0840e45df1e16f78737a23c1bcfad8887849",
+        "bytes": 9728
+      },
+      {
+        "path": "StepManiaEditor/UI/UIDarkPreferences.cs",
+        "sha256": "bc1f370e1584b6e36e435ef0de5a56102f8ec6f83605569fe3daadf610b4295a",
+        "bytes": 2406
+      },
+      {
+        "path": "StepManiaEditor/UI/UIDebug.cs",
+        "sha256": "68463f1382385451053d8c82d3881b531f6766c3bdedf13bb742228434b00483",
+        "bytes": 1156
+      },
+      {
+        "path": "StepManiaEditor/UI/UIDensityGraphPreferences.cs",
+        "sha256": "db9d6604379b3a6dc2ef2a46e1ebf36e49a8a44c100729aefa09b527188e4bfb",
+        "bytes": 4115
+      },
+      {
+        "path": "StepManiaEditor/UI/UIDockSpace.cs",
+        "sha256": "39183b252c8900b116ca91a0f72ac596ce0deee836889126eee6b6a54fbffdc0",
+        "bytes": 13061
+      },
+      {
+        "path": "StepManiaEditor/UI/UIEditEvents.cs",
+        "sha256": "5d3efae956507e98594a8885f259a6182d61c0c75722f658a6a0cea1ee91885b",
+        "bytes": 48830
+      },
+      {
+        "path": "StepManiaEditor/UI/UIExpressedChartConfig.cs",
+        "sha256": "2a6c6c0ff0e4513c5965f42d3b4e3ec51783fe5a8d65d64dac84db145bd4f6d0",
+        "bytes": 7315
+      },
+      {
+        "path": "StepManiaEditor/UI/UIExpressedChartConfigTable.cs",
+        "sha256": "76d94c6c2e0c24603a7c9d81c26ccd7dfb3f729b64156e0584de81411317242e",
+        "bytes": 3194
+      },
+      {
+        "path": "StepManiaEditor/UI/UIFTUE.cs",
+        "sha256": "39e9b2c3ebb94a8048b0373154efb76194eb518068b9c48a74710c4196eadb90",
+        "bytes": 9731
+      },
+      {
+        "path": "StepManiaEditor/UI/UIHotbar.cs",
+        "sha256": "a85ca0f65695d3c2f3bc8c2614fce0ee59908b2eb6f5ebe433be547d1d6adb60",
+        "bytes": 15494
+      },
+      {
+        "path": "StepManiaEditor/UI/UIKeyRebindModal.cs",
+        "sha256": "a7f8203814a36f340b9263d2a0331fa8f39aebb529e9fff51f19f28bad1848d4",
+        "bytes": 5288
+      },
+      {
+        "path": "StepManiaEditor/UI/UILog.cs",
+        "sha256": "441223fccc406c5e8a1d3c76670d937be84474b630ff48ad8323f6e048258626",
+        "bytes": 6976
+      },
+      {
+        "path": "StepManiaEditor/UI/UIMiniMapPreferences.cs",
+        "sha256": "0991ec69085410e9a7b02bb7afa5463bb21a2e7d1cdaa3d687cb818f5df88f07",
+        "bytes": 6155
+      },
+      {
+        "path": "StepManiaEditor/UI/UIModals.cs",
+        "sha256": "6bda7fe99bbca67f8a1078aa37633c5c4ab98ec46f3041caef9ff988b1cdc19d",
+        "bytes": 8091
+      },
+      {
+        "path": "StepManiaEditor/UI/UINoteColorPreferences.cs",
+        "sha256": "d853cab3d1f675086ffd8f5da2fca4d487ce8e1a9e8e40ff23d324484fd5046b",
+        "bytes": 7865
+      },
+      {
+        "path": "StepManiaEditor/UI/UIOptions.cs",
+        "sha256": "eb8b799b28f9ccb61f2f7256822b519b63db8fffcce19c6464aba454c3118dfa",
+        "bytes": 11242
+      },
+      {
+        "path": "StepManiaEditor/UI/UIPackProperties.cs",
+        "sha256": "85e57878861cb73ff6abc236b93ba58525f89392d100f264d41362d5d425cab6",
+        "bytes": 10449
+      },
+      {
+        "path": "StepManiaEditor/UI/UIPatternComparer.cs",
+        "sha256": "08791e07561c1a8f8470a19a7ed7d08c25ba517278ac7b935c7ad3f418b7954c",
+        "bytes": 3908
+      },
+      {
+        "path": "StepManiaEditor/UI/UIPatternConfig.cs",
+        "sha256": "1236670b5a54f9aa85efb80d34663c961a3a9d3c4154f64aef0ba1deb388e27a",
+        "bytes": 8945
+      },
+      {
+        "path": "StepManiaEditor/UI/UIPatternConfigTable.cs",
+        "sha256": "1cba55013d1ca3289c721b5e177d879afc3d785563fca0ed3679eda4653c2cde",
+        "bytes": 5864
+      },
+      {
+        "path": "StepManiaEditor/UI/UIPatternEvent.cs",
+        "sha256": "25b7f249bafea305d35057f2cb55982947f82bae0d6b7f3f08f92f21a2be2942",
+        "bytes": 5867
+      },
+      {
+        "path": "StepManiaEditor/UI/UIPerformance.cs",
+        "sha256": "dde693a6833ffae467afb33a12ca52aeab6e2b3246dce4508a3ced33da8842a4",
+        "bytes": 7436
+      },
+      {
+        "path": "StepManiaEditor/UI/UIPerformedChartComparer.cs",
+        "sha256": "5f302491590c1a9ef93eb935f079ed348450883cde10e4144836029496f1ddb8",
+        "bytes": 5390
+      },
+      {
+        "path": "StepManiaEditor/UI/UIPerformedChartConfig.cs",
+        "sha256": "54c301323bf37423bbd9050beefabb6002cee929341090b109c1e023bebd8ff6",
+        "bytes": 14154
+      },
+      {
+        "path": "StepManiaEditor/UI/UIPerformedChartConfigTable.cs",
+        "sha256": "892530869e3790fb1a765b33f4f1a1a21e09d51bd3e9a5841b6729bb10c5b058",
+        "bytes": 7284
+      },
+      {
+        "path": "StepManiaEditor/UI/UIReceptorPreferences.cs",
+        "sha256": "91c36c07c8aef3e6ef0ae2960aa70bd706db5bbdc641811f44620069bcfb0b3f",
+        "bytes": 5409
+      },
+      {
+        "path": "StepManiaEditor/UI/UIScrollPreferences.cs",
+        "sha256": "ef31aaa43e9492936f44042cee0cadbdcf5e277852794989ceab041e2e11de1f",
+        "bytes": 10561
+      },
+      {
+        "path": "StepManiaEditor/UI/UISelectionPreferences.cs",
+        "sha256": "20d9a527a7730c64059049e2b3298aaaf57412d03ad0bcd70706488f19caad05",
+        "bytes": 3092
+      },
+      {
+        "path": "StepManiaEditor/UI/UISongProperties.cs",
+        "sha256": "44d70208167ce52bdda661f5dbf4c2b17febac45a87b2e6148d5a3de9925a02d",
+        "bytes": 24533
+      },
+      {
+        "path": "StepManiaEditor/UI/UIStreamPreferences.cs",
+        "sha256": "fb960aeeaf5f26155b6f5bc0818952296ab78d6f532f4652a19a96fae739dc0a",
+        "bytes": 3198
+      },
+      {
+        "path": "StepManiaEditor/UI/UIWaveFormPreferences.cs",
+        "sha256": "c1f793b1751610044bc277cb48c47ba0c35231b965e41456f31e406efad9e28b",
+        "bytes": 8162
+      },
+      {
+        "path": "StepManiaEditor/UI/UIWindow.cs",
+        "sha256": "67c4d183d11241a976870d3a4fb7c30ea9a579475d45f972f4a4df42d3813de9",
+        "bytes": 783
+      },
+      {
+        "path": "StepManiaEditor/Utils.cs",
+        "sha256": "0ac380bdd1742b1856bd0ccbc0650e334e16b489a3da47ecb8775b9bde145de7",
+        "bytes": 16545
+      },
+      {
+        "path": "StepManiaEditor/WaveFormRenderer.cs",
+        "sha256": "81c77f0298685ceb227a5a72eb1f1990379de49a696f431dfef2b1164a05d421",
+        "bytes": 23660
+      },
+      {
+        "path": "StepManiaEditor/ZoomManager.cs",
+        "sha256": "47e9a9a45939e531f800a893f93eb286474e0db9302db9882ac8693291dfd669",
+        "bytes": 9079
+      },
+      {
+        "path": "StepManiaEditor/atlas.json",
+        "sha256": "974b4e27e42bf9e5df47c150a263270556be962f860c999cdf258ab512c6bf56",
+        "bytes": 24872
+      },
+      {
+        "path": "StepManiaEditor/docs/AutogenConfigs.md",
+        "sha256": "ffacebede0fa547235a2fd686f550621acc7880188e57961e62f3461ab3eb24a",
+        "bytes": 9246
+      },
+      {
+        "path": "StepManiaEditor/docs/BuildingFromSource.md",
+        "sha256": "a9532b2c0dd3f8a9b90a0a2367bbcd5f8ec1ac105a892ab0dcface662ecee164",
+        "bytes": 3577
+      },
+      {
+        "path": "StepManiaEditor/docs/ChartGeneration.md",
+        "sha256": "2020379f81af6f2c1d48da378241edeef5a58215ede2bdcd16468b553ec6de3c",
+        "bytes": 5940
+      },
+      {
+        "path": "StepManiaEditor/docs/ChartNavigation.md",
+        "sha256": "dcf2d91525e79d3ac50b642204232bfda0754e57974742aa4c41787e7f011cb8",
+        "bytes": 5643
+      },
+      {
+        "path": "StepManiaEditor/docs/ExpressedChartConfigs.md",
+        "sha256": "d0f75a75e51ceb67dec67e8989a24f3dc9f6810257861fb31fa4d6fa70b06e8a",
+        "bytes": 3422
+      },
+      {
+        "path": "StepManiaEditor/docs/Installation.md",
+        "sha256": "a51fc2bb953ed38f40e950eede4bbd03cbab8306e1348a82f9aece18d65c2ef3",
+        "bytes": 2312
+      },
+      {
+        "path": "StepManiaEditor/docs/Keybinds.md",
+        "sha256": "1c695e3e8043bb952b9c465e3d6db5ddd848f7ce5d4a1e7389a3f82db00f7665",
+        "bytes": 2310
+      },
+      {
+        "path": "StepManiaEditor/docs/MultiplayerCharts.md",
+        "sha256": "d02f1387d2dcadb0e43a6b79224708433fd2935f7cd66904f9ad93077a969677",
+        "bytes": 3838
+      },
+      {
+        "path": "StepManiaEditor/docs/PackagingBuilds.md",
+        "sha256": "1b0cd762b7c79d38d0267074e71107214a823f8060c044ffa09afc189b711a1d",
+        "bytes": 436
+      },
+      {
+        "path": "StepManiaEditor/docs/PatternConfigs.md",
+        "sha256": "4cee13603caed559679e011c4820efdb4a4caa56ac43958f1bc38b84242a1b6e",
+        "bytes": 7336
+      },
+      {
+        "path": "StepManiaEditor/docs/PatternGeneration.md",
+        "sha256": "1f390b18ec4aacbb9e3783ecdff036bc789a9c6a021221a1ec22e491ac17dd68",
+        "bytes": 8105
+      },
+      {
+        "path": "StepManiaEditor/docs/PerformedChartConfigs.md",
+        "sha256": "02899212c4a08a0e03d80e94c18fdeaa679cc08129e8dcb077a9443d70770ad5",
+        "bytes": 12878
+      },
+      {
+        "path": "StepManiaEditor/docs/SavingSimfiles.md",
+        "sha256": "73aff65be4309b6aab919a539bff2aca354a8071d7693696be8bc13d1d89b564",
+        "bytes": 9792
+      },
+      {
+        "path": "StepManiaEditor/docs/SongAndChartTiming.md",
+        "sha256": "f4774a1634dec54aef72758cf613a88e417e2ea9c4a3df2f59e3d3519eb72457",
+        "bytes": 5143
+      },
+      {
+        "path": "StepManiaEditor/docs/SongSync.md",
+        "sha256": "04c8d268497b0acb5dbf5c34b34ae87c25cb706377e042ada1dc88001834d02d",
+        "bytes": 3312
+      },
+      {
+        "path": "StepManiaEditor/docs/TableOfContents.md",
+        "sha256": "34f7df4dc3af559dcff5968d6f9279173b562b835e2b253b94924866bccfc365",
+        "bytes": 888
+      },
+      {
+        "path": "StepManiaEditor/docs/UpdatingVersion.md",
+        "sha256": "e389bd39ba4e03ecd4152eec5277a30a7d979c2da3c26745851aa607cf02736c",
+        "bytes": 298
+      },
+      {
+        "path": "StepManiaEditorLinux/.config/dotnet-tools.json",
+        "sha256": "b9ff068b45d6f4c7dcaddf28293afaf6c3a115d6c5114342bf02ca77055fc8fe",
+        "bytes": 655
+      },
+      {
+        "path": "StepManiaEditorLinux/EditorLinuxInterface.cs",
+        "sha256": "e5345339f5881e6fb68ff093b8211644b688e0561e5eec33ba3d59ae237678e1",
+        "bytes": 11182
+      },
+      {
+        "path": "StepManiaEditorLinux/Program.cs",
+        "sha256": "31a261e8e547d5bb2ad9640efa3deac352d28bc83df2013207dfbb8b8539e783",
+        "bytes": 312
+      },
+      {
+        "path": "StepManiaEditorLinux/StepManiaEditorLinux.csproj",
+        "sha256": "8dee06d331926282ec07e387212f8af82a3ff80ac1be7ad4f8c1905a482c9946",
+        "bytes": 4328
+      },
+      {
+        "path": "StepManiaEditorMacOS/.config/dotnet-tools.json",
+        "sha256": "b9ff068b45d6f4c7dcaddf28293afaf6c3a115d6c5114342bf02ca77055fc8fe",
+        "bytes": 655
+      },
+      {
+        "path": "StepManiaEditorMacOS/EditorMacOsInterface.cs",
+        "sha256": "8df37d9fab59260e6605e1a8e8cb470fd4df4639e9459fb437826ad40fc23121",
+        "bytes": 14388
+      },
+      {
+        "path": "StepManiaEditorMacOS/Program.cs",
+        "sha256": "600a06644d8e97d31dac7a160b90b7d67f5a6cde3e9a5abcc12ea070a7dc7175",
+        "bytes": 320
+      },
+      {
+        "path": "StepManiaEditorMacOS/StepManiaEditorMacOS.csproj",
+        "sha256": "04984e06b4ee2c46f441a7ebc463b2dbfb0876e003436827f4481ab2717cb6a5",
+        "bytes": 8347
+      },
+      {
+        "path": "StepManiaEditorTests/GlobalUsings.cs",
+        "sha256": "f3c0f716d7f1ed1aa74805acb144d1885292862be8a6432a9c2f4b70f0b3613b",
+        "bytes": 59
+      },
+      {
+        "path": "StepManiaEditorTests/StepManiaEditorTests.csproj",
+        "sha256": "09a3024bc1544543861bc434cbd057cf901b3f159577348de72176a4e15df7e1",
+        "bytes": 878
+      },
+      {
+        "path": "StepManiaEditorTests/TestActionChangeNegativeStopsToWarps.cs",
+        "sha256": "d4db65a37f769209eda2ab990a4cbd9e329bcef4cc822bc80d23df51475e81fa",
+        "bytes": 3374
+      },
+      {
+        "path": "StepManiaEditorTests/TestActionChangeWarpsToNegativeStops.cs",
+        "sha256": "4011320db51543790b68ba7b16444ec2d22887862c79dfc4cb6fc69f358ccdb9",
+        "bytes": 2622
+      },
+      {
+        "path": "StepManiaEditorTests/TestEditorChart.cs",
+        "sha256": "3b82db198c9f8db864e29a611f32b2abf0785139d09f53789f0582a06b0f7ce3",
+        "bytes": 656
+      },
+      {
+        "path": "StepManiaEditorTests/TestEventTree.cs",
+        "sha256": "e22d61495e67bec0758fa87f732187256ce2f5329e2e6728f9189102e8d63d31",
+        "bytes": 38134
+      },
+      {
+        "path": "StepManiaEditorTests/TestFakes.cs",
+        "sha256": "f7f6b5dd5275b55a5c91289e685587a1d3ba788a4ccdc013acae3769f1d94b9e",
+        "bytes": 15417
+      },
+      {
+        "path": "StepManiaEditorTests/TestRateAlteringEventTree.cs",
+        "sha256": "075cd9405a69b9734c8a6aedf3f8e28fc9a96e72e3e93a1e1bfed33a07c5419b",
+        "bytes": 22983
+      },
+      {
+        "path": "StepManiaEditorTests/Utils.cs",
+        "sha256": "efeab72cd7f745721927aed36e4c515b1ca33e3307b807a73132f728e9c782d4",
+        "bytes": 2406
+      },
+      {
+        "path": "StepManiaEditorTextureGenerator/Program.cs",
+        "sha256": "7d6815ee2103e546e9b6709898cad42b35b2ee84ab2b59f26f17902cbc6f61a5",
+        "bytes": 22254
+      },
+      {
+        "path": "StepManiaEditorTextureGenerator/StepManiaEditorTextureGenerator.csproj",
+        "sha256": "a33eab0983c229bcdfd86985b42e92f8b00d4cc76cc9f1bb5e7545644e2e53f9",
+        "bytes": 612
+      },
+      {
+        "path": "StepManiaEditorWindows/.config/dotnet-tools.json",
+        "sha256": "b9ff068b45d6f4c7dcaddf28293afaf6c3a115d6c5114342bf02ca77055fc8fe",
+        "bytes": 655
+      },
+      {
+        "path": "StepManiaEditorWindows/EditorWindowsInterface.cs",
+        "sha256": "019073e45735996042b9ccc9e54ef42e80774a431a8e5ccd7404752ee38e6a4a",
+        "bytes": 4362
+      },
+      {
+        "path": "StepManiaEditorWindows/Program.cs",
+        "sha256": "a55fd547b85bfa0b13f03d2d9f9714a61d047eeca64bb0a44d80054409d51c8c",
+        "bytes": 701
+      },
+      {
+        "path": "StepManiaEditorWindows/StepManiaEditorWindows.csproj",
+        "sha256": "5c789be64a18366b30d9f34a72e5bcd150897d8f9309177ca7c025cd2e3f2e87",
+        "bytes": 2869
+      },
+      {
+        "path": "StepManiaEditorWindowsOpenGL/.config/dotnet-tools.json",
+        "sha256": "b9ff068b45d6f4c7dcaddf28293afaf6c3a115d6c5114342bf02ca77055fc8fe",
+        "bytes": 655
+      },
+      {
+        "path": "StepManiaEditorWindowsOpenGL/EditorWindowsOpenGLInterface.cs",
+        "sha256": "63a794c5be39624af544360391b379c6819e07f9a38c5e8d373d3161994e7ae1",
+        "bytes": 4374
+      },
+      {
+        "path": "StepManiaEditorWindowsOpenGL/Program.cs",
+        "sha256": "76f713d8b0fb86d35dfcca4ed227833396162794106b2e244161c842fca6ea95",
+        "bytes": 713
+      },
+      {
+        "path": "StepManiaEditorWindowsOpenGL/StepManiaEditorWindowsOpenGL.csproj",
+        "sha256": "4acee09629555ab1f1ec0f8a4403fb9251e6dbc44ce9d3b439add14fe30be764",
+        "bytes": 3022
+      },
+      {
+        "path": "UpdateVersion/Program.cs",
+        "sha256": "83ff0b60f3bc2916865c56de7334770b12836a4ed1fd4ffcb8f8d21a30221a15",
+        "bytes": 3795
+      },
+      {
+        "path": "UpdateVersion/UpdateVersion.csproj",
+        "sha256": "7f940ad1cd5b55fb3c074be3e95facd05fb5b71b88ff68a9522e8fa86b7c3261",
+        "bytes": 201
+      },
+      {
+        "path": "global.json",
+        "sha256": "bf2075c2dc7a33aa06f6895e06c2c6daf22c7be0face1c6a8aa0d6624efa9358",
+        "bytes": 79
+      }
+    ]
+  },
+  "stepmania_library": {
+    "commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+    "files": [
+      {
+        "path": "ChartGeneratorTests/ChartGeneratorTests.csproj",
+        "sha256": "6b3518c6755f37c5ba967e6d95bd0d29f100ddca640e9c94d4143684e162a036",
+        "bytes": 1011
+      },
+      {
+        "path": "ChartGeneratorTests/Properties/AssemblyInfo.cs",
+        "sha256": "0aec475da3094c08bcc25c236111d043f687b65b8eedd9acf51e331f1d2b32b1",
+        "bytes": 218
+      },
+      {
+        "path": "ChartGeneratorTests/README.md",
+        "sha256": "e5e6c8ee3c5ab5dde8c662df01e4c951002259ceb9e8e9da1f1fb9a64d18f373",
+        "bytes": 222
+      },
+      {
+        "path": "ChartGeneratorTests/TestBarracuda.cs",
+        "sha256": "864de31d339408f8461401eaf0e26b4bd1d3a582c22490185930ac52af3198e0",
+        "bytes": 200432
+      },
+      {
+        "path": "ChartGeneratorTests/TestExpressedChart.cs",
+        "sha256": "21e8daccfd8b0b10ec334af9c56fe1c3db8389cce0f9a53b49cf07946ddccbb9",
+        "bytes": 139835
+      },
+      {
+        "path": "ChartGeneratorTests/TestGIGAVIOLATE.cs",
+        "sha256": "a22c088142211e55e69a7a9e70a724a9bc72239e2d9cc22574748c0ad1650c9b",
+        "bytes": 325053
+      },
+      {
+        "path": "ChartGeneratorTests/TestSSC.cs",
+        "sha256": "334d1f4c9dbc54077dbe8ff3d62fae66e5b3c9162b9a15b3869aafd436c6aea6",
+        "bytes": 38278
+      },
+      {
+        "path": "ChartGeneratorTests/TestTake_Me_To_Pleasure_Island.cs",
+        "sha256": "ae281a5c7c845bb65e7baf2dc7de920a542e35e071e251c90b0661f00bafd4e5",
+        "bytes": 242495
+      },
+      {
+        "path": "ChartGeneratorTests/TestTheLoveBug.cs",
+        "sha256": "fcfaba86fef352f15d379ac715a6e92c5c801cc62dd7697f595a70446a54be9b",
+        "bytes": 255268
+      },
+      {
+        "path": "ChartGeneratorTests/TestZora.cs",
+        "sha256": "496be178b4831c596ed72c14569306fd36b471ebfdf0029585c0e3def1df59e4",
+        "bytes": 227141
+      },
+      {
+        "path": "ChartGeneratorTests/Testfire.cs",
+        "sha256": "b4e590d69d5c2224d7d5fc34b6ac2217cca908b3658696f61a741bb2dae1e930",
+        "bytes": 206454
+      },
+      {
+        "path": "ChartGeneratorTests/Utils.cs",
+        "sha256": "d3116ee1b896e5f0ca8c3439d4c7acfbc9cfa6fe6ef5e85f311d08f99e880165",
+        "bytes": 5687
+      },
+      {
+        "path": "ExpressedChartTestGenerator/ExpressedChartTestGenerator.csproj",
+        "sha256": "713f4c77acd26c93873040532517524c0e81bec1459f68266ed52a84c62e10e3",
+        "bytes": 1736
+      },
+      {
+        "path": "ExpressedChartTestGenerator/Program.cs",
+        "sha256": "f17913554fd11ee94fc3cc590d297fb21fc26eba4745f6e4c64050be8e3eb725",
+        "bytes": 5122
+      },
+      {
+        "path": "ExpressedChartTestGenerator/Properties/AssemblyInfo.cs",
+        "sha256": "38031610c1c616cdadb18645e244dfbaaae3184c26b632ba285a1cc7427d1caf",
+        "bytes": 515
+      },
+      {
+        "path": "ExpressedChartTestGenerator/README.md",
+        "sha256": "f6f0d0527ec6d4bdf73984f65c5301a82dff66f85e115b168b0eded8dc2ebc63",
+        "bytes": 2431
+      },
+      {
+        "path": "README.md",
+        "sha256": "daa3c57f8a4c993ff36a56cfe69649c489da6f9cc4caaf4481672015efb299d5",
+        "bytes": 816
+      },
+      {
+        "path": "StepManiaLibrary/ArrowData.cs",
+        "sha256": "351dcac9feb6b2f94b4440b984f5d175f5cadfad3e763bb74cf1d84ee4cd6253",
+        "bytes": 6557
+      },
+      {
+        "path": "StepManiaLibrary/Config.cs",
+        "sha256": "982f16cc3c91a0fe2904f41ee0d47cc20c58aaaac3928ef2215530365aed774b",
+        "bytes": 1206
+      },
+      {
+        "path": "StepManiaLibrary/Constants.cs",
+        "sha256": "61d9c6743ee5fb8053e558a07b6a207c753c4f8869fc4c056d73372b5e5a1d36",
+        "bytes": 1117
+      },
+      {
+        "path": "StepManiaLibrary/EventOrder.cs",
+        "sha256": "b069bd6cf6a9fc4061c9eae6e4ebcaee8d339958f09611d77e235920cc41c19a",
+        "bytes": 849
+      },
+      {
+        "path": "StepManiaLibrary/ExpressedChart/Config.cs",
+        "sha256": "f46b222174c736550027183a3772176f5d04764eb0cad4e51ca028446681aaa2",
+        "bytes": 7490
+      },
+      {
+        "path": "StepManiaLibrary/ExpressedChart/ExpressedChart.cs",
+        "sha256": "c366da8c33408baa9ad28bfbfa47a09fe126d4d4e64c87febecbc5995b89e90c",
+        "bytes": 87704
+      },
+      {
+        "path": "StepManiaLibrary/ExpressedChart/ExpressedChartCosts.cs",
+        "sha256": "0a4effe78156cc2eac58d92d51c450c1d411ae2d4c74d2201744d79140956232",
+        "bytes": 8914
+      },
+      {
+        "path": "StepManiaLibrary/GraphLink.cs",
+        "sha256": "42a261d00e2c3d975c5a5763f7a396e68838d95fe1f096f1c749ceb122572062",
+        "bytes": 15940
+      },
+      {
+        "path": "StepManiaLibrary/GraphNode.cs",
+        "sha256": "7d6b88f0b53b20af755c4a3c098b3b7f7f5a91faa295b86afd2833c1b616d119",
+        "bytes": 6103
+      },
+      {
+        "path": "StepManiaLibrary/LoggerConfig.cs",
+        "sha256": "29271cb279eba3b19b641f4c70296ed5618fcb99ab14501ccb91347e9ff141ef",
+        "bytes": 1478
+      },
+      {
+        "path": "StepManiaLibrary/MineUtils.cs",
+        "sha256": "bfbcab0c55a27c940fe51b6d31fc0a3b201cf7f76270bc5a29814753387c280e",
+        "bytes": 22137
+      },
+      {
+        "path": "StepManiaLibrary/OverwriteBehavior.cs",
+        "sha256": "1578ec55cccb03e8b1921beb85a0a7b0d0fe7f31451da594b084f22a3ef6b46e",
+        "bytes": 643
+      },
+      {
+        "path": "StepManiaLibrary/PadData.cs",
+        "sha256": "153ce0e053e19073b8a30fa21f4cefd8a2c4b3c75859851528d9007ba80d3148",
+        "bytes": 16791
+      },
+      {
+        "path": "StepManiaLibrary/Pattern.cs",
+        "sha256": "373c0e558fc96101ef9130057127021659d519c8045858833e6ed1a7c2659bf9",
+        "bytes": 298
+      },
+      {
+        "path": "StepManiaLibrary/PerformedChart/Config.cs",
+        "sha256": "3192e7d10690504a9301bc700f40553ad0907f22a360f12a0bb8f5cee549ee90",
+        "bytes": 10995
+      },
+      {
+        "path": "StepManiaLibrary/PerformedChart/FacingConfig.cs",
+        "sha256": "848e28fdbd0390128ef1de568554db12b5449df4f7907a5fdf4c736708bb57ad",
+        "bytes": 6049
+      },
+      {
+        "path": "StepManiaLibrary/PerformedChart/GraphLinkInstanceCache.cs",
+        "sha256": "c0972819299ce642dd02134fa978498e6d0c2ae90f06de2427c288a8d2b16d07",
+        "bytes": 18028
+      },
+      {
+        "path": "StepManiaLibrary/PerformedChart/LateralTighteningConfig.cs",
+        "sha256": "b027cb92988dca1144e7c1c17afdd086b8d28fd762f9319f46e933ddcee12cd2",
+        "bytes": 4678
+      },
+      {
+        "path": "StepManiaLibrary/PerformedChart/PatternConfig.cs",
+        "sha256": "f61b1a5eae890afef40db9ff316480f1ed01c4134f2e4ec391df91ed2c27d6ce",
+        "bytes": 14102
+      },
+      {
+        "path": "StepManiaLibrary/PerformedChart/PerformanceNode.cs",
+        "sha256": "d17ccba3cbf8d4566608f9a46480bdfe7422e042bb7e19e10a7ef294e6afbc01",
+        "bytes": 2536
+      },
+      {
+        "path": "StepManiaLibrary/PerformedChart/PerformedChart.cs",
+        "sha256": "dc6bb6634ed81ef9140e25035221e98a2270374d4576b70daf8e36cbe43c74ff",
+        "bytes": 52212
+      },
+      {
+        "path": "StepManiaLibrary/PerformedChart/SearchNode.cs",
+        "sha256": "1d5eca65801ff24d7f6b82753412a79c861aeca75e9aaa4071a285931422c4c3",
+        "bytes": 56496
+      },
+      {
+        "path": "StepManiaLibrary/PerformedChart/StepTighteningConfig.cs",
+        "sha256": "23f2197b965a26cd91ebe1cee78c4783f405810b1df12f7e2a27b8b44cfc5884",
+        "bytes": 12026
+      },
+      {
+        "path": "StepManiaLibrary/PerformedChart/StepTypeFallbacks.cs",
+        "sha256": "d4a73111ee62cb436ea2b3d84d3e7fcb90e14f6d3f187d8c79bcf8775eb1416d",
+        "bytes": 5625
+      },
+      {
+        "path": "StepManiaLibrary/PerformedChart/TransitionConfig.cs",
+        "sha256": "e7866fa2f27bd9fbb950160a2e168b727ac5e506770f89b2ddc4f0a1ac198cef",
+        "bytes": 5613
+      },
+      {
+        "path": "StepManiaLibrary/Properties/AssemblyInfo.cs",
+        "sha256": "4451a0be638b54a9b5989a73a7e4724df8a2037031ff6c45635f35b4873abbf9",
+        "bytes": 516
+      },
+      {
+        "path": "StepManiaLibrary/StepData.cs",
+        "sha256": "fe2252c9fc31746c6a04db3d6b70a1b1817825ced70cef34760bbd8fca698b70",
+        "bytes": 27393
+      },
+      {
+        "path": "StepManiaLibrary/StepGraph.cs",
+        "sha256": "bd521bdf38e61310a7a06d00a7fc2a08cddb5ea1d8cde775bde077426ac845f6",
+        "bytes": 96662
+      },
+      {
+        "path": "StepManiaLibrary/StepManiaLibrary.csproj",
+        "sha256": "e11c052afac473e3147d802b313e2fa96a0d6ca8fe4a817063ea0c41e1f622d6",
+        "bytes": 3769
+      },
+      {
+        "path": "StepManiaLibrary/TempoDetector.cs",
+        "sha256": "359e88773d59b0a6652574840e4a64a75aebc76b1c14cdb7300b7b774b70e990",
+        "bytes": 33310
+      },
+      {
+        "path": "StepManiaLibrary/dance-double.fsg",
+        "sha256": "b40eb80492b4422798c5b73271d5839c5e7d80876a76f1b79bb2ca49f7a1dc1d",
+        "bytes": 397258
+      },
+      {
+        "path": "StepManiaLibrary/dance-double.json",
+        "sha256": "07e93ed6a2d7ead4bf83ad3eb3af8b84d20d5fbe3c6066d5e3e1695c9cd5f6b3",
+        "bytes": 29874
+      },
+      {
+        "path": "StepManiaLibrary/dance-routine.json",
+        "sha256": "07e93ed6a2d7ead4bf83ad3eb3af8b84d20d5fbe3c6066d5e3e1695c9cd5f6b3",
+        "bytes": 29874
+      },
+      {
+        "path": "StepManiaLibrary/dance-single.fsg",
+        "sha256": "9810444b39859c25acb5b5169e15e4ff16fc9df8766191f39ff2a74e47a4576f",
+        "bytes": 36508
+      },
+      {
+        "path": "StepManiaLibrary/dance-single.json",
+        "sha256": "22557c006950899abc3c260396b357b5c18999f021cdfc407ca3983515cd6d09",
+        "bytes": 9446
+      },
+      {
+        "path": "StepManiaLibrary/dance-solo.fsg",
+        "sha256": "95a8d5968c97f65b4d58ed0a53a63292a2be36ba5aa00f2f05004e68d95ac65e",
+        "bytes": 303297
+      },
+      {
+        "path": "StepManiaLibrary/dance-solo.json",
+        "sha256": "b14cb0631d67f4eded493c69ca754e123dd9a3be8b4a6ff2469c1b5eb9b14699",
+        "bytes": 18522
+      },
+      {
+        "path": "StepManiaLibrary/dance-threepanel.fsg",
+        "sha256": "d7b49cbbc443475809118e2be0f41fd0ed49e471e462116fa485230ea988b766",
+        "bytes": 1108
+      },
+      {
+        "path": "StepManiaLibrary/dance-threepanel.json",
+        "sha256": "d6e5c8ae19ea1064592cc63f9ea45fde8be4a1afbf9992c4fd7b98d99032c8df",
+        "bytes": 6007
+      },
+      {
+        "path": "StepManiaLibrary/default-steptype-fallbacks.json",
+        "sha256": "87a261e58e488d036f2c224eba518542ee807447b9e25639a36d9f2e6a65ad2c",
+        "bytes": 10888
+      },
+      {
+        "path": "StepManiaLibrary/docs/ChartType.md",
+        "sha256": "8cc3c31ba550adae3ae95b32368a7f34716fa794739d0cdb551e30ede2184e66",
+        "bytes": 1782
+      },
+      {
+        "path": "StepManiaLibrary/docs/ExpressedChart.md",
+        "sha256": "227fdf206bfa91cf394f4af854b8f2db23aab50ba7885049da0d1972207911ad",
+        "bytes": 4493
+      },
+      {
+        "path": "StepManiaLibrary/docs/FacingControls.md",
+        "sha256": "4b118577c071e4f5fb1b236c7f687c72df72e5d752e265d31e6beacb437ba4b1",
+        "bytes": 3318
+      },
+      {
+        "path": "StepManiaLibrary/docs/LateralTighteningControls.md",
+        "sha256": "cfb18bbf14ca1a59895ecdcf9d1400ed09367b24b55618a312f4e6c7964c626e",
+        "bytes": 2852
+      },
+      {
+        "path": "StepManiaLibrary/docs/PadData.md",
+        "sha256": "9d8effc9168522cc2a75455339f4509e42bb7c33365a6cccbef0b8cdd9189c47",
+        "bytes": 14580
+      },
+      {
+        "path": "StepManiaLibrary/docs/Pattern.md",
+        "sha256": "9326f373d5c0c16a6a92d697ec99b9194aa21a65997fc2689a42fac1d5545caa",
+        "bytes": 5429
+      },
+      {
+        "path": "StepManiaLibrary/docs/PerformedChart.md",
+        "sha256": "0f7bf660dc387528605fee796cc73694c251f1b74a166a2995b0dff7527580be",
+        "bytes": 8387
+      },
+      {
+        "path": "StepManiaLibrary/docs/StepGraphs.md",
+        "sha256": "db19a69cfd4018f2172677f2fb0c0b8d45a4120732f67e45b26fdecf555ada36",
+        "bytes": 562
+      },
+      {
+        "path": "StepManiaLibrary/docs/StepTighteningControls.md",
+        "sha256": "2a736af57292a145c5d20479b76c3de54b9cac81613ceec009b24d97072cc136",
+        "bytes": 9976
+      },
+      {
+        "path": "StepManiaLibrary/docs/StepTypeFallbacks.md",
+        "sha256": "56150386c0e0f236a77df1c33c2876cb3bbc8ed504f2868c64e483b4ab029a75",
+        "bytes": 2686
+      },
+      {
+        "path": "StepManiaLibrary/docs/StepTypes.md",
+        "sha256": "1255fdceaf1ed5459d49d9e9ea0fa45c32f60cce0c65b74045224527313f3797",
+        "bytes": 11022
+      },
+      {
+        "path": "StepManiaLibrary/docs/TransitionControls.md",
+        "sha256": "04d73cf9394e979848da08728346615874611b8a8ef74f8fa218b3dc8692208b",
+        "bytes": 3639
+      },
+      {
+        "path": "StepManiaLibrary/pump-double.fsg",
+        "sha256": "c8b1a19f9711f45a49b2757633602f1c21dd62db815934cdc8c84df212b95afa",
+        "bytes": 682172
+      },
+      {
+        "path": "StepManiaLibrary/pump-double.json",
+        "sha256": "b04b62f68a966c3a6aa195da8ccb2a5e664e128fd6c3c86f067b0ef883128067",
+        "bytes": 44450
+      },
+      {
+        "path": "StepManiaLibrary/pump-halfdouble.fsg",
+        "sha256": "8d82131a2f7da9035a9223da729e5c20d02394adae64452d9cee82af84c8b369",
+        "bytes": 186732
+      },
+      {
+        "path": "StepManiaLibrary/pump-halfdouble.json",
+        "sha256": "0c49ff3ffc2fea571ef1e64ee9ffb3be958f03ba3f32613f46157af66841e0eb",
+        "bytes": 18442
+      },
+      {
+        "path": "StepManiaLibrary/pump-routine.json",
+        "sha256": "b04b62f68a966c3a6aa195da8ccb2a5e664e128fd6c3c86f067b0ef883128067",
+        "bytes": 44450
+      },
+      {
+        "path": "StepManiaLibrary/pump-single.fsg",
+        "sha256": "1759f54e539ecb28bfcd1f152a65be146794b095959a4db683cff0bb3f436ede",
+        "bytes": 42170
+      },
+      {
+        "path": "StepManiaLibrary/pump-single.json",
+        "sha256": "02f80b3f7aa7331b9e32e979ad43d3c0b3fce87a4b7f9784d1b2d75503ad69df",
+        "bytes": 13639
+      },
+      {
+        "path": "StepManiaLibrary/smx-beginner.fsg",
+        "sha256": "ad768bd798f3bcf0b58747036293610194024bddfc633cca2b5d51966994e0fc",
+        "bytes": 22896
+      },
+      {
+        "path": "StepManiaLibrary/smx-beginner.json",
+        "sha256": "dacd2f012d710601815d4e9a081ba060ed31ebbfc084be9736ebc4ff7cfa9812",
+        "bytes": 5991
+      },
+      {
+        "path": "StepManiaLibrary/smx-dual.fsg",
+        "sha256": "83878580d6458be616768b8818b3cb94aff836dfc155c7b76583e3cfc767c06f",
+        "bytes": 347623
+      },
+      {
+        "path": "StepManiaLibrary/smx-dual.json",
+        "sha256": "83533b6299b1d9e0cea98f61a54a2f0946c030d893bc2f08a958c7029850826b",
+        "bytes": 18132
+      },
+      {
+        "path": "StepManiaLibrary/smx-full.fsg",
+        "sha256": "30aec675aa15183e998082faabfc268dc7113d9a19a66a960dd1e37570e6d4e1",
+        "bytes": 2923832
+      },
+      {
+        "path": "StepManiaLibrary/smx-full.json",
+        "sha256": "de229988553fd4f9e7f93d076542d5b92d27c4afdf4cd58e40c65f17fa5ed57b",
+        "bytes": 44460
+      },
+      {
+        "path": "StepManiaLibrary/smx-single.fsg",
+        "sha256": "e57b180ca945134c317d18163e773e1b371da8b23b8a14306b6b1c9454dcba25",
+        "bytes": 294481
+      },
+      {
+        "path": "StepManiaLibrary/smx-single.json",
+        "sha256": "771e4504292d25c19c7098ce332e46f9e9a33789ff2ba1e44864308fc9389732",
+        "bytes": 13641
+      },
+      {
+        "path": "StepManiaLibrary/smx-team.json",
+        "sha256": "de229988553fd4f9e7f93d076542d5b92d27c4afdf4cd58e40c65f17fa5ed57b",
+        "bytes": 44460
+      },
+      {
+        "path": "StepManiaLibraryTests/Properties/AssemblyInfo.cs",
+        "sha256": "f62da4ac9bdd98bae6533adb3d6bcf0d487b1be92e793fad7f89a574462428f4",
+        "bytes": 219
+      },
+      {
+        "path": "StepManiaLibraryTests/StepManiaLibraryTests.csproj",
+        "sha256": "84f75687f378bd82afca9b592f2532a99d69963b857ee242e739dc2a3155fa1d",
+        "bytes": 909
+      },
+      {
+        "path": "StepManiaLibraryTests/TestArrowData.cs",
+        "sha256": "f9f35df2158b90eacf377449838a3eed87937949144f4f50205af8a1a24e15ea",
+        "bytes": 2762
+      },
+      {
+        "path": "TempoDetectorTester/Program.cs",
+        "sha256": "d3d8053176211eb904aadd050a135d29fa954a1f3d79c6ce99e6ca5e83c205a1",
+        "bytes": 16448
+      },
+      {
+        "path": "TempoDetectorTester/TempoDetectorTester.csproj",
+        "sha256": "5e78034212b7deafc90391350c75d489f3606e23a6d93ba8ea81aa22cdeb23fa",
+        "bytes": 599
+      }
+    ]
+  }
+}

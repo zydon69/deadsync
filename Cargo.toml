@@ -26,6 +26,7 @@ members = [
     "crates/deadsync-audio-replaygain",
     "crates/deadsync-audio-stream",
     "crates/deadsync-chart",
+    "crates/deadsync-editor",
     "crates/deadsync-config",
     "crates/deadsync-core",
     "crates/deadsync-gameplay",

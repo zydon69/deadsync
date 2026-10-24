@@ -945,6 +945,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "crc"
+version = "3.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5eb8a2a1cd12ab0d987a5d5e825195d372001a4094a0376319d5a0ad71c1ba0d"
+dependencies = [
+ "crc-catalog",
+]
+
+[[package]]
+name = "crc-catalog"
+version = "2.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "217698eaf96b4a3f0bc4f3662aaa55bdf913cd54d7204591faa790070c6d0853"
+
+[[package]]
 name = "crc32fast"
 version = "1.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1606,6 +1621,17 @@ name = "deadsync-core"
 version = "0.1.0"
 
 [[package]]
+name = "deadsync-editor"
+version = "0.1.0"
+dependencies = [
+ "lzma-rs",
+ "rssp",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "deadsync-gameplay"
 version = "0.1.0"
 dependencies = [
@@ -1965,6 +1991,7 @@ dependencies = [
  "deadsync-chart",
  "deadsync-config",
  "deadsync-core",
+ "deadsync-editor",
  "deadsync-gameplay",
  "deadsync-input",
  "deadsync-lights",
@@ -1991,6 +2018,7 @@ dependencies = [
  "serde_json",
  "smallvec",
  "strsim",
+ "tempfile",
  "twox-hash",
  "unicode-normalization",
  "winit",
@@ -3456,6 +3484,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ea012e8a8aaff2f7b6c788fad41a60630003b6a0932bcf045f7d14952c9bd31"
 dependencies = [
  "cc",
+]
+
+[[package]]
+name = "lzma-rs"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "297e814c836ae64db86b36cf2a557ba54368d03f6afcd7d947c266692f71115e"
+dependencies = [
+ "byteorder",
+ "crc",
 ]
 
 [[package]]

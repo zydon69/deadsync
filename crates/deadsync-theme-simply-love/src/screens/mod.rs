@@ -4,6 +4,7 @@ pub mod content_browser;
 pub mod credits;
 pub mod evaluation;
 pub mod evaluation_summary;
+pub mod edition;
 pub(crate) mod favorite_code;
 mod flow;
 pub mod gameover;
