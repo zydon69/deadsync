@@ -3345,3 +3345,25 @@ passed 354 tests. After adding the float-dead-zone and large-clock reference
 cases, the three zoom workflow tests passed again against all nine traces.
 The reference runner regenerated all nine expected traces successfully.
 `cargo check -p deadsync --jobs 2 --locked` also passed.
+
+### Shared native constant-row projection (zoom controls pending)
+
+The native chart, sustain tails, selections, saved pattern regions, beat/measure
+lines, labels, sample boundaries and waveform pixel-to-row sampling now use
+`deadsync_editor::projection::RowProjection`. The native scale remains 1 pixel
+per row pending bounded rendering and input/interpolation wiring. This is a
+shared projection foundation, not evidence that native zoom is complete.
+
+The projection subtracts integer chart positions before converting to floating
+point, preserving adjacent note positions near u64::MAX. Visible bounds use
+saturating integer offsets and include fractional edge rows. Fractional timing
+positions use a dedicated mapping; negative waveform lead-in is preserved by
+the inverse mapping. Tiny viewports clamp the cursor inside the viewport.
+Three core workflow tests cover inverse mapping at scales 1e-6 through 1e6,
+clipping, negative lead-in, invalid inputs and large integer anchor precision.
+Constant-time/variable spacing still needs timing-aware projection.
+
+Validation: all 180 native `edition_*` integration tests passed after the shared
+projection refactor, alongside the three projection workflow tests.
+`cargo check -p deadsync --jobs 2 --locked` passed. No interactive zoom behavior
+is claimed by these checks; native input and bounded rendering remain pending.

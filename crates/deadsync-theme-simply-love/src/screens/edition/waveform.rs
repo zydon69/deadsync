@@ -220,6 +220,7 @@ impl State {
         let (Some(data), Some(clock)) = (&self.waveform.data, &self.waveform.clock) else {
             return;
         };
+        let projection = self.row_projection(top, bottom, cursor_y);
         let rows = ((bottom - top).ceil() as usize).min(4096);
         if rows == 0 {
             return;
@@ -231,8 +232,8 @@ impl State {
         let palette = self.waveform_preferences.palette();
         for pixel in 0..rows {
             let y = top + pixel as f32 * step;
-            let first = self.workspace.row() as f64 + f64::from(y - cursor_y);
-            let last = first + f64::from(step);
+            let first = projection.row_at(f64::from(y));
+            let last = projection.row_at(f64::from(y + step));
             let interval = if last <= 0.0 {
                 None
             } else {

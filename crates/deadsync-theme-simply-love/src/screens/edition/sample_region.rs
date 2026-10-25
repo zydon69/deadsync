@@ -69,12 +69,9 @@ impl State {
         else {
             return;
         };
-        let y = |position: f64| {
-            (f64::from(cursor_y) + position - self.workspace.row() as f64)
-                .clamp(f64::from(top), f64::from(bottom)) as f32
-        };
-        let a = y(start);
-        let b = y(end);
+        let projection = self.row_projection(top, bottom, cursor_y);
+        let a = projection.clipped_fractional_y(start) as f32;
+        let b = projection.clipped_fractional_y(end) as f32;
         if b <= a {
             return;
         }
@@ -82,7 +79,7 @@ impl State {
             act!(quad: xy(x,(a+b)*0.5): zoomto(width,b-a): diffuse(0.2,0.85,0.65,0.14): z(8001)),
         );
         for boundary in [start, end] {
-            let position = f64::from(cursor_y) + boundary - self.workspace.row() as f64;
+            let position = projection.fractional_y(boundary);
             if position >= f64::from(top) && position <= f64::from(bottom) {
                 actors.push(act!(quad: xy(x,position as f32): zoomto(width,1.0): diffuse(0.2,0.85,0.65,0.8): z(8002)));
             }

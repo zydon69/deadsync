@@ -2127,11 +2127,9 @@ impl State {
         let left = field_center - field_width * 0.5;
         let top = 105.0;
         let bottom = (height - 85.0).max(top);
-        let cursor_y = top + 55.0;
-        let pixels_per_row = 1.0;
-        let row = self.workspace.row();
-        let start = row.saturating_sub(55);
-        let end = row.saturating_add((bottom - cursor_y).max(0.0) as u64);
+        let cursor_y = (top + 55.0).min(bottom);
+        let projection = self.row_projection(top, bottom, cursor_y);
+        let (start, end) = projection.visible_rows();
         self.waveform_actors(actors, field_center, field_width, top, bottom, cursor_y);
         self.sample_region_actors(actors, field_center, field_width, top, bottom, cursor_y);
         for lane in 0..=grid.columns() {
@@ -2143,7 +2141,7 @@ impl State {
             }) {
                 continue;
             }
-            let y = cursor_y + (beat as f64 * 48.0 - row as f64) as f32 * pixels_per_row;
+            let y = projection.y(beat * 48) as f32;
             let alpha = 0.15;
             actors.push(act!(quad: xy(field_center, y): zoomto(field_width, 1.0): diffuse(0.6, 0.7, 0.8, alpha): z(8001)));
         }
@@ -2152,7 +2150,7 @@ impl State {
                 start.min(i32::MAX as u64), end.min(i32::MAX as u64),
             ) {
                 for (measure_row, measure) in starts {
-                    let y = cursor_y + (measure_row as f64 - row as f64) as f32 * pixels_per_row;
+                    let y = projection.y(measure_row) as f32;
                     actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.4): z(8001)));
                     text(actors, &(measure + 1).to_string(), left - 30.0, y, 0.45, [0.6, 0.7, 0.8, 1.0]);
                 }
@@ -2160,7 +2158,7 @@ impl State {
         }
         if let Some(labels) = &self.labels {
             for (&label_row, label) in labels.values().range(start..=end) {
-                let y = cursor_y + (label_row as f64 - row as f64) as f32 * pixels_per_row;
+                let y = projection.y(label_row) as f32;
                 let x = left + field_width + 12.0;
                 actors.push(act!(text: font("miso"): settext(label.clone()): align(0.0,0.5): xy(x,y): zoom(0.55): maxwidth((width-x-12.0).max(20.0)): diffuse(0.6,0.9,0.65,1.0): z(8005)));
             }
@@ -2169,8 +2167,8 @@ impl State {
             if b < start || a > end {
                 continue;
             }
-            let y1 = (cursor_y + (a as f64 - row as f64) as f32).clamp(top, bottom);
-            let y2 = (cursor_y + (b as f64 - row as f64) as f32).clamp(top, bottom);
+            let y1 = projection.clipped_y(a) as f32;
+            let y2 = projection.clipped_y(b) as f32;
             actors.push(act!(quad: xy(left-9.0,(y1+y2)*0.5): zoomto(4.0,(y2-y1).max(2.0)): diffuse(0.7,0.4,1.0,0.8): z(8002)));
             if a >= start {
                 text(
@@ -2196,17 +2194,17 @@ impl State {
             _ => self.workspace.selection(),
         };
         if let Some((a, b)) = selection {
-            let y1 = (cursor_y + (a as f64 - row as f64) as f32).clamp(top, bottom);
-            let y2 = (cursor_y + (b as f64 - row as f64) as f32).clamp(top, bottom);
+            let y1 = projection.clipped_y(a) as f32;
+            let y2 = projection.clipped_y(b) as f32;
             actors.push(act!(quad: xy(field_center, (y1 + y2) * 0.5): zoomto(field_width, (y2 - y1).abs().max(2.0)): diffuse(0.2, 0.6, 0.9, 0.2): z(8002)));
         }
         for (position, note) in grid.visible(start, end) {
             let x = left + (f32::from(position.lane) + 0.5) * lane_width;
-            let y = cursor_y + (position.row as f64 - row as f64) as f32 * pixels_per_row;
+            let y = projection.y(position.row) as f32;
             let color = player_color(position.player);
             if let Some(tail) = note.end {
                 let a = y.max(top);
-                let b = (cursor_y + (tail as f64 - row as f64) as f32).min(bottom);
+                let b = (projection.y(tail) as f32).min(bottom);
                 actors.push(act!(quad: xy(x, (a + b) * 0.5): zoomto(lane_width * 0.3, (b - a).max(0.0)): diffuse(color[0], color[1], color[2], 0.65): z(8003)));
             }
             if y < top || y > bottom {
@@ -2253,6 +2251,12 @@ impl State {
         if let Some(panel) = self.panel {
             self.panel_actors(panel, actors);
         }
+    }
+
+    fn row_projection(&self, top: f32, bottom: f32, cursor_y: f32) -> deadsync_editor::projection::RowProjection {
+        deadsync_editor::projection::RowProjection::new(
+            self.workspace.row(), f64::from(cursor_y), 1.0, f64::from(top), f64::from(bottom),
+        ).expect("finite editor viewport with cursor inside bounds")
     }
 
     fn help_actors(&self, actors: &mut Vec<Actor>) {
