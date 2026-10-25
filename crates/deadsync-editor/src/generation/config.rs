@@ -29,7 +29,16 @@ macro_rules! choices {
                 let variants = [$(Self::$variant),+];
                 match Value::deserialize(deserializer)? {
                     Value::Number(number) => variants.get(number).copied(),
-                    Value::Name(name) => variants.into_iter().find(|choice| format!("{choice:?}").eq_ignore_ascii_case(&name)),
+                    Value::Name(name) => {
+                        let name=name.trim();
+                        let index=if let Ok(index)=name.parse::<usize>() { Some(index) } else {
+                            name.split(',').try_fold(0usize,|combined,part| {
+                                variants.iter().position(|choice|format!("{choice:?}").eq_ignore_ascii_case(part.trim()))
+                                    .map(|index|combined|index)
+                            })
+                        };
+                        index.and_then(|index|variants.get(index).copied())
+                    },
                 }.ok_or_else(|| serde::de::Error::custom(concat!("Unknown ", stringify!($name))))
             }
         }

@@ -497,6 +497,7 @@ fn pattern_panel_has_explicit_english_and_french_translations() {
         "PatternGenerating",
         "RegeneratePattern",
         "PatternMarker",
+        "PatternProfileIssues",
     ] {
         let english = en
             .fallback
@@ -639,4 +640,86 @@ fn saved_pattern_command_without_a_marker_is_read_only() {
         screen.workspace().file().session.serialize().unwrap(),
         SINGLE
     );
+}
+
+#[test]
+fn saved_pattern_uses_custom_profiles_from_directory_on_the_background_worker() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::{
+            config::PatternConfig,
+            metadata::{ChartData, Definition, PATTERN_BALANCED, Registry},
+            pattern_job::Task,
+            profiles::Profile,
+        },
+        history::Session,
+    };
+    use std::{
+        collections::BTreeMap,
+        sync::{Arc, atomic::AtomicBool},
+    };
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let configs = dir.path().join("AutogenConfigs");
+    let profile = Profile::new_pattern(
+        "Custom twelfths",
+        PatternConfig {
+            beat_sub_division: 3,
+            ..PatternConfig::sixteenths()
+        },
+    )
+    .unwrap();
+    profile.export_new(&configs).unwrap();
+    fs::write(configs.join("pc-broken.json"), b"broken").unwrap();
+    let mut registry = Registry::builtin();
+    profile.register(&mut registry).unwrap();
+    let mut source = Session::new(Document::parse(Arc::<[u8]>::from(SINGLE), Format::Ssc).unwrap());
+    ChartData {
+        patterns: Some(BTreeMap::from([(
+            48,
+            Definition {
+                pattern_config_guid: profile.guid().clone(),
+                performed_chart_config_guid: PATTERN_BALANCED.parse().unwrap(),
+                length: 48,
+                random_seed: 42,
+                start_position_inclusive: true,
+                end_position_inclusive: true,
+                ..Definition::default()
+            },
+        )])),
+        ..ChartData::default()
+    }
+    .save(&mut source, 0)
+    .unwrap();
+    let before = source.serialize().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, &before).unwrap();
+    let expected = Task::capture_saved(&source, 0, 48, &registry)
+        .unwrap()
+        .run(&AtomicBool::new(false), |_, _| {})
+        .unwrap();
+    let mut screen = State::open_with_profiles(&path, 0, &configs).unwrap();
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::F5);
+    finish_generation(&mut screen);
+    assert!(screen.pattern_report().is_some());
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,z:8021,..} if content.contains("Profile files ignored: 1."))));
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().grid(), expected.grid());
+    ctrl(&mut screen, KeyCode::KeyS);
+    let mut reopened = State::open_with_profiles(&path, 0, &configs).unwrap();
+    press(&mut reopened, KeyCode::ArrowDown);
+    press(&mut reopened, KeyCode::F5);
+    finish_generation(&mut reopened);
+    assert!(reopened.pattern_report().is_some());
+    assert_eq!(fs::read(configs.join("pc-broken.json")).unwrap(), b"broken");
 }

@@ -1,0 +1,62 @@
+// Development-only adapters. Setter bodies and subdivision definitions are
+// extracted unchanged from pinned GrooveAuthor; no UI/observer loop is emulated.
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Fumen;
+using Fumen.Converters;
+using StepManiaLibrary;
+using static StepManiaLibrary.Constants;
+using static ProfilesOracle.Utils;
+namespace ProfilesOracle;
+// SUBDIVISION
+internal static class Editor {public enum Foot {Left,Right}}
+internal static class Utils {
+    // BEAT_METHOD
+}
+internal abstract class ProfileBase<T> where T:StepManiaLibrary.Config,new() {
+    public Guid Guid=System.Guid.NewGuid();
+    public string? Name {get;set;}
+    public string? Description;
+    public T Config=new();
+    protected void Notify(string name,object value) {}
+}
+internal sealed class PatternProfile:ProfileBase<StepManiaLibrary.PerformedChart.PatternConfig> {
+    private const string NotificationPatternTypeChanged="PatternTypeChanged";
+    private SubdivisionType PatternTypeInternal;
+    // PATTERN_TYPE
+    // START_FOOT
+}
+internal sealed class PerformedProfile:ProfileBase<StepManiaLibrary.PerformedChart.Config> {
+    public string? ShortName {get;set;}
+    private static readonly int[] ValidDenominators=SMCommon.ValidDenominators;
+    // SPEED_INDEX
+    // SPEED_MIN
+    // SPEED_MAX
+    // UPDATE_SPEED
+}
+internal sealed class ExpressedProfile:ProfileBase<StepManiaLibrary.ExpressedChart.Config> {}
+internal static class Reference {
+    public static object Run(JsonElement request) {
+        var options=new JsonSerializerOptions {IncludeFields=true,ReadCommentHandling=JsonCommentHandling.Skip,AllowTrailingCommas=true,Converters={new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)}};
+        try {
+            var text=request.GetProperty("Content").GetString()!;
+            using var stream=new MemoryStream(System.Text.Encoding.UTF8.GetBytes(text));
+            object profile=request.GetProperty("Kind").GetString() switch {
+                "Pattern"=>JsonSerializer.Deserialize<PatternProfile>(stream,options)!,
+                "Performed"=>JsonSerializer.Deserialize<PerformedProfile>(stream,options)!,
+                "Expressed"=>JsonSerializer.Deserialize<ExpressedProfile>(stream,options)!,
+                _=>throw new ArgumentException("Unknown profile kind")
+            };
+            Guid guid;string? name;string? description;StepManiaLibrary.Config config;
+            switch(profile) {
+                case PatternProfile p:guid=p.Guid;name=p.Name;description=p.Description;config=p.Config;break;
+                case PerformedProfile p:guid=p.Guid;name=p.Name;description=p.Description;config=p.Config;break;
+                case ExpressedProfile p:guid=p.Guid;name=p.Name;description=p.Description;config=p.Config;break;
+                default:throw new ArgumentException("Invalid profile");
+            }
+            config.Init();
+            return new {Success=true,Valid=guid!=Guid.Empty && config.Validate(),Guid=guid,Name=name,Description=description,
+                Config=JsonSerializer.SerializeToElement(config,config.GetType(),options)};
+        } catch(Exception) {return new {Success=false};}
+    }
+}

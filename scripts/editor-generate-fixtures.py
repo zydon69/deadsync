@@ -71,6 +71,26 @@ def prepare_metadata_reference(editor):
     return hashlib.sha256((definition+"\n"+custom).encode()).hexdigest()
 
 
+def prepare_profiles_reference(editor):
+    def read(path):
+        return subprocess.check_output(["git", "show", f"{EDITOR_PIN}:StepManiaEditor/{path}"],cwd=editor).decode("utf-8-sig")
+    pattern=read("AutogenConfig/EditorPatternConfig.cs");performed=read("AutogenConfig/EditorPerformedChartConfig.cs")
+    pieces={
+        "SUBDIVISION":extract_member(read("SubdivisionType.cs"),r"public enum SubdivisionType\s*"),
+        "BEAT_METHOD":extract_member(read("Utils.cs"),r"\tpublic static int GetBeatSubdivision\("),
+        "PATTERN_TYPE":extract_member(pattern,r"\tpublic SubdivisionType PatternType\s*"),
+        "START_FOOT":extract_member(pattern,r"\tpublic Editor.Foot StartingFootSpecified\s*"),
+        "SPEED_INDEX":extract_member(performed,r"\tpublic int TravelSpeedNoteTypeDenominatorIndex\s*"),
+        "SPEED_MIN":extract_member(performed,r"\tpublic int TravelSpeedMinBPM\s*")+" = 1;",
+        "SPEED_MAX":extract_member(performed,r"\tpublic int TravelSpeedMaxBPM\s*")+" = 1;",
+        "UPDATE_SPEED":extract_member(performed,r"\tprivate void UpdateStepTighteningSpeed\("),
+    }
+    project=ROOT/"scripts/editor-oracle";text=(project/"ProfilesReference.cs.template").read_text()
+    for name,body in pieces.items():text=text.replace("// "+name,body)
+    (project/"obj/ProfilesReference.cs").write_text(text)
+    return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
+
+
 def prepare_context_reference(editor: Path):
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=editor, text=True).strip()
     if commit != EDITOR_PIN:
@@ -402,6 +422,38 @@ def requests(reference: Path):
         "Patterns":{"48":{"PatternConfigGuid":"03de57bd-4329-4de6-a722-a171c11fdd16","PerformedChartConfigGuid":"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1","Length":192,"RandomSeed":-2147483648,"StartPositionInclusive":True,"EndPositionInclusive":False,"IgnorePrecedingDistribution":True},"384":{"Length":0}}}
     for label,content in {"defaults":"{}","complete":json.dumps(metadata),"null-patterns":'{"Patterns":null}',"comments":'/* original */ {"Patterns": {"0": {/* marker */ "Length":48}}}',"trailing-comma":'{"Patterns":{},}',"invalid-guid":'{"ExpressedChartConfig":"invalid"}',"braced-guid":'{"ExpressedChartConfig":"{a19d532e-b0ce-4759-ad1c-02ecbbdf2efd}"}'}.items():
         cases["metadata-"+label]={"Operation":"Metadata","Content":content}
+    profile_guid="12345678-9abc-4def-8123-456789abcdef"
+    profile_base={"Guid":profile_guid,"Name":"Custom","Description":"Preserve"}
+    profile_cases={
+        "pattern":("Pattern",{**profile_base,"PatternType":"sixteenthNotes","Config":copy.deepcopy(pattern)}),
+        "pattern-after":("Pattern",{**profile_base,"Config":copy.deepcopy(pattern),"PatternType":"eighthNotes","StartingFootSpecified":"right"}),
+        "pattern-before":("Pattern",{**profile_base,"PatternType":"eighthNotes","StartingFootSpecified":"right","Config":copy.deepcopy(pattern)}),
+        "performed-after":("Performed",{**profile_base,"Config":copy.deepcopy(performed),"TravelSpeedNoteTypeDenominatorIndex":2,"TravelSpeedMinBPM":110,"TravelSpeedMaxBPM":190}),
+        "performed-before":("Performed",{**profile_base,"TravelSpeedNoteTypeDenominatorIndex":2,"TravelSpeedMinBPM":110,"TravelSpeedMaxBPM":190,"Config":copy.deepcopy(performed)}),
+        "index-negative":("Performed",{**profile_base,"Config":copy.deepcopy(performed),"TravelSpeedNoteTypeDenominatorIndex":-50,"TravelSpeedMinBPM":110,"TravelSpeedMaxBPM":190}),
+        "index-large":("Performed",{**profile_base,"Config":copy.deepcopy(performed),"TravelSpeedNoteTypeDenominatorIndex":50,"TravelSpeedMinBPM":110,"TravelSpeedMaxBPM":190}),
+        "expressed":("Expressed",{**profile_base,"Config":{"DefaultBracketParsingMethod":"noBrackets","BracketParsingDetermination":"useDefaultMethod"}}),
+        "unknown":("Pattern",{**profile_base,"Unknown":{"keep":True},"Config":{**copy.deepcopy(pattern),"Future":123}}),
+        "invalid-subdivision":("Pattern",{**profile_base,"Config":copy.deepcopy(pattern),"PatternType":-1}),
+        "empty-guid":("Pattern",{**profile_base,"Guid":"00000000-0000-0000-0000-000000000000","Config":copy.deepcopy(pattern)}),
+        "invalid-config":("Pattern",{**profile_base,"Config":{**copy.deepcopy(pattern),"BeatSubDivision":5}}),
+    }
+    for label,(kind,body) in profile_cases.items():
+        cases["profile-"+label]={"Operation":"Profile","Kind":kind,"Content":json.dumps(body)}
+    profile_cases["enum-whitespace"]=("Pattern",{**profile_base,"Config":copy.deepcopy(pattern),"PatternType":" EIGHTHNOTES "})
+    mixed_speed=copy.deepcopy(performed);mixed_speed["StepTightening"].update(SpeedMinTimeSeconds=0.4,SpeedMaxTimeSeconds=0.6)
+    cases["profile-duplicate-config"]={"Operation":"Profile","Kind":"Pattern","Content":'{"Guid":'+json.dumps(profile_guid)+',"Config":'+json.dumps(pattern)+',"PatternType":"eighthNotes","Config":'+json.dumps({**pattern,"BeatSubDivision":3})+'}'}
+    cases["profile-interleaved-speed"]={"Operation":"Profile","Kind":"Performed","Content":'{"Guid":'+json.dumps(profile_guid)+',"Config":'+json.dumps(performed)+',"TravelSpeedNoteTypeDenominatorIndex":3,"TravelSpeedMinBPM":110,"Config":'+json.dumps(mixed_speed)+',"TravelSpeedMaxBPM":190}'}
+    kind,body=profile_cases["enum-whitespace"];cases["profile-enum-whitespace"]={"Operation":"Profile","Kind":kind,"Content":json.dumps(body)}
+    combined=copy.deepcopy(pattern);combined["LeftFootStartChoice"]="automaticNewLane, automaticSameOrNewLane"
+    cases["profile-enum-combinations"]={"Operation":"Profile","Kind":"Pattern","Content":json.dumps({**profile_base,"Config":combined,"PatternType":"eighthNotes, eighthNoteTriplets","StartingFootSpecified":"left, right"})}
+    numeric=copy.deepcopy(pattern);numeric.update(StartingFootChoice="1",LeftFootStartChoice="3")
+    cases["profile-enum-numeric-strings"]={"Operation":"Profile","Kind":"Pattern","Content":json.dumps({**profile_base,"Config":numeric,"PatternType":"2","StartingFootSpecified":"-1"})}
+    huge=copy.deepcopy(pattern);huge["FutureHuge"]=0
+    content=json.dumps({**profile_base,"Config":huge,"FutureInteger":123456789012345678901234567890}).replace('"FutureHuge": 0','"FutureHuge": 1e999')
+    cases["profile-unknown-big-numbers"]={"Operation":"Profile","Kind":"Pattern","Content":content}
+    cases["profile-utf8-bom"]={"Operation":"Profile","Kind":"Pattern","Content":"\ufeff"+json.dumps({**profile_base,"Config":pattern})}
+    cases["profile-comments"]={"Operation":"Profile","Kind":"Pattern","Content":"/* profile */ "+json.dumps({**profile_base,"Config":pattern})[:-1]+",}"}
     return cases
 
 
@@ -420,6 +472,7 @@ def main():
     context_hash = prepare_context_reference(args.editor_root.resolve())
     timing_hash = prepare_timing_reference(args.editor_root.resolve())
     metadata_hash = prepare_metadata_reference(args.editor_root.resolve())
+    profiles_hash = prepare_profiles_reference(args.editor_root.resolve())
     project = ROOT / "scripts/editor-oracle/EditorOracle.csproj"
     build = subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if build.returncode:
@@ -442,7 +495,7 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
-        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash,
+        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
         "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],

@@ -75,6 +75,7 @@ pub struct Preview {
     grid: Grid,
     deletions: Deletions,
     average_nps: f64,
+    profile_issues: Vec<super::profiles::Issue>,
 }
 impl Task {
     pub fn capture(session: &Session, chart: usize, options: Options) -> Result<Self, Error> {
@@ -258,10 +259,14 @@ impl Task {
             grid,
             deletions,
             average_nps,
+            profile_issues: Vec::new(),
         })
     }
 }
 impl Preview {
+    pub fn profile_issues(&self) -> &[super::profiles::Issue] {
+        &self.profile_issues
+    }
     pub fn grid(&self) -> &Grid {
         &self.grid
     }
@@ -293,4 +298,86 @@ fn check(cancelled: &AtomicBool) -> Result<(), Error> {
 }
 fn invalid<T>(message: &str) -> Result<T, Error> {
     Err(Error::InvalidEdit(message.into()))
+}
+
+/// Profile files are loaded on the generation worker, never in a key handler.
+pub struct SavedTask {
+    bytes: Arc<[u8]>,
+    format: Format,
+    token: RevisionToken,
+    chart: usize,
+    row: u64,
+    directory: std::path::PathBuf,
+}
+impl SavedTask {
+    pub fn capture(
+        session: &Session,
+        chart: usize,
+        row: u64,
+        directory: &std::path::Path,
+    ) -> Result<Self, Error> {
+        if chart >= session.document().charts().len() {
+            return invalid("Pattern source chart does not exist");
+        }
+        Ok(Self {
+            bytes: session.serialize()?.into(),
+            format: session.document().format,
+            token: session.revision_token(),
+            chart,
+            row,
+            directory: if directory.is_absolute() {
+                directory.to_owned()
+            } else {
+                std::env::current_dir()?.join(directory)
+            },
+        })
+    }
+    pub fn run(
+        self,
+        cancelled: &AtomicBool,
+        progress: impl FnMut(usize, usize),
+    ) -> Result<Preview, Error> {
+        check(cancelled)?;
+        let loaded = super::profiles::Loaded::directory_checked(&self.directory, cancelled)?;
+        check(cancelled)?;
+        let document = crate::document::Document::parse(self.bytes.clone(), self.format)?;
+        let metadata = super::metadata::ChartData::read(&document, self.chart)?
+            .ok_or_else(|| Error::InvalidEdit("No saved pattern markers in this chart".into()))?;
+        let options = metadata.options(self.row, &loaded.registry)?;
+        let issues = loaded.issues;
+        drop(loaded.profiles);
+        drop(loaded.registry);
+        let mut result = Task {
+            bytes: self.bytes,
+            format: self.format,
+            token: self.token,
+            chart: self.chart,
+            options,
+        }
+        .run(cancelled, progress)?;
+        result.profile_issues = issues;
+        check(cancelled)?;
+        Ok(result)
+    }
+    pub fn spawn(self) -> Result<super::job::Job<Preview>, Error> {
+        use super::job::{Job, Phase, Progress};
+        Job::spawn_with(
+            "editor-saved-pattern-generation",
+            move |cancelled, progress| {
+                let result = self.run(cancelled, |completed, total| {
+                    progress(Progress {
+                        phase: Phase::Converting,
+                        completed,
+                        total,
+                    })
+                })?;
+                progress(Progress {
+                    phase: Phase::Ready,
+                    completed: 1,
+                    total: 1,
+                });
+                Ok(result)
+            },
+        )
+    }
 }

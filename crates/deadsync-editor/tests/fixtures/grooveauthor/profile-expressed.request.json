@@ -1,0 +1,5 @@
+{
+  "Operation": "Profile",
+  "Kind": "Expressed",
+  "Content": "{\"Guid\": \"12345678-9abc-4def-8123-456789abcdef\", \"Name\": \"Custom\", \"Description\": \"Preserve\", \"Config\": {\"DefaultBracketParsingMethod\": \"noBrackets\", \"BracketParsingDetermination\": \"useDefaultMethod\"}}"
+}

@@ -1,0 +1,25 @@
+{
+  "Success": true,
+  "Valid": true,
+  "Guid": "12345678-9abc-4def-8123-456789abcdef",
+  "Name": "Custom",
+  "Description": "Preserve",
+  "Config": {
+    "BeatSubDivision": 4,
+    "StartingFootChoice": "automatic",
+    "StartingFootSpecified": 1,
+    "LeftFootStartChoice": "specifiedLane",
+    "LeftFootStartLaneSpecified": 0,
+    "LeftFootEndChoice": "automaticSameOrNewLaneAsFollowing",
+    "LeftFootEndLaneSpecified": 0,
+    "RightFootStartChoice": "automaticSameOrNewLane",
+    "RightFootStartLaneSpecified": 0,
+    "RightFootEndChoice": "automaticSameOrNewLaneAsFollowing",
+    "RightFootEndLaneSpecified": 0,
+    "SameArrowStepWeight": 25,
+    "NewArrowStepWeight": 75,
+    "StepTypeCheckPeriod": 16,
+    "LimitSameArrowsInARowPerFoot": true,
+    "MaxSameArrowsInARowPerFoot": 3
+  }
+}

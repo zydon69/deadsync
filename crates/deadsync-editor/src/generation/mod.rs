@@ -19,6 +19,7 @@ pub mod pattern_job;
 pub mod pattern_region;
 pub mod performed;
 pub mod random;
+pub mod profiles;
 pub mod reference_sort;
 pub mod search;
 pub mod source;

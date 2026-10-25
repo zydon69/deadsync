@@ -567,8 +567,9 @@ fields when writing.
 The initial in-memory registry maps the original two pattern, seven performed
 and three expressed built-in GUIDs to the ported configurations. Custom maps may
 be supplied explicitly; an unresolved GUID is reported rather than silently
-substituted. Configuration-file import/export, persistent custom-profile storage
-and original missing-profile fallback/diagnostic behavior remain unfinished.
+substituted. Configuration-file import/export and guarded custom-profile storage
+are implemented below. Native profile management/editing and the original
+missing-profile fallback/diagnostic behavior remain unfinished.
 
 `Session::set_properties_atomic` validates all tag edits on an isolated snapshot
 and records a single reversible property gesture without copying note data. Failed edits preserve redo and
@@ -608,7 +609,65 @@ adapters; it does not execute the full GrooveAuthor loader/runtime or scheduler.
 F4 still creates ephemeral previews and does not automatically persist new marker
 definitions. Editing bounds of an existing marker requires a future marker-edit
 operation; generation currently rejects conflicting raw bounds at the same start
-rather than creating two marker definitions at that row. Profile import/export,
-custom configuration persistence, live timeline caching, multi-region/batch and
+rather than creating two marker definitions at that row. Native profile management,
+live timeline caching, multi-region/batch and
 overlap actions, marker editing/deletion and the remaining editor delivery matrix
 remain required for the complete port.
+
+
+### GrooveAuthor profile files and native loading
+
+`generation::profiles` imports the original `pc-<guid>.json`, `pcc-<guid>.json`
+and `ecc-<guid>.json` wrappers, rather than treating them as bare library configs.
+UTF-8 BOMs are accepted like the original stream-based loader.
+The ordered root members are retained because PatternType, StartingFootSpecified
+and the three travel-speed properties mutate Config during deserialization. Later
+Config assignments replace earlier setter effects. Comments, trailing commas,
+case-insensitive enum names, surrounding enum whitespace, numeric enum strings
+and named enum combinations follow the reference JSON behavior. Unknown wrapper
+and nested generation members remain as raw JSON for export, including numeric
+literals outside normal integer/floating ranges, while the current
+library's known fields determine generation. Renaming preserves that ordered body.
+
+Twenty .NET fixtures compare effective generation values against five original
+setter bodies, the original speed-update and subdivision helpers, and the original
+subdivision enum extracted unchanged from the pinned editor. Explicit adapters
+replace the generic wrapper/observer plumbing; the oracle does not run the whole
+profile UI or reproduce its display caches. Cases cover before/after/interleaved
+Config assignment, duplicate Config members, enum syntax, clamped speed indices,
+unknown fields, invalid identities and invalid settings. The source-body hash is
+recorded in provenance. Ordinary Rust tests consume committed results without
+requiring .NET or reference checkouts.
+
+New pattern profiles support all nine subdivisions and use random UUID v4
+identities. Configurations resolve separately by kind, so the same GUID may occur
+in pattern, performed and expressed namespaces. Directory loading retains built-in
+profiles, reports duplicate identities deterministically (later filename wins),
+skips invalid profile files without changing them, and preserves unrelated files.
+Absent directories return built-ins and are created only on export. Export refuses
+existing filenames; guarded updates compare exact prior bytes under a sidecar
+lock and commit through an atomic temporary-file replacement. Failed saves retain
+the caller's editable profile. Profile names cannot become filesystem paths.
+
+The shell installs the editor's directory through AppDirs and editor::runtime:
+`AutogenConfigs` under DeadSync's application data root, including portable and
+isolated layouts. F5 loads that directory on the background worker, not in the raw
+key handler. It captures the song revision first, resolves profile files when the
+worker starts, clones the selected configurations and releases unused profile
+bodies before pattern search. Unrelated loading issues are counted in the preview;
+missing required profiles fail without changing the chart. Loading and generation
+support cancellation, and previews retain the existing identity/revision guard.
+
+Nine profile workflow tests cover the C# fixtures, ordered round trips, unknown
+fields, guarded saves/external changes, all nine persisted subdivisions feeding
+saved-marker generation, duplicate/built-in handling, independent namespaces,
+missing directories, immutable song snapshots and cancelled workers. A native
+workflow creates a custom profile, regenerates through F5, applies/saves/reopens,
+regenerates again, and checks the visible ignored-file report and unchanged bad
+file. A path test checks application data roots. Actor tests do not prove GPU
+rendering or physical keyboard delivery.
+
+The native advanced configuration inspector, profile library management,
+automatic F4 marker/config persistence and combined marker/note history remain
+unfinished. Profile-file compatibility and loading do not complete those tasks,
+batch generation, waveform/audio editing or the rest of the delivery matrix.

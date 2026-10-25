@@ -151,7 +151,7 @@ impl FileSession {
     }
 }
 
-fn sync_directory(path: &Path) -> Result<(), Error> {
+pub(crate) fn sync_directory(path: &Path) -> Result<(), Error> {
     #[cfg(unix)]
     fs::File::open(path)?.sync_all()?;
     #[cfg(not(unix))]

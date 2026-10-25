@@ -24,6 +24,11 @@ pub const PATTERN_BALANCED: &str = "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1";
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Guid([u8; 16]);
+impl Guid {
+    pub fn random() -> Self {
+        Self(uuid::Uuid::new_v4().into_bytes())
+    }
+}
 impl FromStr for Guid {
     type Err = Error;
     fn from_str(text: &str) -> Result<Self, Error> {

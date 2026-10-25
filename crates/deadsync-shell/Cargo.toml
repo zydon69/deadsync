@@ -30,6 +30,7 @@ deadsync-audio-replaygain = { path = "../deadsync-audio-replaygain" }
 deadsync-audio-stream = { path = "../deadsync-audio-stream" }
 deadsync-chart = { path = "../deadsync-chart" }
 deadsync-config = { path = "../deadsync-config" }
+deadsync-editor = { path = "../deadsync-editor" }
 deadsync-core = { path = "../deadsync-core" }
 deadsync-gameplay = { path = "../deadsync-gameplay" }
 deadsync-heart-rate = { path = "../deadsync-heart-rate" }

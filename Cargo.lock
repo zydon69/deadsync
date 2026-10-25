@@ -1629,6 +1629,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tempfile",
+ "uuid",
 ]
 
 [[package]]
@@ -1851,6 +1852,7 @@ dependencies = [
  "deadsync-chart",
  "deadsync-config",
  "deadsync-core",
+ "deadsync-editor",
  "deadsync-gameplay",
  "deadsync-heart-rate",
  "deadsync-import",

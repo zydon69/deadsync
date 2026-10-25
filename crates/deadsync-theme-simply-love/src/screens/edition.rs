@@ -15,7 +15,10 @@ use deadsync_editor::{
     notes::{Kind, ROWS_PER_BEAT},
     workspace::{Command, SNAP_NAMES, SNAP_ROWS, TOOLS, Workspace},
 };
-use std::{path::Path, sync::Arc};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 #[derive(Clone, Copy)]
 enum Panel {
@@ -106,6 +109,7 @@ pub struct State {
     workspace: Workspace,
     generation: GenerationSettings,
     pattern: PatternSettings,
+    profile_directory: Option<PathBuf>,
     saved_regions: Vec<(u64, u64)>,
     marker_cache: Option<(Arc<[u8]>, u64, usize)>,
     job: Option<GenerationJob>,
@@ -123,6 +127,16 @@ pub struct State {
 impl State {
     pub fn open(path: &Path, chart: usize) -> Result<Self, deadsync_editor::Error> {
         Self::from_workspace(Workspace::open(path, chart)?)
+    }
+
+    pub fn open_with_profiles(
+        path: &Path,
+        chart: usize,
+        directory: &Path,
+    ) -> Result<Self, deadsync_editor::Error> {
+        let mut state = Self::open(path, chart)?;
+        state.profile_directory = Some(directory.to_owned());
+        Ok(state)
     }
 
     pub fn open_selected(
@@ -179,6 +193,7 @@ impl State {
                 seed: 0,
                 ignore_distribution: false,
             },
+            profile_directory: deadsync_editor::runtime::configs_dir().map(Path::to_path_buf),
             saved_regions: Vec::new(),
             marker_cache: None,
             job: None,
@@ -266,11 +281,16 @@ impl State {
         if self.job.is_some() {
             return;
         }
-        match self
-            .workspace
-            .saved_pattern_task(&deadsync_editor::generation::metadata::Registry::builtin())
-            .and_then(|task| task.spawn())
-        {
+        let result = if let Some(directory) = &self.profile_directory {
+            self.workspace
+                .saved_pattern_task_from_directory(directory)
+                .and_then(|task| task.spawn())
+        } else {
+            self.workspace
+                .saved_pattern_task(&deadsync_editor::generation::metadata::Registry::builtin())
+                .and_then(|task| task.spawn())
+        };
+        match result {
             Ok(job) => {
                 self.preview = None;
                 self.job = Some(GenerationJob::Pattern(job));
@@ -1027,7 +1047,7 @@ impl State {
                 }
             } else if let GenerationPreview::Pattern(preview) = preview {
                 let report = preview.deletions();
-                let warnings = if preview.generated().warnings.is_empty() {
+                let mut warnings = if preview.generated().warnings.is_empty() {
                     i18n::tr("Edition", "PatternNoWarnings").to_string()
                 } else {
                     preview.generated().warnings.iter().map(|warning|i18n::tr("Edition",match warning {
@@ -1035,6 +1055,14 @@ impl State {
                         deadsync_editor::generation::pattern::EndWarning::FollowingFootingUnreachable=>"PatternUnreachable",
                     }).to_string()).collect::<Vec<_>>().join(" ")
                 };
+                if !preview.profile_issues().is_empty() {
+                    warnings.push('\n');
+                    warnings.push_str(&i18n::tr_fmt(
+                        "Edition",
+                        "PatternProfileIssues",
+                        &[("count", &preview.profile_issues().len().to_string())],
+                    ));
+                }
                 let summary = i18n::tr_fmt(
                     "Edition",
                     "PatternSummary",

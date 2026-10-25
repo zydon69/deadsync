@@ -26,6 +26,11 @@ impl AppDirs {
     }
 
     #[must_use]
+    pub fn editor_configs_dir(&self) -> PathBuf {
+        self.data_dir.join("AutogenConfigs")
+    }
+
+    #[must_use]
     pub fn log_path(&self) -> PathBuf {
         self.data_dir.join("deadsync.log")
     }
@@ -439,6 +444,15 @@ impl AssetPaths {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn editor_configs_follow_the_application_data_root() {
+        let root=std::env::temp_dir().join("deadsync-editor-paths");
+        let dirs=AppDirs::portable_layout(root.join("portable"));
+        assert_eq!(dirs.editor_configs_dir(),dirs.data_dir.join("AutogenConfigs"));
+        let dirs=AppDirs::isolated_layout(root.join("data"),root.join("bundle"));
+        assert_eq!(dirs.editor_configs_dir(),root.join("data").join("AutogenConfigs"));
+    }
+
     #[test]
     fn workshop_uses_game_assets_in_portable_and_installed_layouts() {
         let root =
