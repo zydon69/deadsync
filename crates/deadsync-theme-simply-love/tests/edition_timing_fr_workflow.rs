@@ -377,3 +377,57 @@ fn french_song_sync_panel_explains_scope_and_applies_with_translated_labels() {
             .any(|s| s.contains("Synchro audio appliquée"))
     );
 }
+
+#[test]
+fn french_signature_panel_fraction_input_and_acceptance_are_translated() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(
+        &path,
+        b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+    )
+    .unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    for _ in 0..5 {
+        press(&mut screen, KeyCode::Tab);
+    }
+    let labels = texts(&screen);
+    assert!(labels.iter().any(|s| s.contains("Signatures rythmiques")));
+    assert!(labels.iter().any(|s| s.contains("Signature : 4/4")));
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Appliquer les signatures"))
+    );
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Delete);
+    for code in [KeyCode::Digit2, KeyCode::Slash, KeyCode::Digit2] {
+        press(&mut screen, code);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s.contains("Signature préparée"))
+    );
+    for _ in 0..6 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "TIMESIGNATURES")
+            .unwrap(),
+        "0=2=2"
+    );
+}

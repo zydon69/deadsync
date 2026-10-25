@@ -7,6 +7,7 @@ use deadsync_editor::{
         Scope, TempoDraft,
         pause::{self, Kind as PauseKind},
         region::{self, Kind as RegionKind},
+        signature::{self, Signature},
     },
 };
 use std::collections::BTreeMap;
@@ -17,6 +18,7 @@ pub(super) enum EventKind {
     Delay,
     Warp,
     Fake,
+    Signature,
 }
 impl EventKind {
     pub(super) fn label(self) -> &'static str {
@@ -26,16 +28,23 @@ impl EventKind {
             Self::Delay => "TimingTypeDelay",
             Self::Warp => "TimingTypeWarp",
             Self::Fake => "TimingTypeFake",
+            Self::Signature => "TimingTypeSignature",
         }
     }
     pub(super) fn step(self, backward: bool) -> Self {
-        match (self, backward) {
-            (Self::Bpm, false) | (Self::Delay, true) => Self::Stop,
-            (Self::Stop, false) | (Self::Warp, true) => Self::Delay,
-            (Self::Delay, false) | (Self::Fake, true) => Self::Warp,
-            (Self::Warp, false) | (Self::Bpm, true) => Self::Fake,
-            (Self::Fake, false) | (Self::Stop, true) => Self::Bpm,
-        }
+        let kinds = [
+            Self::Bpm,
+            Self::Stop,
+            Self::Delay,
+            Self::Warp,
+            Self::Fake,
+            Self::Signature,
+        ];
+        let index = kinds
+            .iter()
+            .position(|kind| *kind == self)
+            .expect("Timing type");
+        kinds[(index + if backward { kinds.len() - 1 } else { 1 }) % kinds.len()]
     }
     pub(super) fn is_region(self) -> bool {
         matches!(self, Self::Warp | Self::Fake)
@@ -43,6 +52,7 @@ impl EventKind {
 }
 pub(super) enum Draft {
     Bpm(TempoDraft),
+    Signatures(signature::Draft),
     Pauses {
         draft: pause::Draft,
         kind: PauseKind,
@@ -60,6 +70,10 @@ impl Draft {
     ) -> Result<Self, Error> {
         match kind {
             EventKind::Bpm => workspace.tempo_draft(scope).map(Self::Bpm),
+            EventKind::Signature => {
+                signature::Draft::capture(&workspace.file().session, workspace.chart(), scope)
+                    .map(Self::Signatures)
+            }
             EventKind::Stop | EventKind::Delay => {
                 workspace.pause_draft(scope).map(|draft| Self::Pauses {
                     draft,
@@ -85,6 +99,7 @@ impl Draft {
     pub(super) fn kind(&self) -> EventKind {
         match self {
             Self::Bpm(_) => EventKind::Bpm,
+            Self::Signatures(_) => EventKind::Signature,
             Self::Pauses {
                 kind: PauseKind::Stop,
                 ..
@@ -122,6 +137,7 @@ impl Draft {
     pub(super) fn scope(&self) -> Scope {
         match self {
             Self::Bpm(d) => d.scope(),
+            Self::Signatures(d) => d.scope(),
             Self::Pauses { draft, .. } => draft.scope(),
             Self::Regions { draft, .. } => draft.scope(),
         }
@@ -129,6 +145,7 @@ impl Draft {
     pub(super) fn inherited(&self) -> bool {
         match self {
             Self::Bpm(d) => d.inherited(),
+            Self::Signatures(d) => d.inherited(),
             Self::Pauses { draft, .. } => draft.inherited(),
             Self::Regions { draft, .. } => draft.inherited(),
         }
@@ -136,6 +153,7 @@ impl Draft {
     pub(super) fn affected_charts(&self) -> &[usize] {
         match self {
             Self::Bpm(d) => d.affected_charts(),
+            Self::Signatures(d) => d.affected_charts(),
             Self::Pauses { draft, .. } => draft.affected_charts(),
             Self::Regions { draft, .. } => draft.affected_charts(),
         }
@@ -143,40 +161,49 @@ impl Draft {
     pub(super) fn has_changes(&self) -> bool {
         match self {
             Self::Bpm(d) => d.has_changes(),
+            Self::Signatures(d) => d.has_changes(),
             Self::Pauses { draft, .. } => draft.has_changes(),
             Self::Regions { draft, .. } => draft.has_changes(),
         }
     }
-    pub(super) fn node(&self, row: u64) -> Option<f64> {
+    pub(super) fn node(&self, row: u64) -> Option<String> {
         match self {
-            Self::Bpm(d) => d.tempos().values().get(&row).copied(),
-            Self::Pauses { draft, kind } => draft.pauses(*kind).values().get(&row).copied(),
+            Self::Signatures(d) => d.signatures().values().get(&row).map(ToString::to_string),
+            Self::Bpm(d) => d.tempos().values().get(&row).map(ToString::to_string),
+            Self::Pauses { draft, kind } => draft
+                .pauses(*kind)
+                .values()
+                .get(&row)
+                .map(ToString::to_string),
             Self::Regions { draft, kind } => draft
                 .regions(*kind)
                 .values()
                 .get(&row)
-                .map(|length| *length as f64 / 48.0),
+                .map(|length| (*length as f64 / 48.0).to_string()),
         }
     }
-    pub(super) fn value(&self, row: u64) -> f64 {
+    pub(super) fn value(&self, row: u64) -> String {
         match self {
-            Self::Bpm(d) => d.tempos().at(row),
+            Self::Bpm(d) => d.tempos().at(row).to_string(),
+            Self::Signatures(d) => d.signatures().at(row).to_string(),
             _ => self
                 .node(row)
-                .unwrap_or(if self.kind().is_region() { 1.0 } else { 0.5 }),
+                .unwrap_or_else(|| if self.kind().is_region() { "1" } else { "0.5" }.to_owned()),
         }
     }
-    pub(super) fn neighbor(&self, row: u64, forward: bool) -> Option<(u64, f64)> {
+    pub(super) fn neighbor(&self, row: u64, forward: bool) -> Option<(u64, String)> {
         let row = match self {
+            Self::Signatures(d) => neighbor(d.signatures().values(), row, forward),
             Self::Bpm(d) => neighbor(d.tempos().values(), row, forward),
             Self::Pauses { draft, kind } => neighbor(draft.pauses(*kind).values(), row, forward),
             Self::Regions { draft, kind } => neighbor(draft.regions(*kind).values(), row, forward),
         }?;
-        Some((row, self.node(row)?))
+        Some((row, self.value(row)))
     }
     pub(super) fn count(&self) -> usize {
         match self {
             Self::Bpm(d) => d.tempos().values().len(),
+            Self::Signatures(d) => d.signatures().values().len(),
             Self::Pauses { draft, .. } => {
                 draft.pauses(PauseKind::Stop).values().len()
                     + draft.pauses(PauseKind::Delay).values().len()
@@ -187,14 +214,19 @@ impl Draft {
             }
         }
     }
-    pub(super) fn set(&mut self, row: u64, value: f64) -> Result<bool, Error> {
+    pub(super) fn set(&mut self, row: u64, text: &str) -> Result<bool, Error> {
+        let number = || {
+            text.parse::<f64>()
+                .map_err(|_| Error::InvalidEdit("Invalid timing value".into()))
+        };
         match self {
-            Self::Bpm(d) => d.set(row, value),
-            Self::Pauses { draft, kind } => draft.set(*kind, row, value),
+            Self::Signatures(d) => d.set(row, Signature::parse(text)?),
+            Self::Bpm(d) => d.set(row, number()?),
+            Self::Pauses { draft, kind } => draft.set(*kind, row, number()?),
             Self::Regions { draft, kind } => draft.set(
                 *kind,
                 row,
-                region_length(value)
+                region_length(number()?)
                     .ok_or_else(|| Error::InvalidEdit("Invalid region length".into()))?,
             ),
         }
@@ -202,6 +234,7 @@ impl Draft {
     pub(super) fn remove(&mut self, row: u64) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => d.remove(row),
+            Self::Signatures(d) => d.remove(row),
             Self::Pauses { draft, kind } => draft.remove(*kind, row),
             Self::Regions { draft, kind } => draft.remove(*kind, row),
         }
@@ -209,6 +242,7 @@ impl Draft {
     pub(super) fn move_node(&mut self, from: u64, to: u64) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => d.move_node(from, to),
+            Self::Signatures(d) => d.move_node(from, to),
             Self::Pauses { draft, kind } => draft.move_node(*kind, from, to),
             Self::Regions { draft, kind } => draft.move_node(*kind, from, to),
         }
@@ -216,11 +250,18 @@ impl Draft {
     pub(super) fn apply(&self, workspace: &mut Workspace) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => workspace.apply_tempo(d),
+            Self::Signatures(d) => workspace.apply_signatures(d),
             Self::Pauses { draft, .. } => workspace.apply_pauses(draft),
             Self::Regions { draft, .. } => workspace.apply_regions(draft),
         }
     }
-    pub(super) fn valid_value_at(&self, row: u64, value: f64) -> bool {
+    pub(super) fn valid_value_at(&self, row: u64, text: &str) -> bool {
+        if self.kind() == EventKind::Signature {
+            return Signature::parse(text).is_ok();
+        }
+        let Ok(value) = text.parse::<f64>() else {
+            return false;
+        };
         value.is_finite()
             && (value as f32).is_finite()
             && match self.kind() {
@@ -240,17 +281,45 @@ impl Draft {
             _ => true,
         }
     }
-    pub(super) fn same_value(&self, row: u64, value: f64) -> bool {
+    pub(super) fn same_value(&self, row: u64, text: &str) -> bool {
+        if let Self::Signatures(d) = self {
+            return d.signatures().values().get(&row).is_some_and(|signature| {
+                text == signature.to_string() || Signature::parse(text).ok() == Some(*signature)
+            });
+        }
+        let Ok(value) = text.parse::<f64>() else {
+            return false;
+        };
         match self {
             Self::Regions { draft, kind } => {
                 region_length(value) == draft.regions(*kind).values().get(&row).copied()
             }
-            _ => value == self.value(row),
+            _ => self.value(row).parse::<f64>().ok() == Some(value),
         }
     }
     pub(super) fn key<'a>(&self, key: &'a str) -> &'a str {
         if self.kind() == EventKind::Bpm {
             return key;
+        }
+        if self.kind() == EventKind::Signature {
+            return match key {
+                "TimingBpm" => "SignatureValue",
+                "TimingInvalidBpm" => "SignatureInvalid",
+                "TimingSet" => "SignatureSet",
+                "TimingRemove" => "SignatureRemove",
+                "TimingMove" => "SignatureMove",
+                "TimingPrevious" => "SignaturePrevious",
+                "TimingNext" => "SignatureNext",
+                "TimingAccept" => "SignatureAccept",
+                "TimingStaged" => "SignatureStaged",
+                "TimingRemoved" => "SignatureRemoved",
+                "TimingMissing" => "SignatureMissing",
+                "TimingCollision" => "SignatureCollision",
+                "TimingMoveValue" => "SignatureMoveValue",
+                "TimingMoved" => "SignatureMoved",
+                "TimingInputPending" => "SignatureInputPending",
+                _ => key,
+            };
         }
         if self.kind().is_region() {
             return match key {

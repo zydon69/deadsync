@@ -125,6 +125,15 @@ def prepare_region_reference(editor):
     return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
 
 
+def prepare_signature_reference(editor):
+    source=subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/EditorEvents/EditorTimeSignatureEvent.cs"],cwd=editor).decode("utf-8-sig")
+    pieces={"VALIDATOR":extract_member(source,r"\tpublic static \(bool, Fraction\) IsValidTimeSignatureString\("),"SETTER":extract_member(source,r"\tpublic string StringValue\s*")}
+    project=ROOT/"scripts/editor-oracle";text=(project/"SignatureReference.cs.template").read_text()
+    for name,body in pieces.items():text=text.replace("// "+name,body)
+    (project/"obj/SignatureReference.cs").write_text(text)
+    return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
+
+
 def prepare_source_timing_reference(editor):
     def read(path):return subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/{path}"],cwd=editor).decode("utf-8-sig")
     chart=read("EditorChart.cs");display=read("DisplayTempo.cs")
@@ -681,6 +690,14 @@ def requests(reference: Path):
     cases["legacy-timing-fractional"]={"Operation":"NormalizedFile","Format":"ssc","Content":"#VERSION:0.60;"+tags(source_cases["tiny-regions"])+region_chart()+region_chart({"BPMS":"0=0.0000001,4=180","OFFSET":"0.25","WARPS":"1=0.00001"})}
     for label,content in {"defaults":"{}", "positive":'{"SyncOffset":0.009,"DefaultChartType":"dance_single","DefaultChartIndex":1}', "negative":'{"SyncOffset":-0.125}', "comments":'/* song */ {"SyncOffset":0.25}', "zero":'{"SyncOffset":0}'}.items():
         cases["song-sync-"+label]={"Operation":"SongSync", "Content":content, "MusicOffset":0.375, "Times":[-2,-0.5,0,0.009,1,25.5]}
+    for label,segments in {
+        "default":[], "meters":[[0,3,4],[3,7,8],[6.5,2,2]],
+        "off-measure":[[0,4,4],[1,3,4],[2,5,8],[8,4,4]],
+        "reader-denominators":[[0,5,6],[4,7,192],[8,0,4],[12,4,5]],
+        "collisions":[[-1,3,4],[0,2,2],[1.001,3,8],[1.002,0,4],[2,7,16]],
+    }.items():
+        cases["signature-edit-"+label]={"Operation":"Signature", "Segments":segments,"Rows":[0,1,47,48,49,96,144,191,192,240,312,384,768],
+            "Operations":[["set",0,"2/2"],["set",0,"4/4"],["set",24,"3/8"],["set",24,"3/8"],["set",96,"7/16"],["set",120,"5/3"],["set",120,"0/4"],["set",120,"  +5 / +32 "],["set",144,"5/64"],["move",24,96],["move",24,25],["move",0,48],["remove",0],["remove",25],["remove",25]]}
     metadata={"MusicOffset":-0.125,"ShouldUseChartMusicOffset":True,"ExpressedChartConfig":"A19D532E-B0CE-4759-AD1C-02ECBBDF2EFD","MaxPlayerIndex":1,
         "Patterns":{"48":{"PatternConfigGuid":"03de57bd-4329-4de6-a722-a171c11fdd16","PerformedChartConfigGuid":"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1","Length":192,"RandomSeed":-2147483648,"StartPositionInclusive":True,"EndPositionInclusive":False,"IgnorePrecedingDistribution":True},"384":{"Length":0}}}
     for label,content in {"defaults":"{}","complete":json.dumps(metadata),"null-patterns":'{"Patterns":null}',"comments":'/* original */ {"Patterns": {"0": {/* marker */ "Length":48}}}',"trailing-comma":'{"Patterns":{},}',"invalid-guid":'{"ExpressedChartConfig":"invalid"}',"braced-guid":'{"ExpressedChartConfig":"{a19d532e-b0ce-4759-ad1c-02ecbbdf2efd}"}'}.items():
@@ -742,6 +759,7 @@ def main():
     pause_hash = prepare_pause_reference(args.editor_root.resolve())
     region_hash = prepare_region_reference(args.editor_root.resolve())
     source_timing_hash = prepare_source_timing_reference(args.editor_root.resolve())
+    signature_hash = prepare_signature_reference(args.editor_root.resolve())
     project = ROOT / "scripts/editor-oracle/EditorOracle.csproj"
     build = subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if build.returncode:
@@ -766,7 +784,7 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
-        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash, "editor_source_timing_methods_sha256": source_timing_hash,
+        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash, "editor_source_timing_methods_sha256": source_timing_hash, "editor_signature_methods_sha256": signature_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
         "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],

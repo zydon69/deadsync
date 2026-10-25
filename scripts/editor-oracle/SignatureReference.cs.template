@@ -1,0 +1,59 @@
+// Original validator and setter; explicit collection adapters handle UI actions.
+using System.Text.Json;
+using Fumen;
+using Fumen.ChartDefinition;
+using Fumen.Converters;
+using static System.Diagnostics.Debug;
+namespace SignatureOracle;
+internal sealed class EditorChart:PauseOracle.EditorChart {
+    public void OnTimeSignatureModified(EditorTimeSignatureEvent _) {}
+}
+internal sealed class EditorTimeSignatureEvent(int row,TimeSignature value,EditorChart chart):PauseOracle.EditorEvent(row) {
+    private readonly TimeSignature TimeSignatureEvent=value;
+    private readonly EditorChart EditorChart=chart;
+    private bool WidthDirty;
+    // VALIDATOR
+    // SETTER
+    public Fraction Signature=>TimeSignatureEvent.Signature;
+}
+internal static class Reference {
+    public static object Run(JsonElement input) {
+        var source=new Dictionary<double,Fraction>();
+        foreach(var item in input.GetProperty("Segments").EnumerateArray())source[item[0].GetDouble()]=new(item[1].GetInt32(),item[2].GetInt32());
+        var chart=new Chart{Layers=[new Layer()]};
+        SMCommon.AddTimeSignatures(source,chart,new TempoOracle.SilentLogger(),false);
+        var store=new EditorChart();
+        var nodes=new SortedDictionary<int,EditorTimeSignatureEvent>();
+        foreach(var ts in chart.Layers[0].Events.OfType<TimeSignature>())nodes[ts.IntegerPosition]=new(ts.IntegerPosition,ts,store);
+        store.EditorEvents.AddRange(nodes.Values);
+        object Values() {
+            var current=new Chart{Layers=[new Layer()]};
+            SMCommon.AddTimeSignatures(nodes.ToDictionary(pair=>pair.Key/48.0,pair=>pair.Value.Signature),current,new TempoOracle.SilentLogger(),false);
+            var events=current.Layers[0].Events.OfType<TimeSignature>().OrderBy(ts=>ts.IntegerPosition).ToArray();
+            return new {Nodes=events.Select(ts=>new {Row=ts.IntegerPosition,Numerator=ts.Signature.Numerator,Denominator=ts.Signature.Denominator,Measure=ts.Measure}).ToArray(),
+                Positions=input.GetProperty("Rows").EnumerateArray().Select(value=>{var row=value.GetInt32();var ts=events.Last(ts=>ts.IntegerPosition<=row);var length=ts.Signature.Numerator*192/ts.Signature.Denominator;return new {Row=row,Measure=ts.Measure+(row-ts.IntegerPosition)/length,Relative=(row-ts.IntegerPosition)%length,Length=length};}).ToArray()};
+        }
+        var initial=Values();var stages=new List<object>();
+        foreach(var op in input.GetProperty("Operations").EnumerateArray()) {
+            var kind=op[0].GetString();var row=op[1].GetInt32();bool changed=false;string? error=null;
+            if(kind=="set") {
+                var text=op[2].GetString()!;var (valid,signature)=EditorTimeSignatureEvent.IsValidTimeSignatureString(text);
+                if(!valid)error="invalid";
+                else if(nodes.TryGetValue(row,out var node)){var before=node.StringValue;node.StringValue=text;changed=before!=node.StringValue;}
+                else{node=new(row,new(signature,0),store);nodes[row]=node;store.EditorEvents.Add(node);changed=true;}
+            }else if(kind=="remove") {
+                if(row==0)error="immutable";
+                else if(nodes.Remove(row,out var node)){store.EditorEvents.Remove(node);changed=true;}
+            }else if(kind=="move") {
+                var target=op[2].GetInt32();
+                if(!nodes.TryGetValue(row,out var node))error="missing";
+                else if(row==0 && target!=0)error="immutable";
+                else if(row==target){}
+                else if(!store.CanEventBeMovedToRow(node,target))error="collision";
+                else{nodes.Remove(row);nodes[target]=node;node.Row=target;changed=true;}
+            }
+            stages.Add(new {Changed=changed,Error=error,Values=Values()});
+        }
+        return new {Initial=initial,Stages=stages};
+    }
+}

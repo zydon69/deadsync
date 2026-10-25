@@ -1,0 +1,1876 @@
+{
+  "Initial": {
+    "Nodes": [
+      {
+        "Row": 0,
+        "Numerator": 3,
+        "Denominator": 4,
+        "Measure": 0
+      },
+      {
+        "Row": 144,
+        "Numerator": 7,
+        "Denominator": 8,
+        "Measure": 1
+      },
+      {
+        "Row": 312,
+        "Numerator": 2,
+        "Denominator": 2,
+        "Measure": 2
+      }
+    ],
+    "Positions": [
+      {
+        "Row": 0,
+        "Measure": 0,
+        "Relative": 0,
+        "Length": 144
+      },
+      {
+        "Row": 1,
+        "Measure": 0,
+        "Relative": 1,
+        "Length": 144
+      },
+      {
+        "Row": 47,
+        "Measure": 0,
+        "Relative": 47,
+        "Length": 144
+      },
+      {
+        "Row": 48,
+        "Measure": 0,
+        "Relative": 48,
+        "Length": 144
+      },
+      {
+        "Row": 49,
+        "Measure": 0,
+        "Relative": 49,
+        "Length": 144
+      },
+      {
+        "Row": 96,
+        "Measure": 0,
+        "Relative": 96,
+        "Length": 144
+      },
+      {
+        "Row": 144,
+        "Measure": 1,
+        "Relative": 0,
+        "Length": 168
+      },
+      {
+        "Row": 191,
+        "Measure": 1,
+        "Relative": 47,
+        "Length": 168
+      },
+      {
+        "Row": 192,
+        "Measure": 1,
+        "Relative": 48,
+        "Length": 168
+      },
+      {
+        "Row": 240,
+        "Measure": 1,
+        "Relative": 96,
+        "Length": 168
+      },
+      {
+        "Row": 312,
+        "Measure": 2,
+        "Relative": 0,
+        "Length": 192
+      },
+      {
+        "Row": 384,
+        "Measure": 2,
+        "Relative": 72,
+        "Length": 192
+      },
+      {
+        "Row": 768,
+        "Measure": 4,
+        "Relative": 72,
+        "Length": 192
+      }
+    ]
+  },
+  "Stages": [
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 0
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 2
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 0,
+            "Relative": 47,
+            "Length": 192
+          },
+          {
+            "Row": 48,
+            "Measure": 0,
+            "Relative": 48,
+            "Length": 192
+          },
+          {
+            "Row": 49,
+            "Measure": 0,
+            "Relative": 49,
+            "Length": 192
+          },
+          {
+            "Row": 96,
+            "Measure": 0,
+            "Relative": 96,
+            "Length": 192
+          },
+          {
+            "Row": 144,
+            "Measure": 1,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 1,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 1,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 1,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 2,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 4,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 2
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 0,
+            "Relative": 47,
+            "Length": 192
+          },
+          {
+            "Row": 48,
+            "Measure": 0,
+            "Relative": 48,
+            "Length": 192
+          },
+          {
+            "Row": 49,
+            "Measure": 0,
+            "Relative": 49,
+            "Length": 192
+          },
+          {
+            "Row": 96,
+            "Measure": 0,
+            "Relative": 96,
+            "Length": 192
+          },
+          {
+            "Row": 144,
+            "Measure": 1,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 1,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 1,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 1,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 2,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 4,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 24,
+            "Numerator": 3,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 3
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 4
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 1,
+            "Relative": 23,
+            "Length": 72
+          },
+          {
+            "Row": 48,
+            "Measure": 1,
+            "Relative": 24,
+            "Length": 72
+          },
+          {
+            "Row": 49,
+            "Measure": 1,
+            "Relative": 25,
+            "Length": 72
+          },
+          {
+            "Row": 96,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 72
+          },
+          {
+            "Row": 144,
+            "Measure": 3,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 3,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 3,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 3,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 4,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 6,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 24,
+            "Numerator": 3,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 3
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 4
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 1,
+            "Relative": 23,
+            "Length": 72
+          },
+          {
+            "Row": 48,
+            "Measure": 1,
+            "Relative": 24,
+            "Length": 72
+          },
+          {
+            "Row": 49,
+            "Measure": 1,
+            "Relative": 25,
+            "Length": 72
+          },
+          {
+            "Row": 96,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 72
+          },
+          {
+            "Row": 144,
+            "Measure": 3,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 3,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 3,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 3,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 4,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 6,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 24,
+            "Numerator": 3,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 96,
+            "Numerator": 7,
+            "Denominator": 16,
+            "Measure": 2
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 3
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 4
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 1,
+            "Relative": 23,
+            "Length": 72
+          },
+          {
+            "Row": 48,
+            "Measure": 1,
+            "Relative": 24,
+            "Length": 72
+          },
+          {
+            "Row": 49,
+            "Measure": 1,
+            "Relative": 25,
+            "Length": 72
+          },
+          {
+            "Row": 96,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 84
+          },
+          {
+            "Row": 144,
+            "Measure": 3,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 3,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 3,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 3,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 4,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 6,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 24,
+            "Numerator": 3,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 96,
+            "Numerator": 7,
+            "Denominator": 16,
+            "Measure": 2
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 3
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 4
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 1,
+            "Relative": 23,
+            "Length": 72
+          },
+          {
+            "Row": 48,
+            "Measure": 1,
+            "Relative": 24,
+            "Length": 72
+          },
+          {
+            "Row": 49,
+            "Measure": 1,
+            "Relative": 25,
+            "Length": 72
+          },
+          {
+            "Row": 96,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 84
+          },
+          {
+            "Row": 144,
+            "Measure": 3,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 3,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 3,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 3,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 4,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 6,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 24,
+            "Numerator": 3,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 96,
+            "Numerator": 7,
+            "Denominator": 16,
+            "Measure": 2
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 3
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 4
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 1,
+            "Relative": 23,
+            "Length": 72
+          },
+          {
+            "Row": 48,
+            "Measure": 1,
+            "Relative": 24,
+            "Length": 72
+          },
+          {
+            "Row": 49,
+            "Measure": 1,
+            "Relative": 25,
+            "Length": 72
+          },
+          {
+            "Row": 96,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 84
+          },
+          {
+            "Row": 144,
+            "Measure": 3,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 3,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 3,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 3,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 4,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 6,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 24,
+            "Numerator": 3,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 96,
+            "Numerator": 7,
+            "Denominator": 16,
+            "Measure": 2
+          },
+          {
+            "Row": 120,
+            "Numerator": 5,
+            "Denominator": 32,
+            "Measure": 3
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 4
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 5
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 1,
+            "Relative": 23,
+            "Length": 72
+          },
+          {
+            "Row": 48,
+            "Measure": 1,
+            "Relative": 24,
+            "Length": 72
+          },
+          {
+            "Row": 49,
+            "Measure": 1,
+            "Relative": 25,
+            "Length": 72
+          },
+          {
+            "Row": 96,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 84
+          },
+          {
+            "Row": 144,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 4,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 4,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 4,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 5,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 5,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 7,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 24,
+            "Numerator": 3,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 96,
+            "Numerator": 7,
+            "Denominator": 16,
+            "Measure": 2
+          },
+          {
+            "Row": 120,
+            "Numerator": 5,
+            "Denominator": 32,
+            "Measure": 3
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 4
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 5
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 1,
+            "Relative": 23,
+            "Length": 72
+          },
+          {
+            "Row": 48,
+            "Measure": 1,
+            "Relative": 24,
+            "Length": 72
+          },
+          {
+            "Row": 49,
+            "Measure": 1,
+            "Relative": 25,
+            "Length": 72
+          },
+          {
+            "Row": 96,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 84
+          },
+          {
+            "Row": 144,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 4,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 4,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 4,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 5,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 5,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 7,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 24,
+            "Numerator": 3,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 96,
+            "Numerator": 7,
+            "Denominator": 16,
+            "Measure": 2
+          },
+          {
+            "Row": 120,
+            "Numerator": 5,
+            "Denominator": 32,
+            "Measure": 3
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 4
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 5
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 1,
+            "Relative": 23,
+            "Length": 72
+          },
+          {
+            "Row": 48,
+            "Measure": 1,
+            "Relative": 24,
+            "Length": 72
+          },
+          {
+            "Row": 49,
+            "Measure": 1,
+            "Relative": 25,
+            "Length": 72
+          },
+          {
+            "Row": 96,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 84
+          },
+          {
+            "Row": 144,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 4,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 4,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 4,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 5,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 5,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 7,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 25,
+            "Numerator": 3,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 96,
+            "Numerator": 7,
+            "Denominator": 16,
+            "Measure": 2
+          },
+          {
+            "Row": 120,
+            "Numerator": 5,
+            "Denominator": 32,
+            "Measure": 3
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 4
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 5
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 1,
+            "Relative": 22,
+            "Length": 72
+          },
+          {
+            "Row": 48,
+            "Measure": 1,
+            "Relative": 23,
+            "Length": 72
+          },
+          {
+            "Row": 49,
+            "Measure": 1,
+            "Relative": 24,
+            "Length": 72
+          },
+          {
+            "Row": 96,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 84
+          },
+          {
+            "Row": 144,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 4,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 4,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 4,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 5,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 5,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 7,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": "immutable",
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 25,
+            "Numerator": 3,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 96,
+            "Numerator": 7,
+            "Denominator": 16,
+            "Measure": 2
+          },
+          {
+            "Row": 120,
+            "Numerator": 5,
+            "Denominator": 32,
+            "Measure": 3
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 4
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 5
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 1,
+            "Relative": 22,
+            "Length": 72
+          },
+          {
+            "Row": 48,
+            "Measure": 1,
+            "Relative": 23,
+            "Length": 72
+          },
+          {
+            "Row": 49,
+            "Measure": 1,
+            "Relative": 24,
+            "Length": 72
+          },
+          {
+            "Row": 96,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 84
+          },
+          {
+            "Row": 144,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 4,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 4,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 4,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 5,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 5,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 7,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": "immutable",
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 25,
+            "Numerator": 3,
+            "Denominator": 8,
+            "Measure": 1
+          },
+          {
+            "Row": 96,
+            "Numerator": 7,
+            "Denominator": 16,
+            "Measure": 2
+          },
+          {
+            "Row": 120,
+            "Numerator": 5,
+            "Denominator": 32,
+            "Measure": 3
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 4
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 5
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 1,
+            "Relative": 22,
+            "Length": 72
+          },
+          {
+            "Row": 48,
+            "Measure": 1,
+            "Relative": 23,
+            "Length": 72
+          },
+          {
+            "Row": 49,
+            "Measure": 1,
+            "Relative": 24,
+            "Length": 72
+          },
+          {
+            "Row": 96,
+            "Measure": 2,
+            "Relative": 0,
+            "Length": 84
+          },
+          {
+            "Row": 144,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 4,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 4,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 4,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 5,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 5,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 7,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 96,
+            "Numerator": 7,
+            "Denominator": 16,
+            "Measure": 1
+          },
+          {
+            "Row": 120,
+            "Numerator": 5,
+            "Denominator": 32,
+            "Measure": 2
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 3
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 4
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 0,
+            "Relative": 47,
+            "Length": 192
+          },
+          {
+            "Row": 48,
+            "Measure": 0,
+            "Relative": 48,
+            "Length": 192
+          },
+          {
+            "Row": 49,
+            "Measure": 0,
+            "Relative": 49,
+            "Length": 192
+          },
+          {
+            "Row": 96,
+            "Measure": 1,
+            "Relative": 0,
+            "Length": 84
+          },
+          {
+            "Row": 144,
+            "Measure": 3,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 3,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 3,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 3,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 4,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 6,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Numerator": 4,
+            "Denominator": 4,
+            "Measure": 0
+          },
+          {
+            "Row": 96,
+            "Numerator": 7,
+            "Denominator": 16,
+            "Measure": 1
+          },
+          {
+            "Row": 120,
+            "Numerator": 5,
+            "Denominator": 32,
+            "Measure": 2
+          },
+          {
+            "Row": 144,
+            "Numerator": 7,
+            "Denominator": 8,
+            "Measure": 3
+          },
+          {
+            "Row": 312,
+            "Numerator": 2,
+            "Denominator": 2,
+            "Measure": 4
+          }
+        ],
+        "Positions": [
+          {
+            "Row": 0,
+            "Measure": 0,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 1,
+            "Measure": 0,
+            "Relative": 1,
+            "Length": 192
+          },
+          {
+            "Row": 47,
+            "Measure": 0,
+            "Relative": 47,
+            "Length": 192
+          },
+          {
+            "Row": 48,
+            "Measure": 0,
+            "Relative": 48,
+            "Length": 192
+          },
+          {
+            "Row": 49,
+            "Measure": 0,
+            "Relative": 49,
+            "Length": 192
+          },
+          {
+            "Row": 96,
+            "Measure": 1,
+            "Relative": 0,
+            "Length": 84
+          },
+          {
+            "Row": 144,
+            "Measure": 3,
+            "Relative": 0,
+            "Length": 168
+          },
+          {
+            "Row": 191,
+            "Measure": 3,
+            "Relative": 47,
+            "Length": 168
+          },
+          {
+            "Row": 192,
+            "Measure": 3,
+            "Relative": 48,
+            "Length": 168
+          },
+          {
+            "Row": 240,
+            "Measure": 3,
+            "Relative": 96,
+            "Length": 168
+          },
+          {
+            "Row": 312,
+            "Measure": 4,
+            "Relative": 0,
+            "Length": 192
+          },
+          {
+            "Row": 384,
+            "Measure": 4,
+            "Relative": 72,
+            "Length": 192
+          },
+          {
+            "Row": 768,
+            "Measure": 6,
+            "Relative": 72,
+            "Length": 192
+          }
+        ]
+      }
+    }
+  ]
+}

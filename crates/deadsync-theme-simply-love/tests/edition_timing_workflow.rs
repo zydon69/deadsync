@@ -58,6 +58,7 @@ fn type_number(screen: &mut State, value: &str) {
                 '.' => KeyCode::Period,
                 ',' => KeyCode::Comma,
                 '-' => KeyCode::Minus,
+                '/' => KeyCode::Slash,
                 _ => panic!("number"),
             },
         );
@@ -511,10 +512,11 @@ fn pause_type_input_and_scope_guards_cancel_and_zero_delay_validation_preserve_h
     press(&mut screen, KeyCode::Escape);
     press(&mut screen, KeyCode::F10);
     key(&mut screen, KeyCode::ShiftLeft, true);
-    for _ in 0..3 {
+    for _ in 0..4 {
         press(&mut screen, KeyCode::Tab);
     }
     key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "Delays (before notes)"));
     index = 0;
     choose(&mut screen, &mut index, 2);
     type_number(&mut screen, "-1");
@@ -893,8 +895,190 @@ fn region_shared_scope_rounding_fine_controls_and_sm_rejection_follow_format_rul
     press(&mut screen, KeyCode::F10);
     key(&mut screen, KeyCode::ShiftLeft, true);
     press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Time signatures"));
+    press(&mut screen, KeyCode::Tab);
     key(&mut screen, KeyCode::ShiftLeft, false);
     assert!(contains(&screen, "requires SSC"));
-    assert!(contains(&screen, "BPM changes"));
+    assert!(contains(&screen, "Time signatures"));
     assert_eq!(serialized(&screen), bytes);
+}
+
+fn open_signature(screen: &mut State) {
+    press(screen, KeyCode::F10);
+    key(screen, KeyCode::ShiftLeft, true);
+    press(screen, KeyCode::Tab);
+    key(screen, KeyCode::ShiftLeft, false);
+    assert!(contains(screen, "Time signatures"));
+}
+fn second_measure_y(screen: &State) -> f32 {
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    actors
+        .into_iter()
+        .find_map(|actor| match actor {
+            Actor::Text {
+                content,
+                offset,
+                scale,
+                ..
+            } if content.to_string() == "2" && scale[0] == 0.45 => Some(offset[1]),
+            _ => None,
+        })
+        .expect("Second measure label")
+}
+#[test]
+fn native_signatures_apply_change_measure_grid_and_undo_save_reopen() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    assert_eq!(second_measure_y(&screen), 352.0);
+    open_signature(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "3/4");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Signature staged"));
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Apply or discard before switching"));
+    assert_eq!(serialized(&screen), SONG);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(second_measure_y(&screen), 304.0);
+    let document = screen.workspace().file().session.document();
+    assert_eq!(document.text(Some(0), "TIMESIGNATURES").unwrap(), "0=3=4");
+    assert_eq!(
+        document.text(Some(0), "STOPS"),
+        document.text(None, "STOPS")
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), SONG);
+    assert_eq!(second_measure_y(&screen), 352.0);
+    ctrl(&mut screen, KeyCode::KeyY);
+    ctrl(&mut screen, KeyCode::KeyS);
+    assert_eq!(second_measure_y(&State::open(&path, 0).unwrap()), 304.0);
+}
+#[test]
+fn signature_validation_initial_immutability_cancel_and_unchanged_apply_preserve_file() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_signature(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "5/3");
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Enter numerator/denominator"));
+    assert_eq!(serialized(&screen), SONG);
+    press(&mut screen, KeyCode::Escape);
+    open_signature(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 2);
+    press(&mut screen, KeyCode::ArrowRight);
+    assert!(contains(&screen, "Signature: 5/4"));
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::ArrowRight);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "Signature: 5/8"));
+    press(&mut screen, KeyCode::Escape);
+    open_signature(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 4);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "initial time signature"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "1");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "initial time signature"));
+    press(&mut screen, KeyCode::Escape);
+    open_signature(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(serialized(&screen), SONG);
+    assert!(!screen.workspace().file().session.is_dirty());
+}
+#[test]
+fn signatures_on_sm_move_and_remove_in_draft_then_apply_one_shared_edit() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.sm");
+    let bytes = b"#BPMS:0=120;#NOTES:dance-single::Hard:9::1000;";
+    fs::write(&path, bytes).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_signature(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "1");
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "7/8");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "2");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Signature moved"));
+    choose(&mut screen, &mut index, 4);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Signature removed"));
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "5/8");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "TIMESIGNATURES")
+            .unwrap(),
+        "0=4=4,2=5=8"
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), bytes);
+}
+
+#[test]
+fn file_reader_signature_denominators_can_move_without_being_revalidated_as_new_input() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.sm");
+    fs::write(
+        &path,
+        b"#BPMS:0=120;#TIMESIGNATURES:0=4=4,1=5=6;#NOTES:dance-single::Hard:9::1000;",
+    )
+    .unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_signature(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 7);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Signature: 5/6"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "2");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Signature moved"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "TIMESIGNATURES")
+            .unwrap(),
+        "0=4=4,2=5=6"
+    );
 }

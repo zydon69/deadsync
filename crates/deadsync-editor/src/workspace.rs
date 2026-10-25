@@ -384,6 +384,12 @@ impl Workspace {
         draft.apply(&mut self.file.session, self.chart)
     }
 
+    pub fn apply_signatures(
+        &mut self,
+        draft: &crate::timing_edit::signature::Draft,
+    ) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session, self.chart)
+    }
     pub fn chart_properties(&self) -> Result<crate::chart_properties::Draft, Error> {
         crate::chart_properties::Draft::capture(&self.file.session, self.chart)
     }

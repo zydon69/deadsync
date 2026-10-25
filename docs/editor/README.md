@@ -1672,3 +1672,56 @@ features listed in the delivery matrix remain required.
 Validation for this checkpoint: 243 core tests, 73 native editor tests and
 `cargo check -p deadsync --locked` pass. Enter on the numeric keypad is also
 accepted for playback and covered by the F11 audio-cut workflow.
+
+### Typed time signatures and measure grid
+
+F10 now includes Time Signatures after Fake regions in the Tab cycle (Shift+Tab
+from BPM also opens signatures). It shares beat/scope, stage, previous/next,
+move/remove and explicit Apply/Save controls with the other timing tools.
+The value is an unreduced fraction; 2/2 remains distinct from 4/4. Slash and
+numeric-keypad division accept fraction input. Left/Right adjusts the numerator,
+Shift adjusts the denominator through 1/2/4/8/16/32. Initial signatures can change
+value but cannot move or disappear. Pending text and staged edits keep the same
+cross-type/scope guards. An old source denominator can move unchanged even when
+it is outside the interactive editor's validator.
+
+The shared typed draft uses the existing ownership transaction: a first local
+SSC signature copies the complete inherited timing set before detaching it.
+SM supports shared time signatures directly. No-op/discard retain exact bytes
+and redo; accept is one undo even with note edits already pending. Legacy SSC
+still goes through the existing timing-conversion review.
+
+The reader and interactive validator deliberately differ, as in Fumen and
+GrooveAuthor. File signatures require positive integers and a denominator that
+divides 192; invalid records are skipped after resolving same-row conflicts.
+New input requires positive signed-int values and a power-of-two denominator
+no greater than 48 (thus at most 32). Source imports inject 4/4 at row zero when
+missing. Unsafe signed-int measure multiplication is rejected explicitly instead
+of reproducing the reference's overflow; original document bytes stay intact.
+
+Measure numbering rounds upward when a signature begins partway through a
+measure. Position queries use a cached index; visible boundaries are a lazy
+iterator, including for source maps with one row per measure. The central field
+now renders these actual boundaries and measure numbers instead of assuming
+four beats per measure. Its cache refreshes on document/chart/revision changes.
+If unsafe source arithmetic prevents a map from loading, the field retains beat
+lines and omits measure labels; opening the typed inspector reports the error.
+Zoom-aware label density, signature-dependent arrow coloring and other display
+preferences remain part of the unfinished editor scope.
+
+Five oracle cases use actual Fumen loading, the unchanged GrooveAuthor signature
+validator/setter and the existing movement adapter. They compare every stage's
+unreduced values, measures and row-relative positions: default/multiple meters,
+partial measures, legacy denominators, same-row conflicts, invalid input,
+immutable initial nodes and collisions. Five core workflows also cover inherited
+SSC timing, SM shared writes, pending notes, save/reopen, undo/redo, foreign/stale
+plans, large coordinates, checked overflow and lazy visible boundaries. Four
+English native workflows cover editing, cancellation/no-op/invalid/immutable
+input, type guards, SM moves/deletes, legacy denominator moves and rendered
+measure-label positions through undo/save/reopen. One French workflow checks
+translated headings/actions/status and fraction entry. GPU/device verification
+and the other features in the delivery matrix remain outstanding.
+
+Validation for this checkpoint: 248 core tests, 78 native editor tests and
+`cargo check -p deadsync --locked` pass. These include a final rerun of signature
+controls, French UI and signed-zero source conflict handling.

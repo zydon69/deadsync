@@ -200,6 +200,7 @@ pub struct State {
     catalog_target: ProfileTarget,
     profile_directory: Option<PathBuf>,
     saved_regions: Vec<(u64, u64)>,
+    signatures: Option<deadsync_editor::timing_edit::signature::Signatures>,
     marker_cache: Option<(Arc<[u8]>, u64, usize)>,
     job: Option<GenerationJob>,
     catalog_job: Option<Job<profile_catalog::Catalog>>,
@@ -299,6 +300,7 @@ impl State {
             catalog_target: ProfileTarget::Marker,
             profile_directory: deadsync_editor::runtime::configs_dir().map(Path::to_path_buf),
             saved_regions: Vec::new(),
+            signatures: None,
             marker_cache: None,
             job: None,
             catalog_job: None,
@@ -1056,6 +1058,9 @@ impl State {
                 !Arc::ptr_eq(old, source) || *revision != session.revision() || *index != chart
             })
         {
+            self.signatures = deadsync_editor::timing_edit::signature::Signatures::from_document(
+                session.document(), chart,
+            ).ok();
             self.saved_regions =
                 deadsync_editor::generation::metadata::ChartData::read(session.document(), chart)
                     .ok()
@@ -1875,18 +1880,24 @@ impl State {
             actors.push(act!(quad: xy(left + f32::from(lane) * lane_width, (top + bottom) * 0.5): zoomto(1.0, bottom - top): diffuse(0.12, 0.16, 0.22, 1.0): z(8001)));
         }
         for beat in start / 48..=end / 48 {
+            if self.signatures.as_ref().is_some_and(|signatures| {
+                signatures.measure_position(beat * 48).is_ok_and(|position| position.row_in_measure == 0)
+            }) {
+                continue;
+            }
             let y = cursor_y + (beat as f64 * 48.0 - row as f64) as f32 * pixels_per_row;
-            let alpha = if beat % 4 == 0 { 0.4 } else { 0.15 };
+            let alpha = 0.15;
             actors.push(act!(quad: xy(field_center, y): zoomto(field_width, 1.0): diffuse(0.6, 0.7, 0.8, alpha): z(8001)));
-            if beat % 4 == 0 {
-                text(
-                    actors,
-                    &(beat / 4 + 1).to_string(),
-                    left - 30.0,
-                    y,
-                    0.45,
-                    [0.6, 0.7, 0.8, 1.0],
-                );
+        }
+        if let Some(signatures) = &self.signatures {
+            if let Ok(starts) = signatures.measure_starts(
+                start.min(i32::MAX as u64), end.min(i32::MAX as u64),
+            ) {
+                for (measure_row, measure) in starts {
+                    let y = cursor_y + (measure_row as f64 - row as f64) as f32 * pixels_per_row;
+                    actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.4): z(8001)));
+                    text(actors, &(measure + 1).to_string(), left - 30.0, y, 0.45, [0.6, 0.7, 0.8, 1.0]);
+                }
             }
         }
         for &(a, b) in &self.saved_regions {

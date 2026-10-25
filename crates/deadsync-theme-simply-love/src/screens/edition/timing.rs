@@ -15,7 +15,7 @@ pub(super) struct Settings {
 }
 impl Settings {
     fn new(draft: Draft, row: u64) -> Self {
-        let value = draft.value(row).to_string();
+        let value = draft.value(row);
         let node = draft.node(row).map(|_| row);
         Self {
             draft,
@@ -119,6 +119,37 @@ impl State {
                         Err(key) => self.status = i18n::tr("Edition", key),
                     }
                 } else if index == 2 {
+                    if settings.draft.kind() == EventKind::Signature {
+                        match deadsync_editor::timing_edit::signature::Signature::parse(
+                            &settings.value,
+                        ) {
+                            Ok(mut signature) => {
+                                if self.shift {
+                                    let denominators = [1, 2, 4, 8, 16, 32];
+                                    let index = denominators
+                                        .iter()
+                                        .position(|&value| value == signature.denominator)
+                                        .expect("Validated signature denominator");
+                                    signature.denominator = denominators[if forward {
+                                        (index + 1).min(5)
+                                    } else {
+                                        index.saturating_sub(1)
+                                    }];
+                                } else {
+                                    signature.numerator = if forward {
+                                        signature.numerator.saturating_add(1).min(i32::MAX as u32)
+                                    } else {
+                                        signature.numerator.saturating_sub(1).max(1)
+                                    };
+                                }
+                                settings.value = signature.to_string();
+                                settings.pending = true;
+                                settings.fresh = true;
+                            }
+                            Err(_) => self.status = i18n::tr("Edition", "SignatureInvalid"),
+                        }
+                        return;
+                    }
                     match settings.value.parse::<f64>() {
                         Ok(value) if value.is_finite() => {
                             let delta = if settings.draft.kind() == EventKind::Bpm {
@@ -141,6 +172,7 @@ impl State {
                                 }
                                 EventKind::Delay => value.max(0.0),
                                 EventKind::Stop => value,
+                                EventKind::Signature => return,
                                 EventKind::Warp | EventKind::Fake => {
                                     (value * 48.0).round().max(1.0) / 48.0
                                 }
@@ -180,6 +212,7 @@ impl State {
         let Some(settings) = &mut self.timing else {
             return false;
         };
+        let signature = index == 2 && settings.draft.kind() == EventKind::Signature;
         let field = if index == 1 {
             &mut settings.beat
         } else {
@@ -209,7 +242,8 @@ impl State {
             KeyCode::Digit7 | KeyCode::Numpad7 => '7',
             KeyCode::Digit8 | KeyCode::Numpad8 => '8',
             KeyCode::Digit9 | KeyCode::Numpad9 => '9',
-            KeyCode::Period | KeyCode::Comma | KeyCode::NumpadDecimal => '.',
+            KeyCode::Slash | KeyCode::NumpadDivide if signature => '/',
+            KeyCode::Period | KeyCode::Comma | KeyCode::NumpadDecimal if !signature => '.',
             KeyCode::Backspace => {
                 field.pop();
                 settings.fresh = false;
@@ -228,7 +262,10 @@ impl State {
             field.clear();
             settings.fresh = false;
         }
-        if field.len() < 24 && (digit != '.' || !field.contains('.')) {
+        if field.len() < 24
+            && (digit != '.' || !field.contains('.'))
+            && (digit != '/' || !field.contains('/'))
+        {
             field.push(digit);
         }
         settings.pending = true;
@@ -275,7 +312,14 @@ impl State {
         match Draft::capture(&self.workspace, settings.draft.scope(), kind) {
             Ok(draft) => {
                 self.timing = Some(Settings::new(draft, row));
-                self.status = i18n::tr("Edition", "TimingHelp");
+                self.status = i18n::tr(
+                    "Edition",
+                    if kind == EventKind::Signature {
+                        "SignatureHelp"
+                    } else {
+                        "TimingHelp"
+                    },
+                );
             }
             Err(_)
                 if kind.is_region()
@@ -324,17 +368,14 @@ impl State {
                 return false;
             }
         };
-        let bpm = match settings.value.parse::<f64>() {
-            Ok(value) if settings.draft.valid_value_at(row, value) => value,
-            _ => {
-                self.status = i18n::tr("Edition", settings.draft.key("TimingInvalidBpm"));
-                return false;
-            }
-        };
-        match settings.draft.set(row, bpm) {
+        if !settings.draft.valid_value_at(row, &settings.value) {
+            self.status = i18n::tr("Edition", settings.draft.key("TimingInvalidBpm"));
+            return false;
+        }
+        match settings.draft.set(row, &settings.value) {
             Ok(_) => {
                 settings.beat = beat_text(row);
-                settings.value = settings.draft.value(row).to_string();
+                settings.value = settings.draft.value(row);
                 settings.node = Some(row);
                 settings.pending = false;
                 settings.fresh = true;
@@ -358,14 +399,21 @@ impl State {
                 return;
             }
         };
-        if row == 0 && settings.draft.kind() == EventKind::Bpm {
-            self.status = i18n::tr("Edition", "TimingInitialImmutable");
+        if row == 0 && matches!(settings.draft.kind(), EventKind::Bpm | EventKind::Signature) {
+            self.status = i18n::tr(
+                "Edition",
+                if settings.draft.kind() == EventKind::Signature {
+                    "SignatureInitialImmutable"
+                } else {
+                    "TimingInitialImmutable"
+                },
+            );
             return;
         }
         match settings.draft.remove(row) {
             Ok(changed) => {
                 settings.node = None;
-                settings.value = settings.draft.value(row).to_string();
+                settings.value = settings.draft.value(row);
                 settings.pending = false;
                 settings.fresh = true;
                 self.status = i18n::tr(
@@ -395,8 +443,18 @@ impl State {
                 return;
             }
         };
-        if from == 0 && to != 0 && settings.draft.kind() == EventKind::Bpm {
-            self.status = i18n::tr("Edition", "TimingInitialImmutable");
+        if from == 0
+            && to != 0
+            && matches!(settings.draft.kind(), EventKind::Bpm | EventKind::Signature)
+        {
+            self.status = i18n::tr(
+                "Edition",
+                if settings.draft.kind() == EventKind::Signature {
+                    "SignatureInitialImmutable"
+                } else {
+                    "TimingInitialImmutable"
+                },
+            );
             return;
         }
         if from != to && settings.draft.node(to).is_some() {
@@ -407,12 +465,7 @@ impl State {
             self.status = i18n::tr("Edition", "RegionInvalidLength");
             return;
         }
-        if !settings
-            .value
-            .parse::<f64>()
-            .ok()
-            .is_some_and(|value| settings.draft.same_value(from, value))
-        {
+        if !settings.draft.same_value(from, &settings.value) {
             self.status = i18n::tr("Edition", settings.draft.key("TimingMoveValue"));
             return;
         }
@@ -420,7 +473,7 @@ impl State {
             Ok(_) => {
                 settings.node = Some(to);
                 settings.beat = beat_text(to);
-                settings.value = settings.draft.value(to).to_string();
+                settings.value = settings.draft.value(to);
                 settings.pending = false;
                 settings.fresh = true;
                 self.status = i18n::tr("Edition", settings.draft.key("TimingMoved"));
@@ -446,7 +499,7 @@ impl State {
         if let Some((row, value)) = settings.draft.neighbor(row, forward) {
             settings.node = Some(row);
             settings.beat = beat_text(row);
-            settings.value = value.to_string();
+            settings.value = value;
             settings.fresh = true;
             if let Err(error) = self.workspace.execute(Command::Seek(row)) {
                 self.timing_error(error);
