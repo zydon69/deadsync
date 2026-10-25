@@ -48,7 +48,7 @@ impl TempoDraft {
             if document.format == Format::Sm {
                 return Err(invalid("SM timing is shared by the entire song"));
             }
-            if !split_allowed(document) {
+            if !supports_chart_timing(document) {
                 return Err(invalid(
                     "Chart timing requires SSC version 0.7 or newer; legacy timing migration is not implemented yet",
                 ));
@@ -171,12 +171,16 @@ pub(crate) fn inherited_fields_for_write(
 }
 pub fn uses_chart_timing(document: &Document, chart: usize) -> bool {
     document.format == Format::Ssc
-        && split_allowed(document)
+        && supports_chart_timing(document)
         && TIMING_TAGS
             .iter()
             .any(|tag| document.raw_property(Some(chart), tag).is_some())
 }
-fn split_allowed(document: &Document) -> bool {
+/// Whether the file version supports a separate timing set per SSC chart.
+pub fn supports_chart_timing(document: &Document) -> bool {
+    if document.format != Format::Ssc {
+        return false;
+    }
     let version = rssp::parse::parse_version(
         document.raw_property(None, "VERSION"),
         rssp::timing::TimingFormat::Ssc,

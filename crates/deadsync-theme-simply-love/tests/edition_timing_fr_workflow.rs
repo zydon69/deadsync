@@ -1,0 +1,109 @@
+//! Separate locale process, avoiding races with English editor workflows.
+use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
+use deadlib_present::actors::Actor;
+use deadsync_theme_simply_love::{i18n, screens::edition::State};
+use std::{fs, time::Instant};
+fn press(screen: &mut State, code: KeyCode) {
+    for pressed in [true, false] {
+        screen.raw_key(&RawKeyboardEvent {
+            code,
+            pressed,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+    }
+}
+fn texts(screen: &State) -> Vec<String> {
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    actors
+        .into_iter()
+        .filter_map(|actor| {
+            if let Actor::Text { content, .. } = actor {
+                Some(content.to_string())
+            } else {
+                None
+            }
+        })
+        .collect()
+}
+#[test]
+fn french_timing_labels_validation_and_acceptance_are_resolved() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(
+        &path,
+        b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+    )
+    .unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    let labels = texts(&screen);
+    for key in [
+        "TimingScope",
+        "TimingBeat",
+        "TimingBpm",
+        "TimingSet",
+        "TimingRemove",
+        "TimingMove",
+        "TimingPrevious",
+        "TimingNext",
+        "TimingAccept",
+        "TimingCancel",
+    ] {
+        let raw = i18n::tr("Edition", key);
+        assert_ne!(raw.as_ref(), key);
+    }
+    assert!(
+        labels
+            .iter()
+            .any(|text| text == "Timing : cette partition (1 partitions, hérité)")
+    );
+    assert!(
+        labels
+            .iter()
+            .any(|text| text == "Appliquer le timing (1 BPM)")
+    );
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Digit0);
+    for _ in 0..6 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|text| text.starts_with("Saisir un BPM fini"))
+    );
+    for _ in 0..4 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Digit1);
+    press(&mut screen, KeyCode::Digit5);
+    press(&mut screen, KeyCode::Digit0);
+    for _ in 0..6 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|text| text.starts_with("Timing accepté en une seule action annulable"))
+    );
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "BPMS")
+            .as_deref(),
+        Some("0=150")
+    );
+}

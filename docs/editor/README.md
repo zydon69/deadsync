@@ -1198,7 +1198,7 @@ not GPU rendering, physical input or full original-editor runtime parity. The
 broader delivery matrix, including timing/audio tools, profile management,
 additional layouts and scalability validation, remains required.
 
-### Scoped BPM editing core (native panel pending)
+### Scoped BPM editing core and native inspector
 
 `timing_edit::TempoDraft` stages song-shared or chart-local BPM maps against a
 session identity/revision. It exposes the charts affected by a shared edit and
@@ -1209,7 +1209,7 @@ the original 0.000001 BPM minimum and one-ULP setter equality. Values must also
 fit DeadSync's RSSP gameplay timing representation. No invalid/discarded/stale/
 foreign/wrong-chart draft can change the file or clear redo. Acceptance is one
 property history action, and Save remains explicit. Workspace methods expose
-capture and acceptance for the forthcoming native timing panel.
+capture and acceptance for the native timing panel.
 
 The tempo loader mirrors Fumen's AddTempos row conflict resolution and invalid
 value handling, plus GrooveAuthor's minimum clamp and missing initial-tempo
@@ -1252,6 +1252,43 @@ no-op redo, rejected edits, missing/legacy/offset-only timing, fallback behavior
 and shared property-transaction validation. Ordinary tests need no .NET runtime.
 
 The adapters do not replay the complete original editor action/notification loop.
-The native BPM panel, other typed timing/gimmick editors, legacy migration,
+Other typed timing/gimmick editors, legacy migration,
 complete timing normalization, edited audio preview/cache invalidation and the
 remaining delivery matrix are still required for the full port.
+
+
+### Native BPM inspector (F10)
+
+F10 opens the optional timing panel; F7 chart properties also has an entry for
+it. Pending chart properties must be accepted or discarded first. A supported
+SSC file starts with chart-local timing; SM and older SSC versions start with
+shared song timing. The scope label reports the number of affected partitions
+and whether a local timing set is inherited. Only the format/version determines
+scope availability: malformed local BPM data produces an error instead of
+silently selecting song-wide edits.
+
+Up/Down selects the scope, beat, BPM value or an action. Numeric keys (including
+the numeric keypad), period/comma, Backspace and Delete edit the numeric fields;
+the first digit replaces the existing value. Left/Right moves a beat by the
+current snap (Shift: four beats), or adjusts BPM by 1 (Shift: 0.1). Beat input
+rounds to the nearest 1/48 beat. Enter on either numeric field or the stage
+command stages a BPM. Previous/Next seeks and selects existing nodes, wrapping
+at the ends. Unstaged input blocks navigation to prevent accidental loss.
+
+Move uses the selected source node and the entered destination beat; value
+changes must be staged at the original beat first. Initial-node moves/deletion
+and occupied destinations are refused. Delete removes the node at the entered
+beat. These operations only modify the private draft. Scope switching is blocked
+while that draft or its input has pending changes. Apply stages any remaining
+numeric input, accepts all BPM edits as one undoable gesture, and closes the
+panel. Escape or Discard abandons the draft without clearing redo. No-op Apply
+also preserves redo and original bytes. Saving to disk stays explicit.
+
+Nine English native workflows and a separate French workflow exercise production
+RawKeyboardEvent dispatch and the generated actor tree: F10/F7 access, numeric
+controls and rounding, scope isolation, malformed local data, initial/collision
+validation, navigation, move/delete acceptance, pending input, help visibility,
+undo/redo, unchanged files before Save, and save/reopen. Expected timing edits
+are compared with the shared core already checked against the original C#
+references. These tests do not claim GPU rendering, physical keyboard input,
+audio playback or complete GrooveAuthor runtime parity.

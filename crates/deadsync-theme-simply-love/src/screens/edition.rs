@@ -2,6 +2,7 @@
 //! deadsync-editor; this module owns presentation, shortcuts, and exit prompts.
 mod batch;
 mod pattern_set;
+mod timing;
 
 use crate::{act, i18n};
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
@@ -44,6 +45,7 @@ enum Panel {
     Marker(usize),
     Profiles(usize),
     ChartProperties(usize),
+    Timing(usize),
     ChartExpression(usize),
     ConversionProfiles(usize),
     ConfirmMarkerDelete,
@@ -186,6 +188,7 @@ pub struct State {
     pattern_set: Option<pattern_set::Settings>,
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
+    timing: Option<timing::Settings>,
     catalog_target: ProfileTarget,
     profile_directory: Option<PathBuf>,
     saved_regions: Vec<(u64, u64)>,
@@ -280,6 +283,7 @@ impl State {
             },
             marker: None,
             chart_properties: None,
+            timing: None,
             catalog_target: ProfileTarget::Marker,
             profile_directory: deadsync_editor::runtime::configs_dir().map(Path::to_path_buf),
             saved_regions: Vec::new(),
@@ -1122,6 +1126,10 @@ impl State {
         if event.code == KeyCode::Escape || event.code == KeyCode::F2 {
             return self.request_close();
         }
+        if event.code == KeyCode::F10 {
+            self.open_timing();
+            return false;
+        }
         if event.code == KeyCode::F9 {
             self.open_pattern_set();
             return false;
@@ -1283,6 +1291,10 @@ impl State {
                 self.panel = Some(self.profile_return_panel());
                 return false;
             }
+            if matches!(panel, Panel::Timing(_)) {
+                self.status = i18n::tr("Edition", "TimingDiscarded");
+            }
+            self.timing = None;
             self.chart_properties = None;
             self.marker = None;
             self.preview = None;
@@ -1333,10 +1345,11 @@ impl State {
                     }
                 }
             }
+            Panel::Timing(index) => self.timing_key(index, code),
             Panel::ChartProperties(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ChartProperties(
-                        (index + if code == KeyCode::ArrowUp { 5 } else { 1 }) % 6,
+                        (index + if code == KeyCode::ArrowUp { 6 } else { 1 }) % 7,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(draft) = &mut self.chart_properties {
@@ -1366,6 +1379,7 @@ impl State {
                     match index {
                         0 => self.open_chart_expression(),
                         4 => self.apply_chart_properties(),
+                        6 => self.open_timing(),
                         5 => {
                             self.chart_properties = None;
                             self.panel = None;
@@ -1898,7 +1912,7 @@ impl State {
             }
         }
         actors.push(act!(quad: xy(field_center, cursor_y): zoomto(field_width, 2.0): diffuse(1.0, 0.85, 0.25, 1.0): z(8005)));
-        if self.help && self.preview.is_none() {
+        if self.help && self.preview.is_none() && !matches!(self.panel, Some(Panel::Timing(_))) {
             self.help_actors(actors);
         }
         if let Some(panel) = self.panel {
@@ -1994,6 +2008,18 @@ impl State {
                 "ConversionProfileUse",
                 "ProfileBack",
             ],
+            Panel::Timing(_) => &[
+                "TimingScope",
+                "TimingBeat",
+                "TimingBpm",
+                "TimingSet",
+                "TimingRemove",
+                "TimingMove",
+                "TimingPrevious",
+                "TimingNext",
+                "TimingAccept",
+                "TimingCancel",
+            ],
             Panel::ChartProperties(_) => &[
                 "ChartChooseExpression",
                 "ChartUseOffset",
@@ -2001,6 +2027,7 @@ impl State {
                 "ChartEffectiveOffset",
                 "ChartApplyProperties",
                 "KeepEditing",
+                "TimingOpen",
             ],
             Panel::ChartExpression(_) => {
                 &["ProfileExpression", "ChartStageExpression", "ProfileBack"]
@@ -2026,6 +2053,7 @@ impl State {
             | Panel::Pattern(i)
             | Panel::Marker(i)
             | Panel::Profiles(i)
+            | Panel::Timing(i)
             | Panel::ChartProperties(i)
             | Panel::ChartExpression(i)
             | Panel::ConversionProfiles(i)
@@ -2345,6 +2373,8 @@ impl State {
                 && matches!(&self.preview, Some(GenerationPreview::PatternSet { .. }))
             {
                 i18n::tr("Edition", "PatternSetApply")
+            } else if matches!(panel, Panel::Timing(_)) {
+                self.timing_label(index, key)
             } else if matches!(panel, Panel::PatternSet(_)) {
                 self.pattern_set_label(index, key)
             } else if matches!(panel, Panel::Batch(_)) {
