@@ -1951,3 +1951,35 @@ The additional shell text-routing unit test could not compile because seven
 `include_str!`/`include_bytes!` references require absent song-Lua fixture files
 (`full_song_lua`, `song-inputs`, `song_lua`, `itgmania-song-lua-micro`). This is
 not recorded as a passing shell test; the production shell compilation passed.
+
+### Previous/next section label navigation
+
+Ctrl/Cmd+L moves to the next label; Shift reverses direction. Like GrooveAuthor's
+`EventTree.FindPreviousEventWithLooping` and `FindNextEventWithLooping`, the
+search is strictly before/after the cursor, wraps at the ends, returns the same
+label for a singleton, and leaves the cursor unchanged when there are no labels.
+Repeated keys are supported in the chart view. Inspectors retain keyboard focus
+and do not navigate the underlying chart. A jump stops audio preview before
+moving, retains the workspace selection anchor and does not create an undo step.
+
+Workspace commands read the current chart's effective LABELS, including unsaved
+edits and undo/redo. Chart timing ownership determines whether song labels are
+inherited. SM's unsupported LABELS property is preserved without using it for
+navigation. Invalid label maps return an error before modifying the cursor.
+
+The label oracle now extracts both original looping methods unchanged and runs
+them against the actual Fumen red-black tree. Row-only event and strict-search
+adapters replace GrooveAuthor's full editor-event comparison machinery; this is
+not execution of the full editor. Four fixtures compare previous/next results
+at 18 cursor positions initially and after every edit stage. Separate workspace
+tests cover scope, empty/singleton maps, integer limits, selection, unsaved edits,
+undo/redo, Save/reopen and error atomicity. Native tests cover Ctrl/Cmd, Shift,
+repeat, panel focus, audio stop and preservation of document bytes/history. Help
+includes these shortcuts in English and French. Hardware shortcut handling and
+physical IME/GPU validation remain pending, along with the delivery matrix.
+
+Validation for label navigation: 272 core tests and 99 native editor tests pass,
+including 792 differential navigation queries (both directions) against the
+original extracted looping methods. `cargo check -p deadsync --locked` passes.
+The label core workflows were also rerun after extending their oracle assertions.
+This does not remove the previously documented missing shell-test fixtures.

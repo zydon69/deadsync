@@ -34,6 +34,7 @@ fn actual_label_parser_original_sanitizer_and_setter_match_all_stages() {
         .unwrap();
         let mut map = Labels::parse(request["Source"].as_str().unwrap()).unwrap();
         check(&map, &expected["Initial"]);
+        check_navigation(&map, &expected["InitialNavigation"]);
         for value in expected["Sanitized"].as_array().unwrap() {
             assert_eq!(
                 label::sanitize(value["Input"].as_str().unwrap()),
@@ -68,6 +69,7 @@ fn actual_label_parser_original_sanitizer_and_setter_match_all_stages() {
                 assert!(result.is_err());
             }
             check(&map, &stage["Values"]);
+            check_navigation(&map, &stage["Navigation"]);
             assert_eq!(Labels::parse(&map.serialize()).unwrap(), map);
         }
     }
@@ -166,4 +168,12 @@ fn unrepresentable_equals_and_invalid_coordinates_do_not_lose_labels() {
         Labels::parse("0=A,-0=B").unwrap().values().get(&0).unwrap(),
         "B"
     );
+}
+
+fn check_navigation(labels: &Labels, expected: &Value) {
+    for query in expected.as_array().unwrap() {
+        let row = query["Row"].as_u64().unwrap();
+        assert_eq!(labels.previous_row(row), query["Previous"].as_u64());
+        assert_eq!(labels.next_row(row), query["Next"].as_u64());
+    }
 }

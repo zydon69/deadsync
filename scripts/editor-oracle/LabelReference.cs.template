@@ -1,12 +1,27 @@
 // Actual Fumen label property parser and unchanged GrooveAuthor sanitizer/setter.
 using System.Text.Json;
 using Fumen.ChartDefinition;
+using Fumen;
 using Fumen.Converters;
 namespace LabelOracle;
 internal sealed class EditorLabelEvent(int row,Label value):PauseOracle.EditorEvent(row){
     private readonly Label LabelEvent=value;private bool WidthDirty;
     // VALIDATOR
     // SETTER
+}
+// Row-only event adapters; searches and enumerators use the actual Fumen tree.
+// Looping search methods below are extracted unchanged from GrooveAuthor.
+internal sealed class EditorEvent(int row):IComparable<EditorEvent>{
+    public int GetRow()=>row;
+    public int CompareTo(EditorEvent? other)=>other is null?1:row.CompareTo(other.GetRow());
+}
+internal sealed class NavigationTree:RedBlackTree<EditorEvent>{
+    private IReadOnlyRedBlackTree<EditorEvent>.IReadOnlyRedBlackTreeEnumerator FindGreatestBeforeChartPosition(double row)
+        =>FindGreatestPreceding(row,(node,value)=>((double)node.GetRow()).CompareTo(value));
+    private IReadOnlyRedBlackTree<EditorEvent>.IReadOnlyRedBlackTreeEnumerator FindLeastAfterChartPosition(double row)
+        =>FindLeastFollowing(row,(node,value)=>((double)node.GetRow()).CompareTo(value));
+    // PREVIOUS
+    // NEXT
 }
 internal static class Reference{
     public static object Run(JsonElement input){
@@ -15,7 +30,9 @@ internal static class Reference{
         var chart=new Chart{Layers=[new Layer()]};SMCommon.AddLabelEvents(source,chart,new TempoOracle.SilentLogger(),false);var store=new PauseOracle.EditorChart();var nodes=new SortedDictionary<int,EditorLabelEvent>();
         foreach(var label in chart.Layers[0].Events.OfType<Label>())nodes[label.IntegerPosition]=new(label.IntegerPosition,label);
         store.EditorEvents.AddRange(nodes.Values);
-        object Values()=>nodes.Select(pair=>new{Row=pair.Key,Text=pair.Value.StringValue}).ToArray();var initial=Values();var stages=new List<object>();
+        object Values()=>nodes.Select(pair=>new{Row=pair.Key,Text=pair.Value.StringValue}).ToArray();var initial=Values();
+        object Navigation(){var tree=new NavigationTree();foreach(var row in nodes.Keys)tree.Insert(new EditorEvent(row));return new long[]{0,1,11,12,13,23,24,25,47,48,49,71,72,73,239,240,241,int.MaxValue}.Select(row=>new{Row=row,Previous=tree.FindPreviousEventWithLooping(row)?.GetRow(),Next=tree.FindNextEventWithLooping(row)?.GetRow()}).ToArray();}
+        var initialNavigation=Navigation();var stages=new List<object>();
         foreach(var op in input.GetProperty("Operations").EnumerateArray()){
             var kind=op[0].GetString();var row=op[1].GetInt32();bool changed=false;string? error=null;
             if(kind=="set"){
@@ -27,8 +44,8 @@ internal static class Reference{
             }else if(kind=="move"){
                 var target=op[2].GetInt32();if(!nodes.TryGetValue(row,out var node))error="missing";else if(row==target){}else if(!store.CanEventBeMovedToRow(node,target))error="collision";else{nodes.Remove(row);nodes[target]=node;node.Row=target;changed=true;}
             }
-            stages.Add(new{Changed=changed,Error=error,Values=Values()});
+            stages.Add(new{Changed=changed,Error=error,Values=Values(),Navigation=Navigation()});
         }
-        return new{Initial=initial,Stages=stages,Sanitized=input.GetProperty("Sanitize").EnumerateArray().Select(value=>new{Input=value.GetString(),Text=EditorLabelEvent.IsValidLabelString(value.GetString()!).Item2}).ToArray()};
+        return new{Initial=initial,InitialNavigation=initialNavigation,Stages=stages,Sanitized=input.GetProperty("Sanitize").EnumerateArray().Select(value=>new{Input=value.GetString(),Text=EditorLabelEvent.IsValidLabelString(value.GetString()!).Item2}).ToArray()};
     }
 }

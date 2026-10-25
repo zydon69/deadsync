@@ -209,3 +209,73 @@ fn f11_cancel_and_unchanged_apply_leave_document_clean() {
     assert_eq!(state.workspace().file().session.serialize().unwrap(), bytes);
     assert!(!state.workspace().file().session.is_dirty());
 }
+
+#[test]
+fn label_shortcuts_wrap_repeat_stop_playback_and_do_not_edit_song() {
+    let (dir, _) = setup();
+    let path = dir.path().join("labels.ssc");
+    fs::write(
+        &path,
+        SONG.replace("#BPMS:0=120;", "#BPMS:0=120;#LABELS:1=Verse,3=Chorus;"),
+    )
+    .unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    let bytes = state.workspace().file().session.serialize().unwrap();
+    // An unmodified L is neither a note nor a navigation command.
+    key(&mut state, KeyCode::KeyL);
+    assert_eq!(state.workspace().row(), 0);
+    key(&mut state, KeyCode::Enter);
+    state.take_audio_commands();
+    key(&mut state, KeyCode::ControlLeft);
+    key(&mut state, KeyCode::KeyL);
+    assert_eq!(state.workspace().row(), 48);
+    assert!(!state.is_playing());
+    assert_eq!(
+        state.take_audio_commands(),
+        vec![GameplayAudioCommand::StopMusic]
+    );
+    let repeat = RawKeyboardEvent {
+        code: KeyCode::KeyL,
+        pressed: true,
+        repeat: true,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    };
+    state.raw_key(&repeat);
+    assert_eq!(state.workspace().row(), 144);
+    state.raw_key(&repeat);
+    assert_eq!(state.workspace().row(), 48);
+    key(&mut state, KeyCode::ShiftLeft);
+    key(&mut state, KeyCode::KeyL);
+    assert_eq!(state.workspace().row(), 144);
+    state.raw_key(&repeat);
+    assert_eq!(state.workspace().row(), 48);
+    assert_eq!(state.workspace().file().session.serialize().unwrap(), bytes);
+    assert!(!state.workspace().file().session.is_dirty());
+}
+
+#[test]
+fn label_shortcuts_are_scoped_to_chart_view_and_support_command_modifier() {
+    let (dir, _) = setup();
+    let path = dir.path().join("labels.ssc");
+    fs::write(
+        &path,
+        SONG.replace("#BPMS:0=120;", "#BPMS:0=120;#LABELS:1=Verse,3=Chorus;"),
+    )
+    .unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    key(&mut state, KeyCode::F10);
+    key(&mut state, KeyCode::SuperLeft);
+    key(&mut state, KeyCode::KeyL);
+    assert_eq!(state.workspace().row(), 0);
+    key(&mut state, KeyCode::Escape);
+    key(&mut state, KeyCode::KeyL);
+    assert_eq!(state.workspace().row(), 48);
+    assert!(!state.workspace().file().session.is_dirty());
+    // There are no labels in the unmodified fixture.
+    let (_dir, mut empty) = setup();
+    key(&mut empty, KeyCode::ControlLeft);
+    key(&mut empty, KeyCode::KeyL);
+    assert_eq!(empty.workspace().row(), 0);
+    assert!(!empty.workspace().file().session.is_dirty());
+}

@@ -1154,6 +1154,9 @@ impl State {
         if !self.label_preedit.is_empty() {
             return false;
         }
+        let repeating_navigation = self.control
+            && event.code == KeyCode::KeyL
+            && self.panel.is_none();
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
         let repeating_offset = matches!(
@@ -1163,6 +1166,7 @@ impl State {
         if event.repeat
             && !repeating_offset
             && !repeating_label
+            && !repeating_navigation
             && !matches!(
                 event.code,
                 KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::PageUp | KeyCode::PageDown
@@ -1236,6 +1240,8 @@ impl State {
                 KeyCode::KeyX => Some(Command::Cut),
                 KeyCode::KeyV => Some(Command::Paste),
                 KeyCode::KeyR => Some(Command::Recover),
+                KeyCode::KeyL if self.shift => Some(Command::PreviousLabel),
+                KeyCode::KeyL => Some(Command::NextLabel),
                 KeyCode::Tab => {
                     let count = self.workspace.file().session.document().charts().len();
                     let delta = if self.shift { count - 1 } else { 1 };
@@ -1285,7 +1291,11 @@ impl State {
             }
         };
         if let Some(command) = command {
-            if !event.repeat || matches!(command, Command::Move(_) | Command::Seek(_)) {
+            if !event.repeat
+                || matches!(command,
+                    Command::Move(_) | Command::Seek(_) | Command::PreviousLabel | Command::NextLabel
+                )
+            {
                 self.command(command);
             }
         }

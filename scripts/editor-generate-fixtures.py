@@ -128,6 +128,9 @@ def prepare_region_reference(editor):
 def prepare_label_reference(editor):
     source=subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/EditorEvents/EditorLabelEvent.cs"],cwd=editor).decode("utf-8-sig")
     pieces={"VALIDATOR":extract_member(source,r"\tpublic static \(bool, string\) IsValidLabelString\("),"SETTER":extract_member(source,r"\tpublic string StringValue\s*")}
+    tree=subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/EditorEvents/Containers/EventTree.cs"],cwd=editor).decode("utf-8-sig")
+    pieces["PREVIOUS"]=extract_member(tree,r"\tpublic EditorEvent FindPreviousEventWithLooping\(")
+    pieces["NEXT"]=extract_member(tree,r"\tpublic EditorEvent FindNextEventWithLooping\(")
     project=ROOT/"scripts/editor-oracle";text=(project/"LabelReference.cs.template").read_text()
     for name,body in pieces.items():text=text.replace("// "+name,body)
     (project/"obj/LabelReference.cs").write_text(text)

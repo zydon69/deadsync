@@ -62,6 +62,23 @@ impl Labels {
     pub fn values(&self) -> &BTreeMap<u64, String> {
         &self.values
     }
+    /// Strictly preceding label, wrapping to the last label like GrooveAuthor.
+    pub fn previous_row(&self, row: u64) -> Option<u64> {
+        self.values
+            .range(..row)
+            .next_back()
+            .or_else(|| self.values.last_key_value())
+            .map(|(&row, _)| row)
+    }
+    /// Strictly following label, wrapping to the first label like GrooveAuthor.
+    pub fn next_row(&self, row: u64) -> Option<u64> {
+        use std::ops::Bound::{Excluded, Unbounded};
+        self.values
+            .range((Excluded(row), Unbounded))
+            .next()
+            .or_else(|| self.values.first_key_value())
+            .map(|(&row, _)| row)
+    }
     pub fn set(&mut self, row: u64, text: &str) -> Result<bool, Error> {
         valid_row(row)?;
         let text = sanitize(text);

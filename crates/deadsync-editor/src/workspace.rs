@@ -25,6 +25,8 @@ pub const TOOLS: [Kind; 6] = [
 pub enum Command {
     Move(i64),
     Seek(u64),
+    PreviousLabel,
+    NextLabel,
     SetSnap(usize),
     SelectChart(usize),
     SelectPlayer(u32),
@@ -129,6 +131,20 @@ impl Workspace {
                 };
             }
             Command::Seek(row) => self.row = row,
+            Command::PreviousLabel | Command::NextLabel => {
+                let labels = crate::timing_edit::label::Labels::from_document(
+                    self.file.session.document(),
+                    self.chart,
+                )?;
+                let row = if matches!(command, Command::PreviousLabel) {
+                    labels.previous_row(self.row)
+                } else {
+                    labels.next_row(self.row)
+                };
+                if let Some(row) = row {
+                    self.row = row;
+                }
+            }
             Command::SetSnap(snap) => {
                 if snap >= SNAP_ROWS.len() {
                     return Err(Error::InvalidEdit("Invalid quantization".into()));
