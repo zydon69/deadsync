@@ -1,0 +1,4101 @@
+{
+  "Operation": "Fallbacks",
+  "Cases": [
+    {
+      "Label": "step-0-Left-0",
+      "Left": {
+        "Step": 0,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-0-Left-1",
+      "Left": {
+        "Step": 0,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-0-Left-2",
+      "Left": {
+        "Step": 0,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-0-Left",
+      "Left": {
+        "Step": 0,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-0-Right-0",
+      "Right": {
+        "Step": 0,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-0-Right-1",
+      "Right": {
+        "Step": 0,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-0-Right-2",
+      "Right": {
+        "Step": 0,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-0-Right",
+      "Right": {
+        "Step": 0,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-1-Left-0",
+      "Left": {
+        "Step": 1,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-1-Left-1",
+      "Left": {
+        "Step": 1,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-1-Left-2",
+      "Left": {
+        "Step": 1,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-1-Left",
+      "Left": {
+        "Step": 1,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-1-Right-0",
+      "Right": {
+        "Step": 1,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-1-Right-1",
+      "Right": {
+        "Step": 1,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-1-Right-2",
+      "Right": {
+        "Step": 1,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-1-Right",
+      "Right": {
+        "Step": 1,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-2-Left-0",
+      "Left": {
+        "Step": 2,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-2-Left-1",
+      "Left": {
+        "Step": 2,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-2-Left-2",
+      "Left": {
+        "Step": 2,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-2-Left",
+      "Left": {
+        "Step": 2,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-2-Right-0",
+      "Right": {
+        "Step": 2,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-2-Right-1",
+      "Right": {
+        "Step": 2,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-2-Right-2",
+      "Right": {
+        "Step": 2,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-2-Right",
+      "Right": {
+        "Step": 2,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-3-Left-0",
+      "Left": {
+        "Step": 3,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-3-Left-1",
+      "Left": {
+        "Step": 3,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-3-Left-2",
+      "Left": {
+        "Step": 3,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-3-Left",
+      "Left": {
+        "Step": 3,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-3-Right-0",
+      "Right": {
+        "Step": 3,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-3-Right-1",
+      "Right": {
+        "Step": 3,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-3-Right-2",
+      "Right": {
+        "Step": 3,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-3-Right",
+      "Right": {
+        "Step": 3,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-4-Left-0",
+      "Left": {
+        "Step": 4,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-4-Left-1",
+      "Left": {
+        "Step": 4,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-4-Left-2",
+      "Left": {
+        "Step": 4,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-4-Left",
+      "Left": {
+        "Step": 4,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-4-Right-0",
+      "Right": {
+        "Step": 4,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-4-Right-1",
+      "Right": {
+        "Step": 4,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-4-Right-2",
+      "Right": {
+        "Step": 4,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-4-Right",
+      "Right": {
+        "Step": 4,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-5-Left-0",
+      "Left": {
+        "Step": 5,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-5-Left-1",
+      "Left": {
+        "Step": 5,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-5-Left-2",
+      "Left": {
+        "Step": 5,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-5-Left",
+      "Left": {
+        "Step": 5,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-5-Right-0",
+      "Right": {
+        "Step": 5,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-5-Right-1",
+      "Right": {
+        "Step": 5,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-5-Right-2",
+      "Right": {
+        "Step": 5,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-5-Right",
+      "Right": {
+        "Step": 5,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-6-Left-0",
+      "Left": {
+        "Step": 6,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-6-Left-1",
+      "Left": {
+        "Step": 6,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-6-Left-2",
+      "Left": {
+        "Step": 6,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-6-Left",
+      "Left": {
+        "Step": 6,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-6-Right-0",
+      "Right": {
+        "Step": 6,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-6-Right-1",
+      "Right": {
+        "Step": 6,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-6-Right-2",
+      "Right": {
+        "Step": 6,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-6-Right",
+      "Right": {
+        "Step": 6,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-7-Left-0",
+      "Left": {
+        "Step": 7,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-7-Left-1",
+      "Left": {
+        "Step": 7,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-7-Left-2",
+      "Left": {
+        "Step": 7,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-7-Left",
+      "Left": {
+        "Step": 7,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-7-Right-0",
+      "Right": {
+        "Step": 7,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-7-Right-1",
+      "Right": {
+        "Step": 7,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-7-Right-2",
+      "Right": {
+        "Step": 7,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-7-Right",
+      "Right": {
+        "Step": 7,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-8-Left-0",
+      "Left": {
+        "Step": 8,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-8-Left-1",
+      "Left": {
+        "Step": 8,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-8-Left-2",
+      "Left": {
+        "Step": 8,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-8-Left",
+      "Left": {
+        "Step": 8,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-8-Right-0",
+      "Right": {
+        "Step": 8,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-8-Right-1",
+      "Right": {
+        "Step": 8,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-8-Right-2",
+      "Right": {
+        "Step": 8,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-8-Right",
+      "Right": {
+        "Step": 8,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-9-Left-0",
+      "Left": {
+        "Step": 9,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-9-Left-1",
+      "Left": {
+        "Step": 9,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-9-Left-2",
+      "Left": {
+        "Step": 9,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-9-Left",
+      "Left": {
+        "Step": 9,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-9-Right-0",
+      "Right": {
+        "Step": 9,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-9-Right-1",
+      "Right": {
+        "Step": 9,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-9-Right-2",
+      "Right": {
+        "Step": 9,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-9-Right",
+      "Right": {
+        "Step": 9,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-10-Left-0",
+      "Left": {
+        "Step": 10,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-10-Left-1",
+      "Left": {
+        "Step": 10,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-10-Left-2",
+      "Left": {
+        "Step": 10,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-10-Left",
+      "Left": {
+        "Step": 10,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-10-Right-0",
+      "Right": {
+        "Step": 10,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-10-Right-1",
+      "Right": {
+        "Step": 10,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-10-Right-2",
+      "Right": {
+        "Step": 10,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-10-Right",
+      "Right": {
+        "Step": 10,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-11-Left-0",
+      "Left": {
+        "Step": 11,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-11-Left-1",
+      "Left": {
+        "Step": 11,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-11-Left-2",
+      "Left": {
+        "Step": 11,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-11-Left",
+      "Left": {
+        "Step": 11,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-11-Right-0",
+      "Right": {
+        "Step": 11,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-11-Right-1",
+      "Right": {
+        "Step": 11,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-11-Right-2",
+      "Right": {
+        "Step": 11,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-11-Right",
+      "Right": {
+        "Step": 11,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-12-Left-0",
+      "Left": {
+        "Step": 12,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-12-Left-1",
+      "Left": {
+        "Step": 12,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-12-Left-2",
+      "Left": {
+        "Step": 12,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-12-Left",
+      "Left": {
+        "Step": 12,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-12-Right-0",
+      "Right": {
+        "Step": 12,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-12-Right-1",
+      "Right": {
+        "Step": 12,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-12-Right-2",
+      "Right": {
+        "Step": 12,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-12-Right",
+      "Right": {
+        "Step": 12,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-13-Left-0",
+      "Left": {
+        "Step": 13,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-13-Left-1",
+      "Left": {
+        "Step": 13,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-13-Left-2",
+      "Left": {
+        "Step": 13,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-13-Left",
+      "Left": {
+        "Step": 13,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-13-Right-0",
+      "Right": {
+        "Step": 13,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-13-Right-1",
+      "Right": {
+        "Step": 13,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-13-Right-2",
+      "Right": {
+        "Step": 13,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-13-Right",
+      "Right": {
+        "Step": 13,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-14-Left-0",
+      "Left": {
+        "Step": 14,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-14-Left-1",
+      "Left": {
+        "Step": 14,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-14-Left-2",
+      "Left": {
+        "Step": 14,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-14-Left",
+      "Left": {
+        "Step": 14,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-14-Right-0",
+      "Right": {
+        "Step": 14,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-14-Right-1",
+      "Right": {
+        "Step": 14,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-14-Right-2",
+      "Right": {
+        "Step": 14,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-14-Right",
+      "Right": {
+        "Step": 14,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-15-Left-0",
+      "Left": {
+        "Step": 15,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-15-Left-1",
+      "Left": {
+        "Step": 15,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-15-Left-2",
+      "Left": {
+        "Step": 15,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-15-Left",
+      "Left": {
+        "Step": 15,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-15-Right-0",
+      "Right": {
+        "Step": 15,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-15-Right-1",
+      "Right": {
+        "Step": 15,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-15-Right-2",
+      "Right": {
+        "Step": 15,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-15-Right",
+      "Right": {
+        "Step": 15,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-16-Left-0",
+      "Left": {
+        "Step": 16,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-16-Left-1",
+      "Left": {
+        "Step": 16,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-16-Left-2",
+      "Left": {
+        "Step": 16,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-16-Left",
+      "Left": {
+        "Step": 16,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-16-Right-0",
+      "Right": {
+        "Step": 16,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-16-Right-1",
+      "Right": {
+        "Step": 16,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-16-Right-2",
+      "Right": {
+        "Step": 16,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-16-Right",
+      "Right": {
+        "Step": 16,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-17-Left-0",
+      "Left": {
+        "Step": 17,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-17-Left-1",
+      "Left": {
+        "Step": 17,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-17-Left-2",
+      "Left": {
+        "Step": 17,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-17-Left",
+      "Left": {
+        "Step": 17,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-17-Right-0",
+      "Right": {
+        "Step": 17,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-17-Right-1",
+      "Right": {
+        "Step": 17,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-17-Right-2",
+      "Right": {
+        "Step": 17,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-17-Right",
+      "Right": {
+        "Step": 17,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-18-Left-0",
+      "Left": {
+        "Step": 18,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-18-Left-1",
+      "Left": {
+        "Step": 18,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-18-Left-2",
+      "Left": {
+        "Step": 18,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-18-Left",
+      "Left": {
+        "Step": 18,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-18-Right-0",
+      "Right": {
+        "Step": 18,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-18-Right-1",
+      "Right": {
+        "Step": 18,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-18-Right-2",
+      "Right": {
+        "Step": 18,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-18-Right",
+      "Right": {
+        "Step": 18,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-19-Left-0",
+      "Left": {
+        "Step": 19,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-19-Left-1",
+      "Left": {
+        "Step": 19,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-19-Left-2",
+      "Left": {
+        "Step": 19,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-19-Left",
+      "Left": {
+        "Step": 19,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-19-Right-0",
+      "Right": {
+        "Step": 19,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-19-Right-1",
+      "Right": {
+        "Step": 19,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-19-Right-2",
+      "Right": {
+        "Step": 19,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-19-Right",
+      "Right": {
+        "Step": 19,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-20-Left-0",
+      "Left": {
+        "Step": 20,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-20-Left-1",
+      "Left": {
+        "Step": 20,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-20-Left-2",
+      "Left": {
+        "Step": 20,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-20-Left",
+      "Left": {
+        "Step": 20,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-20-Right-0",
+      "Right": {
+        "Step": 20,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-20-Right-1",
+      "Right": {
+        "Step": 20,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-20-Right-2",
+      "Right": {
+        "Step": 20,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-20-Right",
+      "Right": {
+        "Step": 20,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-21-Left-0",
+      "Left": {
+        "Step": 21,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-21-Left-1",
+      "Left": {
+        "Step": 21,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-21-Left-2",
+      "Left": {
+        "Step": 21,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-21-Left",
+      "Left": {
+        "Step": 21,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-21-Right-0",
+      "Right": {
+        "Step": 21,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-21-Right-1",
+      "Right": {
+        "Step": 21,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-21-Right-2",
+      "Right": {
+        "Step": 21,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-21-Right",
+      "Right": {
+        "Step": 21,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-22-Left-0",
+      "Left": {
+        "Step": 22,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-22-Left-1",
+      "Left": {
+        "Step": 22,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-22-Left-2",
+      "Left": {
+        "Step": 22,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-22-Left",
+      "Left": {
+        "Step": 22,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-22-Right-0",
+      "Right": {
+        "Step": 22,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-22-Right-1",
+      "Right": {
+        "Step": 22,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-22-Right-2",
+      "Right": {
+        "Step": 22,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-22-Right",
+      "Right": {
+        "Step": 22,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-23-Left-0",
+      "Left": {
+        "Step": 23,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-23-Left-1",
+      "Left": {
+        "Step": 23,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-23-Left-2",
+      "Left": {
+        "Step": 23,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-23-Left",
+      "Left": {
+        "Step": 23,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-23-Right-0",
+      "Right": {
+        "Step": 23,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-23-Right-1",
+      "Right": {
+        "Step": 23,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-23-Right-2",
+      "Right": {
+        "Step": 23,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-23-Right",
+      "Right": {
+        "Step": 23,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-24-Left-0",
+      "Left": {
+        "Step": 24,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-24-Left-1",
+      "Left": {
+        "Step": 24,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-24-Left-2",
+      "Left": {
+        "Step": 24,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-24-Left",
+      "Left": {
+        "Step": 24,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-24-Right-0",
+      "Right": {
+        "Step": 24,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-24-Right-1",
+      "Right": {
+        "Step": 24,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-24-Right-2",
+      "Right": {
+        "Step": 24,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-24-Right",
+      "Right": {
+        "Step": 24,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-25-Left-0",
+      "Left": {
+        "Step": 25,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-25-Left-1",
+      "Left": {
+        "Step": 25,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-25-Left-2",
+      "Left": {
+        "Step": 25,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-25-Left",
+      "Left": {
+        "Step": 25,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-25-Right-0",
+      "Right": {
+        "Step": 25,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-25-Right-1",
+      "Right": {
+        "Step": 25,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-25-Right-2",
+      "Right": {
+        "Step": 25,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-25-Right",
+      "Right": {
+        "Step": 25,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-26-Left-0",
+      "Left": {
+        "Step": 26,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-26-Left-1",
+      "Left": {
+        "Step": 26,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-26-Left-2",
+      "Left": {
+        "Step": 26,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-26-Left",
+      "Left": {
+        "Step": 26,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-26-Right-0",
+      "Right": {
+        "Step": 26,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-26-Right-1",
+      "Right": {
+        "Step": 26,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-26-Right-2",
+      "Right": {
+        "Step": 26,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-26-Right",
+      "Right": {
+        "Step": 26,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-27-Left-0",
+      "Left": {
+        "Step": 27,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-27-Left-1",
+      "Left": {
+        "Step": 27,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-27-Left-2",
+      "Left": {
+        "Step": 27,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-27-Left",
+      "Left": {
+        "Step": 27,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-27-Right-0",
+      "Right": {
+        "Step": 27,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-27-Right-1",
+      "Right": {
+        "Step": 27,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-27-Right-2",
+      "Right": {
+        "Step": 27,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-27-Right",
+      "Right": {
+        "Step": 27,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-28-Left-0",
+      "Left": {
+        "Step": 28,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-28-Left-1",
+      "Left": {
+        "Step": 28,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-28-Left-2",
+      "Left": {
+        "Step": 28,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-28-Left",
+      "Left": {
+        "Step": 28,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-28-Right-0",
+      "Right": {
+        "Step": 28,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-28-Right-1",
+      "Right": {
+        "Step": 28,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-28-Right-2",
+      "Right": {
+        "Step": 28,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-28-Right",
+      "Right": {
+        "Step": 28,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-29-Left-0",
+      "Left": {
+        "Step": 29,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-29-Left-1",
+      "Left": {
+        "Step": 29,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-29-Left-2",
+      "Left": {
+        "Step": 29,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-29-Left",
+      "Left": {
+        "Step": 29,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-29-Right-0",
+      "Right": {
+        "Step": 29,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-29-Right-1",
+      "Right": {
+        "Step": 29,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-29-Right-2",
+      "Right": {
+        "Step": 29,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-29-Right",
+      "Right": {
+        "Step": 29,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-30-Left-0",
+      "Left": {
+        "Step": 30,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-30-Left-1",
+      "Left": {
+        "Step": 30,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-30-Left-2",
+      "Left": {
+        "Step": 30,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-30-Left",
+      "Left": {
+        "Step": 30,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-30-Right-0",
+      "Right": {
+        "Step": 30,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-30-Right-1",
+      "Right": {
+        "Step": 30,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-30-Right-2",
+      "Right": {
+        "Step": 30,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-30-Right",
+      "Right": {
+        "Step": 30,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-31-Left-0",
+      "Left": {
+        "Step": 31,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-31-Left-1",
+      "Left": {
+        "Step": 31,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-31-Left-2",
+      "Left": {
+        "Step": 31,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-31-Left",
+      "Left": {
+        "Step": 31,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-31-Right-0",
+      "Right": {
+        "Step": 31,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-31-Right-1",
+      "Right": {
+        "Step": 31,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-31-Right-2",
+      "Right": {
+        "Step": 31,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-31-Right",
+      "Right": {
+        "Step": 31,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-32-Left-0",
+      "Left": {
+        "Step": 32,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-32-Left-1",
+      "Left": {
+        "Step": 32,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-32-Left-2",
+      "Left": {
+        "Step": 32,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-32-Left",
+      "Left": {
+        "Step": 32,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-32-Right-0",
+      "Right": {
+        "Step": 32,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-32-Right-1",
+      "Right": {
+        "Step": 32,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-32-Right-2",
+      "Right": {
+        "Step": 32,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-32-Right",
+      "Right": {
+        "Step": 32,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-33-Left-0",
+      "Left": {
+        "Step": 33,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-33-Left-1",
+      "Left": {
+        "Step": 33,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-33-Left-2",
+      "Left": {
+        "Step": 33,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-33-Left",
+      "Left": {
+        "Step": 33,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-33-Right-0",
+      "Right": {
+        "Step": 33,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-33-Right-1",
+      "Right": {
+        "Step": 33,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-33-Right-2",
+      "Right": {
+        "Step": 33,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-33-Right",
+      "Right": {
+        "Step": 33,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-34-Left-0",
+      "Left": {
+        "Step": 34,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-34-Left-1",
+      "Left": {
+        "Step": 34,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-34-Left-2",
+      "Left": {
+        "Step": 34,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-34-Left",
+      "Left": {
+        "Step": 34,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-34-Right-0",
+      "Right": {
+        "Step": 34,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-34-Right-1",
+      "Right": {
+        "Step": 34,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-34-Right-2",
+      "Right": {
+        "Step": 34,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-34-Right",
+      "Right": {
+        "Step": 34,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-35-Left-0",
+      "Left": {
+        "Step": 35,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-35-Left-1",
+      "Left": {
+        "Step": 35,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-35-Left-2",
+      "Left": {
+        "Step": 35,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-35-Left",
+      "Left": {
+        "Step": 35,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-35-Right-0",
+      "Right": {
+        "Step": 35,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-35-Right-1",
+      "Right": {
+        "Step": 35,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-35-Right-2",
+      "Right": {
+        "Step": 35,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-35-Right",
+      "Right": {
+        "Step": 35,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-36-Left-0",
+      "Left": {
+        "Step": 36,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-36-Left-1",
+      "Left": {
+        "Step": 36,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-36-Left-2",
+      "Left": {
+        "Step": 36,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-36-Left",
+      "Left": {
+        "Step": 36,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-36-Right-0",
+      "Right": {
+        "Step": 36,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-36-Right-1",
+      "Right": {
+        "Step": 36,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-36-Right-2",
+      "Right": {
+        "Step": 36,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-36-Right",
+      "Right": {
+        "Step": 36,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-37-Left-0",
+      "Left": {
+        "Step": 37,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-37-Left-1",
+      "Left": {
+        "Step": 37,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-37-Left-2",
+      "Left": {
+        "Step": 37,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-37-Left",
+      "Left": {
+        "Step": 37,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-37-Right-0",
+      "Right": {
+        "Step": 37,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-37-Right-1",
+      "Right": {
+        "Step": 37,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-37-Right-2",
+      "Right": {
+        "Step": 37,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-37-Right",
+      "Right": {
+        "Step": 37,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-38-Left-0",
+      "Left": {
+        "Step": 38,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-38-Left-1",
+      "Left": {
+        "Step": 38,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-38-Left-2",
+      "Left": {
+        "Step": 38,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-38-Left",
+      "Left": {
+        "Step": 38,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-38-Right-0",
+      "Right": {
+        "Step": 38,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-38-Right-1",
+      "Right": {
+        "Step": 38,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-38-Right-2",
+      "Right": {
+        "Step": 38,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-38-Right",
+      "Right": {
+        "Step": 38,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-39-Left-0",
+      "Left": {
+        "Step": 39,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-39-Left-1",
+      "Left": {
+        "Step": 39,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-39-Left-2",
+      "Left": {
+        "Step": 39,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-39-Left",
+      "Left": {
+        "Step": 39,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-39-Right-0",
+      "Right": {
+        "Step": 39,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-39-Right-1",
+      "Right": {
+        "Step": 39,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-39-Right-2",
+      "Right": {
+        "Step": 39,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-39-Right",
+      "Right": {
+        "Step": 39,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-40-Left-0",
+      "Left": {
+        "Step": 40,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-40-Left-1",
+      "Left": {
+        "Step": 40,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-40-Left-2",
+      "Left": {
+        "Step": 40,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-40-Left",
+      "Left": {
+        "Step": 40,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-40-Right-0",
+      "Right": {
+        "Step": 40,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-40-Right-1",
+      "Right": {
+        "Step": 40,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-40-Right-2",
+      "Right": {
+        "Step": 40,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-40-Right",
+      "Right": {
+        "Step": 40,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-41-Left-0",
+      "Left": {
+        "Step": 41,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-41-Left-1",
+      "Left": {
+        "Step": 41,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-41-Left-2",
+      "Left": {
+        "Step": 41,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-41-Left",
+      "Left": {
+        "Step": 41,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-41-Right-0",
+      "Right": {
+        "Step": 41,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-41-Right-1",
+      "Right": {
+        "Step": 41,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-41-Right-2",
+      "Right": {
+        "Step": 41,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-41-Right",
+      "Right": {
+        "Step": 41,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-42-Left-0",
+      "Left": {
+        "Step": 42,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-42-Left-1",
+      "Left": {
+        "Step": 42,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-42-Left-2",
+      "Left": {
+        "Step": 42,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-42-Left",
+      "Left": {
+        "Step": 42,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-42-Right-0",
+      "Right": {
+        "Step": 42,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-42-Right-1",
+      "Right": {
+        "Step": 42,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-42-Right-2",
+      "Right": {
+        "Step": 42,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-42-Right",
+      "Right": {
+        "Step": 42,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-43-Left-0",
+      "Left": {
+        "Step": 43,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-43-Left-1",
+      "Left": {
+        "Step": 43,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-43-Left-2",
+      "Left": {
+        "Step": 43,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-43-Left",
+      "Left": {
+        "Step": 43,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-43-Right-0",
+      "Right": {
+        "Step": 43,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-43-Right-1",
+      "Right": {
+        "Step": 43,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-43-Right-2",
+      "Right": {
+        "Step": 43,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-43-Right",
+      "Right": {
+        "Step": 43,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-44-Left-0",
+      "Left": {
+        "Step": 44,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-44-Left-1",
+      "Left": {
+        "Step": 44,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-44-Left-2",
+      "Left": {
+        "Step": 44,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-44-Left",
+      "Left": {
+        "Step": 44,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-44-Right-0",
+      "Right": {
+        "Step": 44,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-44-Right-1",
+      "Right": {
+        "Step": 44,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-44-Right-2",
+      "Right": {
+        "Step": 44,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-44-Right",
+      "Right": {
+        "Step": 44,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-45-Left-0",
+      "Left": {
+        "Step": 45,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-45-Left-1",
+      "Left": {
+        "Step": 45,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-45-Left-2",
+      "Left": {
+        "Step": 45,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-45-Left",
+      "Left": {
+        "Step": 45,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-45-Right-0",
+      "Right": {
+        "Step": 45,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-45-Right-1",
+      "Right": {
+        "Step": 45,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-45-Right-2",
+      "Right": {
+        "Step": 45,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-45-Right",
+      "Right": {
+        "Step": 45,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-46-Left-0",
+      "Left": {
+        "Step": 46,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-46-Left-1",
+      "Left": {
+        "Step": 46,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-46-Left-2",
+      "Left": {
+        "Step": 46,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-46-Left",
+      "Left": {
+        "Step": 46,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-46-Right-0",
+      "Right": {
+        "Step": 46,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-46-Right-1",
+      "Right": {
+        "Step": 46,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-46-Right-2",
+      "Right": {
+        "Step": 46,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-46-Right",
+      "Right": {
+        "Step": 46,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-47-Left-0",
+      "Left": {
+        "Step": 47,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-47-Left-1",
+      "Left": {
+        "Step": 47,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-47-Left-2",
+      "Left": {
+        "Step": 47,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-47-Left",
+      "Left": {
+        "Step": 47,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-47-Right-0",
+      "Right": {
+        "Step": 47,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-47-Right-1",
+      "Right": {
+        "Step": 47,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-47-Right-2",
+      "Right": {
+        "Step": 47,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-47-Right",
+      "Right": {
+        "Step": 47,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-48-Left-0",
+      "Left": {
+        "Step": 48,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-48-Left-1",
+      "Left": {
+        "Step": 48,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-48-Left-2",
+      "Left": {
+        "Step": 48,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-48-Left",
+      "Left": {
+        "Step": 48,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-48-Right-0",
+      "Right": {
+        "Step": 48,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-48-Right-1",
+      "Right": {
+        "Step": 48,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-48-Right-2",
+      "Right": {
+        "Step": 48,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-48-Right",
+      "Right": {
+        "Step": 48,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-49-Left-0",
+      "Left": {
+        "Step": 49,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-49-Left-1",
+      "Left": {
+        "Step": 49,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-49-Left-2",
+      "Left": {
+        "Step": 49,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-49-Left",
+      "Left": {
+        "Step": 49,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-49-Right-0",
+      "Right": {
+        "Step": 49,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-49-Right-1",
+      "Right": {
+        "Step": 49,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-49-Right-2",
+      "Right": {
+        "Step": 49,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-49-Right",
+      "Right": {
+        "Step": 49,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-50-Left-0",
+      "Left": {
+        "Step": 50,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-50-Left-1",
+      "Left": {
+        "Step": 50,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-50-Left-2",
+      "Left": {
+        "Step": 50,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-50-Left",
+      "Left": {
+        "Step": 50,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-50-Right-0",
+      "Right": {
+        "Step": 50,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-50-Right-1",
+      "Right": {
+        "Step": 50,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-50-Right-2",
+      "Right": {
+        "Step": 50,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-50-Right",
+      "Right": {
+        "Step": 50,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-51-Left-0",
+      "Left": {
+        "Step": 51,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-51-Left-1",
+      "Left": {
+        "Step": 51,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-51-Left-2",
+      "Left": {
+        "Step": 51,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-51-Left",
+      "Left": {
+        "Step": 51,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-51-Right-0",
+      "Right": {
+        "Step": 51,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-51-Right-1",
+      "Right": {
+        "Step": 51,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-51-Right-2",
+      "Right": {
+        "Step": 51,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-51-Right",
+      "Right": {
+        "Step": 51,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-52-Left-0",
+      "Left": {
+        "Step": 52,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-52-Left-1",
+      "Left": {
+        "Step": 52,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-52-Left-2",
+      "Left": {
+        "Step": 52,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-52-Left",
+      "Left": {
+        "Step": 52,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-52-Right-0",
+      "Right": {
+        "Step": 52,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-52-Right-1",
+      "Right": {
+        "Step": 52,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-52-Right-2",
+      "Right": {
+        "Step": 52,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-52-Right",
+      "Right": {
+        "Step": 52,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-53-Left-0",
+      "Left": {
+        "Step": 53,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-53-Left-1",
+      "Left": {
+        "Step": 53,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-53-Left-2",
+      "Left": {
+        "Step": 53,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-53-Left",
+      "Left": {
+        "Step": 53,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-53-Right-0",
+      "Right": {
+        "Step": 53,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-53-Right-1",
+      "Right": {
+        "Step": 53,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-53-Right-2",
+      "Right": {
+        "Step": 53,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-53-Right",
+      "Right": {
+        "Step": 53,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-54-Left-0",
+      "Left": {
+        "Step": 54,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-54-Left-1",
+      "Left": {
+        "Step": 54,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-54-Left-2",
+      "Left": {
+        "Step": 54,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-54-Left",
+      "Left": {
+        "Step": 54,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-54-Right-0",
+      "Right": {
+        "Step": 54,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-54-Right-1",
+      "Right": {
+        "Step": 54,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-54-Right-2",
+      "Right": {
+        "Step": 54,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-54-Right",
+      "Right": {
+        "Step": 54,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-55-Left-0",
+      "Left": {
+        "Step": 55,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-55-Left-1",
+      "Left": {
+        "Step": 55,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-55-Left-2",
+      "Left": {
+        "Step": 55,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-55-Left",
+      "Left": {
+        "Step": 55,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-55-Right-0",
+      "Right": {
+        "Step": 55,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-55-Right-1",
+      "Right": {
+        "Step": 55,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-55-Right-2",
+      "Right": {
+        "Step": 55,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-55-Right",
+      "Right": {
+        "Step": 55,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-56-Left-0",
+      "Left": {
+        "Step": 56,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-56-Left-1",
+      "Left": {
+        "Step": 56,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-56-Left-2",
+      "Left": {
+        "Step": 56,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-56-Left",
+      "Left": {
+        "Step": 56,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-56-Right-0",
+      "Right": {
+        "Step": 56,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-56-Right-1",
+      "Right": {
+        "Step": 56,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-56-Right-2",
+      "Right": {
+        "Step": 56,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-56-Right",
+      "Right": {
+        "Step": 56,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-57-Left-0",
+      "Left": {
+        "Step": 57,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-57-Left-1",
+      "Left": {
+        "Step": 57,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-57-Left-2",
+      "Left": {
+        "Step": 57,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-57-Left",
+      "Left": {
+        "Step": 57,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "step-57-Right-0",
+      "Right": {
+        "Step": 57,
+        "Action": 0,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "step-57-Right-1",
+      "Right": {
+        "Step": 57,
+        "Action": 1,
+        "Instance": 1
+      }
+    },
+    {
+      "Label": "step-57-Right-2",
+      "Right": {
+        "Step": 57,
+        "Action": 2,
+        "Instance": 2
+      }
+    },
+    {
+      "Label": "mixed-57-Right",
+      "Right": {
+        "Step": 57,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 3
+      }
+    },
+    {
+      "Label": "jump-1-1",
+      "Left": {
+        "Step": 1,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 2
+      },
+      "Right": {
+        "Step": 1,
+        "Action": 0,
+        "Instance": 3,
+        "ToeAction": 2,
+        "ToeInstance": 0
+      }
+    },
+    {
+      "Label": "jump-17-17",
+      "Left": {
+        "Step": 17,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 2
+      },
+      "Right": {
+        "Step": 17,
+        "Action": 0,
+        "Instance": 3,
+        "ToeAction": 2,
+        "ToeInstance": 0
+      }
+    },
+    {
+      "Label": "jump-22-24",
+      "Left": {
+        "Step": 22,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 2
+      },
+      "Right": {
+        "Step": 24,
+        "Action": 0,
+        "Instance": 3,
+        "ToeAction": 2,
+        "ToeInstance": 0
+      }
+    },
+    {
+      "Label": "jump-8-39",
+      "Left": {
+        "Step": 8,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 2
+      },
+      "Right": {
+        "Step": 39,
+        "Action": 0,
+        "Instance": 3,
+        "ToeAction": 2,
+        "ToeInstance": 0
+      }
+    },
+    {
+      "Label": "jump-42-47",
+      "Left": {
+        "Step": 42,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 2
+      },
+      "Right": {
+        "Step": 47,
+        "Action": 0,
+        "Instance": 3,
+        "ToeAction": 2,
+        "ToeInstance": 0
+      }
+    },
+    {
+      "Label": "jump-13-15",
+      "Left": {
+        "Step": 13,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 2
+      },
+      "Right": {
+        "Step": 15,
+        "Action": 0,
+        "Instance": 3,
+        "ToeAction": 2,
+        "ToeInstance": 0
+      }
+    },
+    {
+      "Label": "jump-27-30",
+      "Left": {
+        "Step": 27,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 2
+      },
+      "Right": {
+        "Step": 30,
+        "Action": 0,
+        "Instance": 3,
+        "ToeAction": 2,
+        "ToeInstance": 0
+      }
+    },
+    {
+      "Label": "jump-33-36",
+      "Left": {
+        "Step": 33,
+        "Action": 1,
+        "Instance": 1,
+        "ToeAction": 0,
+        "ToeInstance": 2
+      },
+      "Right": {
+        "Step": 36,
+        "Action": 0,
+        "Instance": 3,
+        "ToeAction": 2,
+        "ToeInstance": 0
+      }
+    },
+    {
+      "Label": "blank"
+    },
+    {
+      "Label": "disabled-blank",
+      "Disabled": true
+    },
+    {
+      "Label": "disabled-step",
+      "Disabled": true,
+      "Right": {
+        "Step": 57,
+        "Action": 0,
+        "Instance": 3
+      }
+    }
+  ]
+}

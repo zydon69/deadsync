@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Multi-view comparison, chart creation/clone/delete and library pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; performed-chart conversion, fallback rules, destination mine placement and native asynchronous generation panels pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion, fallback cost integration, destination mine placement and native asynchronous generation panels pending |
 | Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -92,8 +92,8 @@ seed. `ActionAutoGeneratePatterns` additionally constrains preceding/following
 footing and pattern configuration. The Rust port must preserve these contracts.
 A random lane picker or a basic difficulty filter would not meet the request.
 
-Next implementation work must finish performed-chart conversion with the
-original fallback rules and mine placement. Differential fixtures must extend the existing tech, bracket, crossover,
+Next implementation work must finish performed-chart conversion with fallback
+costs and mine placement, using the replacement rules now ported below. Differential fixtures must extend the existing tech, bracket, crossover,
 hold, mine, layout and seed cases to that complete conversion pipeline.
 Generation results need preview and one reversible application gesture before
 being exposed as complete. The other advanced editor domains remain required
@@ -207,3 +207,31 @@ mine results. A dedicated case covers AfterArrow, BeforeArrow and NoArrow,
 recency ties and foot association. Cancellation and invalid-input checks return
 no partial interpretation. Mine placement on the destination graph still needs
 porting along with fallback conversion.
+
+### Performed-chart replacements
+
+`fallbacks` imports the unchanged `default-steptype-fallbacks.json`, expands its
+include lists and validates every step's replacements. It ports foot-portion
+selection, hold/release priority, instance metadata, bracket expansion, jump
+restrictions, blank links and the original ranking. Source-specific portion
+behavior is retained rather than silently corrected. Fallbacks can be disabled,
+which returns the source link unchanged like the reference.
+
+Replacement order affects fallback indices. `reference_sort` ports the
+comparer-based ArraySortHelper introsort from .NET runtime `v10.0.13`, retaining
+the permutation of equal-ranked replacements. The source and MIT notice are
+recorded in `licenses/dotnet-runtime-MIT.txt` and fixture provenance:
+[ArraySortHelper.cs](https://github.com/dotnet/runtime/blob/v10.0.13/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/ArraySortHelper.cs)
+
+The original cache is invoked through the development oracle for 475 source
+cases: all 58 step types, both feet, taps/holds/releases, mixed bracket actions,
+roll/fake/lift metadata, jumps, four-arrow combinations, blanks and disabled
+fallbacks. Rust compares complete ordered lists, dropped-foot detection and
+removed-step counts. Forty sorting cases independently compare equal-key
+permutations around partition thresholds and larger arrays. Configuration tests
+cover comments, trailing commas, includes, missing/duplicate entries and cycles.
+Cached replacement slices are immutable and protected by a short mutex;
+concurrent first requests compute independently and share the stored result.
+These checks establish replacement expansion and ordering, not complete
+performed-chart conversion. Its search, fallback cost integration and destination
+mine placement still need to be connected and verified.

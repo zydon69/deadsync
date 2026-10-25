@@ -150,6 +150,22 @@ def requests(reference: Path):
         "Notes": [[0, 0, "M"], [0, 2, "M"], [12, 0, "1"], [24, 0, "M"], [24, 2, "M"],
                   [36, 0, "1"], [36, 3, "1"], [48, 0, "M"], [48, 3, "M"], [60, 1, "1"],
                   [72, 0, "M"], [84, 3, "M"], [96, 0, "1"], [108, 1, "M"]]}
+    fallback_cases = []
+    for step in range(58):
+        for foot in ["Left", "Right"]:
+            for action in range(3):
+                fallback_cases.append({"Label": f"step-{step}-{foot}-{action}", foot: {"Step": step, "Action": action, "Instance": 1 if action == 1 else 2}})
+            fallback_cases.append({"Label": f"mixed-{step}-{foot}", foot: {"Step": step, "Action": 1, "Instance": 1, "ToeAction": 0, "ToeInstance": 3}})
+    for left, right in [(1, 1), (17, 17), (22, 24), (8, 39), (42, 47), (13, 15), (27, 30), (33, 36)]:
+        fallback_cases.append({"Label": f"jump-{left}-{right}", "Left": {"Step": left, "Action": 1, "Instance": 1, "ToeAction": 0, "ToeInstance": 2},
+            "Right": {"Step": right, "Action": 0, "Instance": 3, "ToeAction": 2, "ToeInstance": 0}})
+    fallback_cases.extend([{"Label": "blank"}, {"Label": "disabled-blank", "Disabled": True},
+        {"Label": "disabled-step", "Disabled": True, "Right": {"Step": 57, "Action": 0, "Instance": 3}}])
+    cases["fallback-replacements"] = {"Operation": "Fallbacks", "Cases": fallback_cases}
+    sort_cases = []
+    for count in [0, 1, 2, 3, 15, 16, 17, 31, 64, 257]:
+        sort_cases.extend([[i % 4 for i in range(count)], [0] * count, list(range(count - 1, -1, -1)), [(i * 7) % 13 for i in range(count)]])
+    cases["reference-sort"] = {"Operation": "Sort", "Cases": sort_cases}
     return cases
 
 
@@ -183,6 +199,8 @@ def main():
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
+        "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],
+        "sort_source": "https://github.com/dotnet/runtime/blob/v10.0.13/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/ArraySortHelper.cs",
         "notice": "Expected results are produced by the unmodified C# library, not by the Rust port.",
     }, indent=2) + "\n")
 

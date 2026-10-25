@@ -57,6 +57,62 @@ if (operation == "Configurations")
     Console.WriteLine(JsonSerializer.Serialize(results, options));
     return;
 }
+if (operation == "Fallbacks")
+{
+    var fallbackConfig = await StepTypeFallbacks.Load(Path.Combine(args[0], "StepManiaLibrary", StepTypeFallbacks.DefaultFallbacksFileName));
+    if (fallbackConfig == null) throw new InvalidDataException("Invalid pinned fallbacks");
+    var cacheType = typeof(PerformedChart).Assembly.GetType("StepManiaLibrary.PerformedChart.GraphLinkInstanceCache")!;
+    var cacheInstance = Activator.CreateInstance(cacheType)!;
+    var getLinks = cacheType.GetMethod("GetGraphLinks")!;
+    int[] encode(GraphLinkInstance link) => Enumerable.Range(0, 4).SelectMany(i => new[] {
+        link.GraphLink.Links[i / 2, i % 2].Valid ? 1 : 0, (int)link.GraphLink.Links[i / 2, i % 2].Step,
+        (int)link.GraphLink.Links[i / 2, i % 2].Action, (int)link.InstanceTypes[i / 2, i % 2]
+    }).ToArray();
+    var fallbackResults = new List<object>();
+    foreach (var test in request.GetProperty("Cases").EnumerateArray())
+    {
+        var source = new GraphLinkInstance();
+        for (var f = 0; f < 2; f++)
+        {
+            if (!test.TryGetProperty(f == 0 ? "Left" : "Right", out var foot)) continue;
+            var step = (StepType)foot.GetProperty("Step").GetInt32();
+            var data = StepData.Steps[(int)step];
+            var portion = data.IsOneArrowBracket ? data.SingleStepFootPortion : 0;
+            var action = (FootAction)foot.GetProperty("Action").GetInt32();
+            source.GraphLink.Links[f, portion] = new GraphLink.FootArrowState(step, action);
+            source.InstanceTypes[f, portion] = (InstanceStepType)foot.GetProperty("Instance").GetInt32();
+            if (data.IsBracket)
+            {
+                source.GraphLink.Links[f, 1] = new GraphLink.FootArrowState(step,
+                    foot.TryGetProperty("ToeAction", out var toeAction) ? (FootAction)toeAction.GetInt32() : action);
+                source.InstanceTypes[f, 1] = foot.TryGetProperty("ToeInstance", out var toeInstance) ? (InstanceStepType)toeInstance.GetInt32() : source.InstanceTypes[f, portion];
+            }
+        }
+        var enabled = !test.TryGetProperty("Disabled", out var disabled) || !disabled.GetBoolean();
+        var links = (List<GraphLinkInstance>)getLinks.Invoke(cacheInstance, new object?[] { source, enabled ? fallbackConfig : null })!;
+        fallbackResults.Add(new { Label = test.GetProperty("Label").GetString(), Source = encode(source),
+            Links = links.Select(link => new { Link = encode(link),
+                BlankFoot = (bool)cacheType.GetMethod("ContainsBlankLink")!.Invoke(cacheInstance, new object[] { source, link })!,
+                Removed = (int)cacheType.GetMethod("GetNumStepsRemoved")!.Invoke(cacheInstance, new object[] { source, link })! }).ToArray() });
+    }
+    Console.WriteLine(JsonSerializer.Serialize(new {
+        Lists = Enum.GetValues<StepType>().Select(step => fallbackConfig.GetFallbacks(step).Select(s => (int)s).ToArray()).ToArray(),
+        Cases = fallbackResults
+    }, options));
+    return;
+}
+if (operation == "Sort")
+{
+    var sortedCases = new List<object>();
+    foreach (var values in request.GetProperty("Cases").EnumerateArray())
+    {
+        var sortValues = values.EnumerateArray().Select((v, i) => (Key: v.GetInt32(), Index: i)).ToList();
+        sortValues.Sort((a, b) => a.Key.CompareTo(b.Key));
+        sortedCases.Add(sortValues.Select(v => v.Index).ToArray());
+    }
+    Console.WriteLine(JsonSerializer.Serialize(sortedCases, options));
+    return;
+}
 if (operation != "Pattern" && operation != "InterpretMatches" && operation != "InterpretPaths" && operation != "InterpretChart")
     throw new ArgumentException("Unknown oracle operation");
 
