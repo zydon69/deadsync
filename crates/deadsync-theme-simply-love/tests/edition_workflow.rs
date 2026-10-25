@@ -302,7 +302,7 @@ fn pattern_shortcut_uses_selection_previews_applies_and_saves_one_undo_gesture()
     let mut actors = Vec::new();
     screen.actors(&mut actors);
     assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,z:8021,..} if content.contains("5 steps") && content.contains("1.000 - 2.000") && !content.contains("{removed}"))));
-    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,z:8021,..} if content.as_ref()=="Apply this pattern to the selection")));
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,z:8021,..} if content.as_ref()=="Apply notes and keep this pattern marker")));
     press(&mut screen, KeyCode::PageDown);
     press(&mut screen, KeyCode::Home);
     press(&mut screen, KeyCode::Enter);
@@ -334,6 +334,23 @@ fn pattern_shortcut_uses_selection_previews_applies_and_saves_one_undo_gesture()
             .count(),
         7
     );
+    let mut reopened = State::open(&path, 0).unwrap();
+    assert!(
+        deadsync_editor::generation::metadata::ChartData::read(
+            reopened.workspace().file().session.document(),
+            0
+        )
+        .unwrap()
+        .unwrap()
+        .patterns
+        .as_ref()
+        .unwrap()
+        .contains_key(&48)
+    );
+    press(&mut reopened, KeyCode::ArrowDown);
+    press(&mut reopened, KeyCode::F5);
+    finish_generation(&mut reopened);
+    assert!(reopened.pattern_report().is_some());
 }
 #[test]
 fn pattern_discard_cancel_and_unsupported_chart_preserve_source() {
@@ -387,7 +404,8 @@ fn pattern_menu_settings_and_exclusive_endpoints_reach_the_generation_task() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     fs::write(&path, SINGLE).unwrap();
-    let mut screen = State::open(&path, 0).unwrap();
+    let mut screen =
+        State::open_with_profiles(&path, 0, &dir.path().join("AutogenConfigs")).unwrap();
     press(&mut screen, KeyCode::Space);
     press(&mut screen, KeyCode::ArrowDown); // selection 0..48
     press(&mut screen, KeyCode::F1);
@@ -469,6 +487,21 @@ fn pattern_menu_settings_and_exclusive_endpoints_reach_the_generation_task() {
     .run(&std::sync::atomic::AtomicBool::new(false), |_, _| {})
     .unwrap();
     assert_eq!(grid, expected.grid());
+    ctrl(&mut screen, KeyCode::KeyS);
+    let mut reopened =
+        State::open_with_profiles(&path, 0, &dir.path().join("AutogenConfigs")).unwrap();
+    let metadata = deadsync_editor::generation::metadata::ChartData::read(
+        reopened.workspace().file().session.document(),
+        0,
+    )
+    .unwrap()
+    .unwrap();
+    let marker = &metadata.patterns.as_ref().unwrap()[&0];
+    assert_eq!(marker.random_seed, -1);
+    assert!(!marker.start_position_inclusive && !marker.end_position_inclusive);
+    press(&mut reopened, KeyCode::F5);
+    finish_generation(&mut reopened);
+    assert!(reopened.pattern_report().is_some());
 }
 
 #[test]
@@ -498,6 +531,7 @@ fn pattern_panel_has_explicit_english_and_french_translations() {
         "RegeneratePattern",
         "PatternMarker",
         "PatternProfileIssues",
+        "PatternApplyPersistent",
     ] {
         let english = en
             .fallback

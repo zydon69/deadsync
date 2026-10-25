@@ -22,7 +22,7 @@ struct DocumentState {
 
 #[derive(Debug)]
 enum Change {
-    PropertySet(Vec<Change>),
+    Group(Vec<Change>),
     DocumentSwap(Box<DocumentState>),
     Notes {
         chart: usize,
@@ -257,7 +257,44 @@ impl Session {
         if changes.is_empty() {
             return Ok(false);
         }
-        self.execute(label.into(), Change::PropertySet(changes))?;
+        self.execute(label.into(), Change::Group(changes))?;
+        Ok(true)
+    }
+
+    /// Stage one chart's note/property changes, then commit them as one
+    /// gesture. Failure leaves both history branches and all document data intact.
+    pub fn edit_chart_atomic(
+        &mut self,
+        chart: usize,
+        label: impl Into<String>,
+        operation: impl FnOnce(&mut Session) -> Result<(), Error>,
+    ) -> Result<bool, Error> {
+        let grid = self.grid(chart)?.clone();
+        let mut temporary = Session::new(self.document.clone());
+        temporary.grids.insert(chart, grid);
+        operation(&mut temporary)?;
+        let changes: Vec<_> = temporary
+            .undo
+            .into_iter()
+            .map(|entry| entry.change)
+            .collect();
+        fn allowed(change: &Change, chart: usize) -> bool {
+            match change {
+                Change::DocumentSwap(_) => false,
+                Change::Notes { chart: target, .. } => *target == chart,
+                Change::Group(changes) => changes.iter().all(|change| allowed(change, chart)),
+                _ => true,
+            }
+        }
+        if changes.iter().any(|change| !allowed(change, chart)) {
+            return Err(Error::InvalidEdit(
+                "Chart gestures cannot change another chart's notes or structure".into(),
+            ));
+        }
+        if changes.is_empty() {
+            return Ok(false);
+        }
+        self.execute(label.into(), Change::Group(changes))?;
         Ok(true)
     }
 
@@ -366,7 +403,7 @@ impl Session {
 
     fn apply(&mut self, change: &mut Change, forward: bool) -> Result<(), Error> {
         match change {
-            Change::PropertySet(changes) => {
+            Change::Group(changes) => {
                 let length = changes.len();
                 let index = |offset| if forward { offset } else { length - 1 - offset };
                 for offset in 0..changes.len() {
@@ -448,16 +485,28 @@ impl Session {
     pub fn serialize(&self) -> Result<Vec<u8>, Error> {
         let mut document = self.document.clone();
         // Merely viewing a chart must never change its source formatting.
-        let changed: std::collections::BTreeSet<_> = self
+        fn collect(change: &Change, charts: &mut std::collections::BTreeSet<usize>) {
+            match change {
+                Change::Notes { chart, .. } => {
+                    charts.insert(*chart);
+                }
+                Change::Group(changes) => {
+                    for change in changes {
+                        collect(change, charts);
+                    }
+                }
+                _ => {}
+            }
+        }
+        let mut changed = std::collections::BTreeSet::new();
+        for entry in self
             .undo
             .iter()
             .rev()
             .take_while(|entry| !matches!(entry.change, Change::DocumentSwap(..)))
-            .filter_map(|entry| match entry.change {
-                Change::Notes { chart, .. } => Some(chart),
-                _ => None,
-            })
-            .collect();
+        {
+            collect(&entry.change, &mut changed);
+        }
         for chart in changed {
             let descriptor = &document.charts()[chart];
             let grid = &self.grids[&chart];

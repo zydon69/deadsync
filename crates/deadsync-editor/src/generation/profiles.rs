@@ -389,6 +389,9 @@ impl ProfileFile {
             profile,
         })
     }
+    pub(crate) fn snapshot(&self) -> (PathBuf, Arc<[u8]>) {
+        (self.path.clone(), self.expected.clone())
+    }
     pub fn path(&self) -> &Path {
         &self.path
     }

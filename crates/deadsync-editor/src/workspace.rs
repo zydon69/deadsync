@@ -265,6 +265,20 @@ impl Workspace {
         crate::generation::pattern_job::Task::capture(&self.file.session, self.chart, options)
     }
 
+    pub fn persistent_pattern_task(
+        &self,
+        options: crate::generation::pattern_job::Options,
+        directory: Option<&Path>,
+    ) -> Result<crate::generation::pattern_job::Task, Error> {
+        crate::generation::pattern_job::Task::capture_persistent(
+            &self.file.session,
+            self.chart,
+            options,
+            directory,
+        )
+        .map(|task| task.with_chart_expression())
+    }
+
     pub fn saved_pattern_task(
         &self,
         registry: &crate::generation::metadata::Registry,

@@ -200,6 +200,41 @@ impl ChartData {
             _ => invalid("Incomplete GrooveAuthor chart metadata"),
         }
     }
+    pub fn existing_or_initial(document: &Document, chart: usize) -> Result<Self, Error> {
+        if let Some(data) = Self::read(document, chart)? {
+            return Ok(data);
+        }
+        let mut data = Self::default();
+        if document.format == Format::Ssc {
+            let number = |scope| -> Result<Option<f64>, Error> {
+                document
+                    .text(scope, "OFFSET")
+                    .map(|text| {
+                        text.parse::<f64>()
+                            .ok()
+                            .filter(|value| value.is_finite())
+                            .ok_or_else(|| Error::InvalidFormat("Invalid music offset".into()))
+                    })
+                    .transpose()
+            };
+            let song = number(None)?.unwrap_or(0.0);
+            if let Some(offset) = number(Some(chart))? {
+                let a = offset.to_bits();
+                let b = song.to_bits();
+                let equal = if a >> 63 != b >> 63 {
+                    offset == song
+                } else {
+                    a.abs_diff(b) <= 1
+                };
+                if !equal {
+                    data.music_offset = offset;
+                    data.should_use_chart_music_offset = true;
+                }
+            }
+        }
+        Ok(data)
+    }
+
     pub fn save(&self, session: &mut Session, chart: usize) -> Result<bool, Error> {
         self.validate()?;
         // Refuse replacing a newer/malformed document with a guessed V1 body.

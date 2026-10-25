@@ -415,7 +415,7 @@ exact original bytes, redo, save and reopen the resulting grid. The selected-own
 primitive is explicit; whole multiplayer generation remains unfinished.
 
 These primitives feed the single-region source-to-pattern task described below.
-Wider original-action differential coverage and persistent/batch pattern actions
+Wider original-action differential coverage and batch pattern actions
 remain required. Footing and density come from the source
 contexts rather than fixed values chosen to match the existing tests.
 
@@ -507,13 +507,12 @@ multi-pattern scheduler. The integrated fixtures currently use dance-single,
 balanced configs and seed 42. Other layouts/configs/seeds have component-level
 coverage but still need broader integrated differential coverage.
 
-Multiple overlapping pattern markers, persisted editable pattern metadata and
-batch regeneration remain unfinished. Repeated live edits also need timeline
+Editing overlapping pattern markers and batch regeneration remain unfinished. Repeated live edits also need timeline
 cache semantics: rebuilding after each edit can change floating-point clamp
 history. These tests do not prove the complete editor port.
 
 Reader normalization for invalid/conflicting timing entries, unsupported attack
-timing, existing persisted pattern metadata, previews/last-second hints and wider
+timing, previews/last-second hints and wider
 legacy input coverage remain unfinished. In particular the missing-tempo case
 above verifies these extracted methods, not the complete editor loader's defaults.
 
@@ -531,7 +530,7 @@ Calculation shares the bounded, cancellable background worker and immutable
 preview flow with chart conversion. The preview shows the full resulting grid,
 fixed generated-region highlighting even while browsing, note deletions,
 shortened holds, average NPS and translated footing warnings. Apply replaces the
-region in one undoable gesture; it does not create a chart or save the song.
+region and stores its marker in one undoable gesture; it does not save the song.
 Escape/Discard and cancellation retain the original document and history. The
 Practice update loop polls both job kinds and input handlers never poll jobs.
 
@@ -540,7 +539,7 @@ ranges, subdivision/profile/signed-seed/endpoints/distribution controls, preview
 actors, explicit application, undo/redo/save/reopen, discard/cancel, unsupported
 multiplayer input, and explicit English/French strings. These tests execute the
 real raw-key adapter and actor construction, not GPU rendering or hardware input.
-The complete port, persistent pattern markers, multi-region generation and the
+The complete port, marker editing, multi-region generation and the
 other delivery-matrix requirements remain unfinished.
 
 ### GrooveAuthor V1 pattern metadata storage
@@ -606,8 +605,8 @@ metadata, cancellation, invalid bounds and unresolved profiles. The integrated
 cases. It composes original helper bodies and the original library with container
 adapters; it does not execute the full GrooveAuthor loader/runtime or scheduler.
 
-F4 still creates ephemeral previews and does not automatically persist new marker
-definitions. Editing bounds of an existing marker requires a future marker-edit
+F4 now persists new marker definitions on acceptance, as described below.
+Editing bounds of an existing marker requires a future marker-edit
 operation; generation currently rejects conflicting raw bounds at the same start
 rather than creating two marker definitions at that row. Native profile management,
 live timeline caching, multi-region/batch and
@@ -667,7 +666,41 @@ regenerates again, and checks the visible ignored-file report and unchanged bad
 file. A path test checks application data roots. Actor tests do not prove GPU
 rendering or physical keyboard delivery.
 
-The native advanced configuration inspector, profile library management,
-automatic F4 marker/config persistence and combined marker/note history remain
+The native advanced configuration inspector and profile library management remain
 unfinished. Profile-file compatibility and loading do not complete those tasks,
 batch generation, waveform/audio editing or the rest of the delivery matrix.
+
+
+### Persistent F4 creation and grouped history
+
+F4 prepares both generated notes and a new saved marker. Preparation and discarded
+or cancelled previews create no profile files. Acceptance stages the note and
+metadata edits on an isolated session, verifies custom profile dependencies against
+their captured bytes, and exports any new subdivision profile without overwriting
+existing files. It then publishes a single grouped undo gesture. Grouped history
+recursively includes note edits during serialization and rejects cross-chart note
+edits and structural chart changes in this transaction. Failed staging preserves
+the source and redo history.
+
+The chart's existing expressed-profile identity and unknown metadata fields are
+preserved. When initially adding editor metadata to SSC, a distinct chart OFFSET
+is retained using the original constructor's one-ULP comparison with song OFFSET.
+All nine native subdivisions can be saved and regenerated through F5; the two
+built-in subdivisions reuse their original identities. Custom performed and
+expressed configurations must already be registered. Creating another marker at
+the same raw start is rejected until explicit marker editing is implemented.
+
+Profile files are shared configuration assets and remain after undoing a chart
+edit. Reaccepting the same preview after undo reuses only the exact same profile
+bytes. External profile changes reject acceptance. A filesystem failure after a
+profile has been committed may leave an unreferenced profile; no destructive
+cleanup of shared profiles is attempted. This is not a multi-file filesystem
+transaction.
+
+Eight persistent workflow tests cover SM/SSC save and reopen, grouped undo/redo,
+other pending charts, offset comparison, all subdivisions and exact regeneration,
+custom expression inheritance, dependency changes, stale/foreign previews,
+filesystem failures, duplicate markers, and discarded/cancelled workers. Native
+F4 workflows additionally save, reopen and invoke F5 using the persisted settings.
+These tests compose the previously compared metadata/profile/generation contracts;
+they do not execute the original full editor action or prove the complete port.

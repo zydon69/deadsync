@@ -262,7 +262,7 @@ impl State {
         };
         match self
             .workspace
-            .pattern_task(options)
+            .persistent_pattern_task(options, self.profile_directory.as_deref())
             .and_then(|task| task.spawn())
         {
             Ok(job) => {
@@ -1134,7 +1134,15 @@ impl State {
                 && index == 0
                 && matches!(self.preview, Some(GenerationPreview::Pattern(_)))
             {
-                i18n::tr("Edition", "PatternApply")
+                i18n::tr(
+                    "Edition",
+                    if matches!(&self.preview,Some(GenerationPreview::Pattern(p)) if p.persists_marker())
+                    {
+                        "PatternApplyPersistent"
+                    } else {
+                        "PatternApply"
+                    },
+                )
             } else if matches!(panel, Panel::Generation(_)) {
                 let value = match index {
                     0 => TARGET_LAYOUTS[self.generation.target].to_owned(),

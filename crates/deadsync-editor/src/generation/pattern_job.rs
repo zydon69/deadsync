@@ -67,6 +67,11 @@ pub struct Task {
     token: RevisionToken,
     chart: usize,
     options: Options,
+    persistence: Option<Persistence>,
+}
+struct Persistence {
+    directory: Option<std::path::PathBuf>,
+    inherit_expression: bool,
 }
 pub struct Preview {
     token: RevisionToken,
@@ -76,6 +81,7 @@ pub struct Preview {
     deletions: Deletions,
     average_nps: f64,
     profile_issues: Vec<super::profiles::Issue>,
+    persistence: Option<super::pattern_persistence::Plan>,
 }
 impl Task {
     pub fn capture(session: &Session, chart: usize, options: Options) -> Result<Self, Error> {
@@ -94,8 +100,38 @@ impl Task {
             token: session.revision_token(),
             chart,
             options,
+            persistence: None,
         })
     }
+    pub fn capture_persistent(
+        session: &Session,
+        chart: usize,
+        options: Options,
+        directory: Option<&std::path::Path>,
+    ) -> Result<Self, Error> {
+        let mut task = Self::capture(session, chart, options)?;
+        let directory = directory
+            .map(|path| {
+                if path.is_absolute() {
+                    Ok(path.to_owned())
+                } else {
+                    std::env::current_dir().map(|cwd| cwd.join(path))
+                }
+            })
+            .transpose()?;
+        task.persistence = Some(Persistence {
+            directory,
+            inherit_expression: false,
+        });
+        Ok(task)
+    }
+    pub fn with_chart_expression(mut self) -> Self {
+        if let Some(persistence) = &mut self.persistence {
+            persistence.inherit_expression = true;
+        }
+        self
+    }
+
     pub fn capture_saved(
         session: &Session,
         chart: usize,
@@ -127,12 +163,49 @@ impl Task {
     }
     /// Runs against owned snapshot bytes and never mutates a live session.
     pub fn run(
-        self,
+        mut self,
         cancelled: &AtomicBool,
         progress: impl FnMut(usize, usize),
     ) -> Result<Preview, Error> {
         check(cancelled)?;
         let source = source::read(self.bytes.clone(), self.format, self.chart, cancelled)?;
+        let mut profile_issues = Vec::new();
+        let persistence = if let Some(request) = &self.persistence {
+            let loaded = if let Some(path) = &request.directory {
+                super::profiles::Loaded::directory_checked(path, cancelled)?
+            } else {
+                super::profiles::Loaded {
+                    registry: super::metadata::Registry::builtin(),
+                    profiles: std::collections::BTreeMap::new(),
+                    issues: Vec::new(),
+                }
+            };
+            let data = source.initial_editor_metadata()?;
+            if request.inherit_expression {
+                self.options.expressed = loaded
+                    .registry
+                    .expressed
+                    .get(&data.expressed_chart_config)
+                    .cloned()
+                    .ok_or_else(|| {
+                        Error::Unsupported(format!(
+                            "Missing expressed generation profile {}",
+                            data.expressed_chart_config
+                        ))
+                    })?;
+            }
+            let plan = super::pattern_persistence::Plan::create(
+                data,
+                &self.options,
+                &loaded,
+                request.directory.clone(),
+            )?;
+            profile_issues = loaded.issues;
+            Some(plan)
+        } else {
+            None
+        };
+        check(cancelled)?;
         let graph = StepGraph::builtin(&source.layout)?;
         let pad = Pad::builtin(&source.layout)?;
         let spacing = ROWS_PER_BEAT / u64::from(self.options.pattern.beat_sub_division);
@@ -259,11 +332,15 @@ impl Task {
             grid,
             deletions,
             average_nps,
-            profile_issues: Vec::new(),
+            profile_issues,
+            persistence,
         })
     }
 }
 impl Preview {
+    pub fn persists_marker(&self) -> bool {
+        self.persistence.is_some()
+    }
     pub fn profile_issues(&self) -> &[super::profiles::Issue] {
         &self.profile_issues
     }
@@ -286,8 +363,18 @@ impl Preview {
         if selected_chart != self.chart || !self.is_current(session) {
             return invalid("Pattern preview belongs to another chart or revision");
         }
-        self.generated
-            .apply(session, self.chart, 0, session.revision())
+        if let Some(plan) = &self.persistence {
+            session.edit_chart_atomic(self.chart, "Generate pattern", |temporary| {
+                self.generated
+                    .apply(temporary, self.chart, 0, temporary.revision())?;
+                plan.data.save(temporary, self.chart)?;
+                plan.ensure_profiles()?;
+                Ok(())
+            })
+        } else {
+            self.generated
+                .apply(session, self.chart, 0, session.revision())
+        }
     }
 }
 fn check(cancelled: &AtomicBool) -> Result<(), Error> {
@@ -353,6 +440,7 @@ impl SavedTask {
             token: self.token,
             chart: self.chart,
             options,
+            persistence: None,
         }
         .run(cancelled, progress)?;
         result.profile_issues = issues;

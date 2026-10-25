@@ -182,6 +182,10 @@ pub fn prepare_editor(
 }
 
 impl SourceChart {
+    pub fn initial_editor_metadata(&self) -> Result<super::metadata::ChartData, Error> {
+        super::metadata::ChartData::existing_or_initial(&self.document, self.chart)
+    }
+
     /// Only editor consumers interpret custom metadata. Standalone Fumen
     /// preparation ignores editor-specific data, as the original library does.
     pub fn pattern_regions(&self, cancelled: &AtomicBool) -> Result<Vec<(u64, u64)>, Error> {
