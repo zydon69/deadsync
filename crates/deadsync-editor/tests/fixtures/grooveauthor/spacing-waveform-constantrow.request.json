@@ -1,0 +1,538 @@
+{
+  "Operation": "Waveform",
+  "Mode": "ConstantRow",
+  "Reverse": false,
+  "Speeds": {
+    "Time": 360,
+    "Row": 1.5,
+    "Variable": 450
+  },
+  "CommonTempo": 180,
+  "Queries": [
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "CurrentTempo",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "CurrentTempoAndRate",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 120,
+      "RowsPerSecond": 96.0,
+      "Scroll": 1,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 180,
+      "RowsPerSecond": 144.0,
+      "Scroll": -1,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 240,
+      "RowsPerSecond": 192.0,
+      "Scroll": 0,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 150,
+      "RowsPerSecond": 120.0,
+      "Scroll": 0.5,
+      "Interpolated": 1
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 0
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": -2
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 0.5
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 2
+    },
+    {
+      "Policy": "MostCommonTempo",
+      "Tempo": 300,
+      "RowsPerSecond": 240.0,
+      "Scroll": 4,
+      "Interpolated": 1
+    }
+  ]
+}

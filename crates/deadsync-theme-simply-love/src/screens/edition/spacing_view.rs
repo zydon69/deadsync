@@ -252,8 +252,14 @@ impl State {
             let active = index
                 .active(self.spacing_mode, time, focal.row)?
                 .unwrap_or(0);
-            let pps =
-                settings.speeds.variable * (index.sections()[active].tempo / 300.0) * settings.zoom;
+            let pps = deadsync_editor::waveform_spacing::pixels_per_second(
+                settings.mode,
+                deadsync_editor::waveform_spacing::ScrollMode::CurrentTempo,
+                index.sections()[active].spacing_rate(),
+                settings.speeds,
+                0.0,
+                settings.interpolated_scroll,
+            )? * settings.zoom;
             let waveform = TimeProjection::new(
                 time,
                 focal.y,

@@ -1,0 +1,25 @@
+{
+  "CommonTempo": 120,
+  "Sections": [
+    {
+      "Row": 0,
+      "Time": 0,
+      "Tempo": 120,
+      "Scroll": 1,
+      "SecondsPerRow": 0.010416666666666666,
+      "Warp": 0,
+      "Stop": 0,
+      "Order": 0
+    },
+    {
+      "Row": 0,
+      "Time": 0,
+      "Tempo": 120,
+      "Scroll": 1,
+      "SecondsPerRow": 0.010416666666666666,
+      "Warp": 0,
+      "Stop": 0,
+      "Order": 1
+    }
+  ]
+}

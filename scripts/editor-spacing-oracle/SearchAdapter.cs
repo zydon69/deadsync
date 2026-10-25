@@ -13,6 +13,8 @@ internal sealed class SearchEnumerator(EditorRateAlteringEvent[] values,int inde
  public bool MovePrev(){if(Index<=0)return false;Index--;return true;}
 }
 internal sealed partial class ActiveChartSearch {
+ public double WaveFormPPS;
+ public double RunWaveForm(EditorRateAlteringEvent rate,double interpolation){SetWaveFormPps(rate,interpolation);return WaveFormPPS;}
  public EditorChart Chart;
  public SearchPosition Position;
  public SearchZoom ZoomManager;

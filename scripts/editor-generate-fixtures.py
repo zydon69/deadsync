@@ -844,6 +844,16 @@ def requests(reference: Path):
     cases["profile-unknown-big-numbers"]={"Operation":"Profile","Kind":"Pattern","Content":content}
     cases["profile-utf8-bom"]={"Operation":"Profile","Kind":"Pattern","Content":"\ufeff"+json.dumps({**profile_base,"Config":pattern})}
     cases["profile-comments"]={"Operation":"Profile","Kind":"Pattern","Content":"/* profile */ "+json.dumps({**profile_base,"Config":pattern})[:-1]+",}"}
+    for name,events in {
+        "single":[[0,"tempo",120]],
+        "rounding-history":[[row*48,"tempo",[120.123,120.12300000001,240.246][row%3]] for row in range(201)],
+        "tie":[[0,"tempo",120],[96,"tempo",240],[288,"tempo",180]],
+        "repeat":[[0,"tempo",120],[96,"tempo",240],[192,"tempo",120],[384,"scroll",1]],
+        "last-rate":[[0,"tempo",120],[48,"tempo",240],[480,"scroll",1]],
+        "late-first":[[48,"tempo",180],[144,"scroll",1]],
+        "warp-stop":[[0,"tempo",120],[48,"warp",192],[96,"tempo",240],[192,"stop",-0.5],[288,"scroll",-1],[384,"tempo",120],[480,"delay",0.5]],
+    }.items():
+        cases["waveform-tempo-"+name]={"Operation":"EditorTiming","TempoSummary":True,"Timing":[[0,"signature",4,4]]+events,"Notes":[[768,0,"1"]]}
     return cases
 
 
@@ -898,7 +908,7 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
-        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash, "editor_source_timing_methods_sha256": source_timing_hash, "editor_signature_methods_sha256": signature_hash, "editor_scroll_methods_sha256": scroll_hash, "editor_tick_methods_sha256": tick_hash, "editor_combo_methods_sha256": combo_hash, "editor_speed_methods_sha256": speed_hash, "editor_label_methods_sha256": label_hash, "editor_pattern_navigation_methods_sha256": pattern_navigation_hash,
+        "editor_commit": EDITOR_PIN, "editor_timing_adapter_sha256": hashlib.sha256((ROOT / "scripts/editor-oracle/EditorTimingReference.cs.template").read_bytes()).hexdigest(), "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash, "editor_source_timing_methods_sha256": source_timing_hash, "editor_signature_methods_sha256": signature_hash, "editor_scroll_methods_sha256": scroll_hash, "editor_tick_methods_sha256": tick_hash, "editor_combo_methods_sha256": combo_hash, "editor_speed_methods_sha256": speed_hash, "editor_label_methods_sha256": label_hash, "editor_pattern_navigation_methods_sha256": pattern_navigation_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
         "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],

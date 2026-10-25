@@ -5,6 +5,17 @@ double N(JsonElement e,string key)=>e.GetProperty(key).GetDouble();
 var prefs=Preferences.Instance.PreferencesScroll;
 prefs.SpacingMode=Enum.Parse<Editor.SpacingMode>(request.GetProperty("Mode").GetString());
 Editor.Reverse=request.GetProperty("Reverse").GetBoolean();
+if(request.TryGetProperty("Operation",out var waveformOperation) && waveformOperation.GetString()=="Waveform") {
+ var speeds=request.GetProperty("Speeds");prefs.TimeBasedPixelsPerSecond=N(speeds,"Time");prefs.RowBasedPixelsPerRow=N(speeds,"Row");prefs.VariablePixelsPerSecondAtDefaultBPM=N(speeds,"Variable");
+ var runner=new ActiveChartSearch {Chart=new EditorChart {CommonTempo=N(request,"CommonTempo")}};
+ var results=new List<double>();
+ foreach(var query in request.GetProperty("Queries").EnumerateArray()) {
+  prefs.RowBasedWaveFormScrollMode=Enum.Parse<Editor.WaveFormScrollMode>(query.GetProperty("Policy").GetString());
+  var rate=new EditorRateAlteringEvent {Tempo=N(query,"Tempo"),RowsPerSecond=N(query,"RowsPerSecond"),Scroll=N(query,"Scroll")};
+  results.Add(runner.RunWaveForm(rate,N(query,"Interpolated")));
+ }
+ Console.WriteLine(JsonSerializer.Serialize(results));return;
+}
 if(request.TryGetProperty("Operation",out var geometryOperation) && geometryOperation.GetString()=="Geometry") {
  var speeds=request.GetProperty("Speeds");prefs.TimeBasedPixelsPerSecond=N(speeds,"Time");prefs.RowBasedPixelsPerRow=N(speeds,"Row");prefs.VariablePixelsPerSecondAtDefaultBPM=N(speeds,"Variable");
  var rates=request.GetProperty("Rates").EnumerateArray().Select(r=>new EditorRateAlteringEvent{Time=N(r,"Time"),Row=N(r,"Row"),Tempo=N(r,"Tempo"),SecondsPerRow=N(r,"SecondsPerRow"),RowsPerSecond=N(r,"RowsPerSecond"),Scroll=N(r,"Scroll"),WarpRowsRemaining=N(r,"Warp"),StopTimeRemaining=N(r,"Stop"),Order=r.GetProperty("Order").GetInt32()}).ToArray();

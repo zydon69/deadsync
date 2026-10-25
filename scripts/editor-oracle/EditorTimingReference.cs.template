@@ -150,6 +150,11 @@ internal class EditorChart {
     private EventIntervalTree<EditorWarpEvent> Warps=new();
     private EventIntervalTree<EditorPatternEvent> Patterns=new();
     private double MostCommonTempo,MinTempo,MaxTempo;
+    public object CaptureTempoSummary()=>new {CommonTempo=MostCommonTempo,Sections=RateAlteringEvents.Select(rate=>new {
+        Row=rate.GetRow(),Time=rate.GetChartTime(),Tempo=rate.GetTempo(),Scroll=rate.GetScrollRate(),
+        SecondsPerRow=rate.GetSecondsPerRow(),Warp=rate.GetWarpRemaining(),Stop=rate.GetStopRemaining(),
+        Order=rate switch {EditorTempoEvent=>1,EditorTimeSignatureEvent=>0,EditorDelayEvent=>7,EditorScrollRateEvent=>13,EditorStopEvent stop=>stop.GetStopLengthSeconds()>=0?15:16,EditorWarpEvent=>17,_=>throw new Exception("Unknown rate phase")}
+    }).ToArray()};
     private const int NotificationTimingChanged=0;
     public bool DeletePreviewEvent()=>false;
     public bool DeleteLastSecondHintEvent()=>false;
@@ -290,6 +295,7 @@ internal static class Reference {
         }
         if(request.TryGetProperty("Region",out var region)) chart.EditorEvents.Add(new EditorPatternEvent(chart,region[0].GetInt32(),region[1].GetInt32()));
         chart.Refresh();
+        if (request.TryGetProperty("TempoSummary",out var tempoSummary) && tempoSummary.GetBoolean()) return chart.CaptureTempoSummary();
         if (request.TryGetProperty("SpeedOrigins",out var speedOrigins) && speedOrigins.GetBoolean()) {
             return chart.EditorEvents.Where(e=>e.GetEvent() is ScrollRateInterpolation)
                 .Select(e=>new {Row=e.GetRow(),Time=e.GetChartTime()}).ToArray();

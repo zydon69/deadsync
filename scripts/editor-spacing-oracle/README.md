@@ -60,3 +60,32 @@ apply the CheckForCompletingHold cap-offset formula. The completion method as a
 whole is not compiled by this adapter. Reverse controls cap direction even when
 constant/interpolated scroll is negative. Cap texture dimensions and clipping
 remain native-renderer responsibilities.
+
+## Waveform temporal spacing
+
+The runner additionally compiles the complete unchanged private SetWaveFormPps
+member from ActiveEditorChart into its scalar partial adapter. Six traces cover
+all three spacing modes, all three waveform policies, and both Reverse flags:
+450 calls include zero/negative/positive section and interpolation multipliers.
+The returned speed is before view zoom and Reverse. MostCommonTempo is an
+explicit scalar input here; its aggregation is validated separately below.
+The generator now produces 48 spacing traces. Source/member/adapter hashes are
+recorded in spacing-reference.json. This does not execute native waveform drawing.
+
+```sh
+cargo test -p deadsync-editor --test waveform_spacing_workflows --jobs 2 --locked
+```
+
+Seven waveform-tempo traces use the existing original timing runner's unchanged
+RefreshEventTimingData and RefreshRateAlteringEvents methods. A new accessor reads
+the computed MostCommonTempo field and initialized rate states. It adds no tempo
+aggregation arithmetic. The fixtures cover equal durations, repeated tempos,
+late first tempo, final rate cutoff, warp/stop timing and rounding history.
+The rate phase accessor is a scalar adapter. Timing source/member and adapter
+hashes are recorded in provenance.json.
+
+```sh
+python3 scripts/editor-generate-fixtures.py \
+  --reference-root /path/to/StepManiaLibrary --editor-root /path/to/GrooveAuthor \
+  --dotnet /path/to/dotnet --only waveform-tempo-
+```

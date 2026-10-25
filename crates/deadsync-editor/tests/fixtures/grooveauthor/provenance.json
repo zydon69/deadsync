@@ -2,6 +2,7 @@
   "reference": "https://github.com/PerryAsleep/StepManiaLibrary",
   "commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
   "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "editor_timing_adapter_sha256": "aa31ce9d97d4b9a0e2e0c136c53b00309f7bd5da0996d5d97a51e5f16c87eb54",
   "editor_context_methods_sha256": "17ce9943d0cf378618b656422db8b4e6bd9d0dbf5b88b571c61842cb25cf9948",
   "editor_timing_methods_sha256": "aa750e7bfaee572d9d4fbd0d66bf8d5cae74f9498a86a84b033b22bbc6225d5a",
   "editor_metadata_types_sha256": "537a9f5f4f603ac0b42e3ca813401ccdb48dfb17eaa28e88d66267c4c1a2d671",

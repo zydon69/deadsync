@@ -2,6 +2,7 @@
   "GrooveAuthor": "48e18f71655d0f0d86144c63239331833501fda2",
   "EventSpacingHelperSHA256": "67deae613750c28f54442f4379f65f7c7e7728b8603bb5ea16c25807bc35fd5b",
   "ActiveChartSourceSHA256": "60bde1681bba77f08a7c4d772c247c0b6725901fd8b0e2225f3e02e5d728ac3a",
+  "WaveformMemberSHA256": "7ab640b17cfc3e9bf406f564c4e4fd7ad0d9c5ea3dbe2104db70b7289d84c3aa",
   "SearchMemberSHA256": "42abca27488253861de49f0ddd7a87343eba3a3bce59500179db89bea6f9fecb",
   "RateSourceSHA256": "65df864234461b543af99e6f640e43998be9343ba64829f3d0d28cb027e481ce",
   "RateMembersSHA256": [
@@ -50,12 +51,19 @@
     "spacing-search-variable-zero-reverse.request",
     "spacing-search-variable-zero.request",
     "spacing-variable-reverse.request",
-    "spacing-variable.request"
+    "spacing-variable.request",
+    "spacing-waveform-constantrow-reverse.request",
+    "spacing-waveform-constantrow.request",
+    "spacing-waveform-constanttime-reverse.request",
+    "spacing-waveform-constanttime.request",
+    "spacing-waveform-variable-reverse.request",
+    "spacing-waveform-variable.request"
   ],
   "AdapterSHA256": {
-    "Adapters.cs": "bc14d50f4ebacfff7d88a66bfc1cd143ffaff5d6104e74c3392de03a2713ad4b",
-    "SearchAdapter.cs": "8b23f005234736f86fdd7899f11d46fdf17398a2052b46ed36f70e2297852c46",
-    "Program.cs": "b0de6f2f9289eeb6f0f7c59584a337bb2db42efbf7526075f7a07e5285f275eb"
+    "Adapters.cs": "142d6f428c998cea2350646a17367967dd20a3242d1fe521556b585fe1f879fb",
+    "SearchAdapter.cs": "3ee8194201976f408da13c1cc7df00cc6994affc2312f733a75b8258e45be1ce",
+    "Program.cs": "c07bd64e5e91aeeb38f236b45555bb6de3738e2c56971ce53bffdf476f0ed49a"
   },
+  "WaveformScope": "Unchanged SetWaveFormPps; initialized rate and common tempo supplied by fixture, without original tempo aggregation or native rendering",
   "AdapterScope": "Scalar preferences and event/region accessors only; spacing helper and extracted rate conversion members unchanged; original active-chart search member unchanged; active index supplied by fixture rather than original tree selection"
 }

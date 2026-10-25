@@ -1,0 +1,55 @@
+{
+  "CommonTempo": 120,
+  "Sections": [
+    {
+      "Row": 0,
+      "Time": 0,
+      "Tempo": 120,
+      "Scroll": 1,
+      "SecondsPerRow": 0.010416666666666666,
+      "Warp": 0,
+      "Stop": 0,
+      "Order": 0
+    },
+    {
+      "Row": 0,
+      "Time": 0,
+      "Tempo": 120,
+      "Scroll": 1,
+      "SecondsPerRow": 0.010416666666666666,
+      "Warp": 0,
+      "Stop": 0,
+      "Order": 1
+    },
+    {
+      "Row": 96,
+      "Time": 1,
+      "Tempo": 240,
+      "Scroll": 1,
+      "SecondsPerRow": 0.005208333333333333,
+      "Warp": 0,
+      "Stop": 0,
+      "Order": 1
+    },
+    {
+      "Row": 192,
+      "Time": 1.5,
+      "Tempo": 120,
+      "Scroll": 1,
+      "SecondsPerRow": 0.010416666666666666,
+      "Warp": 0,
+      "Stop": 0,
+      "Order": 1
+    },
+    {
+      "Row": 384,
+      "Time": 3.5,
+      "Tempo": 120,
+      "Scroll": 1,
+      "SecondsPerRow": 0.010416666666666666,
+      "Warp": 0,
+      "Stop": 0,
+      "Order": 13
+    }
+  ]
+}

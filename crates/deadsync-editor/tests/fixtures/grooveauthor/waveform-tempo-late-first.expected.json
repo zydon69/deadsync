@@ -1,0 +1,35 @@
+{
+  "CommonTempo": 180,
+  "Sections": [
+    {
+      "Row": 0,
+      "Time": 0,
+      "Tempo": 180,
+      "Scroll": 1,
+      "SecondsPerRow": 0.006944444444444444,
+      "Warp": 0,
+      "Stop": 0,
+      "Order": 0
+    },
+    {
+      "Row": 48,
+      "Time": 0,
+      "Tempo": 180,
+      "Scroll": 1,
+      "SecondsPerRow": 0.006944444444444444,
+      "Warp": 0,
+      "Stop": 0,
+      "Order": 1
+    },
+    {
+      "Row": 144,
+      "Time": 0.6666666666666666,
+      "Tempo": 180,
+      "Scroll": 1,
+      "SecondsPerRow": 0.006944444444444444,
+      "Warp": 0,
+      "Stop": 0,
+      "Order": 13
+    }
+  ]
+}

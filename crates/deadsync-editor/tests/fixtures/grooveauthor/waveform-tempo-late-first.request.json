@@ -1,0 +1,29 @@
+{
+  "Operation": "EditorTiming",
+  "TempoSummary": true,
+  "Timing": [
+    [
+      0,
+      "signature",
+      4,
+      4
+    ],
+    [
+      48,
+      "tempo",
+      180
+    ],
+    [
+      144,
+      "scroll",
+      1
+    ]
+  ],
+  "Notes": [
+    [
+      768,
+      0,
+      "1"
+    ]
+  ]
+}

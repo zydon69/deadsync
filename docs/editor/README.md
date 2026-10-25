@@ -3994,3 +3994,41 @@ and collapsed sections and readable grouped labels. Final screenshots are
 /tmp/deadsync-variable-runtime-review.json records the scoped review and unchanged
 SSC/WAV hashes. The isolated app was closed after review. Muted output and this
 small fixture do not establish audible DSP or full-editor/runtime parity.
+
+### Original waveform scroll policies and common-tempo accounting
+
+`waveform_spacing` now ports the full original SetWaveFormPps calculations for
+CurrentTempo, CurrentTempoAndRate and MostCommonTempo in all three chart spacing
+modes. Time mode ignores tempo/rate policies; Row only uses the common-tempo
+correction for MostCommonTempo; Variable selects current/common tempo and applies
+section scroll * interpolated SPEEDS only for CurrentTempoAndRate. A nonpositive
+combined rate falls back to 1.0 exactly as in the original. The result precedes
+view zoom and Reverse; singular/nonfinite outputs return explicit Rust errors.
+Unused inputs remain unused rather than introducing extra failure paths.
+
+Common tempo accounting follows original RefreshRateAlteringEvents, including
+first-tempo accounting from time zero, repeated tempo accumulation, insertion-order
+strict ties, and a final interval ending at the last rate event rather than the
+last chart note. Addition/subtraction order is retained to preserve rounding.
+Empty indexes return None. Aggregation is O(rate events * log unique tempos).
+
+The development oracle compiles unchanged original SetWaveFormPps. Six traces
+compare 450 calls across all policies, spacing modes, and Reverse settings.
+Separately, seven traces execute the original timing refresh methods and expose
+the resulting common tempo and initialized sections, covering ties, late/repeated
+tempos, final-rate cutoff, warp/stop cases and a 201-tempo rounding history.
+Source/member/adapter hashes and reproduction are documented in
+scripts/editor-spacing-oracle/README.md. These prove the scoped numeric port,
+not an original full-renderer run.
+
+The existing native Variable CurrentTempo path now calls the validated shared
+function. Native policy selection, persistence, common-tempo cache integration
+and Row waveform policy wiring remain pending; the UI still exposes the prior
+waveform controls. Full editor parity remains incomplete.
+
+Validation: all 53 targeted core integration tests and all 197 tests across the
+27 native edition integration targets passed. `cargo check -p deadsync --jobs 2
+--locked` passed. Both reference generators completed successfully: 48 spacing
+traces (including six waveform cases/450 calls) and seven common-tempo cases.
+The complete core suite, unrelated theme unit suites and GPU/app runtime were
+not rerun for this numeric addition; native policy-selection UI remains pending.

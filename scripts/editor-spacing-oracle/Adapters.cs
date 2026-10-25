@@ -4,6 +4,7 @@
 namespace StepManiaEditor;
 internal static class Editor {
  public enum SpacingMode { ConstantTime, ConstantRow, Variable }
+ public enum WaveFormScrollMode { CurrentTempo, CurrentTempoAndRate, MostCommonTempo }
  public static bool Reverse;
  public static double GetScrollDirectionSign()=>Reverse ? -1.0 : 1.0;
 }
@@ -14,9 +15,10 @@ internal sealed class Preferences {
 internal sealed class PreferencesScroll {
  public const double DefaultVariablePixelsPerSecondAtDefaultBPM=300;
  public Editor.SpacingMode SpacingMode;
+ public Editor.WaveFormScrollMode RowBasedWaveFormScrollMode;
  public double TimeBasedPixelsPerSecond=300,RowBasedPixelsPerRow=2,VariablePixelsPerSecondAtDefaultBPM=300;
 }
-internal sealed class EditorChart { public SearchRateList Rates; public SearchRateList GetRateAlteringEvents()=>Rates; }
+internal sealed class EditorChart { public double CommonTempo; public double GetMostCommonTempo()=>CommonTempo; public SearchRateList Rates; public SearchRateList GetRateAlteringEvents()=>Rates; }
 internal class EditorEvent {
  public double Time,Row;
  public double GetChartTime()=>Time;
