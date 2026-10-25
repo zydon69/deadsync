@@ -4,6 +4,7 @@ mod analysis_panel;
 mod batch;
 mod chart_creation;
 mod chart_deletion;
+mod chart_rating;
 mod pattern_set;
 mod playback;
 mod song_properties;
@@ -202,6 +203,7 @@ pub struct State {
     pattern_set: Option<pattern_set::Settings>,
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
+    chart_rating_input: Option<String>,
     song_properties: Option<deadsync_editor::song_properties::Draft>,
     timing: Option<timing::Settings>,
     timing_migration: Option<deadsync_editor::timing_edit::migration::Draft>,
@@ -314,6 +316,7 @@ impl State {
             },
             marker: None,
             chart_properties: None,
+            chart_rating_input: None,
             song_properties: None,
             timing: None,
             timing_migration: None,
@@ -483,6 +486,7 @@ impl State {
         }
         match self.workspace.chart_properties() {
             Ok(draft) => {
+                self.chart_rating_input = None;
                 self.status = i18n::tr(
                     "Edition",
                     if draft.format() == deadsync_editor::document::Format::Sm {
@@ -550,6 +554,9 @@ impl State {
         }
     }
     fn apply_chart_properties(&mut self) {
+        if !self.stage_chart_rating() {
+            return;
+        }
         let Some(draft) = &self.chart_properties else {
             return;
         };
@@ -1132,13 +1139,24 @@ impl State {
             ],
         );
         let chart = &self.workspace.file().session.document().charts()[self.workspace.chart()];
+        let identity = deadsync_editor::chart_identity::Identity::read(
+            self.workspace.file().session.document(),
+            self.workspace.chart(),
+        )
+        .ok();
+        let difficulty = identity.as_ref().map_or(chart.difficulty.as_str(), |v| {
+            v.difficulty().map_or(v.raw_difficulty(), |d| d.as_str())
+        });
+        let rating = identity
+            .as_ref()
+            .map_or_else(|| chart.meter.clone(), |v| v.rating().to_string());
         self.chart_label = Arc::from(format!(
             "{} / {}   {}   {}   [{}]",
             self.workspace.chart() + 1,
             self.workspace.file().session.document().charts().len(),
             chart.steps_type,
-            chart.difficulty,
-            chart.meter
+            difficulty,
+            rating
         ));
     }
 
@@ -1194,7 +1212,7 @@ impl State {
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
-            Some(Panel::ChartProperties(2) | Panel::SongProperties(0))
+            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !repeating_offset
@@ -1439,6 +1457,7 @@ impl State {
             self.timing_migration = None;
             self.timing = None;
             self.chart_properties = None;
+            self.chart_rating_input = None;
             self.song_properties = None;
             self.marker = None;
             self.preview = None;
@@ -1496,13 +1515,31 @@ impl State {
             Panel::SongProperties(index) => self.song_properties_key(index, code),
             Panel::TimingMigration(index) => self.timing_migration_key(index, code),
             Panel::ChartProperties(index) => {
+                if index == 8 && self.rating_input(code) {
+                    return false;
+                }
+                if index == 8 && matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
+                    self.adjust_chart_rating(code == KeyCode::ArrowRight);
+                    return false;
+                }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ChartProperties(
-                        (index + if code == KeyCode::ArrowUp { 6 } else { 1 }) % 7,
+                        (index + if code == KeyCode::ArrowUp { 8 } else { 1 }) % 9,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(draft) = &mut self.chart_properties {
                         match index {
+                            7 => {
+                                let forward = code == KeyCode::ArrowRight;
+                                let next = draft.difficulty().map(|d| d.step(forward)).unwrap_or(
+                                    if forward {
+                                        deadsync_editor::chart_identity::Difficulty::Beginner
+                                    } else {
+                                        deadsync_editor::chart_identity::Difficulty::Edit
+                                    },
+                                );
+                                draft.set_difficulty(next);
+                            }
                             1 => draft.set_use_chart_offset(!draft.uses_chart_offset()),
                             2 => {
                                 let delta = if self.shift { 0.001 } else { 0.0001 }
@@ -1529,8 +1566,14 @@ impl State {
                         0 => self.open_chart_expression(),
                         4 => self.apply_chart_properties(),
                         6 => self.open_timing(),
+                        8 => {
+                            if self.stage_chart_rating() {
+                                self.status = i18n::tr("Edition", "ChartRatingStaged");
+                            }
+                        }
                         5 => {
                             self.chart_properties = None;
+                            self.chart_rating_input = None;
                             self.panel = None;
                         }
                         _ => {}
@@ -2216,6 +2259,8 @@ impl State {
                 "ChartApplyProperties",
                 "KeepEditing",
                 "TimingOpen",
+                "ChartDifficulty",
+                "ChartRating",
             ],
             Panel::ChartExpression(_) => {
                 &["ProfileExpression", "ChartStageExpression", "ProfileBack"]
@@ -2416,7 +2461,11 @@ impl State {
             } else {
                 [0.8, 0.8, 0.85, 1.0]
             };
-            let label = if matches!(panel, Panel::NewChart(_)) && index == 0 {
+            let label = if matches!(panel, Panel::ChartProperties(_)) && index == 7 {
+                self.chart_difficulty_label()
+            } else if matches!(panel, Panel::ChartProperties(_)) && index == 8 {
+                self.chart_rating_label()
+            } else if matches!(panel, Panel::NewChart(_)) && index == 0 {
                 self.new_chart_label()
             } else if matches!(panel, Panel::ConversionProfiles(_)) && index < 2 {
                 let value = self

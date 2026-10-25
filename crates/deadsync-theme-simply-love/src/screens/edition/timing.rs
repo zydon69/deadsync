@@ -50,10 +50,11 @@ impl State {
         if self.is_generating() {
             return;
         }
-        if self
-            .chart_properties
-            .as_ref()
-            .is_some_and(|draft| draft.has_changes())
+        if self.chart_rating_input.is_some()
+            || self
+                .chart_properties
+                .as_ref()
+                .is_some_and(|draft| draft.has_changes())
         {
             self.status = i18n::tr("Edition", "TimingPropertiesPending");
             return;

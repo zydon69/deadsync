@@ -1,0 +1,5 @@
+{
+  "Operation": "ChartIdentity",
+  "Format": "ssc",
+  "Content": "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Edit;#METER:1,000;#NOTES:1000;"
+}

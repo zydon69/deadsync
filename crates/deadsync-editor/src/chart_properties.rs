@@ -21,6 +21,7 @@ pub struct Draft {
     song_offset: f64,
     selection: Option<ExpressionSelection>,
     format: Format,
+    identity: crate::chart_identity::Identity,
 }
 impl Draft {
     pub fn capture(session: &Session, chart: usize) -> Result<Self, Error> {
@@ -49,7 +50,20 @@ impl Draft {
             song_offset,
             selection: None,
             format: session.document().format,
+            identity: crate::chart_identity::Identity::read(session.document(), chart)?,
         })
+    }
+    pub fn difficulty(&self) -> Option<crate::chart_identity::Difficulty> {
+        self.identity.difficulty()
+    }
+    pub fn rating(&self) -> i32 {
+        self.identity.rating()
+    }
+    pub fn set_difficulty(&mut self, value: crate::chart_identity::Difficulty) {
+        self.identity.set_difficulty(value);
+    }
+    pub fn set_rating(&mut self, value: i32) -> Result<(), Error> {
+        self.identity.set_rating(value)
     }
     pub fn format(&self) -> Format {
         self.format
@@ -87,7 +101,9 @@ impl Draft {
             || self.use_chart_offset != self.original_use_offset
     }
     pub fn has_changes(&self) -> bool {
-        self.offset_changed() || self.expression != self.original_expression
+        self.offset_changed()
+            || self.expression != self.original_expression
+            || self.identity.has_changes()
     }
     fn check(&self, session: &Session, chart: usize) -> Result<(), Error> {
         if chart != self.chart || !session.accepts_token(&self.token) {
@@ -136,7 +152,14 @@ impl Draft {
         // override as well. Never change another chart or the song OFFSET.
         let exported = (self.format == Format::Ssc && self.offset_changed())
             .then(|| self.effective_music_offset());
-        data.save_with_offset(session, chart, exported, "Change chart properties")
+        let metadata_changed = self.offset_changed() || self.expression != self.original_expression;
+        session.edit_chart_atomic(chart, "Change chart properties", |staged| {
+            if metadata_changed {
+                data.save_with_offset(staged, chart, exported, "Change chart properties")?;
+            }
+            self.identity.apply(staged, chart)?;
+            Ok(())
+        })
     }
 }
 fn invalid(message: &str) -> Error {

@@ -255,6 +255,32 @@ impl Session {
         self.set_property_bytes_atomic(&properties, label)
     }
 
+    pub(crate) fn set_sm_header(
+        &mut self,
+        chart: usize,
+        field: usize,
+        text: &str,
+    ) -> Result<bool, Error> {
+        if !matches!(field, 2 | 3) {
+            return Err(Error::InvalidEdit("Unsupported SM header edit".into()));
+        }
+        let range = self.document.sm_header_range(chart, field)?;
+        let after: Arc<[u8]> = escape_text(text).into();
+        if self.document.value(range.clone()) == after.as_ref() {
+            return Ok(false);
+        }
+        let before = self.document.replacement(&range);
+        self.execute(
+            "Change chart header".into(),
+            Change::Value {
+                range,
+                before,
+                after: Some(after),
+            },
+        )?;
+        Ok(true)
+    }
+
     /// Preserve copied timing fields byte-for-byte while recording one gesture.
     pub(crate) fn set_property_bytes_atomic(
         &mut self,

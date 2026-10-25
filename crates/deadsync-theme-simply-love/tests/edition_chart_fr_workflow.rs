@@ -178,3 +178,48 @@ fn french_last_chart_delete_empty_view_undo_and_new_chart_remain_translated() {
     assert_eq!(s.workspace().grid().iter().count(), 0);
     assert_eq!(fs::read_to_string(path).unwrap(), song);
 }
+
+#[test]
+fn french_chart_difficulty_rating_validation_and_pending_timing_are_translated() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let song = "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;";
+    fs::write(&path, song).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    press(&mut state, KeyCode::F7);
+    let labels = texts(&state);
+    assert!(
+        labels
+            .iter()
+            .any(|text| text.contains("Difficulté : Difficile")),
+        "{labels:?}"
+    );
+    assert!(labels.iter().any(|text| text.contains("Niveau : 9")));
+    press(&mut state, KeyCode::ArrowUp);
+    press(&mut state, KeyCode::Digit0);
+    press(&mut state, KeyCode::Enter);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|text| text.contains("Saisissez un niveau entier"))
+    );
+    for _ in 0..7 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
+    press(&mut state, KeyCode::Enter);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|text| text.contains("propriétés de la partition avant"))
+    );
+    press(&mut state, KeyCode::Escape);
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        song.as_bytes()
+    );
+    assert_eq!(fs::read_to_string(path).unwrap(), song);
+}

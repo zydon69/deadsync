@@ -18,6 +18,19 @@ internal class EditorChart {
     public double MusicOffset;
     public bool UsesChartMusicOffset;
     // MUSIC_OFFSET
+    // Actual Fumen input parsing plus the pinned constructor's enum/int projection.
+    public static async Task<object> ReadIdentity(JsonElement request) {
+        System.Globalization.CultureInfo.DefaultThreadCurrentCulture=System.Globalization.CultureInfo.InvariantCulture;
+        System.Globalization.CultureInfo.CurrentCulture=System.Globalization.CultureInfo.InvariantCulture;
+        var format=request.GetProperty("Format").GetString()!;
+        var path=System.IO.Path.Combine(System.IO.Path.GetTempPath(),Guid.NewGuid()+"."+format);
+        try {
+            await File.WriteAllTextAsync(path,request.GetProperty("Content").GetString()!);
+            Fumen.Converters.Reader reader=format=="sm"?new Fumen.Converters.SMReader(path):new Fumen.Converters.SSCReader(path);
+            var song=await reader.LoadAsync(CancellationToken.None);
+            return song.Charts.Select(chart=>new {Difficulty=Enum.TryParse<ChartDifficultyType>(chart.DifficultyType,out var difficulty)&&Enum.IsDefined(difficulty)?difficulty.ToString():null,Rating=(int)chart.DifficultyRating}).ToArray();
+        } finally {File.Delete(path);}
+    }
     public static object Run(JsonElement request) {
         var options=new JsonSerializerOptions {IncludeFields=true,ReadCommentHandling=JsonCommentHandling.Skip};
         try {

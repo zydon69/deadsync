@@ -250,6 +250,35 @@ impl Document {
         Ok(())
     }
 
+    pub(crate) fn sm_header_range(
+        &self,
+        chart: usize,
+        field: usize,
+    ) -> Result<Range<usize>, Error> {
+        if self.format != Format::Sm || field > 4 {
+            return Err(Error::InvalidEdit("Invalid SM header field".into()));
+        }
+        let tag = self
+            .tags
+            .iter()
+            .find(|tag| tag.chart == Some(chart) && matches!(tag.name.as_str(), "NOTES" | "NOTES2"))
+            .ok_or_else(|| Error::InvalidEdit("SM chart does not exist".into()))?;
+        let mut start = tag.value.start;
+        for index in 0..=field {
+            let end = delimiter(&self.source, start, b':')
+                .filter(|end| *end < tag.value.end)
+                .ok_or_else(|| Error::InvalidFormat("Incomplete SM chart header".into()))?;
+            if index == field {
+                return Ok(start..end);
+            }
+            start = end + 1;
+        }
+        unreachable!()
+    }
+    pub(crate) fn sm_header_text(&self, chart: usize, field: usize) -> Result<String, Error> {
+        Ok(decode(self.value(self.sm_header_range(chart, field)?)))
+    }
+
     /// Source span owned by one chart, including SSC local vendor properties.
     pub(crate) fn chart_block_range(&self, chart: usize) -> Result<Range<usize>, Error> {
         self.charts

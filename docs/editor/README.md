@@ -45,7 +45,7 @@ reviewable and tested.
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/move; broader GrooveAuthor transformations pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
-| Metadata | Existing and new scoped tags with escaping/history; F7 chart expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
+| Metadata | Existing and new scoped tags with escaping/history; F7 difficulty, rating, expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
 | Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; F11 edits Song SyncOffset | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
@@ -2290,3 +2290,43 @@ pass; `cargo check -p deadsync --locked` passes. The native deletion suite was
 rerun after adding an explicit empty-state song-properties check. Original live
 chart ordering/ties, physical runtime validation and the previously documented
 missing shell unit-test fixtures remain outside these passing claims.
+
+
+### Chart difficulty and rating
+
+F7 now includes the six original difficulty choices and an integer rating. Use
+Left/Right to cycle difficulty; type a rating or adjust it by one with arrows
+(Shift: 100). Enter stages the numeric field; Apply accepts the whole chart draft.
+The original UI minimum is one; overflow and fractional/negative input are
+rejected. Legacy zero/signed or malformed source values are preserved until the
+rating itself is changed. Unknown difficulty spellings are also preserved until
+an explicit selection. Pending numeric input blocks opening the timing panel;
+Escape discards the complete draft without modifying history or the file.
+
+SSC writes DIFFICULTY/METER; SM edits only the corresponding positional fields
+in NOTES/NOTES2, preserving escaped descriptions, radar values and note bytes.
+Difficulty/rating, expression metadata and offset changes share one atomic undo
+gesture. Identity-only edits do not introduce unrelated GrooveAuthor metadata.
+The displayed chart heading reads current values rather than stale parsed
+source descriptors. Save/reopen, undo/redo, no-op redo retention and session/
+revision/chart guards are covered by workflows.
+
+Seven differential fixtures use the actual pinned Fumen SM/SSC readers and a
+small adapter reproducing the pinned EditorChart constructor's enum/integer
+projection. They cover named/numeric/unknown difficulties, SSC fractional and
+thousands ratings, invalid/NaN values and the distinct SM integer parser. This
+is reader/projection evidence, not execution of the full original editor UI.
+The UI minimum comes from UIChartProperties.DrawRowInputInt (min 1). Exotic
+numeric syntax and every .NET enum spelling are not exhaustively compared.
+Native English/French tests drive real key dispatch and inspect generated actors;
+these do not establish physical keyboard or GPU-rendered layout equivalence.
+Full chart properties, including names/credits and assets, remain in the delivery
+matrix alongside the other outstanding editor features.
+
+Validation for difficulty/rating: all 307 core tests and 123 native editor tests
+pass; `cargo check -p deadsync --locked` passes. The four new core workflows cover
+the reader fixtures, atomic combined edits, identity-only edits, persistence and
+invalid/stale guards. Four additional native tests cover both file formats,
+invalid input, clamping/Shift increments and French labels. The previously
+recorded missing shell unit-test fixtures and physical runtime checks remain
+outside this validation.
