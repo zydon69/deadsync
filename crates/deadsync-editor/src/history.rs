@@ -57,6 +57,12 @@ pub(crate) struct RevisionToken {
     revision: u64,
 }
 
+pub struct ChartAddition<'a> {
+    pub source_chart: usize,
+    pub layout: &'a str,
+    pub grid: &'a Grid,
+}
+
 pub struct Session {
     identity: Arc<()>,
     document: Document,
@@ -334,44 +340,80 @@ impl Session {
         expected_revision: u64,
         label: impl Into<String>,
     ) -> Result<usize, Error> {
+        let indices = self.append_charts(
+            &[ChartAddition {
+                source_chart,
+                layout,
+                grid,
+            }],
+            expected_revision,
+            label,
+        )?;
+        Ok(indices[0])
+    }
+
+    /// Prepare every appended block against the same source, then publish one
+    /// structural swap. Failed validation leaves both history branches intact.
+    pub fn append_charts(
+        &mut self,
+        additions: &[ChartAddition<'_>],
+        expected_revision: u64,
+        label: impl Into<String>,
+    ) -> Result<Vec<usize>, Error> {
         if self.revision != expected_revision {
             return Err(Error::InvalidEdit(
                 "Document changed since chart preview".into(),
             ));
         }
-        let columns = layout_columns(layout)
-            .ok_or_else(|| Error::Unsupported(format!("Unknown chart layout {layout}")))?;
-        if columns != grid.columns() {
-            return Err(Error::InvalidEdit(
-                "Generated grid does not match its chart layout".into(),
-            ));
+        if additions.is_empty() {
+            return Err(Error::InvalidEdit("No generated charts to apply".into()));
         }
-        let notes: Arc<[u8]> = grid.serialize()?.into();
-        // Re-parse before changing history to reject unsafe attributes or a
-        // malformed chart body without clearing redo or changing revisions.
-        if Grid::parse(&notes, columns)? != *grid {
-            return Err(Error::InvalidEdit(
-                "Generated notes do not round-trip".into(),
-            ));
+        let mut blocks = Vec::with_capacity(additions.len());
+        for addition in additions {
+            let columns = layout_columns(addition.layout).ok_or_else(|| {
+                Error::Unsupported(format!("Unknown chart layout {}", addition.layout))
+            })?;
+            if columns != addition.grid.columns() {
+                return Err(Error::InvalidEdit(
+                    "Generated grid does not match its chart layout".into(),
+                ));
+            }
+            let notes: Arc<[u8]> = addition.grid.serialize()?.into();
+            if Grid::parse(&notes, columns)? != *addition.grid {
+                return Err(Error::InvalidEdit(
+                    "Generated notes do not round-trip".into(),
+                ));
+            }
+            blocks.push(self.document.cloned_chart_bytes(
+                addition.source_chart,
+                addition.layout,
+                notes,
+            )?);
         }
-        let block = self
-            .document
-            .cloned_chart_bytes(source_chart, layout, notes)?;
+        let start = self.document.charts().len();
         let mut bytes = self.serialize()?;
-        bytes.extend_from_slice(b"\n\n");
-        bytes.extend_from_slice(&block);
+        for block in blocks {
+            bytes.extend_from_slice(b"\n\n");
+            bytes.extend_from_slice(&block);
+        }
         let after = Document::parse(Arc::<[u8]>::from(bytes), self.document.format)?;
-        let index = self.document.charts().len();
-        if after.charts().len() != index + 1 || after.charts()[index].steps_type != layout {
+        if after.charts().len() != start + additions.len() {
             return Err(Error::InvalidEdit(
                 "Generated chart structure is ambiguous".into(),
             ));
         }
-        let added = &after.charts()[index];
-        if Grid::parse(after.value(added.notes.clone()), columns)? != *grid {
-            return Err(Error::InvalidEdit(
-                "Generated notes changed inside the simfile".into(),
-            ));
+        for (index, addition) in additions.iter().enumerate() {
+            let descriptor = &after.charts()[start + index];
+            if descriptor.steps_type != addition.layout
+                || Grid::parse(
+                    after.value(descriptor.notes.clone()),
+                    addition.grid.columns(),
+                )? != *addition.grid
+            {
+                return Err(Error::InvalidEdit(
+                    "Generated notes changed inside the simfile".into(),
+                ));
+            }
         }
         self.execute(
             label.into(),
@@ -380,7 +422,7 @@ impl Session {
                 grids: BTreeMap::new(),
             })),
         )?;
-        Ok(index)
+        Ok((start..start + additions.len()).collect())
     }
 
     fn execute(&mut self, label: String, mut change: Change) -> Result<(), Error> {

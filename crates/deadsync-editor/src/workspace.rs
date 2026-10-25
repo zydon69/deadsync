@@ -44,6 +44,12 @@ pub enum Command {
     Transform(crate::transform::Transform),
 }
 
+struct StructuralFocus {
+    before_revision: u64,
+    before_chart: usize,
+    after_chart: usize,
+}
+
 pub struct Workspace {
     file: FileSession,
     chart: usize,
@@ -54,6 +60,7 @@ pub struct Workspace {
     anchor: Option<u64>,
     auto_advance: bool,
     clipboard: Option<Clipboard>,
+    structural_focus: std::collections::BTreeMap<u64, StructuralFocus>,
 }
 
 impl Workspace {
@@ -73,6 +80,7 @@ impl Workspace {
             anchor: None,
             auto_advance: false,
             clipboard: None,
+            structural_focus: Default::default(),
         })
     }
 
@@ -213,17 +221,36 @@ impl Workspace {
                 }
             }
             Command::Undo => {
-                self.file.session.undo()?;
+                let revision = self.file.session.revision();
+                if self.file.session.undo()? {
+                    if let Some(focus) = self
+                        .structural_focus
+                        .get(&revision)
+                        .filter(|focus| focus.before_revision == self.file.session.revision())
+                    {
+                        self.chart = focus.before_chart;
+                    }
+                }
                 self.sync_active_chart()?;
             }
             Command::Redo => {
-                self.file.session.redo()?;
+                let revision = self.file.session.revision();
+                if self.file.session.redo()? {
+                    if let Some(focus) = self
+                        .structural_focus
+                        .get(&self.file.session.revision())
+                        .filter(|focus| focus.before_revision == revision)
+                    {
+                        self.chart = focus.after_chart;
+                    }
+                }
                 self.sync_active_chart()?;
             }
             Command::Save => self.file.save()?,
             Command::SaveRecovery => self.file.save_recovery()?,
             Command::Recover => {
                 self.file.recover()?;
+                self.structural_focus.clear();
                 let chart = self.chart.min(
                     self.file
                         .session
@@ -465,6 +492,44 @@ impl Workspace {
         Ok(changed)
     }
 
+    pub fn batch_generation_task(
+        &self,
+        source_layout: &str,
+        options: crate::generation::job::ChartOptions,
+        directory: Option<&Path>,
+        profiles: crate::generation::job::ProfileOverrides,
+    ) -> Result<crate::generation::batch_job::Task, Error> {
+        crate::generation::batch_job::Task::capture(
+            &self.file.session,
+            source_layout,
+            options,
+            directory,
+            profiles,
+        )
+    }
+    pub fn apply_batch_generated(
+        &mut self,
+        preview: &crate::generation::batch_job::Preview,
+    ) -> Result<Vec<usize>, Error> {
+        let before_revision = self.file.session.revision();
+        let before_chart = self.chart;
+        let indices = preview.apply(&mut self.file.session)?;
+        let chart = indices[0];
+        self.file.session.grid(chart)?;
+        self.structural_focus.insert(
+            self.file.session.revision(),
+            StructuralFocus {
+                before_revision,
+                before_chart,
+                after_chart: chart,
+            },
+        );
+        self.chart = chart;
+        self.player = 0;
+        self.anchor = None;
+        Ok(indices)
+    }
+
     pub fn apply_generated(
         &mut self,
         preview: &crate::generation::job::ChartPreview,
@@ -474,8 +539,18 @@ impl Workspace {
                 "Select the source chart before applying its generation preview".into(),
             ));
         }
+        let before_revision = self.file.session.revision();
+        let before_chart = self.chart;
         let chart = preview.apply(&mut self.file.session)?;
         self.file.session.grid(chart)?;
+        self.structural_focus.insert(
+            self.file.session.revision(),
+            StructuralFocus {
+                before_revision,
+                before_chart,
+                after_chart: chart,
+            },
+        );
         self.chart = chart;
         self.player = 0;
         self.anchor = None;

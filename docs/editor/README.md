@@ -966,3 +966,32 @@ contracts; they do not execute the original full UI/runtime or prove GPU/hardwar
 input. Native profile creation/editing/library management, batch generation,
 remaining metadata/timing controls, audio/waveform tools and the rest of the
 delivery matrix remain required for the complete port.
+
+### Chart-set generation engine (native panel pending)
+
+`generation::batch_job::Task` snapshots all charts of a chosen supported source
+layout in document order. They share one serialized source, requested seed and
+performed configuration; each follows its own saved expressed configuration
+unless the request explicitly overrides it. Profile files are loaded once for
+the whole task. A change to those files between children cannot mix configurations
+within one result. Work runs through the existing cancellable background-job API.
+
+The preview retains a separate success or error for every source. Ordinary child
+failures leave successful results available, following the partial-success
+contract in GrooveAuthor's `ActionAutoGenerateCharts`. Cancellation rejects the
+whole task. Accepting successes appends them atomically as one structural history
+action; an all-failed result cannot alter the document or discard redo. Source
+identity and revision guards apply to the entire preview. Workspace undo restores
+the previously focused chart; redo focuses the first generated result.
+
+Nine functional tests cover SM/SSC output equality against independent conversion
+tasks, preservation of pending edits, source difficulty/meter and SSC custom
+metadata, serialization/reopening, single-step undo/redo, focus restoration,
+foreign/stale previews, cancellation before/between/after processing, partial and
+complete failure, failed final validation preserving redo, and one shared profile
+snapshot despite removal of its backing file between source charts, plus
+independent saved source interpretation profiles with a shared nonzero seed. Conversion
+children use the previously compared original generation engine; these tests do
+not execute the complete original batch action or UI. The native batch chooser,
+per-result review panel and their input-adapter tests are still pending, as are
+batch pattern regeneration and the remaining delivery matrix.

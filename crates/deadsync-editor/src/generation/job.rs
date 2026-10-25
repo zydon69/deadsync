@@ -104,8 +104,30 @@ pub struct ChartTask {
     profiles: Option<ProfileRequest>,
 }
 struct ProfileRequest {
-    directory: Option<std::path::PathBuf>,
+    source: ProfileSource,
     overrides: ProfileOverrides,
+}
+enum ProfileSource {
+    Directory(Option<std::path::PathBuf>),
+    Snapshot(Arc<ProfileSnapshot>),
+}
+pub(crate) struct ProfileSnapshot {
+    registry: super::metadata::Registry,
+    issues: Vec<super::profiles::Issue>,
+}
+impl ProfileSnapshot {
+    pub(crate) fn load(
+        directory: Option<&std::path::Path>,
+        cancelled: &AtomicBool,
+    ) -> Result<Arc<Self>, Error> {
+        let (registry, issues) = if let Some(directory) = directory {
+            let loaded = super::profiles::Loaded::directory_checked(directory, cancelled)?;
+            (loaded.registry, loaded.issues)
+        } else {
+            (super::metadata::Registry::builtin(), Vec::new())
+        };
+        Ok(Arc::new(Self { registry, issues }))
+    }
 }
 impl ChartTask {
     pub fn capture(
@@ -113,7 +135,19 @@ impl ChartTask {
         source_chart: usize,
         options: ChartOptions,
     ) -> Result<Self, Error> {
-        if source_chart >= session.document().charts().len() {
+        Ok(Self::capture_many(session, &[source_chart], options)?.remove(0))
+    }
+    /// Batch requests share one immutable serialized song rather than N copies.
+    pub(crate) fn capture_many(
+        session: &Session,
+        source_charts: &[usize],
+        options: ChartOptions,
+    ) -> Result<Vec<Self>, Error> {
+        if source_charts.is_empty()
+            || source_charts
+                .iter()
+                .any(|&chart| chart >= session.document().charts().len())
+        {
             return Err(Error::InvalidEdit(
                 "Generation source chart does not exist".into(),
             ));
@@ -128,14 +162,18 @@ impl ChartTask {
         options
             .performed
             .normalized_weights(&options.target_layout)?;
-        Ok(Self {
-            bytes: session.serialize()?.into(),
-            format: session.document().format,
-            token: session.revision_token(),
-            source_chart,
-            options,
-            profiles: None,
-        })
+        let bytes: Arc<[u8]> = session.serialize()?.into();
+        Ok(source_charts
+            .iter()
+            .map(|&source_chart| Self {
+                bytes: bytes.clone(),
+                format: session.document().format,
+                token: session.revision_token(),
+                source_chart,
+                options: options.clone(),
+                profiles: None,
+            })
+            .collect())
     }
 
     /// Native conversion follows the source chart's persisted interpretation profile.
@@ -159,10 +197,22 @@ impl ChartTask {
             })
             .transpose()?;
         self.profiles = Some(ProfileRequest {
-            directory,
+            source: ProfileSource::Directory(directory),
             overrides,
         });
         Ok(self)
+    }
+
+    pub(crate) fn with_profile_snapshot(
+        mut self,
+        snapshot: Arc<ProfileSnapshot>,
+        overrides: ProfileOverrides,
+    ) -> Self {
+        self.profiles = Some(ProfileRequest {
+            source: ProfileSource::Snapshot(snapshot),
+            overrides,
+        });
+        self
     }
 
     pub fn run(
@@ -181,12 +231,13 @@ impl ChartTask {
                 Some(id) => id,
                 None => source.initial_editor_metadata()?.expressed_chart_config,
             };
-            let (registry, issues) = if let Some(directory) = request.directory {
-                let loaded = super::profiles::Loaded::directory_checked(&directory, cancelled)?;
-                (loaded.registry, loaded.issues)
-            } else {
-                (super::metadata::Registry::builtin(), Vec::new())
+            let snapshot = match request.source {
+                ProfileSource::Directory(directory) => {
+                    ProfileSnapshot::load(directory.as_deref(), cancelled)?
+                }
+                ProfileSource::Snapshot(snapshot) => snapshot,
             };
+            let registry = &snapshot.registry;
             self.options.expressed =
                 registry
                     .expressed
@@ -209,7 +260,7 @@ impl ChartTask {
                     .normalized_weights(&self.options.target_layout)?;
                 performed_profile = Some(id);
             }
-            profile_issues = issues;
+            profile_issues = snapshot.issues.clone();
         }
         let prepared = source.prepare_editor(cancelled)?;
         drop(source);
