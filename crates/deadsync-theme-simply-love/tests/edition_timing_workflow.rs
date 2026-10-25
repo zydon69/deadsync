@@ -59,6 +59,7 @@ fn type_number(screen: &mut State, value: &str) {
                 ',' => KeyCode::Comma,
                 '-' => KeyCode::Minus,
                 '/' => KeyCode::Slash,
+                'x' => KeyCode::KeyX,
                 _ => panic!("number"),
             },
         );
@@ -512,7 +513,7 @@ fn pause_type_input_and_scope_guards_cancel_and_zero_delay_validation_preserve_h
     press(&mut screen, KeyCode::Escape);
     press(&mut screen, KeyCode::F10);
     key(&mut screen, KeyCode::ShiftLeft, true);
-    for _ in 0..6 {
+    for _ in 0..7 {
         press(&mut screen, KeyCode::Tab);
     }
     key(&mut screen, KeyCode::ShiftLeft, false);
@@ -1344,4 +1345,164 @@ fn sm_tick_events_are_accessible_and_signed_source_nodes_move_delete_and_save() 
     );
     ctrl(&mut screen, KeyCode::KeyZ);
     assert_eq!(serialized(&screen), bytes);
+}
+
+fn open_combos(screen: &mut State) {
+    press(screen, KeyCode::F10);
+    key(screen, KeyCode::ShiftLeft, true);
+    for _ in 0..4 {
+        press(screen, KeyCode::Tab);
+    }
+    key(screen, KeyCode::ShiftLeft, false);
+    assert!(contains(screen, "Combo multipliers"));
+}
+#[test]
+fn combo_pair_stage_move_zero_type_guard_apply_undo_and_save_reopen() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_combos(&mut screen);
+    assert!(contains(&screen, "Hit / miss: 1x/1x"));
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "2x/3x");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Combo multipliers staged"));
+    assert_eq!(serialized(&screen), SONG);
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Apply or discard before switching"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "1");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Combo event moved"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "0");
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0x/4x");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    let document = screen.workspace().file().session.document();
+    assert_eq!(document.text(Some(0), "COMBOS").unwrap(), "0=0=4,1=2=3");
+    assert_eq!(
+        document.text(Some(0), "STOPS"),
+        document.text(None, "STOPS")
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), SONG);
+    ctrl(&mut screen, KeyCode::KeyY);
+    ctrl(&mut screen, KeyCode::KeyS);
+    assert_eq!(
+        State::open(&path, 0)
+            .unwrap()
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "COMBOS")
+            .unwrap(),
+        "0=0=4,1=2=3"
+    );
+}
+#[test]
+fn combo_invalid_input_independent_controls_keypad_zero_and_noop_keep_history() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_combos(&mut screen);
+    let mut index = 0;
+    for value in ["2/3", "-1x/1x", "1x/2147483648x"] {
+        choose(&mut screen, &mut index, 2);
+        type_number(&mut screen, value);
+        choose(&mut screen, &mut index, 8);
+        press(&mut screen, KeyCode::Enter);
+        assert!(contains(&screen, "Enter hitx/missx"));
+        assert_eq!(serialized(&screen), SONG);
+    }
+    press(&mut screen, KeyCode::Escape);
+    open_combos(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 2);
+    press(&mut screen, KeyCode::ArrowRight);
+    assert!(contains(&screen, "Hit / miss: 2x/1x"));
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::ArrowRight);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "Hit / miss: 2x/2x"));
+    press(&mut screen, KeyCode::Enter);
+    press(&mut screen, KeyCode::Delete);
+    for code in [
+        KeyCode::Numpad0,
+        KeyCode::NumpadMultiply,
+        KeyCode::NumpadDivide,
+        KeyCode::Numpad0,
+        KeyCode::NumpadMultiply,
+    ] {
+        press(&mut screen, code);
+    }
+    assert!(contains(&screen, "Hit / miss: 0x/0x"));
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 4);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Combo event removed"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(serialized(&screen), SONG);
+    assert!(!screen.workspace().file().session.is_dirty());
+}
+#[test]
+fn signed_source_combo_moves_without_revalidation_and_sm_cycle_excludes_combos() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let bytes = String::from_utf8(SONG.to_vec())
+        .unwrap()
+        .replace("#STOPS:", "#COMBOS:0=-2=3,4=1=1;#STOPS:");
+    fs::write(&path, &bytes).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_combos(&mut screen);
+    assert!(contains(&screen, "Hit / miss: -2x/3x"));
+    let mut index = 0;
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "2");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Combo event moved"));
+    choose(&mut screen, &mut index, 4);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "1x/0x");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(
+        reopened
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "COMBOS")
+            .unwrap(),
+        "2=1=0,4=1=1"
+    );
+    let sm = dir.path().join("song.sm");
+    let original = b"#BPMS:0=120;#COMBOS:0=2=3;#NOTES:dance-single::Hard:9::1000;";
+    fs::write(&sm, original).unwrap();
+    let mut screen = State::open(&sm, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    for _ in 0..3 {
+        press(&mut screen, KeyCode::Tab);
+    }
+    assert!(contains(&screen, "Hold tick counts"));
+    assert_eq!(serialized(&screen), original);
 }

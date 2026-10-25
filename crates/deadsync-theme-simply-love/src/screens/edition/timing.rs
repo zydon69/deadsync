@@ -119,6 +119,29 @@ impl State {
                         Err(key) => self.status = i18n::tr("Edition", key),
                     }
                 } else if index == 2 {
+                    if settings.draft.kind() == EventKind::Combo {
+                        match deadsync_editor::timing_edit::combo::Multipliers::parse(
+                            &settings.value,
+                        ) {
+                            Ok(mut value) => {
+                                let part = if self.shift {
+                                    &mut value.miss
+                                } else {
+                                    &mut value.hit
+                                };
+                                *part = if forward {
+                                    part.saturating_add(1)
+                                } else {
+                                    part.saturating_sub(1).max(0)
+                                };
+                                settings.value = value.to_string();
+                                settings.pending = true;
+                                settings.fresh = true;
+                            }
+                            Err(_) => self.status = i18n::tr("Edition", "ComboInvalid"),
+                        }
+                        return;
+                    }
                     if settings.draft.kind() == EventKind::Signature {
                         match deadsync_editor::timing_edit::signature::Signature::parse(
                             &settings.value,
@@ -175,7 +198,7 @@ impl State {
                                 EventKind::Delay => value.max(0.0),
                                 EventKind::Tick => value.round().clamp(0.0, i32::MAX as f64),
                                 EventKind::Stop | EventKind::Scroll => value,
-                                EventKind::Signature => return,
+                                EventKind::Signature | EventKind::Combo => return,
                                 EventKind::Warp | EventKind::Fake => {
                                     (value * 48.0).round().max(1.0) / 48.0
                                 }
@@ -216,6 +239,7 @@ impl State {
             return false;
         };
         let signature = index == 2 && settings.draft.kind() == EventKind::Signature;
+        let combo = index == 2 && settings.draft.kind() == EventKind::Combo;
         let field = if index == 1 {
             &mut settings.beat
         } else {
@@ -245,8 +269,11 @@ impl State {
             KeyCode::Digit7 | KeyCode::Numpad7 => '7',
             KeyCode::Digit8 | KeyCode::Numpad8 => '8',
             KeyCode::Digit9 | KeyCode::Numpad9 => '9',
-            KeyCode::Slash | KeyCode::NumpadDivide if signature => '/',
-            KeyCode::Period | KeyCode::Comma | KeyCode::NumpadDecimal if !signature => '.',
+            KeyCode::Slash | KeyCode::NumpadDivide if signature || combo => '/',
+            KeyCode::KeyX | KeyCode::NumpadMultiply if combo => 'x',
+            KeyCode::Period | KeyCode::Comma | KeyCode::NumpadDecimal if !signature && !combo => {
+                '.'
+            }
             KeyCode::Backspace => {
                 field.pop();
                 settings.fresh = false;
@@ -297,7 +324,7 @@ impl State {
         let mut kind = settings.draft.kind().step(self.shift);
         if self.workspace.file().session.document().format == deadsync_editor::document::Format::Sm
         {
-            while kind.is_region() || kind == EventKind::Scroll {
+            while kind.is_region() || matches!(kind, EventKind::Scroll | EventKind::Combo) {
                 kind = kind.step(self.shift);
             }
         }
@@ -325,6 +352,8 @@ impl State {
                     "Edition",
                     if kind == EventKind::Signature {
                         "SignatureHelp"
+                    } else if kind == EventKind::Combo {
+                        "ComboHelp"
                     } else if kind == EventKind::Tick {
                         "TickHelp"
                     } else if kind == EventKind::Scroll {

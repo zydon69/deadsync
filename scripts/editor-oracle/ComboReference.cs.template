@@ -1,0 +1,45 @@
+// Actual Fumen property parser/loader and unchanged editor validation/setter.
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using Fumen.ChartDefinition;
+using Fumen.Converters;
+namespace ComboOracle;
+internal sealed class EditorMultipliersEvent(int row,Multipliers value):PauseOracle.EditorEvent(row){
+    private readonly Multipliers MultipliersEvent=value;private bool WidthDirty;
+    public int Hit=>MultipliersEvent.HitMultiplier;public int Miss=>MultipliersEvent.MissMultiplier;
+    // VALIDATOR
+    // GETTER
+    // SETTER
+}
+internal static class Reference{
+    public static object Run(JsonElement input){
+        System.Globalization.CultureInfo.CurrentCulture=System.Globalization.CultureInfo.InvariantCulture;
+        var source=new Dictionary<double,Tuple<int,int>>();
+        new ComboPropertyParser("COMBOS",source).Parse(new MSDFile.Value {Params=["COMBOS",input.GetProperty("Source").GetString()!]});
+        var chart=new Chart{Layers=[new Layer()]};SMCommon.AddMultipliersEvents(source,chart,new TempoOracle.SilentLogger(),false);
+        var store=new PauseOracle.EditorChart();var nodes=new SortedDictionary<int,EditorMultipliersEvent>();
+        foreach(var e in chart.Layers[0].Events.OfType<Multipliers>())nodes[e.IntegerPosition]=new(e.IntegerPosition,e);
+        store.EditorEvents.AddRange(nodes.Values);
+        object Values()=>nodes.Select(pair=>new{Row=pair.Key,Hit=pair.Value.Hit,Miss=pair.Value.Miss,Text=pair.Value.StringValue}).ToArray();
+        var initial=Values();var stages=new List<object>();
+        foreach(var op in input.GetProperty("Operations").EnumerateArray()){
+            var kind=op[0].GetString();var row=op[1].GetInt32();bool changed=false;string? error=null;
+            if(kind=="set"){
+                var text=op[2].GetString()!;var (valid,hit,miss)=EditorMultipliersEvent.IsValidMultipliersString(text);
+                if(!valid)error="invalid";
+                else if(nodes.TryGetValue(row,out var node)){var before=node.StringValue;node.StringValue=text;changed=before!=node.StringValue;}
+                else{nodes[row]=new(row,new(hit,miss));store.EditorEvents.Add(nodes[row]);changed=true;}
+            }else if(kind=="remove"){
+                if(nodes.Remove(row,out var node)){store.EditorEvents.Remove(node);changed=true;}
+            }else if(kind=="move"){
+                var target=op[2].GetInt32();
+                if(!nodes.TryGetValue(row,out var node))error="missing";
+                else if(row==target){}
+                else if(!store.CanEventBeMovedToRow(node,target))error="collision";
+                else{nodes.Remove(row);nodes[target]=node;node.Row=target;changed=true;}
+            }
+            stages.Add(new{Changed=changed,Error=error,Values=Values()});
+        }
+        return new{Initial=initial,Stages=stages};
+    }
+}

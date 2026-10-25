@@ -1808,3 +1808,49 @@ features in the delivery matrix are still outstanding.
 Validation for this checkpoint: 256 core tests, 85 native editor tests and
 `cargo check -p deadsync --locked` pass, including the supported SM type cycle,
 integer tick controls and French tick validation/acceptance.
+
+### Combo multiplier pairs in F10
+
+F10 now stages and edits COMBOS pairs in the original `2x/3x` display syntax:
+independent hit and miss integers from zero through i32::MAX. Left/Right changes
+the hit value; Shift changes the miss value. Physical X/slash and numeric-keypad
+multiply/divide keys enter the pair. A missing node offers the original new-event
+default of 1x/1x without adding an event until explicitly staged. Initial combo
+nodes can move/delete, and a changed pair must be staged before moving it.
+
+The full SSC cycle is now BPM, Stop, Delay, Warp, Fake, Combo, Tick, Scroll,
+Signature. SM skips Combo in addition to Warp/Fake/Scroll; its supported cycle
+remains BPM, Stop, Delay, Tick, Signature. Domain export guards reject COMBOS in
+SM and retain the original bytes. SSC local edits use the shared full inherited
+timing transaction; one acceptance is one undo, Save remains explicit and
+no-op/discard retain bytes/redo.
+
+The source reader accepts `beat=hit` (miss defaults to hit) or `beat=hit=miss`,
+including signed source integers, whitespace and rounded-row conflicts. Lexical
+integer errors and malformed records are skipped as in Fumen's property parser.
+New pair input follows the original regex/integer validator, including leading
+zero normalization and its final-newline behavior; it requires nonnegative values.
+Existing signed nodes remain representable and movable unchanged. Serialization
+writes both integer components; it never treats a pair as a fraction or a float.
+Unsafe coordinates/nonfinite beats fail explicitly. Other timing, unknown tags
+and independent chart properties survive inherited timing detachment.
+
+Four reference fixtures invoke the actual Fumen ComboPropertyParser and event
+loader plus unchanged GrooveAuthor validator/getter/setter methods. They cover
+empty/normal maps, optional miss values, malformed records, signed legacy values,
+rounded conflicts, zero/max values, exact formatting/whitespace/newline rules,
+no-op setters and move/delete/collision sequences. Four core workflows compare
+all node values and displayed pairs, serialization/reparse, inherited timing,
+RSSP's chart_combos string, undo/redo, foreign/stale/no-op guards, SM rejection
+and signed-source moves. Three English native workflows cover pair entry,
+independent adjustment, keypad input, validation, mutable initial events,
+no-op/cancel/type guards, apply/undo/save/reopen and SM filtering. One French
+workflow checks visible labels, validation, pair entry and acceptance.
+
+These changes prove editing and persistence for the tested cases. Complete
+combo/scoring simulation during editor playback, the remaining timing events,
+waveforms/loops, chart lifecycle and other delivery-matrix features remain pending.
+
+Validation for this checkpoint: 260 core tests, 89 native editor tests and
+`cargo check -p deadsync --locked` pass. French UI tests were rerun after the
+final wording adjustment to the combo help/validation messages.

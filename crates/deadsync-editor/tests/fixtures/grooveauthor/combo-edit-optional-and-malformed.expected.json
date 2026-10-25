@@ -1,0 +1,630 @@
+{
+  "Initial": [
+    {
+      "Row": 0,
+      "Hit": 3,
+      "Miss": 3,
+      "Text": "3x/3x"
+    },
+    {
+      "Row": 192,
+      "Hit": 2,
+      "Miss": 3,
+      "Text": "2x/3x"
+    }
+  ],
+  "Stages": [
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 0,
+          "Miss": 0,
+          "Text": "0x/0x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": [
+        {
+          "Row": 0,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 12,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 24,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 72,
+          "Hit": 1,
+          "Miss": 4,
+          "Text": "1x/4x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 48,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        },
+        {
+          "Row": 96,
+          "Hit": 2147483647,
+          "Miss": 2147483647,
+          "Text": "2147483647x/2147483647x"
+        },
+        {
+          "Row": 192,
+          "Hit": 2,
+          "Miss": 3,
+          "Text": "2x/3x"
+        }
+      ]
+    }
+  ]
+}
