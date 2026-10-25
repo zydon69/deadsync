@@ -1,6 +1,6 @@
 //! Validated native waveform controls from GrooveAuthor PreferencesWaveForm.
 //! Defaults/ranges follow UIWaveFormPreferences at pinned commit 48e18f71 (MIT).
-use crate::Error;
+use crate::{Error, waveform_palette::Palette};
 use serde_json::{Map, Value};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -9,6 +9,7 @@ pub struct Preferences {
     enabled: bool,
     channel_width: f64,
     dense_scale: f64,
+    palette: Palette,
 }
 impl Default for Preferences {
     fn default() -> Self {
@@ -17,10 +18,17 @@ impl Default for Preferences {
             enabled: true,
             channel_width: 0.9,
             dense_scale: 6.0,
+            palette: Palette::default(),
         }
     }
 }
 impl Preferences {
+    pub fn palette(&self) -> Palette {
+        self.palette
+    }
+    pub fn set_palette(&mut self, palette: Palette) {
+        self.palette = palette;
+    }
     pub fn show(&self) -> bool {
         self.show
     }
@@ -73,6 +81,7 @@ impl Preferences {
                     .ok_or_else(|| Error::InvalidFormat("Invalid waveform dense scale".into()))?,
             )?;
         }
+        value.palette = Palette::read(fields)?;
         Ok(value)
     }
     pub(crate) fn write(&self, fields: &mut Map<String, Value>) {
@@ -83,6 +92,7 @@ impl Preferences {
             self.channel_width.into(),
         );
         fields.insert("DenseScale".into(), self.dense_scale.into());
+        self.palette.write(fields);
     }
 }
 fn valid(value: f64, max: f64) -> Result<f64, Error> {

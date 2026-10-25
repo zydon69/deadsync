@@ -554,3 +554,26 @@ fn french_waveform_preferences_show_translated_controls_and_missing_path_without
         source.as_bytes()
     );
 }
+
+#[test]
+fn french_waveform_colours_are_paginated_and_keep_edits_staged_until_parent_save() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(854.0,480.0));
+    let dir=tempfile::tempdir().unwrap();let path=dir.path().join("song.ssc");
+    let source="#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path,source).unwrap();let mut state=State::open(&path,0).unwrap();
+    state.raw_key(&RawKeyboardEvent {code:KeyCode::ShiftLeft,pressed:true,repeat:false,timestamp:Instant::now(),host_nanos:0});
+    press(&mut state,KeyCode::KeyW);
+    state.raw_key(&RawKeyboardEvent {code:KeyCode::ShiftLeft,pressed:false,repeat:false,timestamp:Instant::now(),host_nanos:0});
+    press(&mut state,KeyCode::F2);
+    assert!(texts(&state).iter().any(|v|v.contains("Plus sombre que la zone dense")));
+    assert!(texts(&state).iter().any(|v|v.contains("Couleurs de forme d’onde 1/2")));
+    press(&mut state,KeyCode::ArrowRight);
+    assert!(texts(&state).iter().any(|v|v.contains("Identique à la zone dense")));
+    for _ in 0..13 {press(&mut state,KeyCode::ArrowDown);}
+    assert!(texts(&state).iter().any(|v|v.contains("Couleurs de forme d’onde 2/2")));
+    assert!(texts(&state).iter().any(|v|v.contains("Fond, opacité : 0.000")));
+    press(&mut state,KeyCode::ArrowRight);press(&mut state,KeyCode::Escape);press(&mut state,KeyCode::Escape);
+    assert_eq!(state.waveform_preferences().palette(),Default::default());
+    assert_eq!(state.workspace().file().session.serialize().unwrap(),source.as_bytes());
+}

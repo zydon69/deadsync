@@ -28,6 +28,7 @@ pub mod transform;
 pub mod workspace;
 pub mod waveform;
 pub mod waveform_preferences;
+pub mod waveform_palette;
 
 use std::fmt;
 

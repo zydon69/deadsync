@@ -36,6 +36,11 @@ impl State {
         i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
     pub(super) fn waveform_settings_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::F2 {
+            self.panel = Some(Panel::WaveformColors(0));
+            self.status = i18n::tr("Edition", "WaveformColorsHelp");
+            return;
+        }
         let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
         if code == KeyCode::Escape || (index == 6 && enter) {
             self.waveform_preferences_draft = None;

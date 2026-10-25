@@ -228,45 +228,72 @@ impl State {
         let channel_width = width / data.channels() as f32;
         let scale = self.waveform_preferences.channel_width() as f32;
         let margin = (1.0 - scale) * 0.5;
+        let palette = self.waveform_preferences.palette();
         for pixel in 0..rows {
             let y = top + pixel as f32 * step;
             let first = self.workspace.row() as f64 + f64::from(y - cursor_y);
             let last = first + f64::from(step);
-            if last <= 0.0 {
-                continue;
-            }
-            let (Ok(a), Ok(b)) = (
-                clock.music_time(first.max(0.0).floor() as u64),
-                clock.music_time(last.ceil() as u64),
-            ) else {
-                continue;
+            let interval = if last <= 0.0 {
+                None
+            } else {
+                match (
+                    clock.music_time(first.max(0.0).floor() as u64),
+                    clock.music_time(last.ceil() as u64),
+                ) {
+                    (Ok(a), Ok(b)) if b > 0.0 && b >= a => {
+                        let start = (a.max(0.0) * f64::from(data.sample_rate())).floor() as usize;
+                        let end = (b.max(0.0) * f64::from(data.sample_rate())).ceil() as usize;
+                        Some((start, end.max(start.saturating_add(1))))
+                    }
+                    _ => None,
+                }
             };
-            if b <= 0.0 || b < a {
-                continue;
-            }
-            let start = (a.max(0.0) * f64::from(data.sample_rate())).floor() as usize;
-            let end = (b.max(0.0) * f64::from(data.sample_rate())).ceil() as usize;
             for channel in 0..data.channels() {
-                let Some(envelope) =
-                    data.envelope(channel, start, end.max(start.saturating_add(1)))
-                else {
+                let left = x - width * 0.5 + channel as f32 * channel_width;
+                let right = left + channel_width;
+                let envelope = interval.and_then(|(a, b)| data.envelope(channel, a, b));
+                let Some(envelope) = envelope else {
+                    stripe(actors, left, right, y, step, palette.background().rgba());
                     continue;
                 };
-                let left = x - width * 0.5 + channel as f32 * channel_width;
                 let a = left + channel_width * (margin + scale * f32::from(envelope.min) / 511.0);
                 let b = left + channel_width * (margin + scale * f32::from(envelope.max) / 511.0);
-                let mid = (a + b) * 0.5;
-                actors.push(act!(quad: xy(mid,y+step*0.5): zoomto((b-a).max(0.5),step): diffuse(0.0,0.35,0.164,0.35): z(8001)));
-                if end.saturating_sub(start) > 1 {
-                    let dense = (envelope.mean_distance / 511.0
-                        * self.waveform_preferences.dense_scale())
-                    .min(1.0) as f32
-                        * (b - a);
-                    if dense > 0.0 {
-                        actors.push(act!(quad: xy(mid,y+step*0.5): zoomto(dense,step): diffuse(0.0,0.389,0.183,0.5): z(8001)));
-                    }
+                let sparse_width = (b - a).max(0.5).min(channel_width);
+                let mid =
+                    ((a + b) * 0.5).clamp(left + sparse_width * 0.5, right - sparse_width * 0.5);
+                let a = mid - sparse_width * 0.5;
+                let b = mid + sparse_width * 0.5;
+                let dense = if interval.is_some_and(|(start, end)| end - start > 1) {
+                    (envelope.mean_distance / 511.0 * self.waveform_preferences.dense_scale())
+                        .min(1.0) as f32
+                        * ((f32::from(envelope.max) - f32::from(envelope.min)) / 511.0
+                            * channel_width
+                            * scale)
+                } else {
+                    0.0
+                };
+                let dense = dense.min(sparse_width);
+                let dl = mid - dense * 0.5;
+                let dr = mid + dense * 0.5;
+                // The original recolouring shader assigns exactly one colour
+                // per pixel. Disjoint spans avoid compositing semi-transparent
+                // dense over sparse, or sparse over background, a second time.
+                stripe(actors, left, a, y, step, palette.background().rgba());
+                if dense > 0.0 {
+                    stripe(actors, a, dl, y, step, palette.resolved_sparse().rgba());
+                    stripe(actors, dl, dr, y, step, palette.dense().rgba());
+                    stripe(actors, dr, b, y, step, palette.resolved_sparse().rgba());
+                } else {
+                    stripe(actors, a, b, y, step, palette.resolved_sparse().rgba());
                 }
+                stripe(actors, b, right, y, step, palette.background().rgba());
             }
         }
     }
+}
+fn stripe(actors: &mut Vec<Actor>, left: f32, right: f32, top: f32, height: f32, color: [f32; 4]) {
+    if right <= left || color[3] <= 0.0 {
+        return;
+    }
+    actors.push(act!(quad: xy((left+right)*0.5,top+height*0.5): zoomto(right-left,height): diffuse(color[0],color[1],color[2],color[3]): z(8001)));
 }

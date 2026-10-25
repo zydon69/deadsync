@@ -3230,3 +3230,73 @@ Screenshots: `/tmp/deadsync-waveform-settings-french.png`,
 `/tmp/deadsync-waveform-settings-reloaded.png`. This adds basic OpenGL runtime
 layout and width/persistence observations; the remaining preference scope above
 is still incomplete.
+
+
+### Waveform palette and disjoint alpha rendering
+
+waveform_palette now models validated RGBA colours, the three original sparse
+modes (DarkerDenseColor, SameAsDenseColor, UniqueColor) and a [0,1] sparse brightness
+factor. Defaults follow PreferencesWaveForm: dense (0,0.389,0.183,0.8), custom
+sparse (0,0.350,0.164,0.8), transparent black background and 0.8 brightness.
+Resolution follows Editor.PreDrawWaveFormToRenderTarget: darken RGB only and copy
+dense alpha, use the full dense colour for SameAsDenseColor, or retain the custom
+sparse colour for UniqueColor. Changing modes does not erase custom values.
+Native preference JSON stores the named original palette keys in Waveform;
+RGBA reads accept four-element arrays or X/Y/Z/W objects, writes use objects and
+preserve unknown object fields. Incoming JSON values are range-checked before
+f32 conversion, avoiding acceptance of an out-of-range value rounded to 1.0.
+Original whole-preferences import/export is still separate pending work.
+
+F2 from Shift+W opens a keyboard colour subpanel, paginated eight rows per page.
+It exposes mode, brightness and RGBA components for dense, custom sparse and
+background colours, with colour swatches. Arrows cycle mode / adjust components;
+Shift gives 0.001 rather than 0.01 component steps. Home restores one field,
+0 clears it, Tab navigates. Escape/Back returns to the parent with the shared
+draft intact; the parent Save or Discard accepts or rejects all staged settings.
+Saving colours does not implicitly enable a hidden waveform. English and French
+labels, help and page counters are present.
+
+The view now uses these colours instead of placeholder hard-coded tints. Sparse,
+dense and background areas are emitted as disjoint horizontal spans. This
+matches the original recolouring shader's one-colour-per-pixel rule and avoids
+alpha being applied twice by drawing dense over sparse over background. A
+nontransparent background covers the chart viewport, including outside the audio
+range, while notes and chart overlays remain above the waveform. Fully transparent
+spans emit no actors. Existing timing, source-audio priority and width/density
+controls are retained. Original FXAA/texture filtering and exact dense envelope
+numerical parity are not established by this change.
+
+Three new core workflows test original colour formulas and alpha rules, validated
+RGBA and palette persistence with nested unknown fields, and invalid source
+preservation (including values outside [0,1] before f32 rounding). The eight
+existing audio/waveform preference workflows also pass. New native workflows
+exercise both colour pages, fine edits, cancel/save and preservation of hidden
+visibility, plus all 290 viewport bands with semi-transparent background, sparse
+and dense colours: segments cover the field without overlaps or gaps. The timed
+pulse test now identifies either sparse or dense spans, since dense pixels no
+longer have an overlapping sparse rectangle underneath them. Its 48-row offset
+alignment assertion is retained. A French workflow verifies both pages and
+staged cancellation. All 180 native edition integration tests pass; cargo check
+for the application passes. These are actor/state and reference-formula tests,
+not execution of the original C# shader or proof of FXAA parity.
+
+
+Native palette review also passes in a new isolated `EditorQA-Palette.app`
+(`org.deadsync.editorqa.palette`), built and packaged from this change. French,
+1280 × 720 OpenGL, generated stereo song, sound muted. Both colour pages, page
+counters and swatches fit the window. Using only keys, UniqueColor was selected,
+dense RGB changed to approximately (0.2,0,0) with alpha 0.8 and background alpha
+changed to 0.05. Before parent Save the waveform retained its original colours;
+after Save, red dense spans and green custom sparse spans were visibly distinct
+behind readable notes. Independent disk checks confirm mode and RGBA values.
+Closing/reopening the editor and colour panel visibly reloads UniqueColor and
+(0.200,0.000,0.000,0.800). Parent Defaults and Save restore the original palette,
+verified on disk. Source audio/SSC hashes are unchanged and no ERROR lines occur
+in the run log. Old clean QA instances were closed; this isolated app remains
+open with defaults restored. No input permissions were changed.
+
+Local screenshots: `/tmp/deadsync-palette-page-one.png`,
+`/tmp/deadsync-palette-page-two.png`, `/tmp/deadsync-palette-applied.png` and
+`/tmp/deadsync-palette-reloaded.png`. This is a qualitative OpenGL layout,
+application and persistence review, not pixel-by-pixel comparison to the original
+shader, an FXAA validation or audible audio verification.

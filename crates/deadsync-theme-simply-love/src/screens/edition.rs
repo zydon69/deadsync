@@ -15,6 +15,7 @@ mod song_properties;
 mod sample_region;
 mod waveform;
 mod waveform_settings;
+mod waveform_colors;
 mod timing;
 mod text_entry;
 
@@ -69,6 +70,7 @@ enum Panel {
     SongSample(usize),
     AudioSettings(usize),
     WaveformSettings(usize),
+    WaveformColors(usize),
     Timing(usize),
     TimingMigration(usize),
     ChartExpression(usize),
@@ -1296,7 +1298,7 @@ impl State {
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
-            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0 | 1) | Panel::WaveformSettings(2 | 3))
+            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0 | 1) | Panel::WaveformSettings(2 | 3) | Panel::WaveformColors(1..=13))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !repeating_offset
@@ -1483,6 +1485,10 @@ impl State {
             self.text_field_key(index, code);
             return false;
         }
+        if let Panel::WaveformColors(index) = panel {
+            self.waveform_colors_key(index, code);
+            return false;
+        }
         if let Panel::WaveformSettings(index) = panel {
             self.waveform_settings_key(index, code);
             return false;
@@ -1621,6 +1627,7 @@ impl State {
             Panel::Timing(index) => self.timing_key(index, code),
             Panel::SongProperties(index) => self.song_properties_key(index, code),
             Panel::SongSample(_) => unreachable!("sample input dispatched above"),
+            Panel::WaveformColors(_) => unreachable!("waveform colours dispatched above"),
             Panel::WaveformSettings(_) => unreachable!("waveform settings dispatched above"),
             Panel::AudioSettings(_) => unreachable!("audio settings dispatched above"),
             Panel::TimingMigration(index) => self.timing_migration_key(index, code),
@@ -2237,7 +2244,7 @@ impl State {
                 self.panel,
                 Some(
                     Panel::Timing(_) | Panel::TimingMigration(_)
-                        | Panel::SongProperties(_) | Panel::SongSample(_) | Panel::AudioSettings(_) | Panel::WaveformSettings(_) | Panel::SongText(_)
+                        | Panel::SongProperties(_) | Panel::SongSample(_) | Panel::AudioSettings(_) | Panel::WaveformSettings(_) | Panel::WaveformColors(_) | Panel::SongText(_)
                 )
             )
         {
@@ -2347,6 +2354,7 @@ impl State {
                 "ProfileBack",
             ],
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
+            Panel::WaveformColors(_) => &["WaveformColorMode","WaveformColorDarken","WaveformDenseRed","WaveformDenseGreen","WaveformDenseBlue","WaveformDenseAlpha","WaveformSparseRed","WaveformSparseGreen","WaveformSparseBlue","WaveformSparseAlpha","WaveformBackgroundRed","WaveformBackgroundGreen","WaveformBackgroundBlue","WaveformBackgroundAlpha","WaveformColorsBack"],
             Panel::WaveformSettings(_) => &["WaveformSettingShow", "WaveformSettingEnabled", "WaveformSettingWidth", "WaveformSettingDense", "WaveformSettingsDefaults", "WaveformSettingsSave", "WaveformSettingsCancel"],
             Panel::AudioSettings(_) => &["AudioFadeIn", "AudioFadeOut", "AudioSettingsDefaults", "AudioSettingsApply", "AudioSettingsCancel"],
             Panel::SongSample(_) => &["SongSampleStart", "SongSampleLength", "SongLastSecondHint", "SongSampleBack"],
@@ -2421,6 +2429,7 @@ impl State {
             | Panel::SongSample(i)
             | Panel::AudioSettings(i)
             | Panel::WaveformSettings(i)
+            | Panel::WaveformColors(i)
             | Panel::ChartExpression(i)
             | Panel::ConversionProfiles(i)
             | Panel::Generation(i)
@@ -2430,10 +2439,10 @@ impl State {
             | Panel::GenerationPreview(i) => i,
             _ => 0,
         };
-        let menu_start = if matches!(panel, Panel::Menu(_) | Panel::SongText(_)) {
+        let menu_start = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_)) {
             selected / 8 * 8
         } else { 0 };
-        let visible_keys = if matches!(panel, Panel::Menu(_) | Panel::SongText(_)) {
+        let visible_keys = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_)) {
             keys.len().saturating_sub(menu_start).min(8)
         } else {
             keys.len()
@@ -2465,7 +2474,7 @@ impl State {
         } else {
             0.0
         };
-        let menu_footer = if matches!(panel, Panel::Menu(_) | Panel::SongText(_)) {
+        let menu_footer = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_)) {
             24.0
         } else { 0.0 };
         let panel_height = visible_keys as f32 * 32.0 + 30.0 + extra_height + menu_footer;
@@ -2475,9 +2484,9 @@ impl State {
             screen_height() * 0.5
         };
         actors.push(act!(quad: xy(panel_x, panel_y): setsize(panel_width, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
-        if matches!(panel, Panel::Menu(_) | Panel::SongText(_)) {
+        if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_)) {
             let page = i18n::tr_fmt("Edition",
-                if matches!(panel, Panel::SongText(_)) { "TextFieldsPage" } else { "MenuPage" }, &[
+                if matches!(panel, Panel::WaveformColors(_)) { "WaveformColorsPage" } else if matches!(panel, Panel::SongText(_)) { "TextFieldsPage" } else { "MenuPage" }, &[
                 ("page", &(selected / 8 + 1).to_string()),
                 ("pages", &keys.len().div_ceil(8).to_string()),
             ]);
@@ -2792,6 +2801,8 @@ impl State {
                 i18n::tr("Edition", "PatternSetApply")
             } else if matches!(panel, Panel::Timing(_)) {
                 self.timing_label(index, key)
+            } else if matches!(panel, Panel::WaveformColors(_)) && index < 14 {
+                self.waveform_colors_label(index,key)
             } else if matches!(panel, Panel::WaveformSettings(_)) && index < 4 {
                 self.waveform_settings_label(index, key)
             } else if matches!(panel, Panel::AudioSettings(_)) && index < 2 {
@@ -2811,6 +2822,11 @@ impl State {
                 i18n::tr("Edition", key)
             };
             actors.push(act!(text: font("miso"): settext(label): align(0.5, 0.5): xy(panel_x, panel_y - panel_height * 0.5 + extra_height + 30.0 + (index - menu_start) as f32 * 32.0): zoom(0.8): diffuse(color[0], color[1], color[2], color[3]): z(8021)));
+            if matches!(panel, Panel::WaveformColors(_)) && index<14 {
+                let rgba=self.waveform_color_swatch(index);
+                let y=panel_y-panel_height*0.5+extra_height+30.0+(index-menu_start) as f32*32.0;
+                actors.push(act!(quad: xy(panel_x+panel_width*0.5-20.0,y): zoomto(16.0,16.0): diffuse(rgba[0],rgba[1],rgba[2],rgba[3]): z(8022)));
+            }
             if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_)) {
                 if let Some(Actor::Text { max_width, .. }) = actors.last_mut() {
                     *max_width = Some(panel_width - 30.0);

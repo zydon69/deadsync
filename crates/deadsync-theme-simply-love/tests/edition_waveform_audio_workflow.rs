@@ -150,6 +150,7 @@ fn init() {
     ));
 }
 fn quads(state: &State) -> Vec<([f32; 2], f32, f32)> {
+    let palette = deadsync_editor::waveform_palette::Palette::default();
     let mut actors = Vec::new();
     state.actors(&mut actors);
     actors
@@ -161,11 +162,13 @@ fn quads(state: &State) -> Vec<([f32; 2], f32, f32)> {
                 scale,
                 tint,
                 ..
-            } if tint == [0.0, 0.35, 0.164, 0.35] => Some((
-                offset,
-                if w == 0.0 { scale[0] } else { w * scale[0] },
-                if h == 0.0 { scale[1] } else { h * scale[1] },
-            )),
+            } if tint == palette.resolved_sparse().rgba() || tint == palette.dense().rgba() => {
+                Some((
+                    offset,
+                    if w == 0.0 { scale[0] } else { w * scale[0] },
+                    if h == 0.0 { scale[1] } else { h * scale[1] },
+                ))
+            }
             _ => None,
         })
         .collect()
