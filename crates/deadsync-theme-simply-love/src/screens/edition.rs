@@ -2421,7 +2421,10 @@ impl State {
     fn row_projection(&self, top: f32, bottom: f32, cursor_y: f32) -> deadsync_editor::projection::RowProjection {
         deadsync_editor::projection::RowProjection::new(
             self.workspace.row(), f64::from(cursor_y), self.zoom.spacing_zoom(), f64::from(top), f64::from(bottom),
-        ).expect("finite editor viewport with cursor inside bounds").with_reverse(self.reverse_display)
+        ).expect("finite editor viewport with cursor inside bounds")
+            .with_reverse(self.reverse_display)
+            .with_row_offset(self.playback_position().map_or(0.0, |(_, row)| row - self.workspace.row() as f64))
+            .expect("finite mapped playback row")
     }
 
     fn help_actors(&self, actors: &mut Vec<Actor>) {

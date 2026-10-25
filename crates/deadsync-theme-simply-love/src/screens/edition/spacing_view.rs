@@ -195,6 +195,15 @@ impl State {
             },
         );
     }
+    fn display_position(&self, clock: &Clock) -> Result<(f64, f64), deadsync_editor::Error> {
+        if let Some(position) = self.playback_position() {
+            return Ok(position);
+        }
+        Ok((
+            clock.chart_time(self.workspace.row())?,
+            self.workspace.row() as f64,
+        ))
+    }
     fn waveform_axis(
         &self,
         data: &Data,
@@ -202,8 +211,7 @@ impl State {
         bottom: f32,
         cursor_y: f32,
     ) -> Result<TimeProjection, deadsync_editor::Error> {
-        let time = data.clock.chart_time(self.workspace.row())?;
-        let row = self.workspace.row() as f64;
+        let (time, row) = self.display_position(&data.clock)?;
         let mode = self.spacing_mode;
         let policy = self.waveform_preferences.scroll_mode();
         let active = data
@@ -283,11 +291,11 @@ impl State {
             interpolation,
             ..
         } = data;
-        let time = clock.chart_time(self.workspace.row())?;
+        let (time, row) = self.display_position(clock)?;
         let focal = Anchor {
             y: f64::from(cursor_y),
             time,
-            row: self.workspace.row() as f64,
+            row,
         };
         let settings = Settings {
             mode: self.spacing_mode,

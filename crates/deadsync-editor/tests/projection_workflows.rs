@@ -154,3 +154,42 @@ fn reversed_rows_mirror_all_geometry_and_retain_large_anchor_precision() {
     assert_eq!(reverse.row_at(395.0), -55.0);
     assert_eq!(reverse.clipped_fractional_y(-1000.0), 395.0);
 }
+
+#[test]
+fn fractional_focal_rows_preserve_reverse_visibility_and_large_integer_precision() {
+    for anchor in [0, 192, u64::MAX - 10] {
+        for offset in [-48.5, -0.5, 0.0, 0.25, 48.5] {
+            let normal = RowProjection::new(anchor, 160.0, 2.0, 105.0, 395.0)
+                .unwrap()
+                .with_row_offset(offset)
+                .unwrap();
+            let reverse = RowProjection::new(anchor, 340.0, 2.0, 105.0, 395.0)
+                .unwrap()
+                .with_reverse(true)
+                .with_row_offset(offset)
+                .unwrap();
+            assert_eq!(normal.y(anchor), 160.0 - offset * 2.0);
+            assert_eq!(normal.visible_rows(), reverse.visible_rows());
+            for delta in 0..10 {
+                let row = anchor.saturating_add(delta);
+                assert_eq!(normal.y(row) + reverse.y(row), 500.0);
+                if normal.y(row) >= 105.0 && normal.y(row) <= 395.0 {
+                    let (a, b) = normal.visible_rows();
+                    assert!(a <= row && row <= b);
+                }
+            }
+            if anchor == 192 {
+                assert_eq!(normal.row_at(160.0), 192.0 + offset);
+                assert_eq!(normal.fractional_y(192.0 + offset), 160.0);
+            }
+        }
+    }
+    for offset in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+        assert!(
+            RowProjection::new(0, 160.0, 1.0, 105.0, 395.0)
+                .unwrap()
+                .with_row_offset(offset)
+                .is_err()
+        );
+    }
+}

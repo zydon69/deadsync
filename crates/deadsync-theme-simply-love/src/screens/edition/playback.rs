@@ -8,6 +8,7 @@ pub(super) struct Playing {
     preview: Option<Preview>,
     requested: Instant,
     mapped: bool,
+    position: Option<(f64, f64)>,
 }
 impl State {
     /// Install the explicit application preference path; malformed files remain untouched.
@@ -29,6 +30,10 @@ impl State {
     }
     pub fn audio_preferences(&self) -> deadsync_editor::audio_preferences::Audio {
         self.audio_preferences
+    }
+    /// Exact mapped chart time and fractional row for presentation only.
+    pub(super) fn playback_position(&self) -> Option<(f64, f64)> {
+        self.playback.as_ref()?.position
     }
     pub fn is_playing(&self) -> bool {
         self.playback.is_some()
@@ -71,6 +76,7 @@ impl State {
                     preview: Some(preview),
                     requested: Instant::now(),
                     mapped: false,
+                    position: None,
                 });
                 self.status = i18n::tr("Edition", "PlaybackPlaying");
             }
@@ -118,6 +124,7 @@ impl State {
                     preview: None,
                     requested: Instant::now(),
                     mapped: false,
+                    position: None,
                 });
                 self.status = i18n::tr("Edition", "SongSamplePlaying");
             }
@@ -147,9 +154,13 @@ impl State {
             return;
         }
         playing.mapped = true;
-        let result = preview.position(clock.music_nanos as f64 / 1_000_000_000.0);
+        let seconds = clock.music_nanos as f64 / 1_000_000_000.0;
+        let result = preview
+            .position(seconds)
+            .and_then(|row| Ok((preview.music_to_chart_time(seconds)?, row)));
         match result {
-            Ok(row) => {
+            Ok((time, row)) => {
+                playing.position = Some((time, row));
                 // Notes use nonnegative integral rows; the transport clock
                 // itself retains fractional/negative positions.
                 let row = row.max(0.0).min(i32::MAX as f64).floor() as u64;

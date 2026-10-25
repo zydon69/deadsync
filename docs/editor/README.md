@@ -4082,3 +4082,42 @@ Fixture SSC and WAV SHA-256 hashes still match their originals. The QA instance
 was closed. Screenshot: `/tmp/deadsync-wave-policy-panel.png` (local QA artifact,
 not distributed). This check does not establish audible playback, other GPU
 backends, anti-aliasing parity or complete editor parity.
+
+### Continuous mapped playback presentation
+
+The native transport now retains both exact chart time and fractional chart row
+from each accepted audio mapping. Row, Time and Variable chart projections use
+that focal position instead of reconstructing time from the floored edit cursor.
+The waveform axis uses the same focal time, and Variable interpolation is sampled
+at the fractional position. Time display therefore continues moving through a
+delay even when the inverse row remains fixed. Negative silent lead-in is also
+preserved visually while the note-edit cursor stays nonnegative.
+
+The note-edit cursor remains integral and does not create history edits merely
+by following playback. No extrapolated wall clock claims successful playback.
+Snapshots predating the playback request remain ignored. Stopping transport
+returns the display to its integral edit cursor; retaining fractional position
+across pause/resume, scrubbing, loop controls and complete decoder/EOF handling
+are still required for full original transport parity. The original reference is
+Editor.UpdateMusicAndPosition/SetSongTime, which retains a double song/chart
+position while playing; the Rust host continues using its mapped audio clock.
+
+RowProjection now accepts a finite focal displacement relative to its integer
+anchor. Note projection still subtracts integer rows before float conversion,
+retaining adjacent-row precision near u64::MAX. Visible ranges include fractional
+edge rows in both directions and saturate at domain boundaries.
+
+New tests assert literal sub-row displacement for all three modes in normal and
+Reverse display, movement through a delay with an unchanged edit cursor, negative
+lead-in, ignored pre-request snapshots, stopped-transport isolation and unchanged
+source bytes/history. Core projection cases cover fractional/negative offsets,
+Reverse mirroring, inverse mapping, viewport inclusion, nonfinite input rejection
+and large integer anchors. These are native actor/audio-command tests and do not
+establish actual device playback or GPU rendering.
+
+Validation: all 31 tests across seven targeted core integration suites and all
+203 tests across 29 native edition integration suites passed. `cargo check -p
+deadsync --jobs 2 --locked` passed. This change was not rebuilt into a new .app
+or visually reviewed on the GPU; the prior waveform-policy application review
+predates this transport change. Full original transport/editor parity remains
+incomplete.

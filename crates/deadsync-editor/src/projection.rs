@@ -5,6 +5,7 @@ use crate::Error;
 #[derive(Clone, Copy, Debug)]
 pub struct RowProjection {
     anchor: u64,
+    offset: f64,
     cursor: f64,
     scale: f64,
     reverse: bool,
@@ -30,6 +31,7 @@ impl RowProjection {
         }
         Ok(Self {
             anchor,
+            offset: 0.0,
             cursor,
             scale: pixels_per_row,
             reverse: false,
@@ -42,6 +44,15 @@ impl RowProjection {
         self.reverse = reverse;
         self
     }
+    /// Fractional displacement from the integer anchor. Subtraction of integer
+    /// rows still happens before float conversion, preserving large-row precision.
+    pub fn with_row_offset(mut self, offset: f64) -> Result<Self, Error> {
+        if !offset.is_finite() {
+            return Err(Error::InvalidEdit("Nonfinite row projection offset".into()));
+        }
+        self.offset = offset;
+        Ok(self)
+    }
     fn signed_scale(self) -> f64 {
         self.scale * if self.reverse { -1.0 } else { 1.0 }
     }
@@ -53,13 +64,13 @@ impl RowProjection {
         } else {
             -((self.anchor - row) as f64)
         };
-        self.cursor + delta * self.signed_scale()
+        self.cursor + (delta - self.offset) * self.signed_scale()
     }
     pub fn fractional_y(self, row: f64) -> f64 {
-        self.cursor + (row - self.anchor as f64) * self.signed_scale()
+        self.cursor + (row - self.anchor as f64 - self.offset) * self.signed_scale()
     }
     pub fn row_at(self, y: f64) -> f64 {
-        self.anchor as f64 + (y - self.cursor) / self.signed_scale()
+        self.anchor as f64 + self.offset + (y - self.cursor) / self.signed_scale()
     }
     pub fn clipped_y(self, row: u64) -> f64 {
         self.y(row).clamp(self.top, self.bottom)
@@ -70,17 +81,16 @@ impl RowProjection {
     /// Include partially visible rows at both edges. Float-to-integer casts
     /// saturate at zero/u64::MAX; negative lead-in remains available via row_at.
     pub fn visible_rows(self) -> (u64, u64) {
-        let (before, after) = if self.reverse {
-            (self.bottom - self.cursor, self.cursor - self.top)
-        } else {
-            (self.cursor - self.top, self.bottom - self.cursor)
+        let a = (self.top - self.cursor) / self.signed_scale() + self.offset;
+        let b = (self.bottom - self.cursor) / self.signed_scale() + self.offset;
+        let shift = |delta: f64| {
+            if delta < 0.0 {
+                self.anchor.saturating_sub((-delta) as u64)
+            } else {
+                self.anchor.saturating_add(delta as u64)
+            }
         };
-        (
-            self.anchor
-                .saturating_sub((before / self.scale).ceil() as u64),
-            self.anchor
-                .saturating_add((after / self.scale).ceil() as u64),
-        )
+        (shift(a.min(b).floor()), shift(a.max(b).ceil()))
     }
 }
 
