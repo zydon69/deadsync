@@ -599,10 +599,19 @@ impl EditorTimeline {
         Ok(time)
     }
     pub fn pattern_nps(&self, num_steps: u64, last_step: u64) -> Result<f64, Error> {
+        self.patterns_nps(num_steps, Some(last_step))
+    }
+    /// A batch with only empty markers contributes no candidate step time.
+    pub fn patterns_nps(&self, num_steps: u64, last_step: Option<u64>) -> Result<f64, Error> {
         if num_steps > i32::MAX as u64 {
             return invalid("Pattern step count exceeds the reference range");
         }
-        let end = self.chart_end()?.max(self.position_time(last_step)?);
+        let end = self.chart_end()?.max(
+            last_step
+                .map(|row| self.position_time(row))
+                .transpose()?
+                .unwrap_or(0.0),
+        );
         let nps = if end > 0.0 {
             (self.step_count() as f64 + num_steps as f64) / end
         } else {

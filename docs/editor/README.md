@@ -1026,3 +1026,44 @@ workflows also pass. This verifies input dispatch and actor construction, not GP
 rendering or physical input. Complete original batch-action differential replay,
 batch pattern regeneration, configuration management and all remaining domains in
 the delivery matrix are still required for the full GrooveAuthor port.
+
+### Multi-pattern scheduling primitives
+
+`pattern_schedule` ports the chronological helper contracts of
+`ActionAutoGeneratePatterns`: stable marker order, immediate-next overlap clipping,
+expected retained step totals, the last nonempty marker's final row, one global
+NPS estimate and incremental preceding-lane counters. An empty immediate next
+marker does not clip the current one, even if a later marker is nonempty. The
+last marker's step row is used rather than the maximum end of every earlier
+marker. The counter retains the original inclusive lower search bound, including
+its observable recount of a step on the previously captured row. Timing/marker
+events advance the captured row, while fake step heads participate in preceding
+lane counts even though density excludes fake notes. Invalid/cancelled updates
+leave counters unchanged. Overflow beyond the reference integer range is refused.
+
+The existing single-region task now uses these same scheduling/density/counter
+primitives. This preserves its result while providing the contracts required for
+a shared multi-region engine. `EditorTimeline::patterns_nps` also distinguishes
+an all-empty set of markers from a candidate final step at row zero.
+
+Fifteen committed scheduling fixtures compare Rust with five unchanged C# helper
+bodies extracted from the pinned editor: GetTotalStepsFromAllPatterns,
+GetLastPatternStepTime, GetNps, RemoveEventsWhichOverlapNextPattern and
+UpdatePrecedingLaneCounts. They cover disjoint/adjacent/nested/overlapping regions,
+empty immediate/final/all regions, no selection, stable unsorted/repeated and
+same-row inputs, exclusive/off-grid/single-row boundaries, spacing one, and
+combined delay/tempo/negative-stop/warp timing. Input candidate note rows and the
+editor containers are adapters; the expected counters, clipping and density come
+from the original methods. Existing deletion and marker-bound helper bodies are
+also used. A second Rust workflow covers invalid regions/events, counter rollback,
+reference-range overflow and cancellation. Standard tests need neither .NET nor
+reference checkouts.
+
+The adapter supplies the marker list directly. The pinned action constructor
+currently copies `allPatterns` and then adds it again; that constructor is not
+executed by these fixtures. Explicit repetitions are covered independently, so
+this evidence must not be described as complete action/runtime parity. Full
+multi-region generation still needs incremental timeline insertion with preserved
+assigned times, sequential shared context, failure handling and one preview/apply
+workflow, followed by native controls and integrated differential checks. It is
+not available through the native menu yet. The full delivery matrix remains open.

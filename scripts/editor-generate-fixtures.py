@@ -50,6 +50,11 @@ def prepare_timing_reference(editor):
         "DELETION_METHODS": [extract_member(deletion, r"\tpublic class Alterations\s*"), extract_member(deletion, r"\tpublic static Alterations DeleteEventsOverlappingPatterns\(")],
         "RANGE_METHODS": [extract_member(density, r"\tprivate static \(int start, int end\) GetRowRangeToConsiderForPattern\(")],
         "DENSITY_METHODS": [extract_member(density, r"\tprivate double GetNps\(")],
+        "SCHEDULE_METHODS": [extract_member(density,r"\tprivate int GetTotalStepsFromAllPatterns\("),
+            extract_member(density,r"\tprivate double GetLastPatternStepTime\("),
+            extract_member(density,r"\tprivate double GetNps\("),
+            extract_member(density,r"\tprivate static void RemoveEventsWhichOverlapNextPattern\("),
+            extract_member(density,r"\tprivate static void UpdatePrecedingLaneCounts\(")],
     }
     project = ROOT / "scripts/editor-oracle"
     template = (project / "EditorTimingReference.cs.template").read_text()
@@ -381,6 +386,28 @@ def requests(reference: Path):
     for label, markers in clear_cases.items():
         cases["clear-pattern-" + label] = {"Operation":"EditorTiming", "Timing":[[0,"signature",4,4],[0,"tempo",120]],
             "Notes":copy.deepcopy(clear_notes), "Rows":[], "NumSteps":0, "LastStep":0, "ClearPatterns":markers}
+    schedule_cases = {
+        "disjoint": [[48,48,12,True,True],[144,48,24,True,True]],
+        "adjacent": [[48,48,12,True,True],[96,48,12,True,True]],
+        "overlap": [[48,144,12,True,True],[96,144,24,True,True]],
+        "nested-short": [[48,240,12,True,True],[96,24,12,True,True]],
+        "empty-next": [[48,144,12,True,True],[96,0,12,False,False],[144,48,12,True,True]],
+        "empty-final": [[48,144,12,True,True],[96,0,12,True,False]],
+        "all-empty": [[48,0,12,False,False],[96,0,24,True,False]],
+        "none": [],
+        "unsorted": [[192,48,24,True,True],[48,96,12,False,False],[120,48,12,True,True]],
+        "repeated": [[48,48,12,True,True],[48,48,12,True,True],[144,48,12,True,True]],
+        "same-row-exclusive": [[48,48,12,False,True],[48,48,24,True,False]],
+        "off-grid": [[49,46,12,True,False],[84,49,24,False,True]],
+        "single-row": [[48,0,12,True,True],[96,0,24,True,True]],
+        "spacing-one": [[48,9,1,True,False],[54,7,1,False,True]],
+        "delayed-origin": [[0,0,12,False,False],[24,48,12,True,True]],
+    }
+    for label,markers in schedule_cases.items():
+        cases["pattern-schedule-"+label] = {"Operation":"EditorTiming","Timing":[[0,"signature",4,4],[0,"tempo",120]],
+            "Notes":[[0,0,"1"],[12,1,"F"],[24,2,"L"],[36,3,"M"],[47,0,"1"],[60,1,"2",156],[240,2,"1"]],
+            "Rows":[],"NumSteps":0,"LastStep":0,"Schedule":markers}
+    cases["pattern-schedule-delayed-origin"]["Timing"] += [[0,"delay",0.4],[72,"tempo",180],[96,"stop",-0.3],[144,"warp",48]]
     editor_notes = [[0, 0, "1"], [12, 1, "1"], [24, 2, "F"], [36, 3, "L"], [48, 0, "2", 96], [120, 2, "M"], [144, 3, "K"], [192, 1, "1"]]
     editor_cases = {
         "baseline": {},

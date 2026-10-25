@@ -1,0 +1,35 @@
+{
+  "TotalSteps": 0,
+  "LastTime": 0,
+  "Nps": 2,
+  "Stages": [
+    {
+      "First": 60,
+      "Last": 36,
+      "Count": 0,
+      "LaneCounts": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "TotalSteps": 0,
+      "LastCaptured": -1,
+      "Kept": []
+    },
+    {
+      "First": 96,
+      "Last": 72,
+      "Count": 0,
+      "LaneCounts": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "TotalSteps": 0,
+      "LastCaptured": -1,
+      "Kept": []
+    }
+  ]
+}

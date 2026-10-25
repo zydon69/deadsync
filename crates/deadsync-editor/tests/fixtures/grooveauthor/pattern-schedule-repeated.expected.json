@@ -1,0 +1,91 @@
+{
+  "TotalSteps": 10,
+  "LastTime": 2,
+  "Nps": 5.6,
+  "Stages": [
+    {
+      "First": 48,
+      "Last": 96,
+      "Count": 5,
+      "LaneCounts": [
+        2,
+        1,
+        1,
+        0
+      ],
+      "TotalSteps": 4,
+      "LastCaptured": 47,
+      "Kept": []
+    },
+    {
+      "First": 48,
+      "Last": 96,
+      "Count": 5,
+      "LaneCounts": [
+        3,
+        1,
+        1,
+        0
+      ],
+      "TotalSteps": 5,
+      "LastCaptured": 47,
+      "Kept": [
+        {
+          "Row": 48,
+          "Lane": 1
+        },
+        {
+          "Row": 60,
+          "Lane": 2
+        },
+        {
+          "Row": 72,
+          "Lane": 3
+        },
+        {
+          "Row": 84,
+          "Lane": 0
+        },
+        {
+          "Row": 96,
+          "Lane": 1
+        }
+      ]
+    },
+    {
+      "First": 144,
+      "Last": 192,
+      "Count": 5,
+      "LaneCounts": [
+        5,
+        3,
+        2,
+        1
+      ],
+      "TotalSteps": 11,
+      "LastCaptured": 96,
+      "Kept": [
+        {
+          "Row": 144,
+          "Lane": 2
+        },
+        {
+          "Row": 156,
+          "Lane": 3
+        },
+        {
+          "Row": 168,
+          "Lane": 0
+        },
+        {
+          "Row": 180,
+          "Lane": 1
+        },
+        {
+          "Row": 192,
+          "Lane": 2
+        }
+      ]
+    }
+  ]
+}

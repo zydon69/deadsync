@@ -165,6 +165,36 @@ internal class DensityReference(EditorChart chart,int count,int last) {
     public double Run()=>GetNps();
     // DENSITY_METHODS
 }
+// These helpers are unchanged; the adapter deliberately supplies the selected
+// marker list directly, independently of the UI action constructor.
+internal class PatternScheduleReference(EditorChart chart,List<EditorPatternEvent> patterns) {
+    private EditorChart EditorChart=chart;
+    private List<EditorPatternEvent> Patterns=patterns;
+    public object Run() {
+        var count=GetTotalStepsFromAllPatterns();var lastTime=GetLastPatternStepTime();var nps=GetNps();
+        var counts=new int[4];var total=0;var captured=-1;var stages=new List<object>();
+        for(var index=0;index<Patterns.Count;index++) {
+            var pattern=Patterns[index];var next=index+1<Patterns.Count?Patterns[index+1]:null;
+            var candidates=new List<Event>();
+            if(pattern.GetNumSteps()>0) {
+                UpdatePrecedingLaneCounts(ref captured,ref total,counts,pattern);
+                var number=0;
+                for(var row=pattern.GetFirstStepRow();row<=pattern.GetLastStepRow();row+=pattern.GetStepSpacing())
+                    candidates.Add(new LaneTapNote {IntegerPosition=row,Lane=(number++ + index)%4,SourceType="1"});
+                RemoveEventsWhichOverlapNextPattern(pattern,next,candidates);
+            }
+            stages.Add(new {First=pattern.GetFirstStepRow(),Last=pattern.GetLastStepRow(),Count=pattern.GetNumSteps(),
+                LaneCounts=counts.ToArray(),TotalSteps=total,LastCaptured=captured,
+                Kept=candidates.Cast<LaneNote>().Select(note=>new {Row=note.IntegerPosition,Lane=note.Lane}).ToArray()});
+            chart.AddEvents(candidates.Cast<LaneNote>().Select(note=> {
+                var entry=new EditorNoteEvent(chart,note);double time=0;chart.TryGetTimeFromChartPosition(note.IntegerPosition,ref time);
+                entry.SetRowDependencies(time,0,4,false);return entry;
+            }));
+        }
+        return new {TotalSteps=count,LastTime=lastTime,Nps=nps,Stages=stages};
+    }
+    // SCHEDULE_METHODS
+}
 internal static class PatternDeletionReference {
     // DELETION_METHODS
 }
@@ -212,6 +242,16 @@ internal static class Reference {
         var originalHeads=chart.EditorEvents.OfType<EditorNoteEvent>().Select(note=>new {Row=note.GetRow(),Lane=note.Lane,Symbol=note.Symbol,Time=note.GetChartTime(),Fake=note.IsFake()}).ToArray();
         var originalCount=chart.GetStepTotals().GetStepCount();var originalEnd=chart.GetEndChartTime();
         var originalNps=new DensityReference(chart,request.GetProperty("NumSteps").GetInt32(),request.GetProperty("LastStep").GetInt32()).Run();
+        object? schedule=null;
+        if(request.TryGetProperty("Schedule",out var scheduled)) {
+            var markers=scheduled.EnumerateArray().Select(item=>new EditorPatternEvent(chart,item[0].GetInt32(),item[0].GetInt32()+item[1].GetInt32(),item[2].GetInt32()) {StartPositionInclusive=item[3].GetBoolean(),EndPositionInclusive=item[4].GetBoolean()}).OrderBy(marker=>marker.GetRow()).ToList();
+            foreach(var marker in markers) {
+                marker.SetRowDependencies(chart.RateAlteringEvents.ForEvent(marker.Data).GetChartTimeFromPosition(marker.GetRow()),0,4,false);
+                chart.AddEvents(new[]{marker});
+            }
+            PatternDeletionReference.DeleteEventsOverlappingPatterns(chart,markers);
+            schedule=new PatternScheduleReference(chart,markers).Run();
+        }
         object? conversion=null;
         if(request.TryGetProperty("Conversion",out var conversionOptions)) {
             var sourcePad=PadData.LoadPadData("dance-single",System.IO.Path.Combine(referenceRoot,"StepManiaLibrary","dance-single.json")).GetAwaiter().GetResult();
@@ -291,6 +331,7 @@ internal static class Reference {
                 Regions=regions,Removed=changes.DeletedEvents.Distinct().Count(),Shortened=changes.ShortenedHolds.Count
             };
         }
+        if(schedule!=null) return schedule;
         return new {
             Conversion=conversion,Projected=projected,Pipeline=pipeline,Cleared=cleared,
             Heads=originalHeads,

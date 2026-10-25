@@ -8,6 +8,7 @@ use super::{
     graph::StepGraph,
     pattern::{self, PatternRequest},
     pattern_region::{self, Deletions},
+    pattern_schedule::{LaneCounts, Region, Schedule},
     source,
 };
 use crate::{
@@ -237,7 +238,14 @@ impl Task {
             Some((self.options.span.start, self.options.span.end)),
             cancelled,
         )?;
-        let average_nps = projected.pattern_nps(num_steps, end)?;
+        let schedule = Schedule::new(
+            [Region {
+                span: self.options.span,
+                spacing,
+            }],
+            cancelled,
+        )?;
+        let average_nps = schedule.average_nps(&projected)?;
         let events = projected.context_events();
         let extension = if self.options.performed.transitions.enabled == Some(true) {
             self.options
@@ -274,16 +282,10 @@ impl Task {
             cancelled,
             |_, _, _| {},
         )?;
-        let mut lane_counts = vec![0; graph.columns()];
-        let mut total_steps_before = 0;
-        for event in events
-            .iter()
-            .filter(|event| event.row < start && event.is_step)
-        {
-            check(cancelled)?;
-            lane_counts[usize::from(event.lane.unwrap())] += 1;
-            total_steps_before += 1;
-        }
+        let mut counts = LaneCounts::new(graph.columns())?;
+        counts.advance(&events, start, cancelled)?;
+        let total_steps_before = counts.total();
+        let mut lane_counts = counts.lanes().to_vec();
         if self.options.ignore_preceding_distribution {
             lane_counts.fill(0);
         }
