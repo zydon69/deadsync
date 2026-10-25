@@ -47,7 +47,7 @@ reviewable and tested.
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
-| Playback and audio | Enter starts/stops native audio preview; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3 and native actor geometry/offset tests; actual GPU waveform review, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
+| Playback and audio | Enter starts/stops native audio preview; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
@@ -3117,3 +3117,49 @@ Validation checkpoint for the native waveform implementation:
 Use a limited Cargo job count for broad local suites; unrestricted parallel
 linking of the native integration binaries caused substantial host pressure and
 was explicitly stopped before rerunning successfully with two jobs.
+
+
+### Native OpenGL waveform and audio-preference runtime review
+
+Reviewed source commit `12a42c78d` in a newly built macOS application:
+`cargo build -p deadsync --jobs 2 --locked` completed successfully, followed by
+`scripts/build-macos-app.py --binary target/debug/deadsync` packaging with a
+separate `org.deadsync.editorqa.waveform` identifier. The bundle uses portable
+application data, a generated 40-second stereo WAV and one synthetic SSC chart.
+French, windowed 1280 × 720, OpenGL; sound was muted in this isolated QA config.
+No personal songs/configuration or input permissions were changed.
+
+Observed with native UI screenshots, using only keyboard navigation:
+
+1. Title → guest → colour → Single → Standard → song wheel → P → F2 opens the
+   native editor. W loads the waveform and shows the translated ready status.
+2. The two channel envelopes differ as generated (smooth amplitude modulation
+   on the left, stepped amplitude on the right). They stay behind readable notes
+   and coexist with the highlighted music preview region.
+3. W removes both envelopes while retaining notes, cursor and preview region;
+   W reloads them. Down advances to beat 1 and moves notes, waveform and region
+   together inside the chart view. No GPU geometry change was needed.
+4. F11 → F6 → F5 opens the French audio preferences panel. Shift+Right visibly
+   changes fade-in from 0.0000 to 0.0001 seconds. Escape discards that draft.
+5. Reopening that panel, Right then Save writes fade-in 0.001 / fade-out 1.5 to
+   the bundle's editor-preferences.json and shows the translated saved status.
+   Disk JSON was independently checked.
+6. Closing the panels and editor with F2, then reopening the editor and panel,
+   visibly reloads 0.0010 / 1.5000 seconds from application preferences.
+7. Restore defaults then Save writes 0 / 1.5, verified on disk. The editor was
+   left open on the waveform view with a clean song and sound muted.
+
+Before/after SHA-256 checks confirm both synthetic audio and SSC are unchanged.
+The run log identifies OpenGL and contains no ERROR lines. Built executable
+SHA-256: `7bba61d3bd018307a80adbe75ff0ed9e8620f15789d1c7d3a0808697d303f43b`.
+Local screenshots are `/tmp/deadsync-waveform-visible.png`,
+`/tmp/deadsync-waveform-hidden.png`, `/tmp/deadsync-waveform-scrolled.png`,
+`/tmp/deadsync-audio-fades-french.png`, `/tmp/deadsync-audio-fades-saved.png`,
+`/tmp/deadsync-audio-fades-reloaded.png` and `/tmp/deadsync-waveform-final.png`.
+They are local QA artifacts, not portable repository fixtures.
+
+This establishes the basic native OpenGL view, keyboard access and real preference
+save/reopen on that isolated run. It does not establish audible fade equivalence,
+Vulkan rendering, every resolution/layout, long-file performance, configurable
+waveform preferences or full GrooveAuthor parity. Earlier sections describe the
+historical state before this runtime review.
