@@ -1,0 +1,50 @@
+{
+  "Success": true,
+  "Tier": 0,
+  "Steps": [
+    {
+      "Row": 0,
+      "Time": 0,
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 3,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 4,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    }
+  ],
+  "Mines": []
+}

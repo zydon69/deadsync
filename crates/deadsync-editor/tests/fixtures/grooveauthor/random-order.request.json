@@ -1,0 +1,77 @@
+{
+  "Operation": "RandomOrder",
+  "Cases": [
+    {
+      "Seed": 0,
+      "Length": 0
+    },
+    {
+      "Seed": 0,
+      "Length": 1
+    },
+    {
+      "Seed": 0,
+      "Length": 2
+    },
+    {
+      "Seed": 0,
+      "Length": 3
+    },
+    {
+      "Seed": 0,
+      "Length": 8
+    },
+    {
+      "Seed": 0,
+      "Length": 128
+    },
+    {
+      "Seed": 42,
+      "Length": 0
+    },
+    {
+      "Seed": 42,
+      "Length": 1
+    },
+    {
+      "Seed": 42,
+      "Length": 2
+    },
+    {
+      "Seed": 42,
+      "Length": 3
+    },
+    {
+      "Seed": 42,
+      "Length": 8
+    },
+    {
+      "Seed": 42,
+      "Length": 128
+    },
+    {
+      "Seed": -7,
+      "Length": 0
+    },
+    {
+      "Seed": -7,
+      "Length": 1
+    },
+    {
+      "Seed": -7,
+      "Length": 2
+    },
+    {
+      "Seed": -7,
+      "Length": 3
+    },
+    {
+      "Seed": -7,
+      "Length": 8
+    },
+    {
+      "Seed": -7,
+      "Length": 128
+    }
+  ]
+}

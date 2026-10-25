@@ -114,6 +114,7 @@ pub struct RootContext {
 pub struct SearchNode {
     pub node: usize,
     pub link: Option<GraphLink>,
+    pub instance: Option<super::expressed::LinkInstance>,
     pub previous: Option<Arc<Self>>,
     pub depth: usize,
     pub time: f64,
@@ -193,6 +194,22 @@ impl Scoring<'_> {
         )
     }
 
+    pub fn advance_instance(
+        &self,
+        previous: &Arc<SearchNode>,
+        node: usize,
+        instance: super::expressed::LinkInstance,
+        time: f64,
+        random: f64,
+        fallback: f64,
+    ) -> Arc<SearchNode> {
+        let mut result = self.advance(previous, node, instance.link, time, random, fallback);
+        Arc::get_mut(&mut result)
+            .expect("Fresh search node is unique")
+            .instance = Some(instance);
+        result
+    }
+
     fn make(
         &self,
         node: usize,
@@ -217,6 +234,7 @@ impl Scoring<'_> {
         let mut result = SearchNode {
             node,
             link,
+            instance: None,
             depth: p.map_or(0, |p| p.depth + 1),
             time,
             actions,

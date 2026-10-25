@@ -244,3 +244,213 @@ fn check(cancelled: &AtomicBool) -> Result<(), Error> {
         Ok(())
     }
 }
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct PlacedMine {
+    pub row: u64,
+    pub time: f64,
+    pub lane: u16,
+}
+struct Placement<'a> {
+    releases: &'a [ActionEvent],
+    steps: &'a [ActionEvent],
+    release_index: usize,
+    step_index: usize,
+    occupied: &'a [bool],
+    row: u64,
+    random_order: &'a [usize],
+}
+impl Placement<'_> {
+    fn free(&self, lane: usize) -> bool {
+        if self.occupied[lane] {
+            return false;
+        }
+        let last = self.steps.len().min(self.step_index.saturating_add(1));
+        let Some(step) = self.steps[..last]
+            .iter()
+            .rev()
+            .find(|event| event.row <= self.row && usize::from(event.lane) == lane)
+        else {
+            return true;
+        };
+        if step.row == self.row {
+            return false;
+        }
+        let mut index = self.release_index;
+        while index > 0 {
+            if self
+                .releases
+                .get(index)
+                .is_some_and(|event| usize::from(event.lane) == lane)
+                && self.releases[index - 1].row < step.row
+            {
+                break;
+            }
+            index -= 1;
+        }
+        let Some(release) = self
+            .releases
+            .get(index..)
+            .unwrap_or(&[])
+            .iter()
+            .find(|event| event.row >= step.row && usize::from(event.lane) == lane)
+        else {
+            return true;
+        };
+        release.row != self.row && !(step.row < self.row && release.row > self.row)
+    }
+    fn find(
+        &self,
+        backwards: bool,
+        mut desired: usize,
+        foot: usize,
+        cancelled: &AtomicBool,
+    ) -> Result<Option<u16>, Error> {
+        let columns = self.occupied.len();
+        loop {
+            check(cancelled)?;
+            let events = if backwards { self.releases } else { self.steps };
+            let mut index = if backwards {
+                self.release_index as i64
+            } else {
+                self.step_index as i64
+            };
+            let mut nth = 0;
+            let mut best = None;
+            let mut seen = vec![false; columns];
+            let mut seen_count = 0;
+            let mut position = None;
+            while index >= 0 && (index as usize) < events.len() {
+                check(cancelled)?;
+                let event = events[index as usize];
+                let lane = usize::from(event.lane);
+                if !seen[lane] {
+                    let new_position = position.is_some_and(|row| row != event.row);
+                    if new_position && best.is_some() {
+                        break;
+                    }
+                    if new_position {
+                        nth += 1;
+                        if nth == columns {
+                            break;
+                        }
+                    }
+                    position = Some(event.row);
+                    if nth >= desired && self.free(lane) {
+                        best = Some(event.lane);
+                        if event.foot == foot {
+                            break;
+                        }
+                    }
+                    seen[lane] = true;
+                    seen_count += 1;
+                    if seen_count == columns {
+                        break;
+                    }
+                }
+                index += if backwards { -1 } else { 1 };
+            }
+            if best.is_none() {
+                best = self
+                    .random_order
+                    .iter()
+                    .copied()
+                    .find(|&lane| !seen[lane] && self.free(lane))
+                    .map(|lane| lane as u16);
+            }
+            if best.is_some() || desired == 0 {
+                return Ok(best);
+            }
+            desired -= 1; // Source recurses with N-1; iterate to bound stack use.
+        }
+    }
+}
+
+/// PerformedChart.AddMinesToPerformedChart and MineUtils destination selection.
+/// Natural starting stance counts as used lanes, as in the reference.
+pub fn place(
+    nodes: &[MovementNode],
+    columns: usize,
+    mines: &[ExpressedMine],
+    random: &mut super::random::SeededRandom,
+    cancelled: &AtomicBool,
+) -> Result<Vec<PlacedMine>, Error> {
+    check(cancelled)?;
+    let (releases, steps) = actions(nodes, columns, cancelled)?;
+    let mut used = vec![false; columns];
+    for node in nodes {
+        check(cancelled)?;
+        for portion in node.state.feet.iter().flatten() {
+            if let Some(lane) = portion.lane {
+                used[usize::from(lane)] = true;
+            }
+        }
+    }
+    let unused = used.iter().position(|&used| !used);
+    let random_order = random.order_indices(columns);
+    let (mut step_index, mut release_index) = (0, 0);
+    let mut previous_row = None;
+    let mut occupied = vec![false; columns];
+    let mut output = Vec::new();
+    for mine in mines {
+        check(cancelled)?;
+        if !mine.source.time.is_finite()
+            || mine.source.row > i32::MAX as u64
+            || previous_row.is_some_and(|row| row > mine.source.row)
+        {
+            return Err(Error::InvalidEdit(
+                "Invalid or unordered expressed mines".into(),
+            ));
+        }
+        if previous_row != Some(mine.source.row) {
+            occupied.fill(false);
+        }
+        while step_index < steps.len() && steps[step_index].row <= mine.source.row {
+            step_index += 1;
+        }
+        while release_index + 1 < releases.len()
+            && releases[release_index + 1].row < mine.source.row
+        {
+            release_index += 1;
+        }
+        if mine.kind == MineType::AfterArrow && releases.is_empty() {
+            return Err(Error::InvalidEdit(
+                "After-arrow mine has no destination release".into(),
+            ));
+        }
+        let lane = if mine.kind == MineType::NoArrow {
+            // Reference NoArrow mines always reuse this lane, even if another
+            // NoArrow mine at the same row already chose it.
+            unused.map(|lane| lane as u16)
+        } else {
+            let nth = mine
+                .nth
+                .ok_or_else(|| Error::InvalidEdit("Associated mine has no recency".into()))?;
+            let foot = mine
+                .foot
+                .filter(|&foot| foot < 2)
+                .ok_or_else(|| Error::InvalidEdit("Associated mine has no valid foot".into()))?;
+            Placement {
+                releases: &releases,
+                steps: &steps,
+                release_index,
+                step_index,
+                occupied: &occupied,
+                row: mine.source.row,
+                random_order: &random_order,
+            }
+            .find(mine.kind == MineType::AfterArrow, nth, foot, cancelled)?
+        };
+        if let Some(lane) = lane {
+            occupied[usize::from(lane)] = true;
+            output.push(PlacedMine {
+                row: mine.source.row,
+                time: mine.source.time,
+                lane,
+            });
+        }
+        previous_row = Some(mine.source.row);
+    }
+    check(cancelled)?;
+    Ok(output)
+}

@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Multi-view comparison, chart creation/clone/delete and library pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion, fallback cost integration, destination mine placement and native asynchronous generation panels pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and native asynchronous generation panels pending |
 | Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -92,8 +92,9 @@ seed. `ActionAutoGeneratePatterns` additionally constrains preceding/following
 footing and pattern configuration. The Rust port must preserve these contracts.
 A random lane picker or a basic difficulty filter would not meet the request.
 
-Next implementation work must finish performed-chart conversion with fallback
-costs and mine placement, using the replacement rules now ported below. Differential fixtures must extend the existing tech, bracket, crossover,
+Next implementation work must connect automatic fallback selection from pad
+containment, generated chart file assembly, reversible previews and native
+asynchronous generation panels, using the conversion engine now ported below. Differential fixtures must extend the existing tech, bracket, crossover,
 hold, mine, layout and seed cases to that complete conversion pipeline.
 Generation results need preview and one reversible application gesture before
 being exposed as complete. The other advanced editor domains remain required
@@ -142,7 +143,7 @@ step types, actions and roll/fake/lift instance assignments with the original
 private `GetLinkInstanceIfStateMatches` through the development oracle. Fixtures
 cover all eleven original layouts. Grid workflows additionally cover participant
 isolation and simultaneous releases, mines and heads. This verifies candidate
-matching, not the final interpretation: performed-chart fallback conversion and mine placement remain separate work.
+matching, not the final interpretation: performed-chart conversion is verified separately below.
 
 ### Interpretation path selection
 
@@ -180,8 +181,7 @@ instructions like the reference's generic LaneNote; unsupported attack notes are
 explicitly refused rather than converted into steps.
 
 These checks establish fixed-policy step interpretation. The automatic policy
-and mine-expression checks below extend this stage; performed-chart fallback
-search and native generation panels remain pending.
+and mine-expression checks below extend this stage; performed-chart conversion is covered below; native generation panels remain pending.
 
 ### Complete expressed-chart assembly
 
@@ -205,8 +205,7 @@ charts. Step paths, policies, release/step lists and mine associations are check
 against Rust. The existing thirty valid fixed-policy charts also compare their
 mine results. A dedicated case covers AfterArrow, BeforeArrow and NoArrow,
 recency ties and foot association. Cancellation and invalid-input checks return
-no partial interpretation. Mine placement on the destination graph still needs
-porting along with fallback conversion.
+no partial interpretation. Destination mine placement and fallback conversion are verified below.
 
 ### Performed-chart replacements
 
@@ -232,6 +231,40 @@ permutations around partition thresholds and larger arrays. Configuration tests
 cover comments, trailing commas, includes, missing/duplicate entries and cycles.
 Cached replacement slices are immutable and protected by a short mutex;
 concurrent first requests compute independently and share the stored result.
-These checks establish replacement expansion and ordering, not complete
-performed-chart conversion. Its search, fallback cost integration and destination
-mine placement still need to be connected and verified.
+These checks establish replacement expansion and ordering. Their integration
+with performed-chart search and mine placement is verified below; native file
+assembly and editor application remain separate work.
+
+### Performed-chart search and destination mines
+
+`performed::convert_steps` ports root tiers and stable randomized root order,
+replacement costs (including dropped feet/arrows), per-destination pruning and
+same-position release collision checks. Incoming instance metadata is retained
+along the performed scoring path. `convert` continues the same PRNG into the
+original mine placement rules: relative recency, preferred foot, hold/step and
+mine occupancy, random free-lane fallback, decreasing recency and unused lanes.
+Results carry their destination layout and counts of skipped events/mines.
+The original's blank-link continuation and empty-performance behavior at a
+failed final depth are preserved for differential fidelity; previews must expose
+these losses before application. A missing release for an AfterArrow mine
+returns an error instead of indexing an empty release list.
+
+Twenty-nine committed C# conversion cases compare complete destination foot
+states, links, roll/fake/lift instances, starting tiers, steps and mines. They
+cover eight Dance/Pump/SMX layout pairs, fixed positive/negative seeds, root
+tier fallback, blanks, impossible paths, empty and mine-only charts, recency
+fallback and simultaneous NoArrow mines. The last case retains the source's
+raw duplicate mine behavior; file assembly still requires canonicalization and
+validation before applying a preview.
+
+A recency-fallback fixture exposed a PRNG mismatch that ordinary step-path tests
+had not detected: LINQ OrderBy().ToList/ToArray does not evaluate its key selector
+for a singleton. `SeededRandom::order_indices` preserves this behavior. Eighteen
+original-runtime cases compare both ordering and the next PRNG value, proving
+that root-tier ordering does not shift subsequent mine placement. Conversion
+cancellation, invalid roots and invalid mine associations return no partial
+performance. These cases use synthetic lane events with explicit timestamps.
+End-to-end SM/SSC conversion, including split timing and the source interpreter's
+first-event-of-row timestamp grouping, still needs separate adapter tests.
+No native generation panel or generated-chart save workflow is claimed complete
+by these engine tests.

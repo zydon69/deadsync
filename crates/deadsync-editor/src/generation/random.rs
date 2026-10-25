@@ -62,6 +62,17 @@ impl SeededRandom {
         value
     }
 
+    /// Enumerable.OrderBy(...).ToList/ToArray skips key evaluation for zero
+    /// or one element. This matters when ordering a singleton root tier.
+    pub fn order_indices(&mut self, length: usize) -> Vec<usize> {
+        if length < 2 {
+            return (0..length).collect();
+        }
+        let mut keys: Vec<_> = (0..length).map(|i| (self.next_i32(), i)).collect();
+        keys.sort_by_key(|&(key, _)| key);
+        keys.into_iter().map(|(_, i)| i).collect()
+    }
+
     pub fn next_f64(&mut self) -> f64 {
         f64::from(self.next_i32()) * (1.0 / f64::from(i32::MAX))
     }

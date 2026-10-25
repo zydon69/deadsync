@@ -21,6 +21,19 @@ var options = new JsonSerializerOptions
 };
 var request = JsonDocument.Parse(File.ReadAllBytes(args[1])).RootElement;
 var operation = request.GetProperty("Operation").GetString();
+if (operation == "RandomOrder")
+{
+    var orderResults = new List<object>();
+    foreach (var test in request.GetProperty("Cases").EnumerateArray()) {
+        var orderRandom = new Random(test.GetProperty("Seed").GetInt32());
+        var calls = 0;
+        var values = Enumerable.Range(0, test.GetProperty("Length").GetInt32())
+            .OrderBy(_ => { calls++; return orderRandom.Next(); }).ToList();
+        orderResults.Add(new { Order = values, Calls = calls, Next = orderRandom.Next() });
+    }
+    Console.WriteLine(JsonSerializer.Serialize(orderResults, options));
+    return;
+}
 if (operation == "Random")
 {
     var random = new Random(request.GetProperty("Seed").GetInt32());
@@ -113,13 +126,90 @@ if (operation == "Sort")
     Console.WriteLine(JsonSerializer.Serialize(sortedCases, options));
     return;
 }
-if (operation != "Pattern" && operation != "InterpretMatches" && operation != "InterpretPaths" && operation != "InterpretChart")
+if (operation != "Pattern" && operation != "InterpretMatches" && operation != "InterpretPaths" && operation != "InterpretChart" && operation != "Convert")
     throw new ArgumentException("Unknown oracle operation");
 
 var name = request.GetProperty("Layout").GetString()!;
 var pad = await PadData.LoadPadData(name, Path.Combine(args[0], "StepManiaLibrary", name + ".json"));
 var graph = StepGraph.Load(Path.Combine(args[0], "StepManiaLibrary", name + ".fsg"), pad);
 if (graph == null) throw new InvalidDataException("Could not load reference graph");
+if (operation == "Convert")
+{
+    StepManiaLibrary.ExpressedChart.ExpressedChart? expressed;
+    if (request.TryGetProperty("LinkEvents", out var linkEvents))
+    {
+        expressed = (StepManiaLibrary.ExpressedChart.ExpressedChart)Activator.CreateInstance(typeof(StepManiaLibrary.ExpressedChart.ExpressedChart),
+            BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { new List<Event>(), "Oracle", graph }, null)!;
+        foreach (var item in linkEvents.EnumerateArray())
+        {
+            var link = new GraphLinkInstance();
+            var encoded = item.GetProperty("Link");
+            for (var f = 0; f < 2; f++) for (var p = 0; p < 2; p++) {
+                var i = f * 8 + p * 4;
+                link.GraphLink.Links[f, p] = new GraphLink.FootArrowState((StepType)encoded[i+1].GetInt32(), (FootAction)encoded[i+2].GetInt32(), encoded[i].GetInt32() != 0);
+                link.InstanceTypes[f, p] = (InstanceStepType)encoded[i+3].GetInt32();
+            }
+            expressed.StepEvents.Add(new StepManiaLibrary.ExpressedChart.ExpressedChart.StepEvent(item.GetProperty("Row").GetInt32(), item.GetProperty("Time").GetDouble(), link));
+        }
+    }
+    else
+    {
+        var sourceName = request.GetProperty("SourceLayout").GetString()!;
+        var sourcePad = await PadData.LoadPadData(sourceName, Path.Combine(args[0], "StepManiaLibrary", sourceName + ".json"));
+        var sourceGraph = StepGraph.Load(Path.Combine(args[0], "StepManiaLibrary", sourceName + ".fsg"), sourcePad);
+        var sourceEvents = new List<Event>();
+        foreach (var item in request.GetProperty("Notes").EnumerateArray()) {
+            var symbol = item[2].GetString()!;
+            LaneNote note = symbol switch { "2" or "4" => new LaneHoldStartNote(), "3" => new LaneHoldEndNote(), "M" or "K" => new LaneNote(), _ => new LaneTapNote() };
+            note.SourceType = symbol; note.Lane = item[1].GetInt32(); note.IntegerPosition = item[0].GetInt32(); note.TimeSeconds = note.IntegerPosition / 120.0;
+            sourceEvents.Add(note);
+        }
+        sourceEvents.Sort(new Fumen.Converters.SMCommon.SMEventComparer());
+        var config = new StepManiaLibrary.ExpressedChart.Config { BracketParsingDetermination = StepManiaLibrary.ExpressedChart.BracketParsingDetermination.UseDefaultMethod,
+            DefaultBracketParsingMethod = StepManiaLibrary.ExpressedChart.BracketParsingMethod.Balanced };
+        config.Init();
+        expressed = StepManiaLibrary.ExpressedChart.ExpressedChart.CreateFromSMEvents(sourceEvents, sourceGraph, config, 12.0, "Oracle");
+    }
+    if (expressed == null) { Console.WriteLine("{\"Success\":false,\"Stage\":\"Expression\"}"); return; }
+    if (request.TryGetProperty("LinkMines", out var linkMines)) foreach (var mine in linkMines.EnumerateArray())
+        expressed.MineEvents.Add(new StepManiaLibrary.ExpressedChart.ExpressedChart.MineEvent(mine.GetProperty("Row").GetInt32(), mine.GetProperty("Time").GetDouble(), mine.GetProperty("Lane").GetInt32()) {
+            Type = (MineType)mine.GetProperty("Kind").GetInt32(), ArrowIsNthClosest = mine.GetProperty("Nth").GetInt32(), FootAssociatedWithPairedNote = mine.GetProperty("Foot").GetInt32()
+        });
+    var convertedConfig = JsonSerializer.Deserialize<PerformedConfig>(request.GetProperty("PerformedConfig"), options)!;
+    convertedConfig.Init();
+    if (!convertedConfig.Validate()) throw new InvalidDataException("Invalid performed configuration");
+    var mode = request.GetProperty("FallbackMode").GetString();
+    StepTypeFallbacks? conversionFallbacks = null;
+    if (mode == "default") conversionFallbacks = await StepTypeFallbacks.Load(Path.Combine(args[0], "StepManiaLibrary", StepTypeFallbacks.DefaultFallbacksFileName));
+    if (mode == "identity") {
+        conversionFallbacks = new StepTypeFallbacks();
+        conversionFallbacks.FallbacksStrings = Enum.GetValues<StepType>().ToDictionary(step => step, step => new List<string> { step.ToString() });
+        typeof(StepTypeFallbacks).GetMethod("Init", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(conversionFallbacks, null);
+    }
+    var conversionRoots = new List<List<GraphNode>> { new() { graph.GetRoot() } };
+    for (var tier = 1; tier < pad.StartingPositions.Length; tier++)
+        conversionRoots.Add(pad.StartingPositions[tier].Select(pos => graph.FindGraphNode(pos[0], GraphArrowState.Resting, pos[1], GraphArrowState.Resting)).ToList());
+    var converted = PerformedChart.CreateFromExpressedChart(graph, convertedConfig, conversionRoots, conversionFallbacks, expressed, request.GetProperty("Seed").GetInt32(), "Oracle");
+    if (converted == null) { Console.WriteLine("{\"Success\":false,\"Stage\":\"Conversion\"}"); return; }
+    var convertedSteps = new List<object>();
+    var convertedMines = new List<object>();
+    var convertedRoot = ((StepPerformanceNode)converted.GetRootNode()).GraphNodeInstance.Node;
+    var convertedTier = conversionRoots.FindIndex(tier => tier.Any(root => root.Equals(convertedRoot)));
+    for (var cursor = converted.GetRootNode(); cursor != null; cursor = cursor.Next) {
+        if (cursor is MinePerformanceNode mine) convertedMines.Add(new { Row = mine.Position, Time = mine.Time, Lane = mine.Arrow });
+        if (cursor is not StepPerformanceNode step) continue;
+        convertedSteps.Add(new { Row = step.Position, Time = step.Time, Orientation = (int)step.GraphNodeInstance.Node.Orientation,
+            Feet = Enumerable.Range(0, 2).Select(f => Enumerable.Range(0, 2).Select(p => new {
+                Lane = step.GraphNodeInstance.Node.State[f, p].Arrow, State = (int)step.GraphNodeInstance.Node.State[f, p].State,
+                Valid = step.GraphLinkInstance?.GraphLink.Links[f, p].Valid ?? false,
+                Step = (int)(step.GraphLinkInstance?.GraphLink.Links[f, p].Step ?? StepType.SameArrow),
+                Action = (int)(step.GraphLinkInstance?.GraphLink.Links[f, p].Action ?? FootAction.Tap),
+                Instance = (int)step.GraphNodeInstance.InstanceTypes[f, p]
+            }).ToArray()).ToArray() });
+    }
+    Console.WriteLine(JsonSerializer.Serialize(new { Success = true, Tier = convertedTier, Steps = convertedSteps, Mines = convertedMines }, options));
+    return;
+}
 if (operation == "InterpretChart")
 {
     var expressedType = typeof(StepManiaLibrary.ExpressedChart.ExpressedChart);

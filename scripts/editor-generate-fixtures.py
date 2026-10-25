@@ -166,6 +166,37 @@ def requests(reference: Path):
     for count in [0, 1, 2, 3, 15, 16, 17, 31, 64, 257]:
         sort_cases.extend([[i % 4 for i in range(count)], [0] * count, list(range(count - 1, -1, -1)), [(i * 7) % 13 for i in range(count)]])
     cases["reference-sort"] = {"Operation": "Sort", "Cases": sort_cases}
+    conversion_pairs = [("dance-single", "dance-double", "none"), ("dance-double", "dance-single", "default"),
+        ("dance-single", "pump-single", "default"), ("pump-single", "dance-single", "default"),
+        ("smx-single", "dance-double", "default"), ("dance-double", "pump-double", "default"),
+        ("pump-double", "smx-full", "default"), ("dance-single", "dance-single", "none")]
+    for source, target, mode in conversion_pairs:
+        for seed in [42, -7]:
+            original = cases["chart-" + source + "-balanced"]
+            cases[f"convert-{source}-to-{target}-{seed}"] = {"Operation": "Convert", "SourceLayout": source, "Layout": target,
+                "Notes": copy.deepcopy(original["Notes"]), "Seed": seed, "FallbackMode": mode, "PerformedConfig": copy.deepcopy(performed)}
+    def manual_link(step, foot=0):
+        link = [0] * 16
+        link[foot * 8:foot * 8 + 4] = [1, step, 0, 0]
+        return link
+    for variant, steps, mode in [("blank-carry", [8, 1, 1], "identity"), ("missing-final", [8], "none"),
+                                 ("missing-path", [8, 1], "none"), ("root-fallback", [2, 0], "none")]:
+        cases["convert-manual-" + variant] = {"Operation": "Convert", "Layout": "dance-single", "Seed": 31,
+            "FallbackMode": mode, "PerformedConfig": copy.deepcopy(performed),
+            "LinkEvents": [{"Row": i * 12, "Time": i * 0.1, "Link": manual_link(step, i % 2)} for i, step in enumerate(steps)]}
+    for label, original in [("associations", cases["mine-association"]), ("only-mines", cases["policy-only-mines"]), ("empty", cases["policy-empty"])]:
+        for target in ["dance-double", "pump-single"]:
+            cases[f"convert-mines-{label}-to-{target}"] = {"Operation": "Convert", "SourceLayout": "dance-single", "Layout": target,
+                "Notes": copy.deepcopy(original["Notes"]), "Seed": 19, "FallbackMode": "default", "PerformedConfig": copy.deepcopy(performed)}
+    for seed in [42, -7]:
+        cases[f"convert-manual-mine-recency-{seed}"] = {"Operation": "Convert", "Layout": "dance-double", "Seed": seed,
+            "FallbackMode": "none", "PerformedConfig": copy.deepcopy(performed),
+            "LinkEvents": [{"Row": i * 12, "Time": i * 0.1, "Link": manual_link(0)} for i in range(6)],
+            "LinkMines": [{"Row": 96, "Time": 0.8, "Lane": 0, "Kind": 0, "Nth": 9, "Foot": 0}]}
+    cases["random-order"] = {"Operation": "RandomOrder", "Cases": [{"Seed": seed, "Length": length}
+        for seed in [0, 42, -7] for length in [0, 1, 2, 3, 8, 128]]}
+    cases["convert-mines-simultaneous-no-arrow"] = {"Operation": "Convert", "SourceLayout": "dance-single", "Layout": "dance-double",
+        "Notes": [[0, 0, "M"], [0, 1, "M"], [12, 2, "M"]], "Seed": 19, "FallbackMode": "default", "PerformedConfig": copy.deepcopy(performed)}
     return cases
 
 
