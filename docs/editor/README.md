@@ -2728,3 +2728,18 @@ of original decimal formatting. These tests do not cover an actual original
 reader comparison for sample regions. Native fields, current-time shortcuts,
 jump-to-region actions, preview-region rendering and audio audition remain
 required; the new draft API alone does not deliver that feature.
+
+Native sample-region fields: F6 from F11 song properties opens a compact optional
+panel for sample start/length and Back. Arrows edit milliseconds (Shift: 0.1 ms),
+Home/0 reset, Tab/Shift+Tab navigate, Escape returns to the existing song draft.
+Length edits clamp to zero as in the original UI; start may be negative. Apply
+in the parent accepts fields together. English and French help exposes F6.
+Current-time setters, boundary navigation, visual region and audition remain
+unimplemented; this numeric panel does not stand in for those original actions.
+`cargo check -p deadsync --locked` passes after this integration.
+
+All seven native song-text workflows pass after sample panel integration. The
+new public-keyboard workflow stages start/length, checks the zero minimum and
+Shift fine adjustment, confirms unchanged source before Apply, then verifies
+SM/SSC tags, one-step undo, redo and disk save without adding OFFSET. This is
+an adapter/actor test, not a rendered or audible runtime validation.

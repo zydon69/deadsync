@@ -405,3 +405,47 @@ fn song_music_offset_and_itg_action_apply_once_undo_and_save_in_both_formats() {
         );
     }
 }
+
+#[test]
+fn preview_sample_panel_stages_clamps_applies_undoes_and_saves_without_changing_offsets() {
+    for sm in [false, true] {
+        let (dir, mut state, original) = setup(sm, false);
+        press(&mut state, KeyCode::F11);
+        press(&mut state, KeyCode::F6);
+        assert!(has(&state, "Preview start: 0.000000 s"));
+        press(&mut state, KeyCode::ArrowRight);
+        press(&mut state, KeyCode::Tab);
+        press(&mut state, KeyCode::ArrowLeft);
+        assert!(has(&state, "Preview length: 0.000000 s"));
+        key(&mut state, KeyCode::ShiftLeft, true);
+        press(&mut state, KeyCode::ArrowRight);
+        key(&mut state, KeyCode::ShiftLeft, false);
+        assert!(has(&state, "Preview length: 0.000100 s"));
+        assert_eq!(
+            state.workspace().file().session.serialize().unwrap(),
+            original.as_bytes()
+        );
+        press(&mut state, KeyCode::Escape);
+        press(&mut state, KeyCode::ArrowDown);
+        press(&mut state, KeyCode::Enter);
+        let document = state.workspace().file().session.document();
+        assert_eq!(document.text(None, "SAMPLESTART").as_deref(), Some("0.001"));
+        assert_eq!(
+            document.text(None, "SAMPLELENGTH").as_deref(),
+            Some("0.0001")
+        );
+        assert!(document.text(None, "OFFSET").is_none());
+        let changed = state.workspace().file().session.serialize().unwrap();
+        ctrl(&mut state, KeyCode::KeyZ);
+        assert_eq!(
+            state.workspace().file().session.serialize().unwrap(),
+            original.as_bytes()
+        );
+        ctrl(&mut state, KeyCode::KeyY);
+        ctrl(&mut state, KeyCode::KeyS);
+        assert_eq!(
+            fs::read(dir.path().join(if sm { "song.sm" } else { "song.ssc" })).unwrap(),
+            changed
+        );
+    }
+}

@@ -62,6 +62,7 @@ enum Panel {
     ChartText(usize),
     SongText(usize),
     SongProperties(usize),
+    SongSample(usize),
     Timing(usize),
     TimingMigration(usize),
     ChartExpression(usize),
@@ -1254,7 +1255,7 @@ impl State {
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
-            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4))
+            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !repeating_offset
@@ -1437,6 +1438,10 @@ impl State {
             self.text_field_key(index, code);
             return false;
         }
+        if let Panel::SongSample(index) = panel {
+            self.song_sample_key(index, code);
+            return false;
+        }
         if matches!(panel, Panel::Analysis) {
             return self.analysis_key(code);
         }
@@ -1561,6 +1566,7 @@ impl State {
             }
             Panel::Timing(index) => self.timing_key(index, code),
             Panel::SongProperties(index) => self.song_properties_key(index, code),
+            Panel::SongSample(_) => unreachable!("sample input dispatched above"),
             Panel::TimingMigration(index) => self.timing_migration_key(index, code),
             Panel::ChartProperties(index) => {
                 if index == 8 && self.rating_input(code) {
@@ -2173,7 +2179,7 @@ impl State {
                 self.panel,
                 Some(
                     Panel::Timing(_) | Panel::TimingMigration(_)
-                        | Panel::SongProperties(_) | Panel::SongText(_)
+                        | Panel::SongProperties(_) | Panel::SongSample(_) | Panel::SongText(_)
                 )
             )
         {
@@ -2283,6 +2289,7 @@ impl State {
                 "ProfileBack",
             ],
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
+            Panel::SongSample(_) => &["SongSampleStart", "SongSampleLength", "SongSampleBack"],
             Panel::SongProperties(_) => &[
                 "SongSyncOffset", "SongPropertiesApply", "SongPropertiesCancel", "SongTextOpen", "SongMusicOffset", "SongItgApply",
             ],
@@ -2351,6 +2358,7 @@ impl State {
             | Panel::ChartText(i)
             | Panel::SongText(i)
             | Panel::SongProperties(i)
+            | Panel::SongSample(i)
             | Panel::ChartExpression(i)
             | Panel::ConversionProfiles(i)
             | Panel::Generation(i)
@@ -2722,6 +2730,9 @@ impl State {
                 i18n::tr("Edition", "PatternSetApply")
             } else if matches!(panel, Panel::Timing(_)) {
                 self.timing_label(index, key)
+            } else if matches!(panel, Panel::SongSample(_)) && index < 2 {
+                let seconds = self.song_properties.as_ref().map_or(0.0, |draft| if index == 0 { draft.sample_start() } else { draft.sample_length() });
+                i18n::tr_fmt("Edition", key, &[("seconds", &format!("{seconds:.6}"))])
             } else if matches!(panel, Panel::SongProperties(_)) && matches!(index, 0 | 4) {
                 let offset = self.song_properties.as_ref().map_or(0.0, |draft| if index == 4 { draft.music_offset() } else { draft.sync_offset() });
                 i18n::tr_fmt("Edition", key, &[("seconds", &format!("{offset:.6}"))])

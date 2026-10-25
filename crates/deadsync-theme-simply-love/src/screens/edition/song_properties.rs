@@ -13,6 +13,11 @@ impl State {
         }
     }
     pub(super) fn song_properties_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::F6 {
+            self.panel = Some(Panel::SongSample(0));
+            self.status = i18n::tr("Edition", "SongSampleHelp");
+            return;
+        }
         if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
             self.panel = Some(Panel::SongProperties(
                 (index + if code == KeyCode::ArrowUp { 5 } else { 1 }) % 6,
@@ -90,6 +95,51 @@ impl State {
                 Err(error) => {
                     self.status =
                         i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+                }
+            }
+        }
+    }
+    pub(super) fn song_sample_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::Escape
+            || (index == 2 && matches!(code, KeyCode::Enter | KeyCode::NumpadEnter))
+        {
+            self.panel = Some(Panel::SongProperties(0));
+            self.status = i18n::tr("Edition", "SongSampleStaged");
+        } else if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
+            let backwards = code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift);
+            self.panel = Some(Panel::SongSample(
+                (index + if backwards { 2 } else { 1 }) % 3,
+            ));
+        } else if index < 2
+            && matches!(
+                code,
+                KeyCode::ArrowLeft
+                    | KeyCode::ArrowRight
+                    | KeyCode::Home
+                    | KeyCode::Digit0
+                    | KeyCode::Numpad0
+            )
+        {
+            if let Some(draft) = self.song_properties.as_mut() {
+                let current = if index == 0 {
+                    draft.sample_start()
+                } else {
+                    draft.sample_length()
+                };
+                let delta = if self.shift { 0.0001 } else { 0.001 };
+                let value = match code {
+                    KeyCode::Home | KeyCode::Digit0 | KeyCode::Numpad0 => 0.0,
+                    KeyCode::ArrowLeft => current - delta,
+                    _ => current + delta,
+                };
+                let result = if index == 0 {
+                    draft.set_sample_start(value)
+                } else {
+                    draft.set_sample_length(value.max(0.0))
+                };
+                if let Err(error) = result {
+                    self.status =
+                        i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
                 }
             }
         }
