@@ -733,3 +733,54 @@ actors after deletion. These are adapter/actor tests, not physical input or GPU
 proof. Original UIPatternEvent and EditorPatternEvent were inspected for the
 separation of property edits and generation; no full original UI-action oracle
 is claimed by these tests.
+
+### Clearing pattern notes and navigating saved markers
+
+The F6 inspector offers Clear notes from saved region, Previous pattern and Next
+pattern. Clear uses a background task and an immutable full-grid preview with
+removed-note/shortened-hold counts. Apply commits a single note gesture, leaving
+all marker metadata and timing tags unchanged. Discard and cancellation leave
+notes and history untouched. Unsaved inspector changes must be applied or
+abandoned before clearing or navigating, so the visible draft cannot silently
+select a different region from the saved marker.
+
+`clear_patterns::Task` captures the document identity/revision and selected marker
+starts. It sorts and deduplicates starts, resolves only the required pattern
+configuration, and processes regions sequentially against the retained grid.
+Performed/expressed profiles are unnecessary for this operation. Custom pattern
+files load on the worker; invalid unrelated files are reported without being
+changed. Exclusive endpoints and marker-relative subdivisions determine the first
+and last possible step. Empty regions are skipped, unlike generation requests
+which still reject empty step ranges. All note participants are cleared; holds
+crossing the first step are shortened by one spacing, with the original one-row
+fallback/deletion rule. Overlapping regions operate on prior alterations, avoiding
+double deletion. Result application rejects foreign, stale and wrong-chart
+previews. The native UI currently clears one saved marker; the core task accepts
+multiple explicit marker starts.
+
+Previous/next navigation uses strictly preceding/following starts and wraps to
+the last/first marker. It moves the cursor, clears note selection and opens the
+selected marker's inspector without adding history or changing song bytes. This
+follows the inspected original Editor navigation methods; no original full UI
+runtime oracle is claimed.
+
+Twelve new differential fixtures run unchanged ActionDeletePatternNotes deletion
+and alteration types plus EditorPatternEvent first/last/count method bodies.
+They compare raw inclusive/exclusive/empty/off-grid regions, spacing 1/12/48,
+unsorted overlapping markers, consecutive hold trims, taps, holds/rolls, mines,
+fakes, lifts and keysounds.
+Explicit chart/event adapters replace the original containers and supply spacing;
+they do not execute the complete GrooveAuthor loader or UI. The timing harness's
+39 existing cases were regenerated with these original bound methods: their
+existing results are unchanged (the output now also includes a null Cleared field).
+The extraction hash is recorded in provenance. Ordinary Rust tests use committed
+fixtures and need no .NET installation.
+
+Six clear/navigation workflows cover these fixtures, both SM/SSC save/reopen,
+all participants, preserved metadata, one-gesture undo/redo, missing profiles,
+no-op/redo retention, pending drafts, snapshot guards, cancellation before/during
+work and wrapped navigation. Two additional native workflows cover preview
+actors, explicit apply/discard, worker cancellation, save/reopen, retained marker
+actors and navigation with pending edits. These do not prove physical input or
+GPU rendering. Batch generation, advanced configuration, waveform/audio editing
+and the rest of the delivery matrix remain required for the complete port.

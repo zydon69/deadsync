@@ -541,6 +541,14 @@ fn pattern_panel_has_explicit_english_and_french_translations() {
         "MarkerHelp",
         "MarkerEdited",
         "MarkerDeleted",
+        "MarkerClearNotes",
+        "MarkerPrevious",
+        "MarkerNext",
+        "MarkerPending",
+        "MarkerClearing",
+        "MarkerClearSummary",
+        "MarkerClearApply",
+        "MarkerCleared",
     ] {
         let english = en
             .fallback
@@ -963,5 +971,161 @@ fn marker_inspector_discard_menu_delete_confirmation_and_undo_keep_notes() {
     assert_eq!(
         reopened.workspace().file().session.serialize().unwrap(),
         after
+    );
+}
+
+fn inspector_action(screen: &mut State, index: usize) {
+    press(screen, KeyCode::F6);
+    for _ in 0..index {
+        press(screen, KeyCode::ArrowDown);
+    }
+    press(screen, KeyCode::Enter);
+}
+#[test]
+fn clearing_pattern_notes_previews_discards_cancels_applies_and_saves_with_marker_kept() {
+    use deadsync_editor::generation::metadata::ChartData;
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let before = marker_song();
+    fs::write(&path, &before).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    let metadata = ChartData::read(screen.workspace().file().session.document(), 0)
+        .unwrap()
+        .unwrap();
+    inspector_action(&mut screen, 9);
+    finish_generation(&mut screen);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,..} if content.contains("Remove 3 notes | Shorten 0 holds"))));
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,..} if content.as_ref()=="Apply note removal and keep the marker")));
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    inspector_action(&mut screen, 9);
+    press(&mut screen, KeyCode::Escape);
+    finish_generation(&mut screen);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    inspector_action(&mut screen, 9);
+    finish_generation(&mut screen);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().grid().iter().count(), 1);
+    assert!(
+        screen
+            .workspace()
+            .grid()
+            .get(Position {
+                player: 0,
+                row: 144,
+                lane: 3
+            })
+            .is_some()
+    );
+    let after = screen.workspace().file().session.serialize().unwrap();
+    assert_eq!(
+        serde_json::to_value(
+            ChartData::read(screen.workspace().file().session.document(), 0)
+                .unwrap()
+                .unwrap()
+        )
+        .unwrap(),
+        serde_json::to_value(metadata).unwrap()
+    );
+    actors.clear();
+    screen.actors(&mut actors);
+    assert!(
+        actors
+            .iter()
+            .any(|a| matches!(a,Actor::Text{content,z:8006,..} if content.as_ref()=="Pattern"))
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    ctrl(&mut screen, KeyCode::KeyY);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        after
+    );
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(
+        reopened.workspace().file().session.serialize().unwrap(),
+        after
+    );
+}
+#[test]
+fn marker_navigation_wraps_and_pending_drafts_block_navigation_and_clear_actions() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::metadata::ChartData,
+        history::Session,
+    };
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let mut source = Session::new(
+        Document::parse(std::sync::Arc::<[u8]>::from(marker_song()), Format::Ssc).unwrap(),
+    );
+    let mut data = ChartData::read(source.document(), 0).unwrap().unwrap();
+    let definition = data.patterns.as_ref().unwrap()[&0].clone();
+    data.patterns.as_mut().unwrap().insert(192, definition);
+    data.save(&mut source, 0).unwrap();
+    let before = source.serialize().unwrap();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, &before).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    inspector_action(&mut screen, 11);
+    assert_eq!(screen.workspace().row(), 192);
+    // Navigation reopens the inspector for the selected marker at row zero.
+    for _ in 0..11 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().row(), 0);
+    for _ in 0..10 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().row(), 192);
+    press(&mut screen, KeyCode::ArrowRight); // pending start edit, inspector index 0
+    for _ in 0..9 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert!(!screen.is_generating());
+    assert_eq!(screen.workspace().row(), 192);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(
+        |a| matches!(a,Actor::Text{content,..} if content.contains("Apply or discard marker edits"))
+    ));
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().row(), 192);
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
     );
 }

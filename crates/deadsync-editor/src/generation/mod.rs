@@ -1,5 +1,6 @@
 //! GrooveAuthor graph, interpretation, pattern and chart-performance engine.
 //! Snapshot-bound jobs expose previews to the native generation panel.
+pub mod clear_patterns;
 pub mod config;
 pub mod context;
 pub mod editor_timing;

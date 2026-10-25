@@ -110,9 +110,10 @@ internal class EditorPatternEvent(EditorChart chart,int row,int end,int spacing=
     public StepManiaLibrary.PerformedChart.Config Config=new();
     public record Holder(StepManiaLibrary.PerformedChart.Config Config);
     public Holder GetPerformedChartConfig()=>new(Config);
-    public int GetNumSteps()=>Math.Max(0,(end-row)/spacing+1);
-    public int GetFirstStepRow()=>row;
-    public int GetLastStepRow()=>end;
+    public int Length=>end-row;
+    public bool StartPositionInclusive=true;
+    public bool EndPositionInclusive=true;
+    // PATTERN_BOUNDS
     public int GetStepSpacing()=>spacing;
     public override double GetEndChartPosition() => end;
     public override double GetEndChartTime() {double time=0;EditorChart.TryGetTimeFromChartPosition(end,ref time);return time;}
@@ -228,6 +229,16 @@ internal static class Reference {
             var performed=expressed==null?null:StepManiaLibrary.PerformedChart.PerformedChart.CreateFromExpressedChart(targetGraph,config,roots,null,expressed,42,"Oracle");
             conversion=new {Success=performed!=null,Notes=performed?.CreateSMChartEvents().OfType<LaneNote>().Select(note=>new {Row=note.IntegerPosition,Lane=note.Lane,Symbol=note.SourceType}).ToArray()};
         }
+        object? cleared=null;
+        if(request.TryGetProperty("ClearPatterns",out var clearPatterns)) {
+            var markers=clearPatterns.EnumerateArray().Select(item=>new EditorPatternEvent(chart,item[0].GetInt32(),item[0].GetInt32()+item[1].GetInt32(),item[2].GetInt32()) {StartPositionInclusive=item[3].GetBoolean(),EndPositionInclusive=item[4].GetBoolean()}).OrderBy(marker=>marker.GetRow()).ToArray();
+            var changes=PatternDeletionReference.DeleteEventsOverlappingPatterns(chart,markers);
+            cleared=new {
+                Notes=chart.EditorEvents.OfType<EditorNoteEvent>().Select(note=>new {Row=note.GetRow(),Lane=note.Lane,Symbol=note.Symbol,End=note is EditorHoldNoteEvent hold?(int?)hold.GetEndChartPosition():null}).ToArray(),
+                Removed=changes.DeletedEvents.Distinct().Count(),Shortened=changes.ShortenedHolds.Count,
+                Bounds=markers.Select(marker=>new {First=marker.GetFirstStepRow(),Last=marker.GetLastStepRow(),Count=marker.GetNumSteps()}).ToArray()
+            };
+        }
         object? pipeline=null;
         object? projected=null;
         if(request.TryGetProperty("Projection",out var projection)) {
@@ -281,7 +292,7 @@ internal static class Reference {
             };
         }
         return new {
-            Conversion=conversion,Projected=projected,Pipeline=pipeline,
+            Conversion=conversion,Projected=projected,Pipeline=pipeline,Cleared=cleared,
             Heads=originalHeads,
             StepCount=originalCount,End=originalEnd,
             Times=request.GetProperty("Rows").EnumerateArray().Select(row=>{double time=0;chart.TryGetTimeFromChartPosition(row.GetDouble(),ref time);return time;}).ToArray(),

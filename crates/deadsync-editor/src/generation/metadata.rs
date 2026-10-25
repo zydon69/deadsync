@@ -146,6 +146,24 @@ impl ChartData {
             .map(|(&start, marker)| (start, marker))
     }
 
+    /// Strict next/previous start with wraparound, like the original editor navigation.
+    pub fn adjacent_marker(&self, cursor: u64, forward: bool) -> Option<u64> {
+        use std::ops::Bound::{Excluded, Unbounded};
+        let patterns = self.patterns.as_ref()?;
+        let entry = if forward {
+            patterns
+                .range((Excluded(cursor), Unbounded))
+                .next()
+                .or_else(|| patterns.first_key_value())
+        } else {
+            patterns
+                .range(..cursor)
+                .next_back()
+                .or_else(|| patterns.last_key_value())
+        };
+        entry.map(|(&row, _)| row)
+    }
+
     pub fn from_json(json: &str) -> Result<Self, Error> {
         let data: Self = serde_json::from_slice(&super::jsonc::strip_comments(json.as_bytes())?)
             .map_err(|e| {

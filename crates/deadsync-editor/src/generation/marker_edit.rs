@@ -39,9 +39,27 @@ impl Draft {
         ChartData::read(session.document(), chart)?
             .ok_or_else(|| invalid("Saved pattern metadata is missing"))
     }
+    pub fn has_changes(&self) -> bool {
+        self.start != self.original_start || self.definition != self.original
+    }
+    pub fn clear_task(
+        &self,
+        session: &Session,
+        chart: usize,
+        directory: Option<&std::path::Path>,
+    ) -> Result<super::clear_patterns::Task, Error> {
+        self.data(session, chart)?;
+        if self.has_changes() {
+            return Err(invalid(
+                "Apply or discard marker edits before clearing its notes",
+            ));
+        }
+        super::clear_patterns::Task::capture(session, chart, [self.original_start], directory)
+    }
+
     pub fn apply(&self, session: &mut Session, chart: usize) -> Result<bool, Error> {
         let mut data = self.data(session, chart)?;
-        if self.start == self.original_start && self.definition == self.original {
+        if !self.has_changes() {
             return Ok(false);
         }
         let patterns = data

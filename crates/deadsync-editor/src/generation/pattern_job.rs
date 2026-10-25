@@ -33,6 +33,11 @@ impl Span {
     /// GrooveAuthor's pattern markers are anchored to their start row, rather
     /// than rounded to the global subdivision grid.
     pub fn steps(self, spacing: u64) -> Result<(u64, u64, u64), Error> {
+        self.optional_steps(spacing)?
+            .ok_or_else(|| Error::InvalidEdit("Pattern range contains no steps".into()))
+    }
+    /// Empty regions are valid for clear actions, which skip them like the reference.
+    pub fn optional_steps(self, spacing: u64) -> Result<Option<(u64, u64, u64)>, Error> {
         if spacing == 0 || self.start > self.end || self.end > i32::MAX as u64 {
             return invalid("Invalid pattern marker range");
         }
@@ -42,14 +47,15 @@ impl Span {
             .ok_or_else(|| Error::InvalidEdit("Pattern range overflow".into()))?;
         let mut last = self.start + (self.end - self.start) / spacing * spacing;
         if !self.include_end && last == self.end {
-            last = last
-                .checked_sub(spacing)
-                .ok_or_else(|| Error::InvalidEdit("Pattern range contains no steps".into()))?;
+            let Some(previous) = last.checked_sub(spacing) else {
+                return Ok(None);
+            };
+            last = previous;
         }
         if first > last {
-            return invalid("Pattern range contains no steps");
+            return Ok(None);
         }
-        Ok((first, last, (last - first) / spacing + 1))
+        Ok(Some((first, last, (last - first) / spacing + 1)))
     }
 }
 #[derive(Clone, Debug)]

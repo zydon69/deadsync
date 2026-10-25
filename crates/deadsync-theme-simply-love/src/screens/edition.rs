@@ -8,6 +8,7 @@ use deadlib_present::{
 };
 use deadsync_editor::{
     generation::{
+        clear_patterns,
         config::{PatternConfig, PerformedConfig, PerformedPreset},
         job::{ChartOptions, ChartPreview, Job, Phase, Progress, Report, TARGET_LAYOUTS},
         pattern_job::{self, Span},
@@ -57,24 +58,28 @@ struct PatternSettings {
 enum GenerationJob {
     Chart(Job),
     Pattern(Job<pattern_job::Preview>),
+    Clear(Job<clear_patterns::Preview>),
 }
 impl GenerationJob {
     fn cancel(&self) {
         match self {
             Self::Chart(job) => job.cancel(),
             Self::Pattern(job) => job.cancel(),
+            Self::Clear(job) => job.cancel(),
         }
     }
     fn is_cancelled(&self) -> bool {
         match self {
             Self::Chart(job) => job.is_cancelled(),
             Self::Pattern(job) => job.is_cancelled(),
+            Self::Clear(job) => job.is_cancelled(),
         }
     }
     fn progress(&self) -> Progress {
         match self {
             Self::Chart(job) => job.progress(),
             Self::Pattern(job) => job.progress(),
+            Self::Clear(job) => job.progress(),
         }
     }
     fn poll(&mut self) -> Option<Result<GenerationPreview, deadsync_editor::Error>> {
@@ -85,24 +90,30 @@ impl GenerationJob {
             Self::Pattern(job) => job
                 .poll()
                 .map(|result| result.map(GenerationPreview::Pattern)),
+            Self::Clear(job) => job
+                .poll()
+                .map(|result| result.map(GenerationPreview::Clear)),
         }
     }
 }
 enum GenerationPreview {
     Chart(ChartPreview),
     Pattern(pattern_job::Preview),
+    Clear(clear_patterns::Preview),
 }
 impl GenerationPreview {
     fn grid(&self) -> &deadsync_editor::notes::Grid {
         match self {
             Self::Chart(p) => p.grid(),
             Self::Pattern(p) => p.grid(),
+            Self::Clear(p) => p.grid(),
         }
     }
     fn layout(&self) -> &str {
         match self {
             Self::Chart(p) => p.target_layout(),
             Self::Pattern(p) => &p.generated().layout,
+            Self::Clear(p) => p.layout(),
         }
     }
 }
@@ -322,6 +333,55 @@ impl State {
         }
     }
 
+    fn clear_marker_notes(&mut self) {
+        if self.job.is_some() {
+            return;
+        }
+        let Some(draft) = &self.marker else {
+            return;
+        };
+        if draft.has_changes() {
+            self.status = i18n::tr("Edition", "MarkerPending");
+            return;
+        }
+        match self
+            .workspace
+            .clear_pattern_task(draft, self.profile_directory.as_deref())
+            .and_then(|task| task.spawn())
+        {
+            Ok(job) => {
+                self.marker = None;
+                self.preview = None;
+                self.job = Some(GenerationJob::Clear(job));
+                self.panel = Some(Panel::Generating);
+                self.status = i18n::tr("Edition", "GenerationPreparing");
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+    fn navigate_marker(&mut self, forward: bool) {
+        if self
+            .marker
+            .as_ref()
+            .is_some_and(|draft| draft.has_changes())
+        {
+            self.status = i18n::tr("Edition", "MarkerPending");
+            return;
+        }
+        match self.workspace.navigate_saved_pattern(forward) {
+            Ok(true) => {
+                self.open_marker();
+                self.refresh();
+            }
+            Ok(false) => {}
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+
     fn regenerate_saved_pattern(&mut self) {
         if self.job.is_some() {
             return;
@@ -380,6 +440,7 @@ impl State {
                 Phase::Converting if matches!(job, GenerationJob::Pattern(_)) => {
                     "PatternGenerating"
                 }
+                Phase::Converting if matches!(job, GenerationJob::Clear(_)) => "MarkerClearing",
                 Phase::Converting => "GenerationConverting",
                 Phase::Assembling => "GenerationAssembling",
                 Phase::Ready => "GenerationReady",
@@ -685,7 +746,7 @@ impl State {
             Panel::Marker(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::Marker(
-                        (index + if code == KeyCode::ArrowUp { 8 } else { 1 }) % 9,
+                        (index + if code == KeyCode::ArrowUp { 11 } else { 1 }) % 12,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(draft) = &mut self.marker {
@@ -730,6 +791,9 @@ impl State {
                             self.marker = None;
                             self.panel = None;
                         }
+                        9 => self.clear_marker_notes(),
+                        10 => self.navigate_marker(false),
+                        11 => self.navigate_marker(true),
                         _ => {}
                     }
                 }
@@ -810,12 +874,16 @@ impl State {
                         self.status = i18n::tr("Edition", "GenerationDiscarded");
                     } else if let Some(preview) = &self.preview {
                         let pattern = matches!(preview, GenerationPreview::Pattern(_));
+                        let clearing = matches!(preview, GenerationPreview::Clear(_));
                         let result = match preview {
                             GenerationPreview::Chart(p) => {
                                 self.workspace.apply_generated(p).map(|_| ())
                             }
                             GenerationPreview::Pattern(p) => {
                                 self.workspace.apply_generated_pattern(p).map(|_| ())
+                            }
+                            GenerationPreview::Clear(p) => {
+                                self.workspace.apply_cleared_pattern(p).map(|_| ())
                             }
                         };
                         match result {
@@ -824,7 +892,9 @@ impl State {
                                 self.panel = None;
                                 self.status = i18n::tr(
                                     "Edition",
-                                    if pattern {
+                                    if clearing {
+                                        "MarkerCleared"
+                                    } else if pattern {
                                         "PatternApplied"
                                     } else {
                                         "GenerationApplied"
@@ -1120,6 +1190,9 @@ impl State {
                 "MarkerSave",
                 "MarkerDelete",
                 "KeepEditing",
+                "MarkerClearNotes",
+                "MarkerPrevious",
+                "MarkerNext",
             ],
             Panel::ConfirmMarkerDelete => &["MarkerConfirmDelete"],
             Panel::Generating => &["GenerationCancel"],
@@ -1145,7 +1218,19 @@ impl State {
         };
         actors.push(act!(quad: xy(screen_width() * 0.5, panel_y): zoomto(if previewing { screen_width() - 30.0 } else { 520.0 }, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
         if let Some(preview) = self.preview.as_ref().filter(|_| previewing) {
-            if let GenerationPreview::Chart(preview) = preview {
+            if let GenerationPreview::Clear(preview) = preview {
+                let report = preview.report();
+                let summary = i18n::tr_fmt(
+                    "Edition",
+                    "MarkerClearSummary",
+                    &[
+                        ("removed", &report.removed.to_string()),
+                        ("shortened", &report.shortened_holds.to_string()),
+                        ("issues", &preview.profile_issues().len().to_string()),
+                    ],
+                );
+                actors.push(act!(text: font("miso"): settext(summary): align(0.5, 0.0): xy(screen_width()*0.5,panel_y-panel_height*0.5+10.0): zoom(0.6): z(8021)));
+            } else if let GenerationPreview::Chart(preview) = preview {
                 let report = preview.report();
                 let summary = i18n::tr_fmt(
                     "Edition",
@@ -1281,6 +1366,11 @@ impl State {
                 } else {
                     i18n::tr("Edition", key)
                 }
+            } else if matches!(panel, Panel::GenerationPreview(_))
+                && index == 0
+                && matches!(self.preview, Some(GenerationPreview::Clear(_)))
+            {
+                i18n::tr("Edition", "MarkerClearApply")
             } else if matches!(panel, Panel::GenerationPreview(_))
                 && index == 0
                 && matches!(self.preview, Some(GenerationPreview::Pattern(_)))

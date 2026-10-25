@@ -295,6 +295,33 @@ impl Workspace {
         }
     }
 
+    pub fn clear_pattern_task(
+        &self,
+        draft: &crate::generation::marker_edit::Draft,
+        directory: Option<&Path>,
+    ) -> Result<crate::generation::clear_patterns::Task, Error> {
+        draft.clear_task(&self.file.session, self.chart, directory)
+    }
+    pub fn apply_cleared_pattern(
+        &mut self,
+        preview: &crate::generation::clear_patterns::Preview,
+    ) -> Result<bool, Error> {
+        let changed = preview.apply(&mut self.file.session, self.chart)?;
+        self.anchor = None;
+        Ok(changed)
+    }
+    pub fn navigate_saved_pattern(&mut self, forward: bool) -> Result<bool, Error> {
+        let data =
+            crate::generation::metadata::ChartData::read(self.file.session.document(), self.chart)?;
+        if let Some(row) = data.and_then(|data| data.adjacent_marker(self.row, forward)) {
+            self.row = row;
+            self.anchor = None;
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    }
+
     pub fn saved_pattern_task(
         &self,
         registry: &crate::generation::metadata::Registry,

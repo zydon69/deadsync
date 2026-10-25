@@ -1,0 +1,123 @@
+{
+  "Conversion": null,
+  "Projected": null,
+  "Pipeline": null,
+  "Cleared": {
+    "Notes": [
+      {
+        "Row": 0,
+        "Lane": 0,
+        "Symbol": "2",
+        "End": 48
+      },
+      {
+        "Row": 47,
+        "Lane": 1,
+        "Symbol": "4",
+        "End": 48
+      },
+      {
+        "Row": 48,
+        "Lane": 2,
+        "Symbol": "M",
+        "End": null
+      },
+      {
+        "Row": 96,
+        "Lane": 2,
+        "Symbol": "1",
+        "End": null
+      },
+      {
+        "Row": 120,
+        "Lane": 3,
+        "Symbol": "2",
+        "End": 240
+      },
+      {
+        "Row": 288,
+        "Lane": 0,
+        "Symbol": "1",
+        "End": null
+      }
+    ],
+    "Removed": 3,
+    "Shortened": 2,
+    "Bounds": [
+      {
+        "First": 60,
+        "Last": 84,
+        "Count": 3
+      }
+    ]
+  },
+  "Heads": [
+    {
+      "Row": 0,
+      "Lane": 0,
+      "Symbol": "2",
+      "Time": 0,
+      "Fake": false
+    },
+    {
+      "Row": 47,
+      "Lane": 1,
+      "Symbol": "4",
+      "Time": 0.4895833333333333,
+      "Fake": false
+    },
+    {
+      "Row": 48,
+      "Lane": 2,
+      "Symbol": "M",
+      "Time": 0.5,
+      "Fake": false
+    },
+    {
+      "Row": 60,
+      "Lane": 3,
+      "Symbol": "K",
+      "Time": 0.625,
+      "Fake": false
+    },
+    {
+      "Row": 72,
+      "Lane": 2,
+      "Symbol": "F",
+      "Time": 0.75,
+      "Fake": true
+    },
+    {
+      "Row": 84,
+      "Lane": 3,
+      "Symbol": "L",
+      "Time": 0.875,
+      "Fake": false
+    },
+    {
+      "Row": 96,
+      "Lane": 2,
+      "Symbol": "1",
+      "Time": 1,
+      "Fake": false
+    },
+    {
+      "Row": 120,
+      "Lane": 3,
+      "Symbol": "2",
+      "Time": 1.25,
+      "Fake": false
+    },
+    {
+      "Row": 288,
+      "Lane": 0,
+      "Symbol": "1",
+      "Time": 3,
+      "Fake": false
+    }
+  ],
+  "StepCount": 6,
+  "End": 3,
+  "Times": [],
+  "Nps": 2
+}

@@ -38,6 +38,7 @@ def prepare_timing_reference(editor):
     stop = read("EditorEvents/EditorStopEvent.cs")
     density = read("EditorActions/ActionAutoGeneratePatterns.cs")
     deletion = read("EditorActions/ActionDeletePatternNotes.cs")
+    pattern_event = read("EditorEvents/EditorPatternEvent.cs")
     groups = {
         "CHART_METHODS": [extract_member(chart, r"\tprivate void " + name + r"\(") for name in ["RefreshEventTimingData", "RefreshRateAlteringEvents"]]
             + [extract_member(chart, r"\tpublic double " + name + r"\(") for name in ["GetStartChartTime", "GetEndChartTime"]]
@@ -45,6 +46,7 @@ def prepare_timing_reference(editor):
         "RATE_METHODS": [extract_member(rate, r"\tpublic double " + name + r"\(") for name in ["GetChartTimeFromPosition", "GetChartPositionFromTime"]],
         "STOP_METHODS": [extract_member(stop, r"\tpublic void RefreshEndChartPosition\(")],
         "REGION_METHODS": [extract_member(chart, r"\tpublic \(List<Event>, List<EditorEvent>\) GetEventsInRangeForPattern\(")],
+        "PATTERN_BOUNDS": [extract_member(pattern_event, r"\tpublic int " + name + r"\(") for name in ["GetFirstStepRow", "GetLastStepRow", "GetNumSteps", "GetNumStepsBeforeRow"]],
         "DELETION_METHODS": [extract_member(deletion, r"\tpublic class Alterations\s*"), extract_member(deletion, r"\tpublic static Alterations DeleteEventsOverlappingPatterns\(")],
         "RANGE_METHODS": [extract_member(density, r"\tprivate static \(int start, int end\) GetRowRangeToConsiderForPattern\(")],
         "DENSITY_METHODS": [extract_member(density, r"\tprivate double GetNps\(")],
@@ -357,6 +359,25 @@ def requests(reference: Path):
             if variant == "equal-time": pc["TimeScale"] = 0.0
             if variant == "overlap-order": pc["BeforeEditorEvents"] = [[12, right, True], [0, left, True]]
             cases[f"context-{layout}-{variant}"] = pc
+    clear_notes = [[0, 0, "2", 180], [47, 1, "4", 144], [48, 2, "M"], [60, 3, "K"], [72, 2, "F"], [84, 3, "L"], [96, 2, "1"], [120, 3, "2", 240], [288, 0, "1"]]
+    # Raw start, length, spacing, start-inclusive, end-inclusive.
+    clear_cases = {
+        "inclusive": [[48, 48, 12, True, True]],
+        "exclusive": [[48, 48, 12, False, False]],
+        "start-exclusive": [[48, 48, 12, False, True]],
+        "end-exclusive": [[48, 48, 12, True, False]],
+        "empty": [[48, 0, 12, False, False]],
+        "single": [[48, 0, 12, True, True]],
+        "off-grid": [[49, 46, 12, True, False]],
+        "spacing-one": [[48, 48, 1, True, True]],
+        "spacing-forty-eight": [[48, 96, 48, True, True]],
+        "overlapping-unsorted": [[72, 96, 12, True, True], [48, 48, 12, True, True]],
+        "successive-hold-trims": [[48, 12, 12, True, True], [24, 12, 12, True, True]],
+        "empty-at-origin": [[0, 0, 12, True, False]],
+    }
+    for label, markers in clear_cases.items():
+        cases["clear-pattern-" + label] = {"Operation":"EditorTiming", "Timing":[[0,"signature",4,4],[0,"tempo",120]],
+            "Notes":copy.deepcopy(clear_notes), "Rows":[], "NumSteps":0, "LastStep":0, "ClearPatterns":markers}
     editor_notes = [[0, 0, "1"], [12, 1, "1"], [24, 2, "F"], [36, 3, "L"], [48, 0, "2", 96], [120, 2, "M"], [144, 3, "K"], [192, 1, "1"]]
     editor_cases = {
         "baseline": {},
