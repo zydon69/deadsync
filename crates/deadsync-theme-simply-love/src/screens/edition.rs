@@ -236,6 +236,7 @@ pub struct State {
     catalog_target: ProfileTarget,
     profile_directory: Option<PathBuf>,
     saved_regions: Vec<(u64, u64)>,
+    region_index: deadsync_editor::region_index::RegionIndex,
     signatures: Option<deadsync_editor::timing_edit::signature::Signatures>,
     labels: Option<deadsync_editor::timing_edit::label::Labels>,
     marker_cache: Option<(Arc<[u8]>, u64, usize)>,
@@ -363,6 +364,7 @@ impl State {
             catalog_target: ProfileTarget::Marker,
             profile_directory: deadsync_editor::runtime::configs_dir().map(Path::to_path_buf),
             saved_regions: Vec::new(),
+            region_index: Default::default(),
             signatures: None,
             labels: None,
             marker_cache: None,
@@ -1145,7 +1147,7 @@ impl State {
         self.refresh_waveform();
         self.refresh_sample_region();
         if !self.workspace.has_chart() {
-            self.saved_regions.clear(); self.labels=None; self.signatures=None; self.marker_cache=None;
+            self.saved_regions.clear(); self.region_index=Default::default(); self.labels=None; self.signatures=None; self.marker_cache=None;
             self.chart_label=i18n::tr("Edition", "NoActiveChart");
             self.toolbar=i18n::tr_fmt("Edition", "NoChartToolbar", &[("dirty", if self.workspace.file().session.is_dirty(){" *"}else{""})]);
             return;
@@ -1175,6 +1177,8 @@ impl State {
                     .into_iter()
                     .map(|(row, marker)| (row, row + marker.length))
                     .collect();
+            self.region_index = deadsync_editor::region_index::RegionIndex::new(self.saved_regions.clone())
+                .expect("validated pattern metadata regions");
             self.marker_cache = Some((Arc::clone(source), session.revision(), chart));
         }
         let dirty = if self.workspace.file().session.is_dirty() {
@@ -2169,10 +2173,8 @@ impl State {
                 }
             }
         }
-        for &(a, b) in &self.saved_regions {
-            if b < start || a > end {
-                continue;
-            }
+        for (a, b) in self.region_index.visible(start, end, 4096)
+            .expect("ordered viewport bounds and bounded region budget") {
             let y1 = projection.clipped_y(a) as f32;
             let y2 = projection.clipped_y(b) as f32;
             actors.push(act!(quad: xy(left-9.0,(y1+y2)*0.5): zoomto(4.0,(y2-y1).max(2.0)): diffuse(0.7,0.4,1.0,0.8): z(8002)));

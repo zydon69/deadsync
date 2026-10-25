@@ -3413,3 +3413,25 @@ native projection test also passed, checking 200 adjacent labels, tiny viewport
 rendering and source preservation. Five projection and four note overview tests
 passed; `cargo check -p deadsync --jobs 2 --locked` passed. Native zoom remains
 unimplemented and these tests do not establish interactive zoom behavior.
+
+### Indexed pattern region visibility
+
+Pattern regions now have a cached `RegionIndex` rebuilt alongside metadata when
+the document revision or selected chart changes. A balanced array tree stores
+maximum interval ends; viewport queries skip subtrees whose starts/ends cannot
+intersect the viewport. This finds overlapping regions and regions beginning
+before the viewport without walking the entire saved marker list each frame.
+
+The renderer requests at most 4096 sorted visible regions. If more regions
+intersect, later regions are omitted from presentation; their metadata and
+editing/generation behavior are unchanged. This is a deterministic presentation
+budget, not complete visualization of arbitrarily many overlapping regions.
+The original saved region list remains available to selection/generation logic.
+
+Three tests compare indexed results to brute force across overlapping intervals,
+exercise 50,000 simultaneously visible regions with multiple budgets, and cover
+empty indices, inclusive endpoints, full-u64 boundaries and invalid input.
+The native zoom input/interpolation/size scaling remain pending.
+
+Validation: all 181 native editor integration tests passed, alongside the three
+region index workflow tests. `cargo check -p deadsync --jobs 2 --locked` passed.
