@@ -1,6 +1,8 @@
 //! GrooveAuthor editor timing/dependency pass and rate queries, 48e18f71 (MIT).
 //! Engine generation keeps Fumen's clock; editor density uses these distinct
 //! rules, including time signatures inside warps and retroactive fake flags.
+mod insertion;
+
 use super::{
     context::ContextEvent,
     pattern_region,

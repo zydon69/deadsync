@@ -45,6 +45,7 @@ def prepare_timing_reference(editor):
             + [extract_member(chart, r"\tpublic bool TryGetTimeFromChartPosition\(")],
         "RATE_METHODS": [extract_member(rate, r"\tpublic double " + name + r"\(") for name in ["GetChartTimeFromPosition", "GetChartPositionFromTime"]],
         "STOP_METHODS": [extract_member(stop, r"\tpublic void RefreshEndChartPosition\(")],
+        "FAKE_METHOD": [extract_member(chart,r"\tpublic bool IsEventInFake\(")],
         "REGION_METHODS": [extract_member(chart, r"\tpublic \(List<Event>, List<EditorEvent>\) GetEventsInRangeForPattern\(")],
         "PATTERN_BOUNDS": [extract_member(pattern_event, r"\tpublic int " + name + r"\(") for name in ["GetFirstStepRow", "GetLastStepRow", "GetNumSteps", "GetNumStepsBeforeRow"]],
         "DELETION_METHODS": [extract_member(deletion, r"\tpublic class Alterations\s*"), extract_member(deletion, r"\tpublic static Alterations DeleteEventsOverlappingPatterns\(")],
@@ -469,6 +470,17 @@ def requests(reference: Path):
     ]:
         case=copy.deepcopy(cases["editor-timing-"+base]);case["LoadedRegions"]=markers
         cases["editor-timing-"+label]=case
+    for index,bpm in enumerate([187.3,157.7,120.1,243.45]):
+        item=copy.deepcopy(cases["editor-timing-baseline"])
+        item["Timing"]=[[0,"signature",4,4],[0,"tempo",bpm],[48,"stop",-60.0/bpm]]
+        cases["editor-insertion-negative-end-rounding-"+str(index)]=item
+    insertion_bases=[name for name in cases if name.startswith("editor-timing-") or name.startswith("editor-insertion-negative-end-rounding-")]
+    for name in insertion_bases:
+        item=copy.deepcopy(cases[name])
+        item["Insertions"]=[[[0,2],[24,0],[48,1],[72,2],[96,1],[144,0]],[[49,3],[95,1],[192,3],[288,1],[384,0]]]
+        item["InsertionClear"]=[[row,0,12,True,True] for row in sorted({note[0] for stage in item["Insertions"] for note in stage})]
+        item["InsertionRanges"]=[[0,47],[48,96],[97,768],[0,-1]]
+        cases[name.replace("editor-timing-","editor-insertion-")]=item
     metadata={"MusicOffset":-0.125,"ShouldUseChartMusicOffset":True,"ExpressedChartConfig":"A19D532E-B0CE-4759-AD1C-02ECBBDF2EFD","MaxPlayerIndex":1,
         "Patterns":{"48":{"PatternConfigGuid":"03de57bd-4329-4de6-a722-a171c11fdd16","PerformedChartConfigGuid":"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1","Length":192,"RandomSeed":-2147483648,"StartPositionInclusive":True,"EndPositionInclusive":False,"IgnorePrecedingDistribution":True},"384":{"Length":0}}}
     for label,content in {"defaults":"{}","complete":json.dumps(metadata),"null-patterns":'{"Patterns":null}',"comments":'/* original */ {"Patterns": {"0": {/* marker */ "Length":48}}}',"trailing-comma":'{"Patterns":{},}',"invalid-guid":'{"ExpressedChartConfig":"invalid"}',"braced-guid":'{"ExpressedChartConfig":"{a19d532e-b0ce-4759-ad1c-02ecbbdf2efd}"}'}.items():

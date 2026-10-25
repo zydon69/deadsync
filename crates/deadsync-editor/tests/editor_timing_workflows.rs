@@ -730,3 +730,238 @@ fn native_pipeline(pattern: bool) {
     }
     assert_eq!(count, 36);
 }
+
+#[test]
+fn inserted_taps_preserve_survivors_and_match_original_typed_times_fakes_and_contexts() {
+    use deadsync_editor::generation::{pattern_job::Span, pattern_region::deletion_edits};
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/grooveauthor");
+    let cancelled = AtomicBool::new(false);
+    let mut count = 0;
+    for file in fs::read_dir(&root).unwrap() {
+        let path = file.unwrap().path();
+        let name = path.file_name().unwrap().to_string_lossy();
+        if !name.starts_with("editor-insertion-") || !name.ends_with(".request.json") {
+            continue;
+        }
+        count += 1;
+        let input: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+        let expected: Value = serde_json::from_slice(
+            &fs::read(root.join(name.replace(".request.json", ".expected.json"))).unwrap(),
+        )
+        .unwrap();
+        let mut retained = grid(&input);
+        let original = retained.clone();
+        let region = input["Region"]
+            .as_array()
+            .map(|value| (value[0].as_u64().unwrap(), value[1].as_u64().unwrap()));
+        let original_timeline =
+            EditorTimeline::build(&timing(&input), &retained, region, &cancelled)
+                .unwrap()
+                .with_markers(&loaded_regions(&input), &cancelled)
+                .unwrap();
+        for marker in input["InsertionClear"].as_array().unwrap() {
+            let start = marker[0].as_u64().unwrap();
+            let spacing = marker[2].as_u64().unwrap();
+            let span = Span {
+                start,
+                end: start + marker[1].as_u64().unwrap(),
+                include_start: marker[3].as_bool().unwrap(),
+                include_end: marker[4].as_bool().unwrap(),
+            };
+            if let Some((start, end, _)) = span.optional_steps(spacing).unwrap() {
+                for (position, note) in
+                    deletion_edits(&retained, 0, start, end, spacing, &cancelled)
+                        .unwrap()
+                        .0
+                {
+                    retained.set(position, note).unwrap();
+                }
+            }
+        }
+        let mut timeline = original_timeline
+            .project(&retained, None, &cancelled)
+            .unwrap();
+        for (stage, reference) in input["Insertions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .zip(expected.as_array().unwrap())
+        {
+            let taps: Vec<_> = stage
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|note| Position {
+                    player: 0,
+                    row: note[0].as_u64().unwrap(),
+                    lane: note[1].as_u64().unwrap() as u16,
+                })
+                .collect();
+            timeline = timeline.with_taps(taps.clone(), &cancelled).unwrap();
+            for tap in taps {
+                retained.set(tap, Some(Note::tap())).unwrap();
+            }
+            assert_eq!(
+                timeline.heads().len(),
+                reference["Heads"].as_array().unwrap().len(),
+                "{name} heads"
+            );
+            for (head, expected) in timeline
+                .heads()
+                .iter()
+                .zip(reference["Heads"].as_array().unwrap())
+            {
+                assert_eq!(
+                    head.position.row,
+                    expected["Row"].as_u64().unwrap(),
+                    "{name} row"
+                );
+                assert_eq!(
+                    u64::from(head.position.lane),
+                    expected["Lane"].as_u64().unwrap(),
+                    "{name} lane"
+                );
+                assert_eq!(
+                    head.time,
+                    expected["Time"].as_f64().unwrap(),
+                    "{name} time at {:?}",
+                    head.position
+                );
+                assert_eq!(
+                    head.fake,
+                    expected["Fake"].as_bool().unwrap(),
+                    "{name} fake at {:?}",
+                    head.position
+                );
+            }
+            for survivor in original_timeline.heads().iter().filter(|head| {
+                retained.get(head.position) == original.get(head.position)
+                    && !input["InsertionClear"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .any(|marker| marker[0].as_u64() == Some(head.position.row))
+            }) {
+                let head = timeline
+                    .heads()
+                    .iter()
+                    .find(|head| head.position == survivor.position)
+                    .unwrap();
+                assert_eq!(
+                    head.time.to_bits(),
+                    survivor.time.to_bits(),
+                    "{name} survivor time"
+                );
+                assert_eq!(head.fake, survivor.fake, "{name} survivor fake flag");
+            }
+            assert_eq!(
+                timeline.step_count() as u64,
+                reference["StepCount"].as_u64().unwrap(),
+                "{name} count"
+            );
+            assert_eq!(
+                timeline.chart_end().unwrap(),
+                reference["End"].as_f64().unwrap(),
+                "{name} end"
+            );
+            for (range, reference) in input["InsertionRanges"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .zip(reference["Regions"].as_array().unwrap())
+            {
+                let range = range[1]
+                    .as_u64()
+                    .map(|end| (range[0].as_u64().unwrap(), end));
+                let prepared = timeline
+                    .prepare_region(&retained, range, &cancelled)
+                    .unwrap();
+                assert_eq!(
+                    prepared.event_span,
+                    serde_json::from_value::<[f64; 2]>(reference["Span"].clone()).unwrap(),
+                    "{name} region {range:?}"
+                );
+                for (frame, time) in prepared.frames.iter().zip(&prepared.times) {
+                    let expected = reference["Groups"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|group| group["Row"].as_u64() == Some(frame.row))
+                        .unwrap();
+                    assert_eq!(
+                        *time,
+                        expected["Time"].as_f64().unwrap(),
+                        "{name} group {}",
+                        frame.row
+                    );
+                }
+                let events:Vec<_>=prepared.editor_events.iter().map(|event|serde_json::json!({"Row":event.row,"Lane":event.lane.map(i64::from).unwrap_or(-1),"Step":event.is_step})).collect();
+                assert_eq!(
+                    serde_json::json!(events),
+                    reference["EditorEvents"],
+                    "{name} context event order"
+                );
+            }
+        }
+    }
+    assert_eq!(count, 43);
+}
+#[test]
+fn insertion_rejects_collisions_invalid_positions_and_cancellation_without_changing_timeline() {
+    let mut notes = Grid::new(4, 1).unwrap();
+    let cancelled = AtomicBool::new(false);
+    let position = |row, lane| Position {
+        player: 0,
+        row,
+        lane,
+    };
+    notes
+        .set(
+            position(0, 0),
+            Some(Note {
+                kind: Kind::Hold,
+                end: Some(96),
+                ..Note::tap()
+            }),
+        )
+        .unwrap();
+    let timing = GenerationTiming::new(vec![Event {
+        row: 0,
+        kind: EventKind::Tempo(120.0),
+    }])
+    .unwrap();
+    let timeline = EditorTimeline::build(&timing, &notes, None, &cancelled).unwrap();
+    for taps in [
+        vec![position(0, 0)],
+        vec![position(48, 0)],
+        vec![position(96, 0)],
+        vec![position(48, 1), position(48, 1)],
+        vec![position(48, 4)],
+        vec![Position {
+            player: 1,
+            row: 48,
+            lane: 1,
+        }],
+        vec![position(i32::MAX as u64 + 1, 1)],
+    ] {
+        assert!(timeline.with_taps(taps, &cancelled).is_err());
+        assert_eq!(timeline.heads().len(), 1);
+    }
+    assert!(
+        timeline
+            .with_taps([position(48, 1)], &AtomicBool::new(true))
+            .is_err()
+    );
+    let flag = AtomicBool::new(false);
+    let taps = (0..2).map(|index| {
+        if index == 1 {
+            flag.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
+        position(index * 24, 1)
+    });
+    assert!(timeline.with_taps(taps, &flag).is_err());
+    assert_eq!(timeline.heads().len(), 1);
+    let added = timeline.with_taps([position(97, 0)], &cancelled).unwrap();
+    assert_eq!(added.heads().len(), 2);
+    assert_eq!(timeline.heads().len(), 1);
+}

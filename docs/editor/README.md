@@ -1067,3 +1067,35 @@ multi-region generation still needs incremental timeline insertion with preserve
 assigned times, sequential shared context, failure handling and one preview/apply
 workflow, followed by native controls and integrated differential checks. It is
 not available through the native menu yet. The full delivery matrix remains open.
+
+### Incremental insertion for multi-pattern context
+
+`EditorTimeline::with_taps` inserts generated tap heads using typed rate queries
+without rebuilding surviving events. Their assigned times and fake flags remain
+unchanged. New fake flags follow GrooveAuthor's `IsEventInFake`: later fake
+segments replace earlier ends, warps form a union with the simultaneous stop/
+delay exception, and negative-stop regions use the original inverse-rate query
+and exclusive end. Fake/warp lookup is indexed once per insertion rather than
+rescanning all timing events for every tap. Negative-stop inverse arithmetic
+retains the original multiply-by-reciprocal evaluation.
+
+This immutable operation validates participants, lanes, row limits, duplicate
+positions and collisions with existing heads or sustains. Invalid/cancelled
+requests leave the original timeline unchanged. The new timeline can immediately
+prepare independently timed preceding/following context regions for the next
+pattern. It does not insert into a live document or claim complete batch
+regeneration.
+
+Forty-three differential fixtures compare two consecutive insertions with the
+pinned editor's typed time query, unchanged IsEventInFake, deletion and region
+extraction methods. The oracle now uses Fumen's actual pinned interval tree for
+fake/warp/stop searches, with reference identity equality on adapter events.
+Cases extend all 39 existing timing scenarios plus four negative-stop end-rounding
+cases at fractional BPMs. They cover surviving and inserted head times, fake
+flags, density counts, chart ends, context spans, frame times and editor-event
+order. Input clear regions and tap positions are explicit adapters, not a replay
+of the complete editor UI/action. The existing 39 timing, 12 clear-pattern and 15
+scheduling baselines regenerate without changes. An additional Rust workflow
+covers collisions, invalid positions, boundary holds and cancellation during
+input collection. The multi-region generation worker, one preview/apply gesture
+and native panel still remain to be connected and verified.

@@ -1,0 +1,512 @@
+[
+  {
+    "Heads": [
+      {
+        "Row": 0,
+        "Lane": 2,
+        "Symbol": "1",
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Row": 12,
+        "Lane": 1,
+        "Symbol": "1",
+        "Time": 0.1,
+        "Fake": false
+      },
+      {
+        "Row": 24,
+        "Lane": 0,
+        "Symbol": "1",
+        "Time": 0.2,
+        "Fake": false
+      },
+      {
+        "Row": 36,
+        "Lane": 3,
+        "Symbol": "L",
+        "Time": 0.3,
+        "Fake": false
+      },
+      {
+        "Row": 48,
+        "Lane": 1,
+        "Symbol": "1",
+        "Time": 0.4,
+        "Fake": true
+      },
+      {
+        "Row": 72,
+        "Lane": 2,
+        "Symbol": "1",
+        "Time": 0.4,
+        "Fake": true
+      },
+      {
+        "Row": 96,
+        "Lane": 1,
+        "Symbol": "1",
+        "Time": 0.4,
+        "Fake": false
+      },
+      {
+        "Row": 120,
+        "Lane": 2,
+        "Symbol": "M",
+        "Time": 0.6,
+        "Fake": false
+      },
+      {
+        "Row": 144,
+        "Lane": 0,
+        "Symbol": "1",
+        "Time": 0.8,
+        "Fake": false
+      }
+    ],
+    "StepCount": 6,
+    "End": 0.8,
+    "Regions": [
+      {
+        "Span": [
+          0,
+          0.4
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 12,
+            "Time": 0.1
+          },
+          {
+            "Row": 24,
+            "Time": 0.2
+          },
+          {
+            "Row": 36,
+            "Time": 0.3
+          },
+          {
+            "Row": 48,
+            "Time": 0.4
+          }
+        ],
+        "EditorEvents": [
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Step": true
+          },
+          {
+            "Row": 12,
+            "Lane": 1,
+            "Step": true
+          },
+          {
+            "Row": 24,
+            "Lane": 0,
+            "Step": true
+          },
+          {
+            "Row": 36,
+            "Lane": 3,
+            "Step": true
+          }
+        ]
+      },
+      {
+        "Span": [
+          0,
+          0.4
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 48,
+            "Time": 0.4
+          },
+          {
+            "Row": 72,
+            "Time": 0.4
+          },
+          {
+            "Row": 96,
+            "Time": 0.4
+          }
+        ],
+        "EditorEvents": [
+          {
+            "Row": 48,
+            "Lane": 1,
+            "Step": true
+          },
+          {
+            "Row": 72,
+            "Lane": 2,
+            "Step": true
+          },
+          {
+            "Row": 96,
+            "Lane": 1,
+            "Step": true
+          }
+        ]
+      },
+      {
+        "Span": [
+          0,
+          0.8
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 48,
+            "Time": 0.4
+          },
+          {
+            "Row": 120,
+            "Time": 0.6
+          },
+          {
+            "Row": 144,
+            "Time": 0.8
+          }
+        ],
+        "EditorEvents": [
+          {
+            "Row": 120,
+            "Lane": 2,
+            "Step": false
+          },
+          {
+            "Row": 144,
+            "Lane": 0,
+            "Step": true
+          }
+        ]
+      },
+      {
+        "Span": [
+          0,
+          0.4
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 48,
+            "Time": 0.4
+          }
+        ],
+        "EditorEvents": []
+      }
+    ]
+  },
+  {
+    "Heads": [
+      {
+        "Row": 0,
+        "Lane": 2,
+        "Symbol": "1",
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Row": 12,
+        "Lane": 1,
+        "Symbol": "1",
+        "Time": 0.1,
+        "Fake": false
+      },
+      {
+        "Row": 24,
+        "Lane": 0,
+        "Symbol": "1",
+        "Time": 0.2,
+        "Fake": false
+      },
+      {
+        "Row": 36,
+        "Lane": 3,
+        "Symbol": "L",
+        "Time": 0.3,
+        "Fake": false
+      },
+      {
+        "Row": 48,
+        "Lane": 1,
+        "Symbol": "1",
+        "Time": 0.4,
+        "Fake": true
+      },
+      {
+        "Row": 49,
+        "Lane": 3,
+        "Symbol": "1",
+        "Time": 0.4,
+        "Fake": true
+      },
+      {
+        "Row": 72,
+        "Lane": 2,
+        "Symbol": "1",
+        "Time": 0.4,
+        "Fake": true
+      },
+      {
+        "Row": 95,
+        "Lane": 1,
+        "Symbol": "1",
+        "Time": 0.4,
+        "Fake": true
+      },
+      {
+        "Row": 96,
+        "Lane": 1,
+        "Symbol": "1",
+        "Time": 0.4,
+        "Fake": false
+      },
+      {
+        "Row": 120,
+        "Lane": 2,
+        "Symbol": "M",
+        "Time": 0.6,
+        "Fake": false
+      },
+      {
+        "Row": 144,
+        "Lane": 0,
+        "Symbol": "1",
+        "Time": 0.8,
+        "Fake": false
+      },
+      {
+        "Row": 192,
+        "Lane": 3,
+        "Symbol": "1",
+        "Time": 1.2,
+        "Fake": false
+      },
+      {
+        "Row": 288,
+        "Lane": 1,
+        "Symbol": "1",
+        "Time": 2,
+        "Fake": false
+      },
+      {
+        "Row": 384,
+        "Lane": 0,
+        "Symbol": "1",
+        "Time": 2.8,
+        "Fake": false
+      }
+    ],
+    "StepCount": 9,
+    "End": 2.8,
+    "Regions": [
+      {
+        "Span": [
+          0,
+          0.4
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 12,
+            "Time": 0.1
+          },
+          {
+            "Row": 24,
+            "Time": 0.2
+          },
+          {
+            "Row": 36,
+            "Time": 0.3
+          },
+          {
+            "Row": 48,
+            "Time": 0.4
+          }
+        ],
+        "EditorEvents": [
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Step": true
+          },
+          {
+            "Row": 12,
+            "Lane": 1,
+            "Step": true
+          },
+          {
+            "Row": 24,
+            "Lane": 0,
+            "Step": true
+          },
+          {
+            "Row": 36,
+            "Lane": 3,
+            "Step": true
+          }
+        ]
+      },
+      {
+        "Span": [
+          0,
+          0.4
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 48,
+            "Time": 0.4
+          },
+          {
+            "Row": 49,
+            "Time": 0.4
+          },
+          {
+            "Row": 72,
+            "Time": 0.4
+          },
+          {
+            "Row": 95,
+            "Time": 0.4
+          },
+          {
+            "Row": 96,
+            "Time": 0.4
+          }
+        ],
+        "EditorEvents": [
+          {
+            "Row": 48,
+            "Lane": 1,
+            "Step": true
+          },
+          {
+            "Row": 49,
+            "Lane": 3,
+            "Step": true
+          },
+          {
+            "Row": 72,
+            "Lane": 2,
+            "Step": true
+          },
+          {
+            "Row": 95,
+            "Lane": 1,
+            "Step": true
+          },
+          {
+            "Row": 96,
+            "Lane": 1,
+            "Step": true
+          }
+        ]
+      },
+      {
+        "Span": [
+          0,
+          2.8
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 48,
+            "Time": 0.4
+          },
+          {
+            "Row": 120,
+            "Time": 0.6
+          },
+          {
+            "Row": 144,
+            "Time": 0.8
+          },
+          {
+            "Row": 192,
+            "Time": 1.2
+          },
+          {
+            "Row": 288,
+            "Time": 2
+          },
+          {
+            "Row": 384,
+            "Time": 2.8
+          }
+        ],
+        "EditorEvents": [
+          {
+            "Row": 120,
+            "Lane": 2,
+            "Step": false
+          },
+          {
+            "Row": 144,
+            "Lane": 0,
+            "Step": true
+          },
+          {
+            "Row": 192,
+            "Lane": 3,
+            "Step": true
+          },
+          {
+            "Row": 288,
+            "Lane": 1,
+            "Step": true
+          },
+          {
+            "Row": 384,
+            "Lane": 0,
+            "Step": true
+          }
+        ]
+      },
+      {
+        "Span": [
+          0,
+          0.4
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 48,
+            "Time": 0.4
+          }
+        ],
+        "EditorEvents": []
+      }
+    ]
+  }
+]
