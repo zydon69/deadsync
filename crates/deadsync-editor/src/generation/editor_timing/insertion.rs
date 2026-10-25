@@ -10,12 +10,33 @@ impl EditorTimeline {
         taps: impl IntoIterator<Item = Position>,
         cancelled: &AtomicBool,
     ) -> Result<Self, Error> {
+        self.insert_taps(taps, false, cancelled)
+    }
+    /// Keep repeated generated taps in working context until file export.
+    pub(crate) fn with_pattern_taps(
+        &self,
+        taps: impl IntoIterator<Item = Position>,
+        cancelled: &AtomicBool,
+    ) -> Result<Self, Error> {
+        self.insert_taps(taps, true, cancelled)
+    }
+    fn insert_taps(
+        &self,
+        taps: impl IntoIterator<Item = Position>,
+        allow_repeated: bool,
+        cancelled: &AtomicBool,
+    ) -> Result<Self, Error> {
         check(cancelled)?;
         let mut occupied = BTreeMap::new();
         for entry in &self.entries {
             check(cancelled)?;
-            if let EntryKind::Head { position, end, .. } = entry.kind {
-                occupied.insert((position.lane, position.row), end);
+            if let EntryKind::Head {
+                position,
+                kind,
+                end,
+            } = entry.kind
+            {
+                occupied.insert((position.lane, position.row), (kind, end));
             }
         }
         let mut selected = BTreeSet::new();
@@ -27,11 +48,15 @@ impl EditorTimeline {
                     "Generated tap has an invalid participant, lane or duplicate position",
                 );
             }
-            if let Some((&(lane, row), end)) =
+            if let Some((&(lane, row), (kind, end))) =
                 occupied.range(..=(position.lane, position.row)).next_back()
             {
                 if lane == position.lane
                     && (row == position.row || end.is_some_and(|end| end >= position.row))
+                    && !(allow_repeated
+                        && row == position.row
+                        && *kind == Kind::Tap
+                        && end.is_none())
                 {
                     return invalid("Generated tap overlaps an existing note");
                 }

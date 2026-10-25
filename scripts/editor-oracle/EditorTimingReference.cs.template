@@ -173,6 +173,15 @@ internal class DensityReference(EditorChart chart,int count,int last) {
 }
 // These helpers are unchanged; the adapter deliberately supplies the selected
 // marker list directly, independently of the UI action constructor.
+internal class NotesOnlyWriter() : SMWriter(new SMWriterBaseConfig{FilePath="oracle.sm",Song=new Song{SourceType=FileFormatType.SM}}) {
+    public string Run(EditorChart source) {
+        var events=new List<Event>();foreach(var entry in source.EditorEvents.OfType<EditorNoteEvent>()) {events.Add(entry.GetEvent());var tail=entry.GetAdditionalEvent();if(tail!=null)events.Add(tail);}
+        events.Sort(new SMEventComparer());
+        var chart=new Chart{Type="dance-single",NumPlayers=1,NumInputs=4,Layers=[new Layer{Events=events}]};
+        using var memory=new MemoryStream();using var writer=new StreamWriter(memory,leaveOpen:true);StreamWriter=writer;
+        WriteChartNotes(chart,false);writer.Flush();return System.Text.Encoding.UTF8.GetString(memory.ToArray());
+    }
+}
 internal class PatternScheduleReference(EditorChart chart,List<EditorPatternEvent> patterns) {
     private EditorChart EditorChart=chart;
     private List<EditorPatternEvent> Patterns=patterns;
@@ -198,6 +207,42 @@ internal class PatternScheduleReference(EditorChart chart,List<EditorPatternEven
             }));
         }
         return new {TotalSteps=count,LastTime=lastTime,Nps=nps,Stages=stages};
+    }
+    public object Generate(JsonElement request,string root) {
+        var json=new JsonSerializerOptions{IncludeFields=true,Converters={new System.Text.Json.Serialization.JsonStringEnumConverter()}};
+        var performed=JsonSerializer.Deserialize<StepManiaLibrary.PerformedChart.Config>(request.GetProperty("PerformedConfig"),json)!;performed.Init();
+        foreach(var marker in Patterns) marker.Config=performed;
+        var pad=PadData.LoadPadData("dance-single",System.IO.Path.Combine(root,"StepManiaLibrary","dance-single.json")).GetAwaiter().GetResult();
+        var graph=StepGraph.Load(System.IO.Path.Combine(root,"StepManiaLibrary","dance-single.fsg"),pad);
+        var expression=new StepManiaLibrary.ExpressedChart.Config{BracketParsingDetermination=StepManiaLibrary.ExpressedChart.BracketParsingDetermination.UseDefaultMethod,DefaultBracketParsingMethod=StepManiaLibrary.ExpressedChart.BracketParsingMethod.NoBrackets};expression.Init();
+        var timing=chart.RateAlteringEvents.Select(entry=>entry.GetEvent()).Where(DoesEventAffectTiming).ToList();
+        var nps=GetNps();var counts=new int[4];var total=0;var captured=-1;var stages=new List<object>();
+        foreach(var pair in Patterns.Select((marker,index)=>(marker,index))) {
+            var marker=pair.marker;var index=pair.index;var first=marker.GetFirstStepRow();var last=marker.GetLastStepRow();
+            if(marker.GetNumSteps()==0) {stages.Add(new{Row=marker.GetRow(),Status="empty",Notes=Array.Empty<object>()});continue;}
+            UpdatePrecedingLaneCounts(ref captured,ref total,counts,marker);
+            var bounds=PatternRangeReference.Run(marker);
+            (StepManiaLibrary.ExpressedChart.ExpressedChart?,List<global::EditorEvent>) Interpret(int start,int end) {
+                var(events,editor)=chart.GetEventsInRangeForPattern(start,end);events.AddRange(timing);events.Sort(new SMEventComparer());
+                return(StepManiaLibrary.ExpressedChart.ExpressedChart.CreateFromSMEvents(events,graph,expression,9.0,"Oracle"),editor.Select(entry=>new global::EditorEvent(entry.GetRow(),entry.GetLane(),entry.IsStep())).ToList());
+            }
+            var(after,afterEvents)=Interpret(last+1,bounds.end);var(before,beforeEvents)=Interpret(bounds.start,first-1);
+            List<Event>? added=null;
+            if(after!=null && before!=null) {
+                var values=global::PatternContextReference.Run(new global::EditorPatternEvent(first,last,marker.GetNumSteps(),performed),graph,before,after,beforeEvents,afterEvents,total,bounds.start>0);
+                var config=JsonSerializer.Deserialize<StepManiaLibrary.PerformedChart.PatternConfig>(request.GetProperty("PatternConfig"),json)!;config.BeatSubDivision=48/marker.GetStepSpacing();config.Init();
+                var generated=StepManiaLibrary.PerformedChart.PerformedChart.CreateWithPattern(graph,config,performed,first,last,42+marker.GetRow()%11,values.PreviousFoot,values.PreviousTimes,values.PreviousFooting,values.FollowingFooting,request.TryGetProperty("IgnoreRows",out var ignored) && ignored.EnumerateArray().Any(row=>row.GetInt32()==marker.GetRow())?new int[4]:counts,values.SameCounts,timing,total,values.LastTransitionSteps,values.LastTransitionLeft,nps,"Oracle");
+                added=generated?.CreateSMChartEvents();
+            }
+            var full=added?.Count??0;
+            if(added!=null) RemoveEventsWhichOverlapNextPattern(marker,index+1<Patterns.Count?Patterns[index+1]:null,added);
+            stages.Add(new {Row=marker.GetRow(),Status=added==null?"failed":"generated",Trimmed=full-(added?.Count??0),
+                Notes=added?.OfType<LaneNote>().Select(note=>new{Row=note.IntegerPosition,Lane=note.Lane,Symbol=note.SourceType}).ToArray()});
+            if(added!=null) chart.AddEvents(added.OfType<LaneNote>().Select(note=>{
+                var entry=new EditorNoteEvent(chart,note);entry.SetRowDependencies(chart.RateAlteringEvents.ForEvent(note).GetChartTimeFromPosition(entry.GetRow()),0,4,false);entry.SetIsFakeDueToRow(chart.IsEventInFake(entry));return entry;
+            }));
+        }
+        return new {Nps=nps,Stages=stages,NoteData=new NotesOnlyWriter().Run(chart),Notes=chart.EditorEvents.OfType<EditorNoteEvent>().Select(note=>new{Row=note.GetRow(),Lane=note.Lane,Symbol=note.Symbol,End=note is EditorHoldNoteEvent hold?(int?)hold.GetEndChartPosition():null}).ToArray()};
     }
     // SCHEDULE_METHODS
 }
@@ -283,7 +328,8 @@ internal static class Reference {
                 chart.AddEvents(new[]{marker});
             }
             PatternDeletionReference.DeleteEventsOverlappingPatterns(chart,markers);
-            schedule=new PatternScheduleReference(chart,markers).Run();
+            var engine=new PatternScheduleReference(chart,markers);
+            schedule=request.TryGetProperty("BatchPatterns",out _)?engine.Generate(request,referenceRoot):engine.Run();
         }
         object? conversion=null;
         if(request.TryGetProperty("Conversion",out var conversionOptions)) {

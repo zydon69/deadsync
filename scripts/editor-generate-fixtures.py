@@ -409,6 +409,25 @@ def requests(reference: Path):
             "Notes":[[0,0,"1"],[12,1,"F"],[24,2,"L"],[36,3,"M"],[47,0,"1"],[60,1,"2",156],[240,2,"1"]],
             "Rows":[],"NumSteps":0,"LastStep":0,"Schedule":markers}
     cases["pattern-schedule-delayed-origin"]["Timing"] += [[0,"delay",0.4],[72,"tempo",180],[96,"stop",-0.3],[144,"warp",48]]
+    for label,markers in schedule_cases.items():
+        if label in ["repeated","same-row-exclusive","none"]: continue
+        item=copy.deepcopy(cases["pattern-schedule-"+label])
+        item.update(BatchPatterns=True,PerformedConfig=copy.deepcopy(performed),PatternConfig=copy.deepcopy(pattern))
+        cases["pattern-batch-"+label]=item
+    for label,extra in [("empty-next-context",[[264,72,12,True,True],[384,96,12,True,True]]),("empty-next-double",[[240,0,12,False,False],[264,96,12,True,True],[400,48,12,True,True]])]:
+        item=copy.deepcopy(cases["pattern-batch-empty-next"]);item["Schedule"]+=extra
+        cases["pattern-batch-"+label]=item
+    item=copy.deepcopy(cases["pattern-batch-delayed-origin"])
+    item["Timing"]=[event for event in item["Timing"] if event[1]!="warp"]
+    cases["pattern-batch-delayed-origin-sm"]=item
+    item=copy.deepcopy(cases["pattern-batch-disjoint"]);item["IgnoreRows"]=[144]
+    cases["pattern-batch-ignore-distribution"]=item
+    item=copy.deepcopy(cases["pattern-batch-empty-next-context"])
+    item["PerformedConfig"]["Transitions"].update(Enabled=True,StepsPerTransitionMin=2,StepsPerTransitionMax=8,MinimumPadWidth=1)
+    cases["pattern-batch-shared-transitions"]=item
+    for name,item in cases.items():
+        if name.startswith("pattern-batch-"):
+            item["Formats"]=["ssc"] if any(event[1]=="warp" for event in item["Timing"]) else ["sm","ssc"]
     editor_notes = [[0, 0, "1"], [12, 1, "1"], [24, 2, "F"], [36, 3, "L"], [48, 0, "2", 96], [120, 2, "M"], [144, 3, "K"], [192, 1, "1"]]
     editor_cases = {
         "baseline": {},

@@ -1,0 +1,93 @@
+{
+  "Nps": 3.4710743801652892,
+  "Stages": [
+    {
+      "Row": 0,
+      "Status": "empty",
+      "Notes": []
+    },
+    {
+      "Row": 24,
+      "Status": "generated",
+      "Trimmed": 0,
+      "Notes": [
+        {
+          "Row": 24,
+          "Lane": 2,
+          "Symbol": "1"
+        },
+        {
+          "Row": 36,
+          "Lane": 3,
+          "Symbol": "1"
+        },
+        {
+          "Row": 48,
+          "Lane": 1,
+          "Symbol": "1"
+        },
+        {
+          "Row": 60,
+          "Lane": 3,
+          "Symbol": "1"
+        },
+        {
+          "Row": 72,
+          "Lane": 2,
+          "Symbol": "1"
+        }
+      ]
+    }
+  ],
+  "NoteData": "1000\n0F00\n0010\n0001\n0100\n0001\n0010\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n,\n0000\n0010\n0000\n0000\n",
+  "Notes": [
+    {
+      "Row": 0,
+      "Lane": 0,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 12,
+      "Lane": 1,
+      "Symbol": "F",
+      "End": null
+    },
+    {
+      "Row": 24,
+      "Lane": 2,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 36,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 48,
+      "Lane": 1,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 60,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 72,
+      "Lane": 2,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 240,
+      "Lane": 2,
+      "Symbol": "1",
+      "End": null
+    }
+  ]
+}

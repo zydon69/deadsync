@@ -423,6 +423,42 @@ impl EditorTimeline {
             } else {
                 (Grid::new(grid.columns(), 1)?, Vec::new())
             };
+        // Movement frames have one lane state, while the original action's
+        // editor-event counters retain repeated generated tap instances.
+        let mut repeated_events = Vec::new();
+        for event in head_events {
+            check(cancelled)?;
+            let position = Position {
+                player: 0,
+                lane: event.lane.unwrap(),
+                row: event.row,
+            };
+            let note = selected
+                .get(position)
+                .ok_or_else(|| Error::InvalidEdit("Context note is missing".into()))?;
+            let key = Entry {
+                row: event.row,
+                kind: EntryKind::Head {
+                    position,
+                    kind: note.kind,
+                    end: note.end,
+                },
+                time: 0.0,
+            }
+            .key();
+            let first = self
+                .entries
+                .partition_point(|entry| event_cmp(entry.key(), key).is_lt());
+            let count = self.entries[first..]
+                .iter()
+                .take_while(|entry| entry.key() == key)
+                .count();
+            for _ in 0..count.max(1) {
+                check(cancelled)?;
+                repeated_events.push(event);
+            }
+        }
+        let head_events = repeated_events;
         let mut included: Vec<(u64, u8, u16, f64)> = Vec::new();
         for (position, note) in selected.iter() {
             check(cancelled)?;

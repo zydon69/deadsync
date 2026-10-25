@@ -492,6 +492,38 @@ impl Workspace {
         Ok(changed)
     }
 
+    pub fn pattern_set_task(
+        &self,
+        rows: impl IntoIterator<Item = u64>,
+        directory: Option<&Path>,
+    ) -> Result<crate::generation::pattern_batch::Task, Error> {
+        crate::generation::pattern_batch::Task::capture(
+            &self.file.session,
+            self.chart,
+            rows,
+            directory,
+        )
+    }
+    pub fn all_patterns_task(
+        &self,
+        directory: Option<&Path>,
+    ) -> Result<crate::generation::pattern_batch::Task, Error> {
+        crate::generation::pattern_batch::Task::capture_all(
+            &self.file.session,
+            self.chart,
+            directory,
+        )
+    }
+    pub fn apply_pattern_set(
+        &mut self,
+        preview: &crate::generation::pattern_batch::Preview,
+    ) -> Result<bool, Error> {
+        let changed = preview.apply(&mut self.file.session, self.chart)?;
+        self.file.session.grid(self.chart)?;
+        self.anchor = None;
+        Ok(changed)
+    }
+
     pub fn batch_generation_task(
         &self,
         source_layout: &str,

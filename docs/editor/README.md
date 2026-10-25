@@ -1099,3 +1099,56 @@ scheduling baselines regenerate without changes. An additional Rust workflow
 covers collisions, invalid positions, boundary holds and cancellation during
 input collection. The multi-region generation worker, one preview/apply gesture
 and native panel still remain to be connected and verified.
+
+### Saved-pattern batch worker
+
+`pattern_batch::Task` now captures selected saved marker rows or all markers in
+the active chart. Selection is sorted and deduplicated. One worker loads profiles
+once, validates the shared chart/interpretation metadata, clears all selected
+step regions, computes one global density estimate, and generates regions in
+chronological order. Each region keeps its own seed, subdivision, performed
+profile and preceding-distribution flag. The individual pattern task and batch
+worker share region interpretation, surrounding-footing derivation, search and
+note extraction. Incremental lane/transition context and typed note insertion
+are shared across successful results. Empty regions are reported without search;
+ordinary per-region failures retain other results and the cleared zones for
+explicit preview acceptance. Missing shared interpretation/pattern definitions
+fail preparation rather than guess how to clear their zones.
+
+The preview owns the final grid, per-marker output/error, removal/hold-shortening
+counts, raw generated tap count, repeated tap count, clipping count, ignored
+profile issues and common NPS. Foreign, stale or wrong-chart acceptance is
+refused. Successful acceptance applies the entire note difference as one history
+action, without rewriting marker metadata or profile files; Save remains explicit.
+All-empty/no-change acceptance preserves redo. Cancellation at any stage, including
+a ready result, changes no live song data. Workspace methods expose selected/all
+requests and one acceptance path. The native panel is still pending.
+
+A subtle original overlap behavior is preserved: an intervening empty marker can
+leave repeated identical taps. The private working timeline retains those event
+instances for subsequent lane counters and context; movement frames retain one
+lane state. The exported grid coalesces identical taps, matching the pinned
+Fumen writer's actual note serialization. The general public tap-insertion API
+continues to reject collisions. Repetition behavior is compared through multiple
+following patterns, not only the final overlapping region.
+
+Seventeen pipeline fixtures compose unchanged original scheduling, deletion,
+region/context and timing helpers with the original C# expressed/performed engines
+and the original Fumen note writer. They compare per-region generated rows/lanes,
+clipping, common density, repetition counts and the complete exported grid across
+33 representable SM/SSC cases. The warp case uses SSC; SM's reader ignores WARPS,
+so a separate SM-representable delay/negative-stop/tempo case is included. Cases
+include neighboring/nested/overlapping markers, empty and exclusive ranges,
+off-grid and one-row markers, spacing one, evolving contexts after repeated taps,
+ignored preceding distribution and shared transitions. Seven Rust workflows cover
+that differential pipeline plus actual atomic save/reopen, one undo/redo, metadata
+and other-chart preservation, selected-chart guards, stale/foreign snapshots,
+missing markers/configurations, partial/all failures, cancellation, no-op redo
+retention and a profile file disappearing after the first region.
+
+The oracle supplies the unique selected marker list directly and orchestrates
+original components synchronously. It does not replay the full editor action
+constructor (which currently duplicates its input list), dispatcher or UI. Broad
+multi-layout batch differential coverage, native batch-pattern controls, full
+configuration management, timing/audio editing and the remaining delivery matrix
+remain required for the complete port.

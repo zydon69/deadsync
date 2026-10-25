@@ -18,6 +18,7 @@ pub mod metadata;
 pub mod mines;
 pub mod output;
 pub mod pattern;
+pub mod pattern_batch;
 pub mod pattern_job;
 mod pattern_persistence;
 pub mod pattern_region;

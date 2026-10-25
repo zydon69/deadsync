@@ -10,7 +10,7 @@ use super::{
 use crate::{
     Error,
     history::Session,
-    notes::{Kind, Note, Position, ROWS_PER_BEAT},
+    notes::{Note, Position, ROWS_PER_BEAT},
     pad::Pad,
 };
 use std::{
@@ -59,6 +59,27 @@ pub struct PatternPreview {
 }
 
 impl PatternPreview {
+    pub(crate) fn tap_positions(&self, cancelled: &AtomicBool) -> Result<Vec<Position>, Error> {
+        let mut positions = Vec::new();
+        for step in &self.steps {
+            check_cancel(cancelled)?;
+            for foot in 0..2 {
+                for portion in 0..2 {
+                    if step.link.feet[foot][portion].valid {
+                        let lane = step.feet[foot][portion].lane.ok_or_else(|| {
+                            Error::InvalidFormat("Generated step has no lane".into())
+                        })?;
+                        positions.push(Position {
+                            player: 0,
+                            lane,
+                            row: step.row,
+                        });
+                    }
+                }
+            }
+        }
+        Ok(positions)
+    }
     /// Call only after the user accepts the preview. The original selection
     /// and generated notes are one undoable gesture; a stale result is refused.
     pub fn apply(
@@ -97,27 +118,8 @@ impl PatternPreview {
             self.step_spacing,
             &AtomicBool::new(false),
         )?;
-        for step in &self.steps {
-            for foot in 0..2 {
-                for portion in 0..2 {
-                    if step.link.feet[foot][portion].valid {
-                        let lane = step.feet[foot][portion].lane.ok_or_else(|| {
-                            Error::InvalidFormat("Generated step has no lane".into())
-                        })?;
-                        edits.push((
-                            Position {
-                                player,
-                                lane,
-                                row: step.row,
-                            },
-                            Some(Note {
-                                kind: Kind::Tap,
-                                ..Note::tap()
-                            }),
-                        ));
-                    }
-                }
-            }
+        for position in self.tap_positions(&AtomicBool::new(false))? {
+            edits.push((Position { player, ..position }, Some(Note::tap())));
         }
         session.edit_notes(chart, "Generate pattern", edits)
     }

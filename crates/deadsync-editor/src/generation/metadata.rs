@@ -286,6 +286,18 @@ impl ChartData {
     }
     pub fn options(&self, row: u64, registry: &Registry) -> Result<Options, Error> {
         self.validate()?;
+        let options = self.options_allow_empty(row, registry)?;
+        options
+            .span
+            .steps(48 / u64::from(options.pattern.beat_sub_division))?;
+        Ok(options)
+    }
+    /// Caller has validated the shared chart metadata once for this request.
+    pub(crate) fn options_allow_empty(
+        &self,
+        row: u64,
+        registry: &Registry,
+    ) -> Result<Options, Error> {
         let marker = self
             .patterns
             .as_ref()
@@ -317,7 +329,7 @@ impl ChartData {
         options.expressed.validate()?;
         options
             .span
-            .steps(48 / u64::from(options.pattern.beat_sub_division))?;
+            .optional_steps(48 / u64::from(options.pattern.beat_sub_division))?;
         Ok(options)
     }
 }

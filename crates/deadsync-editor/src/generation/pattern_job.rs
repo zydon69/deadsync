@@ -1,5 +1,8 @@
 //! Snapshot-bound single-region pattern preparation. Contexts retain the
 //! editor's assigned times; newly generated steps use the reference Fumen clock.
+mod region;
+pub(crate) use region::RegionGenerator;
+
 use super::{
     config::{ExpressedConfig, PatternConfig, PerformedConfig},
     context::{self, ContextRequest},
@@ -216,7 +219,7 @@ impl Task {
         let graph = StepGraph::builtin(&source.layout)?;
         let pad = Pad::builtin(&source.layout)?;
         let spacing = ROWS_PER_BEAT / u64::from(self.options.pattern.beat_sub_division);
-        let (start, end, num_steps) = self.options.span.steps(spacing)?;
+        let (start, end, _) = self.options.span.steps(spacing)?;
         let regions = source.pattern_regions(cancelled)?;
         if regions
             .iter()
@@ -246,82 +249,18 @@ impl Task {
             cancelled,
         )?;
         let average_nps = schedule.average_nps(&projected)?;
-        let events = projected.context_events();
-        let extension = if self.options.performed.transitions.enabled == Some(true) {
-            self.options
-                .performed
-                .transitions
-                .steps_per_transition_min
-                .max(0) as usize
-        } else {
-            0
-        };
-        let (range_start, range_end) =
-            pattern_region::bounds(&events, start, end, extension, cancelled)?;
-        // The original action interprets following events first, independently.
-        let following =
-            projected.prepare_region(&retained, Some((end + 1, range_end)), cancelled)?;
-        let after = expressed::interpret(
-            &graph,
-            pad,
-            &following.request(source.difficulty),
-            &self.options.expressed,
-            cancelled,
-            |_, _, _| {},
-        )?;
-        let preceding = projected.prepare_region(
-            &retained,
-            start.checked_sub(1).map(|last| (range_start, last)),
-            cancelled,
-        )?;
-        let before = expressed::interpret(
-            &graph,
-            pad,
-            &preceding.request(source.difficulty),
-            &self.options.expressed,
-            cancelled,
-            |_, _, _| {},
-        )?;
         let mut counts = LaneCounts::new(graph.columns())?;
-        counts.advance(&events, start, cancelled)?;
-        let total_steps_before = counts.total();
-        let mut lane_counts = counts.lanes().to_vec();
-        if self.options.ignore_preceding_distribution {
-            lane_counts.fill(0);
-        }
-        let context = context::derive(
-            &graph,
+        let generated = RegionGenerator {
+            source: &source,
+            graph: &graph,
             pad,
-            &ContextRequest {
-                start,
-                end,
-                num_steps,
-                total_steps_before,
-                range_starts_after_chart: range_start > 0,
-                preceding: &before.last,
-                following: &after.last,
-                preceding_events: &preceding.editor_events,
-                following_events: &following.editor_events,
-                config: &self.options.performed,
-            },
-            lane_counts,
-            cancelled,
-        )?;
-        let generated = pattern::generate(
-            &PatternRequest {
-                layout: source.layout,
-                start,
-                end,
-                seed: self.options.seed,
-                previous_foot: context.previous_foot,
-                previous_footing: context.previous_footing,
-                following_footing: context.following_footing,
-                context: context.root,
-                config: self.options.performed,
-                pattern: self.options.pattern,
-                average_nps,
-            },
-            &source.timing,
+        }
+        .generate(
+            &self.options,
+            &retained,
+            &projected,
+            average_nps,
+            &mut counts,
             cancelled,
             progress,
         )?;

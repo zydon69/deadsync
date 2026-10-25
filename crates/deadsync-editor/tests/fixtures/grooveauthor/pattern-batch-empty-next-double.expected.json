@@ -1,0 +1,434 @@
+{
+  "Nps": 7.714285714285715,
+  "Stages": [
+    {
+      "Row": 48,
+      "Status": "generated",
+      "Trimmed": 0,
+      "Notes": [
+        {
+          "Row": 48,
+          "Lane": 2,
+          "Symbol": "1"
+        },
+        {
+          "Row": 60,
+          "Lane": 0,
+          "Symbol": "1"
+        },
+        {
+          "Row": 72,
+          "Lane": 2,
+          "Symbol": "1"
+        },
+        {
+          "Row": 84,
+          "Lane": 3,
+          "Symbol": "1"
+        },
+        {
+          "Row": 96,
+          "Lane": 1,
+          "Symbol": "1"
+        },
+        {
+          "Row": 108,
+          "Lane": 3,
+          "Symbol": "1"
+        },
+        {
+          "Row": 120,
+          "Lane": 1,
+          "Symbol": "1"
+        },
+        {
+          "Row": 132,
+          "Lane": 3,
+          "Symbol": "1"
+        },
+        {
+          "Row": 144,
+          "Lane": 2,
+          "Symbol": "1"
+        },
+        {
+          "Row": 156,
+          "Lane": 1,
+          "Symbol": "1"
+        },
+        {
+          "Row": 168,
+          "Lane": 0,
+          "Symbol": "1"
+        },
+        {
+          "Row": 180,
+          "Lane": 3,
+          "Symbol": "1"
+        },
+        {
+          "Row": 192,
+          "Lane": 0,
+          "Symbol": "1"
+        }
+      ]
+    },
+    {
+      "Row": 96,
+      "Status": "empty",
+      "Notes": []
+    },
+    {
+      "Row": 144,
+      "Status": "generated",
+      "Trimmed": 0,
+      "Notes": [
+        {
+          "Row": 144,
+          "Lane": 0,
+          "Symbol": "1"
+        },
+        {
+          "Row": 156,
+          "Lane": 1,
+          "Symbol": "1"
+        },
+        {
+          "Row": 168,
+          "Lane": 2,
+          "Symbol": "1"
+        },
+        {
+          "Row": 180,
+          "Lane": 3,
+          "Symbol": "1"
+        },
+        {
+          "Row": 192,
+          "Lane": 0,
+          "Symbol": "1"
+        }
+      ]
+    },
+    {
+      "Row": 240,
+      "Status": "empty",
+      "Notes": []
+    },
+    {
+      "Row": 264,
+      "Status": "generated",
+      "Trimmed": 0,
+      "Notes": [
+        {
+          "Row": 264,
+          "Lane": 1,
+          "Symbol": "1"
+        },
+        {
+          "Row": 276,
+          "Lane": 3,
+          "Symbol": "1"
+        },
+        {
+          "Row": 288,
+          "Lane": 1,
+          "Symbol": "1"
+        },
+        {
+          "Row": 300,
+          "Lane": 2,
+          "Symbol": "1"
+        },
+        {
+          "Row": 312,
+          "Lane": 1,
+          "Symbol": "1"
+        },
+        {
+          "Row": 324,
+          "Lane": 3,
+          "Symbol": "1"
+        },
+        {
+          "Row": 336,
+          "Lane": 2,
+          "Symbol": "1"
+        },
+        {
+          "Row": 348,
+          "Lane": 3,
+          "Symbol": "1"
+        },
+        {
+          "Row": 360,
+          "Lane": 0,
+          "Symbol": "1"
+        }
+      ]
+    },
+    {
+      "Row": 400,
+      "Status": "generated",
+      "Trimmed": 0,
+      "Notes": [
+        {
+          "Row": 400,
+          "Lane": 1,
+          "Symbol": "1"
+        },
+        {
+          "Row": 412,
+          "Lane": 0,
+          "Symbol": "1"
+        },
+        {
+          "Row": 424,
+          "Lane": 3,
+          "Symbol": "1"
+        },
+        {
+          "Row": 436,
+          "Lane": 2,
+          "Symbol": "1"
+        },
+        {
+          "Row": 448,
+          "Lane": 3,
+          "Symbol": "1"
+        }
+      ]
+    }
+  ],
+  "NoteData": "1000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0F00\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n00L0\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n000M\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n1000\n0010\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n1000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0010\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0001\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0100\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0001\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0100\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0001\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n1010\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0100\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n1010\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0001\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n,\n1000\n0000\n0000\n0000\n0010\n0000\n0100\n0001\n0100\n0010\n0100\n0001\n0010\n0001\n1000\n0000\n,\n0000\n0000\n0000\n0000\n0100\n0000\n0000\n1000\n0000\n0000\n0001\n0000\n0000\n0010\n0000\n0000\n0001\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n",
+  "Notes": [
+    {
+      "Row": 0,
+      "Lane": 0,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 12,
+      "Lane": 1,
+      "Symbol": "F",
+      "End": null
+    },
+    {
+      "Row": 24,
+      "Lane": 2,
+      "Symbol": "L",
+      "End": null
+    },
+    {
+      "Row": 36,
+      "Lane": 3,
+      "Symbol": "M",
+      "End": null
+    },
+    {
+      "Row": 47,
+      "Lane": 0,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 48,
+      "Lane": 2,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 60,
+      "Lane": 0,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 72,
+      "Lane": 2,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 84,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 96,
+      "Lane": 1,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 108,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 120,
+      "Lane": 1,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 132,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 144,
+      "Lane": 0,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 144,
+      "Lane": 2,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 156,
+      "Lane": 1,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 156,
+      "Lane": 1,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 168,
+      "Lane": 0,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 168,
+      "Lane": 2,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 180,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 180,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 192,
+      "Lane": 0,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 192,
+      "Lane": 0,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 240,
+      "Lane": 2,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 264,
+      "Lane": 1,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 276,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 288,
+      "Lane": 1,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 300,
+      "Lane": 2,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 312,
+      "Lane": 1,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 324,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 336,
+      "Lane": 2,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 348,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 360,
+      "Lane": 0,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 400,
+      "Lane": 1,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 412,
+      "Lane": 0,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 424,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 436,
+      "Lane": 2,
+      "Symbol": "1",
+      "End": null
+    },
+    {
+      "Row": 448,
+      "Lane": 3,
+      "Symbol": "1",
+      "End": null
+    }
+  ]
+}
