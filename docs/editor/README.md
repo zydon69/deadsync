@@ -45,9 +45,9 @@ reviewable and tested.
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/move; broader GrooveAuthor transformations pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
-| Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
+| Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
-| Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; F11 edits Song SyncOffset | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
+| Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; optional F11/F6 sample panel edits region and auditions with F4 | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
@@ -2925,3 +2925,25 @@ keyboard workflow covers SSC value formatting, SM unavailable state and help.
 A broader `edition_*` integration run is also launched at this source state.
 
 All 23 selected French chart-property and song-text workflows pass after the end-hint label/help update. Full core and editor integration results are pending.
+
+### Broad validation checkpoint after audio properties
+
+Both fresh runs completed with exit code zero:
+
+- `cargo test -p deadsync-editor --locked`: 334 tests passed, zero failed.
+- `cargo test -p deadsync-theme-simply-love --test 'edition_*' --locked`: 158 integration tests passed, zero failed.
+
+The core implementation/fixtures remained unchanged during the fresh core run;
+the subsequent end-hint label/help change is covered by the full editor run.
+These results supersede the earlier pending status. The native integration run
+covers all editor integration targets selected by edition_*, not every theme or
+shell unit test. Missing unrelated shell fixture limitations remain as noted.
+The suites still do not establish full GrooveAuthor parity, actual speaker
+output, decoder/loop/fade equivalence, pointer workflows or waveform behavior.
+
+Next audio-preference work: expose the original fade-in/fade-out settings
+(defaults 0 / 1.5 seconds) through an optional keyboard panel, persist preferences
+in the application data directory independently of songs, reject invalid
+values, and prove load/edit/save/reopen plus audition-command application.
+Malformed/future preference files must not be silently overwritten. This is
+planned work, not an implemented preference feature at this checkpoint.
