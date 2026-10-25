@@ -378,7 +378,7 @@ fn gcd(mut a: u64, mut b: u64) -> u64 {
 
 /// Split only outside note attributes; commas in attacks and comments are not
 /// measure separators. Removing comments here leaves every note token intact.
-fn split_outer(text: &str, separator: char) -> Result<Vec<String>, Error> {
+pub(crate) fn split_outer(text: &str, separator: char) -> Result<Vec<String>, Error> {
     let mut blocks = vec![String::new()];
     let mut brackets = Vec::new();
     let mut chars = text.chars().peekable();

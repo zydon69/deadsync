@@ -50,7 +50,7 @@ reviewable and tested.
 | Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; F11 edits Song SyncOffset | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
-| Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
+| Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
 
@@ -62,7 +62,7 @@ locked revision (`da616e3a`); no second revision is introduced. Metadata decodin
 uses its CP1252/UTF8 and escape handling. Snapshot analysis uses its parser,
 statistics, timing, NPS, streams, hashes and tech analysis. `rssp_workflows`
 checks that unsaved edits affect analysis and that the saved/reopened output
-has the same stats and hash. The native analysis panel is still pending.
+has the same stats and hash. The native snapshot analysis panel is described below.
 
 RSSP's normalized summary writer is available for future reviewed exports.
 Source-preserving editor saves retain unknown fields that are absent from an
@@ -2055,3 +2055,65 @@ editor tests pass; `cargo check -p deadsync --locked` passes. Four differential
 fixtures compare the cursor and selected start for 104 original directional
 commands. The previously documented missing shell unit-test fixtures and
 remaining editor parity requirements still apply.
+
+
+### Native RSSP analysis of the working chart
+
+F12 or the Analysis entry in F1 opens a read-only inspector using the same pinned
+RSSP dependency as DeadSync. It reports arrow/step counts, sustains, mines, lifts,
+fakes, peak/median NPS, duration, hash, crossovers, footswitches, brackets, jacks
+and stream intervals/breakdown. The density graph aggregates to at most 80
+columns, preserving each group's maximum. Left/Right selects a density interval,
+Home/End selects the first/last, and Enter returns to that interval's chart row.
+RSSP intervals span four quarter-note beats, independent of time signatures.
+Density counts note rows with steps, not individual arrows; the UI labels this
+explicitly. It does not claim original GrooveAuthor density-algorithm parity.
+
+A captured task owns serialized snapshot bytes, session identity, revision and
+chart index. Capture serializes synchronously; RSSP computation and graph
+aggregation run off the UI thread. Result publication requires that identity,
+revision and chart still match. A current report is reused when reopening and
+selects the interval containing the current cursor. Unsaved edits, undo/redo,
+recovery/session replacement and chart changes invalidate it. F12 explicitly
+refreshes. Analysis never writes the song or changes document history.
+
+There is at most one spawned editor-analysis worker per process, including while
+an editor closes and another opens. A cancelled job remains bounded until it
+finishes; Escape closes the panel and rejects its eventual result. RSSP has no
+cooperative cancellation hook inside the analysis call, so this does not promise
+immediate CPU interruption. A permit is released on success, error, panic or
+failed thread spawn. Unsupported layouts produce a translated explanation
+instead of silently showing another chart's stats. Complete Couple/Routine and
+other unsupported RSSP-layout analysis remain pending.
+
+RSSP's row scanner expects measure separators on separate lines. For valid
+inline commas, the analysis adapter uses the editor's existing note-attribute
+lexer to normalize only the selected note field in a temporary copy. Attribute
+commas and escapes remain inside tokens; note comments cannot become measure
+separators. Other source bytes and the actual song remain intact. Canonical note
+fields reuse the original analysis snapshot without an additional whole-file
+copy. Tests compare inline separators to canonical RSSP stats, density, NPS and
+hash. This normalization is not an export or a rewrite of the working document.
+
+F1 displays at most eight actions with a translated page indicator, keeping the
+expanded optional tools menu within the standard 854x480 scene. Existing action
+indices are retained. Inspector strings, empty-stream text and unsupported-layout
+messages are translated into English/French. Summary text and graph construction
+are bounded; very long stream breakdowns are truncated only for display.
+
+Core tests cover snapshot fidelity, current/foreign/stale identity, chart-local
+timing, cancellation, unsupported layouts, density-bin row bounds, peak-preserving
+aggregation, the global worker permit and note-separator/attribute safety. Native
+English/French workflows cover F12, menu pagination, unsaved notes, Save/reopen,
+revision-aware cache/refresh/undo, density actor data/navigation, cancellation and
+translated unsupported-layout handling. These are synthetic input/actor tests,
+not proof of audible output, physical rendering, device input or responsiveness
+on long files. Source-capture benchmarks, full options/tech inspection, original
+analysis equivalence, pointer navigation and the rest of the delivery matrix
+remain required for the full port.
+
+Validation for this checkpoint: all 287 core tests and 107 native editor tests
+pass, including the new analysis unit/workflow and separate French UI suites.
+`cargo check -p deadsync --locked` passes. The two native analysis suites were
+rerun after the final report-status display adjustment. The previously documented
+missing shell unit-test fixtures remain outside these passing test claims.

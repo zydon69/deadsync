@@ -1,5 +1,6 @@
 //! Compact native editor screen. The document and every edit command live in
 //! deadsync-editor; this module owns presentation, shortcuts, and exit prompts.
+mod analysis_panel;
 mod batch;
 mod pattern_set;
 mod playback;
@@ -36,6 +37,7 @@ use std::{
 
 #[derive(Clone, Copy)]
 enum Panel {
+    Analysis,
     Menu(usize),
     Transforms(usize),
     Unsaved(usize),
@@ -206,6 +208,9 @@ pub struct State {
     marker_cache: Option<(Arc<[u8]>, u64, usize)>,
     job: Option<GenerationJob>,
     catalog_job: Option<Job<profile_catalog::Catalog>>,
+    analysis_job: Option<Job<deadsync_editor::analysis::task::Report>>,
+    analysis_report: Option<deadsync_editor::analysis::task::Report>,
+    analysis_bin: usize,
     profile_selection: Option<ProfileSettings>,
     preview: Option<GenerationPreview>,
     label_preedit: String,
@@ -308,6 +313,9 @@ impl State {
             marker_cache: None,
             job: None,
             catalog_job: None,
+            analysis_job: None,
+            analysis_report: None,
+            analysis_bin: 0,
             profile_selection: None,
             preview: None,
             workspace,
@@ -866,6 +874,7 @@ impl State {
 
     /// Polling is nonblocking and is called by Practice's normal update loop.
     pub fn update(&mut self) {
+        self.poll_analysis();
         if self.catalog_job.is_some() {
             self.poll_profile_catalog();
             return;
@@ -1160,6 +1169,8 @@ impl State {
                     && matches!(self.panel, None | Some(Panel::Marker(_)))));
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
+        let repeating_analysis = matches!(self.panel, Some(Panel::Analysis))
+            && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
             Some(Panel::ChartProperties(2) | Panel::SongProperties(0))
@@ -1168,6 +1179,7 @@ impl State {
             && !repeating_offset
             && !repeating_label
             && !repeating_navigation
+            && !repeating_analysis
             && !matches!(
                 event.code,
                 KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::PageUp | KeyCode::PageDown
@@ -1193,6 +1205,10 @@ impl State {
             return false;
         }
         self.stop_audio();
+        if event.code == KeyCode::F12 {
+            self.open_analysis();
+            return false;
+        }
         if event.code == KeyCode::F11 {
             self.open_song_properties();
             return false;
@@ -1322,6 +1338,9 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if matches!(panel, Panel::Analysis) {
+            return self.analysis_key(code);
+        }
         if matches!(panel, Panel::Generating) {
             if matches!(code, KeyCode::Escape | KeyCode::Enter) {
                 self.cancel_generation();
@@ -1765,7 +1784,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 14,
+                    Panel::Menu(_) => 15,
                     Panel::Transforms(_) => 4,
                     _ => 3,
                 };
@@ -1820,6 +1839,7 @@ impl State {
                             11 => self.command(Command::SaveRecovery),
                             12 => self.help = !self.help,
                             13 => return self.request_close(),
+                            14 => self.open_analysis(),
                             _ => {}
                         }
                     }
@@ -2034,7 +2054,12 @@ impl State {
     }
 
     fn panel_actors(&self, panel: Panel, actors: &mut Vec<Actor>) {
+        if matches!(panel, Panel::Analysis) {
+            self.analysis_actors(actors);
+            return;
+        }
         let keys: &[&str] = match panel {
+            Panel::Analysis => &[],
             Panel::Menu(_) => &[
                 "Resume",
                 "Save",
@@ -2050,6 +2075,7 @@ impl State {
                 "SaveDraft",
                 "ToggleHelp",
                 "Close",
+                "AnalysisTitle",
             ],
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
@@ -2177,6 +2203,12 @@ impl State {
             | Panel::GenerationPreview(i) => i,
             _ => 0,
         };
+        let menu_start = if matches!(panel, Panel::Menu(_)) { selected / 8 * 8 } else { 0 };
+        let visible_keys = if matches!(panel, Panel::Menu(_)) {
+            keys.len().saturating_sub(menu_start).min(8)
+        } else {
+            keys.len()
+        };
         let previewing = matches!(panel, Panel::GenerationPreview(_));
         let side_panel = self.pattern_set_side_panel();
         let panel_width = if side_panel {
@@ -2202,13 +2234,21 @@ impl State {
         } else {
             0.0
         };
-        let panel_height = keys.len() as f32 * 32.0 + 30.0 + extra_height;
+        let menu_footer = if matches!(panel, Panel::Menu(_)) { 24.0 } else { 0.0 };
+        let panel_height = visible_keys as f32 * 32.0 + 30.0 + extra_height + menu_footer;
         let panel_y = if previewing && !side_panel {
             screen_height() - panel_height * 0.5 - 8.0
         } else {
             screen_height() * 0.5
         };
         actors.push(act!(quad: xy(panel_x, panel_y): setsize(panel_width, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
+        if matches!(panel, Panel::Menu(_)) {
+            let page = i18n::tr_fmt("Edition", "MenuPage", &[
+                ("page", &(selected / 8 + 1).to_string()),
+                ("pages", &keys.len().div_ceil(8).to_string()),
+            ]);
+            actors.push(act!(text: font("miso"): settext(page): align(0.5,0.5): xy(panel_x,panel_y+panel_height*0.5-10.0): zoom(0.45): z(8021)));
+        }
         if matches!(panel, Panel::TimingMigration(_)) {
             let summary = self.timing_migration_summary();
             actors.push(act!(text: font("miso"): settext(summary): align(0.5,0.0): xy(panel_x,panel_y-panel_height*0.5+10.0): zoom(0.65): wrapwidthpixels((panel_width-30.0)/0.65): maxwidth(panel_width-30.0): maxheight(110.0): z(8021)));
@@ -2306,7 +2346,7 @@ impl State {
                 actors.push(act!(text: font("miso"): settext(summary): align(0.5, 0.0): xy(screen_width()*0.5,panel_y-panel_height*0.5+10.0): zoom(0.6): z(8021)));
             }
         }
-        for (index, key) in keys.iter().enumerate() {
+        for (index, key) in keys.iter().enumerate().skip(menu_start).take(visible_keys) {
             let color = if index == selected {
                 [1.0, 0.85, 0.25, 1.0]
             } else {
@@ -2512,7 +2552,7 @@ impl State {
             } else {
                 i18n::tr("Edition", key)
             };
-            actors.push(act!(text: font("miso"): settext(label): align(0.5, 0.5): xy(panel_x, panel_y - panel_height * 0.5 + extra_height + 30.0 + index as f32 * 32.0): zoom(0.8): diffuse(color[0], color[1], color[2], color[3]): z(8021)));
+            actors.push(act!(text: font("miso"): settext(label): align(0.5, 0.5): xy(panel_x, panel_y - panel_height * 0.5 + extra_height + 30.0 + (index - menu_start) as f32 * 32.0): zoom(0.8): diffuse(color[0], color[1], color[2], color[3]): z(8021)));
             if side_panel {
                 if let Some(Actor::Text { max_width, .. }) = actors.last_mut() {
                     *max_width = Some(panel_width - 30.0);
