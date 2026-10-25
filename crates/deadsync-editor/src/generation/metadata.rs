@@ -94,7 +94,7 @@ impl<'de> Deserialize<'de> for Guid {
     }
 }
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default, rename_all = "PascalCase")]
 pub struct Definition {
     pub pattern_config_guid: Guid,
@@ -135,6 +135,17 @@ impl Default for ChartData {
     }
 }
 impl ChartData {
+    /// Saved markers are selected independently of note endpoint inclusivity.
+    /// Among overlapping raw regions, the latest start takes precedence.
+    pub fn marker_at(&self, cursor: u64) -> Option<(u64, &Definition)> {
+        self.patterns
+            .as_ref()?
+            .range(..=cursor)
+            .rev()
+            .find(|(start, marker)| cursor - **start <= marker.length)
+            .map(|(&start, marker)| (start, marker))
+    }
+
     pub fn from_json(json: &str) -> Result<Self, Error> {
         let data: Self = serde_json::from_slice(&super::jsonc::strip_comments(json.as_bytes())?)
             .map_err(|e| {

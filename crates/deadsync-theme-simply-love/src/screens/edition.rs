@@ -28,6 +28,8 @@ enum Panel {
     ConfirmDiscard,
     Generation(usize),
     Pattern(usize),
+    Marker(usize),
+    ConfirmMarkerDelete,
     Generating,
     GenerationPreview(usize),
 }
@@ -109,6 +111,7 @@ pub struct State {
     workspace: Workspace,
     generation: GenerationSettings,
     pattern: PatternSettings,
+    marker: Option<deadsync_editor::generation::marker_edit::Draft>,
     profile_directory: Option<PathBuf>,
     saved_regions: Vec<(u64, u64)>,
     marker_cache: Option<(Arc<[u8]>, u64, usize)>,
@@ -193,6 +196,7 @@ impl State {
                 seed: 0,
                 ignore_distribution: false,
             },
+            marker: None,
             profile_directory: deadsync_editor::runtime::configs_dir().map(Path::to_path_buf),
             saved_regions: Vec::new(),
             marker_cache: None,
@@ -270,6 +274,47 @@ impl State {
                 self.job = Some(GenerationJob::Pattern(job));
                 self.panel = Some(Panel::Generating);
                 self.status = i18n::tr("Edition", "GenerationPreparing");
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+
+    fn open_marker(&mut self) {
+        match self.workspace.edit_saved_pattern() {
+            Ok(draft) => {
+                self.marker = Some(draft);
+                self.panel = Some(Panel::Marker(0));
+                self.status = i18n::tr("Edition", "MarkerHelp");
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+
+    fn commit_marker(&mut self, delete: bool) {
+        let Some(draft) = &self.marker else {
+            return;
+        };
+        let start = draft.start;
+        match self.workspace.apply_marker_edit(draft, delete) {
+            Ok(_) => {
+                if !delete {
+                    self.command(Command::Seek(start));
+                }
+                self.marker = None;
+                self.panel = None;
+                self.status = i18n::tr(
+                    "Edition",
+                    if delete {
+                        "MarkerDeleted"
+                    } else {
+                        "MarkerEdited"
+                    },
+                );
+                self.refresh();
             }
             Err(error) => {
                 self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
@@ -493,6 +538,10 @@ impl State {
         if event.code == KeyCode::Escape || event.code == KeyCode::F2 {
             return self.request_close();
         }
+        if event.code == KeyCode::F6 {
+            self.open_marker();
+            return false;
+        }
         if event.code == KeyCode::F5 {
             self.regenerate_saved_pattern();
             return false;
@@ -622,11 +671,69 @@ impl State {
             return false;
         }
         if code == KeyCode::Escape {
+            self.marker = None;
             self.preview = None;
             self.panel = None;
             return false;
         }
         match panel {
+            Panel::ConfirmMarkerDelete => {
+                if code == KeyCode::Enter {
+                    self.commit_marker(true);
+                }
+            }
+            Panel::Marker(index) => {
+                if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
+                    self.panel = Some(Panel::Marker(
+                        (index + if code == KeyCode::ArrowUp { 8 } else { 1 }) % 9,
+                    ));
+                } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
+                    if let Some(draft) = &mut self.marker {
+                        let forward = code == KeyCode::ArrowRight;
+                        let spacing = SNAP_ROWS[self.workspace.snap()];
+                        let adjust = |value: u64| {
+                            if forward {
+                                value.saturating_add(spacing).min(i32::MAX as u64)
+                            } else {
+                                value.saturating_sub(spacing)
+                            }
+                        };
+                        match index {
+                            0 => draft.start = adjust(draft.start),
+                            1 => draft.definition.length = adjust(draft.definition.length),
+                            2 => {
+                                draft.definition.random_seed = draft
+                                    .definition
+                                    .random_seed
+                                    .wrapping_add(if forward { 1 } else { -1 })
+                            }
+                            3 => {
+                                draft.definition.start_position_inclusive =
+                                    !draft.definition.start_position_inclusive
+                            }
+                            4 => {
+                                draft.definition.end_position_inclusive =
+                                    !draft.definition.end_position_inclusive
+                            }
+                            5 => {
+                                draft.definition.ignore_preceding_distribution =
+                                    !draft.definition.ignore_preceding_distribution
+                            }
+                            _ => {}
+                        }
+                    }
+                } else if code == KeyCode::Enter {
+                    match index {
+                        6 => self.commit_marker(false),
+                        7 => self.panel = Some(Panel::ConfirmMarkerDelete),
+                        8 => {
+                            self.marker = None;
+                            self.panel = None;
+                        }
+                        _ => {}
+                    }
+                }
+            }
             Panel::Pattern(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::Pattern(
@@ -738,7 +845,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 11,
+                    Panel::Menu(_) => 12,
                     Panel::Transforms(_) => 4,
                     _ => 3,
                 };
@@ -787,9 +894,10 @@ impl State {
                             }
                             6 => self.open_pattern(),
                             7 => self.regenerate_saved_pattern(),
-                            8 => self.command(Command::SaveRecovery),
-                            9 => self.help = !self.help,
-                            10 => return self.request_close(),
+                            8 => self.open_marker(),
+                            9 => self.command(Command::SaveRecovery),
+                            10 => self.help = !self.help,
+                            11 => return self.request_close(),
                             _ => {}
                         }
                     }
@@ -976,6 +1084,7 @@ impl State {
                 "GenerateChart",
                 "GeneratePattern",
                 "RegeneratePattern",
+                "EditPatternMarker",
                 "SaveDraft",
                 "ToggleHelp",
                 "Close",
@@ -1001,6 +1110,18 @@ impl State {
                 "GenerationStart",
                 "KeepEditing",
             ],
+            Panel::Marker(_) => &[
+                "MarkerStart",
+                "MarkerLength",
+                "GenerationSeed",
+                "PatternIncludeStart",
+                "PatternIncludeEnd",
+                "PatternIgnoreDistribution",
+                "MarkerSave",
+                "MarkerDelete",
+                "KeepEditing",
+            ],
+            Panel::ConfirmMarkerDelete => &["MarkerConfirmDelete"],
             Panel::Generating => &["GenerationCancel"],
             Panel::GenerationPreview(_) => &["GenerationApply", "GenerationDiscard"],
         };
@@ -1009,6 +1130,7 @@ impl State {
             | Panel::Transforms(i)
             | Panel::Unsaved(i)
             | Panel::Pattern(i)
+            | Panel::Marker(i)
             | Panel::Generation(i)
             | Panel::GenerationPreview(i) => i,
             _ => 0,
@@ -1091,7 +1213,36 @@ impl State {
             } else {
                 [0.8, 0.8, 0.85, 1.0]
             };
-            let label = if matches!(panel, Panel::Pattern(_)) {
+            let label = if matches!(panel, Panel::Marker(_)) {
+                let value = self
+                    .marker
+                    .as_ref()
+                    .map(|draft| match index {
+                        0 => format!("{:.3}", draft.start as f64 / 48.0),
+                        1 => format!("{:.3}", draft.definition.length as f64 / 48.0),
+                        2 => draft.definition.random_seed.to_string(),
+                        3..=5 => i18n::tr(
+                            "Edition",
+                            if match index {
+                                3 => draft.definition.start_position_inclusive,
+                                4 => draft.definition.end_position_inclusive,
+                                _ => draft.definition.ignore_preceding_distribution,
+                            } {
+                                "PatternYes"
+                            } else {
+                                "PatternNo"
+                            },
+                        )
+                        .to_string(),
+                        _ => String::new(),
+                    })
+                    .unwrap_or_default();
+                if index < 6 {
+                    i18n::tr_fmt("Edition", key, &[("value", &value)])
+                } else {
+                    i18n::tr("Edition", key)
+                }
+            } else if matches!(panel, Panel::Pattern(_)) {
                 let value = match index {
                     0 => format!(
                         "{:.3} - {:.3}",

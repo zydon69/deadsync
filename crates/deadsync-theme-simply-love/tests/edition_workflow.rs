@@ -532,6 +532,15 @@ fn pattern_panel_has_explicit_english_and_french_translations() {
         "PatternMarker",
         "PatternProfileIssues",
         "PatternApplyPersistent",
+        "EditPatternMarker",
+        "MarkerStart",
+        "MarkerLength",
+        "MarkerSave",
+        "MarkerDelete",
+        "MarkerConfirmDelete",
+        "MarkerHelp",
+        "MarkerEdited",
+        "MarkerDeleted",
     ] {
         let english = en
             .fallback
@@ -756,4 +765,203 @@ fn saved_pattern_uses_custom_profiles_from_directory_on_the_background_worker() 
     finish_generation(&mut reopened);
     assert!(reopened.pattern_report().is_some());
     assert_eq!(fs::read(configs.join("pc-broken.json")).unwrap(), b"broken");
+}
+
+fn marker_song() -> Vec<u8> {
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::metadata::{ChartData, Definition, PATTERN_BALANCED, SIXTEENTHS},
+        history::Session,
+    };
+    let mut session =
+        Session::new(Document::parse(std::sync::Arc::<[u8]>::from(SINGLE), Format::Ssc).unwrap());
+    let data = ChartData {
+        patterns: Some(std::collections::BTreeMap::from([(
+            0,
+            Definition {
+                pattern_config_guid: SIXTEENTHS.parse().unwrap(),
+                performed_chart_config_guid: PATTERN_BALANCED.parse().unwrap(),
+                length: 96,
+                start_position_inclusive: true,
+                end_position_inclusive: true,
+                extra: std::collections::BTreeMap::from([(
+                    "FutureMarker".into(),
+                    serde_json::json!("keep"),
+                )]),
+                ..Definition::default()
+            },
+        )])),
+        ..ChartData::default()
+    };
+    data.save(&mut session, 0).unwrap();
+    session.serialize().unwrap()
+}
+#[test]
+fn marker_inspector_edits_all_basic_settings_undoes_saves_reopens_and_regenerates() {
+    use deadsync_editor::generation::metadata::ChartData;
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let before = marker_song();
+    fs::write(&path, &before).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    let grid = screen.workspace().grid().clone();
+    press(&mut screen, KeyCode::F6);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(
+        actors
+            .iter()
+            .any(|a| matches!(a,Actor::Text{content,..} if content.as_ref()=="Start beat: 0.000"))
+    );
+    // Start, length, seed and all three flags. Opening/adjusting stays read-only.
+    for index in 0..6 {
+        press(&mut screen, KeyCode::ArrowRight);
+        if index < 5 {
+            press(&mut screen, KeyCode::ArrowDown);
+        }
+    }
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    let after = screen.workspace().file().session.serialize().unwrap();
+    assert_ne!(before, after);
+    assert_eq!(screen.workspace().row(), 48);
+    assert_eq!(screen.workspace().grid(), &grid);
+    let data = ChartData::read(screen.workspace().file().session.document(), 0)
+        .unwrap()
+        .unwrap();
+    let marker = &data.patterns.as_ref().unwrap()[&48];
+    assert_eq!(marker.length, 144);
+    assert_eq!(marker.random_seed, 1);
+    assert!(
+        !marker.start_position_inclusive
+            && !marker.end_position_inclusive
+            && marker.ignore_preceding_distribution
+    );
+    assert_eq!(marker.extra["FutureMarker"], serde_json::json!("keep"));
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    ctrl(&mut screen, KeyCode::KeyY);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        after
+    );
+    ctrl(&mut screen, KeyCode::KeyS);
+    let mut reopened = State::open(&path, 0).unwrap();
+    assert_eq!(
+        reopened.workspace().file().session.serialize().unwrap(),
+        after
+    );
+    press(&mut reopened, KeyCode::ArrowDown);
+    press(&mut reopened, KeyCode::F5);
+    finish_generation(&mut reopened);
+    assert!(reopened.pattern_report().is_some());
+    press(&mut reopened, KeyCode::Enter);
+    assert_eq!(
+        ChartData::read(reopened.workspace().file().session.document(), 0)
+            .unwrap()
+            .unwrap()
+            .patterns
+            .unwrap()[&48],
+        *marker
+    );
+}
+#[test]
+fn marker_inspector_discard_menu_delete_confirmation_and_undo_keep_notes() {
+    use deadsync_editor::generation::metadata::ChartData;
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let before = marker_song();
+    fs::write(&path, &before).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    let grid = screen.workspace().grid().clone();
+    press(&mut screen, KeyCode::F6);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    // Open inspector through the simple menu, request deletion, cancel it.
+    press(&mut screen, KeyCode::F1);
+    for _ in 0..8 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    for _ in 0..7 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(
+        actors.iter().any(
+            |a| matches!(a,Actor::Text{content,..} if content.contains("Delete this marker?"))
+        )
+    );
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    press(&mut screen, KeyCode::F6);
+    for _ in 0..7 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        ChartData::read(screen.workspace().file().session.document(), 0)
+            .unwrap()
+            .unwrap()
+            .patterns
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(screen.workspace().grid(), &grid);
+    actors.clear();
+    screen.actors(&mut actors);
+    assert!(
+        !actors
+            .iter()
+            .any(|a| matches!(a,Actor::Text{content,z:8006,..} if content.as_ref()=="Pattern"))
+    );
+    let after = screen.workspace().file().session.serialize().unwrap();
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    ctrl(&mut screen, KeyCode::KeyY);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        after
+    );
+    ctrl(&mut screen, KeyCode::KeyS);
+    assert_eq!(fs::read(&path).unwrap(), after);
+    // No marker is a read-only error, including after reload.
+    let mut reopened = State::open(&path, 0).unwrap();
+    press(&mut reopened, KeyCode::F6);
+    assert_eq!(
+        reopened.workspace().file().session.serialize().unwrap(),
+        after
+    );
 }

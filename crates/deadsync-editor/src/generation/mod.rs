@@ -13,6 +13,7 @@ pub mod job;
 mod jsonc;
 pub mod mines;
 pub mod metadata;
+pub mod marker_edit;
 pub mod output;
 pub mod pattern;
 pub mod pattern_job;

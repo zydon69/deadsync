@@ -279,6 +279,22 @@ impl Workspace {
         .map(|task| task.with_chart_expression())
     }
 
+    pub fn edit_saved_pattern(&self) -> Result<crate::generation::marker_edit::Draft, Error> {
+        crate::generation::marker_edit::Draft::at_cursor(&self.file.session, self.chart, self.row)
+    }
+
+    pub fn apply_marker_edit(
+        &mut self,
+        draft: &crate::generation::marker_edit::Draft,
+        delete: bool,
+    ) -> Result<bool, Error> {
+        if delete {
+            draft.delete(&mut self.file.session, self.chart)
+        } else {
+            draft.apply(&mut self.file.session, self.chart)
+        }
+    }
+
     pub fn saved_pattern_task(
         &self,
         registry: &crate::generation::metadata::Registry,
@@ -289,15 +305,8 @@ impl Workspace {
                     Error::InvalidEdit("No saved pattern markers in this chart".into())
                 })?;
         let row = data
-            .patterns
-            .as_ref()
-            .and_then(|patterns| {
-                patterns
-                    .range(..=self.row)
-                    .rev()
-                    .find(|(start, marker)| self.row <= **start + marker.length)
-                    .map(|(&row, _)| row)
-            })
+            .marker_at(self.row)
+            .map(|(row, _)| row)
             .ok_or_else(|| Error::InvalidEdit("No saved pattern marker at the cursor".into()))?;
         crate::generation::pattern_job::Task::capture(
             &self.file.session,
@@ -316,15 +325,8 @@ impl Workspace {
                     Error::InvalidEdit("No saved pattern markers in this chart".into())
                 })?;
         let row = metadata
-            .patterns
-            .as_ref()
-            .and_then(|patterns| {
-                patterns
-                    .range(..=self.row)
-                    .rev()
-                    .find(|(start, marker)| self.row <= **start + marker.length)
-                    .map(|(&row, _)| row)
-            })
+            .marker_at(self.row)
+            .map(|(row, _)| row)
             .ok_or_else(|| Error::InvalidEdit("No saved pattern marker at the cursor".into()))?;
         crate::generation::pattern_job::SavedTask::capture(
             &self.file.session,

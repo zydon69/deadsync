@@ -507,7 +507,7 @@ multi-pattern scheduler. The integrated fixtures currently use dance-single,
 balanced configs and seed 42. Other layouts/configs/seeds have component-level
 coverage but still need broader integrated differential coverage.
 
-Editing overlapping pattern markers and batch regeneration remain unfinished. Repeated live edits also need timeline
+Batch regeneration and overlap scheduling remain unfinished. Repeated live edits also need timeline
 cache semantics: rebuilding after each edit can change floating-point clamp
 history. These tests do not prove the complete editor port.
 
@@ -539,7 +539,7 @@ ranges, subdivision/profile/signed-seed/endpoints/distribution controls, preview
 actors, explicit application, undo/redo/save/reopen, discard/cancel, unsupported
 multiplayer input, and explicit English/French strings. These tests execute the
 real raw-key adapter and actor construction, not GPU rendering or hardware input.
-The complete port, marker editing, multi-region generation and the
+The complete port, advanced marker configuration, multi-region generation and the
 other delivery-matrix requirements remain unfinished.
 
 ### GrooveAuthor V1 pattern metadata storage
@@ -606,11 +606,10 @@ cases. It composes original helper bodies and the original library with containe
 adapters; it does not execute the full GrooveAuthor loader/runtime or scheduler.
 
 F4 now persists new marker definitions on acceptance, as described below.
-Editing bounds of an existing marker requires a future marker-edit
-operation; generation currently rejects conflicting raw bounds at the same start
-rather than creating two marker definitions at that row. Native profile management,
-live timeline caching, multi-region/batch and
-overlap actions, marker editing/deletion and the remaining editor delivery matrix
+Existing marker bounds can be changed through F6. Creation still rejects an
+existing marker at the same raw start rather than silently replacing it. Native
+profile management, live timeline caching, multi-region/batch and
+overlap actions, advanced marker configuration and the remaining editor delivery matrix
 remain required for the complete port.
 
 
@@ -688,7 +687,7 @@ is retained using the original constructor's one-ULP comparison with song OFFSET
 All nine native subdivisions can be saved and regenerated through F5; the two
 built-in subdivisions reuse their original identities. Custom performed and
 expressed configurations must already be registered. Creating another marker at
-the same raw start is rejected until explicit marker editing is implemented.
+the same raw start is rejected; use F6 to edit the existing marker explicitly.
 
 Profile files are shared configuration assets and remain after undoing a chart
 edit. Reaccepting the same preview after undo reuses only the exact same profile
@@ -704,3 +703,33 @@ filesystem failures, duplicate markers, and discarded/cancelled workers. Native
 F4 workflows additionally save, reopen and invoke F5 using the persisted settings.
 These tests compose the previously compared metadata/profile/generation contracts;
 they do not execute the original full editor action or prove the complete port.
+
+
+### Saved marker inspector
+
+F6 or F1 > Edit saved pattern opens a draft for the marker containing the cursor.
+The latest start takes precedence when regions overlap, using the same selection
+helper as F5. Start and length move by the current chart snap; the signed seed
+and both inclusive endpoint flags and distribution flag are editable. Apply
+commits the settings as one undoable metadata gesture without moving, removing
+or regenerating notes. F5 then generates from the changed marker. Profile GUIDs
+and unknown fields are retained. Profile selection/editing still requires an
+advanced inspector; this panel does not expose all GrooveAuthor configuration.
+
+Deleting a marker requires a separate confirmation and keeps its notes. Escape
+discards the draft or cancels confirmation. Applying to another chart, another
+session or a changed revision is rejected. Moving onto another marker's start
+or beyond the original signed row limit fails without clearing redo history.
+Zero-length metadata remains valid as in the reference; a subsequent generation
+can still reject a region with no usable steps.
+
+Five core workflows cover SM/SSC edit/save/reopen/regenerate, all basic fields,
+unknown metadata and profile retention, untouched notes and pending other charts,
+one-gesture undo/redo, no-op/discard, stale/foreign/wrong-chart drafts, collisions,
+row overflow, overlapping regions and zero-length markers. Two native workflows
+cover F6 and menu entry, all basic controls, actor labels, explicit save, F5 after
+reload, deletion confirmation/cancellation, undo/redo and absence of marker
+actors after deletion. These are adapter/actor tests, not physical input or GPU
+proof. Original UIPatternEvent and EditorPatternEvent were inspected for the
+separation of property edits and generation; no full original UI-action oracle
+is claimed by these tests.
