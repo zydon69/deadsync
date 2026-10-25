@@ -552,7 +552,6 @@ impl Workspace {
             crate::generation::metadata::ChartData::read(self.file.session.document(), self.chart)?;
         if let Some(row) = data.and_then(|data| data.adjacent_marker(self.row, forward)) {
             self.row = row;
-            self.anchor = None;
             Ok(true)
         } else {
             Ok(false)

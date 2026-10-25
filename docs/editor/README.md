@@ -2020,3 +2020,38 @@ tests pass; `cargo check -p deadsync --locked` passes. The oracle comparisons
 include signed destinations before zero; the workspace tests separately verify
 its documented nonnegative boundary. Missing shell unit-test fixtures documented
 above remain unresolved and are not included as passing tests.
+
+### Global saved-pattern navigation and inspector selection
+
+Ctrl/Cmd+P selects the next saved pattern and opens its properties; Shift selects
+the previous pattern. This reuses the existing marker navigation and F6
+inspector, with strict before/after start-row queries and wraparound. Holding the
+shortcut repeats through markers, including within the marker inspector. Other
+inspectors keep keyboard focus. Pending marker edits block navigation with the
+existing Apply/discard message. No markers means no movement or panel opening.
+An active audio preview stops before navigation. Note selection anchors now
+survive marker navigation: choosing a pattern is separate from selecting notes.
+Help documents the shortcuts in English and French.
+
+Four differential fixtures extract `OnMoveToPreviousPattern(double)` and
+`OnMoveToNextPattern(double)` unchanged from pinned Editor.cs. An actual Fumen
+red-black tree with row-only pattern events adapts the original interval-tree
+API; explicit cursor/selection callbacks replace the full UI. The fixtures
+compare cursor and selected pattern for 52 positions in empty, singleton,
+ordinary and reference-limit maps (104 directional command results). Core
+workflows also cover overlapping regions, unsaved marker moves/deletions,
+undo/redo, per-chart data, Save/reopen, retained note selection and atomic errors
+for invalid metadata. Native tests cover Ctrl/Cmd, Shift, repeat, inspector
+selection/focus, pending edits, audio stop and empty charts.
+
+The simplified UI exposes the chosen pattern through its open inspector. A
+persistent per-chart last-selected pattern across closing inspectors and moving
+the cursor remains to be implemented before claiming full original selection
+state parity. These tests do not prove hardware input or full rendered output;
+the remaining delivery matrix still applies.
+
+Validation for global pattern navigation: all 279 core tests and 103 native
+editor tests pass; `cargo check -p deadsync --locked` passes. Four differential
+fixtures compare the cursor and selected start for 104 original directional
+commands. The previously documented missing shell unit-test fixtures and
+remaining editor parity requirements still apply.

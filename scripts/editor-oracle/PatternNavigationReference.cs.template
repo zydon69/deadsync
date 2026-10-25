@@ -1,0 +1,32 @@
+// Original pattern navigation commands; row-only Fumen tree and UI callbacks
+// replace the full editor's interval tree, position and selected-pattern state.
+using System.Text.Json;
+using Fumen;
+namespace PatternNavigationOracle;
+internal sealed class EditorPatternEvent(int row):IComparable<EditorPatternEvent>{
+    public int ChartRow=>row;
+    public int CompareTo(EditorPatternEvent? other)=>other is null?1:row.CompareTo(other.ChartRow);
+}
+internal sealed class Patterns:RedBlackTree<EditorPatternEvent>{
+    public IReadOnlyRedBlackTree<EditorPatternEvent>.IReadOnlyRedBlackTreeEnumerator FindGreatestPreceding(double position)
+        =>base.FindGreatestPreceding(position,(node,value)=>((double)node.ChartRow).CompareTo(value));
+    public IReadOnlyRedBlackTree<EditorPatternEvent>.IReadOnlyRedBlackTreeEnumerator FindLeastFollowing(double position)
+        =>base.FindLeastFollowing(position,(node,value)=>((double)node.ChartRow).CompareTo(value));
+}
+internal sealed class Chart(Patterns patterns){public Patterns GetPatterns()=>patterns;}
+internal sealed class Editor(Chart? chart,double row){
+    private readonly Chart? FocusedChart=chart;
+    public double Cursor=row;
+    public int? Selected;
+    private void MoveToChartPosition(double position)=>Cursor=position;
+    private void OnSelectPattern(EditorPatternEvent pattern)=>Selected=pattern.ChartRow;
+    // PREVIOUS_PATTERN
+    // NEXT_PATTERN
+    public object Query(bool forward){if(forward)OnMoveToNextPattern(row);else OnMoveToPreviousPattern(row);return new{Cursor,Selected};}
+}
+internal static class Reference {
+    public static object Run(JsonElement request){
+        var patterns=new Patterns();foreach(var row in request.GetProperty("Starts").EnumerateArray())patterns.Insert(new(row.GetInt32()));
+        return request.GetProperty("Rows").EnumerateArray().Select(value=>{var row=value.GetDouble();return new{Row=row,Previous=new Editor(new Chart(patterns),row).Query(false),Next=new Editor(new Chart(patterns),row).Query(true)};}).ToArray();
+    }
+}

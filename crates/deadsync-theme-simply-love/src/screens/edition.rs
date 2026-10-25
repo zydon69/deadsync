@@ -1155,8 +1155,9 @@ impl State {
             return false;
         }
         let repeating_navigation = self.control
-            && event.code == KeyCode::KeyL
-            && self.panel.is_none();
+            && ((event.code == KeyCode::KeyL && self.panel.is_none())
+                || (event.code == KeyCode::KeyP
+                    && matches!(self.panel, None | Some(Panel::Marker(_)))));
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
         let repeating_offset = matches!(
@@ -1172,6 +1173,13 @@ impl State {
                 KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::PageUp | KeyCode::PageDown
             )
         {
+            return false;
+        }
+        if self.control && event.code == KeyCode::KeyP
+            && matches!(self.panel, None | Some(Panel::Marker(_)))
+        {
+            self.stop_audio();
+            self.navigate_marker(!self.shift);
             return false;
         }
         if self.panel.is_some() {

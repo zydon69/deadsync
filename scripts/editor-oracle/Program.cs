@@ -27,6 +27,7 @@ if (operation == "Scroll") { Console.WriteLine(JsonSerializer.Serialize(ScrollOr
 if (operation == "Tick") { Console.WriteLine(JsonSerializer.Serialize(TickOracle.Reference.Run(request), options)); return; }
 if (operation == "Combo") { Console.WriteLine(JsonSerializer.Serialize(ComboOracle.Reference.Run(request), options)); return; }
 if (operation == "Speed") { Console.WriteLine(JsonSerializer.Serialize(SpeedOracle.Reference.Run(request), options)); return; }
+if (operation == "PatternNavigation") { Console.WriteLine(JsonSerializer.Serialize(PatternNavigationOracle.Reference.Run(request), options)); return; }
 if (operation == "Label") { Console.WriteLine(JsonSerializer.Serialize(LabelOracle.Reference.Run(request), options)); return; }
 if (operation == "Region") { Console.WriteLine(JsonSerializer.Serialize(RegionOracle.Reference.Run(request), options)); return; }
 if (operation == "Pause") { Console.WriteLine(JsonSerializer.Serialize(PauseOracle.Reference.Run(request), options)); return; }

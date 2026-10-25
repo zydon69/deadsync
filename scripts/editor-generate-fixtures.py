@@ -125,6 +125,16 @@ def prepare_region_reference(editor):
     return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
 
 
+def prepare_pattern_navigation_reference(editor):
+    source=subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/Editor.cs"],cwd=editor).decode("utf-8-sig")
+    pieces={"PREVIOUS_PATTERN":extract_member(source,r"\tprivate void OnMoveToPreviousPattern\(double chartPosition\)"),
+        "NEXT_PATTERN":extract_member(source,r"\tprivate void OnMoveToNextPattern\(double chartPosition\)")}
+    project=ROOT/"scripts/editor-oracle";text=(project/"PatternNavigationReference.cs.template").read_text()
+    for name,body in pieces.items():text=text.replace("// "+name,body)
+    (project/"obj/PatternNavigationReference.cs").write_text(text)
+    return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
+
+
 def prepare_label_reference(editor):
     source=subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/EditorEvents/EditorLabelEvent.cs"],cwd=editor).decode("utf-8-sig")
     pieces={"VALIDATOR":extract_member(source,r"\tpublic static \(bool, string\) IsValidLabelString\("),"SETTER":extract_member(source,r"\tpublic string StringValue\s*")}
@@ -739,6 +749,8 @@ def requests(reference: Path):
     cases["legacy-timing-fractional"]={"Operation":"NormalizedFile","Format":"ssc","Content":"#VERSION:0.60;"+tags(source_cases["tiny-regions"])+region_chart()+region_chart({"BPMS":"0=0.0000001,4=180","OFFSET":"0.25","WARPS":"1=0.00001"})}
     for label,content in {"defaults":"{}", "positive":'{"SyncOffset":0.009,"DefaultChartType":"dance_single","DefaultChartIndex":1}', "negative":'{"SyncOffset":-0.125}', "comments":'/* song */ {"SyncOffset":0.25}', "zero":'{"SyncOffset":0}'}.items():
         cases["song-sync-"+label]={"Operation":"SongSync", "Content":content, "MusicOffset":0.375, "Times":[-2,-0.5,0,0.009,1,25.5]}
+    for label,starts in {"empty":[],"singleton":[48],"normal":[0,48,96,288],"limits":[0,2147483647]}.items():
+        cases["pattern-navigation-"+label]={"Operation":"PatternNavigation","Starts":starts,"Rows":[0,1,47,48,49,72,95,96,97,287,288,289,2147483647]}
     for label,segments in {
         "default":[], "meters":[[0,3,4],[3,7,8],[6.5,2,2]],
         "off-measure":[[0,4,4],[1,3,4],[2,5,8],[8,4,4]],
@@ -826,6 +838,7 @@ def main():
     combo_hash = prepare_combo_reference(args.editor_root.resolve())
     speed_hash = prepare_speed_reference(args.editor_root.resolve())
     label_hash = prepare_label_reference(args.editor_root.resolve())
+    pattern_navigation_hash = prepare_pattern_navigation_reference(args.editor_root.resolve())
     project = ROOT / "scripts/editor-oracle/EditorOracle.csproj"
     build = subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if build.returncode:
@@ -850,7 +863,7 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
-        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash, "editor_source_timing_methods_sha256": source_timing_hash, "editor_signature_methods_sha256": signature_hash, "editor_scroll_methods_sha256": scroll_hash, "editor_tick_methods_sha256": tick_hash, "editor_combo_methods_sha256": combo_hash, "editor_speed_methods_sha256": speed_hash, "editor_label_methods_sha256": label_hash,
+        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash, "editor_source_timing_methods_sha256": source_timing_hash, "editor_signature_methods_sha256": signature_hash, "editor_scroll_methods_sha256": scroll_hash, "editor_tick_methods_sha256": tick_hash, "editor_combo_methods_sha256": combo_hash, "editor_speed_methods_sha256": speed_hash, "editor_label_methods_sha256": label_hash, "editor_pattern_navigation_methods_sha256": pattern_navigation_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
         "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],

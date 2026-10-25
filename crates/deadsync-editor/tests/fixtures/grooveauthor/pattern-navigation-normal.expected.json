@@ -1,0 +1,145 @@
+[
+  {
+    "Row": 0,
+    "Previous": {
+      "Cursor": 288,
+      "Selected": 288
+    },
+    "Next": {
+      "Cursor": 48,
+      "Selected": 48
+    }
+  },
+  {
+    "Row": 1,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 48,
+      "Selected": 48
+    }
+  },
+  {
+    "Row": 47,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 48,
+      "Selected": 48
+    }
+  },
+  {
+    "Row": 48,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 96,
+      "Selected": 96
+    }
+  },
+  {
+    "Row": 49,
+    "Previous": {
+      "Cursor": 48,
+      "Selected": 48
+    },
+    "Next": {
+      "Cursor": 96,
+      "Selected": 96
+    }
+  },
+  {
+    "Row": 72,
+    "Previous": {
+      "Cursor": 48,
+      "Selected": 48
+    },
+    "Next": {
+      "Cursor": 96,
+      "Selected": 96
+    }
+  },
+  {
+    "Row": 95,
+    "Previous": {
+      "Cursor": 48,
+      "Selected": 48
+    },
+    "Next": {
+      "Cursor": 96,
+      "Selected": 96
+    }
+  },
+  {
+    "Row": 96,
+    "Previous": {
+      "Cursor": 48,
+      "Selected": 48
+    },
+    "Next": {
+      "Cursor": 288,
+      "Selected": 288
+    }
+  },
+  {
+    "Row": 97,
+    "Previous": {
+      "Cursor": 96,
+      "Selected": 96
+    },
+    "Next": {
+      "Cursor": 288,
+      "Selected": 288
+    }
+  },
+  {
+    "Row": 287,
+    "Previous": {
+      "Cursor": 96,
+      "Selected": 96
+    },
+    "Next": {
+      "Cursor": 288,
+      "Selected": 288
+    }
+  },
+  {
+    "Row": 288,
+    "Previous": {
+      "Cursor": 96,
+      "Selected": 96
+    },
+    "Next": {
+      "Cursor": 0,
+      "Selected": 0
+    }
+  },
+  {
+    "Row": 289,
+    "Previous": {
+      "Cursor": 288,
+      "Selected": 288
+    },
+    "Next": {
+      "Cursor": 0,
+      "Selected": 0
+    }
+  },
+  {
+    "Row": 2147483647,
+    "Previous": {
+      "Cursor": 288,
+      "Selected": 288
+    },
+    "Next": {
+      "Cursor": 0,
+      "Selected": 0
+    }
+  }
+]

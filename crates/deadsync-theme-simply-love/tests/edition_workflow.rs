@@ -2174,3 +2174,99 @@ fn missing_f3_profiles_require_explicit_default_and_can_override_missing_source_
         before
     );
 }
+
+#[test]
+fn global_pattern_shortcuts_select_inspector_wrap_repeat_and_guard_pending_edits() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::metadata::ChartData,
+        history::Session,
+    };
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    let mut source = Session::new(Document::parse(marker_song(), Format::Ssc).unwrap());
+    let mut data = ChartData::read(source.document(), 0).unwrap().unwrap();
+    let definition = data.patterns.as_ref().unwrap()[&0].clone();
+    data.patterns.as_mut().unwrap().insert(192, definition);
+    data.save(&mut source, 0).unwrap();
+    let before = source.serialize().unwrap();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, &before).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::Space);
+    ctrl(&mut screen, KeyCode::KeyP);
+    assert_eq!(screen.workspace().row(), 192);
+    assert_eq!(screen.workspace().selection(), Some((0, 192)));
+    assert_eq!(screen.workspace().edit_saved_pattern().unwrap().start, 192);
+    // The opened inspector has the selected marker's properties, not note tools.
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,..} if content.as_ref()==deadsync_theme_simply_love::i18n::tr("Edition","MarkerSave").as_ref())));
+    key(&mut screen, KeyCode::ControlLeft, true);
+    let repeat = RawKeyboardEvent {
+        code: KeyCode::KeyP,
+        pressed: true,
+        repeat: true,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    };
+    screen.raw_key(&repeat);
+    assert_eq!(screen.workspace().row(), 0);
+    screen.raw_key(&repeat);
+    assert_eq!(screen.workspace().row(), 192);
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    screen.raw_key(&repeat);
+    assert_eq!(screen.workspace().row(), 0);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    key(&mut screen, KeyCode::ControlLeft, false);
+    press(&mut screen, KeyCode::ArrowRight); // staged move of marker zero
+    ctrl(&mut screen, KeyCode::KeyP);
+    assert_eq!(screen.workspace().row(), 0);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,..} if content.as_ref()==deadsync_theme_simply_love::i18n::tr("Edition","MarkerPending").as_ref())));
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    press(&mut screen, KeyCode::Escape);
+    press(&mut screen, KeyCode::F10);
+    ctrl(&mut screen, KeyCode::KeyP);
+    assert_eq!(screen.workspace().row(), 0);
+    press(&mut screen, KeyCode::Escape);
+    ctrl(&mut screen, KeyCode::KeyP);
+    assert_eq!(screen.workspace().row(), 192);
+    assert!(!screen.workspace().file().session.is_dirty());
+}
+
+#[test]
+fn pattern_shortcut_stops_audio_and_empty_chart_stays_in_note_view() {
+    use deadsync_gameplay::GameplayAudioCommand;
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let mut bytes = b"#MUSIC:music.ogg;".to_vec();
+    bytes.extend(marker_song());
+    fs::write(&path, &bytes).unwrap();
+    fs::write(dir.path().join("music.ogg"), b"fixture asset").unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::Enter);
+    assert!(screen.is_playing());
+    screen.take_audio_commands();
+    ctrl(&mut screen, KeyCode::KeyP);
+    assert!(!screen.is_playing());
+    assert_eq!(
+        screen.take_audio_commands(),
+        vec![GameplayAudioCommand::StopMusic]
+    );
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        bytes
+    );
+    let empty = dir.path().join("empty.ssc");
+    fs::write(&empty, SINGLE).unwrap();
+    let mut screen = State::open(&empty, 0).unwrap();
+    ctrl(&mut screen, KeyCode::KeyP);
+    press(&mut screen, KeyCode::Digit2);
+    assert!(screen.workspace().file().session.is_dirty());
+}

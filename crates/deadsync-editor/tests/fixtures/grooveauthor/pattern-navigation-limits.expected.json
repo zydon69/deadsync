@@ -1,0 +1,145 @@
+[
+  {
+    "Row": 0,
+    "Previous": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 1,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 47,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 48,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 49,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 72,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 95,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 96,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 97,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 287,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 288,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 289,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 2147483647,
+      "Selected": 2147483647
+    }
+  },
+  {
+    "Row": 2147483647,
+    "Previous": {
+      "Cursor": 0,
+      "Selected": 0
+    },
+    "Next": {
+      "Cursor": 0,
+      "Selected": 0
+    }
+  }
+]
