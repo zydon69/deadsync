@@ -2967,3 +2967,24 @@ data path, shell loading, keyboard preference panel and use of these settings
 in audition are still pending. This module alone is not the complete preference
 feature; original full PreferencesAudio import/export and actual fade DSP
 equivalence remain outside these tests.
+
+### Application preference path and audition bridge
+
+AppDirs now resolves editor-preferences.json directly under application data.
+The editor runtime installs both generation-config and preference paths in one
+immutable, absolute-path bundle. The shell supplies those paths explicitly, so
+portable and installed layouts do not infer preference location from songs.
+Native editor creation loads that file, or uses defaults if absent. Malformed
+or future-version files leave the editor open with an error and fallback audio
+settings; no automatic save occurs. An explicit reload failure retains the last
+usable audio settings and invalidates its writable file adapter.
+
+Sample audition commands now use the loaded fade values instead of literals.
+The keyboard preference editor and saving from that panel are still pending.
+Runtime path unit test and application-directory unit test pass. All 14 native
+song-text workflows pass, including explicit preference reload, custom fade
+command payload, reopen and invalid-file retention without song edits.
+`cargo check -p deadsync --locked` passes. These checks cover values/commands,
+not actual fade samples produced by a decoder.
+
+The dedicated edition_preferences_runtime_workflow also passes: the real State constructor reads the installed runtime path, then opening with a future-version preference file succeeds with default audio and a visible error while both preference bytes and song source remain untouched.

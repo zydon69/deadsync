@@ -713,3 +713,42 @@ fn last_second_hint_keyboard_field_is_staged_saved_and_refused_in_sm() {
         }
     }
 }
+
+#[test]
+fn application_audio_preferences_reload_and_drive_audition_without_touching_song() {
+    use deadsync_editor::audio_preferences::File;
+    let (dir, mut state, original) = setup(false, false);
+    let prefs_path = dir.path().join("editor-preferences.json");
+    let mut file = File::open(&prefs_path).unwrap();
+    let mut audio = file.audio();
+    audio.set_fade_in(0.25).unwrap();
+    audio.set_fade_out(2.0).unwrap();
+    file.set_audio(audio);
+    file.save().unwrap();
+    state.configure_audio_preferences(&prefs_path).unwrap();
+    assert_eq!(state.audio_preferences(), audio);
+    press(&mut state, KeyCode::F11);
+    press(&mut state, KeyCode::F6);
+    press(&mut state, KeyCode::Tab);
+    press(&mut state, KeyCode::ArrowRight);
+    press(&mut state, KeyCode::F4);
+    match state.take_audio_commands().as_slice() {
+        [GameplayAudioCommand::PlayMusic { cut, .. }] => {
+            assert_eq!(cut.fade_in_sec, 0.25);
+            assert_eq!(cut.fade_out_sec, 2.0);
+        }
+        other => panic!("unexpected command: {other:?}"),
+    }
+    press(&mut state, KeyCode::F4);
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        original.as_bytes()
+    );
+    let mut reopened = State::open(&dir.path().join("song.ssc"), 0).unwrap();
+    reopened.configure_audio_preferences(&prefs_path).unwrap();
+    assert_eq!(reopened.audio_preferences(), audio);
+    fs::write(&prefs_path, b"invalid preferences").unwrap();
+    assert!(reopened.configure_audio_preferences(&prefs_path).is_err());
+    assert_eq!(reopened.audio_preferences(), audio);
+    assert_eq!(fs::read(&prefs_path).unwrap(), b"invalid preferences");
+}

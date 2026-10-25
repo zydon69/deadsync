@@ -10,6 +10,21 @@ pub(super) struct Playing {
     mapped: bool,
 }
 impl State {
+    /// Install the explicit application preference path; malformed files remain untouched.
+    pub fn configure_audio_preferences(
+        &mut self,
+        path: &std::path::Path,
+    ) -> Result<(), deadsync_editor::Error> {
+        self.audio_preferences_path = Some(path.to_owned());
+        self.audio_preferences_file = None;
+        let file = deadsync_editor::audio_preferences::File::open(path)?;
+        self.audio_preferences = file.audio();
+        self.audio_preferences_file = Some(file);
+        Ok(())
+    }
+    pub fn audio_preferences(&self) -> deadsync_editor::audio_preferences::Audio {
+        self.audio_preferences
+    }
     pub fn is_playing(&self) -> bool {
         self.playback.is_some()
     }
@@ -88,8 +103,8 @@ impl State {
                     cut: GameplayMusicCut {
                         start_sec: sample.start,
                         length_sec: sample.length.unwrap_or(f64::INFINITY),
-                        fade_in_sec: 0.0,
-                        fade_out_sec: 1.5,
+                        fade_in_sec: self.audio_preferences.fade_in(),
+                        fade_out_sec: self.audio_preferences.fade_out(),
                     },
                     looping: true,
                     rate: 1.0,

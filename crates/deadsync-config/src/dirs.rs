@@ -31,6 +31,11 @@ impl AppDirs {
     }
 
     #[must_use]
+    pub fn editor_preferences_path(&self) -> PathBuf {
+        self.data_dir.join("editor-preferences.json")
+    }
+
+    #[must_use]
     pub fn log_path(&self) -> PathBuf {
         self.data_dir.join("deadsync.log")
     }
@@ -449,8 +454,10 @@ mod tests {
         let root=std::env::temp_dir().join("deadsync-editor-paths");
         let dirs=AppDirs::portable_layout(root.join("portable"));
         assert_eq!(dirs.editor_configs_dir(),dirs.data_dir.join("AutogenConfigs"));
+        assert_eq!(dirs.editor_preferences_path(),dirs.data_dir.join("editor-preferences.json"));
         let dirs=AppDirs::isolated_layout(root.join("data"),root.join("bundle"));
         assert_eq!(dirs.editor_configs_dir(),root.join("data").join("AutogenConfigs"));
+        assert_eq!(dirs.editor_preferences_path(),root.join("data").join("editor-preferences.json"));
     }
 
     #[test]

@@ -202,6 +202,9 @@ impl GenerationPreview {
 
 pub struct State {
     playback: Option<playback::Playing>,
+    audio_preferences: deadsync_editor::audio_preferences::Audio,
+    audio_preferences_file: Option<deadsync_editor::audio_preferences::File>,
+    audio_preferences_path: Option<std::path::PathBuf>,
     audio_commands: Vec<deadsync_gameplay::GameplayAudioCommand>,
     workspace: Workspace,
     generation: GenerationSettings,
@@ -305,6 +308,9 @@ impl State {
             .unwrap_or(0);
         let mut state = Self {
             playback: None,
+            audio_preferences: Default::default(),
+            audio_preferences_file: None,
+            audio_preferences_path: None,
             audio_commands: Vec::new(),
             generation: GenerationSettings {
                 target,
@@ -368,6 +374,11 @@ impl State {
             last_recovery_revision: 0,
         };
         state.refresh();
+        if let Some(path) = deadsync_editor::runtime::preferences_path() {
+            if let Err(error) = state.configure_audio_preferences(path) {
+                state.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
+            }
+        }
         Ok(state)
     }
 
