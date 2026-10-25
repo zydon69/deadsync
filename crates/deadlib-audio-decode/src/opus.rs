@@ -1,5 +1,6 @@
 use ogg::{Packet, PacketReader};
 use opusic_c::{Channels, Decoder as OpusDecoder, SampleRate};
+use std::collections::VecDeque;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
@@ -26,6 +27,7 @@ pub struct Reader {
     channels: usize,
     pre_skip_frames: usize,
     pending: Option<Vec<i16>>,
+    seek_packets: VecDeque<Packet>,
     skip_frames: usize,
     cursor_frames: u64,
     decoded_frames: u64,
@@ -59,6 +61,7 @@ pub(crate) fn open_file(path: &Path) -> Result<OpenFile, Box<dyn std::error::Err
         channels: header.channels,
         pre_skip_frames: header.pre_skip_frames,
         pending: None,
+        seek_packets: VecDeque::new(),
         skip_frames: header.pre_skip_frames,
         cursor_frames: 0,
         decoded_frames: 0,
@@ -144,11 +147,13 @@ impl Reader {
             .seek_absgp(Some(self.stream_serial), seek_granule)?
         {
             self.pending = None;
+            self.seek_packets.clear();
             self.ended = true;
             return Ok(());
         }
         self.decoder.reset().map_err(opus_error)?;
         self.pending = None;
+        self.seek_packets.clear();
         self.skip_frames = 0;
         self.ended = false;
 
@@ -163,8 +168,11 @@ impl Reader {
             .saturating_sub(first_packet_granule as usize);
         self.cursor_frames = first_packet_granule.saturating_sub(self.pre_skip_frames as u64);
 
+        // collect_seek_page consumed an entire Ogg page. Preserve packets
+        // following the target so reading can continue beyond the pending tail.
+        self.seek_packets = packets.into();
         let mut decoded = Vec::new();
-        for packet in packets {
+        while let Some(packet) = self.seek_packets.pop_front() {
             if !self.decode_packet_into(packet, &mut decoded)? {
                 continue;
             }
@@ -190,7 +198,12 @@ impl Reader {
             return Ok(false);
         }
         loop {
-            let Some(packet) = self.reader.read_packet()? else {
+            let packet = if let Some(packet) = self.seek_packets.pop_front() {
+                Some(packet)
+            } else {
+                self.reader.read_packet()?
+            };
+            let Some(packet) = packet else {
                 self.ended = true;
                 out.clear();
                 return Ok(false);
@@ -244,6 +257,7 @@ impl Reader {
     ) -> Result<Option<(Vec<Packet>, u64)>, Box<dyn std::error::Error + Send + Sync>> {
         let mut packets = Vec::with_capacity(4);
         let mut total_frames = 0u64;
+        let mut previous_retry = None;
         loop {
             let Some(packet) = self.reader.read_packet()? else {
                 return Ok(None);
@@ -258,16 +272,53 @@ impl Reader {
                 }
                 continue;
             }
+            // Granule seeks near the beginning may land on the ID/comment
+            // pages. They are container headers, never compressed audio packets.
+            if packet.data.starts_with(OPUS_HEAD_MAGIC) {
+                let header = parse_head_packet(&packet)?;
+                if header.channels != self.channels
+                    || header.pre_skip_frames != self.pre_skip_frames
+                {
+                    return Err("Opus seek header changed stream format".into());
+                }
+                continue;
+            }
+            if packet.data.starts_with(OPUS_TAGS_MAGIC) {
+                validate_tags_packet(&packet, self.stream_serial)?;
+                continue;
+            }
             total_frames = total_frames.saturating_add(
                 self.decoder
                     .get_nb_samples(&packet.data)
                     .map_err(opus_error)? as u64,
             );
             let last_in_page = packet.last_in_page();
+            let last_in_stream = packet.last_in_stream();
             let page_granule = packet.absgp_page();
             packets.push(packet);
             if last_in_page {
-                return Ok(Some((packets, page_granule.saturating_sub(total_frames))));
+                let first_granule = page_granule.saturating_sub(total_frames);
+                if last_in_stream && first_granule > 0 {
+                    // The final granule trims padding, so subtracting decoded
+                    // packet lengths cannot locate the EOS page's first frame.
+                    // Start on an earlier, fully counted page instead, then
+                    // decode forward with a reliable absolute frame anchor.
+                    if previous_retry == Some(0) {
+                        return Err("Opus seek could not establish a page anchor".into());
+                    }
+                    let mut earlier = first_granule - 1;
+                    if let Some(previous) = previous_retry {
+                        earlier = earlier.min(previous / 2);
+                    }
+                    if !self.reader.seek_absgp(Some(self.stream_serial), earlier)? {
+                        return Err("Opus seek could not locate a preceding page".into());
+                    }
+                    previous_retry = Some(earlier);
+                    packets.clear();
+                    total_frames = 0;
+                    continue;
+                }
+                return Ok(Some((packets, first_granule)));
             }
         }
     }
@@ -443,6 +494,56 @@ mod tests {
             crate::resample::drop_front_samples(&mut actual, drop_samples);
 
             assert_eq!(actual, expected);
+        }
+    }
+
+    #[test]
+    fn seek_skips_headers_retains_page_tail_and_matches_linear_decode_through_eof() {
+        for (name, frames, positions) in [
+            (
+                "seek.opus",
+                43_200,
+                vec![5_992, 26_400, 0, 1, 5_760, 43_199, 0],
+            ),
+            (
+                "seek-long.opus",
+                115_200,
+                vec![5_992, 60_000, 110_000, 0, 48_000, 96_000, 115_199, 0],
+            ),
+        ] {
+            let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures")
+                .join(name);
+            let mut linear = super::open_file(&path).unwrap().reader;
+            let mut all = Vec::new();
+            let mut packet = Vec::new();
+            while linear.read_dec_packet_into(&mut packet).unwrap() {
+                all.extend_from_slice(&packet);
+            }
+            assert_eq!(all.len(), frames * 2);
+            let mut reader = super::open_file(&path).unwrap().reader;
+            for frame in positions {
+                reader.seek_frame(frame).unwrap();
+                assert_eq!(reader.current_frame(), frame);
+                let mut tail = Vec::new();
+                while reader.read_dec_packet_into(&mut packet).unwrap() {
+                    tail.extend_from_slice(&packet);
+                }
+                let expected = &all[frame as usize * 2..];
+                assert_eq!(
+                    tail.len(),
+                    expected.len(),
+                    "{name}: tail length at frame {frame}"
+                );
+                let difference = tail.iter().zip(expected).position(|(a, b)| a != b);
+                assert!(
+                    difference.is_none(),
+                    "{name}: decoded tail at frame {frame} differs at sample {difference:?}"
+                );
+                assert_eq!(reader.current_frame(), frames as u64);
+            }
+            reader.seek_frame(frames as u64 + 48_000).unwrap();
+            assert!(!reader.read_dec_packet_into(&mut packet).unwrap());
         }
     }
 }

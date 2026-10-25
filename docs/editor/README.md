@@ -4294,3 +4294,60 @@ WAV retained seeking is demonstrated; retained seeking across every codec/rate/
 pitch configuration and full decoder error/EOF UI handling are not established
 by these tests. Continuous scrub controls, loop UI and complete editor parity
 remain open.
+
+### Codec/rate/pitch retained-seek matrix and Opus reader corrections
+
+A new device-free integration target compares fresh cuts with retained-reader
+seeks through the production decoder/DSP/render path. Its synthetic 0.9-second
+stereo fixtures cover WAV, FLAC, Vorbis, Opus and MP3; MP3 runs both StepMania and
+default timeline options. Three playback rates (0.8/1/1.2), preserved/nonpreserved
+pitch and 44.1/48 kHz output plus a multi-page Opus fixture give 84 configurations.
+Each starts normally, then
+seeks to 0.125, 0.55 (2.29 for long Opus), zero and a negative lead-in (336
+retained seeks). The source copy is renamed after initial playback, preventing a reopen fallback from silently
+passing the retained-reader test. References are produced before that rename.
+
+PCM is compared sample-for-sample, and mapped time is compared at every output
+frame plus endpoint times. Resampler chunks legitimately report their actual
+consumed/produced ratio rather than a uniform nominal slope; the differential
+check covers that actual timing contract without assuming constant chunk slopes.
+The fixtures and reproduction script are documented under the audio-decode test
+fixtures. Encoders are needed only for regeneration, never for the test run.
+
+The matrix and linear-decode checks exposed three Opus reader defects: granule
+seeks near zero could pass
+OpusHead/OpusTags to the audio decoder, and seek-page collection discarded packets
+following the target packet. EOS-page granules also trim padding, so subtracting
+decoded packet sizes from that granule mislocated late seeks. The reader now
+anchors such seeks on an earlier fully counted page, with monotonically bounded
+retries, then decodes forward. It validates/skips headers and retains
+unconsumed compressed page packets in a bounded queue. Subsequent packet reads
+consume that queue before advancing the container reader; a new granule seek
+clears it. A direct codec regression case compares full decoded tails, through
+EOF, with a linear decode at fifteen positions across short and multi-page
+fixtures, including repeated backwards seeks, zero, frame one, preroll and the
+final frame. The two Opus fixtures intentionally cover header/page-tail and late
+EOS-page
+paths; other container/granule variants and metadata/channel combinations are
+not universally certified here.
+
+A separate existing MP3 golden-hash test failed during the broad codec run:
+mp3::tests::untrimmed_pcm_duration_and_seeks_match_original_decoder, expected
+15560969893992054619 versus actual 13793718411883935705 for the initial PCM hash.
+The same isolated test was run with Opus restored from d7cdd5d2d (pre-change HEAD);
+it failed identically before the Opus corrections, then the working changes were
+restored byte-for-byte. No MP3 golden values or assertions were changed, and this
+failure remains open. The new retained/fresh MP3 comparisons prove consistency
+with the current decoder, not compatibility with that failing older PCM oracle.
+
+Final validation: the three focused Opus unit cases pass, including the two-file
+linear-tail regression. The full decoder unit run has 32 passed, one failed
+(the independently confirmed pre-existing MP3 hash oracle above) and three
+ignored performance cases. The audio package has 40 passed unit cases, two passed
+integration targets (including the 84-configuration matrix) and two pre-existing
+ignored performance cases. All five audio-stream bridge unit cases and all 219
+native editor integration tests across 31 targets pass. `cargo check -p deadsync
+--jobs 2 --locked` passes. The generator's Python syntax was checked; tests do
+not invoke encoders. No new .app/GPU or audible-device review was run. The full
+codec suite is explicitly not green while the MP3 oracle failure remains open;
+complete editor parity and the other documented remaining features stay in scope.
