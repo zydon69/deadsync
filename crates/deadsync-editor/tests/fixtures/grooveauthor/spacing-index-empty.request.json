@@ -1,0 +1,20 @@
+{
+  "Rates": [],
+  "Queries": [
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 0
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 0
+    }
+  ]
+}

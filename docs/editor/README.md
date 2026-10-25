@@ -3730,3 +3730,47 @@ spacing/search traces regenerated successfully; the eighteen search traces
 contain 378 queries. `cargo check -p deadsync --jobs 2 --locked` passed. These
 checks establish the scoped inverse search, not native display wiring or
 original tree-based active-event selection.
+
+### Automatic active-section lookup
+
+`spacing_index::Index` owns initialized spacing sections and validates original
+chart ordering and monotonically clamped editor times at construction. The
+existing editor clock clamps each event time to its predecessor even through
+negative stops and warps. Finite positive tempo and finite constant scroll state
+are checked before accepting the index. Querying allocates no memory and uses
+O(log n) binary search over the row/time sequence.
+
+The active section is the greatest section strictly preceding the query, with
+first-section fallback when none precedes it. ConstantTime selects by chart time;
+ConstantRow and Variable select by chart position. Equality does not advance to
+same-row/same-time events. Index::find_location composes this automatic lookup
+with the already ported directional inverse search, eliminating its caller's
+need to manually select an active index. Chart time excludes audio/sync offsets.
+
+A new development runner compiles the unchanged original FindBest methods and
+Ensure/Unset utility members and uses the actual pinned Fumen red-black tree.
+Scalar search-event adapters retain the original exact row/time comparisons;
+normal equal-row event order follows the supplied initialized chart array.
+Seven cases compare 1113 index queries against this reference, using original
+initialized sections with late tempos/scrolls, zero/negative scroll, overlapping
+warps/stops and repeated rows/times. Exact values, neighboring doubles and
+negative lead-in are covered. Additional workflows check inverse-search
+composition in all modes/directions, empty data, invalid metadata/order and
+nonfinite queries.
+
+Source/member and reference assembly hashes are stored in spacing-index-reference.json.
+Reproduction/scope: scripts/editor-spacing-index-oracle/README.md. This closes
+active lookup for the inverse search; native forward geometry, viewport queries
+over folded sections and display-mode wiring remain pending.
+
+Clock::chart_time exposes the exact cursor-domain time for this lookup, without
+a floating-point offset round trip. A workflow checks strict selection at a
+tempo boundary even with a large audio offset. Clock::music_time delegates to
+that same chart-time query before applying its existing audio/sync conversion.
+
+Validation: the complete editor core suite passed 388 tests. The three index
+workflows passed again with rate-source provenance and direct Clock chart-time
+boundary checks. The original Fumen-tree runner regenerated seven cases/1113
+queries, and the scalar/search generator still regenerated its separate 24
+traces after narrowing its fixture prefixes. `cargo check -p deadsync --jobs 2
+--locked` passed. Native display-mode wiring remains pending.

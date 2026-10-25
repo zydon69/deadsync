@@ -1,0 +1,967 @@
+{
+  "Rates": [
+    {
+      "Row": 0,
+      "Time": 0,
+      "Tempo": 150,
+      "Scroll": -0.5,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 0,
+      "Stop": 0
+    },
+    {
+      "Row": 24,
+      "Time": 0,
+      "Tempo": 150,
+      "Scroll": -0.5,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 0,
+      "Stop": 0.25
+    },
+    {
+      "Row": 96,
+      "Time": 0.25,
+      "Tempo": 150,
+      "Scroll": -0.5,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 0,
+      "Stop": 0
+    },
+    {
+      "Row": 144,
+      "Time": 0.65,
+      "Tempo": 150,
+      "Scroll": -0.5,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 0,
+      "Stop": 0
+    },
+    {
+      "Row": 192,
+      "Time": 1.05,
+      "Tempo": 180,
+      "Scroll": -0.5,
+      "SecondsPerRow": 0.006944444444444444,
+      "RowsPerSecond": 144,
+      "Warp": 0,
+      "Stop": 0
+    },
+    {
+      "Row": 240,
+      "Time": 1.3833333333333333,
+      "Tempo": 180,
+      "Scroll": 0,
+      "SecondsPerRow": 0.006944444444444444,
+      "RowsPerSecond": 144,
+      "Warp": 0,
+      "Stop": 0
+    }
+  ],
+  "Queries": [
+    {
+      "Mode": "ConstantTime",
+      "Time": -1,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": -1,
+      "Row": 0
+    },
+    {
+      "Mode": "Variable",
+      "Time": -1,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 0
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": -5e-324,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": -5e-324,
+      "Row": 0
+    },
+    {
+      "Mode": "Variable",
+      "Time": -5e-324,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 0
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 5e-324,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 5e-324,
+      "Row": 0
+    },
+    {
+      "Mode": "Variable",
+      "Time": 5e-324,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 10,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 10,
+      "Row": 0
+    },
+    {
+      "Mode": "Variable",
+      "Time": 10,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": -0.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": -0.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": -0.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 0
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 0
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 0.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 0.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 0.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 10000
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 10000
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 10000
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": -1,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": -1,
+      "Row": 24
+    },
+    {
+      "Mode": "Variable",
+      "Time": -1,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 24
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": -5e-324,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": -5e-324,
+      "Row": 24
+    },
+    {
+      "Mode": "Variable",
+      "Time": -5e-324,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 24
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 5e-324,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 5e-324,
+      "Row": 24
+    },
+    {
+      "Mode": "Variable",
+      "Time": 5e-324,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 10,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 10,
+      "Row": 24
+    },
+    {
+      "Mode": "Variable",
+      "Time": 10,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 23.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 23.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 23.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 24
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 24
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 24.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 24.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 24.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 10024
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 10024
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 10024
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": -1,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": -1,
+      "Row": 96
+    },
+    {
+      "Mode": "Variable",
+      "Time": -1,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 96
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.24999999999999997,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.24999999999999997,
+      "Row": 96
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.24999999999999997,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.25,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.25,
+      "Row": 96
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.25,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.25000000000000006,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.25000000000000006,
+      "Row": 96
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.25000000000000006,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 10.25,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 10.25,
+      "Row": 96
+    },
+    {
+      "Mode": "Variable",
+      "Time": 10.25,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.25,
+      "Row": 95.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.25,
+      "Row": 95.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.25,
+      "Row": 95.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.25,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.25,
+      "Row": 96
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.25,
+      "Row": 96
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.25,
+      "Row": 96.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.25,
+      "Row": 96.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.25,
+      "Row": 96.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.25,
+      "Row": 10096
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.25,
+      "Row": 10096
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.25,
+      "Row": 10096
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": -1,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": -1,
+      "Row": 144
+    },
+    {
+      "Mode": "Variable",
+      "Time": -1,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 144
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.6499999999999999,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.6499999999999999,
+      "Row": 144
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.6499999999999999,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.65,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.65,
+      "Row": 144
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.65,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.6500000000000001,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.6500000000000001,
+      "Row": 144
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.6500000000000001,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 10.65,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 10.65,
+      "Row": 144
+    },
+    {
+      "Mode": "Variable",
+      "Time": 10.65,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.65,
+      "Row": 143.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.65,
+      "Row": 143.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.65,
+      "Row": 143.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.65,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.65,
+      "Row": 144
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.65,
+      "Row": 144
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.65,
+      "Row": 144.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.65,
+      "Row": 144.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.65,
+      "Row": 144.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0.65,
+      "Row": 10144
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0.65,
+      "Row": 10144
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0.65,
+      "Row": 10144
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": -1,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": -1,
+      "Row": 192
+    },
+    {
+      "Mode": "Variable",
+      "Time": -1,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 192
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.0499999999999998,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.0499999999999998,
+      "Row": 192
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.0499999999999998,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.05,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.05,
+      "Row": 192
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.05,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.0500000000000003,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.0500000000000003,
+      "Row": 192
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.0500000000000003,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 11.05,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 11.05,
+      "Row": 192
+    },
+    {
+      "Mode": "Variable",
+      "Time": 11.05,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.05,
+      "Row": 191.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.05,
+      "Row": 191.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.05,
+      "Row": 191.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.05,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.05,
+      "Row": 192
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.05,
+      "Row": 192
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.05,
+      "Row": 192.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.05,
+      "Row": 192.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.05,
+      "Row": 192.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.05,
+      "Row": 10192
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.05,
+      "Row": 10192
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.05,
+      "Row": 10192
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": -1,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": -1,
+      "Row": 240
+    },
+    {
+      "Mode": "Variable",
+      "Time": -1,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 0,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 0,
+      "Row": 240
+    },
+    {
+      "Mode": "Variable",
+      "Time": 0,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.383333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.383333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.383333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.3833333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.3833333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.3833333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.3833333333333335,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.3833333333333335,
+      "Row": 240
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.3833333333333335,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 11.383333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 11.383333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "Variable",
+      "Time": 11.383333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.3833333333333333,
+      "Row": 239.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.3833333333333333,
+      "Row": 239.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.3833333333333333,
+      "Row": 239.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.3833333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.3833333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.3833333333333333,
+      "Row": 240
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.3833333333333333,
+      "Row": 240.5
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.3833333333333333,
+      "Row": 240.5
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.3833333333333333,
+      "Row": 240.5
+    },
+    {
+      "Mode": "ConstantTime",
+      "Time": 1.3833333333333333,
+      "Row": 10240
+    },
+    {
+      "Mode": "ConstantRow",
+      "Time": 1.3833333333333333,
+      "Row": 10240
+    },
+    {
+      "Mode": "Variable",
+      "Time": 1.3833333333333333,
+      "Row": 10240
+    }
+  ],
+  "RateSourceFixture": "spacing-sections-late-tempo-and-scroll.expected.json"
+}

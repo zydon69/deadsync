@@ -1,0 +1,17 @@
+{
+  "GrooveAuthor": "48e18f71655d0f0d86144c63239331833501fda2",
+  "Fumen": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "FumenAssemblySHA256": "904e93e98908befc28f14a70dc03992b5cd836b0f548918939af4dfdd9c256d1",
+  "TreeMembersSHA256": "ab725ca2a1e6e30fedb50a256b571c7210eaa136f71487027106f23ba6c7c481",
+  "UtilsMembersSHA256": "c771fbf01f873624d2f09ea61345a9f5715bf4bb9d89ef4e6ae5b44f29127a79",
+  "Cases": [
+    "spacing-index-baseline.request",
+    "spacing-index-empty.request",
+    "spacing-index-late-negative-scroll.request",
+    "spacing-index-late-tempo-and-scroll.request",
+    "spacing-index-late-tempo.request",
+    "spacing-index-overlapping-warp-stop.request",
+    "spacing-index-zero-scroll.request"
+  ],
+  "Scope": "Original FindBest/Ensure methods, actual Fumen tree; scalar event comparator preserves supplied chart order and original row/time-only search comparisons"
+}

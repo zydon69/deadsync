@@ -97,9 +97,14 @@ impl Clock {
         self.sync_offset = sync_offset;
         self
     }
+    /// Chart-time cursor position before same-row events. Visual rate selection
+    /// uses this directly, avoiding a floating-point round trip through offsets.
+    pub fn chart_time(&self, row: u64) -> Result<f64, Error> {
+        self.timeline.position_time(row)
+    }
     /// Audio-file seconds. Negative positions are valid silent lead-in.
     pub fn music_time(&self, row: u64) -> Result<f64, Error> {
-        self.chart_time_to_music(self.timeline.position_time(row)?)
+        self.chart_time_to_music(self.chart_time(row)?)
     }
     pub fn position(&self, music_seconds: f64) -> Result<f64, Error> {
         self.timeline
