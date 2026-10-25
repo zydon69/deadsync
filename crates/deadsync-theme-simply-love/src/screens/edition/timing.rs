@@ -1,168 +1,8 @@
 //! Optional timing inspector. Drafts remain private until one explicit acceptance.
 use super::*;
-use deadsync_editor::timing_edit::{
-    Scope, TempoDraft,
-    pause::{self, Kind as PauseKind},
-};
-use std::collections::BTreeMap;
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum EventKind {
-    Bpm,
-    Stop,
-    Delay,
-}
-impl EventKind {
-    fn label(self) -> &'static str {
-        match self {
-            Self::Bpm => "TimingTypeBpm",
-            Self::Stop => "TimingTypeStop",
-            Self::Delay => "TimingTypeDelay",
-        }
-    }
-}
-enum Draft {
-    Bpm(TempoDraft),
-    Pauses {
-        draft: pause::Draft,
-        kind: PauseKind,
-    },
-}
-impl Draft {
-    fn capture(
-        workspace: &Workspace,
-        scope: Scope,
-        kind: EventKind,
-    ) -> Result<Self, deadsync_editor::Error> {
-        match kind {
-            EventKind::Bpm => workspace.tempo_draft(scope).map(Self::Bpm),
-            _ => workspace.pause_draft(scope).map(|draft| Self::Pauses {
-                draft,
-                kind: if kind == EventKind::Stop {
-                    PauseKind::Stop
-                } else {
-                    PauseKind::Delay
-                },
-            }),
-        }
-    }
-    fn kind(&self) -> EventKind {
-        match self {
-            Self::Bpm(_) => EventKind::Bpm,
-            Self::Pauses {
-                kind: PauseKind::Stop,
-                ..
-            } => EventKind::Stop,
-            _ => EventKind::Delay,
-        }
-    }
-    fn scope(&self) -> Scope {
-        match self {
-            Self::Bpm(d) => d.scope(),
-            Self::Pauses { draft, .. } => draft.scope(),
-        }
-    }
-    fn inherited(&self) -> bool {
-        match self {
-            Self::Bpm(d) => d.inherited(),
-            Self::Pauses { draft, .. } => draft.inherited(),
-        }
-    }
-    fn affected_charts(&self) -> &[usize] {
-        match self {
-            Self::Bpm(d) => d.affected_charts(),
-            Self::Pauses { draft, .. } => draft.affected_charts(),
-        }
-    }
-    fn has_changes(&self) -> bool {
-        match self {
-            Self::Bpm(d) => d.has_changes(),
-            Self::Pauses { draft, .. } => draft.has_changes(),
-        }
-    }
-    fn values(&self) -> &BTreeMap<u64, f64> {
-        match self {
-            Self::Bpm(d) => d.tempos().values(),
-            Self::Pauses { draft, kind } => draft.pauses(*kind).values(),
-        }
-    }
-    fn value(&self, row: u64) -> f64 {
-        match self {
-            Self::Bpm(d) => d.tempos().at(row),
-            _ => self.values().get(&row).copied().unwrap_or(0.5),
-        }
-    }
-    fn count(&self) -> usize {
-        match self {
-            Self::Bpm(d) => d.tempos().values().len(),
-            Self::Pauses { draft, .. } => {
-                draft.pauses(PauseKind::Stop).values().len()
-                    + draft.pauses(PauseKind::Delay).values().len()
-            }
-        }
-    }
-    fn set(&mut self, row: u64, value: f64) -> Result<bool, deadsync_editor::Error> {
-        match self {
-            Self::Bpm(d) => d.set(row, value),
-            Self::Pauses { draft, kind } => draft.set(*kind, row, value),
-        }
-    }
-    fn remove(&mut self, row: u64) -> Result<bool, deadsync_editor::Error> {
-        match self {
-            Self::Bpm(d) => d.remove(row),
-            Self::Pauses { draft, kind } => draft.remove(*kind, row),
-        }
-    }
-    fn move_node(&mut self, from: u64, to: u64) -> Result<bool, deadsync_editor::Error> {
-        match self {
-            Self::Bpm(d) => d.move_node(from, to),
-            Self::Pauses { draft, kind } => draft.move_node(*kind, from, to),
-        }
-    }
-    fn apply(&self, workspace: &mut Workspace) -> Result<bool, deadsync_editor::Error> {
-        match self {
-            Self::Bpm(d) => workspace.apply_tempo(d),
-            Self::Pauses { draft, .. } => workspace.apply_pauses(draft),
-        }
-    }
-    fn valid_value(&self, value: f64) -> bool {
-        value.is_finite()
-            && (value as f32).is_finite()
-            && match self.kind() {
-                EventKind::Bpm => value >= deadsync_editor::timing_edit::tempo::MIN_BPM,
-                EventKind::Stop => value != 0.0,
-                EventKind::Delay => value >= 0.0,
-            }
-    }
-    fn key<'a>(&self, key: &'a str) -> &'a str {
-        if self.kind() == EventKind::Bpm {
-            return key;
-        }
-        match key {
-            "TimingBpm" => "PauseSeconds",
-            "TimingSet" => "PauseSet",
-            "TimingRemove" => "PauseRemove",
-            "TimingMove" => "PauseMove",
-            "TimingPrevious" => "PausePrevious",
-            "TimingNext" => "PauseNext",
-            "TimingAccept" => "PauseAccept",
-            "TimingStaged" => "PauseStaged",
-            "TimingRemoved" => "PauseRemoved",
-            "TimingMissing" => "PauseMissing",
-            "TimingCollision" => "PauseCollision",
-            "TimingMoveValue" => "PauseMoveValue",
-            "TimingMoved" => "PauseMoved",
-            "TimingInputPending" => "PauseInputPending",
-            "TimingInvalidBpm" => {
-                if self.kind() == EventKind::Stop {
-                    "PauseInvalidStop"
-                } else {
-                    "PauseInvalidDelay"
-                }
-            }
-            _ => key,
-        }
-    }
-}
+mod draft;
+use deadsync_editor::timing_edit::Scope;
+use draft::{Draft, EventKind};
 
 pub(super) struct Settings {
     draft: Draft,
@@ -175,7 +15,7 @@ pub(super) struct Settings {
 impl Settings {
     fn new(draft: Draft, row: u64) -> Self {
         let value = draft.value(row).to_string();
-        let node = draft.values().contains_key(&row).then_some(row);
+        let node = draft.node(row).map(|_| row);
         Self {
             draft,
             beat: beat_text(row),
@@ -278,6 +118,12 @@ impl State {
                         Ok(value) if value.is_finite() => {
                             let delta = if settings.draft.kind() == EventKind::Bpm {
                                 if self.shift { 0.1 } else { 1.0 }
+                            } else if settings.draft.kind().is_region() {
+                                if self.shift {
+                                    1.0 / 48.0
+                                } else {
+                                    SNAP_ROWS[self.workspace.snap()] as f64 / 48.0
+                                }
                             } else if self.shift {
                                 0.001
                             } else {
@@ -290,6 +136,9 @@ impl State {
                                 }
                                 EventKind::Delay => value.max(0.0),
                                 EventKind::Stop => value,
+                                EventKind::Warp | EventKind::Fake => {
+                                    (value * 48.0).round().max(1.0) / 48.0
+                                }
                             }
                             .to_string();
                             settings.pending = true;
@@ -400,26 +249,19 @@ impl State {
             self.status = i18n::tr("Edition", settings.draft.key("TimingInputPending"));
             return;
         }
-        let kind = match (settings.draft.kind(), self.shift) {
-            (EventKind::Bpm, false) | (EventKind::Delay, true) => EventKind::Stop,
-            (EventKind::Stop, false) | (EventKind::Bpm, true) => EventKind::Delay,
-            _ => EventKind::Bpm,
-        };
+        let kind = settings.draft.kind().step(self.shift);
         let row = settings.row().unwrap_or(self.workspace.row());
-        if let Draft::Pauses { .. } = &settings.draft {
-            if kind != EventKind::Bpm {
-                let mut settings = self.timing.take().unwrap();
-                if let Draft::Pauses { kind: current, .. } = &mut settings.draft {
-                    *current = if kind == EventKind::Stop {
-                        PauseKind::Stop
-                    } else {
-                        PauseKind::Delay
-                    };
-                }
-                self.timing = Some(Settings::new(settings.draft, row));
-                self.status = i18n::tr("Edition", "TimingHelp");
-                return;
-            }
+        let same_family = matches!(
+            (&settings.draft, kind),
+            (Draft::Pauses { .. }, EventKind::Stop | EventKind::Delay)
+                | (Draft::Regions { .. }, EventKind::Warp | EventKind::Fake)
+        );
+        if same_family {
+            let mut settings = self.timing.take().unwrap();
+            settings.draft.select_type(kind);
+            self.timing = Some(Settings::new(settings.draft, row));
+            self.status = i18n::tr("Edition", "TimingHelp");
+            return;
         }
         if settings.draft.has_changes() {
             self.status = i18n::tr("Edition", "TimingTypePending");
@@ -429,6 +271,13 @@ impl State {
             Ok(draft) => {
                 self.timing = Some(Settings::new(draft, row));
                 self.status = i18n::tr("Edition", "TimingHelp");
+            }
+            Err(_)
+                if kind.is_region()
+                    && self.workspace.file().session.document().format
+                        == deadsync_editor::document::Format::Sm =>
+            {
+                self.status = i18n::tr("Edition", "RegionSscRequired")
             }
             Err(error) => self.timing_error(error),
         }
@@ -471,7 +320,7 @@ impl State {
             }
         };
         let bpm = match settings.value.parse::<f64>() {
-            Ok(value) if settings.draft.valid_value(value) => value,
+            Ok(value) if settings.draft.valid_value_at(row, value) => value,
             _ => {
                 self.status = i18n::tr("Edition", settings.draft.key("TimingInvalidBpm"));
                 return false;
@@ -480,6 +329,7 @@ impl State {
         match settings.draft.set(row, bpm) {
             Ok(_) => {
                 settings.beat = beat_text(row);
+                settings.value = settings.draft.value(row).to_string();
                 settings.node = Some(row);
                 settings.pending = false;
                 settings.fresh = true;
@@ -544,11 +394,20 @@ impl State {
             self.status = i18n::tr("Edition", "TimingInitialImmutable");
             return;
         }
-        if from != to && settings.draft.values().contains_key(&to) {
+        if from != to && settings.draft.node(to).is_some() {
             self.status = i18n::tr("Edition", settings.draft.key("TimingCollision"));
             return;
         }
-        if settings.value.parse::<f64>().ok() != Some(settings.draft.value(from)) {
+        if !settings.draft.valid_destination(from, to) {
+            self.status = i18n::tr("Edition", "RegionInvalidLength");
+            return;
+        }
+        if !settings
+            .value
+            .parse::<f64>()
+            .ok()
+            .is_some_and(|value| settings.draft.same_value(from, value))
+        {
             self.status = i18n::tr("Edition", settings.draft.key("TimingMoveValue"));
             return;
         }
@@ -579,22 +438,10 @@ impl State {
                 return;
             }
         };
-        let nodes = settings.draft.values();
-        let next = if forward {
-            nodes
-                .range((std::ops::Bound::Excluded(row), std::ops::Bound::Unbounded))
-                .next()
-                .or_else(|| nodes.first_key_value())
-        } else {
-            nodes
-                .range(..row)
-                .next_back()
-                .or_else(|| nodes.last_key_value())
-        };
-        if let Some((&row, &bpm)) = next {
+        if let Some((row, value)) = settings.draft.neighbor(row, forward) {
             settings.node = Some(row);
             settings.beat = beat_text(row);
-            settings.value = bpm.to_string();
+            settings.value = value.to_string();
             settings.fresh = true;
             if let Err(error) = self.workspace.execute(Command::Seek(row)) {
                 self.timing_error(error);
@@ -672,7 +519,11 @@ impl State {
             2 => i18n::tr_fmt(
                 "Edition",
                 key,
-                &[("bpm", &settings.value), ("seconds", &settings.value)],
+                &[
+                    ("bpm", &settings.value),
+                    ("seconds", &settings.value),
+                    ("length", &settings.value),
+                ],
             ),
             5 => i18n::tr_fmt(
                 "Edition",

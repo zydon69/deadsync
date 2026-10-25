@@ -46,7 +46,7 @@ reviewable and tested.
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
-| Timing/gimmicks | F10 scoped BPM/stop/delay editing; typed warp/fake region core; shared revision/inheritance transaction | Original C# map, file-clock and editor dependency comparisons; native region controls, fractional loader normalization, other typed events, drawing and conversion remain pending |
+| Timing/gimmicks | F10 scoped BPM/stop/delay/warp/fake editing; typed region core; shared revision/inheritance transaction | Original C# map, file-clock and editor dependency comparisons; fractional loader normalization, other typed events, drawing and conversion remain pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
@@ -1284,7 +1284,7 @@ numeric input, accepts all BPM edits as one undoable gesture, and closes the
 panel. Escape or Discard abandons the draft without clearing redo. No-op Apply
 also preserves redo and original bytes. Saving to disk stays explicit.
 
-Thirteen English native workflows and two separate French workflows exercise production
+Seventeen English native workflows and three separate French workflows exercise production
 RawKeyboardEvent dispatch and the generated actor tree: F10/F7 access, numeric
 controls and rounding, scope isolation, malformed local data, initial/collision
 validation, navigation, move/delete acceptance, pending input, help visibility,
@@ -1336,8 +1336,8 @@ audio/cache updates, other timing/gimmicks and complete runtime
 parity are still required for the requested port.
 
 
-F10 now has an event-type heading. Tab cycles BPM → stop → delay, and Shift+Tab
-cycles in reverse. This adds no top-level menu rows. Stops and delays retain a
+F10 has an event-type heading. Tab cycles BPM → stop → delay → warp → fake, and
+Shift+Tab cycles in reverse. This adds no top-level menu rows. Stops and delays retain a
 single draft when switching between them, allowing one combined acceptance and
 undo. Unstaged input must be staged first. Switching between BPM and pause
 drafts requires applying or discarding changes; the panel refuses a switch that
@@ -1355,7 +1355,7 @@ workflows remain in the regression set. Actor and keyboard tests do not prove
 physical input, final GPU layout or audio preview behavior.
 
 
-### Typed warp and fake region editing (native controls pending)
+### Typed warp and fake region editing
 
 `timing_edit::region::{Regions, Draft, Kind}` and the workspace region APIs edit
 WARPS and FAKES as independent maps of start row to integer row length. The
@@ -1409,8 +1409,7 @@ a previous region's effective coverage, overlapping warps, coincident stops or
 delays, shared/owned timing and removal of every local region. No Rust output is
 used to manufacture these C# expected results.
 
-Native region controls, region drawing/selection, SM conversion and legacy
-migration, complete loader normalization, the remaining timing/gimmick types,
+Region drawing/selection, SM conversion and legacy migration, complete loader normalization, the remaining timing/gimmick types,
 audio/cache integration and the full delivery matrix remain work for the port.
 
 
@@ -1421,5 +1420,42 @@ import uses Fumen subdivision rounding and the editor constructor minimum clamp.
 EditorTimeline does not yet obtain all these normalized source values from the
 typed maps. Consequently the new map/edit comparisons do not prove complete
 runtime equivalence for fractional legacy input. This remains a concrete loader
-integration requirement, alongside the native region panel, before full parity
-can be claimed.
+integration requirement before full parity can be claimed.
+
+
+### Native warp and fake region inspector
+
+The F10 panel now includes warp and fake region types in its Tab/Shift+Tab cycle.
+There are still ten action rows and no extra top-level menu rows. Lengths are
+shown/entered in beats and rounded to integer 1/48-beat rows. Values that round
+to zero or put the region end beyond the supported row range are refused. A
+successful stage displays the canonical stored length. Left/Right changes length
+by the current snap; Shift changes it by one row. This does not change the
+reference importer rules for raw source values.
+
+The panel preserves one combined warp/fake draft when switching between those
+two types. Switching to BPM or pauses with unaccepted region edits is blocked;
+the paired stop/delay draft follows the same rule. Scope switches and navigation
+with unstaged input remain guarded. Navigation searches the selected type only,
+wraps at both ends, and seeks the chart cursor. Initial regions can move or be
+deleted. Move validates the entire destination interval and compares lengths in
+integer rows, so equivalent beat input does not spuriously count as a different
+length. Overlaps and simultaneous different types remain allowed. Apply is one
+history gesture for both maps; no-op or discarded changes preserve redo.
+
+A small presentation adapter dispatches to the typed BPM/pause/region drafts.
+Region lengths remain u64 rows in the core, rather than being stored as floating
+point seconds or beats. Navigation uses ordered-map lookups without allocating
+an event list for each keypress. The interface handles unsupported SM region
+editing with a localized error and retains the current panel/draft.
+
+Four additional English native workflows exercise production keyboard dispatch,
+source-preserving export, paired edits, validation/cancellation/redo, navigation,
+move/delete, shared timing, fine length controls, SM refusal and save/reopen.
+One scenario reproduces the edits of the actual original C# file/editor fixture
+and compares native-produced output's head times, fake flags and eligible step
+count with those original results. A new French workflow checks the translated
+headings, duration units, invalid-length message and paired acceptance. These
+join the existing editor regression workflows; physical input, GPU layout,
+region interval drawing, audio preview and complete source normalization remain
+separate requirements.

@@ -501,7 +501,9 @@ fn pause_type_input_and_scope_guards_cancel_and_zero_delay_validation_preserve_h
     press(&mut screen, KeyCode::Escape);
     press(&mut screen, KeyCode::F10);
     key(&mut screen, KeyCode::ShiftLeft, true);
-    press(&mut screen, KeyCode::Tab);
+    for _ in 0..3 {
+        press(&mut screen, KeyCode::Tab);
+    }
     key(&mut screen, KeyCode::ShiftLeft, false);
     index = 0;
     choose(&mut screen, &mut index, 2);
@@ -627,4 +629,262 @@ fn shared_pause_scope_leaves_local_charts_alone_and_pending_bpm_blocks_type_chan
             .as_deref(),
         Some("0=150")
     );
+}
+
+fn region_request() -> serde_json::Value {
+    serde_json::from_str(include_str!(
+        "../../deadsync-editor/tests/fixtures/grooveauthor/region-file-inherited.request.json"
+    ))
+    .unwrap()
+}
+fn open_region_panel(screen: &mut State) {
+    press(screen, KeyCode::F10);
+    for _ in 0..3 {
+        press(screen, KeyCode::Tab);
+    }
+}
+#[test]
+fn native_warp_and_fake_edits_match_original_editor_flags_times_apply_undo_save_and_reopen() {
+    use deadsync_editor::{
+        generation::{editor_timing::EditorTimeline, timing::GenerationTiming},
+        timing_edit::region::{Draft, Kind},
+    };
+    use std::sync::atomic::AtomicBool;
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let request = region_request();
+    let bytes = request["Content"].as_str().unwrap().as_bytes();
+    fs::write(&path, bytes).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_region_panel(&mut screen);
+    let mut index = 0;
+    assert!(contains(&screen, "Warps (length in beats)"));
+    assert!(contains(&screen, "inherited"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "2");
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "2");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Region staged"));
+    assert_eq!(serialized(&screen), bytes);
+    assert_eq!(fs::read(&path).unwrap(), bytes);
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Fake regions (length in beats)"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "3");
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0.5");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Apply or discard before switching"));
+    assert!(contains(&screen, "Fake regions"));
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::Tab);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "Warps (length in beats)"));
+    choose(&mut screen, &mut index, 6);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().row(), 96);
+    assert!(contains(&screen, "Length: 2 beats"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    let mut expected =
+        Session::new(Document::parse(Arc::<[u8]>::from(bytes), Format::Ssc).unwrap());
+    let mut draft = Draft::capture(&expected, 0, Scope::Chart).unwrap();
+    draft.set(Kind::Warp, 96, 96).unwrap();
+    draft.set(Kind::Fake, 144, 24).unwrap();
+    draft.apply(&mut expected, 0).unwrap();
+    let after = expected.serialize().unwrap();
+    assert_eq!(serialized(&screen), after);
+    let reference: serde_json::Value = serde_json::from_str(include_str!(
+        "../../deadsync-editor/tests/fixtures/grooveauthor/region-file-inherited.expected.json"
+    ))
+    .unwrap();
+    let timing = GenerationTiming::from_simfile(&after, Format::Ssc, 0).unwrap();
+    let timeline = EditorTimeline::build(
+        &timing,
+        screen.workspace().grid(),
+        None,
+        &AtomicBool::new(false),
+    )
+    .unwrap();
+    let original = &reference["After"][0]["Editor"];
+    for (head, node) in timeline
+        .heads()
+        .iter()
+        .zip(original["Heads"].as_array().unwrap())
+    {
+        assert_eq!(head.position.row, node["Row"].as_u64().unwrap());
+        assert_eq!(head.time, node["Time"].as_f64().unwrap());
+        assert_eq!(head.fake, node["Fake"].as_bool().unwrap());
+    }
+    assert_eq!(
+        timeline.heads().len(),
+        original["Heads"].as_array().unwrap().len()
+    );
+    assert_eq!(
+        timeline.step_count() as u64,
+        original["StepCount"].as_u64().unwrap()
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), bytes);
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    ctrl(&mut screen, KeyCode::KeyZ);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    ctrl(&mut screen, KeyCode::KeyS);
+    assert_eq!(fs::read(&path).unwrap(), after);
+    assert_eq!(serialized(&State::open(&path, 0).unwrap()), after);
+}
+#[test]
+fn region_invalid_lengths_endpoint_overflow_pending_input_and_cancel_preserve_redo() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let request = region_request();
+    let bytes = request["Content"].as_str().unwrap().as_bytes();
+    fs::write(&path, bytes).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::Digit2);
+    ctrl(&mut screen, KeyCode::KeyZ);
+    let redo = screen
+        .workspace()
+        .file()
+        .session
+        .redo_label()
+        .unwrap()
+        .to_owned();
+    open_region_panel(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    for value in ["0", "-1", "0.0001", "999999999999"] {
+        type_number(&mut screen, value);
+        choose(&mut screen, &mut index, 8);
+        press(&mut screen, KeyCode::Enter);
+        assert!(contains(&screen, "positive length of at least 1/48 beat"));
+        assert_eq!(serialized(&screen), bytes);
+        choose(&mut screen, &mut index, 2);
+    }
+    type_number(&mut screen, "1");
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Stage your input"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "44739242.64583333");
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "positive length of at least 1/48 beat"));
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(serialized(&screen), bytes);
+    assert_eq!(
+        screen.workspace().file().session.redo_label(),
+        Some(redo.as_str())
+    );
+    assert_eq!(fs::read(&path).unwrap(), bytes);
+    open_region_panel(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "No timing changes"));
+    assert_eq!(
+        screen.workspace().file().session.redo_label(),
+        Some(redo.as_str())
+    );
+}
+#[test]
+fn initial_region_can_move_collide_navigate_and_delete_without_removing_other_type() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let request = region_request();
+    let bytes = request["Content"].as_str().unwrap().as_bytes();
+    fs::write(&path, bytes).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_region_panel(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0.5");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "1");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "already starts at the destination"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "2");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Region move staged"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "44739242.64583333");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "positive length of at least 1/48 beat"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "2");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 6);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().row(), 48);
+    choose(&mut screen, &mut index, 4);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Region deletion staged"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    let document = screen.workspace().file().session.document();
+    assert_eq!(
+        document.text(Some(0), "WARPS").as_deref(),
+        Some("2=0.5,3=1")
+    );
+    assert_eq!(document.text(Some(0), "FAKES").as_deref(), Some("0=6,1=1"));
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), bytes);
+}
+#[test]
+fn region_shared_scope_rounding_fine_controls_and_sm_rejection_follow_format_rules() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let request = region_request();
+    let bytes = request["Content"].as_str().unwrap().as_bytes();
+    fs::write(&path, bytes).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_region_panel(&mut screen);
+    let mut index = 0;
+    press(&mut screen, KeyCode::ArrowRight);
+    assert!(contains(&screen, "shared song (2 charts"));
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0.02");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Length: 0.020833333333333332 beats"));
+    choose(&mut screen, &mut index, 2);
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::ArrowRight);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    let document = screen.workspace().file().session.document();
+    let parsed = deadsync_editor::timing_edit::region::Regions::parse(
+        deadsync_editor::timing_edit::region::Kind::Warp,
+        &document.text(None, "WARPS").unwrap(),
+    )
+    .unwrap();
+    assert_eq!(parsed.values().get(&0), Some(&2));
+    assert!(document.raw_property(Some(0), "WARPS").is_none());
+    assert_eq!(document.text(Some(1), "WARPS").as_deref(), Some("2=1"));
+    let sm = dir.path().join("song.sm");
+    let bytes = b"#BPMS:0=120;#NOTES:dance-single::Hard:9::1000;";
+    fs::write(&sm, bytes).unwrap();
+    let mut screen = State::open(&sm, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::Tab);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "requires SSC"));
+    assert!(contains(&screen, "BPM changes"));
+    assert_eq!(serialized(&screen), bytes);
 }
