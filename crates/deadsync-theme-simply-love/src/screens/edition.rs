@@ -1,5 +1,7 @@
 //! Compact native editor screen. The document and every edit command live in
 //! deadsync-editor; this module owns presentation, shortcuts, and exit prompts.
+mod batch;
+
 use crate::{act, i18n};
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
@@ -8,7 +10,7 @@ use deadlib_present::{
 };
 use deadsync_editor::{
     generation::{
-        clear_patterns,
+        batch_job, clear_patterns,
         config::{PatternConfig, PerformedConfig, PerformedPreset},
         job::{
             ChartOptions, ChartPreview, Job, Phase, ProfileOverrides, Progress, Report,
@@ -33,6 +35,7 @@ enum Panel {
     Unsaved(usize),
     ConfirmDiscard,
     Generation(usize),
+    Batch(usize),
     Pattern(usize),
     Marker(usize),
     Profiles(usize),
@@ -72,6 +75,7 @@ enum ProfileTarget {
     Marker,
     Chart,
     Conversion,
+    Batch,
 }
 
 struct ProfileSettings {
@@ -83,6 +87,7 @@ struct ProfileSettings {
 
 enum GenerationJob {
     Chart(Job),
+    Batch(Job<batch_job::Preview>),
     Pattern(Job<pattern_job::Preview>),
     Clear(Job<clear_patterns::Preview>),
 }
@@ -90,6 +95,7 @@ impl GenerationJob {
     fn cancel(&self) {
         match self {
             Self::Chart(job) => job.cancel(),
+            Self::Batch(job) => job.cancel(),
             Self::Pattern(job) => job.cancel(),
             Self::Clear(job) => job.cancel(),
         }
@@ -97,6 +103,7 @@ impl GenerationJob {
     fn is_cancelled(&self) -> bool {
         match self {
             Self::Chart(job) => job.is_cancelled(),
+            Self::Batch(job) => job.is_cancelled(),
             Self::Pattern(job) => job.is_cancelled(),
             Self::Clear(job) => job.is_cancelled(),
         }
@@ -104,6 +111,7 @@ impl GenerationJob {
     fn progress(&self) -> Progress {
         match self {
             Self::Chart(job) => job.progress(),
+            Self::Batch(job) => job.progress(),
             Self::Pattern(job) => job.progress(),
             Self::Clear(job) => job.progress(),
         }
@@ -113,6 +121,9 @@ impl GenerationJob {
             Self::Chart(job) => job
                 .poll()
                 .map(|result| result.map(GenerationPreview::Chart)),
+            Self::Batch(job) => job
+                .poll()
+                .map(|result| result.map(|preview| GenerationPreview::Batch { preview, entry: 0 })),
             Self::Pattern(job) => job
                 .poll()
                 .map(|result| result.map(GenerationPreview::Pattern)),
@@ -124,6 +135,10 @@ impl GenerationJob {
 }
 enum GenerationPreview {
     Chart(ChartPreview),
+    Batch {
+        preview: batch_job::Preview,
+        entry: usize,
+    },
     Pattern(pattern_job::Preview),
     Clear(clear_patterns::Preview),
 }
@@ -131,6 +146,7 @@ impl GenerationPreview {
     fn grid(&self) -> &deadsync_editor::notes::Grid {
         match self {
             Self::Chart(p) => p.grid(),
+            Self::Batch { preview, entry } => preview.grid(*entry),
             Self::Pattern(p) => p.grid(),
             Self::Clear(p) => p.grid(),
         }
@@ -138,6 +154,7 @@ impl GenerationPreview {
     fn layout(&self) -> &str {
         match self {
             Self::Chart(p) => p.target_layout(),
+            Self::Batch { preview, .. } => preview.target_layout(),
             Self::Pattern(p) => &p.generated().layout,
             Self::Clear(p) => p.layout(),
         }
@@ -147,6 +164,7 @@ impl GenerationPreview {
 pub struct State {
     workspace: Workspace,
     generation: GenerationSettings,
+    batch_source: Option<String>,
     pattern: PatternSettings,
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
@@ -228,6 +246,7 @@ impl State {
                 performed_name: None,
                 expressed_name: None,
             },
+            batch_source: None,
             pattern: PatternSettings {
                 span: Span {
                     start: 0,
@@ -475,6 +494,9 @@ impl State {
         }
     }
     fn open_conversion_profiles(&mut self) {
+        self.open_conversion_profiles_for(ProfileTarget::Conversion);
+    }
+    fn open_conversion_profiles_for(&mut self, target: ProfileTarget) {
         if self.is_generating() {
             return;
         }
@@ -485,7 +507,7 @@ impl State {
         {
             Ok(job) => {
                 self.profile_selection = None;
-                self.catalog_target = ProfileTarget::Conversion;
+                self.catalog_target = target;
                 self.catalog_job = Some(job);
                 self.panel = Some(Panel::Generating);
                 self.status = i18n::tr("Edition", "ProfileLoading");
@@ -527,7 +549,7 @@ impl State {
                 self.generation.performed_name = performed_name;
                 self.generation.expressed_name = expressed_name;
                 self.profile_selection = None;
-                self.panel = Some(Panel::Generation(5));
+                self.panel = Some(self.profile_return_panel());
                 self.status = i18n::tr("Edition", "ConversionProfilesStaged");
             }
             Err(error) => {
@@ -541,6 +563,7 @@ impl State {
             ProfileTarget::Marker => Panel::Marker(12),
             ProfileTarget::Chart => Panel::ChartProperties(0),
             ProfileTarget::Conversion => Panel::Generation(5),
+            ProfileTarget::Batch => Panel::Batch(4),
         }
     }
 
@@ -619,7 +642,7 @@ impl State {
                     && match self.catalog_target {
                         ProfileTarget::Marker => self.marker.is_some(),
                         ProfileTarget::Chart => self.chart_properties.is_some(),
-                        ProfileTarget::Conversion => true,
+                        ProfileTarget::Conversion | ProfileTarget::Batch => true,
                     } =>
             {
                 let (pattern, performed, expressed) = match self.catalog_target {
@@ -655,7 +678,7 @@ impl State {
                                 .position(|entry| &entry.guid == draft.expression()),
                         )
                     }
-                    ProfileTarget::Conversion => {
+                    ProfileTarget::Conversion | ProfileTarget::Batch => {
                         let index =
                             |kind, id: &Option<deadsync_editor::generation::metadata::Guid>| {
                                 match id {
@@ -679,7 +702,9 @@ impl State {
                     match self.catalog_target {
                         ProfileTarget::Marker => "ProfilePickerHelp",
                         ProfileTarget::Chart => "ChartExpressionPickerHelp",
-                        ProfileTarget::Conversion => "ConversionProfilesHelp",
+                        ProfileTarget::Conversion | ProfileTarget::Batch => {
+                            "ConversionProfilesHelp"
+                        }
                     },
                     &[("issues", &catalog.issues().len().to_string())],
                 );
@@ -692,7 +717,9 @@ impl State {
                 self.panel = Some(match self.catalog_target {
                     ProfileTarget::Marker => Panel::Profiles(0),
                     ProfileTarget::Chart => Panel::ChartExpression(0),
-                    ProfileTarget::Conversion => Panel::ConversionProfiles(0),
+                    ProfileTarget::Conversion | ProfileTarget::Batch => {
+                        Panel::ConversionProfiles(0)
+                    }
                 });
             }
             Ok(_) => self.status = i18n::tr("Edition", "ProfileStale"),
@@ -795,9 +822,17 @@ impl State {
             self.job = None;
             match result {
                 Ok(preview) => {
+                    let batch = matches!(preview, GenerationPreview::Batch { .. });
                     self.preview = Some(preview);
                     self.panel = Some(Panel::GenerationPreview(0));
-                    self.status = i18n::tr("Edition", "GenerationPreviewHelp");
+                    self.status = i18n::tr(
+                        "Edition",
+                        if batch {
+                            "BatchPreviewHelp"
+                        } else {
+                            "GenerationPreviewHelp"
+                        },
+                    );
                 }
                 Err(error) => {
                     self.panel = None;
@@ -824,7 +859,11 @@ impl State {
             };
             self.status = i18n::tr_fmt(
                 "Edition",
-                "GenerationProgress",
+                if matches!(job, GenerationJob::Batch(_)) {
+                    "BatchProgress"
+                } else {
+                    "GenerationProgress"
+                },
                 &[
                     ("phase", &i18n::tr("Edition", phase)),
                     ("done", &progress.completed.to_string()),
@@ -834,10 +873,64 @@ impl State {
         }
     }
 
-    fn start_generation(&mut self) {
-        if self.is_generating() {
-            return;
+    fn adjust_generation_setting(&mut self, index: usize, forward: bool) {
+        match index {
+            0 => {
+                self.generation.target = (self.generation.target
+                    + if forward { 1 } else { TARGET_LAYOUTS.len() - 1 })
+                    % TARGET_LAYOUTS.len()
+            }
+            1 => {
+                self.generation.preset = (self.generation.preset + if forward { 1 } else { 2 }) % 3;
+                self.generation.profiles.performed = None;
+                self.generation.performed_name = None;
+            }
+            2 => {
+                self.generation.seed =
+                    self.generation
+                        .seed
+                        .wrapping_add(if forward { 1 } else { -1 })
+            }
+            _ => {}
         }
+    }
+
+    fn generation_label(&self, index: usize, key: &str) -> Arc<str> {
+        let value = match index {
+            0 => TARGET_LAYOUTS[self.generation.target].to_owned(),
+            1 => self
+                .generation
+                .performed_name
+                .as_ref()
+                .map(|name| name.to_string())
+                .unwrap_or_else(|| {
+                    i18n::tr(
+                        "Edition",
+                        [
+                            "GenerationBalanced",
+                            "GenerationStaminaSingle",
+                            "GenerationStaminaDouble",
+                        ][self.generation.preset],
+                    )
+                    .to_string()
+                }),
+            2 => self.generation.seed.to_string(),
+            6 => self
+                .generation
+                .expressed_name
+                .as_ref()
+                .map(|name| name.to_string())
+                .unwrap_or_else(|| i18n::tr("Edition", "ConversionExpressionDefault").to_string()),
+            _ => String::new(),
+        };
+        if index < 3 || index == 6 {
+            i18n::tr_fmt("Edition", key, &[("value", &value)])
+        } else {
+            i18n::tr("Edition", key)
+        }
+    }
+
+    fn generation_options(&self) -> ChartOptions {
         let mut options = ChartOptions::balanced(TARGET_LAYOUTS[self.generation.target]);
         options.seed = self.generation.seed;
         options.performed = PerformedConfig::preset(match self.generation.preset {
@@ -845,6 +938,14 @@ impl State {
             2 => PerformedPreset::StaminaDouble,
             _ => PerformedPreset::Balanced,
         });
+        options
+    }
+
+    fn start_generation(&mut self) {
+        if self.is_generating() {
+            return;
+        }
+        let options = self.generation_options();
         match self
             .workspace
             .generation_task_with_profiles(
@@ -986,6 +1087,10 @@ impl State {
         }
         if event.code == KeyCode::Escape || event.code == KeyCode::F2 {
             return self.request_close();
+        }
+        if event.code == KeyCode::F8 {
+            self.open_batch();
+            return false;
         }
         if event.code == KeyCode::F7 {
             self.open_chart_properties();
@@ -1176,7 +1281,7 @@ impl State {
                         2 => self.stage_conversion_profiles(),
                         3 => {
                             self.profile_selection = None;
-                            self.panel = Some(Panel::Generation(5));
+                            self.panel = Some(self.profile_return_panel());
                         }
                         _ => {}
                     }
@@ -1403,6 +1508,7 @@ impl State {
                     }
                 }
             }
+            Panel::Batch(index) => self.batch_key(index, code),
             Panel::Generation(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::Generation(
@@ -1410,26 +1516,7 @@ impl State {
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     let forward = code == KeyCode::ArrowRight;
-                    match index {
-                        0 => {
-                            self.generation.target = (self.generation.target
-                                + if forward { 1 } else { TARGET_LAYOUTS.len() - 1 })
-                                % TARGET_LAYOUTS.len()
-                        }
-                        1 => {
-                            self.generation.preset =
-                                (self.generation.preset + if forward { 1 } else { 2 }) % 3;
-                            self.generation.profiles.performed = None;
-                            self.generation.performed_name = None;
-                        }
-                        2 => {
-                            self.generation.seed =
-                                self.generation
-                                    .seed
-                                    .wrapping_add(if forward { 1 } else { -1 })
-                        }
-                        _ => {}
-                    }
+                    self.adjust_generation_setting(index, forward);
                 } else if code == KeyCode::Enter {
                     match index {
                         3 => self.start_generation(),
@@ -1440,19 +1527,30 @@ impl State {
                 }
             }
             Panel::GenerationPreview(index) => {
-                if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
-                    self.panel = Some(Panel::GenerationPreview(1 - index));
+                let all_failed = matches!(&self.preview, Some(GenerationPreview::Batch {preview, ..}) if preview.report().generated == 0);
+                if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
+                    self.change_batch_entry(code == KeyCode::ArrowRight);
+                } else if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
+                    self.panel = Some(Panel::GenerationPreview(if all_failed {
+                        0
+                    } else {
+                        1 - index
+                    }));
                 } else if code == KeyCode::Enter {
-                    if index == 1 {
+                    if index == 1 || all_failed {
                         self.preview = None;
                         self.panel = None;
                         self.status = i18n::tr("Edition", "GenerationDiscarded");
                     } else if let Some(preview) = &self.preview {
                         let pattern = matches!(preview, GenerationPreview::Pattern(_));
                         let clearing = matches!(preview, GenerationPreview::Clear(_));
+                        let batch = matches!(preview, GenerationPreview::Batch { .. });
                         let result = match preview {
                             GenerationPreview::Chart(p) => {
                                 self.workspace.apply_generated(p).map(|_| ())
+                            }
+                            GenerationPreview::Batch { preview, .. } => {
+                                self.workspace.apply_batch_generated(preview).map(|_| ())
                             }
                             GenerationPreview::Pattern(p) => {
                                 self.workspace.apply_generated_pattern(p).map(|_| ())
@@ -1467,7 +1565,9 @@ impl State {
                                 self.panel = None;
                                 self.status = i18n::tr(
                                     "Edition",
-                                    if clearing {
+                                    if batch {
+                                        "BatchApplied"
+                                    } else if clearing {
                                         "MarkerCleared"
                                     } else if pattern {
                                         "PatternApplied"
@@ -1490,7 +1590,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 13,
+                    Panel::Menu(_) => 14,
                     Panel::Transforms(_) => 4,
                     _ => 3,
                 };
@@ -1541,9 +1641,10 @@ impl State {
                             7 => self.regenerate_saved_pattern(),
                             8 => self.open_marker(),
                             9 => self.open_chart_properties(),
-                            10 => self.command(Command::SaveRecovery),
-                            11 => self.help = !self.help,
-                            12 => return self.request_close(),
+                            10 => self.open_batch(),
+                            11 => self.command(Command::SaveRecovery),
+                            12 => self.help = !self.help,
+                            13 => return self.request_close(),
                             _ => {}
                         }
                     }
@@ -1732,6 +1833,7 @@ impl State {
                 "RegeneratePattern",
                 "EditPatternMarker",
                 "ChartProperties",
+                "GenerateChartSet",
                 "SaveDraft",
                 "ToggleHelp",
                 "Close",
@@ -1739,6 +1841,16 @@ impl State {
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
             Panel::ConfirmDiscard => &["ConfirmDiscard"],
+            Panel::Batch(_) => &[
+                "BatchSource",
+                "GenerationTarget",
+                "GenerationPreset",
+                "GenerationSeed",
+                "GenerationProfiles",
+                "BatchStart",
+                "KeepEditing",
+                "GenerationExpressionSummary",
+            ],
             Panel::Generation(_) => &[
                 "GenerationTarget",
                 "GenerationPreset",
@@ -1800,6 +1912,9 @@ impl State {
             ],
             Panel::ConfirmMarkerDelete => &["MarkerConfirmDelete"],
             Panel::Generating => &["GenerationCancel"],
+            Panel::GenerationPreview(_) if matches!(&self.preview,Some(GenerationPreview::Batch {preview,..}) if preview.report().generated == 0) => {
+                &["GenerationDiscard"]
+            }
             Panel::GenerationPreview(_) => &["GenerationApply", "GenerationDiscard"],
         };
         let selected = match panel {
@@ -1813,6 +1928,7 @@ impl State {
             | Panel::ChartExpression(i)
             | Panel::ConversionProfiles(i)
             | Panel::Generation(i)
+            | Panel::Batch(i)
             | Panel::GenerationPreview(i) => i,
             _ => 0,
         };
@@ -1826,7 +1942,10 @@ impl State {
         };
         actors.push(act!(quad: xy(screen_width() * 0.5, panel_y): zoomto(if previewing { screen_width() - 30.0 } else { 520.0 }, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
         if let Some(preview) = self.preview.as_ref().filter(|_| previewing) {
-            if let GenerationPreview::Clear(preview) = preview {
+            if let GenerationPreview::Batch { preview, entry } = preview {
+                let summary = self.batch_summary(preview, *entry);
+                actors.push(act!(text: font("miso"): settext(summary): align(0.5,0.0): xy(screen_width()*0.5,panel_y-panel_height*0.5+10.0): zoom(0.6): wrapwidthpixels((screen_width()-60.0)/0.6): maxwidth(screen_width()-60.0): maxheight(110.0): z(8021)));
+            } else if let GenerationPreview::Clear(preview) = preview {
                 let report = preview.report();
                 let summary = i18n::tr_fmt(
                     "Edition",
@@ -2077,41 +2196,28 @@ impl State {
                         "PatternApply"
                     },
                 )
+            } else if matches!(panel, Panel::GenerationPreview(_))
+                && index == 0
+                && matches!(&self.preview,Some(GenerationPreview::Batch {preview,..}) if preview.report().generated > 0)
+            {
+                i18n::tr_fmt(
+                    "Edition",
+                    "BatchApply",
+                    &[(
+                        "count",
+                        &self
+                            .batch_preview()
+                            .unwrap()
+                            .0
+                            .report()
+                            .generated
+                            .to_string(),
+                    )],
+                )
+            } else if matches!(panel, Panel::Batch(_)) {
+                self.batch_label(index, key)
             } else if matches!(panel, Panel::Generation(_)) {
-                let value = match index {
-                    0 => TARGET_LAYOUTS[self.generation.target].to_owned(),
-                    1 => self
-                        .generation
-                        .performed_name
-                        .as_ref()
-                        .map(|name| name.to_string())
-                        .unwrap_or_else(|| {
-                            i18n::tr(
-                                "Edition",
-                                [
-                                    "GenerationBalanced",
-                                    "GenerationStaminaSingle",
-                                    "GenerationStaminaDouble",
-                                ][self.generation.preset],
-                            )
-                            .to_string()
-                        }),
-                    2 => self.generation.seed.to_string(),
-                    6 => self
-                        .generation
-                        .expressed_name
-                        .as_ref()
-                        .map(|name| name.to_string())
-                        .unwrap_or_else(|| {
-                            i18n::tr("Edition", "ConversionExpressionDefault").to_string()
-                        }),
-                    _ => String::new(),
-                };
-                if index < 3 || index == 6 {
-                    i18n::tr_fmt("Edition", key, &[("value", &value)])
-                } else {
-                    i18n::tr("Edition", key)
-                }
+                self.generation_label(index, key)
             } else {
                 i18n::tr("Edition", key)
             };

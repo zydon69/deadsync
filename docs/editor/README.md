@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; full configurations and batch generation remain pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; full configuration editing and batch pattern regeneration remain pending |
 | Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -74,7 +74,7 @@ model and GrooveAuthor generation are not limited to RSSP's supported layouts.
 
 ```sh
 cargo test -p deadsync-editor --locked
-cargo test -p deadsync-theme-simply-love --test edition_workflow --locked
+cargo test -p deadsync-theme-simply-love --test edition_workflow --test edition_batch_workflow --locked
 CARGO_INCREMENTAL=0 cargo check -p deadsync --locked
 ```
 
@@ -995,3 +995,34 @@ children use the previously compared original generation engine; these tests do
 not execute the complete original batch action or UI. The native batch chooser,
 per-result review panel and their input-adapter tests are still pending, as are
 batch pattern regeneration and the remaining delivery matrix.
+
+
+### Native chart-set generation (F8)
+
+F8 or F1 > Generate chart set opens a compact optional panel. Source types are
+limited to supported layouts actually present in the song, with the focused
+chart's type preferred and an existing supported type as fallback. The source
+row shows the number of charts to convert. Target layout, preset, seed and
+performed/expressed profile choices share the single-conversion implementation;
+profile staging, Back and loading cancellation return to the batch panel.
+Settings remain transient and source metadata/profile files stay unchanged.
+
+The worker reports processed charts. Left/Right reviews every immutable result,
+including failures; Page Up/Down and Home/End inspect the selected note grid.
+The summary identifies the source, difficulty, meter, note/mine counts, skipped
+events, dropped mines and ignored profiles, or the complete error. Text wraps
+and fits within the summary area. Accept adds every successful result, even when
+the displayed result failed; discard/cancel changes no song data. An all-failed
+preview has only the discard action. Undo removes all additions and restores
+the original focused chart. Nothing writes the song until Save.
+
+Five `edition_batch_workflow` tests use the production keyboard adapter and actor
+tree. They compare previews with independently requested core batches, cover
+source/target/preset/seed controls, result navigation and scrolling, apply/undo/
+redo/save/reopen, custom profile routing and output, unchanged source metadata
+and profile files, partial/all failure, redo retention, menu entry, loading and
+worker cancellation, discard and unsupported sources. All 29 prior native editor
+workflows also pass. This verifies input dispatch and actor construction, not GPU
+rendering or physical input. Complete original batch-action differential replay,
+batch pattern regeneration, configuration management and all remaining domains in
+the delivery matrix are still required for the full GrooveAuthor port.
