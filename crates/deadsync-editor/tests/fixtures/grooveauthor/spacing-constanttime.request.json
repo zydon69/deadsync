@@ -1,0 +1,279 @@
+{
+  "Mode": "ConstantTime",
+  "Reverse": false,
+  "Stages": [
+    {
+      "Rate": {
+        "Time": 0,
+        "Row": 0,
+        "Tempo": 120,
+        "SecondsPerRow": 0.010416666666666666,
+        "RowsPerSecond": 96.0,
+        "Scroll": 1
+      },
+      "Speeds": {
+        "Time": 300,
+        "Row": 2,
+        "Variable": 300
+      },
+      "Interpolated": 1,
+      "Zoom": 1,
+      "Queries": [
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 0.25,
+            "Row": 12
+          },
+          "Time": 0.0,
+          "Row": 0,
+          "Y": 208,
+          "Region": {
+            "Time": -0.5,
+            "Row": -24,
+            "TimeDuration": 0,
+            "RowDuration": 0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 0.25,
+            "Row": 12
+          },
+          "Time": 0.5,
+          "Row": 48,
+          "Y": 208,
+          "Region": {
+            "Time": -0.5,
+            "Row": -24,
+            "TimeDuration": 2,
+            "RowDuration": 96,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 0.25,
+            "Row": 12
+          },
+          "Time": -0.25,
+          "Row": -24,
+          "Y": 208,
+          "Region": {
+            "Time": -0.5,
+            "Row": -24,
+            "TimeDuration": -1,
+            "RowDuration": -48,
+            "Selection": true,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 0.25,
+            "Row": 12
+          },
+          "Time": 1.0,
+          "Row": 96,
+          "Y": 208,
+          "Region": {
+            "Time": -0.5,
+            "Row": -24,
+            "TimeDuration": -0.5,
+            "RowDuration": -24.0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        }
+      ]
+    },
+    {
+      "Rate": {
+        "Time": 2,
+        "Row": 192,
+        "Tempo": 240,
+        "SecondsPerRow": 0.005208333333333333,
+        "RowsPerSecond": 192.0,
+        "Scroll": -2
+      },
+      "Speeds": {
+        "Time": 300,
+        "Row": 2,
+        "Variable": 300
+      },
+      "Interpolated": 0.5,
+      "Zoom": 1.2,
+      "Queries": [
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 2.25,
+            "Row": 204
+          },
+          "Time": 2.0,
+          "Row": 192,
+          "Y": 208,
+          "Region": {
+            "Time": 1.5,
+            "Row": 168,
+            "TimeDuration": 0,
+            "RowDuration": 0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 2.25,
+            "Row": 204
+          },
+          "Time": 2.25,
+          "Row": 240,
+          "Y": 208,
+          "Region": {
+            "Time": 1.5,
+            "Row": 168,
+            "TimeDuration": 2,
+            "RowDuration": 96,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 2.25,
+            "Row": 204
+          },
+          "Time": 1.875,
+          "Row": 168,
+          "Y": 208,
+          "Region": {
+            "Time": 1.5,
+            "Row": 168,
+            "TimeDuration": -1,
+            "RowDuration": -48,
+            "Selection": true,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 2.25,
+            "Row": 204
+          },
+          "Time": 2.5,
+          "Row": 288,
+          "Y": 208,
+          "Region": {
+            "Time": 1.5,
+            "Row": 168,
+            "TimeDuration": -0.5,
+            "RowDuration": -24.0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        }
+      ]
+    },
+    {
+      "Rate": {
+        "Time": 4,
+        "Row": 384,
+        "Tempo": 75,
+        "SecondsPerRow": 0.016666666666666666,
+        "RowsPerSecond": 60.0,
+        "Scroll": -0.5
+      },
+      "Speeds": {
+        "Time": 450,
+        "Row": 0.75,
+        "Variable": 600
+      },
+      "Interpolated": -1.5,
+      "Zoom": 0.25,
+      "Queries": [
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 4.25,
+            "Row": 396
+          },
+          "Time": 4.0,
+          "Row": 384,
+          "Y": 208,
+          "Region": {
+            "Time": 3.5,
+            "Row": 360,
+            "TimeDuration": 0,
+            "RowDuration": 0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 4.25,
+            "Row": 396
+          },
+          "Time": 4.8,
+          "Row": 432,
+          "Y": 208,
+          "Region": {
+            "Time": 3.5,
+            "Row": 360,
+            "TimeDuration": 2,
+            "RowDuration": 96,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 4.25,
+            "Row": 396
+          },
+          "Time": 3.6,
+          "Row": 360,
+          "Y": 208,
+          "Region": {
+            "Time": 3.5,
+            "Row": 360,
+            "TimeDuration": -1,
+            "RowDuration": -48,
+            "Selection": true,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 4.25,
+            "Row": 396
+          },
+          "Time": 5.6,
+          "Row": 480,
+          "Y": 208,
+          "Region": {
+            "Time": 3.5,
+            "Row": 360,
+            "TimeDuration": -0.5,
+            "RowDuration": -24.0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        }
+      ]
+    }
+  ]
+}

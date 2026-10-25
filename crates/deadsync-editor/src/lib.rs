@@ -24,6 +24,7 @@ pub mod runtime;
 pub mod song_properties;
 pub mod song_text;
 pub mod storage;
+pub mod spacing;
 pub mod text_buffer;
 pub mod timing_edit;
 pub mod transform;

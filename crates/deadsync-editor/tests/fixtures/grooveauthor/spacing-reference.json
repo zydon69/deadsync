@@ -1,0 +1,13 @@
+{
+  "GrooveAuthor": "48e18f71655d0f0d86144c63239331833501fda2",
+  "EventSpacingHelperSHA256": "67deae613750c28f54442f4379f65f7c7e7728b8603bb5ea16c25807bc35fd5b",
+  "Cases": [
+    "spacing-constantrow-reverse.request",
+    "spacing-constantrow.request",
+    "spacing-constanttime-reverse.request",
+    "spacing-constanttime.request",
+    "spacing-variable-reverse.request",
+    "spacing-variable.request"
+  ],
+  "AdapterScope": "Scalar preferences, event/region accessors and explicit linear rate conversion callbacks only; original helper unchanged"
+}

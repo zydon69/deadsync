@@ -3524,3 +3524,45 @@ workflows passed, and the three new native settings workflows passed again
 after adding fresh-editor reload assertions. `cargo check -p deadsync --jobs 2
 --locked` passed. The panel is validated through native key/actor integration;
 no physical screenshot validation of this new settings panel is claimed.
+
+### Original per-rate spacing helper (native integration pending)
+
+`spacing::Helper` ports the numerical behavior of GrooveAuthor's complete
+EventSpacingHelper family for ConstantTime, ConstantRow and Variable modes,
+including Reverse. It caches current and previous pixels-per-second/row values
+and keeps the reverse sign separate from negative-scroll detection. Variable
+spacing retains the original formula, including its 300 denominator, tempo,
+section scroll rate, interpolated scroll rate and spacing zoom.
+
+The helper exposes forward absolute/relative positions, positions relative to
+the current rate, row projection via a supplied conversion callback, inverse
+current/previous-rate projection, strict region-end comparisons, selection
+exceptions to skip logic, clipped region starts and signed region heights.
+Callers must normalize negative rectangle heights as in the original. Finite
+positive rate/speed/zoom inputs are validated atomically; section/interpolated
+scroll rates may be zero or negative. Zero variable speed gives valid collapsed
+forward geometry but an explicit non-invertible error. Rate-dependent queries
+reject use before initialization; caller timeline failures propagate.
+
+A development-only runner compiles the whole unchanged pinned C# source with
+scalar preference/event/region adapters. Six original request/expected traces
+cover 18 successive rate updates and 72 query sets across all modes/directions,
+including tempo changes, negative/interpolated scroll, different speeds, reverse,
+previous-rate inverse positions and region edge cases. Rust compares numerical
+outputs within two ULP and booleans exactly. Source hash/pin are committed in
+spacing-reference.json. Fixtures use explicit linear rate conversion callbacks;
+they do not establish original stop/warp/delay conversions or chart traversal.
+Five Rust workflows additionally check invalid/atomic updates, missing rate
+initialization, conversion failures, zero rates and strict/signed region edges.
+
+This helper is not yet wired into the native view. Its correct integration must
+traverse actual timing/scroll/speed sections and handle nonmonotonic variable
+spacing, collapsed sections, pause gaps, visible event indexing and waveform
+sampling without substituting linear timing for the original timeline. The
+current native view remains constant-row with the previously implemented zoom.
+
+Validation: the complete editor core suite passed 375 tests. The five spacing
+workflows passed separately again after extending strict region/selection and
+signed-height checks to all three modes. The original C# runner regenerated
+all six traces successfully. `cargo check -p deadsync --jobs 2 --locked` passed.
+No new native spacing mode or GPU behavior is claimed by this numerical port.
