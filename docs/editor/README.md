@@ -2833,3 +2833,22 @@ the region and checks both fill and label disappear without document changes.
 The first test assertion incorrectly treated the actor's zero explicit size as
 its effective size; it was corrected using the actual solid-sprite sizing
 contract. This is actor geometry evidence, not a GPU screenshot check.
+
+### Rendered sample-region runtime observation (2026-10-25)
+
+Built the current branch and packaged a fresh portable QA application identified
+as `org.deadsync.editorqa.sample`. It has an independent configuration and a
+synthetic SSC/WAV fixture (sample start 0.5 s, length 1 s). Windowed OpenGL at
+1280x720, French; startup confirms focused-window keyboard fallback. No Input
+Monitoring permission was granted.
+
+Keyboard-only navigation reached Practice -> F2 editor. Observed the green
+preview region, both boundary lines, readable French label and notes on top of
+the fill. F11 -> F6 displayed 0.500000 s start and 1.000000 s length with the full
+French multiline help inside the window. F4 displayed the looped-preview status;
+F4 again stopped it, and F3 moved the cursor/chart viewport to the start boundary
+(the toolbar shows the expected integral-row approximation). No error was found
+in the QA game log, and the synthetic simfile remains byte-identical to its
+fixture. This proves rendered layout and keyboard command responsiveness for
+this case. It does NOT establish speaker output, actual loop/fade audio,
+decoder error handling or waveform parity.
