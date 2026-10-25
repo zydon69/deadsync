@@ -3014,3 +3014,33 @@ remain incomplete.
 
 Validation for this checkpoint: four core preference workflows and 18 native
 workflows (17 song-text/settings plus one runtime bootstrap) pass.
+
+
+### Waveform multiresolution foundation
+
+waveform::Builder accepts frame-aligned interleaved i16 PCM packets and preserves
+channel separation and sample-to-sample history across packet boundaries. Its
+packed 32-bit nodes follow SoundMipMap's 9-bit extrema / 14-bit mean variation
+layout and its first previous value (0.5). Coordinates and per-sample distances
+truncate as in FillMipMapWorker. Dyadic levels permit arbitrary half-open frame
+queries without rescanning the underlying PCM. All levels retain both child
+extrema, including an odd final frame. Invalid packets fail before changing the
+builder; allocation failures return errors.
+
+Four workflows pass: source-formula quantization/distance examples, exhaustive
+interval extrema against direct PCM scans for a 137-frame stereo signal,
+packet-boundary independence, and empty/invalid/clipped inputs. These are Rust
+reference-formula tests, not differential execution of the original C# class.
+Higher-level mean distances use rounded child averages; GrooveAuthor initially
+accumulates several levels directly, so dense-region numerical parity is not yet
+proven. The inspected original coarse merge also reads GetMin for its second
+child's maximum; this port retains the actual maximum instead of copying that
+extrema-loss defect.
+
+Decoder integration, cancellable background loading, bounded resource policy,
+timeline mapping, native waveform rendering and waveform preferences remain
+pending. Waveform decoding must use DeadSync's music timeline options
+(mp3_gapless=false, mp3_info_silence=true), rather than decoder defaults, to align
+with playback. Memory currently scales with all packed sample levels (less than
+approximately 8 bytes per input sample, excluding vector overhead); do not start
+unbounded decoding on the UI thread.
