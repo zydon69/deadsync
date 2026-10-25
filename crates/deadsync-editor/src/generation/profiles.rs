@@ -272,6 +272,83 @@ impl Profile {
         *self = Self::from_members(self.config.kind(), members)?;
         Ok(())
     }
+    /// Replace the effective typed configuration without discarding vendor data.
+    /// The final Config is written after wrapper setters, whose source order can
+    /// otherwise silently override the user's edit when the profile is reopened.
+    pub fn set_config(&mut self, mut config: Config) -> Result<bool, Error> {
+        if config.kind() != self.config.kind() {
+            return invalid("Profile configuration kind cannot change");
+        }
+        config.validate()?;
+        if config == self.config {
+            return Ok(false);
+        }
+        let schema = match config.kind() {
+            Kind::Pattern => Config::Pattern(PatternConfig::default()),
+            Kind::Performed => Config::Performed(PerformedConfig::default()),
+            Kind::Expressed => Config::Expressed(ExpressedConfig::default()),
+        }
+        .json()?;
+        let mut members = self.members.clone();
+        let original = members
+            .0
+            .iter()
+            .rev()
+            .find(|(key, _)| key == "Config")
+            .map(|(_, value)| value.clone())
+            .unwrap_or(raw(&serde_json::json!({}))?);
+        if let Config::Pattern(pattern) = &config {
+            let index = SUBDIVISIONS
+                .iter()
+                .position(|value| *value == pattern.beat_sub_division)
+                .ok_or_else(|| invalid_error("Invalid pattern subdivision"))?;
+            for (name, value) in [
+                ("PatternType", raw(&SUBDIVISION_NAMES[index])?),
+                (
+                    "StartingFootSpecified",
+                    raw(&pattern.starting_foot_specified)?,
+                ),
+            ] {
+                if let Some((_, existing)) = members.0.iter_mut().rev().find(|(key, _)| key == name)
+                {
+                    *existing = value;
+                } else {
+                    members.0.push((name.into(), value));
+                }
+            }
+        }
+        let merged = merge_config(&original, &config.json()?, &schema)?;
+        if let Some((key, value)) = members.0.last_mut().filter(|(key, _)| key == "Config") {
+            debug_assert_eq!(key, "Config");
+            *value = merged;
+        } else {
+            members.0.push(("Config".into(), merged));
+        }
+        let candidate = Self::from_members(self.config.kind(), members)?;
+        if candidate.config != config {
+            return invalid("Profile configuration changed during serialization");
+        }
+        *self = candidate;
+        Ok(true)
+    }
+
+    /// Create a custom copy, including when the source is a protected preset.
+    pub fn duplicate(&self, name: &str) -> Result<Self, Error> {
+        let mut copy = self.clone();
+        let guid = Guid::random();
+        if let Some((_, value)) = copy
+            .members
+            .0
+            .iter_mut()
+            .rev()
+            .find(|(key, _)| key == "Guid")
+        {
+            *value = raw(&guid)?;
+        }
+        copy = Self::from_members(self.config.kind(), copy.members)?;
+        copy.rename(name)?;
+        Ok(copy)
+    }
     pub fn register(&self, registry: &mut Registry) -> Result<(), Error> {
         if builtin(self.config.kind(), &self.guid) {
             return invalid("Built-in editor profiles cannot be overwritten");
@@ -310,6 +387,30 @@ impl Profile {
             profile: self.clone(),
         })
     }
+}
+// Only typed object fields are merged. Empty schema objects represent dynamic
+// dictionaries: their keys are user data, so removal must remain possible.
+fn merge_config(
+    original: &RawValue,
+    edited: &Value,
+    schema: &Value,
+) -> Result<Box<RawValue>, Error> {
+    let (Some(fields), Some(schema)) = (edited.as_object(), schema.as_object()) else {
+        return raw(edited);
+    };
+    if schema.is_empty() {
+        return raw(edited);
+    }
+    let mut members: Members = read(original)?;
+    for (key, value) in fields {
+        let child_schema = schema.get(key).unwrap_or(&Value::Null);
+        if let Some((_, original)) = members.0.iter_mut().rev().find(|(name, _)| name == key) {
+            *original = merge_config(original, value, child_schema)?;
+        } else {
+            members.0.push((key.clone(), raw(value)?));
+        }
+    }
+    raw(&members)
 }
 fn enum_index(raw: &RawValue, names: &[&str]) -> Result<i32, Error> {
     let value: Value = read(raw)?;

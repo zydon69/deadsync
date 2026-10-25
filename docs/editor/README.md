@@ -4447,3 +4447,38 @@ including one undo restoring both. `cargo check -p deadsync-theme-simply-love
 `/tmp/deadsync-display-tempo-core.log` and
 `/tmp/deadsync-display-tempo-atomic-native.log`. No physical app review was
 performed for this panel.
+
+### Editable generation profile configurations
+
+`Profile::set_config` accepts all three existing typed configuration families,
+validates before mutation, rejects a kind change and leaves a semantic no-op
+byte-identical to the prior serialized profile. It merges typed object members
+into the ordered raw source while preserving unknown members, including nested
+vendor data and number literals outside f64 range. Dynamic dictionaries are
+replaced as dictionaries so removed arrow-weight entries do not reappear.
+
+The effective Config is written last to prevent original wrapper setters from
+overriding edits when a profile is reopened. Existing duplicate Config members
+remain preserved; subsequent edits replace the final Config instead of adding
+unbounded duplicates. Pattern subdivision/starting-foot wrapper values are also
+synchronized. Performed travel-speed wrapper representations are retained;
+a dedicated editor for their BPM/subdivision controls remains to be implemented.
+
+`Profile::duplicate` creates a new GUID and name while retaining configuration and
+vendor data. Preset export protection still applies to the original; the new
+custom copy can use the existing guarded atomic save path. These are core APIs;
+the native profile editing controls have not yet been connected.
+
+Tests cover effective edits/reopen across valid original profile-order fixtures,
+no-op preservation, repeat edits, invalid/wrong-kind atomic refusal, large unknown
+numbers, nested unknown fields, dictionary deletion, custom/preset duplication,
+save/reopen, and editing a saved profile used by an existing pattern marker.
+The marker-generation test checks that subdivision changes alter generated step
+counts after reloading the profile directory without mutating the source chart.
+This is workflow coverage; new edited payloads have not been run through the C#
+oracle. Full native configuration editing and complete editor parity remain open.
+
+Validation: 24 tests passed across `profile_edit_workflows` (6),
+`profile_workflows` (9), `profile_catalog_workflows` (5) and
+`conversion_profile_workflows` (4), using `--jobs 2 --locked`.
+Log: `/tmp/deadsync-profile-edit-core.log`.
