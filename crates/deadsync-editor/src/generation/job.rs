@@ -89,16 +89,23 @@ pub struct Report {
     pub empty: bool,
 }
 
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct ProfileOverrides {
+    pub performed: Option<super::metadata::Guid>,
+    pub expressed: Option<super::metadata::Guid>,
+}
+
 pub struct ChartTask {
     bytes: Arc<[u8]>,
     format: Format,
     token: RevisionToken,
     source_chart: usize,
     options: ChartOptions,
-    saved_expression: Option<ExpressionRequest>,
+    profiles: Option<ProfileRequest>,
 }
-struct ExpressionRequest {
+struct ProfileRequest {
     directory: Option<std::path::PathBuf>,
+    overrides: ProfileOverrides,
 }
 impl ChartTask {
     pub fn capture(
@@ -127,15 +134,20 @@ impl ChartTask {
             token: session.revision_token(),
             source_chart,
             options,
-            saved_expression: None,
+            profiles: None,
         })
     }
 
     /// Native conversion follows the source chart's persisted interpretation profile.
     /// Profile file reads and resolution happen on the worker.
-    pub fn with_chart_expression(
+    pub fn with_chart_expression(self, directory: Option<&std::path::Path>) -> Result<Self, Error> {
+        self.with_profile_overrides(directory, ProfileOverrides::default())
+    }
+    /// Overrides belong to this conversion request, never to source metadata.
+    pub fn with_profile_overrides(
         mut self,
         directory: Option<&std::path::Path>,
+        overrides: ProfileOverrides,
     ) -> Result<Self, Error> {
         let directory = directory
             .map(|path| {
@@ -146,7 +158,10 @@ impl ChartTask {
                 }
             })
             .transpose()?;
-        self.saved_expression = Some(ExpressionRequest { directory });
+        self.profiles = Some(ProfileRequest {
+            directory,
+            overrides,
+        });
         Ok(self)
     }
 
@@ -159,26 +174,41 @@ impl ChartTask {
         progress(Progress::default());
         let source = source::read(self.bytes, self.format, self.source_chart, cancelled)?;
         let mut expression_profile = None;
+        let mut performed_profile = None;
         let mut profile_issues = Vec::new();
-        if let Some(request) = self.saved_expression {
-            let data = source.initial_editor_metadata()?;
+        if let Some(request) = self.profiles {
+            let expression = match request.overrides.expressed {
+                Some(id) => id,
+                None => source.initial_editor_metadata()?.expressed_chart_config,
+            };
             let (registry, issues) = if let Some(directory) = request.directory {
                 let loaded = super::profiles::Loaded::directory_checked(&directory, cancelled)?;
                 (loaded.registry, loaded.issues)
             } else {
                 (super::metadata::Registry::builtin(), Vec::new())
             };
-            self.options.expressed = registry
-                .expressed
-                .get(&data.expressed_chart_config)
-                .cloned()
-                .ok_or_else(|| {
-                    Error::Unsupported(format!(
-                        "Missing expressed generation profile {}",
-                        data.expressed_chart_config
-                    ))
+            self.options.expressed =
+                registry
+                    .expressed
+                    .get(&expression)
+                    .cloned()
+                    .ok_or_else(|| {
+                        Error::Unsupported(format!(
+                            "Missing expressed generation profile {}",
+                            expression
+                        ))
+                    })?;
+            expression_profile = Some(expression);
+            if let Some(id) = request.overrides.performed {
+                self.options.performed = registry.performed.get(&id).cloned().ok_or_else(|| {
+                    Error::Unsupported(format!("Missing performed generation profile {id}"))
                 })?;
-            expression_profile = Some(data.expressed_chart_config);
+                self.options.performed.validate()?;
+                self.options
+                    .performed
+                    .normalized_weights(&self.options.target_layout)?;
+                performed_profile = Some(id);
+            }
             profile_issues = issues;
         }
         let prepared = source.prepare_editor(cancelled)?;
@@ -266,6 +296,7 @@ impl ChartTask {
             grid: assembled.grid,
             report,
             expression_profile,
+            performed_profile,
             profile_issues,
         })
     }
@@ -285,9 +316,13 @@ pub struct ChartPreview {
     grid: Grid,
     report: Report,
     expression_profile: Option<super::metadata::Guid>,
+    performed_profile: Option<super::metadata::Guid>,
     profile_issues: Vec<super::profiles::Issue>,
 }
 impl ChartPreview {
+    pub fn performed_profile(&self) -> Option<&super::metadata::Guid> {
+        self.performed_profile.as_ref()
+    }
     pub fn expression_profile(&self) -> Option<&super::metadata::Guid> {
         self.expression_profile.as_ref()
     }

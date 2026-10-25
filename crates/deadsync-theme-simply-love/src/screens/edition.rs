@@ -10,7 +10,10 @@ use deadsync_editor::{
     generation::{
         clear_patterns,
         config::{PatternConfig, PerformedConfig, PerformedPreset},
-        job::{ChartOptions, ChartPreview, Job, Phase, Progress, Report, TARGET_LAYOUTS},
+        job::{
+            ChartOptions, ChartPreview, Job, Phase, ProfileOverrides, Progress, Report,
+            TARGET_LAYOUTS,
+        },
         pattern_job::{self, Span},
         profile_catalog::{self, BuiltinLabel},
         profiles::Kind as ProfileKind,
@@ -35,6 +38,7 @@ enum Panel {
     Profiles(usize),
     ChartProperties(usize),
     ChartExpression(usize),
+    ConversionProfiles(usize),
     ConfirmMarkerDelete,
     Generating,
     GenerationPreview(usize),
@@ -44,6 +48,9 @@ struct GenerationSettings {
     target: usize,
     preset: usize,
     seed: i32,
+    profiles: ProfileOverrides,
+    performed_name: Option<Arc<str>>,
+    expressed_name: Option<Arc<str>>,
 }
 
 const PATTERN_SUBDIVISIONS: [u32; 9] = [1, 2, 3, 4, 6, 8, 12, 16, 48];
@@ -64,6 +71,7 @@ struct PatternSettings {
 enum ProfileTarget {
     Marker,
     Chart,
+    Conversion,
 }
 
 struct ProfileSettings {
@@ -216,6 +224,9 @@ impl State {
                 target,
                 preset: 0,
                 seed: 0,
+                profiles: ProfileOverrides::default(),
+                performed_name: None,
+                expressed_name: None,
             },
             pattern: PatternSettings {
                 span: Span {
@@ -272,6 +283,15 @@ impl State {
     ) -> Option<&deadsync_editor::generation::metadata::Guid> {
         self.preview.as_ref().and_then(|preview| match preview {
             GenerationPreview::Chart(preview) => preview.expression_profile(),
+            _ => None,
+        })
+    }
+
+    pub fn generation_performed_profile(
+        &self,
+    ) -> Option<&deadsync_editor::generation::metadata::Guid> {
+        self.preview.as_ref().and_then(|preview| match preview {
+            GenerationPreview::Chart(preview) => preview.performed_profile(),
             _ => None,
         })
     }
@@ -454,10 +474,73 @@ impl State {
             }
         }
     }
+    fn open_conversion_profiles(&mut self) {
+        if self.is_generating() {
+            return;
+        }
+        match self
+            .workspace
+            .conversion_profile_task(self.profile_directory.as_deref())
+            .and_then(|task| task.spawn())
+        {
+            Ok(job) => {
+                self.profile_selection = None;
+                self.catalog_target = ProfileTarget::Conversion;
+                self.catalog_job = Some(job);
+                self.panel = Some(Panel::Generating);
+                self.status = i18n::tr("Edition", "ProfileLoading");
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+    fn stage_conversion_profiles(&mut self) {
+        let Some(settings) = &self.profile_selection else {
+            return;
+        };
+        let selected = |kind, index: Option<usize>| match index? {
+            0 => Some((None, None)),
+            index => settings.catalog.entries(kind).get(index - 1).map(|entry| {
+                (
+                    Some(entry.guid.clone()),
+                    Some(Arc::<str>::from(profile_entry_name(entry))),
+                )
+            }),
+        };
+        let (Some((performed, performed_name)), Some((expressed, expressed_name))) = (
+            selected(ProfileKind::Performed, settings.performed),
+            selected(ProfileKind::Expressed, settings.expressed),
+        ) else {
+            self.status = i18n::tr("Edition", "ConversionChooseMissing");
+            return;
+        };
+        match self.workspace.select_conversion_profiles(
+            &settings.catalog,
+            ProfileOverrides {
+                performed,
+                expressed,
+            },
+        ) {
+            Ok(profiles) => {
+                self.generation.profiles = profiles;
+                self.generation.performed_name = performed_name;
+                self.generation.expressed_name = expressed_name;
+                self.profile_selection = None;
+                self.panel = Some(Panel::Generation(5));
+                self.status = i18n::tr("Edition", "ConversionProfilesStaged");
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+
     fn profile_return_panel(&self) -> Panel {
         match self.catalog_target {
             ProfileTarget::Marker => Panel::Marker(12),
             ProfileTarget::Chart => Panel::ChartProperties(0),
+            ProfileTarget::Conversion => Panel::Generation(5),
         }
     }
 
@@ -536,6 +619,7 @@ impl State {
                     && match self.catalog_target {
                         ProfileTarget::Marker => self.marker.is_some(),
                         ProfileTarget::Chart => self.chart_properties.is_some(),
+                        ProfileTarget::Conversion => true,
                     } =>
             {
                 let (pattern, performed, expressed) = match self.catalog_target {
@@ -571,12 +655,31 @@ impl State {
                                 .position(|entry| &entry.guid == draft.expression()),
                         )
                     }
+                    ProfileTarget::Conversion => {
+                        let index =
+                            |kind, id: &Option<deadsync_editor::generation::metadata::Guid>| {
+                                match id {
+                                    None => Some(0),
+                                    Some(id) => catalog
+                                        .entries(kind)
+                                        .iter()
+                                        .position(|entry| &entry.guid == id)
+                                        .map(|index| index + 1),
+                                }
+                            };
+                        (
+                            None,
+                            index(ProfileKind::Performed, &self.generation.profiles.performed),
+                            index(ProfileKind::Expressed, &self.generation.profiles.expressed),
+                        )
+                    }
                 };
                 self.status = i18n::tr_fmt(
                     "Edition",
                     match self.catalog_target {
                         ProfileTarget::Marker => "ProfilePickerHelp",
                         ProfileTarget::Chart => "ChartExpressionPickerHelp",
+                        ProfileTarget::Conversion => "ConversionProfilesHelp",
                     },
                     &[("issues", &catalog.issues().len().to_string())],
                 );
@@ -589,6 +692,7 @@ impl State {
                 self.panel = Some(match self.catalog_target {
                     ProfileTarget::Marker => Panel::Profiles(0),
                     ProfileTarget::Chart => Panel::ChartExpression(0),
+                    ProfileTarget::Conversion => Panel::ConversionProfiles(0),
                 });
             }
             Ok(_) => self.status = i18n::tr("Edition", "ProfileStale"),
@@ -743,7 +847,11 @@ impl State {
         });
         match self
             .workspace
-            .generation_task_using_chart_expression(options, self.profile_directory.as_deref())
+            .generation_task_with_profiles(
+                options,
+                self.profile_directory.as_deref(),
+                self.generation.profiles.clone(),
+            )
             .and_then(|task| task.spawn())
         {
             Ok(job) => {
@@ -1016,7 +1124,10 @@ impl State {
             return false;
         }
         if code == KeyCode::Escape {
-            if matches!(panel, Panel::Profiles(_) | Panel::ChartExpression(_)) {
+            if matches!(
+                panel,
+                Panel::Profiles(_) | Panel::ChartExpression(_) | Panel::ConversionProfiles(_)
+            ) {
                 self.profile_selection = None;
                 self.panel = Some(self.profile_return_panel());
                 return false;
@@ -1028,6 +1139,49 @@ impl State {
             return false;
         }
         match panel {
+            Panel::ConversionProfiles(index) => {
+                if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
+                    self.panel = Some(Panel::ConversionProfiles(
+                        (index + if code == KeyCode::ArrowUp { 3 } else { 1 }) % 4,
+                    ));
+                } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
+                    if let Some(settings) = &mut self.profile_selection {
+                        let (selected, kind) = match index {
+                            0 => (&mut settings.performed, ProfileKind::Performed),
+                            1 => (&mut settings.expressed, ProfileKind::Expressed),
+                            _ => return false,
+                        };
+                        let count = settings.catalog.entries(kind).len() + 1;
+                        *selected = Some(match *selected {
+                            Some(current) => {
+                                (current
+                                    + if code == KeyCode::ArrowRight {
+                                        1
+                                    } else {
+                                        count - 1
+                                    })
+                                    % count
+                            }
+                            None => {
+                                if code == KeyCode::ArrowRight {
+                                    0
+                                } else {
+                                    count - 1
+                                }
+                            }
+                        });
+                    }
+                } else if code == KeyCode::Enter {
+                    match index {
+                        2 => self.stage_conversion_profiles(),
+                        3 => {
+                            self.profile_selection = None;
+                            self.panel = Some(Panel::Generation(5));
+                        }
+                        _ => {}
+                    }
+                }
+            }
             Panel::ChartProperties(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ChartProperties(
@@ -1252,7 +1406,7 @@ impl State {
             Panel::Generation(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::Generation(
-                        (index + if code == KeyCode::ArrowUp { 4 } else { 1 }) % 5,
+                        (index + if code == KeyCode::ArrowUp { 6 } else { 1 }) % 7,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     let forward = code == KeyCode::ArrowRight;
@@ -1264,7 +1418,9 @@ impl State {
                         }
                         1 => {
                             self.generation.preset =
-                                (self.generation.preset + if forward { 1 } else { 2 }) % 3
+                                (self.generation.preset + if forward { 1 } else { 2 }) % 3;
+                            self.generation.profiles.performed = None;
+                            self.generation.performed_name = None;
                         }
                         2 => {
                             self.generation.seed =
@@ -1278,6 +1434,7 @@ impl State {
                     match index {
                         3 => self.start_generation(),
                         4 => self.panel = None,
+                        5 => self.open_conversion_profiles(),
                         _ => {}
                     }
                 }
@@ -1588,6 +1745,8 @@ impl State {
                 "GenerationSeed",
                 "GenerationStart",
                 "KeepEditing",
+                "GenerationProfiles",
+                "GenerationExpressionSummary",
             ],
             Panel::Pattern(_) => &[
                 "PatternRange",
@@ -1614,6 +1773,12 @@ impl State {
                 "MarkerPrevious",
                 "MarkerNext",
                 "MarkerProfiles",
+            ],
+            Panel::ConversionProfiles(_) => &[
+                "GenerationPerformedProfile",
+                "GenerationExpressionProfile",
+                "ConversionProfileUse",
+                "ProfileBack",
             ],
             Panel::ChartProperties(_) => &[
                 "ChartChooseExpression",
@@ -1646,6 +1811,7 @@ impl State {
             | Panel::Profiles(i)
             | Panel::ChartProperties(i)
             | Panel::ChartExpression(i)
+            | Panel::ConversionProfiles(i)
             | Panel::Generation(i)
             | Panel::GenerationPreview(i) => i,
             _ => 0,
@@ -1748,7 +1914,36 @@ impl State {
             } else {
                 [0.8, 0.8, 0.85, 1.0]
             };
-            let label = if matches!(panel, Panel::ChartProperties(_)) && (1..=3).contains(&index) {
+            let label = if matches!(panel, Panel::ConversionProfiles(_)) && index < 2 {
+                let value = self
+                    .profile_selection
+                    .as_ref()
+                    .and_then(|settings| {
+                        let (selected, kind, default) = if index == 0 {
+                            (
+                                settings.performed,
+                                ProfileKind::Performed,
+                                "ConversionPresetDefault",
+                            )
+                        } else {
+                            (
+                                settings.expressed,
+                                ProfileKind::Expressed,
+                                "ConversionExpressionDefault",
+                            )
+                        };
+                        match selected? {
+                            0 => Some(i18n::tr("Edition", default).to_string()),
+                            selected => settings
+                                .catalog
+                                .entries(kind)
+                                .get(selected - 1)
+                                .map(profile_entry_name),
+                        }
+                    })
+                    .unwrap_or_else(|| i18n::tr("Edition", "ProfileMissing").to_string());
+                i18n::tr_fmt("Edition", key, &[("value", &value)])
+            } else if matches!(panel, Panel::ChartProperties(_)) && (1..=3).contains(&index) {
                 let value = self
                     .chart_properties
                     .as_ref()
@@ -1885,19 +2080,34 @@ impl State {
             } else if matches!(panel, Panel::Generation(_)) {
                 let value = match index {
                     0 => TARGET_LAYOUTS[self.generation.target].to_owned(),
-                    1 => i18n::tr(
-                        "Edition",
-                        [
-                            "GenerationBalanced",
-                            "GenerationStaminaSingle",
-                            "GenerationStaminaDouble",
-                        ][self.generation.preset],
-                    )
-                    .to_string(),
+                    1 => self
+                        .generation
+                        .performed_name
+                        .as_ref()
+                        .map(|name| name.to_string())
+                        .unwrap_or_else(|| {
+                            i18n::tr(
+                                "Edition",
+                                [
+                                    "GenerationBalanced",
+                                    "GenerationStaminaSingle",
+                                    "GenerationStaminaDouble",
+                                ][self.generation.preset],
+                            )
+                            .to_string()
+                        }),
                     2 => self.generation.seed.to_string(),
+                    6 => self
+                        .generation
+                        .expressed_name
+                        .as_ref()
+                        .map(|name| name.to_string())
+                        .unwrap_or_else(|| {
+                            i18n::tr("Edition", "ConversionExpressionDefault").to_string()
+                        }),
                     _ => String::new(),
                 };
-                if index < 3 {
+                if index < 3 || index == 6 {
                     i18n::tr_fmt("Edition", key, &[("value", &value)])
                 } else {
                     i18n::tr("Edition", key)

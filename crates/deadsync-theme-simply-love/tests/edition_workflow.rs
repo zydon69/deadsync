@@ -579,6 +579,16 @@ fn pattern_panel_has_explicit_english_and_french_translations() {
         "ChartPropertiesHelpSm",
         "ChartExpressionPickerHelp",
         "ChartStageExpression",
+        "GenerationProfiles",
+        "GenerationPerformedProfile",
+        "GenerationExpressionProfile",
+        "GenerationExpressionSummary",
+        "ConversionPresetDefault",
+        "ConversionExpressionDefault",
+        "ConversionProfileUse",
+        "ConversionProfilesHelp",
+        "ConversionProfilesStaged",
+        "ConversionChooseMissing",
     ] {
         let english = en
             .fallback
@@ -1853,5 +1863,314 @@ fn sm_properties_explain_editor_only_offset_and_keep_song_offset_unchanged() {
             .unwrap()
             .effective_music_offset(),
         0.0001
+    );
+}
+
+fn conversion_profiles(
+    folder: &std::path::Path,
+) -> (
+    deadsync_editor::generation::profiles::Profile,
+    deadsync_editor::generation::profiles::Profile,
+) {
+    use deadsync_editor::generation::{
+        config::{
+            BracketDetermination, BracketMethod, ExpressedConfig, PerformedConfig, PerformedPreset,
+        },
+        profiles::{Kind, Profile},
+    };
+    let id = "11111111-2222-3333-4444-555555555555";
+    let performed=Profile::parse(Kind::Performed,&serde_json::to_vec(&serde_json::json!({"Guid":id,"Name":"Custom placement","Config":PerformedConfig::preset(PerformedPreset::PatternNoCandles)})).unwrap()).unwrap();
+    performed.export_new(folder).unwrap();
+    let expressed=Profile::parse(Kind::Expressed,&serde_json::to_vec(&serde_json::json!({"Guid":id,"Name":"Custom interpretation","Config":ExpressedConfig{bracket_parsing_determination:BracketDetermination::UseDefaultMethod,default_bracket_parsing_method:BracketMethod::NoBrackets,..ExpressedConfig::default()}})).unwrap()).unwrap();
+    expressed.export_new(folder).unwrap();
+    (performed, expressed)
+}
+fn open_conversion_profiles(screen: &mut State) {
+    press(screen, KeyCode::F3);
+    press(screen, KeyCode::ArrowRight);
+    for _ in 0..5 {
+        press(screen, KeyCode::ArrowDown);
+    }
+    press(screen, KeyCode::Enter);
+    finish_generation(screen);
+}
+fn stage_conversion_profiles(screen: &mut State) {
+    choose_visible_profile(screen, "Custom placement");
+    press(screen, KeyCode::ArrowDown);
+    choose_visible_profile(screen, "Custom interpretation");
+    press(screen, KeyCode::ArrowDown);
+    press(screen, KeyCode::Enter);
+}
+fn generate_after_profile_selection(screen: &mut State) {
+    press(screen, KeyCode::ArrowUp);
+    press(screen, KeyCode::ArrowUp);
+    press(screen, KeyCode::Enter);
+    finish_generation(screen);
+}
+#[test]
+fn f3_request_profiles_are_reviewed_apply_undo_save_and_do_not_modify_source_properties() {
+    use deadsync_editor::generation::{
+        job::{ChartOptions, ChartTask},
+        metadata::ChartData,
+        profiles::Config,
+    };
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let folder = dir.path().join("AutogenConfigs");
+    let (performed, expressed) = conversion_profiles(&folder);
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open_with_profiles(&path, 0, &folder).unwrap();
+    open_conversion_profiles(&mut screen);
+    stage_conversion_profiles(&mut screen);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(
+        |a| matches!(a,Actor::Text{content,z:8021,..} if content.contains("Custom placement"))
+    ));
+    assert!(actors.iter().any(
+        |a| matches!(a,Actor::Text{content,z:8021,..} if content.contains("Custom interpretation"))
+    ));
+    let mut options = ChartOptions::balanced("dance-double");
+    options.performed = match performed.config() {
+        Config::Performed(config) => config.clone(),
+        _ => panic!(),
+    };
+    options.expressed = match expressed.config() {
+        Config::Expressed(config) => config.clone(),
+        _ => panic!(),
+    };
+    let expected = ChartTask::capture(&screen.workspace().file().session, 0, options)
+        .unwrap()
+        .run(&std::sync::atomic::AtomicBool::new(false), |_| {})
+        .unwrap();
+    generate_after_profile_selection(&mut screen);
+    assert_eq!(
+        screen.generation_performed_profile(),
+        Some(performed.guid())
+    );
+    assert_eq!(
+        screen.generation_expression_profile(),
+        Some(expressed.guid())
+    );
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().chart(), 1);
+    assert_eq!(screen.workspace().grid(), expected.grid());
+    assert!(
+        ChartData::read(screen.workspace().file().session.document(), 0)
+            .unwrap()
+            .is_none()
+    );
+    let after = screen.workspace().file().session.serialize().unwrap();
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    ctrl(&mut screen, KeyCode::KeyY);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        after
+    );
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open_with_profiles(&path, 1, &folder).unwrap();
+    assert_eq!(reopened.workspace().grid(), expected.grid());
+    assert_eq!(
+        fs::read(folder.join(performed.filename())).unwrap(),
+        performed.serialize().unwrap()
+    );
+    assert_eq!(
+        fs::read(folder.join(expressed.filename())).unwrap(),
+        expressed.serialize().unwrap()
+    );
+}
+#[test]
+fn f3_back_loading_cancel_and_preset_change_keep_expression_override_and_source_untouched() {
+    use deadsync_editor::generation::{
+        config::{PerformedConfig, PerformedPreset},
+        job::{ChartOptions, ChartTask},
+        profiles::Config,
+    };
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let folder = dir.path().join("AutogenConfigs");
+    let (_, expressed) = conversion_profiles(&folder);
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open_with_profiles(&path, 0, &folder).unwrap();
+    open_conversion_profiles(&mut screen);
+    stage_conversion_profiles(&mut screen);
+    press(&mut screen, KeyCode::Enter);
+    press(&mut screen, KeyCode::Escape);
+    finish_generation(&mut screen);
+    press(&mut screen, KeyCode::Enter);
+    finish_generation(&mut screen);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::Escape);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(
+        |a| matches!(a,Actor::Text{content,z:8021,..} if content.contains("Custom placement"))
+    ));
+    for _ in 0..4 {
+        press(&mut screen, KeyCode::ArrowUp);
+    }
+    press(&mut screen, KeyCode::ArrowRight);
+    actors.clear();
+    screen.actors(&mut actors);
+    assert!(!actors.iter().any(
+        |a| matches!(a,Actor::Text{content,z:8021,..} if content.contains("Custom placement"))
+    ));
+    assert!(actors.iter().any(
+        |a| matches!(a,Actor::Text{content,z:8021,..} if content.contains("Custom interpretation"))
+    ));
+    let mut options = ChartOptions::balanced("dance-double");
+    options.performed = PerformedConfig::preset(PerformedPreset::StaminaSingle);
+    options.expressed = match expressed.config() {
+        Config::Expressed(config) => config.clone(),
+        _ => panic!(),
+    };
+    let expected = ChartTask::capture(&screen.workspace().file().session, 0, options)
+        .unwrap()
+        .run(&std::sync::atomic::AtomicBool::new(false), |_| {})
+        .unwrap();
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    finish_generation(&mut screen);
+    assert!(screen.generation_performed_profile().is_none());
+    assert_eq!(
+        screen.generation_expression_profile(),
+        Some(expressed.guid())
+    );
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().grid(), expected.grid());
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    // Explicitly return interpretation to the source setting (the sentinel row).
+    press(&mut screen, KeyCode::F3);
+    for _ in 0..5 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    finish_generation(&mut screen);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    generate_after_profile_selection(&mut screen);
+    assert_eq!(
+        screen.generation_expression_profile(),
+        Some(
+            &deadsync_editor::generation::metadata::DYNAMIC
+                .parse()
+                .unwrap()
+        )
+    );
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    let mut reopened = State::open_with_profiles(&path, 0, &folder).unwrap();
+    press(&mut reopened, KeyCode::F3);
+    actors.clear();
+    reopened.actors(&mut actors);
+    assert!(!actors.iter().any(
+        |a| matches!(a,Actor::Text{content,z:8021,..} if content.contains("Custom interpretation"))
+    ));
+    assert_eq!(fs::read(&path).unwrap(), SINGLE);
+}
+#[test]
+fn missing_f3_profiles_require_explicit_default_and_can_override_missing_source_expression() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::metadata::{ChartData, Guid},
+        history::Session,
+    };
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let folder = dir.path().join("AutogenConfigs");
+    let (performed, expressed) = conversion_profiles(&folder);
+    let mut source =
+        Session::new(Document::parse(std::sync::Arc::<[u8]>::from(SINGLE), Format::Ssc).unwrap());
+    let mut data = ChartData::default();
+    data.expressed_chart_config = Guid::default();
+    data.save(&mut source, 0).unwrap();
+    let before = source.serialize().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, &before).unwrap();
+    let mut screen = State::open_with_profiles(&path, 0, &folder).unwrap();
+    open_conversion_profiles(&mut screen);
+    stage_conversion_profiles(&mut screen);
+    press(&mut screen, KeyCode::Escape);
+    fs::remove_file(folder.join(performed.filename())).unwrap();
+    fs::write(folder.join("ecc-broken.json"), b"invalid").unwrap();
+    press(&mut screen, KeyCode::F3);
+    for _ in 0..5 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    finish_generation(&mut screen);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert_eq!(actors.iter().filter(|a|matches!(a,Actor::Text{content,z:8021,..} if content.contains("Missing profile"))).count(),1);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    press(&mut screen, KeyCode::ArrowUp);
+    press(&mut screen, KeyCode::ArrowUp);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    generate_after_profile_selection(&mut screen);
+    assert!(screen.generation_report().is_some());
+    assert!(screen.generation_performed_profile().is_none());
+    assert_eq!(
+        screen.generation_expression_profile(),
+        Some(expressed.guid())
+    );
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    assert_eq!(
+        ChartData::read(screen.workspace().file().session.document(), 0)
+            .unwrap()
+            .unwrap()
+            .expressed_chart_config,
+        Guid::default()
+    );
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
     );
 }

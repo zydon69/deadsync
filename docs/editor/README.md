@@ -829,7 +829,7 @@ profile codec and generation contracts; no complete original UI oracle is claime
 
 Editing/cloning/creating/deleting profiles through the native library, all
 advanced configuration controls, the remaining song/chart/pack properties,
-per-request expression overrides, batch generation,
+batch generation,
 waveform/audio editing and the remaining delivery matrix are still required for
 the complete port.
 
@@ -851,8 +851,8 @@ like pending marker edits. Deleting a marker continues to discard pending edits
 and preserves the chart's currently committed expression. Missing referenced
 expression profiles require an explicit replacement; unsupported identities are
 not silently converted to Dynamic. The F6 inspector requires a saved marker; F7 now exposes chart-wide properties
-without one, as described below. Per-request expression overrides in the conversion
-panel remain unfinished.
+without one, as described below. F3 also has per-request profile overrides,
+described in the conversion-profile section below.
 
 Native F3 now resolves the saved chart expression on its worker, using the same
 AutogenConfigs root as F4/F5. Its immutable result records the resolved identity
@@ -917,6 +917,52 @@ controls, effective-offset actors, no-op/discard/subpanel-back/loading cancellat
 retained drafts and the SM format distinction. Actor/input-adapter tests do not
 prove hardware input, GPU rendering or live audio alignment.
 
-The rest of the chart/song/pack property controls, per-request expression
-overrides, profile management, batch generation, audio/waveform tools and the
+The rest of the chart/song/pack property controls, profile management,
+batch generation, audio/waveform tools and the
 remaining delivery matrix remain required for the complete port.
+
+
+### Per-request chart-conversion profiles
+
+F3 > Choose profiles for this conversion offers performed and expressed profiles
+from the same background-loaded catalog. The first choice on each row explicitly
+means Use the preset from the previous panel or Use the source chart interpretation.
+Custom and built-in profiles can override either role independently. Selected
+names are reviewed on the main conversion panel before generation. Changing its
+preset clears only the performed override, retaining the independent expression
+choice. Back and catalog-loading cancellation retain the previous generation
+settings; opening the editor again resets these transient choices. Missing saved
+request identities stay visibly missing until replaced or explicitly reset to
+the appropriate default.
+
+These selections affect only the conversion request. They do not edit source
+chart properties, saved marker GUIDs or profile files, and generate no file until
+the result is applied and the song is saved. `ProfileOverrides` carries optional
+identities into ChartTask. A fresh worker directory load resolves requested
+profiles, validates destination weights and reports ignored unrelated files.
+The source document is captured when the task is created; profile contents are
+resolved when the worker runs, not locked at catalog-selection time. Once
+prepared, the note preview remains immutable and uses the normal source identity/
+revision guard for application.
+
+Without an expressed override, native conversion follows the source chart's
+ExpressedChartConfig as before. An explicit expressed override can convert a
+source whose persisted interpretation identity is unresolved, without rewriting
+that identity. No default is silently substituted for a missing explicitly chosen
+request profile. Default/partial/full overrides use the same original performed
+and expressed engines as explicit concrete configurations.
+
+Four core workflows compare full and partial override output with configured core
+tasks, cover all-default preset/source behavior, both SM/SSC apply/undo/save/reopen,
+same-GUID identities in independent namespaces, unchanged source/profile files,
+unresolved-source expression, ignored files, stale/foreign/wrong-chart catalog
+results, missing request profiles, cancellation and immutable-source previews.
+Three native workflows cover asynchronous selection, visible reviewed names,
+resolved worker identities, output/apply/undo/save/reopen, back/loading cancel,
+preset reset with retained expression, explicit return to source interpretation,
+transient-state reset and missing-profile replacement through the default choice.
+They compose the previously compared original configuration and generation
+contracts; they do not execute the original full UI/runtime or prove GPU/hardware
+input. Native profile creation/editing/library management, batch generation,
+remaining metadata/timing controls, audio/waveform tools and the rest of the
+delivery matrix remain required for the complete port.

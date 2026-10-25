@@ -267,6 +267,29 @@ impl Workspace {
             .with_chart_expression(directory)
     }
 
+    pub fn conversion_profile_task(
+        &self,
+        directory: Option<&Path>,
+    ) -> Result<crate::generation::profile_catalog::Task, Error> {
+        crate::generation::profile_catalog::Task::capture(&self.file.session, self.chart, directory)
+    }
+    pub fn select_conversion_profiles(
+        &self,
+        catalog: &crate::generation::profile_catalog::Catalog,
+        selection: crate::generation::job::ProfileOverrides,
+    ) -> Result<crate::generation::job::ProfileOverrides, Error> {
+        catalog.conversion(&self.file.session, self.chart, selection)
+    }
+    pub fn generation_task_with_profiles(
+        &self,
+        options: crate::generation::job::ChartOptions,
+        directory: Option<&Path>,
+        profiles: crate::generation::job::ProfileOverrides,
+    ) -> Result<crate::generation::job::ChartTask, Error> {
+        self.generation_task(options)?
+            .with_profile_overrides(directory, profiles)
+    }
+
     pub fn pattern_task(
         &self,
         options: crate::generation::pattern_job::Options,

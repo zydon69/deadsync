@@ -195,6 +195,31 @@ impl Catalog {
             dependencies,
         })
     }
+    pub fn conversion(
+        &self,
+        session: &Session,
+        chart: usize,
+        selection: super::job::ProfileOverrides,
+    ) -> Result<super::job::ProfileOverrides, Error> {
+        if !self.is_current(session, chart) {
+            return Err(invalid(
+                "Profile catalog belongs to another chart or revision",
+            ));
+        }
+        for (kind, id) in [
+            (Kind::Performed, &selection.performed),
+            (Kind::Expressed, &selection.expressed),
+        ] {
+            if let Some(id) = id {
+                if !self.entries(kind).iter().any(|entry| &entry.guid == id) {
+                    return Err(invalid(
+                        "Selected conversion profile is missing from the catalog",
+                    ));
+                }
+            }
+        }
+        Ok(selection)
+    }
     pub fn select_expression(
         &self,
         session: &Session,
