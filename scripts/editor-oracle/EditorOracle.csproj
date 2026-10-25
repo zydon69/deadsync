@@ -18,6 +18,7 @@
     <Compile Include="obj/TickReference.cs" />
     <Compile Include="obj/ComboReference.cs" />
     <Compile Include="obj/SpeedReference.cs" />
+    <Compile Include="obj/LabelReference.cs" />
     <Compile Include="obj/SourceTimingReference.cs" />
     <Reference Include="StepManiaLibrary">
       <HintPath>$(ReferenceRoot)/StepManiaLibrary/bin/Release/net10.0/StepManiaLibrary.dll</HintPath>

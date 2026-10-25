@@ -2023,6 +2023,7 @@ dependencies = [
  "tempfile",
  "twox-hash",
  "unicode-normalization",
+ "unicode-segmentation",
  "winit",
 ]
 

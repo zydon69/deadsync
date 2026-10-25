@@ -632,6 +632,15 @@ pub fn restore_edit_snapshot(state: &mut State, snapshot: EditSnapshot) {
     snap_display_to_cursor(state);
 }
 
+pub fn wants_editor_text_input(state: &State) -> bool {
+    state.edition.as_ref().is_some_and(|editor|editor.wants_text_input())
+}
+pub fn handle_editor_text(state: &mut State, text: &str) -> bool {
+    state.edition.as_mut().is_some_and(|editor|editor.text_input(text))
+}
+pub fn handle_editor_preedit(state: &mut State, text: &str) {
+    if let Some(editor)=state.edition.as_mut(){editor.text_preedit(text);}
+}
 pub fn on_enter(state: &mut State) {
     state
         .gameplay

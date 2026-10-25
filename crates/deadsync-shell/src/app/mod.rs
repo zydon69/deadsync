@@ -1548,6 +1548,7 @@ pub struct App {
     screenshots_dir: PathBuf,
     input: logical_input::keymap::InputState,
     window: Option<Arc<Window>>,
+    editor_ime_state: Option<(winit::window::WindowId, bool)>,
     backend: Option<renderer_backend::Backend>,
     backend_type: BackendType,
     _idle_inhibitor: deadlib_platform::idle_inhibit::IdleInhibitor,
@@ -4376,6 +4377,7 @@ impl App {
         request_to_redraw_us: u32,
         redraw_request_reason: &'static str,
     ) {
+        self.sync_editor_ime(&window);
         let prev_frame_end = self.state.shell.last_frame_end_time;
         let pre_redraw_gap_us = elapsed_us_between(redraw_started, prev_frame_end);
         let delta_time = redraw_started
@@ -5248,6 +5250,7 @@ impl App {
                 logical_input::keymap::InputState::new(km, config.input_debounce_seconds)
             }),
             window: None,
+            editor_ime_state: None,
             backend: None,
             backend_type,
             _idle_inhibitor: deadlib_platform::idle_inhibit::IdleInhibitor::acquire(),
@@ -8457,9 +8460,44 @@ impl App {
         result.consumed || has_effect
     }
 
+    fn sync_editor_ime(&mut self, window: &Window) {
+        let wanted = self.accepts_live_input()
+            && self.state.screens.current_screen == CurrentScreen::Practice
+            && self.state.screens.practice_state.as_ref()
+                .is_some_and(screens::practice::wants_editor_text_input);
+        if self.editor_ime_state != Some((window.id(), wanted)) {
+            window.set_ime_allowed(wanted);
+            self.editor_ime_state = Some((window.id(), wanted));
+            if !wanted {
+                if let Some(state) = self.state.screens.practice_state.as_mut() {
+                    screens::practice::handle_editor_preedit(state, "");
+                }
+            }
+        }
+        if wanted {
+            let size = window.inner_size().to_logical::<f64>(window.scale_factor());
+            window.set_ime_cursor_area(
+                winit::dpi::LogicalPosition::new(size.width * 0.5, size.height * 0.4),
+                winit::dpi::LogicalSize::new(1.0, 24.0),
+            );
+        }
+    }
+
     #[inline(always)]
     fn handle_key_text(&mut self, event_loop: &ActiveEventLoop, text: &str) {
         let action = match raw_key_text_route(self.state.screens.current_screen) {
+            RawKeyTextRoute::Practice => {
+                let controls = self.state.shell.interaction.controls();
+                let changed = !controls.ctrl() && !controls.logo()
+                    && self.state.screens.practice_state.as_mut()
+                        .is_some_and(|state| screens::practice::handle_editor_text(state, text));
+                if changed {
+                    if let Some(window) = self.window.clone() {
+                        self.request_redraw(&window, "editor_text");
+                    }
+                }
+                return;
+            }
             RawKeyTextRoute::ManageLocalProfiles => screens::manage_local_profiles::handle_text(
                 &mut self.state.screens.manage_local_profiles_state,
                 text,
@@ -10953,6 +10991,11 @@ impl ApplicationHandler<UserEvent> for App {
                 }
             }
             WindowEvent::Focused(focused) => {
+                if !focused {
+                    if let Some(state) = self.state.screens.practice_state.as_mut() {
+                        screens::practice::handle_editor_preedit(state, "");
+                    }
+                }
                 #[cfg(target_os = "windows")]
                 match exclusive_fullscreen_focus_plan(
                     self.state.shell.display_mode,
@@ -10983,6 +11026,30 @@ impl ApplicationHandler<UserEvent> for App {
                 }
                 if let Some(reason) = plan.redraw_reason {
                     self.request_redraw(&window, reason);
+                }
+            }
+            WindowEvent::Ime(event) => {
+                if matches!(event, winit::event::Ime::Disabled) {
+                    if let Some(state) = self.state.screens.practice_state.as_mut() {
+                        screens::practice::handle_editor_preedit(state, "");
+                    }
+                    self.request_redraw(&window, "editor_preedit");
+                    return;
+                }
+                if !self.accepts_live_input()
+                    || self.state.screens.current_screen != CurrentScreen::Practice
+                {
+                    return;
+                }
+                match event {
+                    winit::event::Ime::Commit(text) => self.handle_key_text(event_loop, &text),
+                    winit::event::Ime::Preedit(text, _) => {
+                        if let Some(state) = self.state.screens.practice_state.as_mut() {
+                            screens::practice::handle_editor_preedit(state, &text);
+                        }
+                        self.request_redraw(&window, "editor_preedit");
+                    }
+                    _ => {}
                 }
             }
             WindowEvent::KeyboardInput {

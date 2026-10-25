@@ -1,6 +1,7 @@
 //! Scoped, reversible timing edits. A first chart-local timing field detaches
 //! the entire SSC timing set, so inherited fields must be copied together.
 pub mod combo;
+pub mod label;
 pub mod migration;
 pub mod pause;
 pub mod region;

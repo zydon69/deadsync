@@ -107,6 +107,7 @@ pub enum PreScreenInputRoute {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RawKeyTextRoute {
     Ignore,
+    Practice,
     ContentBrowser,
     ManageLocalProfiles,
     Options,
@@ -321,6 +322,7 @@ pub fn pre_screen_input_route(
 #[inline(always)]
 pub const fn raw_key_text_route(screen: Screen) -> RawKeyTextRoute {
     match screen {
+        Screen::Practice => RawKeyTextRoute::Practice,
         Screen::ContentBrowser => RawKeyTextRoute::ContentBrowser,
         Screen::ManageLocalProfiles => RawKeyTextRoute::ManageLocalProfiles,
         Screen::Options => RawKeyTextRoute::Options,
@@ -991,6 +993,7 @@ mod tests {
 
     #[test]
     fn raw_key_text_routes_only_text_entry_screens() {
+        assert_eq!(raw_key_text_route(Screen::Practice), RawKeyTextRoute::Practice);
         assert_eq!(
             raw_key_text_route(Screen::ManageLocalProfiles),
             RawKeyTextRoute::ManageLocalProfiles

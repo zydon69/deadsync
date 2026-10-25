@@ -221,13 +221,24 @@ fn source_pairs(
             sources.push(rssp::parse::decode_unescape(raw));
         }
     }
+    if kind == Field::Label {
+        sources = document
+            .text(scope, tag)
+            .map(std::borrow::Cow::Owned)
+            .into_iter()
+            .collect();
+    }
     let mut pairs = Vec::new();
     for source in &sources {
-        let cleaned = source
-            .lines()
-            .map(|line| line.split_once("//").map_or(line, |(value, _)| value))
-            .collect::<Vec<_>>()
-            .join("");
+        let cleaned = if kind == Field::Label {
+            source.as_ref().to_owned()
+        } else {
+            source
+                .lines()
+                .map(|line| line.split_once("//").map_or(line, |(value, _)| value))
+                .collect::<Vec<_>>()
+                .join("")
+        };
         for part in cleaned.split(',').filter(|part| !part.trim().is_empty()) {
             let fields = part.split('=').map(str::trim).collect::<Vec<_>>();
             let Some(beat) = fields.first().and_then(|beat| beat.parse::<f64>().ok()) else {

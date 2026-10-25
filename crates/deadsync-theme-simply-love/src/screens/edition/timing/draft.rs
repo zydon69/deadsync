@@ -6,6 +6,7 @@ use deadsync_editor::{
     timing_edit::{
         Scope, TempoDraft,
         combo::{self, Multipliers},
+        label,
         pause::{self, Kind as PauseKind},
         region::{self, Kind as RegionKind},
         scroll,
@@ -21,6 +22,7 @@ pub(super) enum EventKind {
     Delay,
     Warp,
     Fake,
+    Label,
     Speed,
     Combo,
     Tick,
@@ -40,6 +42,7 @@ impl EventKind {
             Self::Tick => "TimingTypeTick",
             Self::Combo => "TimingTypeCombo",
             Self::Speed => "TimingTypeSpeed",
+            Self::Label => "TimingTypeLabel",
         }
     }
     pub(super) fn step(self, backward: bool) -> Self {
@@ -49,6 +52,7 @@ impl EventKind {
             Self::Delay,
             Self::Warp,
             Self::Fake,
+            Self::Label,
             Self::Speed,
             Self::Combo,
             Self::Tick,
@@ -72,6 +76,7 @@ pub(super) enum Draft {
     Ticks(tick::Draft),
     Combos(combo::Draft),
     Speeds(speed::Draft),
+    Labels(label::Draft),
     Pauses {
         draft: pause::Draft,
         kind: PauseKind,
@@ -89,6 +94,10 @@ impl Draft {
     ) -> Result<Self, Error> {
         match kind {
             EventKind::Bpm => workspace.tempo_draft(scope).map(Self::Bpm),
+            EventKind::Label => {
+                label::Draft::capture(&workspace.file().session, workspace.chart(), scope)
+                    .map(Self::Labels)
+            }
             EventKind::Speed => {
                 speed::Draft::capture(&workspace.file().session, workspace.chart(), scope)
                     .map(Self::Speeds)
@@ -138,6 +147,7 @@ impl Draft {
             Self::Ticks(_) => EventKind::Tick,
             Self::Combos(_) => EventKind::Combo,
             Self::Speeds(_) => EventKind::Speed,
+            Self::Labels(_) => EventKind::Label,
             Self::Signatures(_) => EventKind::Signature,
             Self::Pauses {
                 kind: PauseKind::Stop,
@@ -176,6 +186,7 @@ impl Draft {
     pub(super) fn scope(&self) -> Scope {
         match self {
             Self::Bpm(d) => d.scope(),
+            Self::Labels(d) => d.scope(),
             Self::Speeds(d) => d.scope(),
             Self::Combos(d) => d.scope(),
             Self::Ticks(d) => d.scope(),
@@ -188,6 +199,7 @@ impl Draft {
     pub(super) fn inherited(&self) -> bool {
         match self {
             Self::Bpm(d) => d.inherited(),
+            Self::Labels(d) => d.inherited(),
             Self::Speeds(d) => d.inherited(),
             Self::Combos(d) => d.inherited(),
             Self::Ticks(d) => d.inherited(),
@@ -200,6 +212,7 @@ impl Draft {
     pub(super) fn affected_charts(&self) -> &[usize] {
         match self {
             Self::Bpm(d) => d.affected_charts(),
+            Self::Labels(d) => d.affected_charts(),
             Self::Speeds(d) => d.affected_charts(),
             Self::Combos(d) => d.affected_charts(),
             Self::Ticks(d) => d.affected_charts(),
@@ -212,6 +225,7 @@ impl Draft {
     pub(super) fn has_changes(&self) -> bool {
         match self {
             Self::Bpm(d) => d.has_changes(),
+            Self::Labels(d) => d.has_changes(),
             Self::Speeds(d) => d.has_changes(),
             Self::Combos(d) => d.has_changes(),
             Self::Ticks(d) => d.has_changes(),
@@ -224,6 +238,7 @@ impl Draft {
     pub(super) fn node(&self, row: u64) -> Option<String> {
         match self {
             Self::Signatures(d) => d.signatures().values().get(&row).map(ToString::to_string),
+            Self::Labels(d) => d.labels().values().get(&row).cloned(),
             Self::Speeds(d) => d.speeds().values().get(&row).map(ToString::to_string),
             Self::Combos(d) => d.combos().values().get(&row).map(ToString::to_string),
             Self::Scrolls(d) => d.scrolls().values().get(&row).map(ToString::to_string),
@@ -244,6 +259,12 @@ impl Draft {
     pub(super) fn value(&self, row: u64) -> String {
         match self {
             Self::Bpm(d) => d.tempos().at(row).to_string(),
+            Self::Labels(d) => d
+                .labels()
+                .values()
+                .get(&row)
+                .cloned()
+                .unwrap_or_else(|| crate::i18n::tr("Edition", "LabelDefault").to_string()),
             Self::Speeds(d) => d
                 .speeds()
                 .values()
@@ -276,6 +297,7 @@ impl Draft {
         let row = match self {
             Self::Signatures(d) => neighbor(d.signatures().values(), row, forward),
             Self::Bpm(d) => neighbor(d.tempos().values(), row, forward),
+            Self::Labels(d) => neighbor(d.labels().values(), row, forward),
             Self::Speeds(d) => neighbor(d.speeds().values(), row, forward),
             Self::Combos(d) => neighbor(d.combos().values(), row, forward),
             Self::Ticks(d) => neighbor(d.counts().values(), row, forward),
@@ -288,6 +310,7 @@ impl Draft {
     pub(super) fn count(&self) -> usize {
         match self {
             Self::Bpm(d) => d.tempos().values().len(),
+            Self::Labels(d) => d.labels().values().len(),
             Self::Speeds(d) => d.speeds().values().len(),
             Self::Combos(d) => d.combos().values().len(),
             Self::Ticks(d) => d.counts().values().len(),
@@ -311,6 +334,7 @@ impl Draft {
         match self {
             Self::Signatures(d) => d.set(row, Signature::parse(text)?),
             Self::Bpm(d) => d.set(row, number()?),
+            Self::Labels(d) => d.set(row, text),
             Self::Speeds(d) => d.set(row, speed::Speed::parse(text)?),
             Self::Combos(d) => d.set(row, Multipliers::parse(text)?),
             Self::Ticks(d) => d.set(
@@ -331,6 +355,7 @@ impl Draft {
     pub(super) fn remove(&mut self, row: u64) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => d.remove(row),
+            Self::Labels(d) => d.remove(row),
             Self::Speeds(d) => d.remove(row),
             Self::Combos(d) => d.remove(row),
             Self::Ticks(d) => d.remove(row),
@@ -343,6 +368,7 @@ impl Draft {
     pub(super) fn move_node(&mut self, from: u64, to: u64) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => d.move_node(from, to),
+            Self::Labels(d) => d.move_node(from, to),
             Self::Speeds(d) => d.move_node(from, to),
             Self::Combos(d) => d.move_node(from, to),
             Self::Ticks(d) => d.move_node(from, to),
@@ -355,6 +381,7 @@ impl Draft {
     pub(super) fn apply(&self, workspace: &mut Workspace) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => workspace.apply_tempo(d),
+            Self::Labels(d) => workspace.apply_labels(d),
             Self::Speeds(d) => workspace.apply_speeds(d),
             Self::Combos(d) => workspace.apply_combos(d),
             Self::Ticks(d) => workspace.apply_ticks(d),
@@ -365,6 +392,9 @@ impl Draft {
         }
     }
     pub(super) fn valid_value_at(&self, row: u64, text: &str) -> bool {
+        if self.kind() == EventKind::Label {
+            return !label::sanitize(text).contains('=');
+        }
         if self.kind() == EventKind::Speed {
             return speed::Speed::parse(text).is_ok_and(|value| value.fits_at(row));
         }
@@ -406,6 +436,13 @@ impl Draft {
         }
     }
     pub(super) fn same_value(&self, row: u64, text: &str) -> bool {
+        if let Self::Labels(d) = self {
+            return d
+                .labels()
+                .values()
+                .get(&row)
+                .is_some_and(|value| value == text);
+        }
         if let Self::Speeds(d) = self {
             return d.speeds().values().get(&row).is_some_and(|value| {
                 text == value.to_string() || speed::Speed::parse(text).ok() == Some(*value)
@@ -434,6 +471,26 @@ impl Draft {
     pub(super) fn key<'a>(&self, key: &'a str) -> &'a str {
         if self.kind() == EventKind::Bpm {
             return key;
+        }
+        if self.kind() == EventKind::Label {
+            return match key {
+                "TimingBpm" => "LabelValue",
+                "TimingInvalidBpm" => "LabelInvalid",
+                "TimingSet" => "LabelSet",
+                "TimingRemove" => "LabelRemove",
+                "TimingMove" => "LabelMove",
+                "TimingPrevious" => "LabelPrevious",
+                "TimingNext" => "LabelNext",
+                "TimingAccept" => "LabelAccept",
+                "TimingStaged" => "LabelStaged",
+                "TimingRemoved" => "LabelRemoved",
+                "TimingMissing" => "LabelMissing",
+                "TimingCollision" => "LabelCollision",
+                "TimingMoveValue" => "LabelMoveValue",
+                "TimingMoved" => "LabelMoved",
+                "TimingInputPending" => "LabelInputPending",
+                _ => key,
+            };
         }
         if self.kind() == EventKind::Speed {
             return match key {

@@ -5,6 +5,7 @@ mod pattern_set;
 mod playback;
 mod song_properties;
 mod timing;
+mod text_entry;
 
 use crate::{act, i18n};
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
@@ -201,11 +202,13 @@ pub struct State {
     profile_directory: Option<PathBuf>,
     saved_regions: Vec<(u64, u64)>,
     signatures: Option<deadsync_editor::timing_edit::signature::Signatures>,
+    labels: Option<deadsync_editor::timing_edit::label::Labels>,
     marker_cache: Option<(Arc<[u8]>, u64, usize)>,
     job: Option<GenerationJob>,
     catalog_job: Option<Job<profile_catalog::Catalog>>,
     profile_selection: Option<ProfileSettings>,
     preview: Option<GenerationPreview>,
+    label_preedit: String,
     control: bool,
     shift: bool,
     help: bool,
@@ -301,12 +304,14 @@ impl State {
             profile_directory: deadsync_editor::runtime::configs_dir().map(Path::to_path_buf),
             saved_regions: Vec::new(),
             signatures: None,
+            labels: None,
             marker_cache: None,
             job: None,
             catalog_job: None,
             profile_selection: None,
             preview: None,
             workspace,
+            label_preedit: String::new(),
             control: false,
             shift: false,
             help: false,
@@ -1058,6 +1063,9 @@ impl State {
                 !Arc::ptr_eq(old, source) || *revision != session.revision() || *index != chart
             })
         {
+            self.labels = deadsync_editor::timing_edit::label::Labels::from_document(
+                session.document(), chart,
+            ).ok();
             self.signatures = deadsync_editor::timing_edit::signature::Signatures::from_document(
                 session.document(), chart,
             ).ok();
@@ -1143,12 +1151,18 @@ impl State {
         if !event.pressed {
             return false;
         }
+        if !self.label_preedit.is_empty() {
+            return false;
+        }
+        let repeating_label = self.wants_text_input()
+            && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
         let repeating_offset = matches!(
             self.panel,
             Some(Panel::ChartProperties(2) | Panel::SongProperties(0))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !repeating_offset
+            && !repeating_label
             && !matches!(
                 event.code,
                 KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::PageUp | KeyCode::PageDown
@@ -1898,6 +1912,13 @@ impl State {
                     actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.4): z(8001)));
                     text(actors, &(measure + 1).to_string(), left - 30.0, y, 0.45, [0.6, 0.7, 0.8, 1.0]);
                 }
+            }
+        }
+        if let Some(labels) = &self.labels {
+            for (&label_row, label) in labels.values().range(start..=end) {
+                let y = cursor_y + (label_row as f64 - row as f64) as f32 * pixels_per_row;
+                let x = left + field_width + 12.0;
+                actors.push(act!(text: font("miso"): settext(label.clone()): align(0.0,0.5): xy(x,y): zoom(0.55): maxwidth((width-x-12.0).max(20.0)): diffuse(0.6,0.9,0.65,1.0): z(8005)));
             }
         }
         for &(a, b) in &self.saved_regions {

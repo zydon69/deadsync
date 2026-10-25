@@ -155,7 +155,7 @@ fn normalized_source_matches_real_reader_and_original_editor_constructors_fallba
             "{name} source unchanged"
         );
     }
-    assert_eq!(count, 13);
+    assert_eq!(count, 14);
 }
 #[test]
 fn normalization_does_not_rewrite_legacy_bytes_notes_or_history_during_save_and_reopen() {

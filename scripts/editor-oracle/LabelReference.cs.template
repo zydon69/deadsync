@@ -1,0 +1,34 @@
+// Actual Fumen label property parser and unchanged GrooveAuthor sanitizer/setter.
+using System.Text.Json;
+using Fumen.ChartDefinition;
+using Fumen.Converters;
+namespace LabelOracle;
+internal sealed class EditorLabelEvent(int row,Label value):PauseOracle.EditorEvent(row){
+    private readonly Label LabelEvent=value;private bool WidthDirty;
+    // VALIDATOR
+    // SETTER
+}
+internal static class Reference{
+    public static object Run(JsonElement input){
+        System.Globalization.CultureInfo.CurrentCulture=System.Globalization.CultureInfo.InvariantCulture;
+        var source=new Dictionary<double,string>();new CSVListAtTimePropertyParser<string>("LABELS",source).Parse(new MSDFile.Value {Params=["LABELS",input.GetProperty("Source").GetString()!]});
+        var chart=new Chart{Layers=[new Layer()]};SMCommon.AddLabelEvents(source,chart,new TempoOracle.SilentLogger(),false);var store=new PauseOracle.EditorChart();var nodes=new SortedDictionary<int,EditorLabelEvent>();
+        foreach(var label in chart.Layers[0].Events.OfType<Label>())nodes[label.IntegerPosition]=new(label.IntegerPosition,label);
+        store.EditorEvents.AddRange(nodes.Values);
+        object Values()=>nodes.Select(pair=>new{Row=pair.Key,Text=pair.Value.StringValue}).ToArray();var initial=Values();var stages=new List<object>();
+        foreach(var op in input.GetProperty("Operations").EnumerateArray()){
+            var kind=op[0].GetString();var row=op[1].GetInt32();bool changed=false;string? error=null;
+            if(kind=="set"){
+                var text=op[2].GetString()!;var (_,clean)=EditorLabelEvent.IsValidLabelString(text);
+                if(nodes.TryGetValue(row,out var node)){var before=node.StringValue;node.StringValue=text;changed=before!=node.StringValue;}
+                else{nodes[row]=new(row,new(clean));store.EditorEvents.Add(nodes[row]);changed=true;}
+            }else if(kind=="remove"){
+                if(nodes.Remove(row,out var node)){store.EditorEvents.Remove(node);changed=true;}
+            }else if(kind=="move"){
+                var target=op[2].GetInt32();if(!nodes.TryGetValue(row,out var node))error="missing";else if(row==target){}else if(!store.CanEventBeMovedToRow(node,target))error="collision";else{nodes.Remove(row);nodes[target]=node;node.Row=target;changed=true;}
+            }
+            stages.Add(new{Changed=changed,Error=error,Values=Values()});
+        }
+        return new{Initial=initial,Stages=stages,Sanitized=input.GetProperty("Sanitize").EnumerateArray().Select(value=>new{Input=value.GetString(),Text=EditorLabelEvent.IsValidLabelString(value.GetString()!).Item2}).ToArray()};
+    }
+}

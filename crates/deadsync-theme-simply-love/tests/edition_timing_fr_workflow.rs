@@ -393,7 +393,7 @@ fn french_signature_panel_fraction_input_and_acceptance_are_translated() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..9 {
+    for _ in 0..10 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -447,7 +447,7 @@ fn french_scroll_controls_allow_reverse_and_zero_with_translated_labels() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..8 {
+    for _ in 0..9 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -511,7 +511,7 @@ fn french_hold_tick_panel_validates_integer_input_and_accepts_zero() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..7 {
+    for _ in 0..8 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -576,7 +576,7 @@ fn french_combo_pair_labels_validation_and_staged_acceptance_are_translated() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..6 {
+    for _ in 0..7 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -650,7 +650,7 @@ fn french_interpolated_speed_units_validation_and_acceptance_are_visible() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..5 {
+    for _ in 0..6 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -753,4 +753,50 @@ fn french_interpolated_speed_units_validation_and_acceptance_are_visible() {
             .unwrap(),
         "0=2=0.5=1"
     );
+}
+
+#[test]
+fn french_section_labels_use_committed_unicode_text_and_translated_controls() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(
+        &path,
+        b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+    )
+    .unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    for _ in 0..5 {
+        press(&mut screen, KeyCode::Tab);
+    }
+    let labels = texts(&screen);
+    assert!(labels.iter().any(|s| s.contains("Labels de section")));
+    assert!(labels.iter().any(|s| s.contains("Label : Nouveau label")));
+    assert!(labels.iter().any(|s| s.contains("Appliquer les labels")));
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    screen.text_preedit("é");
+    assert!(texts(&screen).iter().any(|s| s.contains("Label : é")));
+    assert!(screen.text_input("Étiquette 日本語:fin"));
+    press(&mut screen, KeyCode::Enter);
+    assert!(texts(&screen).iter().any(|s| s.contains("Label préparé")));
+    for _ in 0..6 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "LABELS")
+            .unwrap(),
+        "0=Étiquette 日本語_fin"
+    );
+    assert!(texts(&screen).iter().any(|s| s == "Étiquette 日本語_fin"));
 }

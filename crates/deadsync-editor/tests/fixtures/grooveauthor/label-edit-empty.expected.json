@@ -1,0 +1,151 @@
+{
+  "Initial": [],
+  "Stages": [
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Text": "Refrain \ud83c\udfb5"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Text": "Refrain \ud83c\udfb5"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Text": "Refrain \ud83c\udfb5"
+        },
+        {
+          "Row": 24,
+          "Text": "a___b_c_d_e_f_g_h"
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": [
+        {
+          "Row": 0,
+          "Text": "Refrain \ud83c\udfb5"
+        },
+        {
+          "Row": 24,
+          "Text": "a___b_c_d_e_f_g_h"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 12,
+          "Text": "Refrain \ud83c\udfb5"
+        },
+        {
+          "Row": 24,
+          "Text": "a___b_c_d_e_f_g_h"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 24,
+          "Text": "a___b_c_d_e_f_g_h"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 24,
+          "Text": "a___b_c_d_e_f_g_h"
+        },
+        {
+          "Row": 48,
+          "Text": ""
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 48,
+          "Text": ""
+        },
+        {
+          "Row": 72,
+          "Text": "a___b_c_d_e_f_g_h"
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 48,
+          "Text": ""
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 48,
+          "Text": ""
+        },
+        {
+          "Row": 240,
+          "Text": " tail "
+        }
+      ]
+    }
+  ],
+  "Sanitized": [
+    {
+      "Input": "",
+      "Text": ""
+    },
+    {
+      "Input": "Pr\u00e9-refrain \u65e5\u672c\u8a9e \ud83c\udfb5",
+      "Text": "Pr\u00e9-refrain \u65e5\u672c\u8a9e \ud83c\udfb5"
+    },
+    {
+      "Input": "a\r\n\tb#c;d:e\\f/g,h",
+      "Text": "a___b_c_d_e_f_g_h"
+    },
+    {
+      "Input": "A=B",
+      "Text": "A=B"
+    },
+    {
+      "Input": "\ud83d\udc69\u200d\ud83d\udc69\u200d\ud83d\udc67\u200d\ud83d\udc66",
+      "Text": "\ud83d\udc69\u200d\ud83d\udc69\u200d\ud83d\udc67\u200d\ud83d\udc66"
+    }
+  ]
+}

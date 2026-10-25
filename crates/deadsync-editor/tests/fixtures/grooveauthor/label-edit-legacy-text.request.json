@@ -1,0 +1,61 @@
+{
+  "Operation": "Label",
+  "Source": "0= URL//intro ,4=Legacy:label,8=Ends;ignored",
+  "Sanitize": [
+    "",
+    "Pr\u00e9-refrain \u65e5\u672c\u8a9e \ud83c\udfb5",
+    "a\r\n\tb#c;d:e\\f/g,h",
+    "A=B",
+    "\ud83d\udc69\u200d\ud83d\udc69\u200d\ud83d\udc67\u200d\ud83d\udc66"
+  ],
+  "Operations": [
+    [
+      "set",
+      0,
+      "Refrain \ud83c\udfb5"
+    ],
+    [
+      "set",
+      0,
+      "Refrain \ud83c\udfb5"
+    ],
+    [
+      "set",
+      24,
+      "a\r\n\tb#c;d:e\\f/g,h"
+    ],
+    [
+      "move",
+      0,
+      24
+    ],
+    [
+      "move",
+      0,
+      12
+    ],
+    [
+      "remove",
+      12
+    ],
+    [
+      "set",
+      48,
+      ""
+    ],
+    [
+      "move",
+      24,
+      72
+    ],
+    [
+      "remove",
+      72
+    ],
+    [
+      "set",
+      240,
+      " tail "
+    ]
+  ]
+}

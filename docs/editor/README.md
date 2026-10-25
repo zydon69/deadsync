@@ -46,8 +46,8 @@ reviewable and tested.
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
-| Timing/gimmicks | F10 scoped BPM/stop/delay/warp/fake editing and reviewed legacy SSC activation; typed region core; shared revision/inheritance transaction | Original C# map, file-clock and editor dependency comparisons; broader legacy/escape normalization, other typed events, drawing and conversion remain pending |
-| Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
+| Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
+| Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; F11 edits Song SyncOffset | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
 | Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
@@ -1906,3 +1906,48 @@ Those and the remaining delivery-matrix features are still required.
 Validation for this checkpoint: 264 core tests, 93 native editor tests and
 `cargo check -p deadsync --locked` pass. This includes the original interpolation
 queries, both duration units, precise native fields and French input aliases.
+
+### Section labels and committed Unicode text
+
+F10 now edits SSC LABELS with translated controls, staging, row movement,
+removal, scope selection and exact document undo/redo. The SSC cycle is BPM,
+Stop, Delay, Warp, Fake, Label, Speed, Combo, Tick, Scroll, Signature. SM skips
+labels and preserves any unknown source LABELS property without rewriting it.
+Accepted labels appear alongside their rows in the central field.
+
+The label value accepts committed Unicode text separately from physical editor
+shortcuts. Winit text and IME commit/preedit events are routed only to the focused
+label value; composition remains tentative until committed. Ctrl/Cmd shortcuts
+cannot insert text, Backspace removes one extended grapheme (including combining
+accents and joined emoji), and Delete clears the field. Focus loss or IME disable
+clears tentative composition. IME activation follows editor field focus. The
+candidate window uses an approximate inspector position; this is not a complete
+caret, selection, clipboard or pointer text widget.
+
+The sanitizer follows the original label setter for newlines, tabs and SSC
+separator characters. Equals signs are explicitly rejected: the original setter
+accepts them, but its CSV reader drops that record on reopen. Existing escaped
+slashes remain literal text when moving a legacy label. The normalized timing
+loader no longer treats decoded `//` label text as a second comment, which could
+previously erase subsequent label records and affect chart-end timing. A final
+empty CSV item preserves meaningful whitespace in the last label through MSD
+trimming; the reference parser ignores that empty item.
+
+Four C# oracle fixtures execute the actual Fumen label parser and unchanged
+GrooveAuthor sanitizer/setter methods, with stage-by-stage edit comparisons,
+Unicode, signed-zero/row collisions, malformed records and whitespace round
+trips. An additional original-reader timing fixture covers escaped-slash labels.
+Core workflows cover inherited timing, RSSP readback, exact undo/redo, document
+identity/revision guards and SM rejection. English/French native workflows cover
+composition, grapheme deletion, safe shortcuts, staging/movement, rendered actor
+text and Save/reopen. Automated event/actor checks do not prove physical IME,
+keyboard layout or font/GPU rendering on the user's machine. Full editor parity
+and the remaining delivery-matrix features remain pending.
+
+Validation for this checkpoint: 268 core tests, 97 native editor tests and
+`cargo check -p deadsync --locked` pass. The last-label whitespace Save/reopen
+workflow and all four label core workflows were rerun after their final changes.
+The additional shell text-routing unit test could not compile because seven
+`include_str!`/`include_bytes!` references require absent song-Lua fixture files
+(`full_song_lua`, `song-inputs`, `song_lua`, `itgmania-song-lua-micro`). This is
+not recorded as a passing shell test; the production shell compilation passed.

@@ -4,16 +4,20 @@ mod draft;
 mod migration;
 use deadsync_editor::timing_edit::Scope;
 use draft::{Draft, EventKind};
+use unicode_segmentation::UnicodeSegmentation;
 
 pub(super) struct Settings {
     draft: Draft,
     beat: String,
-    value: String,
+    pub(super) value: String,
     node: Option<u64>,
-    fresh: bool,
-    pending: bool,
+    pub(super) fresh: bool,
+    pub(super) pending: bool,
 }
 impl Settings {
+    pub(super) fn is_label(&self) -> bool {
+        self.draft.kind() == EventKind::Label
+    }
     fn new(draft: Draft, row: u64) -> Self {
         let value = draft.value(row);
         let node = draft.node(row).map(|_| row);
@@ -119,6 +123,9 @@ impl State {
                         Err(key) => self.status = i18n::tr("Edition", key),
                     }
                 } else if index == 2 {
+                    if settings.draft.kind() == EventKind::Label {
+                        return;
+                    }
                     if settings.draft.kind() == EventKind::Speed {
                         use deadsync_editor::timing_edit::speed::{Period, Speed};
                         match Speed::parse(&settings.value) {
@@ -226,7 +233,10 @@ impl State {
                                 EventKind::Delay => value.max(0.0),
                                 EventKind::Tick => value.round().clamp(0.0, i32::MAX as f64),
                                 EventKind::Stop | EventKind::Scroll => value,
-                                EventKind::Signature | EventKind::Combo | EventKind::Speed => {
+                                EventKind::Signature
+                                | EventKind::Combo
+                                | EventKind::Speed
+                                | EventKind::Label => {
                                     return;
                                 }
                                 EventKind::Warp | EventKind::Fake => {
@@ -271,6 +281,23 @@ impl State {
         let Some(settings) = &mut self.timing else {
             return false;
         };
+        if index == 2 && settings.draft.kind() == EventKind::Label {
+            match code {
+                KeyCode::Backspace => {
+                    let end = settings
+                        .value
+                        .grapheme_indices(true)
+                        .next_back()
+                        .map_or(0, |(index, _)| index);
+                    settings.value.truncate(end);
+                }
+                KeyCode::Delete => settings.value.clear(),
+                _ => return false,
+            }
+            settings.fresh = false;
+            settings.pending = true;
+            return true;
+        }
         let signature = index == 2 && settings.draft.kind() == EventKind::Signature;
         let combo = index == 2 && settings.draft.kind() == EventKind::Combo;
         let speed = index == 2 && settings.draft.kind() == EventKind::Speed;
@@ -375,7 +402,7 @@ impl State {
             while kind.is_region()
                 || matches!(
                     kind,
-                    EventKind::Scroll | EventKind::Combo | EventKind::Speed
+                    EventKind::Scroll | EventKind::Combo | EventKind::Speed | EventKind::Label
                 )
             {
                 kind = kind.step(self.shift);
@@ -405,6 +432,8 @@ impl State {
                     "Edition",
                     if kind == EventKind::Signature {
                         "SignatureHelp"
+                    } else if kind == EventKind::Label {
+                        "LabelHelp"
                     } else if kind == EventKind::Speed {
                         "SpeedHelp"
                     } else if kind == EventKind::Combo {
@@ -633,6 +662,15 @@ impl State {
             return i18n::tr("Edition", key);
         };
         let key = settings.draft.key(key);
+        if index == 2 && settings.draft.kind() == EventKind::Label && !self.label_preedit.is_empty()
+        {
+            let value = if settings.fresh {
+                self.label_preedit.clone()
+            } else {
+                format!("{}{}", settings.value, self.label_preedit)
+            };
+            return i18n::tr_fmt("Edition", key, &[("bpm", &value)]);
+        }
         match index {
             0 => i18n::tr_fmt(
                 "Edition",

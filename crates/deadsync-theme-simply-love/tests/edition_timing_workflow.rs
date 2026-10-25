@@ -517,7 +517,7 @@ fn pause_type_input_and_scope_guards_cancel_and_zero_delay_validation_preserve_h
     press(&mut screen, KeyCode::Escape);
     press(&mut screen, KeyCode::F10);
     key(&mut screen, KeyCode::ShiftLeft, true);
-    for _ in 0..8 {
+    for _ in 0..9 {
         press(&mut screen, KeyCode::Tab);
     }
     key(&mut screen, KeyCode::ShiftLeft, false);
@@ -1680,4 +1680,170 @@ fn speeds_preserve_signed_source_moves_and_full_precision_seconds_in_native_fiel
         &deadsync_editor::timing_edit::speed::Speed::parse("1.123456789012345x/0.123456789012345s")
             .unwrap()
     );
+}
+
+fn open_labels(screen: &mut State) {
+    press(screen, KeyCode::F10);
+    key(screen, KeyCode::ShiftLeft, true);
+    for _ in 0..6 {
+        press(screen, KeyCode::Tab);
+    }
+    key(screen, KeyCode::ShiftLeft, false);
+    assert!(contains(screen, "Section labels"));
+}
+#[test]
+fn unicode_labels_stage_move_empty_apply_render_undo_and_save_reopen() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    assert!(!screen.text_input("ignored"));
+    open_labels(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    assert!(screen.wants_text_input());
+    press(&mut screen, KeyCode::Digit1);
+    assert!(contains(&screen, "Label: keep"));
+    assert!(screen.text_input("Pré-refrain 日本語 🎵 / "));
+    assert!(!screen.text_input("\r"));
+    choose(&mut screen, &mut index, 3);
+    assert!(!screen.text_input("outside focus"));
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Label staged"));
+    assert_eq!(serialized(&screen), SONG);
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Apply or discard before switching"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "1");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Label moved"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "0");
+    choose(&mut screen, &mut index, 2);
+    press(&mut screen, KeyCode::Delete);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    let value = screen
+        .workspace()
+        .file()
+        .session
+        .document()
+        .text(Some(0), "LABELS")
+        .unwrap();
+    assert_eq!(value, "0=,1=Pré-refrain 日本語 🎵 _ ,");
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s == "Pré-refrain 日本語 🎵 _ ")
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), SONG);
+    ctrl(&mut screen, KeyCode::KeyY);
+    ctrl(&mut screen, KeyCode::KeyS);
+    assert_eq!(
+        State::open(&path, 0)
+            .unwrap()
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "LABELS")
+            .unwrap(),
+        value
+    );
+}
+#[test]
+fn label_composition_grapheme_deletion_equals_rejection_and_cancel_are_safe() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_labels(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    screen.text_preedit("に");
+    assert!(contains(&screen, "Label: に"));
+    press(&mut screen, KeyCode::Enter);
+    assert!(screen.wants_text_input());
+    assert_eq!(serialized(&screen), SONG);
+    assert!(screen.text_input("日本語"));
+    screen.text_preedit("未確定");
+    screen.text_preedit("");
+    assert!(contains(&screen, "Label: 日本語"));
+    assert!(screen.text_input("e\u{301}👩‍👩‍👧‍👦"));
+    press(&mut screen, KeyCode::Backspace);
+    assert!(contains(&screen, "Label: 日本語e\u{301}"));
+    screen.raw_key(&RawKeyboardEvent {
+        code: KeyCode::Backspace,
+        pressed: true,
+        repeat: true,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    assert!(contains(&screen, "Label: 日本語"));
+    key(&mut screen, KeyCode::SuperLeft, true);
+    assert!(!screen.text_input("shortcut"));
+    key(&mut screen, KeyCode::SuperLeft, false);
+    press(&mut screen, KeyCode::Delete);
+    assert!(screen.text_input("A=B"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "equals sign cannot be saved"));
+    assert_eq!(serialized(&screen), SONG);
+    press(&mut screen, KeyCode::Escape);
+    open_labels(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(serialized(&screen), SONG);
+    assert!(!screen.workspace().file().session.is_dirty());
+}
+#[test]
+fn escaped_legacy_label_moves_preserve_text_and_sm_filter_does_not_change_unknown_labels() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let bytes = String::from_utf8(SONG.to_vec())
+        .unwrap()
+        .replace("#LABELS:0=keep;", "#LABELS:0=Legacy\\/\\/intro,4=End;");
+    fs::write(&path, &bytes).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    assert!(texts(&screen).iter().any(|s| s == "Legacy//intro"));
+    open_labels(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "2");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Label moved"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(
+        reopened
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "LABELS")
+            .unwrap(),
+        "2=Legacy//intro,4=End"
+    );
+    assert!(texts(&reopened).iter().any(|s| s == "End"));
+    let sm = dir.path().join("song.sm");
+    let original = b"#BPMS:0=120;#LABELS:0=Keep;#NOTES:dance-single::Hard:9::1000;";
+    fs::write(&sm, original).unwrap();
+    let mut screen = State::open(&sm, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    for _ in 0..3 {
+        press(&mut screen, KeyCode::Tab);
+    }
+    assert!(contains(&screen, "Hold tick counts"));
+    assert!(!screen.text_input("ignored"));
+    assert_eq!(serialized(&screen), original);
 }
