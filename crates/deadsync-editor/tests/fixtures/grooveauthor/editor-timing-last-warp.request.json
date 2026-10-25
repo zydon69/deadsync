@@ -204,6 +204,24 @@
       }
     }
   },
+  "PatternConfig": {
+    "BeatSubDivision": 4,
+    "StartingFootChoice": "automatic",
+    "StartingFootSpecified": 0,
+    "LeftFootStartChoice": "automaticSameOrNewLane",
+    "LeftFootStartLaneSpecified": 0,
+    "LeftFootEndChoice": "automaticSameOrNewLaneAsFollowing",
+    "LeftFootEndLaneSpecified": 0,
+    "RightFootStartChoice": "automaticSameOrNewLane",
+    "RightFootStartLaneSpecified": 0,
+    "RightFootEndChoice": "automaticSameOrNewLaneAsFollowing",
+    "RightFootEndLaneSpecified": 0,
+    "SameArrowStepWeight": 25,
+    "NewArrowStepWeight": 75,
+    "StepTypeCheckPeriod": 16,
+    "LimitSameArrowsInARowPerFoot": true,
+    "MaxSameArrowsInARowPerFoot": 3
+  },
   "Projection": {
     "Start": 48,
     "End": 96,

@@ -216,6 +216,63 @@
     "Removed": 1,
     "Shortened": 0
   },
+  "Pipeline": {
+    "Success": true,
+    "Notes": [
+      {
+        "Row": 48,
+        "Lane": 2,
+        "Symbol": "1"
+      },
+      {
+        "Row": 60,
+        "Lane": 3,
+        "Symbol": "1"
+      },
+      {
+        "Row": 72,
+        "Lane": 0,
+        "Symbol": "1"
+      },
+      {
+        "Row": 84,
+        "Lane": 3,
+        "Symbol": "1"
+      },
+      {
+        "Row": 96,
+        "Lane": 0,
+        "Symbol": "1"
+      }
+    ],
+    "Context": {
+      "PreviousFoot": 1,
+      "PreviousTimes": [
+        0.2,
+        0.3
+      ],
+      "PreviousFooting": [
+        2,
+        3
+      ],
+      "FollowingFoot": 0,
+      "FollowingFooting": [
+        1,
+        -1
+      ],
+      "SameCounts": [
+        0,
+        0
+      ],
+      "LastTransitionSteps": 4,
+      "LastTransitionLeft": true
+    },
+    "Nps": 3.75,
+    "Bounds": [
+      0,
+      192
+    ]
+  },
   "Heads": [
     {
       "Row": 0,

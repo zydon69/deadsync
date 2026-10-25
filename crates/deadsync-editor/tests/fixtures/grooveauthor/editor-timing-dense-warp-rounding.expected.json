@@ -7683,6 +7683,63 @@
     "Removed": 49,
     "Shortened": 0
   },
+  "Pipeline": {
+    "Success": true,
+    "Notes": [
+      {
+        "Row": 48,
+        "Lane": 3,
+        "Symbol": "1"
+      },
+      {
+        "Row": 60,
+        "Lane": 2,
+        "Symbol": "1"
+      },
+      {
+        "Row": 72,
+        "Lane": 1,
+        "Symbol": "1"
+      },
+      {
+        "Row": 84,
+        "Lane": 0,
+        "Symbol": "1"
+      },
+      {
+        "Row": 96,
+        "Lane": 1,
+        "Symbol": "1"
+      }
+    ],
+    "Context": {
+      "PreviousFoot": 0,
+      "PreviousTimes": [
+        0.03336892685531237,
+        0.03336892685531237
+      ],
+      "PreviousFooting": [
+        2,
+        3
+      ],
+      "FollowingFoot": -1,
+      "FollowingFooting": [
+        2,
+        1
+      ],
+      "SameCounts": [
+        0,
+        0
+      ],
+      "LastTransitionSteps": 48,
+      "LastTransitionLeft": true
+    },
+    "Nps": 160.67180722891567,
+    "Bounds": [
+      16,
+      128
+    ]
+  },
   "Heads": [
     {
       "Row": 0,

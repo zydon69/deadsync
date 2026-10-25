@@ -95,8 +95,8 @@ A random lane picker or a basic difficulty filter would not meet the request.
 Automatic fallback selection, generated-note assembly and reversible chart
 creation, source preparation, session-bound previews and a native chart-generation
 panel are implemented below. The surrounding-footing and region primitives below are also implemented. Next
-work must validate the integrated single-region source-to-pattern task against
-the original action, connect native controls, and complete configurations and batch generation.
+work must extend integrated single-region differential coverage, connect native
+controls, and complete configurations and batch generation.
 Differential fixtures must extend the existing tech, bracket, crossover,
 hold, mine, layout and seed cases to that complete conversion pipeline.
 Generation results need preview and one reversible application gesture before
@@ -415,7 +415,7 @@ exact original bytes, redo, save and reopen the resulting grid. The selected-own
 primitive is explicit; whole multiplayer generation remains unfinished.
 
 These primitives feed the single-region source-to-pattern task described below.
-Full original-action differential coverage, persistent/batch pattern actions and
+Wider original-action differential coverage, persistent/batch pattern actions and
 the native panel remain required. Footing and density come from the source
 contexts rather than fixed values chosen to match the existing tests.
 
@@ -450,7 +450,7 @@ The development oracle compiles nine unchanged method bodies from the pinned
 editor: timing refresh, rate refresh, position/time queries, negative-stop end
 refresh, chart start/end, and pattern GetNps. Minimal containers/accessors replace
 UI/tree plumbing; the test does not run the whole GrooveAuthor editor or its file
-loader. Provenance records the extracted method hashes. Thirty-one committed
+loader. Provenance records the extracted method hashes. Thirty-five committed
 cases compare exact f64 head times, fake flags, step counts, chart ends, position
 queries and NPS. Cases include simultaneous events, zero-delay guards, nested
 warps/fakes, time signatures inside warps, negative-stop stacks, long holds before
@@ -465,11 +465,11 @@ new pattern marker using the typed active-rate query. `prepare_region` extracts
 complete hold pairs, global clock events and local metadata without recomputing
 an isolated Fumen timeline. It retains the first included event's time per row
 and the full included event span. The development oracle additionally compiles
-unchanged original region extraction and deletion helpers. All 31 cases compare
+unchanged original region extraction and deletion helpers. All 35 cases compare
 these projected regions, including empty ranges and shortened tails. Mixed note
 kinds on one row verify the original lane-before-type comparison.
 
-A separate native ChartTask test serializes 28 of these cases as SSC and compares
+A separate native ChartTask test serializes 32 of these cases as SSC and compares
 the generated double-chart notes against the original library consuming the
 editor-assigned events. Loaded pattern markers and missing-tempo loader defaults
 are excluded from this test and remain separate unfinished contracts. This is
@@ -489,9 +489,21 @@ undo/redo and save/reopen, including the Workspace command path.
 Chart and pattern jobs share a generic bounded worker with a single progress
 slot and one completion result. Cancelling an already ready result discards it;
 dropping a worker never joins the compute thread. Pattern jobs are not yet
-connected to the native interface. Existing differential tests prove individual
-original timing, region, context and generation components; the new integrated
-single-region task still needs an end-to-end original-action differential oracle.
+connected to the native interface. An integrated differential test serializes 32
+cases as SSC and compares generated notes and exact average NPS with the original
+editor region/deletion/density/range/context helpers chained to the original
+StepManiaLibrary interpretation and pattern generation. The additional original
+range helper is extracted unchanged and included in provenance. Cases cover
+stops/delays, warps and signature changes, negative-stop clamping, crossing holds,
+local metadata, dense rows, exclusive endpoints, single-step patterns, beginning
+of chart and empty charts. All 32 produce matching notes; loaded pattern-marker
+and missing-tempo cases remain excluded from this integrated SSC test.
+
+This harness composes original helper bodies with explicit container/accessor
+adapters; it does not execute the complete editor action, file loader, UI or
+multi-pattern scheduler. The integrated fixtures currently use dance-single,
+balanced configs and seed 42. Other layouts/configs/seeds have component-level
+coverage but still need broader integrated differential coverage.
 
 Multiple overlapping pattern markers, persisted editable pattern metadata and
 batch regeneration remain unfinished. Repeated live edits also need timeline

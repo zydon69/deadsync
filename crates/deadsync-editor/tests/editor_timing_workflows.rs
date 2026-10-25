@@ -146,7 +146,7 @@ fn density_fake_flags_end_times_and_rate_queries_match_unchanged_editor_methods(
             "{name} pattern NPS"
         );
     }
-    assert_eq!(count, 31, "Every committed editor timing case must run");
+    assert_eq!(count, 35, "Every committed editor timing case must run");
 }
 #[test]
 fn editor_timing_rejects_cancelled_invalid_and_overflowing_inputs() {
@@ -376,7 +376,7 @@ fn projected_timing_and_context_regions_match_original_deletion_and_extraction()
         }
         assert_eq!(original, grid(&input), "{name} immutable original");
     }
-    assert_eq!(count, 31);
+    assert_eq!(count, 35);
 }
 #[test]
 fn projections_reject_new_or_altered_heads_and_do_not_retime_survivors() {
@@ -500,6 +500,13 @@ fn projections_reject_new_or_altered_heads_and_do_not_retime_survivors() {
 
 #[test]
 fn native_chart_conversion_uses_editor_assigned_times() {
+    native_pipeline(false);
+}
+#[test]
+fn integrated_pattern_task_matches_original_editor_helpers_and_library() {
+    native_pipeline(true);
+}
+fn native_pipeline(pattern: bool) {
     use deadsync_editor::{
         document::{Document, Format},
         generation::{
@@ -537,7 +544,7 @@ fn native_chart_conversion_uses_editor_assigned_times() {
             let beat = value[0].as_f64().unwrap() / 48.0;
             let (tag, data) = match value[1].as_str().unwrap() {
                 "tempo" => ("BPMS", value[2].to_string()),
-                "signature" => ("TIMESIGNATURES", "4=4".into()),
+                "signature" => ("TIMESIGNATURES", format!("{}={}", value[2], value[3])),
                 "stop" => ("STOPS", value[2].to_string()),
                 "delay" => ("DELAYS", value[2].to_string()),
                 "warp" => ("WARPS", (value[2].as_f64().unwrap() / 48.0).to_string()),
@@ -559,6 +566,91 @@ fn native_chart_conversion_uses_editor_assigned_times() {
         bytes.extend(grid(&input).serialize().unwrap());
         bytes.push(b';');
         let session = Session::new(Document::parse(Arc::<[u8]>::from(bytes), Format::Ssc).unwrap());
+        if pattern {
+            use deadsync_editor::generation::pattern_job::{Options, Span, Task};
+            let result = Task::capture(
+                &session,
+                0,
+                Options {
+                    span: Span {
+                        start: input["Projection"]["Region"][0].as_u64().unwrap(),
+                        end: input["Projection"]["Region"][1].as_u64().unwrap(),
+                        include_start: input["Inclusive"][0].as_bool().unwrap_or(true),
+                        include_end: input["Inclusive"][1].as_bool().unwrap_or(true),
+                    },
+                    seed: 42,
+                    expressed: ExpressedConfig {
+                        bracket_parsing_determination: BracketDetermination::UseDefaultMethod,
+                        ..ExpressedConfig::default()
+                    },
+                    performed: serde_json::from_value(
+                        input["Conversion"]["PerformedConfig"].clone(),
+                    )
+                    .unwrap(),
+                    pattern: serde_json::from_value(input["PatternConfig"].clone()).unwrap(),
+                    ignore_preceding_distribution: false,
+                },
+            )
+            .unwrap()
+            .run(&AtomicBool::new(false), |_, _| {});
+            assert_eq!(
+                result.is_ok(),
+                expected["Pipeline"]["Success"].as_bool().unwrap(),
+                "{name}: {err:?}",
+                err = result.as_ref().err()
+            );
+            if let Ok(preview) = result {
+                assert_eq!(
+                    preview.average_nps(),
+                    expected["Pipeline"]["Nps"].as_f64().unwrap(),
+                    "{name}"
+                );
+                let mut actual = Vec::new();
+                for (position, note) in preview.grid().iter() {
+                    let symbol = match note.kind {
+                        Kind::Tap => "1",
+                        Kind::Hold => "2",
+                        Kind::Roll => "4",
+                        Kind::Mine => "M",
+                        Kind::Fake => "F",
+                        Kind::Lift => "L",
+                        Kind::Keysound => "K",
+                        _ => panic!("Unexpected final note"),
+                    };
+                    actual.push((position.row, u64::from(position.lane), symbol.to_owned()));
+                    if let Some(end) = note.end {
+                        actual.push((end, u64::from(position.lane), "3".to_owned()));
+                    }
+                }
+                let mut reference = expected["Pipeline"]["Notes"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|v| {
+                        (
+                            v["Row"].as_u64().unwrap(),
+                            v["Lane"].as_u64().unwrap(),
+                            v["Symbol"].as_str().unwrap().to_owned(),
+                        )
+                    })
+                    .collect::<Vec<_>>();
+                for head in expected["Projected"]["Heads"].as_array().unwrap() {
+                    reference.push((
+                        head["Row"].as_u64().unwrap(),
+                        head["Lane"].as_u64().unwrap(),
+                        head["Symbol"].as_str().unwrap().to_owned(),
+                    ));
+                    if let Some(end) = head["End"].as_u64() {
+                        reference.push((end, head["Lane"].as_u64().unwrap(), "3".to_owned()));
+                    }
+                }
+                actual.sort();
+                reference.sort();
+                assert_eq!(actual, reference, "{name}");
+            }
+            count += 1;
+            continue;
+        }
         let mut options = ChartOptions::balanced("dance-double");
         options.seed = 42;
         options.expressed = ExpressedConfig {
@@ -611,5 +703,5 @@ fn native_chart_conversion_uses_editor_assigned_times() {
         }
         count += 1;
     }
-    assert_eq!(count, 28);
+    assert_eq!(count, 32);
 }

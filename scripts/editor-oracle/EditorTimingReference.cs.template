@@ -16,6 +16,7 @@ internal class Cursor<T>(IList<T> values, int index) {
 }
 internal class EventList<T> : List<T> where T:EditorEvent {
     public Cursor<T> FindBestByPosition(int row) {var index=FindIndex(e=>e.GetRow()>=row);return new(this,(index<0?Count:index)-1);}
+    public Cursor<T> FindGreatestBeforeChartPosition(int row) {var index=FindIndex(e=>e.GetRow()>=row);return new(this,index<0?Count:index);}
     public Cursor<T> FindLeastAtOrAfterChartPosition(int row)=>FindBestByPosition(row);
     public void Validate() { }
     public int GetCount() => Count;
@@ -105,6 +106,10 @@ internal class EditorFakeSegmentEvent(EditorChart chart,FakeSegment data) : Edit
     public override double GetEndChartTime() {double end=0;EditorChart.TryGetTimeFromChartPosition(GetEndChartPosition(),ref end);return end;}
 }
 internal class EditorPatternEvent(EditorChart chart,int row,int end,int spacing=12) : EditorEvent(chart,new Pattern {IntegerPosition=row}) {
+    public EditorChart GetEditorChart()=>chart;
+    public StepManiaLibrary.PerformedChart.Config Config=new();
+    public record Holder(StepManiaLibrary.PerformedChart.Config Config);
+    public Holder GetPerformedChartConfig()=>new(Config);
     public int GetNumSteps()=>Math.Max(0,(end-row)/spacing+1);
     public int GetFirstStepRow()=>row;
     public int GetLastStepRow()=>end;
@@ -162,6 +167,11 @@ internal class DensityReference(EditorChart chart,int count,int last) {
 internal static class PatternDeletionReference {
     // DELETION_METHODS
 }
+internal static class PatternRangeReference {
+    private const int NumStepsToSearchBeyondPattern=32;
+    public static (int start,int end) Run(EditorPatternEvent pattern)=>GetRowRangeToConsiderForPattern(pattern);
+    // RANGE_METHODS
+}
 internal static class Reference {
     public static object Run(JsonElement request,string referenceRoot) {
         var chart=new EditorChart();
@@ -211,6 +221,7 @@ internal static class Reference {
             var performed=expressed==null?null:StepManiaLibrary.PerformedChart.PerformedChart.CreateFromExpressedChart(targetGraph,config,roots,null,expressed,42,"Oracle");
             conversion=new {Success=performed!=null,Notes=performed?.CreateSMChartEvents().OfType<LaneNote>().Select(note=>new {Row=note.IntegerPosition,Lane=note.Lane,Symbol=note.SourceType}).ToArray()};
         }
+        object? pipeline=null;
         object? projected=null;
         if(request.TryGetProperty("Projection",out var projection)) {
             var start=projection.GetProperty("Start").GetInt32();var end=projection.GetProperty("End").GetInt32();var spacing=projection.GetProperty("Spacing").GetInt32();
@@ -231,6 +242,30 @@ internal static class Reference {
                     EditorEvents=editorEvents.Select(e=>new {Row=e.GetRow(),Lane=e.GetLane(),Step=e.IsStep()}).ToArray()
                 });
             }
+            if(request.TryGetProperty("PatternConfig",out var patternJson)) {
+                var pad=PadData.LoadPadData("dance-single",System.IO.Path.Combine(referenceRoot,"StepManiaLibrary","dance-single.json")).GetAwaiter().GetResult();
+                var graph=StepGraph.Load(System.IO.Path.Combine(referenceRoot,"StepManiaLibrary","dance-single.fsg"),pad);
+                var config=JsonSerializer.Deserialize<StepManiaLibrary.PerformedChart.Config>(request.GetProperty("Conversion").GetProperty("PerformedConfig"),new JsonSerializerOptions {IncludeFields=true})!;config.Init();pattern.Config=config;
+                var patternConfig=JsonSerializer.Deserialize<StepManiaLibrary.PerformedChart.PatternConfig>(patternJson,new JsonSerializerOptions {IncludeFields=true,Converters={new System.Text.Json.Serialization.JsonStringEnumConverter()}})!;patternConfig.Init();
+                var expression=new StepManiaLibrary.ExpressedChart.Config {BracketParsingDetermination=StepManiaLibrary.ExpressedChart.BracketParsingDetermination.UseDefaultMethod,DefaultBracketParsingMethod=StepManiaLibrary.ExpressedChart.BracketParsingMethod.Balanced};expression.Init();
+                var bounds=PatternRangeReference.Run(pattern);
+                var timing=chart.RateAlteringEvents.Select(e=>e.GetEvent()).Where(DoesEventAffectTiming).ToList();
+                (StepManiaLibrary.ExpressedChart.ExpressedChart?,List<global::EditorEvent>) Interpret(int first,int last) {
+                    var (events,editor)=chart.GetEventsInRangeForPattern(first,last);events.AddRange(timing);events.Sort(new SMEventComparer());
+                    return (StepManiaLibrary.ExpressedChart.ExpressedChart.CreateFromSMEvents(events,graph,expression,9.0,"Oracle"),editor.Select(e=>new global::EditorEvent(e.GetRow(),e.GetLane(),e.IsStep())).ToList());
+                }
+                var (after,afterEvents)=Interpret(end+1,bounds.end);var (before,beforeEvents)=Interpret(bounds.start,start-1);
+                var counts=new int[4];var total=0;
+                foreach(var entry in chart.EditorEvents.Where(e=>e.GetRow()<start && e.IsStep())) {counts[entry.GetLane()]++;total++;}
+                var nps=new DensityReference(chart,pattern.GetNumSteps(),end).Run();
+                object? notes=null;object? context=null;
+                if(after!=null && before!=null) {
+                    var values=global::PatternContextReference.Run(new global::EditorPatternEvent(start,end,pattern.GetNumSteps(),config),graph,before,after,beforeEvents,afterEvents,total,bounds.start>0);context=values;
+                    var generated=StepManiaLibrary.PerformedChart.PerformedChart.CreateWithPattern(graph,patternConfig,config,start,end,42,values.PreviousFoot,values.PreviousTimes,values.PreviousFooting,values.FollowingFooting,counts,values.SameCounts,timing,total,values.LastTransitionSteps,values.LastTransitionLeft,nps,"Oracle");
+                    notes=generated?.CreateSMChartEvents().OfType<LaneNote>().Select(e=>new {Row=e.IntegerPosition,Lane=e.Lane,Symbol=e.SourceType}).ToArray();
+                }
+                pipeline=new {Success=notes!=null,Notes=notes,Context=context,Nps=nps,Bounds=new[]{bounds.start,bounds.end}};
+            }
             projected=new {
                 Heads=chart.EditorEvents.OfType<EditorNoteEvent>().Select(note=>new {Row=note.GetRow(),Lane=note.Lane,Symbol=note.Symbol,Time=note.GetChartTime(),Fake=note.IsFake(),End=note is EditorHoldNoteEvent hold?(int?)hold.GetEndChartPosition():null}).ToArray(),
                 StepCount=chart.GetStepTotals().GetStepCount(),End=chart.GetEndChartTime(),
@@ -239,7 +274,7 @@ internal static class Reference {
             };
         }
         return new {
-            Conversion=conversion,Projected=projected,
+            Conversion=conversion,Projected=projected,Pipeline=pipeline,
             Heads=originalHeads,
             StepCount=originalCount,End=originalEnd,
             Times=request.GetProperty("Rows").EnumerateArray().Select(row=>{double time=0;chart.TryGetTimeFromChartPosition(row.GetDouble(),ref time);return time;}).ToArray(),

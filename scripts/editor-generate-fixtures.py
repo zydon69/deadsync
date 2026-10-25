@@ -46,6 +46,7 @@ def prepare_timing_reference(editor):
         "STOP_METHODS": [extract_member(stop, r"\tpublic void RefreshEndChartPosition\(")],
         "REGION_METHODS": [extract_member(chart, r"\tpublic \(List<Event>, List<EditorEvent>\) GetEventsInRangeForPattern\(")],
         "DELETION_METHODS": [extract_member(deletion, r"\tpublic class Alterations\s*"), extract_member(deletion, r"\tpublic static Alterations DeleteEventsOverlappingPatterns\(")],
+        "RANGE_METHODS": [extract_member(density, r"\tprivate static \(int start, int end\) GetRowRangeToConsiderForPattern\(")],
         "DENSITY_METHODS": [extract_member(density, r"\tprivate double GetNps\(")],
     }
     project = ROOT / "scripts/editor-oracle"
@@ -365,7 +366,19 @@ def requests(reference: Path):
         cases["editor-timing-" + label] = {"Operation": "EditorTiming", "Timing": [[0, "signature", 4, 4], [0, "tempo", 150]] + extra,
             "Notes": copy.deepcopy(editor_notes), "Rows": [0, 12, 24, 48, 72, 96, 120, 144, 192, 240, 384, 768], "NumSteps": 17, "LastStep": 384, **values}
         cases["editor-timing-" + label]["Conversion"] = {"PerformedConfig": copy.deepcopy(performed)}
+        cases["editor-timing-" + label]["PatternConfig"] = copy.deepcopy(pattern)
         cases["editor-timing-" + label]["Projection"] = {"Start": 48, "End": 96, "Spacing": 12, "Region": [48, 97], "NumSteps": 5, "Ranges": [[0, 47], [97, 768], [0, -1]]}
+    for label, region, first, last, inclusive, notes in [
+        ("pattern-start", [0, 48], 0, 48, [True, True], editor_notes),
+        ("pattern-exclusive", [48, 96], 60, 84, [False, False], editor_notes),
+        ("pattern-single", [48, 48], 48, 48, [True, True], editor_notes),
+        ("pattern-empty-chart", [0, 48], 0, 48, [True, True], []),
+    ]:
+        case = copy.deepcopy(cases["editor-timing-baseline"])
+        case["Notes"] = copy.deepcopy(notes)
+        case["Inclusive"] = inclusive
+        case["Projection"].update(Start=first, End=last, Region=region, NumSteps=(last-first)//12+1)
+        cases["editor-timing-" + label] = case
     return cases
 
 
