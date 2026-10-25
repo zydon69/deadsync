@@ -46,11 +46,12 @@ fn init() {
 fn open(s: &mut State) {
     press(s, KeyCode::F7);
     press(s, KeyCode::ArrowUp);
+    press(s, KeyCode::ArrowUp);
     press(s, KeyCode::Enter);
 }
 fn apply(s: &mut State) {
     press(s, KeyCode::Escape);
-    for _ in 0..5 {
+    for _ in 0..6 {
         press(s, KeyCode::ArrowDown);
     }
     press(s, KeyCode::Enter);
@@ -144,7 +145,7 @@ fn cancel_controls_back_navigation_and_empty_credit_follow_source_persistence() 
     press(&mut s, KeyCode::ArrowDown);
     assert!(!s.wants_text_input());
     press(&mut s, KeyCode::Enter);
-    for _ in 0..5 {
+    for _ in 0..6 {
         press(&mut s, KeyCode::ArrowDown);
     }
     press(&mut s, KeyCode::Enter);
@@ -315,7 +316,7 @@ fn legacy_multiline_field_rejects_partial_invalid_edits_without_losing_other_sta
     assert!(has(&s, "Description:"));
     press(&mut s, KeyCode::Escape);
     assert!(has(&s, "Invalid field edit discarded"));
-    for _ in 0..5 {
+    for _ in 0..6 {
         press(&mut s, KeyCode::ArrowDown);
     }
     press(&mut s, KeyCode::Enter);

@@ -69,6 +69,24 @@ impl Draft {
             text: crate::chart_text::Text::read(session.document(), chart)?,
         })
     }
+    pub fn actual_display_tempo_range(
+        &self,
+        session: &Session,
+        chart: usize,
+    ) -> Result<(f64, f64), Error> {
+        self.check(session, chart)?;
+        let timing =
+            crate::generation::timing::GenerationTiming::from_document(session.document(), chart)?;
+        let mut range: Option<(f64, f64)> = None;
+        for event in timing.editor_events() {
+            if let crate::generation::timing::EventKind::Tempo(value) = event.kind {
+                range = Some(range.map_or((value, value), |(min, max)| {
+                    (min.min(value), max.max(value))
+                }));
+            }
+        }
+        range.ok_or_else(|| invalid("Chart has no tempo events"))
+    }
     pub fn display_tempo(&self) -> &crate::display_tempo::Value {
         &self.display_tempo
     }

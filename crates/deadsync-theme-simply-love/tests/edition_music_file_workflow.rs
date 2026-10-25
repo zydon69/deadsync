@@ -65,6 +65,7 @@ fn setup() -> (tempfile::TempDir, State) {
 fn open_music(s: &mut State) {
     press(s, KeyCode::F7);
     press(s, KeyCode::ArrowUp);
+    press(s, KeyCode::ArrowUp);
     press(s, KeyCode::Enter);
     for _ in 0..4 {
         press(s, KeyCode::Tab);
@@ -72,7 +73,7 @@ fn open_music(s: &mut State) {
 }
 fn apply(s: &mut State) {
     press(s, KeyCode::Escape);
-    for _ in 0..5 {
+    for _ in 0..6 {
         press(s, KeyCode::ArrowDown);
     }
     press(s, KeyCode::Enter);

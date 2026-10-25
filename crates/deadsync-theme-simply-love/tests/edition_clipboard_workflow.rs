@@ -76,6 +76,7 @@ fn setup() -> (tempfile::TempDir, State) {
     let mut s = State::open(&path, 0).unwrap();
     press(&mut s, KeyCode::F7);
     press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::ArrowUp);
     press(&mut s, KeyCode::Enter);
     (dir, s)
 }
@@ -109,7 +110,7 @@ fn copy_cut_and_paste_use_selected_unicode_and_keep_atomic_local_and_document_hi
         SONG.as_bytes()
     );
     press(&mut s, KeyCode::Escape);
-    for _ in 0..5 {
+    for _ in 0..6 {
         press(&mut s, KeyCode::ArrowDown);
     }
     press(&mut s, KeyCode::Enter);
@@ -173,6 +174,7 @@ fn failures_and_empty_pastes_preserve_selection_value_and_redo() {
     fs::write(&null_path, &legacy).unwrap();
     let mut null_state = State::open(&null_path, 0).unwrap();
     press(&mut null_state, KeyCode::F7);
+    press(&mut null_state, KeyCode::ArrowUp);
     press(&mut null_state, KeyCode::ArrowUp);
     press(&mut null_state, KeyCode::Enter);
     let calls = (board.reads, board.writes);

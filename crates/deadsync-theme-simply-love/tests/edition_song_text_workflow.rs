@@ -264,6 +264,7 @@ fn song_chart_scope_switches_drop_pending_clipboard_and_picker_requests_without_
     press(&mut s, KeyCode::Escape);
     press(&mut s, KeyCode::F7);
     press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::ArrowUp);
     press(&mut s, KeyCode::Enter);
     for _ in 0..4 {
         press(&mut s, KeyCode::Tab);

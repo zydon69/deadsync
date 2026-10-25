@@ -96,3 +96,29 @@ fn unrelated_changes_preserve_malformed_display_source() {
         Some("garbage")
     );
 }
+
+#[test]
+fn actual_range_uses_chart_timing_and_actual_mode_writes_empty_local_override() {
+    let mut source = session(Format::Ssc, "#BPMS:0=90,8=180;");
+    let mut draft = Draft::capture(&source, 0).unwrap();
+    assert_eq!(
+        draft.actual_display_tempo_range(&source, 0).unwrap(),
+        (90.0, 180.0)
+    );
+    let mut value = draft.display_tempo().clone();
+    value.set_mode(Mode::Actual, (0.0, 0.0)).unwrap();
+    draft.set_display_tempo(value);
+    draft.apply(&mut source, 0).unwrap();
+    assert_eq!(
+        source.document().text(Some(0), "DISPLAYBPM").as_deref(),
+        Some("")
+    );
+    assert_eq!(
+        source.document().text(None, "DISPLAYBPM").as_deref(),
+        Some("*")
+    );
+    assert_eq!(
+        Draft::capture(&source, 0).unwrap().display_tempo().mode(),
+        Mode::Actual
+    );
+}

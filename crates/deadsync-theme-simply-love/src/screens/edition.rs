@@ -10,6 +10,7 @@ mod batch;
 mod chart_creation;
 mod chart_deletion;
 mod chart_rating;
+mod display_tempo;
 mod text_fields;
 mod clipboard;
 mod music_file;
@@ -68,6 +69,7 @@ enum Panel {
     Marker(usize),
     Profiles(usize),
     ChartProperties(usize),
+    DisplayTempo(usize),
     ChartText(usize),
     SongText(usize),
     SongProperties(usize),
@@ -238,6 +240,8 @@ pub struct State {
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
     chart_rating_input: Option<String>,
+    display_tempo_draft: Option<deadsync_editor::display_tempo::Value>,
+    display_tempo_input: Option<(usize, String)>,
     text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
     text_clipboard_request: Option<clipboard::Request>,
     music_picker_request: Option<music_file::Request>,
@@ -376,6 +380,8 @@ impl State {
             marker: None,
             chart_properties: None,
             chart_rating_input: None,
+            display_tempo_draft: None,
+            display_tempo_input: None,
             text_buffer: None,
             text_clipboard_request: None,
             music_picker_request: None,
@@ -573,6 +579,8 @@ impl State {
         match self.workspace.chart_properties() {
             Ok(draft) => {
                 self.chart_rating_input = None;
+                self.display_tempo_draft = None;
+                self.display_tempo_input = None;
                 self.status = i18n::tr(
                     "Edition",
                     if draft.format() == deadsync_editor::document::Format::Sm {
@@ -1529,6 +1537,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if let Panel::DisplayTempo(index) = panel { self.display_tempo_key(index, code); return false; }
         if let Panel::ChartText(index) | Panel::SongText(index) = panel {
             self.text_field_key(index, code);
             return false;
@@ -1627,6 +1636,7 @@ impl State {
             return false;
         }
         match panel {
+            Panel::DisplayTempo(_) => unreachable!("display tempo dispatched above"),
             Panel::ChartText(_) | Panel::SongText(_) => unreachable!("text field input dispatched above"),
             Panel::NewChart(index) => self.new_chart_key(index, code),
             Panel::DeleteChart(index) => self.deletion_key(index, code),
@@ -1693,7 +1703,7 @@ impl State {
                 }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ChartProperties(
-                        (index + if code == KeyCode::ArrowUp { 9 } else { 1 }) % 10,
+                        (index + if code == KeyCode::ArrowUp { 10 } else { 1 }) % 11,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(draft) = &mut self.chart_properties {
@@ -1736,6 +1746,7 @@ impl State {
                         4 => self.apply_chart_properties(),
                         6 => self.open_timing(),
                         9 => self.open_chart_text(),
+                        10 => self.open_display_tempo(),
                         8 => {
                             if self.stage_chart_rating() {
                                 self.status = i18n::tr("Edition", "ChartRatingStaged");
@@ -2559,6 +2570,7 @@ impl State {
                 "ChartName", "ChartDescription", "ChartCredit", "ChartStyle",
                 "ChartMusic", "ChartTextBack",
             ],
+            Panel::DisplayTempo(_) => &["DisplayTempoMode", "DisplayTempoMin", "DisplayTempoRange", "DisplayTempoMax", "DisplayTempoStage", "DisplayTempoCancel"],
             Panel::ChartProperties(_) => &[
                 "ChartChooseExpression",
                 "ChartUseOffset",
@@ -2570,6 +2582,7 @@ impl State {
                 "ChartDifficulty",
                 "ChartRating",
                 "ChartTextOpen",
+                "DisplayTempoOpen",
             ],
             Panel::ChartExpression(_) => {
                 &["ProfileExpression", "ChartStageExpression", "ProfileBack"]
@@ -2600,6 +2613,7 @@ impl State {
             | Panel::Profiles(i)
             | Panel::TimingMigration(i)
             | Panel::Timing(i)
+            | Panel::DisplayTempo(i)
             | Panel::ChartProperties(i)
             | Panel::ChartText(i)
             | Panel::SongText(i)
@@ -2657,7 +2671,8 @@ impl State {
         let menu_footer = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_)) {
             24.0
         } else { 0.0 };
-        let panel_height = visible_keys as f32 * 32.0 + 30.0 + extra_height + menu_footer;
+        let row_height = if matches!(panel, Panel::ChartProperties(_)) { 26.0 } else { 32.0 };
+        let panel_height = visible_keys as f32 * row_height + 30.0 + extra_height + menu_footer;
         let panel_y = if previewing && !side_panel {
             screen_height() - panel_height * 0.5 - 8.0
         } else {
@@ -2787,6 +2802,8 @@ impl State {
                 || (matches!(panel, Panel::SongText(_)) && index < deadsync_editor::song_text::Field::ALL.len())
             {
                 self.text_field_label(index)
+            } else if matches!(panel, Panel::DisplayTempo(_)) {
+                self.display_tempo_label(index, key)
             } else if matches!(panel, Panel::ChartProperties(_)) && index == 7 {
                 self.chart_difficulty_label()
             } else if matches!(panel, Panel::ChartProperties(_)) && index == 8 {
@@ -3005,7 +3022,7 @@ impl State {
             } else {
                 i18n::tr("Edition", key)
             };
-            actors.push(act!(text: font("miso"): settext(label): align(0.5, 0.5): xy(panel_x, panel_y - panel_height * 0.5 + extra_height + 30.0 + (index - menu_start) as f32 * 32.0): zoom(0.8): diffuse(color[0], color[1], color[2], color[3]): z(8021)));
+            actors.push(act!(text: font("miso"): settext(label): align(0.5, 0.5): xy(panel_x, panel_y - panel_height * 0.5 + extra_height + 30.0 + (index - menu_start) as f32 * row_height): zoom(0.8): diffuse(color[0], color[1], color[2], color[3]): z(8021)));
             if matches!(panel, Panel::WaveformColors(_)) && index<14 {
                 let rgba=self.waveform_color_swatch(index);
                 let y=panel_y-panel_height*0.5+extra_height+30.0+(index-menu_start) as f32*32.0;

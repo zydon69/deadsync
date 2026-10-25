@@ -201,6 +201,7 @@ fn french_chart_difficulty_rating_validation_and_pending_timing_are_translated()
     assert!(labels.iter().any(|text| text.contains("Niveau : 9")));
     press(&mut state, KeyCode::ArrowUp);
     press(&mut state, KeyCode::ArrowUp);
+    press(&mut state, KeyCode::ArrowUp);
     press(&mut state, KeyCode::Digit0);
     press(&mut state, KeyCode::Enter);
     assert!(
@@ -208,7 +209,7 @@ fn french_chart_difficulty_rating_validation_and_pending_timing_are_translated()
             .iter()
             .any(|text| text.contains("Saisissez un niveau entier"))
     );
-    for _ in 0..8 {
+    for _ in 0..9 {
         press(&mut state, KeyCode::ArrowDown);
     }
     press(&mut state, KeyCode::Enter);
@@ -238,6 +239,7 @@ fn french_chart_text_panel_labels_input_and_staging_remain_translated() {
     fs::write(&path, song).unwrap();
     let mut s = State::open(&path, 0).unwrap();
     press(&mut s, KeyCode::F7);
+    press(&mut s, KeyCode::ArrowUp);
     press(&mut s, KeyCode::ArrowUp);
     assert!(texts(&s).iter().any(|text| text == "Textes et musique..."));
     press(&mut s, KeyCode::Enter);
@@ -292,6 +294,7 @@ fn french_clipboard_failures_are_translated_without_changing_the_chart() {
     let mut s = State::open(&path, 0).unwrap();
     press(&mut s, KeyCode::F7);
     press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::ArrowUp);
     press(&mut s, KeyCode::Enter);
     for (code, label) in [
         (KeyCode::KeyX, "Presse-papiers système indisponible"),
@@ -343,6 +346,7 @@ fn french_music_picker_clear_and_cancel_labels_are_resolved_without_saving() {
     fs::write(&path, song).unwrap();
     let mut s = State::open(&path, 0).unwrap();
     press(&mut s, KeyCode::F7);
+    press(&mut s, KeyCode::ArrowUp);
     press(&mut s, KeyCode::ArrowUp);
     press(&mut s, KeyCode::Enter);
     for _ in 0..4 {

@@ -4413,3 +4413,37 @@ source preservation, atomic undo/redo and stale-draft refusal. Seven existing
 are Rust workflow tests informed by the original source, not an executable C#
 differential oracle or complete numeric-parser compatibility proof. Native menu
 controls, actual-range capture and rendered validation remain to be connected.
+
+### Native display tempo panel
+
+F7 chart properties now includes Display tempo. The child panel edits
+Actual/Random/Specified mode, minimum BPM, a separate-maximum toggle and maximum
+BPM. Left/Right adjusts values; numeric fields also accept signed decimal and
+exponent input, Backspace and Delete. Enter on Stage returns to the parent's
+Apply row without mutating the document; Escape/Discard keeps other staged
+properties and drops only this child draft. Invalid/nonfinite numeric input
+blocks staging and navigation until corrected or discarded.
+
+Entering Specified obtains the selected chart's tempo range from the original
+Fumen generation timing loader, including SSC local timing. SM help explicitly
+states that DISPLAYBPM applies to every chart; SSC help explains the local
+override. English and French labels/help are included. Eleven parent rows use
+26-pixel spacing to retain the complete property list within the existing panel.
+Tests that navigated by wrapping from the first row now account for the added
+row; their assertions and existing editing behavior are retained.
+
+Native workflow coverage exercises typed range edits, staging versus applying,
+undo, cancellation, save/reopen and French SM scope/error messages. Core coverage
+also checks actual range lookup and writing an empty SSC override for Actual.
+These actor/input tests do not prove physical keyboard/GPU rendering. The full
+GrooveAuthor feature port remains incomplete.
+
+Validation for this integration: all 221 native editor integration tests across
+33 targets passed, plus 11 targeted core tests (four display-tempo and seven
+existing chart-property workflows). The native display-tempo test was then
+strengthened to stage rating and display tempo together; it passed again,
+including one undo restoring both. `cargo check -p deadsync-theme-simply-love
+--jobs 2 --locked` passed. Logs: `/tmp/deadsync-display-tempo-all-native.log`,
+`/tmp/deadsync-display-tempo-core.log` and
+`/tmp/deadsync-display-tempo-atomic-native.log`. No physical app review was
+performed for this panel.
