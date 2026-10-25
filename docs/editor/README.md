@@ -3389,3 +3389,27 @@ rendering still need integration before the full zoom range can be activated.
 Validation: the complete editor core suite passed 361 tests; all 180 native
 `edition_*` integration tests passed. The four overview workflow tests also
 passed separately, and `cargo check -p deadsync --jobs 2 --locked` passed.
+
+### Bounded beat, measure and label rendering
+
+`RowBands` partitions an inclusive visible row interval into at most 4096
+nonempty bands using u128 arithmetic. Its exact-size fused iterator handles
+0..=u64::MAX, single rows and invalid requests. Note overview queries share this
+partition implementation. Tests exhaust small ranges/counts to check contiguous
+coverage and remaining iterator lengths, and exercise the full integer domain.
+
+Native beat lines use arithmetic to select a boundary per band, measure lines
+query the signature index for the first boundary in each band, and labels use
+BTreeMap range endpoint queries. These loops no longer walk every visible beat,
+measure or label at extreme zoom-out. The screen allocates enough bands to keep
+every individual row at its current one-pixel scale. Coarse views show one
+representative beat, measure and label per band rather than all overlapping
+annotations. Signature queries clip at the existing i32 chart timing limit.
+Saved pattern region rendering, zoom controls, size scaling and interpolation
+remain separate pending work; native zoom is not activated by this change.
+
+Validation: all 180 existing native editor integration tests passed. The new
+native projection test also passed, checking 200 adjacent labels, tiny viewport
+rendering and source preservation. Five projection and four note overview tests
+passed; `cargo check -p deadsync --jobs 2 --locked` passed. Native zoom remains
+unimplemented and these tests do not establish interactive zoom behavior.

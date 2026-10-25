@@ -2135,32 +2135,38 @@ impl State {
         for lane in 0..=grid.columns() {
             actors.push(act!(quad: xy(left + f32::from(lane) * lane_width, (top + bottom) * 0.5): zoomto(1.0, bottom - top): diffuse(0.12, 0.16, 0.22, 1.0): z(8001)));
         }
-        for beat in start / 48..=end / 48 {
-            if self.signatures.as_ref().is_some_and(|signatures| {
-                signatures.measure_position(beat * 48).is_ok_and(|position| position.row_in_measure == 0)
-            }) {
-                continue;
-            }
-            let y = projection.y(beat * 48) as f32;
-            let alpha = 0.15;
-            actors.push(act!(quad: xy(field_center, y): zoomto(field_width, 1.0): diffuse(0.6, 0.7, 0.8, alpha): z(8001)));
-        }
-        if let Some(signatures) = &self.signatures {
-            if let Ok(starts) = signatures.measure_starts(
-                start.min(i32::MAX as u64), end.min(i32::MAX as u64),
-            ) {
-                for (measure_row, measure) in starts {
-                    let y = projection.y(measure_row) as f32;
-                    actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.4): z(8001)));
-                    text(actors, &(measure + 1).to_string(), left - 30.0, y, 0.45, [0.6, 0.7, 0.8, 1.0]);
+        let overview_bins = ((bottom - top).ceil() as usize).saturating_add(2).clamp(1, 4096);
+        let bands = deadsync_editor::projection::RowBands::new(start, end, overview_bins)
+            .expect("ordered viewport bounds and bounded overview bins");
+        for (a, b) in bands {
+            // Query one representative boundary per pixel band. At detailed
+            // scales each band contains at most two integer rows.
+            if let Some(beat_row) = a.div_ceil(48).checked_mul(48).filter(|r| *r <= b) {
+                let is_measure = self.signatures.as_ref().is_some_and(|signatures| {
+                    signatures.measure_position(beat_row).is_ok_and(|position| position.row_in_measure == 0)
+                });
+                if !is_measure {
+                    let y = projection.y(beat_row) as f32;
+                    actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.15): z(8001)));
                 }
             }
-        }
-        if let Some(labels) = &self.labels {
-            for (&label_row, label) in labels.values().range(start..=end) {
-                let y = projection.y(label_row) as f32;
-                let x = left + field_width + 12.0;
-                actors.push(act!(text: font("miso"): settext(label.clone()): align(0.0,0.5): xy(x,y): zoom(0.55): maxwidth((width-x-12.0).max(20.0)): diffuse(0.6,0.9,0.65,1.0): z(8005)));
+            if let Some(signatures) = &self.signatures {
+                if a <= i32::MAX as u64 {
+                    if let Ok(mut starts) = signatures.measure_starts(a, b.min(i32::MAX as u64)) {
+                        if let Some((measure_row, measure)) = starts.next() {
+                            let y = projection.y(measure_row) as f32;
+                            actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.4): z(8001)));
+                            text(actors, &(measure + 1).to_string(), left - 30.0, y, 0.45, [0.6,0.7,0.8,1.0]);
+                        }
+                    }
+                }
+            }
+            if let Some(labels) = &self.labels {
+                if let Some((&label_row, label)) = labels.values().range(a..=b).next() {
+                    let y = projection.y(label_row) as f32;
+                    let x = left + field_width + 12.0;
+                    actors.push(act!(text: font("miso"): settext(label.clone()): align(0.0,0.5): xy(x,y): zoom(0.55): maxwidth((width-x-12.0).max(20.0)): diffuse(0.6,0.9,0.65,1.0): z(8005)));
+                }
             }
         }
         for &(a, b) in &self.saved_regions {

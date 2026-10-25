@@ -46,3 +46,49 @@ fn invalid_projection_is_rejected() {
         assert!(RowProjection::new(0, cursor, 1.0, top, bottom).is_err());
     }
 }
+
+#[test]
+fn overview_bands_partition_every_row_once_and_have_exact_size() {
+    use deadsync_editor::projection::RowBands;
+    for start in [0, 17, 1000] {
+        for length in [1, 2, 3, 10, 127] {
+            for maximum in [1, 2, 7, 4096] {
+                let mut bands = RowBands::new(start, start + length - 1, maximum).unwrap();
+                let count = (length as usize).min(maximum);
+                assert_eq!(bands.len(), count);
+                let mut next = start;
+                for index in 0..count {
+                    assert_eq!(bands.len(), count - index);
+                    let (a, b) = bands.next().unwrap();
+                    assert_eq!(a, next);
+                    assert!(b >= a);
+                    next = b + 1;
+                }
+                assert_eq!(next, start + length);
+                assert_eq!(bands.next(), None);
+                assert_eq!(bands.next(), None);
+            }
+        }
+    }
+}
+
+#[test]
+fn overview_bands_cover_full_integer_domain_without_overflow_or_unbounded_iteration() {
+    use deadsync_editor::projection::RowBands;
+    let bands: Vec<_> = RowBands::new(0, u64::MAX, 4096).unwrap().collect();
+    assert_eq!(bands.len(), 4096);
+    assert_eq!(bands[0].0, 0);
+    assert_eq!(bands.last().unwrap().1, u64::MAX);
+    for pair in bands.windows(2) {
+        assert_eq!(pair[0].1 + 1, pair[1].0);
+    }
+    assert_eq!(
+        RowBands::new(u64::MAX, u64::MAX, 4096)
+            .unwrap()
+            .collect::<Vec<_>>(),
+        vec![(u64::MAX, u64::MAX)]
+    );
+    for (a, b, n) in [(1, 0, 1), (0, 0, 0), (0, 0, 4097)] {
+        assert!(RowBands::new(a, b, n).is_err());
+    }
+}

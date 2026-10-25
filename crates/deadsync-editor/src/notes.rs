@@ -168,12 +168,7 @@ impl Grid {
         end: u64,
         bins: usize,
     ) -> Result<Vec<(Position, &Note)>, Error> {
-        if start > end || !(1..=4096).contains(&bins) {
-            return Err(Error::InvalidEdit("Invalid chart overview bounds or bin count".into()));
-        }
-        // u128 includes the complete inclusive u64 domain without overflow.
-        let span = u128::from(end) - u128::from(start) + 1;
-        let count = (bins as u128).min(span);
+        let bands = crate::projection::RowBands::new(start, end, bins)?;
         let mut result = Vec::new();
         for (&(player, lane), track) in &self.tracks {
             if let Some((&row, note)) = track.range(..start).next_back()
@@ -181,9 +176,7 @@ impl Grid {
             {
                 result.push((Position { player, lane, row }, note));
             }
-            for index in 0..count {
-                let a = (u128::from(start) + span * index / count) as u64;
-                let b = (u128::from(start) + span * (index + 1) / count - 1) as u64;
+            for (a, b) in bands.clone() {
                 let mut range = track.range(a..=b);
                 if let Some((&row, note)) = range.next() {
                     result.push((Position { player, lane, row }, note));

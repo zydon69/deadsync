@@ -68,3 +68,45 @@ impl RowProjection {
         )
     }
 }
+
+/// Inclusive integer bands for bounded overview queries. Every row belongs to
+/// exactly one band, even over the entire u64 domain. No chart rows are walked.
+#[derive(Clone, Debug)]
+pub struct RowBands {
+    start: u128,
+    span: u128,
+    count: u128,
+    next: u128,
+}
+impl RowBands {
+    pub fn new(start: u64, end: u64, maximum: usize) -> Result<Self, Error> {
+        if start > end || !(1..=4096).contains(&maximum) {
+            return Err(Error::InvalidEdit("Invalid overview bands".into()));
+        }
+        let span = u128::from(end) - u128::from(start) + 1;
+        Ok(Self {
+            start: u128::from(start),
+            span,
+            count: span.min(maximum as u128),
+            next: 0,
+        })
+    }
+}
+impl Iterator for RowBands {
+    type Item = (u64, u64);
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.next == self.count {
+            return None;
+        }
+        let a = self.start + self.span * self.next / self.count;
+        self.next += 1;
+        let b = self.start + self.span * self.next / self.count - 1;
+        Some((a as u64, b as u64))
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = (self.count - self.next) as usize;
+        (remaining, Some(remaining))
+    }
+}
+impl ExactSizeIterator for RowBands {}
+impl std::iter::FusedIterator for RowBands {}
