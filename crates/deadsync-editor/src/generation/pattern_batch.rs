@@ -336,6 +336,9 @@ impl Task {
     }
 }
 impl Preview {
+    pub fn has_changes(&self) -> bool {
+        !self.edits.is_empty()
+    }
     pub fn grid(&self) -> &Grid {
         &self.grid
     }

@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; full configuration editing and batch pattern regeneration remain pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
 | Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -74,7 +74,7 @@ model and GrooveAuthor generation are not limited to RSSP's supported layouts.
 
 ```sh
 cargo test -p deadsync-editor --locked
-cargo test -p deadsync-theme-simply-love --test edition_workflow --test edition_batch_workflow --locked
+cargo test -p deadsync-theme-simply-love --test edition_workflow --test edition_batch_workflow --test edition_pattern_set_workflow --test edition_pattern_set_fr_workflow --locked
 CARGO_INCREMENTAL=0 cargo check -p deadsync --locked
 ```
 
@@ -1152,3 +1152,48 @@ constructor (which currently duplicates its input list), dispatcher or UI. Broad
 multi-layout batch differential coverage, native batch-pattern controls, full
 configuration management, timing/audio editing and the remaining delivery matrix
 remain required for the complete port.
+
+
+### Native saved-pattern sets (F9)
+
+F9 opens an optional seven-row selector. All saved markers are initially selected;
+Left/Right on the marker row cycles them and the inclusion row toggles the current
+one. Actions select all, clear the selection, or select markers whose start lies
+inside the workspace's marked area. The count is reviewed before starting; an
+empty selection and missing marked area produce localizable messages. Reopening
+the selector starts with all markers selected. Only the active chart is affected.
+
+F1 > Regenerate saved patterns now opens a small submenu for the existing cursor
+pattern command (F5) or the set command (F9). The main menu retains fourteen rows.
+Single-pattern keyboard behavior remains available directly through F5.
+
+The batch worker remains cancellable. Its preview shows the complete resulting
+grid, selected marker highlight and per-marker success/error/empty status.
+Left/Right wraps results and seeks the reviewed marker; ordinary preview scrolling
+is available. The summary shows removals, hold shortening, common NPS, generated
+and repeated taps, clipped steps, ignored profile issues and end-footing warnings.
+At widths of at least 800 logical pixels, a right panel leaves the note field
+fully visible on the left; narrower views use the compact bottom preview.
+Panel and note sizes are explicit actor dimensions so geometry checks do not
+require a populated texture-dimension cache. The help overlay stays hidden while
+reviewing a generation preview and returns afterwards if previously enabled.
+Errors are displayed in full with wrapping/size bounds. If any marker failed,
+the summary explicitly explains that applying also clears those selected regions.
+This is the original action's clear-then-generate result, held read-only until
+acceptance. All-failed sets with removals therefore still offer Apply. Empty/
+unchanged sets report no changes and retain redo. Apply is one history action;
+Save remains explicit. Selection, discard, calculation cancellation and opening
+panels never write the song or profile files.
+
+Five English native workflows exercise the production input adapter and actor
+tree: full preview equality with core results, marker navigation, actual save/
+reopen and one undo/redo, all/none/individual/area scopes, held-toggle filtering,
+partial/all failures and visible clear warning, wide/narrow preview geometry,
+no-op redo, worker cancellation,
+discard, submenu routing and F5 preservation, missing markers and custom profiles.
+A separate French test process verifies Oui/Non, selection errors, resolved
+preview labels and acceptance without racing English locale state. All 34 prior
+native workflows also pass. These checks prove dispatch and constructed actors,
+not GPU rendering, physical input or full original-editor runtime parity. The
+broader delivery matrix, including timing/audio tools, profile management,
+additional layouts and scalability validation, remains required.

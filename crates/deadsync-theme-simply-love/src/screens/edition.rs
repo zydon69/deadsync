@@ -1,6 +1,7 @@
 //! Compact native editor screen. The document and every edit command live in
 //! deadsync-editor; this module owns presentation, shortcuts, and exit prompts.
 mod batch;
+mod pattern_set;
 
 use crate::{act, i18n};
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
@@ -16,6 +17,7 @@ use deadsync_editor::{
             ChartOptions, ChartPreview, Job, Phase, ProfileOverrides, Progress, Report,
             TARGET_LAYOUTS,
         },
+        pattern_batch,
         pattern_job::{self, Span},
         profile_catalog::{self, BuiltinLabel},
         profiles::Kind as ProfileKind,
@@ -36,6 +38,8 @@ enum Panel {
     ConfirmDiscard,
     Generation(usize),
     Batch(usize),
+    Regeneration(usize),
+    PatternSet(usize),
     Pattern(usize),
     Marker(usize),
     Profiles(usize),
@@ -89,6 +93,7 @@ enum GenerationJob {
     Chart(Job),
     Batch(Job<batch_job::Preview>),
     Pattern(Job<pattern_job::Preview>),
+    PatternSet(Job<pattern_batch::Preview>),
     Clear(Job<clear_patterns::Preview>),
 }
 impl GenerationJob {
@@ -97,6 +102,7 @@ impl GenerationJob {
             Self::Chart(job) => job.cancel(),
             Self::Batch(job) => job.cancel(),
             Self::Pattern(job) => job.cancel(),
+            Self::PatternSet(job) => job.cancel(),
             Self::Clear(job) => job.cancel(),
         }
     }
@@ -105,6 +111,7 @@ impl GenerationJob {
             Self::Chart(job) => job.is_cancelled(),
             Self::Batch(job) => job.is_cancelled(),
             Self::Pattern(job) => job.is_cancelled(),
+            Self::PatternSet(job) => job.is_cancelled(),
             Self::Clear(job) => job.is_cancelled(),
         }
     }
@@ -113,6 +120,7 @@ impl GenerationJob {
             Self::Chart(job) => job.progress(),
             Self::Batch(job) => job.progress(),
             Self::Pattern(job) => job.progress(),
+            Self::PatternSet(job) => job.progress(),
             Self::Clear(job) => job.progress(),
         }
     }
@@ -127,6 +135,9 @@ impl GenerationJob {
             Self::Pattern(job) => job
                 .poll()
                 .map(|result| result.map(GenerationPreview::Pattern)),
+            Self::PatternSet(job) => job.poll().map(|result| {
+                result.map(|preview| GenerationPreview::PatternSet { preview, entry: 0 })
+            }),
             Self::Clear(job) => job
                 .poll()
                 .map(|result| result.map(GenerationPreview::Clear)),
@@ -140,6 +151,10 @@ enum GenerationPreview {
         entry: usize,
     },
     Pattern(pattern_job::Preview),
+    PatternSet {
+        preview: pattern_batch::Preview,
+        entry: usize,
+    },
     Clear(clear_patterns::Preview),
 }
 impl GenerationPreview {
@@ -148,6 +163,7 @@ impl GenerationPreview {
             Self::Chart(p) => p.grid(),
             Self::Batch { preview, entry } => preview.grid(*entry),
             Self::Pattern(p) => p.grid(),
+            Self::PatternSet { preview, .. } => preview.grid(),
             Self::Clear(p) => p.grid(),
         }
     }
@@ -156,6 +172,7 @@ impl GenerationPreview {
             Self::Chart(p) => p.target_layout(),
             Self::Batch { preview, .. } => preview.target_layout(),
             Self::Pattern(p) => &p.generated().layout,
+            Self::PatternSet { preview, .. } => preview.layout(),
             Self::Clear(p) => p.layout(),
         }
     }
@@ -166,6 +183,7 @@ pub struct State {
     generation: GenerationSettings,
     batch_source: Option<String>,
     pattern: PatternSettings,
+    pattern_set: Option<pattern_set::Settings>,
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
     catalog_target: ProfileTarget,
@@ -247,6 +265,7 @@ impl State {
                 expressed_name: None,
             },
             batch_source: None,
+            pattern_set: None,
             pattern: PatternSettings {
                 span: Span {
                     start: 0,
@@ -823,11 +842,19 @@ impl State {
             match result {
                 Ok(preview) => {
                     let batch = matches!(preview, GenerationPreview::Batch { .. });
+                    let pattern_set = matches!(preview, GenerationPreview::PatternSet { .. });
+                    if let GenerationPreview::PatternSet { preview, .. } = &preview {
+                        if let Some(entry) = preview.entries().first() {
+                            let _ = self.workspace.execute(Command::Seek(entry.row));
+                        }
+                    }
                     self.preview = Some(preview);
                     self.panel = Some(Panel::GenerationPreview(0));
                     self.status = i18n::tr(
                         "Edition",
-                        if batch {
+                        if pattern_set {
+                            "PatternSetPreviewHelp"
+                        } else if batch {
                             "BatchPreviewHelp"
                         } else {
                             "GenerationPreviewHelp"
@@ -849,7 +876,12 @@ impl State {
             let phase = match progress.phase {
                 Phase::Preparing => "GenerationPreparing",
                 Phase::Interpreting => "GenerationInterpreting",
-                Phase::Converting if matches!(job, GenerationJob::Pattern(_)) => {
+                Phase::Converting
+                    if matches!(
+                        job,
+                        GenerationJob::Pattern(_) | GenerationJob::PatternSet(_)
+                    ) =>
+                {
                     "PatternGenerating"
                 }
                 Phase::Converting if matches!(job, GenerationJob::Clear(_)) => "MarkerClearing",
@@ -859,7 +891,9 @@ impl State {
             };
             self.status = i18n::tr_fmt(
                 "Edition",
-                if matches!(job, GenerationJob::Batch(_)) {
+                if matches!(job, GenerationJob::PatternSet(_)) {
+                    "PatternSetProgress"
+                } else if matches!(job, GenerationJob::Batch(_)) {
                     "BatchProgress"
                 } else {
                     "GenerationProgress"
@@ -1088,6 +1122,10 @@ impl State {
         if event.code == KeyCode::Escape || event.code == KeyCode::F2 {
             return self.request_close();
         }
+        if event.code == KeyCode::F9 {
+            self.open_pattern_set();
+            return false;
+        }
         if event.code == KeyCode::F8 {
             self.open_batch();
             return false;
@@ -1226,6 +1264,14 @@ impl State {
                 _ => Command::Move(16),
             };
             self.command(command);
+            self.status = i18n::tr(
+                "Edition",
+                match self.preview {
+                    Some(GenerationPreview::PatternSet { .. }) => "PatternSetPreviewHelp",
+                    Some(GenerationPreview::Batch { .. }) => "BatchPreviewHelp",
+                    _ => "GenerationPreviewHelp",
+                },
+            );
             return false;
         }
         if code == KeyCode::Escape {
@@ -1509,6 +1555,21 @@ impl State {
                 }
             }
             Panel::Batch(index) => self.batch_key(index, code),
+            Panel::PatternSet(index) => self.pattern_set_key(index, code),
+            Panel::Regeneration(index) => {
+                if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
+                    self.panel = Some(Panel::Regeneration(
+                        (index + if code == KeyCode::ArrowUp { 2 } else { 1 }) % 3,
+                    ));
+                } else if code == KeyCode::Enter {
+                    self.panel = None;
+                    match index {
+                        0 => self.regenerate_saved_pattern(),
+                        1 => self.open_pattern_set(),
+                        _ => {}
+                    }
+                }
+            }
             Panel::Generation(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::Generation(
@@ -1530,6 +1591,7 @@ impl State {
                 let all_failed = matches!(&self.preview, Some(GenerationPreview::Batch {preview, ..}) if preview.report().generated == 0);
                 if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     self.change_batch_entry(code == KeyCode::ArrowRight);
+                    self.change_pattern_set_entry(code == KeyCode::ArrowRight);
                 } else if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::GenerationPreview(if all_failed {
                         0
@@ -1544,6 +1606,8 @@ impl State {
                     } else if let Some(preview) = &self.preview {
                         let pattern = matches!(preview, GenerationPreview::Pattern(_));
                         let clearing = matches!(preview, GenerationPreview::Clear(_));
+                        let pattern_set = matches!(preview, GenerationPreview::PatternSet { .. });
+                        let no_changes = matches!(preview,GenerationPreview::PatternSet{preview,..} if !preview.has_changes());
                         let batch = matches!(preview, GenerationPreview::Batch { .. });
                         let result = match preview {
                             GenerationPreview::Chart(p) => {
@@ -1558,6 +1622,9 @@ impl State {
                             GenerationPreview::Clear(p) => {
                                 self.workspace.apply_cleared_pattern(p).map(|_| ())
                             }
+                            GenerationPreview::PatternSet { preview, .. } => {
+                                self.workspace.apply_pattern_set(preview).map(|_| ())
+                            }
                         };
                         match result {
                             Ok(_) => {
@@ -1565,7 +1632,13 @@ impl State {
                                 self.panel = None;
                                 self.status = i18n::tr(
                                     "Edition",
-                                    if batch {
+                                    if pattern_set {
+                                        if no_changes {
+                                            "PatternSetNoChanges"
+                                        } else {
+                                            "PatternSetApplied"
+                                        }
+                                    } else if batch {
                                         "BatchApplied"
                                     } else if clearing {
                                         "MarkerCleared"
@@ -1638,7 +1711,7 @@ impl State {
                                 self.status = i18n::tr("Edition", "GenerationOptionsHelp");
                             }
                             6 => self.open_pattern(),
-                            7 => self.regenerate_saved_pattern(),
+                            7 => self.panel = Some(Panel::Regeneration(0)),
                             8 => self.open_marker(),
                             9 => self.open_chart_properties(),
                             10 => self.open_batch(),
@@ -1713,9 +1786,20 @@ impl State {
             .as_ref()
             .map(GenerationPreview::grid)
             .unwrap_or_else(|| self.workspace.grid());
-        let lane_width = ((width - 210.0).max(80.0) / f32::from(grid.columns())).min(48.0);
+        let side_panel = self.pattern_set_side_panel();
+        let field_center = if side_panel {
+            (width - 390.0) * 0.5
+        } else {
+            screen_center_x()
+        };
+        let available_width = if side_panel {
+            width - 570.0
+        } else {
+            width - 210.0
+        };
+        let lane_width = (available_width.max(80.0) / f32::from(grid.columns())).min(48.0);
         let field_width = lane_width * f32::from(grid.columns());
-        let left = screen_center_x() - field_width * 0.5;
+        let left = field_center - field_width * 0.5;
         let top = 105.0;
         let bottom = (height - 65.0).max(top);
         let cursor_y = top + 55.0;
@@ -1729,7 +1813,7 @@ impl State {
         for beat in start / 48..=end / 48 {
             let y = cursor_y + (beat as f64 * 48.0 - row as f64) as f32 * pixels_per_row;
             let alpha = if beat % 4 == 0 { 0.4 } else { 0.15 };
-            actors.push(act!(quad: xy(screen_center_x(), y): zoomto(field_width, 1.0): diffuse(0.6, 0.7, 0.8, alpha): z(8001)));
+            actors.push(act!(quad: xy(field_center, y): zoomto(field_width, 1.0): diffuse(0.6, 0.7, 0.8, alpha): z(8001)));
             if beat % 4 == 0 {
                 text(
                     actors,
@@ -1761,12 +1845,20 @@ impl State {
         }
         let selection = match &self.preview {
             Some(GenerationPreview::Pattern(p)) => Some((p.generated().start, p.generated().end)),
+            Some(GenerationPreview::PatternSet { preview, entry }) => {
+                preview.entries().get(*entry).and_then(|entry| {
+                    self.saved_regions
+                        .iter()
+                        .find(|(row, _)| *row == entry.row)
+                        .copied()
+                })
+            }
             _ => self.workspace.selection(),
         };
         if let Some((a, b)) = selection {
             let y1 = (cursor_y + (a as f64 - row as f64) as f32).clamp(top, bottom);
             let y2 = (cursor_y + (b as f64 - row as f64) as f32).clamp(top, bottom);
-            actors.push(act!(quad: xy(screen_center_x(), (y1 + y2) * 0.5): zoomto(field_width, (y2 - y1).abs().max(2.0)): diffuse(0.2, 0.6, 0.9, 0.2): z(8002)));
+            actors.push(act!(quad: xy(field_center, (y1 + y2) * 0.5): zoomto(field_width, (y2 - y1).abs().max(2.0)): diffuse(0.2, 0.6, 0.9, 0.2): z(8002)));
         }
         for (position, note) in grid.visible(start, end) {
             let x = left + (f32::from(position.lane) + 0.5) * lane_width;
@@ -1800,13 +1892,13 @@ impl State {
                         }),
                     position.lane,
                 );
-                actors.push(act!(sprite("test_input/highlightarrow.png"): xy(x, y): zoomto(lane_width * 0.7, lane_width * 0.7): rotationz(rotation): diffuse(color[0], color[1], color[2], 1.0): z(8004)));
+                actors.push(act!(sprite("test_input/highlightarrow.png"): xy(x, y): setsize(lane_width * 0.7, lane_width * 0.7): rotationz(rotation): diffuse(color[0], color[1], color[2], 1.0): z(8004)));
             } else {
                 text(actors, symbol, x - 6.0, y - 9.0, 0.65, color);
             }
         }
-        actors.push(act!(quad: xy(screen_center_x(), cursor_y): zoomto(field_width, 2.0): diffuse(1.0, 0.85, 0.25, 1.0): z(8005)));
-        if self.help {
+        actors.push(act!(quad: xy(field_center, cursor_y): zoomto(field_width, 2.0): diffuse(1.0, 0.85, 0.25, 1.0): z(8005)));
+        if self.help && self.preview.is_none() {
             self.help_actors(actors);
         }
         if let Some(panel) = self.panel {
@@ -1830,7 +1922,7 @@ impl State {
                 "Transforms",
                 "GenerateChart",
                 "GeneratePattern",
-                "RegeneratePattern",
+                "RegeneratePatternsMenu",
                 "EditPatternMarker",
                 "ChartProperties",
                 "GenerateChartSet",
@@ -1841,6 +1933,16 @@ impl State {
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
             Panel::ConfirmDiscard => &["ConfirmDiscard"],
+            Panel::Regeneration(_) => &["RegeneratePattern", "RegeneratePatternSet", "KeepEditing"],
+            Panel::PatternSet(_) => &[
+                "PatternSetMarker",
+                "PatternSetSelected",
+                "PatternSetAll",
+                "PatternSetNone",
+                "PatternSetArea",
+                "PatternSetStart",
+                "KeepEditing",
+            ],
             Panel::Batch(_) => &[
                 "BatchSource",
                 "GenerationTarget",
@@ -1929,20 +2031,44 @@ impl State {
             | Panel::ConversionProfiles(i)
             | Panel::Generation(i)
             | Panel::Batch(i)
+            | Panel::Regeneration(i)
+            | Panel::PatternSet(i)
             | Panel::GenerationPreview(i) => i,
             _ => 0,
         };
         let previewing = matches!(panel, Panel::GenerationPreview(_));
-        let extra_height = if previewing { 128.0 } else { 0.0 };
+        let side_panel = self.pattern_set_side_panel();
+        let panel_width = if side_panel {
+            360.0
+        } else if previewing {
+            screen_width() - 30.0
+        } else {
+            520.0
+        };
+        let panel_x = if side_panel {
+            screen_width() - 195.0
+        } else {
+            screen_width() * 0.5
+        };
+        let extra_height = if side_panel {
+            220.0
+        } else if previewing {
+            128.0
+        } else {
+            0.0
+        };
         let panel_height = keys.len() as f32 * 32.0 + 30.0 + extra_height;
-        let panel_y = if previewing {
+        let panel_y = if previewing && !side_panel {
             screen_height() - panel_height * 0.5 - 8.0
         } else {
             screen_height() * 0.5
         };
-        actors.push(act!(quad: xy(screen_width() * 0.5, panel_y): zoomto(if previewing { screen_width() - 30.0 } else { 520.0 }, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
+        actors.push(act!(quad: xy(panel_x, panel_y): setsize(panel_width, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
         if let Some(preview) = self.preview.as_ref().filter(|_| previewing) {
-            if let GenerationPreview::Batch { preview, entry } = preview {
+            if let GenerationPreview::PatternSet { preview, entry } = preview {
+                let summary = self.pattern_set_summary(preview, *entry);
+                actors.push(act!(text: font("miso"): settext(summary): align(0.5,0.0): xy(panel_x,panel_y-panel_height*0.5+10.0): zoom(0.6): wrapwidthpixels((panel_width-30.0)/0.6): maxwidth(panel_width-30.0): maxheight(extra_height-20.0): z(8021)));
+            } else if let GenerationPreview::Batch { preview, entry } = preview {
                 let summary = self.batch_summary(preview, *entry);
                 actors.push(act!(text: font("miso"): settext(summary): align(0.5,0.0): xy(screen_width()*0.5,panel_y-panel_height*0.5+10.0): zoom(0.6): wrapwidthpixels((screen_width()-60.0)/0.6): maxwidth(screen_width()-60.0): maxheight(110.0): z(8021)));
             } else if let GenerationPreview::Clear(preview) = preview {
@@ -2214,6 +2340,13 @@ impl State {
                             .to_string(),
                     )],
                 )
+            } else if matches!(panel, Panel::GenerationPreview(_))
+                && index == 0
+                && matches!(&self.preview, Some(GenerationPreview::PatternSet { .. }))
+            {
+                i18n::tr("Edition", "PatternSetApply")
+            } else if matches!(panel, Panel::PatternSet(_)) {
+                self.pattern_set_label(index, key)
             } else if matches!(panel, Panel::Batch(_)) {
                 self.batch_label(index, key)
             } else if matches!(panel, Panel::Generation(_)) {
@@ -2221,7 +2354,12 @@ impl State {
             } else {
                 i18n::tr("Edition", key)
             };
-            actors.push(act!(text: font("miso"): settext(label): align(0.5, 0.5): xy(screen_width() * 0.5, panel_y - panel_height * 0.5 + extra_height + 30.0 + index as f32 * 32.0): zoom(0.8): diffuse(color[0], color[1], color[2], color[3]): z(8021)));
+            actors.push(act!(text: font("miso"): settext(label): align(0.5, 0.5): xy(panel_x, panel_y - panel_height * 0.5 + extra_height + 30.0 + index as f32 * 32.0): zoom(0.8): diffuse(color[0], color[1], color[2], color[3]): z(8021)));
+            if side_panel {
+                if let Some(Actor::Text { max_width, .. }) = actors.last_mut() {
+                    *max_width = Some(panel_width - 30.0);
+                }
+            }
         }
     }
 }

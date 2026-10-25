@@ -257,6 +257,7 @@ fn sequential_pattern_sets_match_original_context_generation_clipping_and_insert
             );
             assert_eq!(source.serialize().unwrap(), before);
             let changed = result.apply(&mut source, 0).unwrap();
+            assert_eq!(changed, result.has_changes());
             assert_eq!(source.grid(0).unwrap(), result.grid());
             assert_eq!(source.grid(1).unwrap(), &other);
             let after = source.serialize().unwrap();
@@ -456,6 +457,7 @@ fn empty_pattern_set_acceptance_is_a_noop_that_preserves_redo() {
     let label = source.redo_label().unwrap().to_owned();
     let result = run(&source, folder.path());
     assert_eq!(result.report().empty, 2);
+    assert!(!result.has_changes());
     assert!(!result.apply(&mut source, 0).unwrap());
     assert_eq!(source.serialize().unwrap(), before);
     assert_eq!(source.redo_label(), Some(label.as_str()));
