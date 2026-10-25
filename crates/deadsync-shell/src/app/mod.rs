@@ -1549,6 +1549,7 @@ pub struct App {
     input: logical_input::keymap::InputState,
     window: Option<Arc<Window>>,
     editor_ime_state: Option<(winit::window::WindowId, bool)>,
+    editor_clipboard: crate::editor_clipboard::NativeClipboard,
     backend: Option<renderer_backend::Backend>,
     backend_type: BackendType,
     _idle_inhibitor: deadlib_platform::idle_inhibit::IdleInhibitor,
@@ -5251,6 +5252,7 @@ impl App {
             }),
             window: None,
             editor_ime_state: None,
+            editor_clipboard: crate::editor_clipboard::NativeClipboard::default(),
             backend: None,
             backend_type,
             _idle_inhibitor: deadlib_platform::idle_inhibit::IdleInhibitor::acquire(),
@@ -8807,6 +8809,9 @@ impl App {
                 } else {
                     false
                 };
+                if let Some(state) = self.state.screens.practice_state.as_mut() {
+                    screens::practice::process_editor_clipboard(state, &mut self.editor_clipboard);
+                }
                 let has_effect = !self.theme_effect_scratch.is_empty();
                 if let Err(e) = self.drain_theme_effects(event_loop) {
                     log::error!("Failed to handle Practice raw key action: {e}");
@@ -11129,6 +11134,7 @@ impl ApplicationHandler<UserEvent> for App {
     }
 
     fn exiting(&mut self, _event_loop: &ActiveEventLoop) {
+        self.editor_clipboard.close();
         self.apply_pending_pad_config_commands();
         self.fsr_monitor.flush_pending_saves();
         if let Err(error) = self.state.shell.fullscreen_state.restore() {

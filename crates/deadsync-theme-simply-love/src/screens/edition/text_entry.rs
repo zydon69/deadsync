@@ -32,6 +32,7 @@ impl State {
         true
     }
     pub fn text_preedit(&mut self, text: &str) {
+        self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
         self.label_preedit = if self.wants_text_input() {
             text.to_owned()
         } else {

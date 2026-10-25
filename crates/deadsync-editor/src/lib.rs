@@ -8,6 +8,7 @@ pub mod chart_identity;
 pub mod chart_text;
 pub mod chart_creation;
 pub mod chart_deletion;
+pub mod clipboard;
 pub mod document;
 pub mod generation;
 pub mod history;

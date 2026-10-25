@@ -39,6 +39,7 @@ impl State {
             .then_some(field)
     }
     fn focus_chart_text(&mut self) {
+        self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
         self.chart_text_buffer = self.chart_text_field().and_then(|field| {
             self.chart_properties
                 .as_ref()
@@ -46,7 +47,7 @@ impl State {
         });
         self.label_preedit.clear();
     }
-    fn sync_chart_text(&mut self) -> bool {
+    pub(super) fn sync_chart_text(&mut self) -> bool {
         let Some(field) = self.chart_text_field() else {
             return true;
         };
@@ -60,6 +61,7 @@ impl State {
         true
     }
     pub(super) fn chart_text_input(&mut self, text: &str) -> bool {
+        self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
         let Some(buffer) = self.chart_text_buffer.as_mut() else {
             return false;
         };
@@ -69,6 +71,11 @@ impl State {
         true
     }
     pub(super) fn chart_text_key(&mut self, index: usize, code: KeyCode) {
+        self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
+        if self.control && matches!(code, KeyCode::KeyC | KeyCode::KeyX | KeyCode::KeyV) {
+            self.queue_text_clipboard(code);
+            return;
+        }
         if matches!(code, KeyCode::Escape) || (index == 4 && code == KeyCode::Enter) {
             let accepted = self.sync_chart_text();
             self.label_preedit.clear();

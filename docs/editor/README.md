@@ -2427,3 +2427,49 @@ loop and graphical editing work must preserve that same access path.
 Validation for the text cursor: all 316 core tests and 131 native editor tests
 pass; `cargo check -p deadsync --locked` passes. Physical/GPU validation and the
 unrelated missing shell unit-test fixtures remain outside these results.
+
+### System clipboard in chart text fields
+
+Ctrl/Cmd+C, X and V now use the system text clipboard while a supported chart
+text field is focused. Copy exports only the selection, without rendering
+markers. Cut writes it successfully before deleting it from the draft. Paste
+replaces the selection, strips single-line control characters and is one local
+undo action. An empty/control-only paste preserves selection and redo. Empty
+copy/cut selections do not access or clear the system clipboard. Legacy
+selections containing NUL are conservatively rejected before IO to avoid native
+text-termination differences; their original chart bytes remain intact. Outside this
+panel the existing note clipboard remains independent. Timing-label text and
+other inspectors do not yet share this system clipboard path.
+
+The renderer queues a single text request tied to the field edit serial and
+field identity. The shell services it immediately after Practice raw input.
+A focus change, text change, cursor action or IME preedit makes the request
+stale; stale requests never access the clipboard. Autorepeated copy/cut/paste
+keys are ignored, and IME composition prevents shortcut dispatch. Clipboard
+errors and unsupported/non-text contents preserve field data and are reported
+in English/French. Later successful operations replace an old failure message.
+Clipboard contents are neither logged nor accessed on entry, redraw or typing.
+
+`clipboard::TextClipboard` is an IO boundary exercised with deterministic test
+transports. The shell uses arboard 3.7.0 (text only; image support disabled), with
+Wayland data-control enabled. Its native clipboard is lazy, owned on the main
+thread and retained across editor closure for the application lifetime. Exiting
+explicitly drops it. Retention matters for Linux selection ownership; Wayland
+availability still depends on the compositor's data-control/XWayland support.
+See the [upstream platform and ownership documentation](https://github.com/1Password/arboard#gnulinux).
+Operations are synchronous and triggered only by these user commands; clipboard
+backend latency and live cross-platform behavior require runtime validation.
+
+Three native workflows cover selected Unicode, copy/cut/paste ordering, modifier
+handling, local/document undo, save/reopen, failure/no-text/empty behavior, stale
+focus/text/IME requests, repeats and independence from note commands. A French
+workflow checks failures without changing chart bytes. One shell integration
+target compiles the actual adapter and runs its lazy-startup/repeated-shutdown
+contract without inspecting or overwriting the host clipboard. These tests prove
+the editor protocol and adapter lifecycle, not physical OS clipboard transfers.
+
+Validation for system text clipboard: all 316 core tests, 135 native editor tests
+and the one shell adapter lifetime test pass. `cargo check -p deadsync --locked`
+passes. Actual OS transfers, backend latency, physical/GPU behavior and the
+previously documented unrelated shell unit-test fixture gap are not certified
+by these synthetic tests.

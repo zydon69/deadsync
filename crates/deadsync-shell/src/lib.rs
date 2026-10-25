@@ -10,6 +10,7 @@ mod content_reload;
 mod course;
 mod diagnostics;
 mod dynamic_media;
+mod editor_clipboard;
 mod frame_pacing_trace;
 mod frame_stats;
 mod frame_stutter;

@@ -272,3 +272,55 @@ fn french_chart_text_panel_labels_input_and_staging_remain_translated() {
         song.as_bytes()
     );
 }
+
+#[test]
+fn french_clipboard_failures_are_translated_without_changing_the_chart() {
+    struct Unavailable;
+    impl deadsync_editor::clipboard::TextClipboard for Unavailable {
+        fn read_text(&mut self) -> Result<String, deadsync_editor::clipboard::Error> {
+            Err(deadsync_editor::clipboard::Error::NoText)
+        }
+        fn write_text(&mut self, _: &str) -> Result<(), deadsync_editor::clipboard::Error> {
+            Err(deadsync_editor::clipboard::Error::Unavailable)
+        }
+    }
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let song =
+        "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#CHARTNAME:Été;#NOTES:1000;";
+    fs::write(&path, song).unwrap();
+    let mut s = State::open(&path, 0).unwrap();
+    press(&mut s, KeyCode::F7);
+    press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::Enter);
+    for (code, label) in [
+        (KeyCode::KeyX, "Presse-papiers système indisponible"),
+        (KeyCode::KeyV, "ne contient pas de texte pris en charge"),
+    ] {
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::SuperLeft,
+            pressed: true,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+        press(&mut s, code);
+        assert!(s.process_text_clipboard(&mut Unavailable));
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::SuperLeft,
+            pressed: false,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+        assert!(texts(&s).iter().any(|text| text.contains(label)));
+    }
+    assert_eq!(
+        s.workspace().file().session.serialize().unwrap(),
+        song.as_bytes()
+    );
+}

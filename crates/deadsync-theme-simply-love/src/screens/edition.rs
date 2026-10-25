@@ -6,6 +6,7 @@ mod chart_creation;
 mod chart_deletion;
 mod chart_rating;
 mod chart_text;
+mod clipboard;
 mod pattern_set;
 mod playback;
 mod song_properties;
@@ -207,6 +208,8 @@ pub struct State {
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
     chart_rating_input: Option<String>,
     chart_text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
+    text_clipboard_request: Option<clipboard::Request>,
+    text_edit_serial: u64,
     song_properties: Option<deadsync_editor::song_properties::Draft>,
     timing: Option<timing::Settings>,
     timing_migration: Option<deadsync_editor::timing_edit::migration::Draft>,
@@ -321,6 +324,8 @@ impl State {
             chart_properties: None,
             chart_rating_input: None,
             chart_text_buffer: None,
+            text_clipboard_request: None,
+            text_edit_serial: 0,
             song_properties: None,
             timing: None,
             timing_migration: None,

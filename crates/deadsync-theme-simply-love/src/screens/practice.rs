@@ -638,6 +638,12 @@ pub fn wants_editor_text_input(state: &State) -> bool {
 pub fn handle_editor_text(state: &mut State, text: &str) -> bool {
     state.edition.as_mut().is_some_and(|editor|editor.text_input(text))
 }
+pub fn process_editor_clipboard(
+    state: &mut State,
+    clipboard: &mut impl deadsync_editor::clipboard::TextClipboard,
+) -> bool {
+    state.edition.as_mut().is_some_and(|editor| editor.process_text_clipboard(clipboard))
+}
 pub fn handle_editor_preedit(state: &mut State, text: &str) {
     if let Some(editor)=state.edition.as_mut(){editor.text_preedit(text);}
 }

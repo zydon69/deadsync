@@ -16,6 +16,7 @@ required-features = ["song-lua-performance"]
 name = "song_lua_execution"
 
 [dependencies]
+arboard = { version = "3.7.0", default-features = false, features = ["wayland-data-control"] }
 deadlib-audio = { path = "../deadlib-audio" }
 deadlib-assets = { path = "../deadlib-assets" }
 deadlib-platform = { path = "../deadlib-platform" }
