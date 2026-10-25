@@ -148,6 +148,14 @@ fn density_fake_flags_end_times_and_rate_queries_match_unchanged_editor_methods(
                 row
             );
         }
+        for position in expected["PlaybackPositions"].as_array().unwrap() {
+            let time = position["Time"].as_f64().unwrap();
+            assert_eq!(
+                timeline.time_position(time).unwrap(),
+                position["Row"].as_f64().unwrap(),
+                "{name} playback at {time}"
+            );
+        }
         assert_eq!(
             timeline
                 .pattern_nps(
@@ -964,4 +972,33 @@ fn insertion_rejects_collisions_invalid_positions_and_cancellation_without_chang
     let added = timeline.with_taps([position(97, 0)], &cancelled).unwrap();
     assert_eq!(added.heads().len(), 2);
     assert_eq!(timeline.heads().len(), 1);
+}
+
+#[test]
+fn playback_position_rejects_nonfinite_time_and_missing_rates() {
+    let grid = Grid::new(4, 1).unwrap();
+    let timeline = EditorTimeline::build(
+        &GenerationTiming::new(vec![Event {
+            row: 0,
+            kind: EventKind::Tempo(120.0),
+        }])
+        .unwrap(),
+        &grid,
+        None,
+        &AtomicBool::new(false),
+    )
+    .unwrap();
+    for time in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+        assert!(timeline.time_position(time).is_err());
+    }
+    assert_eq!(timeline.time_position(-1.0).unwrap(), -96.0);
+    assert_eq!(timeline.time_position(0.25).unwrap(), 24.0);
+    let empty = EditorTimeline::build(
+        &GenerationTiming::new(vec![]).unwrap(),
+        &grid,
+        None,
+        &AtomicBool::new(false),
+    )
+    .unwrap();
+    assert!(empty.time_position(1.0).is_err());
 }

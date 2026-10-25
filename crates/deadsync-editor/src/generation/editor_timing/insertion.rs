@@ -103,6 +103,7 @@ impl EditorTimeline {
             entries,
             heads,
             rates: self.rates.clone(),
+            rates_by_time: self.rates_by_time.clone(),
         })
     }
 }

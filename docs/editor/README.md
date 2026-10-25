@@ -1581,3 +1581,22 @@ from generation and properties. Existing native editor workflows remain in the
 regression set. SM conversion, broader malformed/escape compatibility, interval
 rendering, remaining timing/property tools, audio preview/waveform integration
 and scale/runtime verification remain required for the full editor port.
+
+### Playback position clock
+
+`EditorTimeline::time_position` ports the original rate event's inverse clock:
+chart seconds to a fractional row. It keeps negative lead-in positions, freezes
+through positive stops, advances through warps/negative stops, and treats an
+exact event time as preceding every rate event with that time. A stable time
+index makes playback queries logarithmic without changing row-based queries.
+Projected and inserted-note timelines retain this index. Nonfinite inputs,
+nonfinite results and clocks with no rate events return errors.
+
+The 39 editor timing oracle cases now include playback positions at negative
+and positive times and immediately before/at/after each timing rate event. The
+oracle calls the unchanged pinned `GetChartPositionFromTime` method, using its
+collection adapter to select the last strictly preceding rate (first rate as
+fallback). Rust compares the resulting fractional rows exactly. This proves
+these clock cases, not audio output or the native transport: music offset,
+asset selection, play/pause/seek and snapshot-driven cursor wiring remain to
+be integrated before audio preview is usable.

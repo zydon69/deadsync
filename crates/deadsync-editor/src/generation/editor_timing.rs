@@ -102,6 +102,7 @@ pub struct EditorTimeline {
     columns: u16,
     entries: Vec<Entry>,
     rates: Vec<Rate>,
+    rates_by_time: Vec<usize>,
     heads: Vec<TimedHead>,
 }
 impl EditorTimeline {
@@ -258,10 +259,13 @@ impl EditorTimeline {
             });
             previous_row = entry.row;
         }
+        let mut rates_by_time: Vec<_> = (0..rates.len()).collect();
+        rates_by_time.sort_by(|&a, &b| rates[a].time.total_cmp(&rates[b].time));
         Ok(Self {
             columns: grid.columns(),
             entries,
             rates,
+            rates_by_time,
             heads,
         })
     }
@@ -395,6 +399,7 @@ impl EditorTimeline {
             columns: self.columns,
             entries,
             rates,
+            rates_by_time: self.rates_by_time.clone(),
             heads,
         })
     }
@@ -603,6 +608,33 @@ impl EditorTimeline {
     }
     pub fn position_time(&self, row: u64) -> Result<f64, Error> {
         self.query(row, None)
+    }
+    /// Fractional chart row at a chart time, before applying the music offset.
+    /// Like GrooveAuthor, an exact boundary precedes every rate event with
+    /// that time. Negative time extrapolates into the lead-in; positive stops
+    /// hold the cursor, while warps and negative stops advance its position.
+    pub fn time_position(&self, time: f64) -> Result<f64, Error> {
+        finite(time)?;
+        let index = self
+            .rates_by_time
+            .partition_point(|&index| self.rates[index].time < time);
+        let rate = index
+            .checked_sub(1)
+            .and_then(|index| self.rates_by_time.get(index))
+            .or_else(|| self.rates_by_time.first())
+            .map(|&index| self.rates[index]);
+        let Some(rate) = rate else {
+            return invalid("Cannot locate playback without a timing rate");
+        };
+        let relative = time - (rate.time + rate.stop);
+        let relative = if time >= 0.0 {
+            relative.max(0.0)
+        } else {
+            relative
+        };
+        let row = rate.row as f64 + relative * (1.0 / rate.seconds_per_row) + rate.warp as f64;
+        finite(row)?;
+        Ok(row)
     }
     fn query(&self, row: u64, order: Option<u8>) -> Result<f64, Error> {
         valid_row(row)?;

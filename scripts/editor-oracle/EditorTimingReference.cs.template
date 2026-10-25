@@ -416,6 +416,14 @@ internal static class Reference {
             Heads=originalHeads,
             StepCount=originalCount,End=originalEnd,
             Times=request.GetProperty("Rows").EnumerateArray().Select(row=>{double time=0;chart.TryGetTimeFromChartPosition(row.GetDouble(),ref time);return time;}).ToArray(),
+            PlaybackPositions=new[]{-2.0,-0.001,0.0,0.001,0.1,0.5,1.0,2.0,10.0}
+                .Concat(chart.RateAlteringEvents.SelectMany(rate=>new[]{
+                    rate.GetChartTime()-0.000001,rate.GetChartTime(),rate.GetChartTime()+0.000001}))
+                .Select(time=>new {
+                    Time=time,
+                    Row=(chart.RateAlteringEvents.LastOrDefault(rate=>rate.GetChartTime()<time)
+                        ?? chart.RateAlteringEvents[0]).GetChartPositionFromTime(time)
+                }).ToArray(),
             Nps=originalNps
         };
     }
