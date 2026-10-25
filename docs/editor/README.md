@@ -46,7 +46,7 @@ reviewable and tested.
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
-| Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
+| Timing/gimmicks | F10 scoped BPM/stop/delay editing; typed warp/fake region core; shared revision/inheritance transaction | Original C# map, file-clock and editor dependency comparisons; native region controls, fractional loader normalization, other typed events, drawing and conversion remain pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
@@ -74,7 +74,7 @@ model and GrooveAuthor generation are not limited to RSSP's supported layouts.
 
 ```sh
 cargo test -p deadsync-editor --locked
-cargo test -p deadsync-theme-simply-love --test edition_workflow --test edition_batch_workflow --test edition_pattern_set_workflow --test edition_pattern_set_fr_workflow --locked
+cargo test -p deadsync-theme-simply-love --test edition_workflow --test edition_batch_workflow --test edition_pattern_set_workflow --test edition_pattern_set_fr_workflow --test edition_timing_workflow --test edition_timing_fr_workflow --locked
 CARGO_INCREMENTAL=0 cargo check -p deadsync --locked
 ```
 
@@ -1353,3 +1353,73 @@ pending input and staged edits, sign/zero validation, scope isolation, node
 movement/deletion and translated headings/controls/errors. Earlier BPM native
 workflows remain in the regression set. Actor and keyboard tests do not prove
 physical input, final GPU layout or audio preview behavior.
+
+
+### Typed warp and fake region editing (native controls pending)
+
+`timing_edit::region::{Regions, Draft, Kind}` and the workspace region APIs edit
+WARPS and FAKES as independent maps of start row to integer row length. The
+original Fumen importer rounds both starts and lengths, resolves same-row
+conflicts before filtering invalid lengths, and discards nonpositive lengths.
+GrooveAuthor's constructors clamp a positive length that rounded to zero to one
+row. These rules are preserved. Set/update uses exact integer equality and a
+one-row minimum. Moving/deleting an initial row-zero region is allowed. Same-type
+start collisions are refused; nested and overlapping intervals and different
+types at one start remain allowed.
+
+The Rust operations additionally reject endpoints outside the supported signed
+32-bit row range rather than reproducing unchecked C# GetEndRow overflow. Those
+bounds are validated before mutation. SM cannot directly represent these tags:
+region capture rejects SM export until explicit migration/conversion is
+implemented. Legacy SSC still permits song-shared region editing, while local
+scope requires split-timing support. These limitations do not claim full export
+parity with the original application.
+
+BPM, pause and region drafts now share one private timing target implementation.
+It captures scope, affected charts, session identity/revision and the complete
+inherited raw timing set. It validates acceptance even for a no-op, filters only
+the tags being replaced, and records a single property-history gesture. The
+public typed BPM/pause contracts remain unchanged. This prevents new timing
+editors from independently implementing timing ownership or dropping inherited
+properties. F7's offset path still uses the same raw-copy helper.
+
+A region draft may change warps and fakes together, preserving other tags and
+unchanged region maps byte-for-byte (including comments, legacy label encoding,
+OFFSET and pending note edits). Empty local sets remain explicitly empty after
+save/reopen. Discard, no-op acceptance and rejected stale/foreign/wrong-chart
+requests leave source bytes and redo intact. Eight new Rust workflows cover
+these operations, overflow guards, inheritance, shared/local ownership, pending
+notes, save/reopen and both history gestures.
+
+Twenty-four new fixtures use actual Fumen AddWarps/AddFakeSegmentEvents,
+unchanged GrooveAuthor region minima/setters and the original miscellaneous-node
+movement guard inherited through the pause oracle's explicit containers. The
+constructor's minimum clamp is supplied by an explicit adapter; notification
+callbacks are stubs. This is not an execution of the original full UI/action or
+interval-tree runtime.
+
+Four additional fixtures read complete SSC files with the actual original
+reader before and after explicit expected edits. Reader timing events and notes
+then feed the unchanged original editor timing/dependency methods through the
+existing oracle containers. The Rust workflows compare every chart's region
+maps, file-clock note times, editor-clock times, per-note fake flags, eligible
+step counts, end time and position queries before edits, after acceptance and
+after reopening serialized bytes. Cases include nested fake regions that shorten
+a previous region's effective coverage, overlapping warps, coincident stops or
+delays, shared/owned timing and removal of every local region. No Rust output is
+used to manufacture these C# expected results.
+
+Native region controls, region drawing/selection, SM conversion and legacy
+migration, complete loader normalization, the remaining timing/gimmick types,
+audio/cache integration and the full delivery matrix remain work for the port.
+
+
+The file-clock integration cases above use integral region lengths. Fractional
+source positions/lengths still require one authoritative loader path: the raw
+GenerationTiming importer uses its existing row rounding, while typed region
+import uses Fumen subdivision rounding and the editor constructor minimum clamp.
+EditorTimeline does not yet obtain all these normalized source values from the
+typed maps. Consequently the new map/edit comparisons do not prove complete
+runtime equivalence for fractional legacy input. This remains a concrete loader
+integration requirement, alongside the native region panel, before full parity
+can be claimed.

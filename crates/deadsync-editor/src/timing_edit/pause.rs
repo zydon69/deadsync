@@ -1,11 +1,7 @@
 //! Stops and delays share positions, but retain distinct validation and ordering.
-use super::{Scope, inherited_fields_for_write, supports_chart_timing, uses_chart_timing};
-use crate::{
-    Error,
-    document::{Format, escape_text},
-    history::{RevisionToken, Session},
-};
-use std::{collections::BTreeMap, sync::Arc};
+use super::{Scope, Target};
+use crate::{Error, history::Session};
+use std::collections::BTreeMap;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Kind {
@@ -126,34 +122,15 @@ fn invalid(message: &str) -> Error {
 /// Both event types are staged together, retaining their before/after-note phase.
 /// The untouched type and all other timing tags keep their original raw bytes.
 pub struct Draft {
-    token: RevisionToken,
-    chart: usize,
-    scope: Scope,
-    inherited: bool,
-    affected: Vec<usize>,
-    inherited_fields: Vec<(String, Arc<[u8]>)>,
+    target: Target,
     original: [Pauses; 2],
     current: [Pauses; 2],
 }
 impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
+        let target = Target::capture(session, chart, scope)?;
         let document = session.document();
-        if chart >= document.charts().len() {
-            return Err(invalid("Timing chart does not exist"));
-        }
-        if scope == Scope::Chart
-            && (document.format == Format::Sm || !supports_chart_timing(document))
-        {
-            return Err(invalid(
-                "Chart timing requires SSC version 0.7 or newer; use shared song timing for this format",
-            ));
-        }
-        let inherited = scope == Scope::Chart && !uses_chart_timing(document, chart);
-        let origin = if scope == Scope::Chart && !inherited {
-            Some(chart)
-        } else {
-            None
-        };
+        let origin = target.origin();
         let current = [
             Pauses::parse(
                 Kind::Stop,
@@ -164,37 +141,20 @@ impl Draft {
                 &document.text(origin, "DELAYS").unwrap_or_default(),
             )?,
         ];
-        let affected = if scope == Scope::Chart {
-            vec![chart]
-        } else {
-            (0..document.charts().len())
-                .filter(|index| !uses_chart_timing(document, *index))
-                .collect()
-        };
-        let inherited_fields = if inherited {
-            inherited_fields_for_write(document, chart, &[])?
-        } else {
-            Vec::new()
-        };
         Ok(Self {
-            token: session.revision_token(),
-            chart,
-            scope,
-            inherited,
-            affected,
-            inherited_fields,
+            target,
             original: current.clone(),
             current,
         })
     }
     pub fn scope(&self) -> Scope {
-        self.scope
+        self.target.scope
     }
     pub fn inherited(&self) -> bool {
-        self.inherited
+        self.target.inherited
     }
     pub fn affected_charts(&self) -> &[usize] {
-        &self.affected
+        &self.target.affected
     }
     pub fn pauses(&self, kind: Kind) -> &Pauses {
         &self.current[index(kind)]
@@ -212,9 +172,6 @@ impl Draft {
         self.current != self.original
     }
     pub fn apply(&self, session: &mut Session, chart: usize) -> Result<bool, Error> {
-        if chart != self.chart || !session.accepts_token(&self.token) {
-            return Err(invalid("Pause draft belongs to another chart or revision"));
-        }
         let changes = self
             .current
             .iter()
@@ -222,24 +179,8 @@ impl Draft {
             .filter(|(current, original)| current != original)
             .map(|(current, _)| (current.kind.tag(), current.serialize()))
             .collect::<Vec<_>>();
-        if changes.is_empty() {
-            return Ok(false);
-        }
-        let target = if self.scope == Scope::Chart {
-            Some(self.chart)
-        } else {
-            None
-        };
-        let mut properties = self
-            .inherited_fields
-            .iter()
-            .filter(|(name, _)| !changes.iter().any(|(tag, _)| name == tag))
-            .map(|(name, bytes)| (target, name.clone(), bytes.clone()))
-            .collect::<Vec<_>>();
-        for (tag, value) in changes {
-            properties.push((target, tag.into(), Arc::from(escape_text(&value))));
-        }
-        session.set_property_bytes_atomic(&properties, "Edit stops and delays")
+        self.target
+            .apply(session, chart, &changes, "Edit stops and delays")
     }
 }
 fn index(kind: Kind) -> usize {

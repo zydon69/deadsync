@@ -338,6 +338,19 @@ impl Workspace {
         .map(|task| task.with_chart_expression())
     }
 
+    pub fn region_draft(
+        &self,
+        scope: crate::timing_edit::Scope,
+    ) -> Result<crate::timing_edit::region::Draft, Error> {
+        crate::timing_edit::region::Draft::capture(&self.file.session, self.chart, scope)
+    }
+    pub fn apply_regions(
+        &mut self,
+        draft: &crate::timing_edit::region::Draft,
+    ) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session, self.chart)
+    }
+
     pub fn pause_draft(
         &self,
         scope: crate::timing_edit::Scope,

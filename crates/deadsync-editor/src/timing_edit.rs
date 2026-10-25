@@ -1,6 +1,7 @@
 //! Scoped, reversible timing edits. A first chart-local timing field detaches
 //! the entire SSC timing set, so inherited fields must be copied together.
 pub mod pause;
+pub mod region;
 pub mod tempo;
 use crate::{
     Error,
@@ -29,39 +30,95 @@ pub enum Scope {
     Song,
     Chart,
 }
-pub struct TempoDraft {
+/// Shared ownership/revision boundary for every typed timing transaction.
+struct Target {
     token: RevisionToken,
     chart: usize,
     scope: Scope,
     inherited: bool,
-    original: Tempos,
-    tempos: Tempos,
-    inherited_fields: Vec<(String, Arc<[u8]>)>,
     affected: Vec<usize>,
+    inherited_fields: Vec<(String, Arc<[u8]>)>,
 }
-impl TempoDraft {
-    pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
+impl Target {
+    fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let document = session.document();
         if chart >= document.charts().len() {
             return Err(invalid("Timing chart does not exist"));
         }
-        if scope == Scope::Chart {
-            if document.format == Format::Sm {
-                return Err(invalid("SM timing is shared by the entire song"));
-            }
-            if !supports_chart_timing(document) {
-                return Err(invalid(
-                    "Chart timing requires SSC version 0.7 or newer; legacy timing migration is not implemented yet",
-                ));
-            }
+        if scope == Scope::Chart && !supports_chart_timing(document) {
+            return Err(invalid(
+                "Chart timing requires SSC version 0.7 or newer; use shared timing until legacy migration is implemented",
+            ));
         }
         let inherited = scope == Scope::Chart && !uses_chart_timing(document, chart);
-        let origin = if scope == Scope::Chart && !inherited {
-            Some(chart)
+        let affected = if scope == Scope::Chart {
+            vec![chart]
+        } else {
+            (0..document.charts().len())
+                .filter(|index| !uses_chart_timing(document, *index))
+                .collect()
+        };
+        let inherited_fields = if inherited {
+            inherited_fields_for_write(document, chart, &[])?
+        } else {
+            Vec::new()
+        };
+        Ok(Self {
+            token: session.revision_token(),
+            chart,
+            scope,
+            inherited,
+            affected,
+            inherited_fields,
+        })
+    }
+    fn origin(&self) -> Option<usize> {
+        if self.scope == Scope::Chart && !self.inherited {
+            Some(self.chart)
+        } else {
+            None
+        }
+    }
+    fn apply(
+        &self,
+        session: &mut Session,
+        chart: usize,
+        changes: &[(&str, String)],
+        label: &str,
+    ) -> Result<bool, Error> {
+        if chart != self.chart || !session.accepts_token(&self.token) {
+            return Err(invalid("Timing draft belongs to another chart or revision"));
+        }
+        if changes.is_empty() {
+            return Ok(false);
+        }
+        let target = if self.scope == Scope::Chart {
+            Some(self.chart)
         } else {
             None
         };
-        let raw = document.text(origin, "BPMS").unwrap_or_default();
+        let mut properties = self
+            .inherited_fields
+            .iter()
+            .filter(|(name, _)| !changes.iter().any(|(tag, _)| name == tag))
+            .map(|(name, bytes)| (target, name.clone(), bytes.clone()))
+            .collect::<Vec<_>>();
+        for (tag, value) in changes {
+            properties.push((target, (*tag).into(), Arc::from(escape_text(value))));
+        }
+        session.set_property_bytes_atomic(&properties, label)
+    }
+}
+pub struct TempoDraft {
+    target: Target,
+    original: Tempos,
+    tempos: Tempos,
+}
+impl TempoDraft {
+    pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
+        let target = Target::capture(session, chart, scope)?;
+        let document = session.document();
+        let raw = document.text(target.origin(), "BPMS").unwrap_or_default();
         let mut tempos = Tempos::parse(&raw, 120.0)?;
         if tempos.source_lacked_initial() {
             let fallback = if scope == Scope::Chart {
@@ -71,37 +128,20 @@ impl TempoDraft {
             };
             tempos = Tempos::parse(&raw, fallback)?;
         }
-        let inherited_fields = if inherited {
-            inherited_fields_for_write(document, chart, &["BPMS"])?
-        } else {
-            Vec::new()
-        };
-        let affected = if scope == Scope::Chart {
-            vec![chart]
-        } else {
-            (0..document.charts().len())
-                .filter(|chart| !uses_chart_timing(document, *chart))
-                .collect()
-        };
         Ok(Self {
-            token: session.revision_token(),
-            chart,
-            scope,
-            inherited,
+            target,
             original: tempos.clone(),
             tempos,
-            inherited_fields,
-            affected,
         })
     }
     pub fn scope(&self) -> Scope {
-        self.scope
+        self.target.scope
     }
     pub fn inherited(&self) -> bool {
-        self.inherited
+        self.target.inherited
     }
     pub fn affected_charts(&self) -> &[usize] {
-        &self.affected
+        &self.target.affected
     }
     pub fn tempos(&self) -> &Tempos {
         &self.tempos
@@ -119,28 +159,13 @@ impl TempoDraft {
         self.tempos != self.original
     }
     pub fn apply(&self, session: &mut Session, chart: usize) -> Result<bool, Error> {
-        if chart != self.chart || !session.accepts_token(&self.token) {
-            return Err(invalid("BPM draft belongs to another chart or revision"));
-        }
-        if !self.has_changes() {
-            return Ok(false);
-        }
-        let target = if self.scope == Scope::Chart {
-            Some(self.chart)
+        let changes = if self.has_changes() {
+            vec![("BPMS", self.tempos.serialize())]
         } else {
-            None
+            Vec::new()
         };
-        let mut properties: Vec<_> = self
-            .inherited_fields
-            .iter()
-            .map(|(name, bytes)| (target, name.clone(), bytes.clone()))
-            .collect();
-        properties.push((
-            target,
-            "BPMS".to_owned(),
-            Arc::from(escape_text(&self.tempos.serialize())),
-        ));
-        session.set_property_bytes_atomic(&properties, "Edit BPM timing")
+        self.target
+            .apply(session, chart, &changes, "Edit BPM timing")
     }
 }
 /// Any first local SSC timing field, including OFFSET, must preserve the

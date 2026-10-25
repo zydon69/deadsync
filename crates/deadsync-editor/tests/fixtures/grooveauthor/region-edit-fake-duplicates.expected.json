@@ -1,0 +1,170 @@
+{
+  "Initial": [
+    {
+      "Row": 0,
+      "Length": 96
+    },
+    {
+      "Row": 96,
+      "Length": 192
+    }
+  ],
+  "Stages": [
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 192
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 48,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": [
+        {
+          "Row": 48,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 72,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 72,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 96,
+          "Length": 96
+        },
+        {
+          "Row": 192,
+          "Length": 1
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 96,
+          "Length": 96
+        },
+        {
+          "Row": 192,
+          "Length": 1
+        }
+      ]
+    }
+  ]
+}

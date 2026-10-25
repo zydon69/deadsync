@@ -21,11 +21,48 @@ var options = new JsonSerializerOptions
 };
 var request = JsonDocument.Parse(File.ReadAllBytes(args[1])).RootElement;
 var operation = request.GetProperty("Operation").GetString();
+if (operation == "Region") { Console.WriteLine(JsonSerializer.Serialize(RegionOracle.Reference.Run(request), options)); return; }
 if (operation == "Pause") { Console.WriteLine(JsonSerializer.Serialize(PauseOracle.Reference.Run(request), options)); return; }
 if (operation == "Tempo") { Console.WriteLine(JsonSerializer.Serialize(TempoOracle.Reference.Run(request), options)); return; }
 if (operation == "Profile") { Console.WriteLine(JsonSerializer.Serialize(ProfilesOracle.Reference.Run(request), options)); return; }
 if (operation == "Metadata") { Console.WriteLine(JsonSerializer.Serialize(MetadataOracle.EditorChart.Run(request), options)); return; }
 if (operation == "EditorTiming") { Console.WriteLine(JsonSerializer.Serialize(EditorTimingOracle.Reference.Run(request,args[0]), options)); return; }
+if (operation == "RegionFile") {
+    object EditorState(Chart chart) {
+        var timing=new List<object[]>();
+        foreach(var e in chart.Layers[0].Events) {
+            object[]? entry=e switch {
+                Tempo t=>[e.IntegerPosition,"tempo",t.TempoBPM],
+                TimeSignature t=>[e.IntegerPosition,"signature",t.Signature.Numerator,t.Signature.Denominator],
+                Stop t=>[e.IntegerPosition,t.IsDelay?"delay":"stop",t.LengthSeconds],
+                Warp t=>[e.IntegerPosition,"warp",t.LengthIntegerPosition],
+                FakeSegment t=>[e.IntegerPosition,"fake",t.LengthIntegerPosition],
+                ScrollRate t=>[e.IntegerPosition,"scroll",t.Rate],
+                ScrollRateInterpolation _=>[e.IntegerPosition,"speed"],
+                Label _=>[e.IntegerPosition,"label"],TickCount _=>[e.IntegerPosition,"tick"],Multipliers _=>[e.IntegerPosition,"combo"],
+                _=>null
+            };
+            if(entry!=null)timing.Add(entry);
+        }
+        var notes=chart.Layers[0].Events.OfType<LaneNote>().Select(note=>new object[]{note.IntegerPosition,note.Lane,note.SourceType}).ToArray();
+        var input=JsonSerializer.SerializeToElement(new{Timing=timing,Notes=notes,Rows=Enumerable.Range(0,33).Select(i=>i*12).ToArray(),NumSteps=notes.Length,LastStep=notes.Max(note=>(int)note[0])});
+        return EditorTimingOracle.Reference.Run(input,args[0]);
+    }
+    async Task<object> ReadRegions(string content) {
+        var path=System.IO.Path.Combine(System.IO.Path.GetTempPath(),Guid.NewGuid()+".ssc");
+        try {
+            await File.WriteAllTextAsync(path,content);
+            var song=await new Fumen.Converters.SSCReader(path).LoadAsync(CancellationToken.None);
+            return song.Charts.Select(chart=>new {
+                Warps=chart.Layers[0].Events.OfType<Warp>().Select(e=>new{Row=e.IntegerPosition,Length=e.LengthIntegerPosition}).ToArray(),
+                Fakes=chart.Layers[0].Events.OfType<FakeSegment>().Select(e=>new{Row=e.IntegerPosition,Length=e.LengthIntegerPosition}).ToArray(),
+                Notes=chart.Layers[0].Events.OfType<LaneNote>().Select(note=>new{Row=note.IntegerPosition,Lane=note.Lane,Time=note.TimeSeconds}).ToArray(),
+                Editor=EditorState(chart)
+            }).ToArray();
+        } finally {File.Delete(path);}
+    }
+    Console.WriteLine(JsonSerializer.Serialize(new{Before=await ReadRegions(request.GetProperty("Content").GetString()!),After=await ReadRegions(request.GetProperty("EditedContent").GetString()!)},options));return;
+}
 if (operation == "PauseFile") {
     async Task<object> ReadPauses(string content) {
         var extension=request.GetProperty("Format").GetString()!;

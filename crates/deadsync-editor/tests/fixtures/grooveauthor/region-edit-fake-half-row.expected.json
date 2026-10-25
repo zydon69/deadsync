@@ -1,0 +1,342 @@
+{
+  "Initial": [
+    {
+      "Row": 1,
+      "Length": 1
+    },
+    {
+      "Row": 2,
+      "Length": 2
+    },
+    {
+      "Row": 3,
+      "Length": 3
+    },
+    {
+      "Row": 48,
+      "Length": 48
+    }
+  ],
+  "Stages": [
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Length": 48
+        },
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 48,
+          "Length": 48
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Length": 48
+        },
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 48,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Length": 48
+        },
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 48,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": [
+        {
+          "Row": 0,
+          "Length": 48
+        },
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 48,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": [
+        {
+          "Row": 0,
+          "Length": 48
+        },
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 48,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Length": 48
+        },
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 72,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 72,
+          "Length": 48
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        },
+        {
+          "Row": 192,
+          "Length": 1
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 1,
+          "Length": 1
+        },
+        {
+          "Row": 2,
+          "Length": 2
+        },
+        {
+          "Row": 3,
+          "Length": 3
+        },
+        {
+          "Row": 96,
+          "Length": 96
+        },
+        {
+          "Row": 192,
+          "Length": 1
+        }
+      ]
+    }
+  ]
+}

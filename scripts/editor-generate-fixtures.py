@@ -109,6 +109,19 @@ def prepare_pause_reference(editor):
     return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
 
 
+def prepare_region_reference(editor):
+    def read(path):
+        return subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/EditorEvents/{path}"],cwd=editor).decode("utf-8-sig")
+    warp=read("EditorWarpEvent.cs");fake=read("EditorFakeSegmentEvent.cs")
+    pieces={"WARP_MINIMUM":re.search(r"public const int MinLength = [^;]+;",warp).group(),
+        "FAKE_MINIMUM":re.search(r"public const int MinFakeSegmentLength = [^;]+;",fake).group(),
+        "WARP_SETTER":extract_member(warp,r"\tpublic int IntValue\s*"),"FAKE_SETTER":extract_member(fake,r"\tpublic int IntValue\s*")}
+    project=ROOT/"scripts/editor-oracle";template=(project/"RegionReference.cs.template").read_text()
+    for name,body in pieces.items():template=template.replace("// "+name,body)
+    (project/"obj/RegionReference.cs").write_text(template)
+    return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
+
+
 def prepare_profiles_reference(editor):
     def read(path):
         return subprocess.check_output(["git", "show", f"{EDITOR_PIN}:StepManiaEditor/{path}"],cwd=editor).decode("utf-8-sig")
@@ -559,6 +572,22 @@ def requests(reference: Path):
         for label,segments in pause_cases.items():
             cases[f"pause-edit-{kind.lower()}-{label}"]={"Operation":"Pause","Kind":kind,"Segments":segments,
                 "Operations":[["set",0,0.5],["set",96,1.25],["set",96,1.25],["move",0,48],["move",48,96],["move",48,72],["remove",0],["remove",72],["remove",72],["set",192,-0.5],["set",192,0.0],["set",192,0.75],["set",192,float.fromhex("0x1.8000000000001p-1")]]}
+    region_cases={
+        "basic":[[0,1],[2,2],[8,0.5]],"empty":[],
+        "unsorted":[[8,2],[0,1],[2,0.5]],"duplicates":[[0,1],[0,2],[2,3],[2,4]],
+        "row-conflict":[[1.001,1],[1.005,2],[1.009,3]],
+        "invalid-masks-valid":[[1.001,1],[1.009,0],[2,-1]],
+        "half-row":[[0.5/48,0.5/48],[1.5/48,1.5/48],[2.5/48,2.5/48],[47.5/48,47.5/48]],
+        "negative-position":[[-2,1],[-0.1,2],[-0.00001,3],[4,4]],
+        "tiny-lengths":[[0,0.0000001],[2,0.00001],[4,0],[6,-1]],
+        "fractional":[[0,1/3],[1/3,2/3],[2.000000001,0.123456789]],
+        "overlapping":[[0,8],[1,2],[4,8],[8,1]],
+        "large-row":[[2147483646/48,1/48]],
+    }
+    for kind in ["Warp","Fake"]:
+        for label,segments in region_cases.items():
+            cases[f"region-edit-{kind.lower()}-{label}"]={"Operation":"Region","Kind":kind,"Segments":segments,
+                "Operations":[["set",0,48],["set",96,96],["set",96,96],["move",0,48],["move",48,96],["move",48,72],["remove",0],["remove",72],["remove",72],["set",192,0],["set",192,1],["set",192,1]]}
     timing_fields={"OFFSET":"0.25","BPMS":"0=120,4=180","STOPS":"2=0.25","DELAYS":"3=0.125","WARPS":"8=1","TIMESIGNATURES":"0=4=4,16=3=4","TICKCOUNTS":"0=4","COMBOS":"0=1=1","SPEEDS":"0=1=0=0,6=2=1=0","SCROLLS":"0=1,4=0.5","FAKES":"12=1","LABELS":"1=Café"}
     def tags(fields):return "".join(f"#{tag}:{value};" for tag,value in fields.items())
     def chart(fields=None):return "#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;"+tags(fields or {})+"#NOTES:1000\n0100\n0010\n0001;"
@@ -589,6 +618,25 @@ def requests(reference: Path):
     cases["pause-file-sm"]={"Operation":"PauseFile","Format":"sm","Scope":"Song","Chart":0,"Content":sm,
         "EditedContent":sm.replace("#STOPS:2=0.25;","#STOPS:1=-0.25,2=0.25;").replace("#DELAYS:3=0.125;","#DELAYS:1=0.5,3=0.125;"),
         "Operations":[["set","Stop",48,-0.25],["set","Delay",48,0.5]]}
+    region_fields={"OFFSET":"0.25","BPMS":"0=120,4=180","STOPS":"1=0.25","DELAYS":"3=0.125","WARPS":"1=1,3=1","FAKES":"0=6,1=1","TIMESIGNATURES":"0=4=4","TICKCOUNTS":"0=4","COMBOS":"0=1=1","SPEEDS":"0=1=0=0","SCROLLS":"0=1","LABELS":"1=Keep"}
+    note_lines=["".join("1" if lane==i%4 else "0" for lane in range(4)) for i in range(32)]
+    region_notes="\n".join(note_lines[:16])+"\n,\n"+"\n".join(note_lines[16:])
+    def region_chart(fields=None):return "#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;"+tags(fields or {})+"#NOTES:"+region_notes+";"
+    region_own={"BPMS":"0=150","OFFSET":"-0.125","WARPS":"2=1"}
+    region_root="#VERSION:0.83;#TITLE:Regions;"+tags(region_fields)
+    region_source=region_root+region_chart()+region_chart(region_own)+region_chart()
+    region_edits={
+        "inherited":("Chart",0,region_root+region_chart({**region_fields,"WARPS":"1=1,2=2,3=1","FAKES":"0=6,1=1,3=0.5"})+region_chart(region_own)+region_chart(),
+            [["set","Warp",96,96],["set","Fake",144,24]]),
+        "owned":("Chart",1,region_root+region_chart()+region_chart({**region_own,"WARPS":"1=1","FAKES":"0=3,1=1"})+region_chart(),
+            [["move","Warp",96,48],["set","Fake",0,144],["set","Fake",48,48]]),
+        "song":("Song",0,"#VERSION:0.83;#TITLE:Regions;"+tags({**region_fields,"WARPS":"2=1,3=1","FAKES":"0=6,1=1,3=0.5"})+region_chart()+region_chart(region_own)+region_chart(),
+            [["move","Warp",48,96],["set","Fake",144,24]]),
+        "empty-set":("Chart",0,region_root+region_chart({**region_fields,"WARPS":"","FAKES":""})+region_chart(region_own)+region_chart(),
+            [["remove","Warp",48],["remove","Warp",144],["remove","Fake",0],["remove","Fake",48]]),
+    }
+    for label,(scope,index,edited,operations) in region_edits.items():
+        cases["region-file-"+label]={"Operation":"RegionFile","Format":"ssc","Scope":scope,"Chart":index,"Content":region_source,"EditedContent":edited,"Operations":operations}
     metadata={"MusicOffset":-0.125,"ShouldUseChartMusicOffset":True,"ExpressedChartConfig":"A19D532E-B0CE-4759-AD1C-02ECBBDF2EFD","MaxPlayerIndex":1,
         "Patterns":{"48":{"PatternConfigGuid":"03de57bd-4329-4de6-a722-a171c11fdd16","PerformedChartConfigGuid":"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1","Length":192,"RandomSeed":-2147483648,"StartPositionInclusive":True,"EndPositionInclusive":False,"IgnorePrecedingDistribution":True},"384":{"Length":0}}}
     for label,content in {"defaults":"{}","complete":json.dumps(metadata),"null-patterns":'{"Patterns":null}',"comments":'/* original */ {"Patterns": {"0": {/* marker */ "Length":48}}}',"trailing-comma":'{"Patterns":{},}',"invalid-guid":'{"ExpressedChartConfig":"invalid"}',"braced-guid":'{"ExpressedChartConfig":"{a19d532e-b0ce-4759-ad1c-02ecbbdf2efd}"}'}.items():
@@ -648,6 +696,7 @@ def main():
     profiles_hash = prepare_profiles_reference(args.editor_root.resolve())
     tempo_hash = prepare_tempo_reference(args.editor_root.resolve())
     pause_hash = prepare_pause_reference(args.editor_root.resolve())
+    region_hash = prepare_region_reference(args.editor_root.resolve())
     project = ROOT / "scripts/editor-oracle/EditorOracle.csproj"
     build = subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if build.returncode:
@@ -672,7 +721,7 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
-        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash,
+        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
         "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],

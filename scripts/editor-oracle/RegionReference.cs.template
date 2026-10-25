@@ -1,0 +1,58 @@
+// Original region setters/minima, with explicit node and notification adapters.
+using System.Text.Json;
+using Fumen.ChartDefinition;
+using static System.Diagnostics.Debug;
+namespace RegionOracle;
+internal interface IRegion {int IntValue{get;set;}}
+internal sealed class EditorChart:PauseOracle.EditorChart {
+    public void OnWarpLengthModified(EditorWarpEvent _,double before,double after){}
+    public void OnFakeSegmentLengthModified(EditorFakeSegmentEvent _,double before,double after){}
+}
+internal sealed class EditorWarpEvent(int row,Warp value,EditorChart owner):PauseOracle.EditorEvent(row),IRegion {
+    // WARP_MINIMUM
+    private readonly Warp WarpEvent=value;private readonly EditorChart EditorChart=owner;private bool WidthDirty;
+    private double GetEndChartPosition()=>Row+(double)WarpEvent.LengthIntegerPosition;
+    // WARP_SETTER
+}
+internal sealed class EditorFakeSegmentEvent(int row,FakeSegment value,EditorChart owner):PauseOracle.EditorEvent(row),IRegion {
+    // FAKE_MINIMUM
+    private readonly FakeSegment FakeSegmentEvent=value;private readonly EditorChart EditorChart=owner;private bool WidthDirty;
+    private double GetEndChartPosition()=>Row+(double)FakeSegmentEvent.LengthIntegerPosition;
+    // FAKE_SETTER
+}
+internal static class Reference {
+    public static object Run(JsonElement input) {
+        bool fake=input.GetProperty("Kind").GetString()=="Fake";
+        var source=new Dictionary<double,double>();foreach(var pair in input.GetProperty("Segments").EnumerateArray())source[pair[0].GetDouble()]=pair[1].GetDouble();
+        var chart=new Chart{Layers=[new Layer()]};var logger=new TempoOracle.SilentLogger();
+        if(fake)Fumen.Converters.SMCommon.AddFakeSegmentEvents(source,chart,logger,false);else Fumen.Converters.SMCommon.AddWarps(source,chart,logger,false);
+        var store=new EditorChart();var nodes=new SortedDictionary<int,PauseOracle.EditorEvent>();
+        PauseOracle.EditorEvent New(int row,int length)=>fake?new EditorFakeSegmentEvent(row,new FakeSegment(Math.Max(EditorFakeSegmentEvent.MinFakeSegmentLength,length)),store):new EditorWarpEvent(row,new Warp(Math.Max(EditorWarpEvent.MinLength,length)),store);
+        foreach(var e in chart.Layers[0].Events) {
+            if(e is Warp warp)nodes[e.IntegerPosition]=New(e.IntegerPosition,warp.LengthIntegerPosition);
+            if(e is FakeSegment segment)nodes[e.IntegerPosition]=New(e.IntegerPosition,segment.LengthIntegerPosition);
+        }
+        store.EditorEvents.AddRange(nodes.Values);
+        object Values()=>nodes.Select(pair=>new{Row=pair.Key,Length=((IRegion)pair.Value).IntValue}).ToArray();
+        var initial=Values();var stages=new List<object>();
+        foreach(var operation in input.GetProperty("Operations").EnumerateArray()) {
+            var kind=operation[0].GetString();var row=operation[1].GetInt32();bool changed=false;string? error=null;
+            if(kind=="set") {
+                var length=operation[2].GetInt32();
+                if(length<1)error="invalid";
+                else if(nodes.TryGetValue(row,out var node)){var before=((IRegion)node).IntValue;((IRegion)node).IntValue=length;changed=before!=((IRegion)node).IntValue;}
+                else{nodes[row]=New(row,length);store.EditorEvents.Add(nodes[row]);changed=true;}
+            }else if(kind=="remove") {
+                if(nodes.TryGetValue(row,out var node))store.EditorEvents.Remove(node);changed=nodes.Remove(row);
+            }else if(kind=="move") {
+                var target=operation[2].GetInt32();
+                if(!nodes.TryGetValue(row,out var node))error="missing";
+                else if(row==target){}
+                else if(!store.CanEventBeMovedToRow(node,target))error="collision";
+                else{nodes.Remove(row);nodes[target]=node;node.Row=target;changed=true;}
+            }else throw new ArgumentException("Unknown region operation");
+            stages.Add(new{Changed=changed,Error=error,Values=Values()});
+        }
+        return new{Initial=initial,Stages=stages};
+    }
+}
