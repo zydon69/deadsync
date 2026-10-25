@@ -1600,3 +1600,39 @@ fallback). Rust compares the resulting fractional rows exactly. This proves
 these clock cases, not audio output or the native transport: music offset,
 asset selection, play/pause/seek and snapshot-driven cursor wiring remain to
 be integrated before audio preview is usable.
+
+### Native audio preview
+
+Enter in the central editor now starts playback at the cursor; Enter again
+stops and retains the last audio-driven row. Any editing/navigation/menu key
+stops first. Space retains its selection behavior. The English/French help and
+status messages describe these controls. Playback never writes the simfile.
+
+`playback::Preview` captures current document timing and effective chart/song
+music offset, resolving a nonempty chart MUSIC before song MUSIC relative to
+the simfile. It does not reuse the Practice chart's previously loaded clock.
+Its empty note grid deliberately allows empty charts and multiple participants
+without requiring single-player generation support. File existence is checked;
+decoding is delegated to DeadSync's existing audio engine. Negative starts use
+that engine's silent lead-in support. Editor sync offset, loop/scrub controls,
+waveform rendering and complete decoder failure/EOF reporting remain pending.
+
+The editor queues the actual `GameplayAudioCommand::PlayMusic`/`StopMusic`
+commands. Practice forwards them to its gameplay command queue both after raw
+input and during update; the existing shell drain executes them with the real
+audio control. Close also stops the engine. The cursor uses mapped audio music
+nanoseconds and the captured inverse clock, rejecting snapshots older than the
+request. Unmapped snapshots do not simulate progress; losing mapping after
+playback has mapped stops the preview. The current stream snapshot has no track
+ID or decoder result: its seeded mapping is not proof of audible output, and
+complete decoder lifecycle/error integration remains required. Cursor rendering
+currently rounds down to a note row while the clock supports fractional rows.
+
+Five core workflows cover SM and multiplayer preview, unsaved timing/offset capture without mutations,
+independent snapshots, chart audio/offset overrides and song fallback, negative
+lead-in, stops/warps and explicit missing-file/invalid-input failures. Four native
+workflows cover commands and their cut positions, mapped cursor updates,
+stop/resume, stale/unmapped snapshots, editing/close cleanup, missing audio and
+preserved selection controls. A separate French workflow checks visible controls,
+playing/stopped/error statuses. These use temporary fixture assets and synthetic
+snapshots; they do not prove device output, audible alignment or physical input.

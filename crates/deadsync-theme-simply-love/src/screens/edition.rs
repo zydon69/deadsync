@@ -2,6 +2,7 @@
 //! deadsync-editor; this module owns presentation, shortcuts, and exit prompts.
 mod batch;
 mod pattern_set;
+mod playback;
 mod timing;
 
 use crate::{act, i18n};
@@ -182,6 +183,8 @@ impl GenerationPreview {
 }
 
 pub struct State {
+    playback: Option<playback::Playing>,
+    audio_commands: Vec<deadsync_gameplay::GameplayAudioCommand>,
     workspace: Workspace,
     generation: GenerationSettings,
     batch_source: Option<String>,
@@ -261,6 +264,8 @@ impl State {
             .position(|candidate| *candidate == layout)
             .unwrap_or(0);
         let mut state = Self {
+            playback: None,
+            audio_commands: Vec::new(),
             generation: GenerationSettings {
                 target,
                 preset: 0,
@@ -1143,6 +1148,11 @@ impl State {
         if self.panel.is_some() {
             return self.panel_key(event.code);
         }
+        if event.code == KeyCode::Enter && !self.control && !self.shift {
+            self.toggle_audio();
+            return false;
+        }
+        self.stop_audio();
         if event.code == KeyCode::Escape || event.code == KeyCode::F2 {
             return self.request_close();
         }

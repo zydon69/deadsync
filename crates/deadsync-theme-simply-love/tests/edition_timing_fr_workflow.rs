@@ -317,3 +317,34 @@ fn french_legacy_review_cancel_and_acceptance_are_translated_and_do_not_save_imp
     );
     assert_eq!(fs::read(&path).unwrap(), before);
 }
+
+#[test]
+fn french_audio_preview_controls_and_status_are_visible() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(dir.path().join("song.ogg"), b"fixture").unwrap();
+    fs::write(&path, b"#VERSION:0.83;#MUSIC:song.ogg;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000;").unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s.contains("Entrée : lire/arrêter"))
+    );
+    press(&mut screen, KeyCode::Enter);
+    assert!(screen.is_playing());
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s.contains("Lecture. Entrée : arrêter"))
+    );
+    press(&mut screen, KeyCode::Enter);
+    assert!(texts(&screen).iter().any(|s| s.contains("Lecture arrêtée")));
+    fs::remove_file(dir.path().join("song.ogg")).unwrap();
+    press(&mut screen, KeyCode::Enter);
+    assert!(!screen.is_playing());
+    assert!(texts(&screen).iter().any(|s| s.contains("Préécoute audio")));
+}

@@ -10,6 +10,7 @@ pub mod history;
 pub mod notes;
 mod number;
 pub mod pad;
+pub mod playback;
 pub mod runtime;
 pub mod storage;
 pub mod timing_edit;

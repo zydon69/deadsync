@@ -672,6 +672,10 @@ fn update_inner(
 ) -> ThemeEffect {
     if let Some(editor) = state.edition.as_mut() {
         editor.update();
+        editor.update_audio(audio_snapshot);
+        for command in editor.take_audio_commands() {
+            state.gameplay.push_audio_command(command);
+        }
         return ThemeEffect::None;
     }
     if let Some((_, remaining)) = state.flash.as_mut() {
@@ -813,7 +817,12 @@ fn handle_raw_key_event_inner(
     snap_music_start: MusicStartSnap,
 ) -> (bool, ThemeEffect) {
     if let Some(editor) = state.edition.as_mut() {
-        if editor.raw_key(raw_key) {
+        let close = editor.raw_key(raw_key);
+        for command in editor.take_audio_commands() {
+            state.gameplay.push_audio_command(command);
+        }
+        if close {
+            state.gameplay.push_audio_command(GameplayAudioCommand::StopMusic);
             state.edition = None;
         }
         return (true, ThemeEffect::None);
