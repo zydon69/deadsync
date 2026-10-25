@@ -2650,3 +2650,16 @@ Command snapshot into chart-text paste and observes accented text in actors.
 The workflow uses an in-memory clipboard, so it does not validate macOS pasteboard
 IO or establish the cause of the earlier automation/process-lifetime failure.
 A rebuilt native runtime observation remains required.
+
+Native follow-up on `77dcf0f1c`: built and packaged a fresh portable application
+`org.deadsync.editorqa.modifiers` with the same synthetic fixture. Stopped the
+previous QA process before launch, leaving a single QA instance. With raw input
+unavailable, keyboard navigation reached chart text. Native automation paste
+inserted the exact string `Édition clavier QA` (not a literal v), and displayed
+the localized successful-paste status. Escape, five Up presses, Return applied
+chart properties; Command+S displayed the saved status. A filesystem read then
+confirmed `#CHARTNAME:Édition clavier QA;` in this application's isolated SSC.
+The original synthetic source copy still has no CHARTNAME. This proves one
+macOS paste -> apply -> keyboard save path after modifier reconciliation.
+Copy/cut, mixed held modifiers, focus recovery across every panel, physical
+hardware combinations and other operating systems remain separate checks.
