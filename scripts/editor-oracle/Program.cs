@@ -24,6 +24,7 @@ var operation = request.GetProperty("Operation").GetString();
 if (operation == "NormalizedFile") { Console.WriteLine(JsonSerializer.Serialize(await SourceTimingOracle.Reference.Run(request,args[0]), options)); return; }
 if (operation == "Signature") { Console.WriteLine(JsonSerializer.Serialize(SignatureOracle.Reference.Run(request), options)); return; }
 if (operation == "Scroll") { Console.WriteLine(JsonSerializer.Serialize(ScrollOracle.Reference.Run(request), options)); return; }
+if (operation == "Tick") { Console.WriteLine(JsonSerializer.Serialize(TickOracle.Reference.Run(request), options)); return; }
 if (operation == "Region") { Console.WriteLine(JsonSerializer.Serialize(RegionOracle.Reference.Run(request), options)); return; }
 if (operation == "Pause") { Console.WriteLine(JsonSerializer.Serialize(PauseOracle.Reference.Run(request), options)); return; }
 if (operation == "Tempo") { Console.WriteLine(JsonSerializer.Serialize(TempoOracle.Reference.Run(request), options)); return; }

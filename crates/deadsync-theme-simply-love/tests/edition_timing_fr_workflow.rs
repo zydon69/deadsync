@@ -393,7 +393,7 @@ fn french_signature_panel_fraction_input_and_acceptance_are_translated() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..6 {
+    for _ in 0..7 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -447,7 +447,7 @@ fn french_scroll_controls_allow_reverse_and_zero_with_translated_labels() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..5 {
+    for _ in 0..6 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -491,6 +491,71 @@ fn french_scroll_controls_allow_reverse_and_zero_with_translated_labels() {
             .session
             .document()
             .text(Some(0), "SCROLLS")
+            .unwrap(),
+        "0=0"
+    );
+}
+
+#[test]
+fn french_hold_tick_panel_validates_integer_input_and_accepts_zero() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(
+        &path,
+        b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+    )
+    .unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    for _ in 0..5 {
+        press(&mut screen, KeyCode::Tab);
+    }
+    let labels = texts(&screen);
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Nombre de ticks des holds"))
+    );
+    assert!(labels.iter().any(|s| s.contains("Ticks par temps : 4")));
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Appliquer les nombres de ticks"))
+    );
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Delete);
+    press(&mut screen, KeyCode::Minus);
+    press(&mut screen, KeyCode::Digit1);
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s.contains("nombre entier de ticks entre"))
+    );
+    press(&mut screen, KeyCode::Delete);
+    press(&mut screen, KeyCode::Digit0);
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s.contains("Nombre de ticks préparé"))
+    );
+    for _ in 0..6 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "TICKCOUNTS")
             .unwrap(),
         "0=0"
     );

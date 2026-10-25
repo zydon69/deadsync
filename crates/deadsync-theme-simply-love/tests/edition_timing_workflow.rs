@@ -512,7 +512,7 @@ fn pause_type_input_and_scope_guards_cancel_and_zero_delay_validation_preserve_h
     press(&mut screen, KeyCode::Escape);
     press(&mut screen, KeyCode::F10);
     key(&mut screen, KeyCode::ShiftLeft, true);
-    for _ in 0..5 {
+    for _ in 0..6 {
         press(&mut screen, KeyCode::Tab);
     }
     key(&mut screen, KeyCode::ShiftLeft, false);
@@ -856,7 +856,7 @@ fn initial_region_can_move_collide_navigate_and_delete_without_removing_other_ty
     assert_eq!(serialized(&screen), bytes);
 }
 #[test]
-fn region_shared_scope_rounding_fine_controls_and_sm_rejection_follow_format_rules() {
+fn region_shared_scope_rounding_fine_controls_and_sm_type_filter_follow_format_rules() {
     init();
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
@@ -896,8 +896,11 @@ fn region_shared_scope_rounding_fine_controls_and_sm_rejection_follow_format_rul
     for _ in 0..3 {
         press(&mut screen, KeyCode::Tab);
     }
-    assert!(contains(&screen, "requires SSC"));
-    assert!(contains(&screen, "Delays (before notes)"));
+    assert!(contains(&screen, "Hold tick counts"));
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Time signatures"));
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "BPM changes"));
     assert_eq!(serialized(&screen), bytes);
 }
 
@@ -1147,7 +1150,7 @@ fn native_scroll_zero_reverse_move_type_guard_apply_undo_save_and_reopen() {
     );
 }
 #[test]
-fn scroll_empty_noop_cancel_and_sm_format_rejection_preserve_file() {
+fn scroll_empty_noop_cancel_and_sm_type_filter_preserve_file() {
     init();
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
@@ -1191,6 +1194,154 @@ fn scroll_empty_noop_cancel_and_sm_format_rejection_preserve_file() {
     press(&mut screen, KeyCode::Tab);
     press(&mut screen, KeyCode::Tab);
     key(&mut screen, KeyCode::ShiftLeft, false);
-    assert!(contains(&screen, "Scroll editing requires SSC"));
+    assert!(contains(&screen, "Hold tick counts"));
+    assert_eq!(serialized(&screen), bytes);
+}
+
+fn open_ticks(screen: &mut State) {
+    let steps = if screen.workspace().file().session.document().format == Format::Sm {
+        2
+    } else {
+        3
+    };
+    press(screen, KeyCode::F10);
+    key(screen, KeyCode::ShiftLeft, true);
+    for _ in 0..steps {
+        press(screen, KeyCode::Tab);
+    }
+    key(screen, KeyCode::ShiftLeft, false);
+    assert!(contains(screen, "Hold tick counts"));
+}
+#[test]
+fn ticks_stage_zero_move_initial_guard_type_apply_undo_save_and_reopen() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_ticks(&mut screen);
+    let mut index = 0;
+    assert!(contains(&screen, "Ticks per beat: 4"));
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Tick count staged"));
+    assert_eq!(serialized(&screen), SONG);
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Apply or discard before switching"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "1");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Tick count moved"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "0");
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "8");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "TICKCOUNTS")
+            .unwrap(),
+        "0=8,1=0"
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), SONG);
+    ctrl(&mut screen, KeyCode::KeyY);
+    ctrl(&mut screen, KeyCode::KeyS);
+    assert_eq!(
+        State::open(&path, 0)
+            .unwrap()
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "TICKCOUNTS")
+            .unwrap(),
+        "0=8,1=0"
+    );
+}
+#[test]
+fn tick_integer_validation_controls_cancel_and_empty_apply_keep_document_clean() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_ticks(&mut screen);
+    let mut index = 0;
+    for value in ["-1", "1.5", "2147483648"] {
+        choose(&mut screen, &mut index, 2);
+        type_number(&mut screen, value);
+        choose(&mut screen, &mut index, 8);
+        press(&mut screen, KeyCode::Enter);
+        assert!(contains(&screen, "Enter an integer tick count"));
+        assert_eq!(serialized(&screen), SONG);
+    }
+    press(&mut screen, KeyCode::Escape);
+    open_ticks(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 2);
+    press(&mut screen, KeyCode::ArrowRight);
+    assert!(contains(&screen, "Ticks per beat: 5"));
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::ArrowLeft);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "Ticks per beat: 4"));
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 4);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Tick count removed"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(serialized(&screen), SONG);
+    assert!(!screen.workspace().file().session.is_dirty());
+}
+#[test]
+fn sm_tick_events_are_accessible_and_signed_source_nodes_move_delete_and_save() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.sm");
+    let bytes = b"#BPMS:0=120;#TICKCOUNTS:0=-2,4=4;#NOTES:dance-single::Hard:9::1000;";
+    fs::write(&path, bytes).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_ticks(&mut screen);
+    assert!(contains(&screen, "Ticks per beat: -2"));
+    let mut index = 0;
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "1");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Tick count moved"));
+    choose(&mut screen, &mut index, 4);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(
+        reopened
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "TICKCOUNTS")
+            .unwrap(),
+        "1=0,4=4"
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
     assert_eq!(serialized(&screen), bytes);
 }

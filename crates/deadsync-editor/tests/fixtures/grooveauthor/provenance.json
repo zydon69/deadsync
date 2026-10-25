@@ -12,6 +12,7 @@
   "editor_source_timing_methods_sha256": "32d91d38950a81d66f5253e3322fcd85e155e29de7835437dbae3cb5c4c185cd",
   "editor_signature_methods_sha256": "65e3a8f383ab57aa7fa24802bd0ae8d3d4c54ed79784b56ea8ecf11ad5a8f53e",
   "editor_scroll_methods_sha256": "136396404403d0285a3f5187dd4f21595152a3950876bee5d6035a30bd50d114",
+  "editor_tick_methods_sha256": "05744171ce45199cb40a2dadfd06b61db18cecdda420d791a2520539fc0f6d70",
   "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
   "dotnet_sdk": "10.0.402",
   "dotnet_runtimes": [

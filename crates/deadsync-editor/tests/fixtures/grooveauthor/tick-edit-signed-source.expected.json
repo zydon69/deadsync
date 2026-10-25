@@ -1,0 +1,212 @@
+{
+  "Initial": [
+    {
+      "Row": 0,
+      "Ticks": -1
+    },
+    {
+      "Row": 192,
+      "Ticks": -2
+    }
+  ],
+  "Stages": [
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Ticks": 0
+        },
+        {
+          "Row": 192,
+          "Ticks": -2
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Ticks": 0
+        },
+        {
+          "Row": 192,
+          "Ticks": -2
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Ticks": 0
+        },
+        {
+          "Row": 24,
+          "Ticks": 8
+        },
+        {
+          "Row": 192,
+          "Ticks": -2
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 0,
+          "Ticks": 0
+        },
+        {
+          "Row": 24,
+          "Ticks": 8
+        },
+        {
+          "Row": 192,
+          "Ticks": -2
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Ticks": 0
+        },
+        {
+          "Row": 24,
+          "Ticks": 8
+        },
+        {
+          "Row": 96,
+          "Ticks": 2147483647
+        },
+        {
+          "Row": 192,
+          "Ticks": -2
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": [
+        {
+          "Row": 0,
+          "Ticks": 0
+        },
+        {
+          "Row": 24,
+          "Ticks": 8
+        },
+        {
+          "Row": 96,
+          "Ticks": 2147483647
+        },
+        {
+          "Row": 192,
+          "Ticks": -2
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 12,
+          "Ticks": 0
+        },
+        {
+          "Row": 24,
+          "Ticks": 8
+        },
+        {
+          "Row": 96,
+          "Ticks": 2147483647
+        },
+        {
+          "Row": 192,
+          "Ticks": -2
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 24,
+          "Ticks": 8
+        },
+        {
+          "Row": 96,
+          "Ticks": 2147483647
+        },
+        {
+          "Row": 192,
+          "Ticks": -2
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 24,
+          "Ticks": 8
+        },
+        {
+          "Row": 96,
+          "Ticks": 2147483647
+        },
+        {
+          "Row": 192,
+          "Ticks": -2
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 48,
+          "Ticks": 8
+        },
+        {
+          "Row": 96,
+          "Ticks": 2147483647
+        },
+        {
+          "Row": 192,
+          "Ticks": -2
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 96,
+          "Ticks": 2147483647
+        },
+        {
+          "Row": 192,
+          "Ticks": -2
+        }
+      ]
+    }
+  ]
+}

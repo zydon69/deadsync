@@ -152,7 +152,9 @@ impl State {
                     }
                     match settings.value.parse::<f64>() {
                         Ok(value) if value.is_finite() => {
-                            let delta = if settings.draft.kind() == EventKind::Bpm {
+                            let delta = if settings.draft.kind() == EventKind::Tick {
+                                1.0
+                            } else if settings.draft.kind() == EventKind::Bpm {
                                 if self.shift { 0.1 } else { 1.0 }
                             } else if settings.draft.kind().is_region() {
                                 if self.shift {
@@ -171,6 +173,7 @@ impl State {
                                     value.max(deadsync_editor::timing_edit::tempo::MIN_BPM)
                                 }
                                 EventKind::Delay => value.max(0.0),
+                                EventKind::Tick => value.round().clamp(0.0, i32::MAX as f64),
                                 EventKind::Stop | EventKind::Scroll => value,
                                 EventKind::Signature => return,
                                 EventKind::Warp | EventKind::Fake => {
@@ -291,7 +294,13 @@ impl State {
             self.status = i18n::tr("Edition", settings.draft.key("TimingInputPending"));
             return;
         }
-        let kind = settings.draft.kind().step(self.shift);
+        let mut kind = settings.draft.kind().step(self.shift);
+        if self.workspace.file().session.document().format == deadsync_editor::document::Format::Sm
+        {
+            while kind.is_region() || kind == EventKind::Scroll {
+                kind = kind.step(self.shift);
+            }
+        }
         let row = settings.row().unwrap_or(self.workspace.row());
         let same_family = matches!(
             (&settings.draft, kind),
@@ -316,26 +325,14 @@ impl State {
                     "Edition",
                     if kind == EventKind::Signature {
                         "SignatureHelp"
+                    } else if kind == EventKind::Tick {
+                        "TickHelp"
                     } else if kind == EventKind::Scroll {
                         "ScrollHelp"
                     } else {
                         "TimingHelp"
                     },
                 );
-            }
-            Err(_)
-                if kind.is_region()
-                    && self.workspace.file().session.document().format
-                        == deadsync_editor::document::Format::Sm =>
-            {
-                self.status = i18n::tr("Edition", "RegionSscRequired")
-            }
-            Err(_)
-                if kind == EventKind::Scroll
-                    && self.workspace.file().session.document().format
-                        == deadsync_editor::document::Format::Sm =>
-            {
-                self.status = i18n::tr("Edition", "ScrollSscRequired")
             }
             Err(error) => self.timing_error(error),
         }

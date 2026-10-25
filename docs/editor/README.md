@@ -1766,3 +1766,45 @@ remain required for the full editor port.
 Validation for this checkpoint: 252 core tests, 81 native editor tests and
 `cargo check -p deadsync --locked` pass, including the regenerated one-ULP scroll
 setter fixtures and a final rerun of coarse/fine scroll controls and French UI.
+
+### Hold tick counts and supported SM timing types
+
+F10 now edits TICKCOUNTS with the same scoped stage/apply/save workflow. New
+values are signed-int-range nonnegative integers, including zero; fractional,
+negative and overflowing new input is rejected. Left/Right changes by one tick,
+including with Shift. A missing node offers GrooveAuthor's new-event default of
+four ticks per beat without inserting it until explicitly staged. Initial tick
+nodes can move/delete. The value remains integral throughout the domain and
+history; the native adapter parses integer text before acceptance.
+
+Fumen imports signed tick counts, even though the original editor's setter only
+accepts new nonnegative values. The port preserves those source values and allows
+them to move unchanged. Its integer reader skips malformed/fractional/overflowing
+integer records, resolves rounded-row conflicts in source-beat order and keeps
+unknown surrounding document bytes. New invalid edits fail without mutation.
+SSC inheritance uses the shared full-timing detachment transaction; SM uses a
+shared song TICKCOUNTS tag and requires no conversion. RSSP rereads the canonical
+saved/reparsed tick string including retained legacy signed values.
+
+The full SSC Tab order is BPM, Stop, Delay, Warp, Fake, Tick, Scroll, Signature.
+The native SM cycle now skips unsupported Warp/Fake/Scroll types, giving BPM,
+Stop, Delay, Tick, Signature in both directions. This replaces the prior UI's
+unsupported-type error dead ends. Typed domain export guards remain active for
+SM-incompatible data; existing SM bytes stay intact while cycling.
+
+Four C# oracle fixtures use actual Fumen loading and the unchanged tick setter
+with the existing movement adapter: empty maps, normal/zero counts, signed source,
+rounded collisions and signed-int limits. Four core workflows compare all stages,
+round-trip serialization, inherited timing, RSSP, shared SM writes, undo/redo,
+foreign/stale/no-op history, lexical filtering and unchanged legacy negatives.
+Three English native workflows verify zero input, mutable initial nodes, type
+guards, integer validation/controls, no-op/cancel, signed SM moves/deletes and
+apply/undo/save/reopen. One French workflow checks labels, validation and staged
+acceptance. Existing format-cycle tests now verify the SM supported-type list.
+These tests cover event editing and persistence; complete gameplay-like hold tick
+preview, other timing properties, waveform/loop controls and the remaining
+features in the delivery matrix are still outstanding.
+
+Validation for this checkpoint: 256 core tests, 85 native editor tests and
+`cargo check -p deadsync --locked` pass, including the supported SM type cycle,
+integer tick controls and French tick validation/acceptance.
