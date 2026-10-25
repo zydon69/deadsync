@@ -1170,7 +1170,7 @@ impl State {
     }
 
     fn refresh(&mut self) {
-        if self.spacing_mode != deadsync_editor::zoom::SpacingMode::ConstantRow { self.refresh_spacing_cache(); }
+        self.refresh_spacing_cache();
         self.refresh_waveform();
         self.refresh_sample_region();
         if !self.workspace.has_chart() {
@@ -2183,6 +2183,7 @@ impl State {
                     0.6,
                     [1.0, 0.5, 0.5, 1.0],
                 );
+                if let Some(panel) = self.panel { self.panel_actors(panel, actors); }
                 return;
             }
         };
@@ -2204,6 +2205,7 @@ impl State {
                     0.6,
                     [1.0, 0.5, 0.5, 1.0],
                 );
+                if let Some(panel) = self.panel { self.panel_actors(panel, actors); }
                 return;
             }
         };
@@ -2522,7 +2524,7 @@ impl State {
             ],
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
             Panel::WaveformColors(_) => &["WaveformColorMode","WaveformColorDarken","WaveformDenseRed","WaveformDenseGreen","WaveformDenseBlue","WaveformDenseAlpha","WaveformSparseRed","WaveformSparseGreen","WaveformSparseBlue","WaveformSparseAlpha","WaveformBackgroundRed","WaveformBackgroundGreen","WaveformBackgroundBlue","WaveformBackgroundAlpha","WaveformColorsBack"],
-            Panel::WaveformSettings(_) => &["WaveformSettingShow", "WaveformSettingEnabled", "WaveformSettingWidth", "WaveformSettingDense", "WaveformSettingsDefaults", "WaveformSettingsSave", "WaveformSettingsCancel"],
+            Panel::WaveformSettings(_) => &["WaveformSettingShow", "WaveformSettingEnabled", "WaveformSettingWidth", "WaveformSettingDense", "WaveformSettingScroll", "WaveformSettingsDefaults", "WaveformSettingsSave", "WaveformSettingsCancel"],
             Panel::ZoomSettings(_) => &["ZoomDuration", "ZoomMultiplier", "ZoomSizeCap", "ZoomLimited", "ZoomSettingsDefaults", "ZoomSettingsSave", "ZoomSettingsCancel"],
             Panel::AudioSettings(_) => &["AudioFadeIn", "AudioFadeOut", "AudioSettingsDefaults", "AudioSettingsApply", "AudioSettingsCancel"],
             Panel::SongSample(_) => &["SongSampleStart", "SongSampleLength", "SongLastSecondHint", "SongSampleBack"],
@@ -2972,7 +2974,7 @@ impl State {
                 self.timing_label(index, key)
             } else if matches!(panel, Panel::WaveformColors(_)) && index < 14 {
                 self.waveform_colors_label(index,key)
-            } else if matches!(panel, Panel::WaveformSettings(_)) && index < 4 {
+            } else if matches!(panel, Panel::WaveformSettings(_)) && index < 5 {
                 self.waveform_settings_label(index, key)
             } else if matches!(panel, Panel::ZoomSettings(_)) && index < 4 {
                 self.zoom_settings_label(index, key)

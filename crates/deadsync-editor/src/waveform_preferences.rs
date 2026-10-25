@@ -1,6 +1,6 @@
 //! Validated native waveform controls from GrooveAuthor PreferencesWaveForm.
 //! Defaults/ranges follow UIWaveFormPreferences at pinned commit 48e18f71 (MIT).
-use crate::{Error, waveform_palette::Palette};
+use crate::{Error, waveform_palette::Palette, waveform_spacing::ScrollMode};
 use serde_json::{Map, Value};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -10,6 +10,7 @@ pub struct Preferences {
     channel_width: f64,
     dense_scale: f64,
     palette: Palette,
+    scroll_mode: ScrollMode,
 }
 impl Default for Preferences {
     fn default() -> Self {
@@ -19,10 +20,17 @@ impl Default for Preferences {
             channel_width: 0.9,
             dense_scale: 6.0,
             palette: Palette::default(),
+            scroll_mode: ScrollMode::MostCommonTempo,
         }
     }
 }
 impl Preferences {
+    pub fn scroll_mode(&self) -> ScrollMode {
+        self.scroll_mode
+    }
+    pub fn set_scroll_mode(&mut self, mode: ScrollMode) {
+        self.scroll_mode = mode;
+    }
     pub fn palette(&self) -> Palette {
         self.palette
     }
@@ -81,6 +89,14 @@ impl Preferences {
                     .ok_or_else(|| Error::InvalidFormat("Invalid waveform dense scale".into()))?,
             )?;
         }
+        if let Some(field) = fields.get("RowBasedWaveFormScrollMode") {
+            value.scroll_mode = match (field.as_str(), field.as_u64()) {
+                (Some("CurrentTempo"), _) | (_, Some(0)) => ScrollMode::CurrentTempo,
+                (Some("CurrentTempoAndRate"), _) | (_, Some(1)) => ScrollMode::CurrentTempoAndRate,
+                (Some("MostCommonTempo"), _) | (_, Some(2)) => ScrollMode::MostCommonTempo,
+                _ => return Err(Error::InvalidFormat("Invalid waveform scroll mode".into())),
+            };
+        }
         value.palette = Palette::read(fields)?;
         Ok(value)
     }
@@ -92,6 +108,10 @@ impl Preferences {
             self.channel_width.into(),
         );
         fields.insert("DenseScale".into(), self.dense_scale.into());
+        fields.insert(
+            "RowBasedWaveFormScrollMode".into(),
+            self.scroll_mode.name().into(),
+        );
         self.palette.write(fields);
     }
 }

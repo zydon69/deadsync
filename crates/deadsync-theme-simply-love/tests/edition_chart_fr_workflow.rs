@@ -534,14 +534,19 @@ fn french_waveform_preferences_show_translated_controls_and_missing_path_without
         "Activer le décodage",
         "Largeur des canaux : 90.0",
         "Intensité de la zone dense : 6.00",
+        "Défilement de la forme d’onde : Tempo le plus fréquent",
         "Enregistrer les préférences de forme d’onde",
         "Abandonner et revenir",
     ] {
         assert!(labels.contains(expected), "{expected}: {labels}");
     }
-    for _ in 0..5 {
-        press(&mut state, KeyCode::ArrowDown);
-    }
+    for _ in 0..4 { press(&mut state, KeyCode::ArrowDown); }
+    press(&mut state, KeyCode::ArrowRight);
+    assert!(texts(&state).iter().any(|line| line.contains("Défilement de la forme d’onde : Tempo courant")));
+    press(&mut state, KeyCode::ArrowRight);
+    assert!(texts(&state).iter().any(|line| line.contains("Tempo courant et multiplicateurs")));
+    press(&mut state, KeyCode::Home);
+    for _ in 0..2 { press(&mut state, KeyCode::ArrowDown); }
     press(&mut state, KeyCode::Enter);
     assert!(
         texts(&state)

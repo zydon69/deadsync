@@ -114,7 +114,7 @@ fn keyboard_waveform_settings_save_reload_render_scales_and_preserve_audio_and_s
     press(&mut state, KeyCode::Digit0);
     assert_eq!(fs::read(&path).unwrap(), before);
     assert!(!state.waveform_ready());
-    down(&mut state, 2);
+    down(&mut state, 3);
     press(&mut state, KeyCode::Enter);
     ready(&mut state);
     assert!((state.waveform_preferences().channel_width() - 0.891).abs() < 1e-12);
@@ -133,7 +133,7 @@ fn keyboard_waveform_settings_save_reload_render_scales_and_preserve_audio_and_s
     open(&mut state);
     down(&mut state, 2);
     press(&mut state, KeyCode::Digit0);
-    down(&mut state, 3);
+    down(&mut state, 4);
     press(&mut state, KeyCode::Enter);
     assert_eq!(state.waveform_frames(), frames);
     assert!(state.waveform_ready());
@@ -169,7 +169,7 @@ fn cancel_defaults_and_session_toggle_have_separate_persistence_semantics() {
     assert!(!state.waveform_preferences().show());
     assert_eq!(fs::read(&path).unwrap(), before);
     open(&mut state);
-    down(&mut state, 4);
+    down(&mut state, 5);
     press(&mut state, KeyCode::Enter);
     assert_eq!(fs::read(&path).unwrap(), before);
     down(&mut state, 1);
@@ -196,7 +196,7 @@ fn disabling_decoding_clears_data_and_blocks_session_toggle_until_reenabled() {
     open(&mut state);
     down(&mut state, 1);
     press(&mut state, KeyCode::Enter);
-    down(&mut state, 4);
+    down(&mut state, 5);
     press(&mut state, KeyCode::Enter);
     assert!(!state.waveform_ready());
     assert_eq!(state.waveform_frames(), None);
@@ -211,7 +211,7 @@ fn disabling_decoding_clears_data_and_blocks_session_toggle_until_reenabled() {
     open(&mut state);
     down(&mut state, 1);
     press(&mut state, KeyCode::Home);
-    down(&mut state, 4);
+    down(&mut state, 5);
     press(&mut state, KeyCode::Enter);
     ready(&mut state);
 }
@@ -234,7 +234,7 @@ fn external_and_future_preferences_refuse_writes_and_keep_reviewable_draft() {
         if !future {
             fs::write(&path, external).unwrap();
         }
-        down(&mut state, 5);
+        down(&mut state, 6);
         press(&mut state, KeyCode::Enter);
         assert!(!state.waveform_preferences().show());
         assert!(has(&state, "Show when the editor opens: Yes"));
@@ -283,7 +283,7 @@ fn paginated_colour_editor_stages_cancels_and_saves_rgba_and_sparse_mode() {
     assert_eq!(fs::read(&path).unwrap(), before);
     assert_eq!(state.waveform_preferences().palette(), Palette::default());
     press(&mut state, KeyCode::Escape);
-    down(&mut state, 5);
+    down(&mut state, 6);
     press(&mut state, KeyCode::Enter);
     // Saving colours must not implicitly enable a view configured as hidden.
     assert!(!state.waveform_preferences().show());

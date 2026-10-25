@@ -31,7 +31,12 @@ impl State {
             )
             .to_string(),
             2 => format!("{:.1}", settings.channel_width() * 100.0),
-            _ => format!("{:.2}", settings.dense_scale()),
+            3 => format!("{:.2}", settings.dense_scale()),
+            _ => i18n::tr(
+                "Edition",
+                &format!("WaveformScroll{}", settings.scroll_mode().name()),
+            )
+            .to_string(),
         };
         i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
@@ -42,7 +47,7 @@ impl State {
             return;
         }
         let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
-        if code == KeyCode::Escape || (index == 6 && enter) {
+        if code == KeyCode::Escape || (index == 7 && enter) {
             self.waveform_preferences_draft = None;
             if let Some(file) = self.audio_preferences_file.as_mut() {
                 file.set_waveform(self.waveform_preferences);
@@ -54,11 +59,11 @@ impl State {
         if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
             let back = code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift);
             self.panel = Some(Panel::WaveformSettings(
-                (index + if back { 6 } else { 1 }) % 7,
+                (index + if back { 7 } else { 1 }) % 8,
             ));
             return;
         }
-        if index < 4
+        if index < 5
             && (matches!(
                 code,
                 KeyCode::ArrowLeft
@@ -66,7 +71,7 @@ impl State {
                     | KeyCode::Home
                     | KeyCode::Digit0
                     | KeyCode::Numpad0
-            ) || (index < 2 && enter))
+            ) || ((index < 2 || index == 4) && enter))
         {
             let Some(settings) = self.waveform_preferences_draft.as_mut() else {
                 return;
@@ -111,7 +116,7 @@ impl State {
                     };
                     settings.set_channel_width(value.clamp(0.0, 1.0))
                 }
-                _ => {
+                3 => {
                     let delta = if self.shift { 0.01 } else { 0.1 };
                     let value = if home {
                         defaults.dense_scale()
@@ -127,16 +132,26 @@ impl State {
                     };
                     settings.set_dense_scale(value.clamp(0.0, 10.0))
                 }
+                _ => {
+                    settings.set_scroll_mode(if home {
+                        defaults.scroll_mode()
+                    } else if zero {
+                        deadsync_editor::waveform_spacing::ScrollMode::CurrentTempo
+                    } else {
+                        settings.scroll_mode().cycle(code == KeyCode::ArrowLeft)
+                    });
+                    Ok(())
+                }
             };
             if let Err(error) = result {
                 self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
             }
             return;
         }
-        if index == 4 && enter {
+        if index == 5 && enter {
             self.waveform_preferences_draft = Some(Preferences::default());
         }
-        if index != 5 || !enter {
+        if index != 6 || !enter {
             return;
         }
         let Some(path) = self.audio_preferences_path.clone() else {

@@ -97,3 +97,66 @@ fn invalid_waveform_fields_never_rewrite_preference_source() {
         assert_eq!(fs::read_to_string(&path).unwrap(), source);
     }
 }
+
+#[test]
+fn scroll_policy_defaults_round_trips_and_preserves_other_preferences() {
+    use deadsync_editor::waveform_spacing::ScrollMode;
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("policy.json");
+    let original = r#"{ "Version":1,"Other":{"keep":true},"Audio":{"Future":5},"Waveform":{"FuturePolicy":[1,2],"SparseColor":{"Future":9}} }"#;
+    fs::write(&path, original).unwrap();
+    let mut file = File::open(&path).unwrap();
+    assert_eq!(file.waveform().scroll_mode(), ScrollMode::MostCommonTempo);
+    assert!(!file.save().unwrap());
+    assert_eq!(fs::read_to_string(&path).unwrap(), original);
+    for mode in [
+        ScrollMode::CurrentTempo,
+        ScrollMode::CurrentTempoAndRate,
+        ScrollMode::MostCommonTempo,
+    ] {
+        let mut settings = file.waveform();
+        settings.set_scroll_mode(mode);
+        file.set_waveform(settings);
+        assert!(file.save().unwrap());
+        assert_eq!(File::open(&path).unwrap().waveform().scroll_mode(), mode);
+        let json: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+        assert_eq!(json["Waveform"]["RowBasedWaveFormScrollMode"], mode.name());
+        assert_eq!(json["Waveform"]["FuturePolicy"], serde_json::json!([1, 2]));
+        assert_eq!(json["Other"]["keep"], true);
+        assert_eq!(json["Audio"]["Future"], 5);
+        assert_eq!(json["Waveform"]["SparseColor"]["Future"], 9);
+    }
+}
+#[test]
+fn scroll_policy_reads_original_numeric_values_and_rejects_unknown_values_without_rewrite() {
+    use deadsync_editor::waveform_spacing::ScrollMode;
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("policy.json");
+    for (value, mode) in [
+        (0, ScrollMode::CurrentTempo),
+        (1, ScrollMode::CurrentTempoAndRate),
+        (2, ScrollMode::MostCommonTempo),
+    ] {
+        let text =
+            format!("{{\"Version\":1,\"Waveform\":{{\"RowBasedWaveFormScrollMode\":{value}}}}}");
+        fs::write(&path, &text).unwrap();
+        let mut file = File::open(&path).unwrap();
+        assert_eq!(file.waveform().scroll_mode(), mode);
+        assert!(!file.save().unwrap());
+        assert_eq!(fs::read_to_string(&path).unwrap(), text);
+    }
+    for bad in [
+        serde_json::json!("FutureMode"),
+        serde_json::json!(3),
+        serde_json::json!(-1),
+        serde_json::json!(true),
+        serde_json::json!(null),
+        serde_json::json!([]),
+    ] {
+        let text = serde_json::json!({"Version":1,"Waveform":{"RowBasedWaveFormScrollMode":bad}})
+            .to_string();
+        fs::write(&path, &text).unwrap();
+        assert!(File::open(&path).is_err());
+        assert_eq!(fs::read_to_string(&path).unwrap(), text);
+    }
+}

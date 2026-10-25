@@ -14,6 +14,25 @@ pub enum ScrollMode {
     MostCommonTempo,
 }
 
+impl ScrollMode {
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::CurrentTempo => "CurrentTempo",
+            Self::CurrentTempoAndRate => "CurrentTempoAndRate",
+            Self::MostCommonTempo => "MostCommonTempo",
+        }
+    }
+    pub fn cycle(self, backwards: bool) -> Self {
+        let values = [
+            Self::CurrentTempo,
+            Self::CurrentTempoAndRate,
+            Self::MostCommonTempo,
+        ];
+        let i = values.iter().position(|value| *value == self).unwrap();
+        values[(i + if backwards { 2 } else { 1 }) % 3]
+    }
+}
+
 pub fn pixels_per_second(
     mode: SpacingMode,
     policy: ScrollMode,

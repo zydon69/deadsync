@@ -4032,3 +4032,53 @@ Validation: all 53 targeted core integration tests and all 197 tests across the
 traces (including six waveform cases/450 calls) and seven common-tempo cases.
 The complete core suite, unrelated theme unit suites and GPU/app runtime were
 not rerun for this numeric addition; native policy-selection UI remains pending.
+
+### Native waveform policy selection and persistence
+
+The Shift+W panel now has an eighth row: a scroll-policy selector before the
+Defaults/Save/Discard actions. Left/Right and Enter cycle the three named modes;
+Home restores original MostCommonTempo, and 0 selects CurrentTempo. Labels/help
+are available in English and French. Draft changes do not affect rendering or
+preferences until Save succeeds. Escape/Discard restores active preferences;
+write conflicts retain the reviewable draft without applying it.
+
+The version-1 Waveform group persists RowBasedWaveFormScrollMode as a named
+string. Reading also accepts the original integer values 0/1/2. Missing fields
+use original MostCommonTempo; unknown values/types are rejected without writes.
+The shared atomic preference store preserves Audio/Zoom, unknown groups and
+unknown/nested waveform fields. A no-op preserves the original file bytes,
+including missing policy fields and numeric representations.
+
+The source/revision/chart cache computes original common tempo once and retains
+its result separately from timing/interpolation. Row waveform projection now uses
+the original temporal policy axis rather than a per-pixel row/time round trip.
+All three display modes call the shared original waveform spacing calculation,
+then apply zoom/Reverse. Time mode remains independent of policy; Row ignores
+rate multipliers; Variable CurrentTempoAndRate uses both SCROLLS and current
+interpolated SPEEDS, including original nonpositive-rate fallback. The native
+row spacing magnitude remains 1 pixel/row, matching this simplified editor's
+existing chart view. Staged music/sync offsets still use the current waveform
+clock for audio-file conversion. Projection errors leave panels visible so the
+user can adjust settings or reset zoom.
+
+New native workflows decode a real pulse and assert literal expected speeds for
+all nine mode/policy combinations, Reverse, save/reload rendering, staged/cancelled
+changes, numeric shortcuts, external conflicts and projection-error recovery.
+The common-tempo fixture intentionally has notes beyond its last rate event.
+Core workflows verify named/numeric read compatibility, default/no-op behavior,
+unknown-field preservation, save/reopen and invalid-mode rejection. Existing
+waveform/palette workflows now navigate the new control before the save actions;
+their persistence and render assertions remain intact.
+
+Validation for native policy integration: 70 tests across 14 targeted core
+integration suites and all 200 tests across 28 native edition integration suites
+passed. Both `cargo check -p deadsync --jobs 2 --locked` and `cargo build -p
+deadsync --jobs 2 --locked` passed. The debug macOS application was packaged and
+run with a generated SSC/WAV fixture, isolated portable preferences, French text
+and muted audio. Physical keyboard navigation opened Shift+W, selected Current
+Tempo And Rate, saved and reopened the panel. All eight rows and the longest
+French policy label fit the panel; the JSON contains CurrentTempoAndRate.
+Fixture SSC and WAV SHA-256 hashes still match their originals. The QA instance
+was closed. Screenshot: `/tmp/deadsync-wave-policy-panel.png` (local QA artifact,
+not distributed). This check does not establish audible playback, other GPU
+backends, anti-aliasing parity or complete editor parity.

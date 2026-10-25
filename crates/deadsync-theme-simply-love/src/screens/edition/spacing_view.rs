@@ -19,9 +19,10 @@ struct Data {
     clock: Clock,
     index: Index,
     interpolation: Result<deadsync_editor::scroll_interpolation::Timeline, String>,
+    common_tempo: Result<f64, String>,
 }
 pub(super) enum Projection<'a> {
-    Rows(RowProjection),
+    Rows(RowProjection, Option<TimeProjection>),
     Variable {
         geometry: Frame<'a>,
         waveform: TimeProjection,
@@ -35,14 +36,14 @@ pub(super) enum Projection<'a> {
 impl Projection<'_> {
     pub(super) fn y(&self, row: u64) -> Option<f64> {
         match self {
-            Self::Rows(p) => Some(p.y(row)),
+            Self::Rows(p, _) => Some(p.y(row)),
             Self::Time { axis, clock, .. } => axis.y(clock.chart_time(row).ok()?).ok(),
             Self::Variable { geometry, .. } => geometry.row_y(row as f64, 0).ok(),
         }
     }
     pub(super) fn note_y(&self, row: u64) -> Option<f64> {
         match self {
-            Self::Rows(p) => Some(p.y(row)),
+            Self::Rows(p, _) => Some(p.y(row)),
             Self::Time { axis, clock, .. } => axis.y(clock.note_time(row).ok()?).ok(),
             Self::Variable { geometry, .. } => geometry.row_y(row as f64, 11).ok(),
         }
@@ -52,27 +53,17 @@ impl Projection<'_> {
     }
     pub(super) fn sample_y(&self, row: f64, chart_time: f64) -> Option<f64> {
         match self {
-            Self::Rows(p) => row.is_finite().then(|| p.fractional_y(row)),
+            Self::Rows(p, _) => row.is_finite().then(|| p.fractional_y(row)),
             Self::Time { axis, .. } => axis.y(chart_time).ok(),
             Self::Variable { geometry, .. } => geometry.row_y(row, 0).ok(),
         }
     }
     pub(super) fn music_interval(&self, y: f64, next_y: f64, clock: &Clock) -> Option<(f64, f64)> {
         match self {
-            Self::Rows(p) => {
-                let a = p.row_at(y);
-                let b = p.row_at(next_y);
-                let first = a.min(b);
-                let last = a.max(b);
-                if last <= 0.0 {
-                    return None;
-                }
-                Some((
-                    clock.music_time(first.max(0.0).floor() as u64).ok()?,
-                    clock.music_time(last.ceil() as u64).ok()?,
-                ))
-            }
-            Self::Time { axis, .. } | Self::Variable { waveform: axis, .. } => {
+            Self::Rows(_, None) => None,
+            Self::Rows(_, Some(axis))
+            | Self::Time { axis, .. }
+            | Self::Variable { waveform: axis, .. } => {
                 let a = axis.time_at(y).ok()?;
                 let b = axis.time_at(next_y).ok()?;
                 Some((
@@ -89,7 +80,7 @@ impl Projection<'_> {
         last_row: u64,
     ) -> Result<Vec<(u64, u64)>, deadsync_editor::Error> {
         let spans = match self {
-            Self::Rows(p) => return Ok(vec![p.visible_rows()]),
+            Self::Rows(p, _) => return Ok(vec![p.visible_rows()]),
             Self::Time { cursor, .. } => {
                 cursor.visible_rows(f64::from(top), f64::from(bottom), u64::MAX)?
             }
@@ -149,10 +140,14 @@ impl State {
                 let interpolation =
                     deadsync_editor::scroll_interpolation::Timeline::capture(session, chart)
                         .map_err(|error| error.to_string());
+                let common_tempo = deadsync_editor::waveform_spacing::most_common_tempo(&index)
+                    .map_err(|error| error.to_string())
+                    .and_then(|tempo| tempo.ok_or_else(|| "No chart rate events".into()));
                 Ok(Data {
                     clock,
                     index,
                     interpolation,
+                    common_tempo,
                 })
             })
             .map_err(|error| error.to_string());
@@ -200,6 +195,62 @@ impl State {
             },
         );
     }
+    fn waveform_axis(
+        &self,
+        data: &Data,
+        top: f32,
+        bottom: f32,
+        cursor_y: f32,
+    ) -> Result<TimeProjection, deadsync_editor::Error> {
+        let time = data.clock.chart_time(self.workspace.row())?;
+        let row = self.workspace.row() as f64;
+        let mode = self.spacing_mode;
+        let policy = self.waveform_preferences.scroll_mode();
+        let active = data
+            .index
+            .active(mode, time, row)?
+            .ok_or_else(|| deadsync_editor::Error::InvalidEdit("No chart rate events".into()))?;
+        let common = if mode != SpacingMode::ConstantTime
+            && policy == deadsync_editor::waveform_spacing::ScrollMode::MostCommonTempo
+        {
+            *data
+                .common_tempo
+                .as_ref()
+                .map_err(|error| deadsync_editor::Error::InvalidEdit(error.clone()))?
+        } else {
+            0.0
+        };
+        let interpolation = if mode == SpacingMode::Variable
+            && policy == deadsync_editor::waveform_spacing::ScrollMode::CurrentTempoAndRate
+        {
+            data.interpolation
+                .as_ref()
+                .map_err(|error| deadsync_editor::Error::InvalidEdit(error.clone()))?
+                .rate_at(row, time)?
+        } else {
+            1.0
+        };
+        let speeds = Speeds {
+            row: 1.0,
+            ..Speeds::default()
+        };
+        let pps = deadsync_editor::waveform_spacing::pixels_per_second(
+            mode,
+            policy,
+            data.index.sections()[active].spacing_rate(),
+            speeds,
+            common,
+            interpolation,
+        )? * self.zoom.spacing_zoom();
+        TimeProjection::new(
+            time,
+            f64::from(cursor_y),
+            pps,
+            f64::from(top),
+            f64::from(bottom),
+            self.reverse_display,
+        )
+    }
     pub(super) fn display_projection(
         &self,
         top: f32,
@@ -207,7 +258,15 @@ impl State {
         cursor_y: f32,
     ) -> Result<Projection<'_>, deadsync_editor::Error> {
         if self.spacing_mode == SpacingMode::ConstantRow {
-            return Ok(Projection::Rows(self.row_projection(top, bottom, cursor_y)));
+            let waveform = self
+                .spacing_cache
+                .as_ref()
+                .and_then(|cache| cache.data.as_ref().ok())
+                .and_then(|data| self.waveform_axis(data, top, bottom, cursor_y).ok());
+            return Ok(Projection::Rows(
+                self.row_projection(top, bottom, cursor_y),
+                waveform,
+            ));
         }
         let data = self
             .spacing_cache
@@ -222,6 +281,7 @@ impl State {
             clock,
             index,
             interpolation,
+            ..
         } = data;
         let time = clock.chart_time(self.workspace.row())?;
         let focal = Anchor {
@@ -247,27 +307,7 @@ impl State {
             deadsync_editor::Error::InvalidEdit("Missing chart timing sections".into())
         })?;
         if self.spacing_mode == SpacingMode::Variable {
-            // Original CurrentTempo waveform policy. Its temporal axis remains
-            // defined when the chart's signed scroll or SPEEDS collapses to zero.
-            let active = index
-                .active(self.spacing_mode, time, focal.row)?
-                .unwrap_or(0);
-            let pps = deadsync_editor::waveform_spacing::pixels_per_second(
-                settings.mode,
-                deadsync_editor::waveform_spacing::ScrollMode::CurrentTempo,
-                index.sections()[active].spacing_rate(),
-                settings.speeds,
-                0.0,
-                settings.interpolated_scroll,
-            )? * settings.zoom;
-            let waveform = TimeProjection::new(
-                time,
-                focal.y,
-                pps,
-                f64::from(top),
-                f64::from(bottom),
-                self.reverse_display,
-            )?;
+            let waveform = self.waveform_axis(data, top, bottom, cursor_y)?;
             return Ok(Projection::Variable {
                 geometry: Frame::capture(cursor)?,
                 waveform,

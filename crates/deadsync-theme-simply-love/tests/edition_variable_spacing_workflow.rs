@@ -178,6 +178,14 @@ fn temporal_waveform_remains_defined_when_variable_chart_speed_is_zero() {
         1,
     );
     wav(&dir.path().join("pulse.wav"));
+    let prefs = dir.path().join("prefs.json");
+    let mut file = deadsync_editor::audio_preferences::File::open(&prefs).unwrap();
+    let mut settings = file.waveform();
+    settings.set_show(false);
+    settings.set_scroll_mode(deadsync_editor::waveform_spacing::ScrollMode::CurrentTempoAndRate);
+    file.set_waveform(settings);
+    file.save().unwrap();
+    s.configure_audio_preferences(&prefs).unwrap();
     variable(&mut s);
     press(&mut s, KeyCode::KeyW);
     let deadline = Instant::now() + Duration::from_secs(10);
