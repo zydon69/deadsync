@@ -1,0 +1,832 @@
+[
+  {
+    "Parent": {
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 0,
+            "State": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ],
+        [
+          {
+            "Lane": 3,
+            "State": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ]
+      ]
+    },
+    "Matches": [
+      {
+        "Node": {
+          "Orientation": 0,
+          "Feet": [
+            [
+              {
+                "Lane": 0,
+                "State": 2
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ],
+            [
+              {
+                "Lane": 0,
+                "State": 1
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ]
+          ]
+        },
+        "Feet": [
+          [
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ],
+          [
+            {
+              "Valid": true,
+              "Step": 6,
+              "Action": 1,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ]
+        ]
+      },
+      {
+        "Node": {
+          "Orientation": 0,
+          "Feet": [
+            [
+              {
+                "Lane": 0,
+                "State": 1
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ],
+            [
+              {
+                "Lane": 3,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ]
+          ]
+        },
+        "Feet": [
+          [
+            {
+              "Valid": true,
+              "Step": 0,
+              "Action": 1,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ],
+          [
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "Parent": {
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 0,
+            "State": 2
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ],
+        [
+          {
+            "Lane": 0,
+            "State": 1
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ]
+      ]
+    },
+    "Matches": [
+      {
+        "Node": {
+          "Orientation": 1,
+          "Feet": [
+            [
+              {
+                "Lane": 3,
+                "State": 1
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ],
+            [
+              {
+                "Lane": 0,
+                "State": 1
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ]
+          ]
+        },
+        "Feet": [
+          [
+            {
+              "Valid": true,
+              "Step": 5,
+              "Action": 1,
+              "Instance": 1
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ],
+          [
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ]
+        ]
+      },
+      {
+        "Node": {
+          "Orientation": 2,
+          "Feet": [
+            [
+              {
+                "Lane": 3,
+                "State": 1
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ],
+            [
+              {
+                "Lane": 0,
+                "State": 1
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ]
+          ]
+        },
+        "Feet": [
+          [
+            {
+              "Valid": true,
+              "Step": 4,
+              "Action": 1,
+              "Instance": 1
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ],
+          [
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "Parent": {
+      "Orientation": 1,
+      "Feet": [
+        [
+          {
+            "Lane": 3,
+            "State": 1
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ],
+        [
+          {
+            "Lane": 0,
+            "State": 1
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ]
+      ]
+    },
+    "Matches": [
+      {
+        "Node": {
+          "Orientation": 1,
+          "Feet": [
+            [
+              {
+                "Lane": 3,
+                "State": 1
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ],
+            [
+              {
+                "Lane": 0,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ]
+          ]
+        },
+        "Feet": [
+          [
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ],
+          [
+            {
+              "Valid": true,
+              "Step": 0,
+              "Action": 2,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "Parent": {
+      "Orientation": 1,
+      "Feet": [
+        [
+          {
+            "Lane": 3,
+            "State": 1
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ],
+        [
+          {
+            "Lane": 0,
+            "State": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ]
+      ]
+    },
+    "Matches": [
+      {
+        "Node": {
+          "Orientation": 1,
+          "Feet": [
+            [
+              {
+                "Lane": 3,
+                "State": 1
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ],
+            [
+              {
+                "Lane": 0,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ]
+          ]
+        },
+        "Feet": [
+          [
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ],
+          [
+            {
+              "Valid": true,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 2
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "Parent": {
+      "Orientation": 1,
+      "Feet": [
+        [
+          {
+            "Lane": 3,
+            "State": 1
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ],
+        [
+          {
+            "Lane": 0,
+            "State": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ]
+      ]
+    },
+    "Matches": [
+      {
+        "Node": {
+          "Orientation": 1,
+          "Feet": [
+            [
+              {
+                "Lane": 3,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ],
+            [
+              {
+                "Lane": 0,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ]
+          ]
+        },
+        "Feet": [
+          [
+            {
+              "Valid": true,
+              "Step": 0,
+              "Action": 2,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ],
+          [
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "Parent": {
+      "Orientation": 1,
+      "Feet": [
+        [
+          {
+            "Lane": 3,
+            "State": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ],
+        [
+          {
+            "Lane": 0,
+            "State": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ]
+      ]
+    },
+    "Matches": [
+      {
+        "Node": {
+          "Orientation": 1,
+          "Feet": [
+            [
+              {
+                "Lane": 3,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ],
+            [
+              {
+                "Lane": 0,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ]
+          ]
+        },
+        "Feet": [
+          [
+            {
+              "Valid": true,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 3
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ],
+          [
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ]
+        ]
+      },
+      {
+        "Node": {
+          "Orientation": 0,
+          "Feet": [
+            [
+              {
+                "Lane": 3,
+                "State": 2
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ],
+            [
+              {
+                "Lane": 3,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ]
+          ]
+        },
+        "Feet": [
+          [
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ],
+          [
+            {
+              "Valid": true,
+              "Step": 6,
+              "Action": 0,
+              "Instance": 3
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "Parent": {
+      "Orientation": 1,
+      "Feet": [
+        [
+          {
+            "Lane": 3,
+            "State": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ],
+        [
+          {
+            "Lane": 0,
+            "State": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0
+          }
+        ]
+      ]
+    },
+    "Matches": [
+      {
+        "Node": {
+          "Orientation": 1,
+          "Feet": [
+            [
+              {
+                "Lane": 3,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ],
+            [
+              {
+                "Lane": 0,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ]
+          ]
+        },
+        "Feet": [
+          [
+            {
+              "Valid": true,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ],
+          [
+            {
+              "Valid": true,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ]
+        ]
+      },
+      {
+        "Node": {
+          "Orientation": 0,
+          "Feet": [
+            [
+              {
+                "Lane": 0,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ],
+            [
+              {
+                "Lane": 3,
+                "State": 0
+              },
+              {
+                "Lane": -1,
+                "State": 0
+              }
+            ]
+          ]
+        },
+        "Feet": [
+          [
+            {
+              "Valid": true,
+              "Step": 1,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ],
+          [
+            {
+              "Valid": true,
+              "Step": 1,
+              "Action": 0,
+              "Instance": 0
+            },
+            {
+              "Valid": false,
+              "Step": 0,
+              "Action": 0,
+              "Instance": 0
+            }
+          ]
+        ]
+      }
+    ]
+  }
+]

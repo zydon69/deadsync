@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Multi-view comparison, chart creation/clone/delete and library pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart interpretation, whole-chart generation, fallback rules, mines and native asynchronous generation panels pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs/pruning, whole-chart generation, fallback rules, mine expression and native asynchronous generation panels pending |
 | Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -127,3 +127,20 @@ Pattern generation returns an immutable preview. Applying it checks the document
 revision and creates one reversible history gesture. Timing preparation and
 search both support cancellation. Automatic preceding/following footing
 interpretation and the native preview/configuration panels remain to be ported.
+
+### Expressed-chart interpretation stage
+
+`generation::expressed` prepares participant-specific transient lane states from
+an editor grid, retaining held rolls and separating releases from steps at the
+same position. Mine and last-release context follow the reference phase order.
+Graph candidate enumeration retains edge/target order and foot-portion instance
+types; its scratch buffer is reused across destinations. It supports cancellation
+without returning partial candidates.
+
+`expressed_workflows` compares complete candidate lists, destination foot states,
+step types, actions and roll/fake/lift instance assignments with the original
+private `GetLinkInstanceIfStateMatches` through the development oracle. Fixtures
+cover all eleven original layouts. Grid workflows additionally cover participant
+isolation and simultaneous releases, mines and heads. This verifies candidate
+matching, not the final interpretation: costs, deterministic path comparisons,
+pruning and dynamic bracket parsing still require porting and differential tests.

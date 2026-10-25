@@ -82,6 +82,29 @@ def requests(reference: Path):
     cases["timing-simultaneous"] = case(End=768, Stops=[[192, 0.3], [384, -0.8]], Delays=[[192, 0.2]], Warps=[[192, 96]], Bpms=[[0, 150], [192, 200]])
     for layout in performed["ArrowWeights"]:
         cases["layout-" + layout] = case(layout, End=384, Seed=71)
+    cases["interpret-single-sustains"] = {
+        "Operation": "InterpretMatches", "Layout": "dance-single",
+        "Frames": [{"State": state, "Release": release} for state, release in [
+            ([4, 0, 0, 0], False), ([5, 0, 0, 6], False),
+            ([0, 0, 0, 7], True), ([0, 2, 0, 7], False),
+            ([0, 0, 0, 0], True), ([0, 0, 3, 0], False),
+            ([1, 0, 0, 1], False), ([1, 1, 0, 1], False),
+        ]]}
+    for layout, weights in performed["ArrowWeights"].items():
+        definition = json.loads((reference / "StepManiaLibrary" / f"{layout}.json").read_text())
+        left, right = definition["StartingPositions"][0][0]
+        def state(*entries):
+            values = [0] * len(weights)
+            for lane, value in entries: values[lane] = value
+            return values
+        cases["interpret-" + layout] = {
+            "Operation": "InterpretMatches", "Layout": layout,
+            "Frames": [{"State": values, "Release": release} for values, release in [
+                (state((left, 4)), False), (state((left, 5), (right, 6)), False),
+                (state((right, 7)), True), (state((left, 2), (right, 7)), False),
+                (state(), True), (state((right, 3)), False),
+                (state((left, 1), (right, 1)), False),
+            ]]}
     return cases
 
 

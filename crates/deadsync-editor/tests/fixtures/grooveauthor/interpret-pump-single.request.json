@@ -1,0 +1,76 @@
+{
+  "Operation": "InterpretMatches",
+  "Layout": "pump-single",
+  "Frames": [
+    {
+      "State": [
+        4,
+        0,
+        0,
+        0,
+        0
+      ],
+      "Release": false
+    },
+    {
+      "State": [
+        5,
+        0,
+        6,
+        0,
+        0
+      ],
+      "Release": false
+    },
+    {
+      "State": [
+        0,
+        0,
+        7,
+        0,
+        0
+      ],
+      "Release": true
+    },
+    {
+      "State": [
+        2,
+        0,
+        7,
+        0,
+        0
+      ],
+      "Release": false
+    },
+    {
+      "State": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "Release": true
+    },
+    {
+      "State": [
+        0,
+        0,
+        3,
+        0,
+        0
+      ],
+      "Release": false
+    },
+    {
+      "State": [
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      "Release": false
+    }
+  ]
+}

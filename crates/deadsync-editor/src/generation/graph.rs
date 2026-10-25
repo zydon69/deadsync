@@ -164,9 +164,14 @@ pub struct StepGraph {
     pub edges: Vec<Edge>,
     pub targets: Vec<usize>,
     link_index: Vec<OnceLock<HashMap<GraphLink, usize>>>,
+    columns: usize,
 }
 
 impl StepGraph {
+    pub fn columns(&self) -> usize {
+        self.columns
+    }
+
     pub fn decode_fsg(compressed: &[u8], pad: &Pad) -> Result<Self, Error> {
         let mut output = LimitedOutput(Vec::new());
         lzma_rs::lzma_decompress_with_options(
@@ -296,6 +301,7 @@ impl StepGraph {
             edges,
             targets,
             link_index,
+            columns: pad.arrows.len(),
         })
     }
 

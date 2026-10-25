@@ -2,6 +2,7 @@
 //! with pattern search and performed-path scoring. Expressed-chart interpretation,
 //! whole-chart generation and native generation panels remain separate work.
 pub mod config;
+pub mod expressed;
 pub mod geometry;
 pub mod graph;
 pub mod pattern;

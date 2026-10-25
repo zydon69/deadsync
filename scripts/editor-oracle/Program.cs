@@ -56,13 +56,57 @@ if (operation == "Configurations")
     Console.WriteLine(JsonSerializer.Serialize(results, options));
     return;
 }
-if (operation != "Pattern")
+if (operation != "Pattern" && operation != "InterpretMatches")
     throw new ArgumentException("Unknown oracle operation");
 
 var name = request.GetProperty("Layout").GetString()!;
 var pad = await PadData.LoadPadData(name, Path.Combine(args[0], "StepManiaLibrary", name + ".json"));
 var graph = StepGraph.Load(Path.Combine(args[0], "StepManiaLibrary", name + ".fsg"), pad);
 if (graph == null) throw new InvalidDataException("Could not load reference graph");
+if (operation == "InterpretMatches")
+{
+    var expressedType = typeof(StepManiaLibrary.ExpressedChart.ExpressedChart);
+    var stateType = expressedType.GetNestedType("SearchState", BindingFlags.NonPublic)!;
+    var match = expressedType.GetMethod("GetLinkInstanceIfStateMatches", BindingFlags.Static | BindingFlags.NonPublic)!;
+    var parent = graph.GetRoot();
+    var output = new List<object>();
+    object nodeState(GraphNode node) => new {
+        Orientation = (int)node.Orientation,
+        Feet = Enumerable.Range(0, 2).Select(f => Enumerable.Range(0, 2).Select(p =>
+            new { Lane = node.State[f, p].Arrow, State = (int)node.State[f, p].State }).ToArray()).ToArray()
+    };
+    foreach (var frame in request.GetProperty("Frames").EnumerateArray())
+    {
+        var state = Array.CreateInstance(stateType, pad.NumArrows);
+        var buffer = Array.CreateInstance(stateType, pad.NumArrows);
+        var values = frame.GetProperty("State").Deserialize<int[]>()!;
+        for (var a = 0; a < values.Length; a++) state.SetValue(Enum.ToObject(stateType, values[a]), a);
+        var matches = new List<object>();
+        GraphNode? first = null;
+        var multiple = values.Count(v => v is 1 or 2 or 3 or 4 or 6) > 1;
+        foreach (var edge in parent.Links)
+        {
+            if ((!multiple && (edge.Key.IsJump() || edge.Key.InvolvesBracket()))
+                || (frame.GetProperty("Release").GetBoolean() && !edge.Key.IsRelease())) continue;
+            foreach (var target in edge.Value)
+            {
+                var instance = (GraphLinkInstance?)match.Invoke(null, new object[] { state, buffer, target, edge.Key });
+                if (instance == null) continue;
+                first ??= target;
+                matches.Add(new { Node = nodeState(target), Feet = Enumerable.Range(0, 2).Select(f =>
+                    Enumerable.Range(0, 2).Select(p => new {
+                        Valid = edge.Key.Links[f, p].Valid, Step = (int)edge.Key.Links[f, p].Step,
+                        Action = (int)edge.Key.Links[f, p].Action, Instance = (int)instance.InstanceTypes[f, p]
+                    }).ToArray()).ToArray() });
+            }
+        }
+        output.Add(new { Parent = nodeState(parent), Matches = matches });
+        if (first == null) break;
+        parent = first;
+    }
+    Console.WriteLine(JsonSerializer.Serialize(output, options));
+    return;
+}
 var performedConfig = JsonSerializer.Deserialize<PerformedConfig>(request.GetProperty("PerformedConfig"), options)!;
 performedConfig.Init();
 var patternConfig = JsonSerializer.Deserialize<PatternConfig>(request.GetProperty("PatternConfig"), options)!;
