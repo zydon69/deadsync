@@ -582,3 +582,49 @@ fn french_waveform_colours_are_paginated_and_keep_edits_staged_until_parent_save
     assert_eq!(state.waveform_preferences().palette(),Default::default());
     assert_eq!(state.workspace().file().session.serialize().unwrap(),source.as_bytes());
 }
+
+#[test]
+fn french_transport_messages_distinguish_pause_and_resume_without_editing_chart() {
+    use deadsync_gameplay::GameplayAudioSnapshot;
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    fs::write(dir.path().join("music.ogg"), b"command-only asset").unwrap();
+    let path = dir.path().join("pause.ssc");
+    let source = "#VERSION:0.83;#MUSIC:music.ogg;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path, source).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    press(&mut state, KeyCode::Enter);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|s| s.contains("Entrée : mettre en pause"))
+    );
+    let mut snapshot = GameplayAudioSnapshot::default();
+    snapshot.stream_clock.has_music_mapping = true;
+    snapshot.stream_clock.valid_at = Instant::now();
+    snapshot.stream_clock.music_nanos = 126_000_000;
+    state.update_audio(snapshot);
+    press(&mut state, KeyCode::Enter);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|s| s == "Lecture en pause. Entrée : reprendre à la même position.")
+    );
+    assert!(!state.is_playing());
+    press(&mut state, KeyCode::Enter);
+    assert!(state.is_playing());
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|s| s.contains("Entrée : mettre en pause"))
+    );
+    press(&mut state, KeyCode::Enter);
+    press(&mut state, KeyCode::F1);
+    assert!(texts(&state).iter().any(|s| s.contains("Lecture arrêtée")));
+    assert!(!texts(&state).iter().any(|s| s.contains("Lecture en pause")));
+    assert!(!state.workspace().file().session.is_dirty());
+    assert_eq!(fs::read_to_string(&path).unwrap(), source);
+}

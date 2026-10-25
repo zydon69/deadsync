@@ -127,3 +127,192 @@ fn negative_lead_in_and_stale_audio_keep_display_independent_of_integer_edit_cur
         assert!(!s.workspace().file().session.is_dirty());
     }
 }
+
+fn assert_play_start(s: &mut State, seconds: f64) {
+    use deadsync_gameplay::GameplayAudioCommand;
+    let commands = s.take_audio_commands();
+    match commands.as_slice() {
+        [
+            GameplayAudioCommand::PlayMusic {
+                cut,
+                looping: false,
+                rate,
+                ..
+            },
+        ] => {
+            assert_eq!(cut.start_sec, seconds);
+            assert_eq!(*rate, 1.0);
+        }
+        other => panic!("expected one play command, got {other:?}"),
+    }
+}
+#[test]
+fn pause_resume_preserves_exact_position_and_audio_cut_in_every_view_and_direction() {
+    use deadsync_gameplay::GameplayAudioCommand;
+    for m in 0..3 {
+        for reverse in [false, true] {
+            let (d, mut s) = setup(false);
+            let source = fs::read(d.path().join("song.ssc")).unwrap();
+            mode(&mut s, m);
+            if reverse {
+                event(&mut s, KeyCode::ShiftLeft, true);
+                press(&mut s, KeyCode::KeyV);
+                event(&mut s, KeyCode::ShiftLeft, false);
+            }
+            press(&mut s, KeyCode::Enter);
+            assert_play_start(&mut s, 0.0);
+            s.update_audio(snapshot(0.126));
+            let y = arrow(&s);
+            let row = s.workspace().row();
+            assert_eq!(row, 12);
+            press(&mut s, KeyCode::Enter);
+            assert!(!s.is_playing());
+            close(arrow(&s), y);
+            assert_eq!(
+                s.take_audio_commands(),
+                vec![GameplayAudioCommand::StopMusic]
+            );
+            s.update_audio(snapshot(9.0));
+            close(arrow(&s), y);
+            assert_eq!(s.workspace().row(), row);
+            press(&mut s, KeyCode::Enter);
+            assert!(s.is_playing());
+            assert_play_start(&mut s, 0.126);
+            close(arrow(&s), y); // No snap while the audio engine installs the new mapping.
+            press(&mut s, KeyCode::Enter);
+            s.take_audio_commands();
+            close(arrow(&s), y);
+            press(&mut s, KeyCode::Enter);
+            assert_play_start(&mut s, 0.126);
+            s.update_audio(snapshot(0.127));
+            assert_ne!(arrow(&s), y);
+            assert!(!s.workspace().file().session.is_dirty());
+            assert_eq!(fs::read(d.path().join("song.ssc")).unwrap(), source);
+        }
+    }
+}
+#[test]
+fn pause_resume_keeps_position_inside_delay_and_negative_lead_in() {
+    for (delay, time, expected) in [(true, 0.2, 250.0), (false, -0.125, 197.5)] {
+        let (_d, mut s) = setup(delay);
+        mode(&mut s, 1);
+        press(&mut s, KeyCode::Enter);
+        s.take_audio_commands();
+        s.update_audio(snapshot(time));
+        assert_eq!(s.workspace().row(), 0);
+        close(arrow(&s), expected);
+        press(&mut s, KeyCode::Enter);
+        s.take_audio_commands();
+        close(arrow(&s), expected);
+        press(&mut s, KeyCode::Enter);
+        assert_play_start(&mut s, time);
+        close(arrow(&s), expected);
+    }
+}
+#[test]
+fn navigation_and_edits_discard_paused_position_before_next_play() {
+    for edit in [false, true] {
+        let (_d, mut s) = setup(false);
+        press(&mut s, KeyCode::Enter);
+        s.take_audio_commands();
+        s.update_audio(snapshot(0.126));
+        press(&mut s, KeyCode::Enter);
+        s.take_audio_commands();
+        if edit {
+            press(&mut s, KeyCode::Digit2);
+        } else {
+            press(&mut s, KeyCode::ArrowDown);
+        }
+        assert_eq!(s.workspace().row(), if edit { 12 } else { 60 });
+        assert_eq!(s.workspace().file().session.is_dirty(), edit);
+        press(&mut s, KeyCode::Enter);
+        assert_play_start(&mut s, if edit { 0.125 } else { 0.625 });
+    }
+}
+#[test]
+fn older_mapped_or_unmapped_snapshots_cannot_rewind_or_stop_current_transport() {
+    let (_d, mut s) = setup(false);
+    press(&mut s, KeyCode::Enter);
+    s.take_audio_commands();
+    let mut stale = snapshot(0.1);
+    let latest = snapshot(0.126);
+    s.update_audio(latest);
+    let y = arrow(&s);
+    s.update_audio(stale);
+    close(arrow(&s), y);
+    assert_eq!(s.workspace().row(), 12);
+    stale.stream_clock.has_music_mapping = false;
+    s.update_audio(stale);
+    assert!(s.is_playing());
+    assert!(s.take_audio_commands().is_empty());
+    let mut ended = snapshot(0.0);
+    ended.stream_clock.has_music_mapping = false;
+    s.update_audio(ended);
+    assert!(!s.is_playing());
+    close(arrow(&s), y);
+    s.take_audio_commands();
+    press(&mut s, KeyCode::Enter);
+    assert_play_start(&mut s, 0.126);
+}
+#[test]
+fn pausing_before_first_audio_mapping_resumes_from_requested_edit_row() {
+    let (_d, mut s) = setup(false);
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::Enter);
+    assert_play_start(&mut s, 0.5);
+    press(&mut s, KeyCode::Enter);
+    s.take_audio_commands();
+    press(&mut s, KeyCode::Enter);
+    assert_play_start(&mut s, 0.5);
+    assert_eq!(s.workspace().row(), 48);
+    assert!(!s.workspace().file().session.is_dirty());
+}
+
+#[test]
+fn resume_retains_original_audio_time_with_music_and_editor_offsets() {
+    let (d, _) = setup(false);
+    let p = d.path().join("song.ssc");
+    let source = fs::read_to_string(&p)
+        .unwrap()
+        .replace("#OFFSET:0;", "#OFFSET:0.25;")
+        .replace("\"SyncOffset\":0}", "\"SyncOffset\":0.009}");
+    fs::write(&p, &source).unwrap();
+    let mut s = State::open(&p, 0).unwrap();
+    press(&mut s, KeyCode::Enter);
+    assert_play_start(&mut s, -0.25 + 0.009);
+    let seconds = 0.123456789;
+    s.update_audio(snapshot(seconds));
+    let row = s.workspace().row();
+    for _ in 0..3 {
+        press(&mut s, KeyCode::Enter);
+        s.take_audio_commands();
+        press(&mut s, KeyCode::Enter);
+        assert_play_start(&mut s, seconds);
+    }
+    assert_eq!(s.workspace().row(), row);
+    assert!(!s.workspace().file().session.is_dirty());
+    assert_eq!(fs::read_to_string(&p).unwrap(), source);
+}
+#[test]
+fn display_changes_while_paused_use_same_fractional_focal_position() {
+    let (_d, mut s) = setup(false);
+    press(&mut s, KeyCode::Enter);
+    s.take_audio_commands();
+    s.update_audio(snapshot(0.126));
+    press(&mut s, KeyCode::Enter);
+    s.take_audio_commands();
+    close(arrow(&s), 147.904);
+    mode(&mut s, 1);
+    close(arrow(&s), 122.2);
+    mode(&mut s, 2);
+    close(arrow(&s), 144.88);
+    event(&mut s, KeyCode::ShiftLeft, true);
+    press(&mut s, KeyCode::KeyV);
+    event(&mut s, KeyCode::ShiftLeft, false);
+    close(arrow(&s), 355.12);
+    assert!(!s.is_playing());
+    assert!(s.take_audio_commands().is_empty());
+    press(&mut s, KeyCode::Enter);
+    assert_play_start(&mut s, 0.126);
+    close(arrow(&s), 355.12);
+}

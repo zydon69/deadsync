@@ -332,17 +332,17 @@ fn french_audio_preview_controls_and_status_are_visible() {
     assert!(
         texts(&screen)
             .iter()
-            .any(|s| s.contains("Entrée : lire/arrêter"))
+            .any(|s| s.contains("Entrée : lecture/pause"))
     );
     press(&mut screen, KeyCode::Enter);
     assert!(screen.is_playing());
     assert!(
         texts(&screen)
             .iter()
-            .any(|s| s.contains("Lecture. Entrée : arrêter"))
+            .any(|s| s.contains("Lecture. Entrée : mettre en pause"))
     );
     press(&mut screen, KeyCode::Enter);
-    assert!(texts(&screen).iter().any(|s| s.contains("Lecture arrêtée")));
+    assert!(texts(&screen).iter().any(|s| s.contains("Lecture en pause")));
     fs::remove_file(dir.path().join("song.ogg")).unwrap();
     press(&mut screen, KeyCode::Enter);
     assert!(!screen.is_playing());

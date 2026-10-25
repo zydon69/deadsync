@@ -47,7 +47,7 @@ reviewable and tested.
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
-| Playback and audio | Enter starts/stops native audio preview; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
+| Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
@@ -4095,10 +4095,10 @@ preserved visually while the note-edit cursor stays nonnegative.
 
 The note-edit cursor remains integral and does not create history edits merely
 by following playback. No extrapolated wall clock claims successful playback.
-Snapshots predating the playback request remain ignored. Stopping transport
-returns the display to its integral edit cursor; retaining fractional position
-across pause/resume, scrubbing, loop controls and complete decoder/EOF handling
-are still required for full original transport parity. The original reference is
+Snapshots predating the playback request remain ignored. The initial implementation returned the display to its integral edit cursor
+on stop; the pause/resume section below supersedes that limitation. Scrubbing,
+loop controls and complete decoder/EOF handling are still required for full
+original transport parity. The original reference is
 Editor.UpdateMusicAndPosition/SetSongTime, which retains a double song/chart
 position while playing; the Rust host continues using its mapped audio clock.
 
@@ -4121,3 +4121,44 @@ deadsync --jobs 2 --locked` passed. This change was not rebuilt into a new .app
 or visually reviewed on the GPU; the prior waveform-policy application review
 predates this transport change. Full original transport/editor parity remains
 incomplete.
+
+### Exact pause/resume transport position
+
+Enter/NumpadEnter now pauses the transport while retaining the last mapped chart
+time, fractional row and original audio-file time. Resume starts the native audio
+command at that exact original music time and keeps the same projection before
+the first new mapping arrives. This avoids both an integer-row snap and an offset
+conversion round trip. Repeated pause/resume before a new mapping remains stable.
+A pause before any mapping resumes from the original edit row instead of claiming
+that audio has advanced. Pausing sample playback does not invent a chart position.
+
+A retained pause is bound to source Arc identity, revision, chart index and edit
+row; it cannot leak into a different document state. Explicit editor commands
+which stop transport discard it before navigation/mutation. Pure display mode,
+Reverse and zoom changes retain it. A newly unmapped stream after successful
+mapping preserves the last exact position; full decoder completion/error reporting
+is still pending. Accepted snapshot timestamps form a monotonic watermark so an
+older mapped or unmapped snapshot cannot rewind or stop the current transport.
+
+The reference contract is original Editor.StartPlayback, StopPlayback and
+OnTogglePlayback: stopping does not reset EditorPosition, and restarting uses
+position.SongTime. No C# playback/device implementation is shipped or invoked.
+New native integration cases cover all three display modes and both directions,
+repeated pause/resume with and without new audio mappings, negative lead-in,
+a delay, explicit music/editor offsets, navigation and note mutation, display
+changes during pause, pre-mapping pause and out-of-order stream snapshots. Literal
+audio cut and actor-coordinate assertions verify the production adapter; source
+bytes and clean history remain unchanged unless an explicit note edit is made.
+
+English/French status and help now distinguish play, pause, resume and explicit
+stop. The existing French audio workflow asserts the updated pause contract;
+a new French workflow checks mapped pause/resume and that opening an editor menu
+clears retained pause status coherently with the cleared position.
+
+Validation: all 211 tests across 29 native edition integration suites passed on
+the final code and localized assets; `cargo check -p deadsync --jobs 2 --locked`
+passed. One intermediate full run caught an obsolete French stop-label assertion;
+the assertion was updated to the new pause semantics and the complete suite was
+rerun successfully. There are no core changes in this addition. No new .app/GPU
+or audible-device review was performed. Scrub/loop controls, full decoder/EOF
+reporting and the remaining complete editor parity requirements stay open.
