@@ -7,8 +7,11 @@ ffmpeg -f lavfi -i 'aevalsrc=0.3*sin(2*PI*(220*t+70*t*t))|0.2*sin(2*PI*(330*t+11
 ```
 
 The MP3 tests derive Xing, ID3-prefixed and headerless variants from these same
-encoded audio frames. The PCM hashes, duration bits and seek hashes were captured
-from the decoder before adding timeline options. Tests do not require FFmpeg.
+encoded audio frames. The historical PCM/seek hashes are retained in `../reference/historical_mp3_hashes.json`.
+The compatibility test now executes the pinned pre-options source and compares
+all samples; fixed frame counts and duration bits remain asserted. See
+`../reference/README.md` for provenance and the non-reproduced golden capture.
+Tests do not require FFmpeg.
 
 ## Retained-seek fixtures
 

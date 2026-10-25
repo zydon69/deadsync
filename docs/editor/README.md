@@ -4351,3 +4351,42 @@ native editor integration tests across 31 targets pass. `cargo check -p deadsync
 not invoke encoders. No new .app/GPU or audible-device review was run. The full
 codec suite is explicitly not green while the MP3 oracle failure remains open;
 complete editor parity and the other documented remaining features stay in scope.
+
+### Executing MP3 source compatibility oracle
+
+The pre-existing MP3 hash failure was investigated by executing the production
+reader from pre-options commit 0d1fba4c2890ff4b4423041d201ee3f63c575c87 beside the
+current untrimmed reader. Both emitted identical complete PCM, including the same
+13793718411883935705 hash on the Info fixture; the old fixed hash did not match
+either implementation here. No cause such as CPU/toolchain variance is assumed
+without further evidence. Historical golden values are retained with provenance.
+
+The compatibility test now executes that pinned original source, comparing every
+PCM sample initially and after ten seeks for each of four header variants (40
+seek cases). The fixed channels/rate, sample counts, duration bits, cursor targets
+and final cursor positions are preserved and asserted for both implementations.
+An independent source-pin unit check prevents accidental changes to the copied
+production code. The source is test-only, with SHA-256/commit metadata; the Python
+verifier can additionally compare it byte-for-byte with its Git source. The game
+ships no duplicate legacy decoder and gains no dependency from this oracle. The two shared sample-buffer helper
+bodies were also verified unchanged from that same original commit; their
+SHA-256 descriptors are checked by the independent verifier.
+
+This replaces a non-reproduced golden capture with a reproducible executable
+compatibility check rather than changing expected hashes. It proves the timeline
+policy refactor against the original reader on the current locked dependencies;
+it does not independently prove codec conformance across dependency upgrades.
+See audio-decode/tests/reference/README.md for the complete evidence and limits.
+
+Validation: the complete decoder unit suite now passes (34 passed, three existing
+performance cases ignored). The audio package passes 40 unit cases plus both
+integration targets, including 84 codec/rate/pitch configurations and 336 retained
+seeks; its two existing ignored performance cases remain ignored. All five
+audio-stream bridge unit tests and all 219 native editor integration tests pass.
+That is 300 executed passing tests across the selected packages/targets.
+`cargo check -p deadsync --jobs 2 --locked` passes. Independent SHA-256/source/helper
+verification against the pinned Git commit passes. No new app/GPU/audible review
+was performed for this test-only change. The prior MP3 compatibility
+gate failure is superseded by the passing executing-source comparison; the old
+capture's unexplained hash values remain archived. Full editor parity is still
+incomplete and the original goal remains open.

@@ -1,0 +1,43 @@
+{
+  "captured_in_commit": "d7ccda4db6da8c6210788b20bd2a1c4660b8cd83",
+  "fixture": "../fixtures/timeline.mp3",
+  "fixture_sha256": "4e62c777758209ed610065ccc24fcd0dedf36ff2cb93ae15094f69e323ec8ff1",
+  "targets": [
+    0,
+    1,
+    100,
+    1151,
+    1152,
+    2000,
+    16383,
+    40000,
+    80000,
+    100000
+  ],
+  "info_hashes": [
+    15560969893992054619,
+    14983663084225290539,
+    2877442967195712795,
+    5854043011290087115,
+    10585874522369775451,
+    7922433964078692820,
+    15622118114292247424,
+    6677188889937414518,
+    3890426504494482371,
+    2210928693814431973
+  ],
+  "audio_hashes": [
+    10585874522369775451,
+    724827192895732011,
+    8524194524827948315,
+    7085875132947688989,
+    7940950622967182410,
+    1314969034773985117,
+    5865137172014919503,
+    7660452509041732399,
+    7415682538886177335,
+    16757446904589955706
+  ],
+  "observed_original_and_current_hash": 13793718411883935705,
+  "reason_for_archival": "The pinned pre-options decoder and current untrimmed decoder produce identical full PCM in this environment; both disagree with these historical hashes. The executing original-source oracle replaces the non-reproduced golden hashes, retaining fixed frame/duration assertions."
+}

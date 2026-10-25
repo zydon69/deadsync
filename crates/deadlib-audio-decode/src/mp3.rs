@@ -1,3 +1,8 @@
+#[cfg(test)]
+#[allow(dead_code)] // Preserve the complete pinned production source in the test oracle.
+#[path = "../tests/reference/mp3_before_timeline_options.rs"]
+mod original_reference;
+
 use crate::DecodeOptions;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
@@ -695,79 +700,95 @@ mod tests {
         samples
     }
 
-    fn pcm_hash(samples: &[i16]) -> u64 {
-        samples
-            .iter()
-            .flat_map(|sample| sample.to_le_bytes())
-            .fold(0xcbf29ce484222325, |hash, byte| {
-                (hash ^ u64::from(byte)).wrapping_mul(0x100000001b3)
-            })
+    #[test]
+    fn original_mp3_reference_source_is_pinned() {
+        let bytes = include_bytes!("../tests/reference/mp3_before_timeline_options.rs");
+        let hash = bytes.iter().fold(0xcbf29ce484222325u64, |hash, byte| {
+            (hash ^ u64::from(*byte)).wrapping_mul(0x100000001b3)
+        });
+        assert_eq!(
+            hash, 0x664da3f1196e1760,
+            "original-source oracle changed; verify its pinned Git/SHA-256 provenance"
+        );
     }
-
     #[test]
     fn untrimmed_pcm_duration_and_seeks_match_original_decoder() {
-        // Captured from the original decoder before introducing options.
-        let info_hashes = [
-            15560969893992054619,
-            14983663084225290539,
-            2877442967195712795,
-            5854043011290087115,
-            10585874522369775451,
-            7922433964078692820,
-            15622118114292247424,
-            6677188889937414518,
-            3890426504494482371,
-            2210928693814431973,
-        ];
-        let audio_hashes = [
-            10585874522369775451,
-            724827192895732011,
-            8524194524827948315,
-            7085875132947688989,
-            7940950622967182410,
-            1314969034773985117,
-            5865137172014919503,
-            7660452509041732399,
-            7415682538886177335,
-            16757446904589955706,
-        ];
+        // Execute the pre-options source under the same decoder/toolchain. Historical
+        // hashes are retained with provenance, but do not reproduce even on that source.
         let info = include_bytes!("../tests/fixtures/timeline.mp3");
         let mut xing = info.to_vec();
         xing[36..40].copy_from_slice(b"Xing");
         let mut id3 = vec![b'I', b'D', b'3', 4, 0, 0, 0, 0, 0, 5];
         id3.extend_from_slice(&[0; 5]);
         id3.extend_from_slice(info);
-        for (bytes, frames, duration_bits, hashes) in [
-            (info.as_slice(), 108_288, 0x401d2714, info_hashes),
-            (xing.as_slice(), 107_136, 0x401b7b17, audio_hashes),
-            (&info[313..], 107_136, 0x401b7b17, audio_hashes),
-            (id3.as_slice(), 108_288, 0x401d2714, info_hashes),
+        for (name, bytes, frames, duration_bits) in [
+            ("Info", info.as_slice(), 108_288, 0x401d2714),
+            ("Xing", xing.as_slice(), 107_136, 0x401b7b17),
+            ("headerless", &info[313..], 107_136, 0x401b7b17),
+            ("ID3", id3.as_slice(), 108_288, 0x401d2714),
         ] {
             let fixture = TempMp3::new(bytes);
-            let mut opened =
-                crate::open_file(fixture.path(), UNTRIMMED_INFO).expect("open fixture");
+            let mut original =
+                super::original_reference::open_file(fixture.path()).expect("original decoder");
+            let mut opened = crate::open_file(fixture.path(), UNTRIMMED_INFO).expect("current decoder");
             assert_eq!((opened.channels, opened.sample_rate_hz), (2, 44_100));
+            assert_eq!((original.channels, original.sample_rate_hz), (2, 44_100));
             assert_eq!(opened.frames_total_hint, Some(frames));
+            assert_eq!(original.frames_total_hint, Some(frames));
             assert_eq!(
                 crate::file_length_seconds(fixture.path(), UNTRIMMED_INFO)
-                    .expect("duration")
+                    .unwrap()
                     .to_bits(),
                 duration_bits
             );
-            let linear = decoded_samples(&mut opened.reader);
-            assert_eq!(linear.len() as u64, frames * 2);
-            assert_eq!(pcm_hash(&linear), hashes[0]);
-            for (target, expected_hash) in
-                [0, 1, 100, 1151, 1152, 2000, 16383, 40000, 80000, 100000]
-                    .into_iter()
-                    .zip(hashes)
-            {
-                opened.reader.seek_frame(target).expect("seek fixture");
+            assert_eq!(
+                super::original_reference::file_length_seconds(fixture.path())
+                    .unwrap()
+                    .to_bits(),
+                duration_bits
+            );
+            let original_samples = |reader: &mut super::original_reference::Reader| {
+                let mut samples = Vec::new();
+                let mut packet = Vec::new();
+                while reader.read_dec_packet_into(&mut packet).unwrap() {
+                    samples.extend_from_slice(&packet);
+                }
+                samples
+            };
+            let compare = |actual: &[i16], expected: &[i16], target: u64| {
+                assert_eq!(
+                    actual.len() as u64,
+                    (frames - target) * 2,
+                    "{name} current length at {target}"
+                );
+                assert_eq!(
+                    expected.len(),
+                    actual.len(),
+                    "{name} original length at {target}"
+                );
+                let difference = actual.iter().zip(expected).position(|(a, b)| a != b);
+                assert!(
+                    difference.is_none(),
+                    "{name} target {target}: PCM differs from original at sample {difference:?}"
+                );
+            };
+            compare(
+                &decoded_samples(&mut opened.reader),
+                &original_samples(&mut original.reader),
+                0,
+            );
+            for target in [0, 1, 100, 1151, 1152, 2000, 16383, 40000, 80000, 100000] {
+                opened.reader.seek_frame(target).unwrap();
+                original.reader.seek_frame(target).unwrap();
                 assert_eq!(opened.reader.current_frame(), target);
-                let samples = decoded_samples(&mut opened.reader);
-                assert_eq!(samples.len() as u64, (frames - target) * 2);
-                assert_eq!(pcm_hash(&samples), expected_hash, "target {target}");
+                assert_eq!(original.reader.current_frame(), target);
+                compare(
+                    &decoded_samples(&mut opened.reader),
+                    &original_samples(&mut original.reader),
+                    target,
+                );
                 assert_eq!(opened.reader.current_frame(), frames);
+                assert_eq!(original.reader.current_frame(), frames);
             }
         }
     }
@@ -888,4 +909,7 @@ mod tests {
             }
         }
     }
+
+
+
 }

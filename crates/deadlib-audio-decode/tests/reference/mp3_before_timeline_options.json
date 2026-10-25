@@ -1,0 +1,20 @@
+{
+  "commit": "0d1fba4c2890ff4b4423041d201ee3f63c575c87",
+  "path": "crates/deadlib-audio-decode/src/mp3.rs",
+  "full_source_sha256": "562fc6e92a6162d5a1d0a0c5ce6dbfde6e0bef30b53af569db482cd91c7c7a9b",
+  "production_source_sha256": "241a3c4863adfeb9290f4e20f493ac51a0ecc0eeb20a2c45df816d19244a615d",
+  "adapter": "Only the original cfg(test) module is omitted; production code is unchanged.",
+  "production_fnv1a64": "0x664da3f1196e1760",
+  "shared_helpers": [
+    {
+      "path": "crates/deadlib-audio-decode/src/resample.rs",
+      "name": "drop_front_samples",
+      "body_sha256": "dd4683c09118e7a261b1292a8eb492e204f593250ce5f920856c7e2038d66592"
+    },
+    {
+      "path": "crates/deadlib-audio-decode/src/resample.rs",
+      "name": "take_cleared_i16",
+      "body_sha256": "381fa81868647541638bf1a25175146ade00e06ff708b52a337ea34ee126dd41"
+    }
+  ]
+}
