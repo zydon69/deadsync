@@ -16,8 +16,11 @@ impl Target {
     pub(super) fn is_music(self) -> bool {
         matches!(
             self,
-            Self::Chart(ChartField::Music) | Self::Song(SongField::Music)
+            Self::Chart(ChartField::Music) | Self::Song(SongField::Music | SongField::PreviewMusic)
         )
+    }
+    pub(super) fn is_preview(self) -> bool {
+        matches!(self, Self::Song(SongField::PreviewMusic))
     }
     pub(super) fn is_song(self) -> bool {
         matches!(self, Self::Song(_))
@@ -42,6 +45,7 @@ impl Target {
                 SongField::SubtitleTransliteration => "SongSubtitleTranslit",
                 SongField::ArtistTransliteration => "SongArtistTranslit",
                 SongField::Music => "SongMusic",
+                SongField::PreviewMusic => "SongPreviewMusic",
             },
         }
     }
@@ -66,7 +70,10 @@ impl State {
                 .chart_properties
                 .as_ref()
                 .is_some_and(|d| d.supports_text(f)),
-            Target::Song(_) => self.song_properties.is_some(),
+            Target::Song(f) => self
+                .song_properties
+                .as_ref()
+                .is_some_and(|d| d.supports_text(f)),
         }
     }
     fn set_field_value(
@@ -307,7 +314,9 @@ impl State {
         {
             let hint = i18n::tr(
                 "Edition",
-                if target.is_song() {
+                if target.is_preview() {
+                    "SongPreviewMusicEmpty"
+                } else if target.is_song() {
                     "SongMusicEmpty"
                 } else {
                     "ChartMusicInherited"

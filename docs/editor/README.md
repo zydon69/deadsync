@@ -2852,3 +2852,28 @@ in the QA game log, and the synthetic simfile remains byte-identical to its
 fixture. This proves rendered layout and keyboard command responsiveness for
 this case. It does NOT establish speaker output, actual loop/fade audio,
 decoder error handling or waveform parity.
+
+### Dedicated preview-file editing
+
+Song text now includes the SSC PREVIEW field in the shared Unicode text/file
+picker controller. F2 chooses audio, F3 clears it, clipboard/local undo follow
+the same field path. Empty means audition the song's sample region. Native
+labels/status distinguish this file from song MUSIC. SM marks the field
+unsupported and rejects changes rather than writing a tag its original reader
+does not use (pinned Fumen SSCReader TagPreview vs SMReader). Unchanged legacy
+source stays preserved. Audition resolves the staged field before Apply.
+
+The preexisting C# song-text oracle fixtures contain only the original ten
+fields; their comparison explicitly remains limited to those fields. They do
+not prove PREVIEW parsing/writing. New Rust workflows cover staged audition,
+SSC tag persistence/undo/redo and SM refusal; an actual original-reader fixture
+for PREVIEW, picker runtime and broader native text-field regressions remain
+separate validation requirements.
+
+Validation: 17 targeted core song-property/text tests and 21 native song-text/
+French chart-property tests pass. The new native workflow drives the public
+editor picker workflow using a fake picker, stages PREVIEW, auditions its full-file cut before
+Apply, saves the SSC tag and verifies SM cannot open that picker. The picker
+fixture uses the canonical macOS path, as the native chooser does, to avoid
+asserting a lexical alias spelling as a distinct media file. Existing Fumen path
+semantics are unchanged. Actual OS picker/decoder output is not proven here.

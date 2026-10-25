@@ -359,3 +359,35 @@ fn staged_sample_clock_keeps_chart_offset_override_and_switches_back_to_song_inh
     assert!((positions[0] - (1.0 + 3.0 - 0.009) * 96.0).abs() < 1e-10);
     assert!((positions[1] - (1.5 + 3.0 - 0.009) * 96.0).abs() < 1e-10);
 }
+
+#[test]
+fn dedicated_preview_draft_drives_audition_and_reversible_ssc_save_only() {
+    use deadsync_editor::song_text::Field;
+    let dir = tempfile::tempdir().unwrap();
+    fs::write(dir.path().join("preview.wav"), b"fixture").unwrap();
+    let mut session = song(Format::Ssc);
+    let original = session.serialize().unwrap();
+    let mut draft = Draft::capture(&session).unwrap();
+    draft.set_text(Field::PreviewMusic, "preview.wav").unwrap();
+    let audio = draft
+        .sample_audio(&session, 0, &dir.path().join("song.ssc"))
+        .unwrap();
+    assert_eq!(audio.path, dir.path().join("preview.wav"));
+    assert_eq!(audio.length, None);
+    assert_eq!(session.serialize().unwrap(), original);
+    draft.apply(&mut session).unwrap();
+    let changed = session.serialize().unwrap();
+    assert_eq!(
+        session.document().text(None, "PREVIEW").as_deref(),
+        Some("preview.wav")
+    );
+    session.undo().unwrap();
+    assert_eq!(session.serialize().unwrap(), original);
+    session.redo().unwrap();
+    assert_eq!(session.serialize().unwrap(), changed);
+    let sm = song(Format::Sm);
+    let mut draft = Draft::capture(&sm).unwrap();
+    assert!(!draft.supports_text(Field::PreviewMusic));
+    assert!(draft.set_text(Field::PreviewMusic, "preview.wav").is_err());
+    assert!(!draft.has_changes());
+}

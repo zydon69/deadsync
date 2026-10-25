@@ -186,6 +186,9 @@ impl Draft {
     pub fn text(&self, field: crate::song_text::Field) -> &str {
         self.text.get(field)
     }
+    pub fn supports_text(&self, field: crate::song_text::Field) -> bool {
+        self.text.supports(field)
+    }
     pub fn set_text(&mut self, field: crate::song_text::Field, value: &str) -> Result<(), Error> {
         self.text.set(field, value)
     }
@@ -234,8 +237,7 @@ impl Draft {
             return invalid("Song properties draft is stale or belongs to another document");
         }
         let dedicated = (session.document().format == crate::document::Format::Ssc)
-            .then(|| session.document().text(None, "PREVIEW"))
-            .flatten()
+            .then(|| self.text(crate::song_text::Field::PreviewMusic).to_owned())
             .filter(|value| !value.is_empty());
         let (name, start, length) = if let Some(name) = dedicated {
             (name, 0.0, None)

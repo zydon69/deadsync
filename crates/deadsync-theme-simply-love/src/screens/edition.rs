@@ -2324,7 +2324,7 @@ impl State {
             ],
             Panel::SongText(_) => &[
                 "SongTitle", "SongSubtitle", "SongArtist", "SongCredit", "SongGenre", "SongOrigin",
-                "SongTitleTranslit", "SongSubtitleTranslit", "SongArtistTranslit", "SongMusic", "SongTextBack",
+                "SongTitleTranslit", "SongSubtitleTranslit", "SongArtistTranslit", "SongMusic", "SongPreviewMusic", "SongTextBack",
             ],
             Panel::ChartText(_) => &[
                 "ChartName", "ChartDescription", "ChartCredit", "ChartStyle",
@@ -2550,7 +2550,7 @@ impl State {
                 [0.8, 0.8, 0.85, 1.0]
             };
             let label = if (matches!(panel, Panel::ChartText(_)) && index < 5)
-                || (matches!(panel, Panel::SongText(_)) && index < 10)
+                || (matches!(panel, Panel::SongText(_)) && index < deadsync_editor::song_text::Field::ALL.len())
             {
                 self.text_field_label(index)
             } else if matches!(panel, Panel::ChartProperties(_)) && index == 7 {

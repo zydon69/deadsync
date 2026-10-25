@@ -34,7 +34,8 @@ fn actual_fumen_song_fields_and_initial_chart_authors_match_without_rewriting_fi
         let source = request["Content"].as_str().unwrap().as_bytes();
         let mut session = Session::new(Document::parse(source, format).unwrap());
         let fields = Text::read(session.document());
-        for field in Field::ALL {
+        // These existing oracle fixtures predate the dedicated PREVIEW field.
+        for field in Field::ALL.into_iter().filter(|f| *f != Field::PreviewMusic) {
             assert_eq!(
                 fields.get(field),
                 expected["Fields"][field.tag()].as_str().unwrap(),

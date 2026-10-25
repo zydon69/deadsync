@@ -22,7 +22,9 @@ impl State {
         if self.sync_text() {
             self.status = i18n::tr(
                 "Edition",
-                if self.text_target().is_some_and(|t| t.is_song()) {
+                if self.text_target().is_some_and(|t| t.is_preview()) {
+                    "SongPreviewMusicCleared"
+                } else if self.text_target().is_some_and(|t| t.is_song()) {
                     "SongMusicCleared"
                 } else {
                     "ChartMusicCleared"
@@ -67,7 +69,9 @@ impl State {
                 self.edit_text_input(&path);
                 self.status = i18n::tr(
                     "Edition",
-                    if request.target.is_song() {
+                    if request.target.is_preview() {
+                        "SongPreviewMusicStaged"
+                    } else if request.target.is_song() {
                         "SongMusicStaged"
                     } else {
                         "ChartMusicStaged"

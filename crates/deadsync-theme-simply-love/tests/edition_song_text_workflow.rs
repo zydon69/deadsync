@@ -607,3 +607,57 @@ fn sample_region_geometry_is_clipped_and_disappears_when_scrolled_out_of_view() 
         source.as_bytes()
     );
 }
+
+#[test]
+fn dedicated_preview_picker_stages_audio_and_saves_while_sm_refuses_unsupported_field() {
+    let (dir, mut state, _) = setup(false, false);
+    music(&mut state);
+    press(&mut state, KeyCode::Tab);
+    let mut picker = Choose {
+        path: dir.path().join("new.wav").canonicalize().unwrap(),
+        calls: 0,
+        current: String::new(),
+    };
+    press(&mut state, KeyCode::F2);
+    assert!(state.process_music_picker(&mut picker));
+    assert_eq!(picker.calls, 1);
+    assert!(has(&state, "Dedicated preview selected"));
+    press(&mut state, KeyCode::Escape);
+    press(&mut state, KeyCode::F6);
+    press(&mut state, KeyCode::F4);
+    match state.take_audio_commands().as_slice() {
+        [
+            GameplayAudioCommand::PlayMusic {
+                path, cut, looping, ..
+            },
+        ] => {
+            assert_eq!(*path, dir.path().join("new.wav").canonicalize().unwrap());
+            assert_eq!(cut.start_sec, 0.0);
+            assert!(cut.length_sec.is_infinite());
+            assert!(*looping);
+        }
+        other => panic!("unexpected audio: {other:?}"),
+    }
+    press(&mut state, KeyCode::F4);
+    state.take_audio_commands();
+    press(&mut state, KeyCode::Escape);
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::Enter);
+    ctrl(&mut state, KeyCode::KeyS);
+    assert!(
+        fs::read_to_string(dir.path().join("song.ssc"))
+            .unwrap()
+            .contains("#PREVIEW:new.wav;")
+    );
+    let (_dir, mut state, original) = setup(true, false);
+    music(&mut state);
+    press(&mut state, KeyCode::Tab);
+    assert!(!state.wants_text_input());
+    press(&mut state, KeyCode::F2);
+    assert!(!state.process_music_picker(&mut picker));
+    assert_eq!(picker.calls, 1);
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        original.as_bytes()
+    );
+}

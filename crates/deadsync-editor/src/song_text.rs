@@ -1,4 +1,4 @@
-//! Song-wide text tags shared by SM and SSC.
+//! Song-wide text tags, including SSC-only dedicated preview music.
 use crate::{Error, document::Document};
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Field {
@@ -12,9 +12,10 @@ pub enum Field {
     SubtitleTransliteration,
     ArtistTransliteration,
     Music,
+    PreviewMusic,
 }
 impl Field {
-    pub const ALL: [Self; 10] = [
+    pub const ALL: [Self; 11] = [
         Self::Title,
         Self::Subtitle,
         Self::Artist,
@@ -25,6 +26,7 @@ impl Field {
         Self::SubtitleTransliteration,
         Self::ArtistTransliteration,
         Self::Music,
+        Self::PreviewMusic,
     ];
     pub fn tag(self) -> &'static str {
         match self {
@@ -38,6 +40,7 @@ impl Field {
             Self::SubtitleTransliteration => "SUBTITLETRANSLIT",
             Self::ArtistTransliteration => "ARTISTTRANSLIT",
             Self::Music => "MUSIC",
+            Self::PreviewMusic => "PREVIEW",
         }
     }
     fn index(self) -> usize {
@@ -45,13 +48,15 @@ impl Field {
     }
 }
 pub struct Text {
-    original: [String; 10],
-    values: [String; 10],
+    format: crate::document::Format,
+    original: [String; 11],
+    values: [String; 11],
 }
 impl Text {
     pub fn read(document: &Document) -> Self {
         let values = Field::ALL.map(|f| document.text(None, f.tag()).unwrap_or_default());
         Self {
+            format: document.format,
             original: values.clone(),
             values,
         }
@@ -62,7 +67,15 @@ impl Text {
     pub(crate) fn original(&self, field: Field) -> &str {
         &self.original[field.index()]
     }
+    pub fn supports(&self, field: Field) -> bool {
+        field != Field::PreviewMusic || self.format == crate::document::Format::Ssc
+    }
     pub fn set(&mut self, field: Field, value: &str) -> Result<(), Error> {
+        if !self.supports(field) && value != self.original[field.index()] {
+            return Err(Error::Unsupported(
+                "Dedicated preview music requires SSC".into(),
+            ));
+        }
         if value != self.original[field.index()] && value.chars().any(char::is_control) {
             return Err(Error::InvalidEdit(
                 "Song text must be a single line without control characters".into(),
