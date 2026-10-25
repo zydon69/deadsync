@@ -2818,3 +2818,18 @@ and no leftover Shift selection. Physical OS focus transitions still require
 a runtime observation.
 
 All six edition_clipboard_workflow tests pass after focus cleanup integration.
+
+Additional sample verification: all 12 song-properties workflows pass. The new
+case establishes chart-specific offset priority over a staged global offset,
+then disables the override and verifies inheritance plus stale-draft rejection.
+This is a Rust public-workflow assertion; it is not an additional original
+reader differential fixture. The previously running focus-cleanup
+`cargo check -p deadsync --locked` has completed successfully.
+
+All 11 native song-text workflows pass with an added sample-region geometry
+check: it resolves solid-sprite effective dimensions (unit native size times
+scale), verifies positive fill bounded by chart top/bottom, then scrolls beyond
+the region and checks both fill and label disappear without document changes.
+The first test assertion incorrectly treated the actor's zero explicit size as
+its effective size; it was corrected using the actual solid-sprite sizing
+contract. This is actor geometry evidence, not a GPU screenshot check.

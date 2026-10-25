@@ -328,3 +328,34 @@ fn sample_audio_uses_raw_file_seconds_and_dedicated_preview_precedence() {
     fs::remove_file(dir.path().join("preview.wav")).unwrap();
     assert!(draft.sample_audio(&session, 0, &path).is_err());
 }
+
+#[test]
+fn staged_sample_clock_keeps_chart_offset_override_and_switches_back_to_song_inheritance() {
+    let mut session = song(Format::Ssc);
+    let mut chart = deadsync_editor::chart_properties::Draft::capture(&session, 0).unwrap();
+    chart.set_music_offset(0.5).unwrap();
+    chart.set_use_chart_offset(true);
+    chart.apply(&mut session, 0).unwrap();
+    let source = session.serialize().unwrap();
+    let mut draft = Draft::capture(&session).unwrap();
+    draft.set_music_offset(3.0).unwrap();
+    draft.set_sync_offset(0.009).unwrap();
+    draft.set_sample_start(1.0).unwrap();
+    draft.set_sample_length(0.5).unwrap();
+    let positions = draft.sample_positions(&session, 0).unwrap();
+    assert!((positions[0] - (1.0 + 0.5 - 0.009) * 96.0).abs() < 1e-10);
+    assert!((positions[1] - (1.5 + 0.5 - 0.009) * 96.0).abs() < 1e-10);
+    assert_eq!(session.serialize().unwrap(), source);
+    let mut chart = deadsync_editor::chart_properties::Draft::capture(&session, 0).unwrap();
+    chart.set_use_chart_offset(false);
+    chart.apply(&mut session, 0).unwrap();
+    assert!(draft.sample_positions(&session, 0).is_err());
+    let mut draft = Draft::capture(&session).unwrap();
+    draft.set_music_offset(3.0).unwrap();
+    draft.set_sync_offset(0.009).unwrap();
+    draft.set_sample_start(1.0).unwrap();
+    draft.set_sample_length(0.5).unwrap();
+    let positions = draft.sample_positions(&session, 0).unwrap();
+    assert!((positions[0] - (1.0 + 3.0 - 0.009) * 96.0).abs() < 1e-10);
+    assert!((positions[1] - (1.5 + 3.0 - 0.009) * 96.0).abs() < 1e-10);
+}

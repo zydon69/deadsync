@@ -555,3 +555,55 @@ fn sample_audition_sends_looped_cut_and_stops_on_toggle_or_property_edit() {
         original.as_bytes()
     );
 }
+
+#[test]
+fn sample_region_geometry_is_clipped_and_disappears_when_scrolled_out_of_view() {
+    use deadlib_present::actors::SizeSpec;
+    let (dir, _state, original) = setup(false, false);
+    let path = dir.path().join("song.ssc");
+    let source = original.replace(
+        "#TITLE:Old;",
+        "#TITLE:Old;#SAMPLESTART:0;#SAMPLELENGTH:100;",
+    );
+    fs::write(&path, &source).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    let region = |state: &State| {
+        let mut actors = Vec::new();
+        state.actors(&mut actors);
+        actors.into_iter().find_map(|actor| match actor {
+            Actor::Sprite {
+                offset,
+                size: [SizeSpec::Px(width), SizeSpec::Px(height)],
+                tint,
+                scale,
+                ..
+            } if tint == [0.2, 0.85, 0.65, 0.14] => Some((
+                offset,
+                if width == 0.0 {
+                    scale[0]
+                } else {
+                    width * scale[0]
+                },
+                if height == 0.0 {
+                    scale[1]
+                } else {
+                    height * scale[1]
+                },
+            )),
+            _ => None,
+        })
+    };
+    let (offset, width, height) = region(&state).expect("visible preview fill");
+    assert!(width > 0.0 && height > 0.0);
+    assert!(offset[1] - height * 0.5 >= 105.0 - 0.001);
+    assert!(offset[1] + height * 0.5 <= 395.0 + 0.001);
+    for _ in 0..250 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
+    assert!(region(&state).is_none());
+    assert!(!has(&state, "Music preview"));
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        source.as_bytes()
+    );
+}
