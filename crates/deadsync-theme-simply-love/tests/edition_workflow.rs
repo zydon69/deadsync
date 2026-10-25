@@ -2270,3 +2270,102 @@ fn pattern_shortcut_stops_audio_and_empty_chart_stays_in_note_view() {
     press(&mut screen, KeyCode::Digit2);
     assert!(screen.workspace().file().session.is_dirty());
 }
+
+#[test]
+fn duplicate_shortcut_keeps_unsaved_routine_owners_and_restores_focus_through_history() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::KeyP);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Digit2);
+    let before = screen.workspace().file().session.serialize().unwrap();
+    ctrl(&mut screen, KeyCode::KeyD);
+    assert_eq!(screen.workspace().chart(), 1);
+    assert_eq!(screen.workspace().player(), 0);
+    assert_eq!(screen.workspace().grid().players(), 2);
+    assert!(
+        screen
+            .workspace()
+            .grid()
+            .get(Position {
+                player: 1,
+                lane: 1,
+                row: 48
+            })
+            .is_some()
+    );
+    key(&mut screen, KeyCode::SuperLeft, true);
+    screen.raw_key(&RawKeyboardEvent {
+        code: KeyCode::KeyD,
+        pressed: true,
+        repeat: true,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    key(&mut screen, KeyCode::SuperLeft, false);
+    assert_eq!(
+        screen.workspace().file().session.document().charts().len(),
+        2
+    );
+    press(&mut screen, KeyCode::Digit3);
+    let after = screen.workspace().file().session.serialize().unwrap();
+    ctrl(&mut screen, KeyCode::KeyZ);
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(screen.workspace().chart(), 0);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    ctrl(&mut screen, KeyCode::KeyY);
+    assert_eq!(screen.workspace().chart(), 1);
+    ctrl(&mut screen, KeyCode::KeyY);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        after
+    );
+    assert_eq!(fs::read(&path).unwrap(), SONG);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 1).unwrap();
+    assert_eq!(reopened.workspace().grid(), screen.workspace().grid());
+}
+
+#[test]
+fn duplicate_menu_is_accessible_and_inspector_focus_blocks_the_shortcut() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    ctrl(&mut screen, KeyCode::KeyD);
+    assert_eq!(
+        screen.workspace().file().session.document().charts().len(),
+        1
+    );
+    press(&mut screen, KeyCode::Escape);
+    press(&mut screen, KeyCode::F1);
+    for _ in 0..15 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(
+        |a| matches!(a,Actor::Text{content,..} if content.as_ref()=="Duplicate current chart")
+    ));
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().chart(), 1);
+    assert_eq!(
+        screen.workspace().file().session.document().charts().len(),
+        2
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(screen.workspace().chart(), 0);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    assert!(!screen.workspace().file().session.is_dirty());
+}

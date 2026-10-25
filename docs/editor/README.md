@@ -48,7 +48,7 @@ reviewable and tested.
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
 | Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; F11 edits Song SyncOffset | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
-| Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
+| Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history; duplicate working chart with Ctrl/Cmd+D/F1 | Generated chart creation and exact source-chart duplication are available; generic empty-chart creation/deletion, no-active-chart state, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
@@ -2117,3 +2117,53 @@ pass, including the new analysis unit/workflow and separate French UI suites.
 `cargo check -p deadsync --locked` passes. The two native analysis suites were
 rerun after the final report-status display adjustment. The previously documented
 missing shell unit-test fixtures remain outside these passing test claims.
+
+
+### Duplicate the complete working chart
+
+Ctrl/Cmd+D or the final F1 action duplicates the active chart and focuses the
+copy. This follows the clone action's document/history contract: the working
+notes and chart properties are copied, undo restores the previously focused
+chart, and redo restores the same history state rather than recalculating a
+clone. Subsequent edits to the clone remain separate history gestures. Original
+GrooveAuthor source inspected for this contract: ActionCloneChart.cs and the
+EditorChart copy constructor at the pinned reference revision. This checkpoint
+uses functional tests, not execution of the original full editor constructor.
+
+The session serializes a snapshot before taking the chart block span, so pending
+note/property edits are included and source spans cannot refer to stale byte
+positions. SSC cloning copies the entire current chart block, including local
+timing, labels, expression/pattern data, unknown properties and original note
+encoding/attributes. Existing source charts and global metadata are retained.
+The same block-span helper is shared with generated-chart assembly. Loaded grids
+are checked against the resulting descriptor/notes before the history swap.
+
+SM NOTES/NOTES2 headers and note bodies are copied exactly. GrooveAuthor's global
+GAChartDataVersionCHARTnnnn and GAChartDataCHARTnnnn properties are copied as raw
+values to the new index, preserving future JSON members and avoiding metadata
+loss on Save/reopen. Existing destination-index metadata is rejected rather than
+silently attached or overwritten. The four-digit custom metadata index limit is
+enforced when copying metadata. Unknown global/vendor indexing conventions are
+not guessed. Failed validation preserves the current document and redo branch.
+
+One structural DocumentSwap stores the complete document/grid state; focus is
+bound to its before/after revisions using the existing generated-chart history
+mechanism. The clone keeps the cursor row and begins with participant zero. Notes
+and participant separators remain intact. English/French menu, help and success
+messages are included. The shortcut does not repeat while held and inspectors
+retain keyboard focus. The F1 menu now contains sixteen actions over two pages.
+
+Four core workflows cover pending notes/tags, scoped timing/labels, unknown
+properties, pattern data, SM raw metadata and CP1252 source preservation,
+NOTES2, invalid/stale/index-collision guards, source/clone edit independence,
+Routine participants, undo/redo, focus restoration and Save/reopen. Native
+English/French workflows cover the shortcut, menu, repeat suppression, inspector
+focus, participants, history and persistence. This does not prove hardware
+keyboard handling or physical rendering. Generic empty-chart creation and
+chart deletion, including deleting the last chart while keeping undo available
+in an editor with no active chart, remain required for full lifecycle parity.
+
+Validation for duplication: all 291 core tests and 110 native editor tests pass;
+`cargo check -p deadsync --locked` passes. The four duplication core workflows
+were additionally rerun after strengthening SM metadata reparse assertions.
+Missing shell unit-test fixtures documented above remain outside these claims.

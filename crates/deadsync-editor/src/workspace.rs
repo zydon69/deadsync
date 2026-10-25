@@ -27,6 +27,7 @@ pub enum Command {
     Seek(u64),
     PreviousMeasure,
     NextMeasure,
+    DuplicateChart,
     PreviousLabel,
     NextLabel,
     SetSnap(usize),
@@ -133,6 +134,9 @@ impl Workspace {
                 };
             }
             Command::Seek(row) => self.row = row,
+            Command::DuplicateChart => {
+                self.duplicate_chart()?;
+            }
             Command::PreviousMeasure | Command::NextMeasure => {
                 let signatures = crate::timing_edit::signature::Signatures::from_document(
                     self.file.session.document(),
@@ -677,6 +681,28 @@ impl Workspace {
         self.player = 0;
         self.anchor = None;
         Ok(indices)
+    }
+
+    pub fn duplicate_chart(&mut self) -> Result<usize, Error> {
+        let before_revision = self.file.session.revision();
+        let before_chart = self.chart;
+        let chart = self
+            .file
+            .session
+            .duplicate_chart(self.chart, before_revision)?;
+        self.file.session.grid(chart)?;
+        self.structural_focus.insert(
+            self.file.session.revision(),
+            StructuralFocus {
+                before_revision,
+                before_chart,
+                after_chart: chart,
+            },
+        );
+        self.chart = chart;
+        self.player = 0;
+        self.anchor = None;
+        Ok(chart)
     }
 
     pub fn apply_generated(

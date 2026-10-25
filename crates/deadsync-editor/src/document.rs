@@ -250,19 +250,11 @@ impl Document {
         Ok(())
     }
 
-    /// Clone current chart metadata without rewriting any existing chart.
-    /// Generated note data replaces the source body; chart-local unknown tags
-    /// and legacy metadata bytes remain intact in the new block.
-    pub(crate) fn cloned_chart_bytes(
-        &self,
-        chart: usize,
-        layout: &str,
-        notes: Arc<[u8]>,
-    ) -> Result<Vec<u8>, Error> {
-        let descriptor = self
-            .charts
+    /// Source span owned by one chart, including SSC local vendor properties.
+    pub(crate) fn chart_block_range(&self, chart: usize) -> Result<Range<usize>, Error> {
+        self.charts
             .get(chart)
-            .ok_or_else(|| Error::InvalidEdit("Source chart does not exist".into()))?;
+            .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?;
         let (start, end) = if self.format == Format::Ssc {
             let marker = self
                 .tags
@@ -288,6 +280,24 @@ impl Document {
                 .ok_or_else(|| Error::InvalidFormat("Source chart has no NOTES marker".into()))?;
             (self.marker_start(marker), marker.value.end + 1)
         };
+        Ok(start..end)
+    }
+
+    /// Clone current chart metadata without rewriting any existing chart.
+    /// Generated note data replaces the source body; chart-local unknown tags
+    /// and legacy metadata bytes remain intact in the new block.
+    pub(crate) fn cloned_chart_bytes(
+        &self,
+        chart: usize,
+        layout: &str,
+        notes: Arc<[u8]>,
+    ) -> Result<Vec<u8>, Error> {
+        let descriptor = self
+            .charts
+            .get(chart)
+            .ok_or_else(|| Error::InvalidEdit("Source chart does not exist".into()))?;
+        let range = self.chart_block_range(chart)?;
+        let (start, end) = (range.start, range.end);
         let mut clone = Self::parse(Arc::<[u8]>::from(&self.source[start..end]), self.format)?;
         if clone.charts.len() != 1 {
             return Err(Error::InvalidFormat("Ambiguous source chart block".into()));

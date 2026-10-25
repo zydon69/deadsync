@@ -1129,6 +1129,7 @@ impl State {
                     Command::Save => i18n::tr("Edition", "Saved"),
                     Command::SaveRecovery => i18n::tr("Edition", "DraftSaved"),
                     Command::Recover => i18n::tr("Edition", "DraftRecovered"),
+                    Command::DuplicateChart => i18n::tr("Edition", "ChartDuplicated"),
                     _ => i18n::tr("Edition", "Ready"),
                 }
             }
@@ -1264,6 +1265,7 @@ impl State {
                 KeyCode::KeyX => Some(Command::Cut),
                 KeyCode::KeyV => Some(Command::Paste),
                 KeyCode::KeyR => Some(Command::Recover),
+                KeyCode::KeyD => Some(Command::DuplicateChart),
                 KeyCode::KeyL if self.shift => Some(Command::PreviousLabel),
                 KeyCode::KeyL => Some(Command::NextLabel),
                 KeyCode::Tab => {
@@ -1784,7 +1786,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 15,
+                    Panel::Menu(_) => 16,
                     Panel::Transforms(_) => 4,
                     _ => 3,
                 };
@@ -1840,6 +1842,7 @@ impl State {
                             12 => self.help = !self.help,
                             13 => return self.request_close(),
                             14 => self.open_analysis(),
+                            15 => self.command(Command::DuplicateChart),
                             _ => {}
                         }
                     }
@@ -2076,6 +2079,7 @@ impl State {
                 "ToggleHelp",
                 "Close",
                 "AnalysisTitle",
+                "DuplicateChart",
             ],
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],

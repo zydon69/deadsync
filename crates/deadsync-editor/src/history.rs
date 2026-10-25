@@ -444,6 +444,73 @@ impl Session {
         Ok((start..start + additions.len()).collect())
     }
 
+    /// Duplicate the complete working chart in one structural history gesture.
+    /// Reparse the serialized snapshot so pending notes/properties are included.
+    pub fn duplicate_chart(
+        &mut self,
+        chart: usize,
+        expected_revision: u64,
+    ) -> Result<usize, Error> {
+        if self.revision != expected_revision {
+            return Err(Error::InvalidEdit(
+                "Document changed before chart duplication".into(),
+            ));
+        }
+        let mut bytes = self.serialize()?;
+        let current = Document::parse(Arc::<[u8]>::from(bytes.as_slice()), self.document.format)?;
+        let range = current.chart_block_range(chart)?;
+        let index = current.charts().len();
+        let block = bytes[range].to_vec();
+        bytes.extend_from_slice(b"\n\n");
+        bytes.extend_from_slice(&block);
+        let mut after = Document::parse(Arc::<[u8]>::from(bytes), self.document.format)?;
+        if after.charts().len() != index + 1 {
+            return Err(Error::InvalidEdit(
+                "Duplicated chart structure is ambiguous".into(),
+            ));
+        }
+        if self.document.format == crate::document::Format::Sm {
+            for prefix in ["GAChartDataVersion", "GAChartData"] {
+                let source = format!("{prefix}CHART{chart:04}");
+                let target = format!("{prefix}CHART{index:04}");
+                if after.raw_property(None, &target).is_some() {
+                    return Err(Error::InvalidEdit(
+                        "Existing SM metadata occupies the duplicated chart index".into(),
+                    ));
+                }
+                if let Some(value) = current.raw_property(None, &source) {
+                    if index > 9999 {
+                        return Err(Error::InvalidEdit(
+                            "SM chart metadata exceeds its four-digit index limit".into(),
+                        ));
+                    }
+                    after.set_added_property(None, &target, Some(Arc::from(value)))?;
+                }
+            }
+        }
+        if let Some(grid) = self.grids.get(&chart) {
+            let descriptor = &after.charts()[index];
+            let columns = layout_columns(&descriptor.steps_type).ok_or_else(|| {
+                Error::Unsupported("Duplicated chart has an unknown layout".into())
+            })?;
+            if columns != grid.columns()
+                || Grid::parse(after.value(descriptor.notes.clone()), columns)? != *grid
+            {
+                return Err(Error::InvalidEdit(
+                    "Duplicated chart notes do not match the working grid".into(),
+                ));
+            }
+        }
+        self.execute(
+            "Duplicate chart".into(),
+            Change::DocumentSwap(Box::new(DocumentState {
+                document: after,
+                grids: BTreeMap::new(),
+            })),
+        )?;
+        Ok(index)
+    }
+
     fn execute(&mut self, label: String, mut change: Change) -> Result<(), Error> {
         let next = self
             .next_revision
