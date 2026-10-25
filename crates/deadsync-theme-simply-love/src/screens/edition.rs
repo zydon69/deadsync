@@ -11,6 +11,7 @@ mod chart_creation;
 mod chart_deletion;
 mod chart_rating;
 mod display_tempo;
+mod expression_edit;
 mod text_fields;
 mod clipboard;
 mod music_file;
@@ -70,6 +71,7 @@ enum Panel {
     Profiles(usize),
     ChartProperties(usize),
     DisplayTempo(usize),
+    ExpressionEdit(usize),
     ChartText(usize),
     SongText(usize),
     SongProperties(usize),
@@ -242,6 +244,8 @@ pub struct State {
     chart_rating_input: Option<String>,
     display_tempo_draft: Option<deadsync_editor::display_tempo::Value>,
     display_tempo_input: Option<(usize, String)>,
+    expression_edit: Option<expression_edit::Draft>,
+    expression_saved_guid: Option<deadsync_editor::generation::metadata::Guid>,
     text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
     text_clipboard_request: Option<clipboard::Request>,
     music_picker_request: Option<music_file::Request>,
@@ -382,6 +386,8 @@ impl State {
             chart_rating_input: None,
             display_tempo_draft: None,
             display_tempo_input: None,
+            expression_edit: None,
+            expression_saved_guid: None,
             text_buffer: None,
             text_clipboard_request: None,
             music_picker_request: None,
@@ -808,6 +814,7 @@ impl State {
             return;
         };
         self.catalog_job = None;
+        let saved_choice = self.expression_saved_guid.take();
         self.panel = Some(self.profile_return_panel());
         match result {
             Ok(catalog)
@@ -848,7 +855,7 @@ impl State {
                             catalog
                                 .entries(ProfileKind::Expressed)
                                 .iter()
-                                .position(|entry| &entry.guid == draft.expression()),
+                                .position(|entry| &entry.guid == saved_choice.as_ref().unwrap_or(draft.expression())),
                         )
                     }
                     ProfileTarget::Conversion | ProfileTarget::Batch => {
@@ -1537,6 +1544,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if let Panel::ExpressionEdit(index) = panel { self.expression_edit_key(index, code); return false; }
         if let Panel::DisplayTempo(index) = panel { self.display_tempo_key(index, code); return false; }
         if let Panel::ChartText(index) | Panel::SongText(index) = panel {
             self.text_field_key(index, code);
@@ -1636,6 +1644,7 @@ impl State {
             return false;
         }
         match panel {
+            Panel::ExpressionEdit(_) => unreachable!("expression editing dispatched above"),
             Panel::DisplayTempo(_) => unreachable!("display tempo dispatched above"),
             Panel::ChartText(_) | Panel::SongText(_) => unreachable!("text field input dispatched above"),
             Panel::NewChart(index) => self.new_chart_key(index, code),
@@ -1762,9 +1771,10 @@ impl State {
                 }
             }
             Panel::ChartExpression(index) => {
+                if index == 0 && code == KeyCode::KeyE && !self.control { self.open_expression_edit(); return false; }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ChartExpression(
-                        (index + if code == KeyCode::ArrowUp { 2 } else { 1 }) % 3,
+                        (index + if code == KeyCode::ArrowUp { 3 } else { 1 }) % 4,
                     ));
                 } else if index == 0 && matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(settings) = &mut self.profile_selection {
@@ -1793,6 +1803,7 @@ impl State {
                 } else if code == KeyCode::Enter {
                     match index {
                         1 => self.stage_chart_expression(),
+                        3 => self.open_expression_edit(),
                         2 => {
                             self.profile_selection = None;
                             self.panel = Some(Panel::ChartProperties(0));
@@ -2570,6 +2581,7 @@ impl State {
                 "ChartName", "ChartDescription", "ChartCredit", "ChartStyle",
                 "ChartMusic", "ChartTextBack",
             ],
+            Panel::ExpressionEdit(_) => &["ExpressionEditMethod", "ExpressionEditDetermination", "ExpressionEditLevel", "ExpressionEditAggressive", "ExpressionEditHigh", "ExpressionEditLow", "ExpressionEditSaveCopy", "ExpressionEditCancel"],
             Panel::DisplayTempo(_) => &["DisplayTempoMode", "DisplayTempoMin", "DisplayTempoRange", "DisplayTempoMax", "DisplayTempoStage", "DisplayTempoCancel"],
             Panel::ChartProperties(_) => &[
                 "ChartChooseExpression",
@@ -2585,7 +2597,7 @@ impl State {
                 "DisplayTempoOpen",
             ],
             Panel::ChartExpression(_) => {
-                &["ProfileExpression", "ChartStageExpression", "ProfileBack"]
+                &["ProfileExpression", "ChartStageExpression", "ProfileBack", "ExpressionEditOpen"]
             }
             Panel::Profiles(_) => &[
                 "ProfilePattern",
@@ -2613,6 +2625,7 @@ impl State {
             | Panel::Profiles(i)
             | Panel::TimingMigration(i)
             | Panel::Timing(i)
+            | Panel::ExpressionEdit(i)
             | Panel::DisplayTempo(i)
             | Panel::ChartProperties(i)
             | Panel::ChartText(i)
@@ -2802,6 +2815,8 @@ impl State {
                 || (matches!(panel, Panel::SongText(_)) && index < deadsync_editor::song_text::Field::ALL.len())
             {
                 self.text_field_label(index)
+            } else if matches!(panel, Panel::ExpressionEdit(_)) {
+                self.expression_edit_label(index, key)
             } else if matches!(panel, Panel::DisplayTempo(_)) {
                 self.display_tempo_label(index, key)
             } else if matches!(panel, Panel::ChartProperties(_)) && index == 7 {
@@ -3028,7 +3043,7 @@ impl State {
                 let y=panel_y-panel_height*0.5+extra_height+30.0+(index-menu_start) as f32*32.0;
                 actors.push(act!(quad: xy(panel_x+panel_width*0.5-20.0,y): zoomto(16.0,16.0): diffuse(rgba[0],rgba[1],rgba[2],rgba[3]): z(8022)));
             }
-            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_)) {
+            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_) | Panel::ExpressionEdit(_)) {
                 if let Some(Actor::Text { max_width, .. }) = actors.last_mut() {
                     *max_width = Some(panel_width - 30.0);
                 }

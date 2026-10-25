@@ -4482,3 +4482,39 @@ Validation: 24 tests passed across `profile_edit_workflows` (6),
 `profile_workflows` (9), `profile_catalog_workflows` (5) and
 `conversion_profile_workflows` (4), using `--jobs 2 --locked`.
 Log: `/tmp/deadsync-profile-edit-core.log`.
+
+### Native interpretation-profile copies
+
+The F7 chart interpretation selector now offers Edit a custom interpretation
+copy (also E on the selected profile). The child panel exposes all six
+ExpressedConfig fields: default bracket method, dynamic/default method choice,
+minimum bracket level, aggressive parsing when simultaneous notes require it,
+and the two bracket-frequency thresholds. Enum and boolean controls use
+Left/Right or Enter. Numeric controls support direct signed decimal/exponent
+input, Delete/Backspace, and finite/integer validation as appropriate. Threshold
+ordering is validated on save with translated English/French messages, allowing
+intermediate edits to either field before validating the pair.
+
+Save creates a new custom GUID/profile in the configured profile directory and
+reloads the catalog with the new entry selected. The user must still stage the
+interpretation and apply chart properties to change the chart. Cancel writes
+neither a profile nor chart changes. The source preset/custom file is never
+modified. Profile names initially derive from the selected source and locale;
+renaming, editing an existing custom file in place, and native Pattern/Performed
+configuration inspectors remain separate unfinished work.
+
+Catalog::profile captures custom source bytes only if they still match the
+catalog snapshot, and refuses foreign/stale chart revisions. Presets retain
+their protected identities until duplicated. Save rechecks the source against
+the catalog before writing the copy. Tests cover capture of every preset family,
+foreign/stale sessions, external custom-file changes, native copy/save/select,
+separate chart staging/apply/undo, cancel, invalid input and threshold repair,
+and French labels. Actor/input tests do not establish physical GPU rendering.
+
+Validation: 225 native editor integration tests across 35 targets passed, plus
+13 targeted core tests across `profile_snapshot_workflows` (2),
+`profile_edit_workflows` (6) and `profile_catalog_workflows` (5), all using
+`--jobs 2 --locked`. Logs: `/tmp/deadsync-expression-edit-all-native.log` and
+`/tmp/deadsync-expression-edit-core.log`. The theme cargo check also passed
+before the final menu/validation additions; the final complete integration run
+compiled those additions successfully. Physical app review remains pending.

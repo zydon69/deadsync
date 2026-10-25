@@ -167,6 +167,49 @@ impl Catalog {
     pub fn is_current(&self, session: &Session, chart: usize) -> bool {
         chart == self.chart && session.accepts_token(&self.token)
     }
+    /// Capture an editable source only while its catalog and custom file still
+    /// match. Presets retain their protected identity until explicitly duplicated.
+    pub fn profile(
+        &self,
+        session: &Session,
+        chart: usize,
+        kind: Kind,
+        id: &Guid,
+    ) -> Result<super::profiles::Profile, Error> {
+        if !self.is_current(session, chart) {
+            return Err(invalid(
+                "Profile catalog belongs to another chart or revision",
+            ));
+        }
+        if !self.entries(kind).iter().any(|entry| &entry.guid == id) {
+            return Err(invalid("Selected profile is missing from the catalog"));
+        }
+        if let Some((path, expected)) = self.dependencies.get(&(kind, id.clone())) {
+            if fs::read(path)?.as_slice() != expected.as_ref() {
+                return Err(Error::ExternalChange);
+            }
+            return super::profiles::Profile::parse(kind, expected);
+        }
+        let registry = Registry::builtin();
+        let config = match kind {
+            Kind::Pattern => registry
+                .patterns
+                .get(id)
+                .map(|c| super::profiles::Config::Pattern(c.clone())),
+            Kind::Performed => registry
+                .performed
+                .get(id)
+                .map(|c| super::profiles::Config::Performed(c.clone())),
+            Kind::Expressed => registry
+                .expressed
+                .get(id)
+                .map(|c| super::profiles::Config::Expressed(c.clone())),
+        }
+        .ok_or_else(|| invalid("Selected preset is missing"))?;
+        let bytes = serde_json::to_vec(&serde_json::json!({"Guid":id,"Config":config.json()?}))
+            .map_err(|error| invalid(&error.to_string()))?;
+        super::profiles::Profile::parse(kind, &bytes)
+    }
     pub fn select(
         &self,
         session: &Session,
