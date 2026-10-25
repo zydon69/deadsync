@@ -1,6 +1,7 @@
 //! Compact native editor screen. The document and every edit command live in
 //! deadsync-editor; this module owns presentation, shortcuts, and exit prompts.
 mod analysis_panel;
+mod zoom_view;
 mod audio_settings;
 mod batch;
 mod chart_creation;
@@ -208,6 +209,8 @@ impl GenerationPreview {
 }
 
 pub struct State {
+    zoom: deadsync_editor::zoom::Manager,
+    zoom_epoch: std::time::Instant,
     playback: Option<playback::Playing>,
     audio_preferences: deadsync_editor::audio_preferences::Audio,
     audio_preferences_file: Option<deadsync_editor::audio_preferences::File>,
@@ -319,6 +322,8 @@ impl State {
             .position(|candidate| *candidate == layout)
             .unwrap_or(0);
         let mut state = Self {
+            zoom: Default::default(),
+            zoom_epoch: std::time::Instant::now(),
             playback: None,
             audio_preferences: Default::default(),
             audio_preferences_file: None,
@@ -955,6 +960,14 @@ impl State {
 
     /// Polling is nonblocking and is called by Practice's normal update loop.
     pub fn update(&mut self) {
+        self.update_with_time(std::time::Instant::now());
+    }
+
+    /// Update using the host's monotonic frame clock, also permitting
+    /// deterministic animation checks without sleeps or hardware input.
+    pub fn update_with_time(&mut self, now: std::time::Instant) {
+        self.zoom.update(now.saturating_duration_since(self.zoom_epoch).as_secs_f64())
+            .expect("finite monotonic frame clock");
         self.poll_waveform();
         self.poll_analysis();
         if self.catalog_job.is_some() {
@@ -1331,6 +1344,7 @@ impl State {
             self.stop_audio();
             return self.no_chart_key(event.code);
         }
+        if self.zoom_key(event) { return false; }
         if event.code == KeyCode::KeyW && !self.control {
             if self.shift { self.open_waveform_settings(); } else { self.toggle_waveform(); }
             return false;
@@ -2206,6 +2220,7 @@ impl State {
             let y2 = projection.clipped_y(b) as f32;
             actors.push(act!(quad: xy(field_center, (y1 + y2) * 0.5): zoomto(field_width, (y2 - y1).abs().max(2.0)): diffuse(0.2, 0.6, 0.9, 0.2): z(8002)));
         }
+        let size_zoom = self.zoom.size_zoom() as f32;
         let note_bins = ((bottom - top).ceil() as usize).clamp(1, 4096);
         let visible_notes = grid.visible_overview(start, end, note_bins)
             .expect("ordered viewport bounds and bounded overview bins");
@@ -2216,7 +2231,7 @@ impl State {
             if let Some(tail) = note.end {
                 let a = y.max(top);
                 let b = (projection.y(tail) as f32).min(bottom);
-                actors.push(act!(quad: xy(x, (a + b) * 0.5): zoomto(lane_width * 0.3, (b - a).max(0.0)): diffuse(color[0], color[1], color[2], 0.65): z(8003)));
+                actors.push(act!(quad: xy(x, (a + b) * 0.5): zoomto(lane_width * 0.3 * size_zoom, (b - a).max(0.0)): diffuse(color[0], color[1], color[2], 0.65): z(8003)));
             }
             if y < top || y > bottom {
                 continue;
@@ -2241,9 +2256,9 @@ impl State {
                         }),
                     position.lane,
                 );
-                actors.push(act!(sprite("test_input/highlightarrow.png"): xy(x, y): setsize(lane_width * 0.7, lane_width * 0.7): rotationz(rotation): diffuse(color[0], color[1], color[2], 1.0): z(8004)));
+                actors.push(act!(sprite("test_input/highlightarrow.png"): xy(x, y): setsize(lane_width * 0.7 * size_zoom, lane_width * 0.7 * size_zoom): rotationz(rotation): diffuse(color[0], color[1], color[2], 1.0): z(8004)));
             } else {
-                text(actors, symbol, x - 6.0, y - 9.0, 0.65, color);
+                text(actors, symbol, x - 6.0 * size_zoom, y - 9.0 * size_zoom, 0.65 * size_zoom, color);
             }
         }
         actors.push(act!(quad: xy(field_center, cursor_y): zoomto(field_width, 2.0): diffuse(1.0, 0.85, 0.25, 1.0): z(8005)));
@@ -2266,7 +2281,7 @@ impl State {
 
     fn row_projection(&self, top: f32, bottom: f32, cursor_y: f32) -> deadsync_editor::projection::RowProjection {
         deadsync_editor::projection::RowProjection::new(
-            self.workspace.row(), f64::from(cursor_y), 1.0, f64::from(top), f64::from(bottom),
+            self.workspace.row(), f64::from(cursor_y), self.zoom.spacing_zoom(), f64::from(top), f64::from(bottom),
         ).expect("finite editor viewport with cursor inside bounds")
     }
 

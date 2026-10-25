@@ -3435,3 +3435,50 @@ The native zoom input/interpolation/size scaling remain pending.
 
 Validation: all 181 native editor integration tests passed, alongside the three
 region index workflow tests. `cargo check -p deadsync --jobs 2 --locked` passed.
+
+### Native keyboard row zoom and interpolation
+
+Ctrl/Cmd+Up and Down now feed the original numerical zoom controller with
++1/-1 input. Ctrl/Cmd+0 (including keypad 0) resets to 1 immediately. Key repeat
+is accepted for the arrow commands. Panel/text-input routing and missing-chart
+routing run first; these shortcuts do not insert notes or navigate the cursor.
+The controller's default 0.1-second animation is updated on the monotonic host
+frame clock; an explicit-clock update entry point permits deterministic tests.
+
+The shared projection uses the animated spacing zoom. Arrow head dimensions,
+sustain widths and special-note text use the separate size zoom (capped at 1).
+Thus zoom-in increases spacing without enlarging notes beyond their original
+size, while zoom-out reduces both. Selections, labels, timing boundaries, sample
+regions and waveform sampling already share the row projection. Zoom controls
+leave audio commands, chart bytes and undo history unchanged.
+
+Two native tests drive actual key dispatch and actors with deterministic times:
+mid-animation positions, settled zoom, independent size cap, reciprocal zoom-out,
+reset, source/dirty/cursor/audio isolation, full original 1e-6..1e6 limits,
+bounded actor counts, panel isolation and focus-loss modifier reset. These are
+native actor tests, not physical keyboard/GPU validation. Initial native spacing
+remains one pixel per row at zoom 1, rather than changing the established screen
+to GrooveAuthor's separate default two-pixel constant-row spacing preference.
+
+Zoom is currently per editor session. Persistent zoom/settings controls,
+constant-time/variable spacing, alternate spacing adjustments and continuous
+playback cursor projection remain required for complete original behavior.
+English and French help describe the new shortcuts.
+
+Native runtime verification used a fresh isolated `EditorQA-Zoom.app` bundle
+with the generated 40-second stereo waveform fixture, French UI and muted audio.
+Actual Cmd+Up twice expanded spacing; Cmd+Down four times reduced spacing and
+arrow sizes; Cmd+0 restored the initial geometry. Waveform envelopes and sample
+region boundaries visibly followed the same zoom. The editor stayed at row zero
+without a dirty marker, and isolated song files matched the original QA fixture
+hashes afterward. Captures: /tmp/deadsync-zoom-{default,in,out,reset}.png.
+This checks ordinary rendered scales on macOS; extreme scales are covered by
+native actor tests rather than a physical performance benchmark.
+
+Validation: all 183 native editor integration tests passed. The enhanced zoom
+workflow tests then passed again with sample-region center/height assertions,
+including the original default 9ms sync offset. `cargo check -p deadsync --jobs 2
+--locked` and `cargo build -p deadsync --jobs 2 --locked` passed, and the isolated
+macOS application packaged and launched successfully.
+The 15 targeted core zoom/projection/note-overview/region-index tests passed
+again after native integration.
