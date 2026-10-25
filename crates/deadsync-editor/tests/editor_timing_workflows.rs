@@ -63,6 +63,17 @@ fn grid(input: &Value) -> Grid {
     }
     grid
 }
+fn loaded_regions(input: &Value) -> Vec<(u64, u64)> {
+    input["LoadedRegions"]
+        .as_array()
+        .map(|values| {
+            values
+                .iter()
+                .map(|v| (v[0].as_u64().unwrap(), v[1].as_u64().unwrap()))
+                .collect()
+        })
+        .unwrap_or_default()
+}
 #[test]
 fn density_fake_flags_end_times_and_rate_queries_match_unchanged_editor_methods() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/grooveauthor");
@@ -84,8 +95,10 @@ fn density_fake_flags_end_times_and_rate_queries_match_unchanged_editor_methods(
         let region = input["Region"]
             .as_array()
             .map(|values| (values[0].as_u64().unwrap(), values[1].as_u64().unwrap()));
-        let timeline =
-            EditorTimeline::build(&timing, &grid, region, &AtomicBool::new(false)).unwrap();
+        let timeline = EditorTimeline::build(&timing, &grid, region, &AtomicBool::new(false))
+            .unwrap()
+            .with_markers(&loaded_regions(&input), &AtomicBool::new(false))
+            .unwrap();
         let original = expected["Heads"].as_array().unwrap();
         assert_eq!(timeline.heads().len(), original.len(), "{name}");
         for (head, reference) in timeline.heads().iter().zip(original) {
@@ -146,7 +159,7 @@ fn density_fake_flags_end_times_and_rate_queries_match_unchanged_editor_methods(
             "{name} pattern NPS"
         );
     }
-    assert_eq!(count, 35, "Every committed editor timing case must run");
+    assert_eq!(count, 39, "Every committed editor timing case must run");
 }
 #[test]
 fn editor_timing_rejects_cancelled_invalid_and_overflowing_inputs() {
@@ -251,6 +264,8 @@ fn projected_timing_and_context_regions_match_original_deletion_and_extraction()
             .map(|values| (values[0].as_u64().unwrap(), values[1].as_u64().unwrap()));
         let timeline =
             EditorTimeline::build(&timing, &original, loaded_region, &AtomicBool::new(false))
+                .unwrap()
+                .with_markers(&loaded_regions(&input), &AtomicBool::new(false))
                 .unwrap();
         let (edits, report) = pattern_region::deletion_edits(
             &original,
@@ -376,7 +391,7 @@ fn projected_timing_and_context_regions_match_original_deletion_and_extraction()
         }
         assert_eq!(original, grid(&input), "{name} immutable original");
     }
-    assert_eq!(count, 35);
+    assert_eq!(count, 39);
 }
 #[test]
 fn projections_reject_new_or_altered_heads_and_do_not_retime_survivors() {
@@ -565,6 +580,16 @@ fn native_pipeline(pattern: bool) {
         bytes.extend_from_slice(b"#NOTEDATA:;#STEPSTYPE:dance-single;#METER:9;#NOTES:");
         bytes.extend(grid(&input).serialize().unwrap());
         bytes.push(b';');
+        if input.get("LoadedRegions").is_some() {
+            let patterns = loaded_regions(&input)
+                .into_iter()
+                .map(|(row, end)| (row.to_string(), serde_json::json!({"Length":end-row})))
+                .collect::<serde_json::Map<_, _>>();
+            let json = serde_json::json!({"Patterns":patterns}).to_string();
+            bytes.extend_from_slice(b"#GAChartDataVersion:1;#GAChartData:");
+            bytes.extend(deadsync_editor::document::escape_text(&json));
+            bytes.push(b';');
+        }
         let session = Session::new(Document::parse(Arc::<[u8]>::from(bytes), Format::Ssc).unwrap());
         if pattern {
             use deadsync_editor::generation::pattern_job::{Options, Span, Task};
@@ -703,5 +728,5 @@ fn native_pipeline(pattern: bool) {
         }
         count += 1;
     }
-    assert_eq!(count, 32);
+    assert_eq!(count, 36);
 }

@@ -105,6 +105,8 @@ pub fn read(
         grid,
         timing,
         difficulty,
+        document,
+        chart,
     })
 }
 
@@ -115,6 +117,8 @@ pub struct SourceChart {
     pub grid: Grid,
     pub timing: GenerationTiming,
     pub difficulty: f64,
+    document: Document,
+    chart: usize,
 }
 
 pub fn prepare(
@@ -136,8 +140,10 @@ pub fn prepare_editor(
     cancelled: &AtomicBool,
 ) -> Result<PreparedChart, Error> {
     let source = read(bytes, format, chart, cancelled)?;
+    let regions = source.pattern_regions(cancelled)?;
     let timeline =
-        super::editor_timing::EditorTimeline::build(&source.timing, &source.grid, None, cancelled)?;
+        super::editor_timing::EditorTimeline::build(&source.timing, &source.grid, None, cancelled)?
+            .with_markers(&regions, cancelled)?;
     let region = timeline.prepare_region(&source.grid, Some((0, i32::MAX as u64)), cancelled)?;
     let mut mines = timeline
         .heads()
@@ -176,6 +182,23 @@ pub fn prepare_editor(
 }
 
 impl SourceChart {
+    /// Only editor consumers interpret custom metadata. Standalone Fumen
+    /// preparation ignores editor-specific data, as the original library does.
+    pub fn pattern_regions(&self, cancelled: &AtomicBool) -> Result<Vec<(u64, u64)>, Error> {
+        if cancelled.load(Ordering::Relaxed) {
+            return Err(Error::InvalidEdit("Pattern loading cancelled".into()));
+        }
+        let data = super::metadata::ChartData::read(&self.document, self.chart)?;
+        let mut regions = Vec::new();
+        for (row, marker) in data.and_then(|data| data.patterns).unwrap_or_default() {
+            if cancelled.load(Ordering::Relaxed) {
+                return Err(Error::InvalidEdit("Pattern loading cancelled".into()));
+            }
+            regions.push((row, row + marker.length));
+        }
+        Ok(regions)
+    }
+
     /// Recompute Fumen engine timestamps for this grid. GrooveAuthor pattern
     /// contexts instead retain their whole-editor timeline's assigned times;
     /// they must not be built by recomputing a standalone partial-grid clock.

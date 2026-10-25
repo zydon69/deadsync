@@ -201,6 +201,13 @@ internal static class Reference {
         }
         if(request.TryGetProperty("Region",out var region)) chart.EditorEvents.Add(new EditorPatternEvent(chart,region[0].GetInt32(),region[1].GetInt32()));
         chart.Refresh();
+        if(request.TryGetProperty("LoadedRegions",out var loadedRegions)) {
+            foreach(var loaded in loadedRegions.EnumerateArray()) {
+                var marker=new EditorPatternEvent(chart,loaded[0].GetInt32(),loaded[1].GetInt32());
+                marker.SetRowDependencies(chart.RateAlteringEvents.ForEvent(marker.Data).GetChartTimeFromPosition(marker.GetRow()),0,4,false);
+                chart.AddEvents(new[]{marker});
+            }
+        }
         var originalHeads=chart.EditorEvents.OfType<EditorNoteEvent>().Select(note=>new {Row=note.GetRow(),Lane=note.Lane,Symbol=note.Symbol,Time=note.GetChartTime(),Fake=note.IsFake()}).ToArray();
         var originalCount=chart.GetStepTotals().GetStepCount();var originalEnd=chart.GetEndChartTime();
         var originalNps=new DensityReference(chart,request.GetProperty("NumSteps").GetInt32(),request.GetProperty("LastStep").GetInt32()).Run();
@@ -230,7 +237,7 @@ internal static class Reference {
             var rawRegion=projection.GetProperty("Region");
             var marker=new EditorPatternEvent(chart,rawRegion[0].GetInt32(),rawRegion[1].GetInt32(),spacing);
             marker.SetRowDependencies(chart.RateAlteringEvents.ForEvent(marker.Data).GetChartTimeFromPosition(marker.GetRow()),0,4,false);
-            chart.AddEvents(new[]{marker});
+            if(!chart.EditorEvents.OfType<EditorPatternEvent>().Any(existing=>existing.GetRow()==marker.GetRow() && existing.GetEndChartPosition()==marker.GetEndChartPosition())) chart.AddEvents(new[]{marker});
             var regions=new List<object>();
             foreach(var range in projection.GetProperty("Ranges").EnumerateArray()) {
                 var (events,editorEvents)=chart.GetEventsInRangeForPattern(range[0].GetInt32(),range[1].GetInt32());

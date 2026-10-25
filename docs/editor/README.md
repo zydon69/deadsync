@@ -450,7 +450,7 @@ The development oracle compiles nine unchanged method bodies from the pinned
 editor: timing refresh, rate refresh, position/time queries, negative-stop end
 refresh, chart start/end, and pattern GetNps. Minimal containers/accessors replace
 UI/tree plumbing; the test does not run the whole GrooveAuthor editor or its file
-loader. Provenance records the extracted method hashes. Thirty-five committed
+loader. Provenance records the extracted method hashes. Thirty-nine committed
 cases compare exact f64 head times, fake flags, step counts, chart ends, position
 queries and NPS. Cases include simultaneous events, zero-delay guards, nested
 warps/fakes, time signatures inside warps, negative-stop stacks, long holds before
@@ -465,14 +465,14 @@ new pattern marker using the typed active-rate query. `prepare_region` extracts
 complete hold pairs, global clock events and local metadata without recomputing
 an isolated Fumen timeline. It retains the first included event's time per row
 and the full included event span. The development oracle additionally compiles
-unchanged original region extraction and deletion helpers. All 35 cases compare
+unchanged original region extraction and deletion helpers. All 39 cases compare
 these projected regions, including empty ranges and shortened tails. Mixed note
 kinds on one row verify the original lane-before-type comparison.
 
-A separate native ChartTask test serializes 32 of these cases as SSC and compares
+A separate native ChartTask test serializes 36 of these cases as SSC and compares
 the generated double-chart notes against the original library consuming the
-editor-assigned events. Loaded pattern markers and missing-tempo loader defaults
-are excluded from this test and remain separate unfinished contracts. This is
+editor-assigned events. Multiple loaded markers are now included; the raw
+before-refresh Region cases and missing-tempo loader defaults remain excluded. This is
 not a claim of complete original file-loader fidelity, especially for keysounds.
 
 `pattern_job::Task` now connects this preparation for one region: marker-relative
@@ -489,15 +489,17 @@ undo/redo and save/reopen, including the Workspace command path.
 Chart and pattern jobs share a generic bounded worker with a single progress
 slot and one completion result. Cancelling an already ready result discards it;
 dropping a worker never joins the compute thread. Pattern jobs are connected to
-the native interface through the optional F4 panel. An integrated differential test serializes 32
+the native interface through the optional F4 panel. An integrated differential test serializes 36
 cases as SSC and compares generated notes and exact average NPS with the original
 editor region/deletion/density/range/context helpers chained to the original
 StepManiaLibrary interpretation and pattern generation. The additional original
 range helper is extracted unchanged and included in provenance. Cases cover
 stops/delays, warps and signature changes, negative-stop clamping, crossing holds,
 local metadata, dense rows, exclusive endpoints, single-step patterns, beginning
-of chart and empty charts. All 32 produce matching notes; loaded pattern-marker
-and missing-tempo cases remain excluded from this integrated SSC test.
+of chart and empty charts. All 36 produce matching notes. Four added cases load multiple markers after the
+timing refresh, including dense warps, negative stops and mixed note kinds. Raw
+before-refresh Region cases and missing-tempo cases remain excluded from this
+integrated SSC test.
 
 This harness composes original helper bodies with explicit container/accessor
 adapters; it does not execute the complete editor action, file loader, UI or
@@ -570,16 +572,43 @@ and original missing-profile fallback/diagnostic behavior remain unfinished.
 
 `Session::set_properties_atomic` validates all tag edits on an isolated snapshot
 and records a single reversible property gesture without copying note data. Failed edits preserve redo and
-pending note changes. Seven workflow tests cover the original C# JSON fixtures,
+pending note changes. Eleven workflow tests cover the original C# JSON fixtures,
 SM/SSC save/reopen, unknown fields and legacy source bytes, profile resolution,
 invalid inputs, atomic rollback, and custom-tag spelling through updates,
 undo/redo and chart cloning.
 
-This storage layer is not yet wired to automatic F4 persistence or regeneration
-of loaded markers. Original constructor inspection confirms that custom markers
-are added after SetUpEditorEvents, through typed rate queries, without refreshing
-surviving event times. Existing raw timing fixtures with a Region inserted before
-refresh model a different state. Loading multiple saved markers must preserve
-that distinction, and needs original-loader/action differential coverage before
-connecting persistent generation. Live timeline caching, batch/overlap actions,
-marker editing/deletion and the remaining editor delivery matrix stay in scope.
+Original constructor inspection confirms that custom markers are added after
+SetUpEditorEvents, through typed rate queries, without refreshing surviving event
+times. `EditorTimeline::with_markers` follows that sequence, retains heads/rates,
+rejects conflicting duplicate rows and checks cancellation. SourceChart retains
+its immutable document so editor consumers can read markers without reparsing the
+file. Standalone Fumen preparation still ignores editor-specific metadata; native
+editor generation reports unsupported metadata rather than guessing its timing.
+Existing raw fixtures inserting Region before refresh represent a different state.
+
+### Regenerating a loaded marker
+
+F5 or F1 > Regenerate saved pattern finds the saved marker containing the cursor;
+when ranges overlap it chooses the marker with the latest start. Its original
+pattern/performed/expressed profiles, seed, endpoint and distribution settings
+feed the same snapshot-bound background preview as F4. Applying the result changes
+notes in one reversible gesture, preserves marker data/unknown fields and writes
+no file until Save. Saved markers are drawn beside the central chart. Metadata
+for drawing is cached by source identity, revision and active chart, rather than
+parsed while constructing actors on each frame.
+
+The native suite covers the F5/menu route, saved-marker actors, exact settings
+against the core task, preview/apply/undo/redo/save/reopen and absent markers.
+Core workflows cover SM and SSC reloads, overlapping marker selection, preserved
+metadata, cancellation, invalid bounds and unresolved profiles. The integrated
+36-case original-helper comparison includes four after-refresh loaded-marker
+cases. It composes original helper bodies and the original library with container
+adapters; it does not execute the full GrooveAuthor loader/runtime or scheduler.
+
+F4 still creates ephemeral previews and does not automatically persist new marker
+definitions. Editing bounds of an existing marker requires a future marker-edit
+operation; generation currently rejects conflicting raw bounds at the same start
+rather than creating two marker definitions at that row. Profile import/export,
+custom configuration persistence, live timeline caching, multi-region/batch and
+overlap actions, marker editing/deletion and the remaining editor delivery matrix
+remain required for the complete port.

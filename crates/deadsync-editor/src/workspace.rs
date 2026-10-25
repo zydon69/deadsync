@@ -265,6 +265,33 @@ impl Workspace {
         crate::generation::pattern_job::Task::capture(&self.file.session, self.chart, options)
     }
 
+    pub fn saved_pattern_task(
+        &self,
+        registry: &crate::generation::metadata::Registry,
+    ) -> Result<crate::generation::pattern_job::Task, Error> {
+        let data =
+            crate::generation::metadata::ChartData::read(self.file.session.document(), self.chart)?
+                .ok_or_else(|| {
+                    Error::InvalidEdit("No saved pattern markers in this chart".into())
+                })?;
+        let row = data
+            .patterns
+            .as_ref()
+            .and_then(|patterns| {
+                patterns
+                    .range(..=self.row)
+                    .rev()
+                    .find(|(start, marker)| self.row <= **start + marker.length)
+                    .map(|(&row, _)| row)
+            })
+            .ok_or_else(|| Error::InvalidEdit("No saved pattern marker at the cursor".into()))?;
+        crate::generation::pattern_job::Task::capture(
+            &self.file.session,
+            self.chart,
+            data.options(row, registry)?,
+        )
+    }
+
     pub fn apply_generated_pattern(
         &mut self,
         preview: &crate::generation::pattern_job::Preview,

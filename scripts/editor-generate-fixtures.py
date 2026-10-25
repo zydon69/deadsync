@@ -390,6 +390,14 @@ def requests(reference: Path):
         case["Inclusive"] = inclusive
         case["Projection"].update(Start=first, End=last, Region=region, NumSteps=(last-first)//12+1)
         cases["editor-timing-" + label] = case
+    for label, base, markers in [
+        ("loaded-flat", "baseline", [[48,97],[192,400]]),
+        ("loaded-negative", "stacked-negative-stops", [[48,97],[55,250],[96,192]]),
+        ("loaded-warp", "dense-warp-rounding", [[37,250],[48,97],[300,768]]),
+        ("loaded-mixed", "mixed-row-order", [[0,48],[48,97]]),
+    ]:
+        case=copy.deepcopy(cases["editor-timing-"+base]);case["LoadedRegions"]=markers
+        cases["editor-timing-"+label]=case
     metadata={"MusicOffset":-0.125,"ShouldUseChartMusicOffset":True,"ExpressedChartConfig":"A19D532E-B0CE-4759-AD1C-02ECBBDF2EFD","MaxPlayerIndex":1,
         "Patterns":{"48":{"PatternConfigGuid":"03de57bd-4329-4de6-a722-a171c11fdd16","PerformedChartConfigGuid":"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1","Length":192,"RandomSeed":-2147483648,"StartPositionInclusive":True,"EndPositionInclusive":False,"IgnorePrecedingDistribution":True},"384":{"Length":0}}}
     for label,content in {"defaults":"{}","complete":json.dumps(metadata),"null-patterns":'{"Patterns":null}',"comments":'/* original */ {"Patterns": {"0": {/* marker */ "Length":48}}}',"trailing-comma":'{"Patterns":{},}',"invalid-guid":'{"ExpressedChartConfig":"invalid"}',"braced-guid":'{"ExpressedChartConfig":"{a19d532e-b0ce-4759-ad1c-02ecbbdf2efd}"}'}.items():

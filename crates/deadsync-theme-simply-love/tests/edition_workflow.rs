@@ -495,6 +495,8 @@ fn pattern_panel_has_explicit_english_and_french_translations() {
         "PatternApply",
         "PatternApplied",
         "PatternGenerating",
+        "RegeneratePattern",
+        "PatternMarker",
     ] {
         let english = en
             .fallback
@@ -514,4 +516,127 @@ fn pattern_panel_has_explicit_english_and_french_translations() {
             "French must not fall back to English for {key}"
         );
     }
+}
+
+#[test]
+fn saved_pattern_shortcut_renders_markers_regenerates_exact_settings_and_preserves_metadata() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::{
+            metadata::{ChartData, Definition, PATTERN_BALANCED, Registry, SIXTEENTHS},
+            pattern_job::Task,
+        },
+        history::Session,
+    };
+    use std::{
+        collections::BTreeMap,
+        sync::{Arc, atomic::AtomicBool},
+    };
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let mut source = Session::new(Document::parse(Arc::<[u8]>::from(SINGLE), Format::Ssc).unwrap());
+    let definition = Definition {
+        pattern_config_guid: SIXTEENTHS.parse().unwrap(),
+        performed_chart_config_guid: PATTERN_BALANCED.parse().unwrap(),
+        length: 48,
+        random_seed: -7,
+        start_position_inclusive: true,
+        end_position_inclusive: true,
+        ignore_preceding_distribution: true,
+        extra: BTreeMap::from([("UnknownMarker".into(), serde_json::json!("keep"))]),
+    };
+    let data = ChartData {
+        patterns: Some(BTreeMap::from([
+            (48, definition.clone()),
+            (
+                192,
+                Definition {
+                    length: 208,
+                    ..definition
+                },
+            ),
+        ])),
+        ..ChartData::default()
+    };
+    data.save(&mut source, 0).unwrap();
+    let before = source.serialize().unwrap();
+    let metadata = source.document().text(Some(0), "GAChartData").unwrap();
+    let expected = Task::capture_saved(&source, 0, 48, &Registry::builtin())
+        .unwrap()
+        .run(&AtomicBool::new(false), |_, _| {})
+        .unwrap();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, &before).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::ArrowDown);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert_eq!(
+        actors
+            .iter()
+            .filter(|a| matches!(a,Actor::Text{content,z:8006,..} if content.as_ref()=="Pattern"))
+            .count(),
+        2
+    );
+    press(&mut screen, KeyCode::F5);
+    finish_generation(&mut screen);
+    assert_eq!(screen.pattern_report().unwrap().1, expected.average_nps());
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().grid(), expected.grid());
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "GAChartData")
+            .unwrap(),
+        metadata
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    ctrl(&mut screen, KeyCode::KeyY);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(reopened.workspace().grid(), expected.grid());
+    assert_eq!(
+        reopened
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "GAChartData")
+            .unwrap(),
+        metadata
+    );
+}
+#[test]
+fn saved_pattern_command_without_a_marker_is_read_only() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F5);
+    press(&mut screen, KeyCode::F1);
+    for _ in 0..7 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter); // same action through the optional menu
+    assert!(!screen.is_generating());
+    assert!(screen.pattern_report().is_none());
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
 }

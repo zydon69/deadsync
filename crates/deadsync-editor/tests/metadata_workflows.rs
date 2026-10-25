@@ -312,3 +312,205 @@ fn custom_tag_case_is_preserved_through_updates_history_and_chart_cloning() {
         2
     );
 }
+
+#[test]
+fn loaded_markers_use_typed_queries_without_refreshing_assigned_heads() {
+    use deadsync_editor::generation::{
+        editor_timing::EditorTimeline,
+        timing::{Event, EventKind, GenerationTiming},
+    };
+    use deadsync_editor::notes::Grid;
+    let cancelled = AtomicBool::new(false);
+    let timing = GenerationTiming::new(vec![
+        Event {
+            row: 0,
+            kind: EventKind::Tempo(120.0),
+        },
+        Event {
+            row: 48,
+            kind: EventKind::Stop(-1.0),
+        },
+    ])
+    .unwrap();
+    let mut grid = Grid::new(4, 1).unwrap();
+    for row in [0, 48, 96, 192] {
+        grid.set(
+            Position {
+                player: 0,
+                row,
+                lane: 0,
+            },
+            Some(Note::tap()),
+        )
+        .unwrap();
+    }
+    let base = EditorTimeline::build(&timing, &grid, None, &cancelled).unwrap();
+    let original = base
+        .heads()
+        .iter()
+        .map(|h| (h.time, h.fake))
+        .collect::<Vec<_>>();
+    let loaded = base
+        .with_markers(&[(48, 97), (192, 400), (48, 97)], &cancelled)
+        .unwrap();
+    assert_eq!(
+        loaded
+            .heads()
+            .iter()
+            .map(|h| (h.time, h.fake))
+            .collect::<Vec<_>>(),
+        original
+    );
+    assert_eq!(
+        loaded.chart_end().unwrap(),
+        loaded.position_time(400).unwrap()
+    );
+    assert_eq!(
+        loaded
+            .context_events()
+            .iter()
+            .filter(|e| e.row == 48 && e.lane.is_none())
+            .count(),
+        2
+    ); // stop + one marker
+    assert!(
+        EditorTimeline::build(&timing, &grid, None, &cancelled)
+            .unwrap()
+            .with_markers(&[(1, 5), (1, 6)], &cancelled)
+            .is_err()
+    );
+    assert!(
+        EditorTimeline::build(&timing, &grid, None, &cancelled)
+            .unwrap()
+            .with_markers(&[(5, 1)], &cancelled)
+            .is_err()
+    );
+    assert!(
+        EditorTimeline::build(&timing, &grid, None, &cancelled)
+            .unwrap()
+            .with_markers(&[(0, i32::MAX as u64 + 1)], &cancelled)
+            .is_err()
+    );
+    assert!(
+        EditorTimeline::build(&timing, &grid, None, &cancelled)
+            .unwrap()
+            .with_markers(&[], &AtomicBool::new(true))
+            .is_err()
+    );
+}
+#[test]
+fn saved_markers_reload_and_regenerate_from_the_cursor_in_sm_and_ssc() {
+    use deadsync_editor::workspace::{Command, Workspace};
+    for format in [Format::Sm, Format::Ssc] {
+        let mut source =
+            Session::new(Document::parse(Arc::<[u8]>::from(bytes(format)), format).unwrap());
+        let mut metadata = data();
+        metadata.patterns.as_mut().unwrap().insert(
+            0,
+            Definition {
+                length: 192,
+                ..marker()
+            },
+        );
+        metadata
+            .extra
+            .insert("Unknown".into(), serde_json::json!({"keep":true}));
+        metadata.save(&mut source, 0).unwrap();
+        let before = source.serialize().unwrap();
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join(format!("song.{}", format.extension()));
+        fs::write(&path, &before).unwrap();
+        let mut workspace = Workspace::open(&path, 0).unwrap();
+        workspace.execute(Command::Seek(64)).unwrap();
+        let preview = workspace
+            .saved_pattern_task(&Registry::builtin())
+            .unwrap()
+            .run(&AtomicBool::new(false), |_, _| {})
+            .unwrap();
+        assert_eq!(preview.generated().start, 48);
+        assert_eq!(preview.generated().end, 96);
+        let expected = preview.grid().clone();
+        assert_eq!(workspace.file().session.serialize().unwrap(), before);
+        workspace.apply_generated_pattern(&preview).unwrap();
+        assert_eq!(
+            workspace.file().session.undo_label(),
+            Some("Generate pattern")
+        );
+        assert_eq!(
+            ChartData::read(workspace.file().session.document(), 0)
+                .unwrap()
+                .unwrap()
+                .extra["Unknown"],
+            serde_json::json!({"keep":true})
+        );
+        workspace.execute(Command::Undo).unwrap();
+        assert_eq!(workspace.file().session.serialize().unwrap(), before);
+        workspace.execute(Command::Redo).unwrap();
+        workspace.execute(Command::Save).unwrap();
+        let mut reopened = FileSession::open(&path).unwrap();
+        assert_eq!(reopened.session.grid(0).unwrap(), &expected);
+        assert_eq!(
+            ChartData::read(reopened.session.document(), 0)
+                .unwrap()
+                .unwrap()
+                .patterns
+                .as_ref()
+                .unwrap()
+                .len(),
+            2
+        );
+        workspace.execute(Command::Seek(500)).unwrap();
+        assert!(workspace.saved_pattern_task(&Registry::builtin()).is_err());
+    }
+}
+#[test]
+fn unresolved_profiles_and_conflicting_bounds_do_not_publish_a_saved_generation() {
+    use deadsync_editor::generation::{
+        config::{ExpressedConfig, PatternConfig, PerformedConfig},
+        pattern_job,
+    };
+    let mut source =
+        Session::new(Document::parse(Arc::<[u8]>::from(bytes(Format::Ssc)), Format::Ssc).unwrap());
+    data().save(&mut source, 0).unwrap();
+    let before = source.serialize().unwrap();
+    let revision = source.revision();
+    let options = pattern_job::Options {
+        span: pattern_job::Span {
+            start: 48,
+            end: 144,
+            include_start: true,
+            include_end: true,
+        },
+        seed: 42,
+        expressed: ExpressedConfig::default(),
+        pattern: PatternConfig::sixteenths(),
+        performed: PerformedConfig::balanced(),
+        ignore_preceding_distribution: false,
+    };
+    assert!(
+        Task::capture(&source, 0, options)
+            .unwrap()
+            .run(&AtomicBool::new(false), |_, _| {})
+            .is_err()
+    );
+    assert!(Task::capture_saved(&source, 0, 48, &Registry::default()).is_err());
+    assert_eq!(source.serialize().unwrap(), before);
+    assert_eq!(source.revision(), revision);
+}
+
+#[test]
+fn standalone_fumen_preparation_does_not_interpret_editor_specific_metadata() {
+    use deadsync_editor::generation::source;
+    let mut session =
+        Session::new(Document::parse(Arc::<[u8]>::from(bytes(Format::Ssc)), Format::Ssc).unwrap());
+    session
+        .set_text(Some(0), "GAChartDataVersion", "2")
+        .unwrap();
+    session.set_text(Some(0), "GAChartData", "{}").unwrap();
+    let snapshot: Arc<[u8]> = session.serialize().unwrap().into();
+    let cancel = AtomicBool::new(false);
+    assert!(source::prepare(snapshot.clone(), Format::Ssc, 0, &cancel).is_ok());
+    assert!(source::prepare_editor(snapshot.clone(), Format::Ssc, 0, &cancel).is_err());
+    let parsed = source::read(snapshot, Format::Ssc, 0, &cancel).unwrap();
+    assert!(parsed.pattern_regions(&AtomicBool::new(true)).is_err());
+}

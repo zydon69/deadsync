@@ -106,6 +106,8 @@ pub struct State {
     workspace: Workspace,
     generation: GenerationSettings,
     pattern: PatternSettings,
+    saved_regions: Vec<(u64, u64)>,
+    marker_cache: Option<(Arc<[u8]>, u64, usize)>,
     job: Option<GenerationJob>,
     preview: Option<GenerationPreview>,
     control: bool,
@@ -177,6 +179,8 @@ impl State {
                 seed: 0,
                 ignore_distribution: false,
             },
+            saved_regions: Vec::new(),
+            marker_cache: None,
             job: None,
             preview: None,
             workspace,
@@ -244,6 +248,27 @@ impl State {
         match self
             .workspace
             .pattern_task(options)
+            .and_then(|task| task.spawn())
+        {
+            Ok(job) => {
+                self.preview = None;
+                self.job = Some(GenerationJob::Pattern(job));
+                self.panel = Some(Panel::Generating);
+                self.status = i18n::tr("Edition", "GenerationPreparing");
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+
+    fn regenerate_saved_pattern(&mut self) {
+        if self.job.is_some() {
+            return;
+        }
+        match self
+            .workspace
+            .saved_pattern_task(&deadsync_editor::generation::metadata::Registry::builtin())
             .and_then(|task| task.spawn())
         {
             Ok(job) => {
@@ -342,6 +367,27 @@ impl State {
     }
 
     fn refresh(&mut self) {
+        let session = &self.workspace.file().session;
+        let chart = self.workspace.chart();
+        let source = session.document().source();
+        if self
+            .marker_cache
+            .as_ref()
+            .is_none_or(|(old, revision, index)| {
+                !Arc::ptr_eq(old, source) || *revision != session.revision() || *index != chart
+            })
+        {
+            self.saved_regions =
+                deadsync_editor::generation::metadata::ChartData::read(session.document(), chart)
+                    .ok()
+                    .flatten()
+                    .and_then(|data| data.patterns)
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|(row, marker)| (row, row + marker.length))
+                    .collect();
+            self.marker_cache = Some((Arc::clone(source), session.revision(), chart));
+        }
         let dirty = if self.workspace.file().session.is_dirty() {
             " *"
         } else {
@@ -426,6 +472,10 @@ impl State {
         }
         if event.code == KeyCode::Escape || event.code == KeyCode::F2 {
             return self.request_close();
+        }
+        if event.code == KeyCode::F5 {
+            self.regenerate_saved_pattern();
+            return false;
         }
         if event.code == KeyCode::F4 {
             self.open_pattern();
@@ -668,7 +718,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 10,
+                    Panel::Menu(_) => 11,
                     Panel::Transforms(_) => 4,
                     _ => 3,
                 };
@@ -716,9 +766,10 @@ impl State {
                                 self.status = i18n::tr("Edition", "GenerationOptionsHelp");
                             }
                             6 => self.open_pattern(),
-                            7 => self.command(Command::SaveRecovery),
-                            8 => self.help = !self.help,
-                            9 => return self.request_close(),
+                            7 => self.regenerate_saved_pattern(),
+                            8 => self.command(Command::SaveRecovery),
+                            9 => self.help = !self.help,
+                            10 => return self.request_close(),
                             _ => {}
                         }
                     }
@@ -815,6 +866,24 @@ impl State {
                 );
             }
         }
+        for &(a, b) in &self.saved_regions {
+            if b < start || a > end {
+                continue;
+            }
+            let y1 = (cursor_y + (a as f64 - row as f64) as f32).clamp(top, bottom);
+            let y2 = (cursor_y + (b as f64 - row as f64) as f32).clamp(top, bottom);
+            actors.push(act!(quad: xy(left-9.0,(y1+y2)*0.5): zoomto(4.0,(y2-y1).max(2.0)): diffuse(0.7,0.4,1.0,0.8): z(8002)));
+            if a >= start {
+                text(
+                    actors,
+                    &i18n::tr("Edition", "PatternMarker"),
+                    left - 85.0,
+                    y1 - 9.0,
+                    0.5,
+                    [0.8, 0.6, 1.0, 1.0],
+                );
+            }
+        }
         let selection = match &self.preview {
             Some(GenerationPreview::Pattern(p)) => Some((p.generated().start, p.generated().end)),
             _ => self.workspace.selection(),
@@ -886,6 +955,7 @@ impl State {
                 "Transforms",
                 "GenerateChart",
                 "GeneratePattern",
+                "RegeneratePattern",
                 "SaveDraft",
                 "ToggleHelp",
                 "Close",

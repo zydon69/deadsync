@@ -263,6 +263,46 @@ impl EditorTimeline {
             heads,
         })
     }
+    /// The original loader adds custom pattern events after refreshing the
+    /// chart, using typed rate queries without changing assigned note times.
+    pub fn with_markers(
+        mut self,
+        regions: &[(u64, u64)],
+        cancelled: &AtomicBool,
+    ) -> Result<Self, Error> {
+        check(cancelled)?;
+        let mut known = std::collections::BTreeMap::new();
+        for entry in &self.entries {
+            check(cancelled)?;
+            if let EntryKind::Region { end } = entry.kind {
+                known.insert(entry.row, end);
+            }
+        }
+        for &(start, end) in regions {
+            check(cancelled)?;
+            valid_row(start)?;
+            valid_row(end)?;
+            if start > end {
+                return invalid("Invalid loaded pattern region");
+            }
+            if let Some(old) = known.insert(start, end) {
+                if old != end {
+                    return invalid("Conflicting pattern markers at the same row");
+                }
+                continue;
+            }
+            let time = self.query(start, Some(9))?;
+            self.entries.push(Entry {
+                row: start,
+                kind: EntryKind::Region { end },
+                time,
+            });
+        }
+        self.entries.sort_by(|a, b| event_cmp(a.key(), b.key()));
+        check(cancelled)?;
+        Ok(self)
+    }
+
     /// Apply lane-only deletions/hold shortening without recalculating the
     /// assigned times, fake flags or rate states of surviving events.
     /// A new pattern marker obtains its time from the existing typed rate query.

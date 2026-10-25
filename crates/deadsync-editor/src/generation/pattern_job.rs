@@ -95,6 +95,17 @@ impl Task {
             options,
         })
     }
+    pub fn capture_saved(
+        session: &Session,
+        chart: usize,
+        row: u64,
+        registry: &super::metadata::Registry,
+    ) -> Result<Self, Error> {
+        let data = super::metadata::ChartData::read(session.document(), chart)?
+            .ok_or_else(|| Error::InvalidEdit("No saved pattern markers in this chart".into()))?;
+        Self::capture(session, chart, data.options(row, registry)?)
+    }
+
     pub fn spawn(self) -> Result<super::job::Job<Preview>, Error> {
         use super::job::{Job, Phase, Progress};
         Job::spawn_with("editor-pattern-generation", move |cancelled, progress| {
@@ -125,7 +136,15 @@ impl Task {
         let pad = Pad::builtin(&source.layout)?;
         let spacing = ROWS_PER_BEAT / u64::from(self.options.pattern.beat_sub_division);
         let (start, end, num_steps) = self.options.span.steps(spacing)?;
-        let timeline = EditorTimeline::build(&source.timing, &source.grid, None, cancelled)?;
+        let regions = source.pattern_regions(cancelled)?;
+        if regions
+            .iter()
+            .any(|&(row, end)| row == self.options.span.start && end != self.options.span.end)
+        {
+            return invalid("Existing marker bounds differ; edit the marker before regeneration");
+        }
+        let timeline = EditorTimeline::build(&source.timing, &source.grid, None, cancelled)?
+            .with_markers(&regions, cancelled)?;
         let (edits, deletions) =
             pattern_region::deletion_edits(&source.grid, 0, start, end, spacing, cancelled)?;
         let mut retained = source.grid.clone();
