@@ -348,3 +348,32 @@ fn french_audio_preview_controls_and_status_are_visible() {
     assert!(!screen.is_playing());
     assert!(texts(&screen).iter().any(|s| s.contains("Préécoute audio")));
 }
+
+#[test]
+fn french_song_sync_panel_explains_scope_and_applies_with_translated_labels() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000;").unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F11);
+    let labels = texts(&screen);
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Synchro audio de l’éditeur : 0.009000 s"))
+    );
+    assert!(labels.iter().any(|s| s.contains("Appliquer le décalage")));
+    assert!(labels.iter().any(|s| s.contains("Préécoute uniquement")));
+    press(&mut screen, KeyCode::Digit0);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s.contains("Synchro audio appliquée"))
+    );
+}

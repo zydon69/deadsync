@@ -12,6 +12,7 @@ mod number;
 pub mod pad;
 pub mod playback;
 pub mod runtime;
+pub mod song_properties;
 pub mod storage;
 pub mod timing_edit;
 pub mod transform;

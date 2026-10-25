@@ -77,8 +77,11 @@ def prepare_metadata_reference(editor):
     text=(project/"MetadataReference.cs.template").read_text().replace("// DEFINITION",definition).replace("// CUSTOM_DATA",custom)
     offset=extract_member(read("EditorChart.cs"),r"\tpublic double GetMusicOffset\(")
     text=text.replace("// MUSIC_OFFSET",offset)
+    song=extract_member(read("EditorSong.cs"),r"\tprivate class CustomSaveDataV1\s*")
+    position="\n\n".join(extract_member(read("EditorPosition.cs"),r"\tpublic static double "+name+r"\(") for name in ["GetSongTimeFromChartTime","GetChartTimeFromSongTime"])
+    text=text.replace("// SONG_DATA",song).replace("// POSITION_METHODS",position)
     (project/"obj/MetadataReference.cs").write_text(text)
-    return hashlib.sha256((definition+"\n"+custom+"\n"+offset).encode()).hexdigest()
+    return hashlib.sha256((definition+"\n"+custom+"\n"+offset+"\n"+song+"\n"+position).encode()).hexdigest()
 
 
 
@@ -676,6 +679,8 @@ def requests(reference: Path):
     cases["legacy-timing-mixed"]={"Operation":"NormalizedFile","Format":"ssc","Content":legacy_content,"PerformedConfig":copy.deepcopy(performed)}
     cases["legacy-timing-missing-version"]={"Operation":"NormalizedFile","Format":"ssc","Content":"#TITLE:Legacy;#BPMS:4=180;#DISPLAYBPM:143.5;#STOPS:1=0.25;"+region_chart({"BPMS":"0=150"})+region_chart({"OFFSET":"0.125"})+region_chart()}
     cases["legacy-timing-fractional"]={"Operation":"NormalizedFile","Format":"ssc","Content":"#VERSION:0.60;"+tags(source_cases["tiny-regions"])+region_chart()+region_chart({"BPMS":"0=0.0000001,4=180","OFFSET":"0.25","WARPS":"1=0.00001"})}
+    for label,content in {"defaults":"{}", "positive":'{"SyncOffset":0.009,"DefaultChartType":"dance_single","DefaultChartIndex":1}', "negative":'{"SyncOffset":-0.125}', "comments":'/* song */ {"SyncOffset":0.25}', "zero":'{"SyncOffset":0}'}.items():
+        cases["song-sync-"+label]={"Operation":"SongSync", "Content":content, "MusicOffset":0.375, "Times":[-2,-0.5,0,0.009,1,25.5]}
     metadata={"MusicOffset":-0.125,"ShouldUseChartMusicOffset":True,"ExpressedChartConfig":"A19D532E-B0CE-4759-AD1C-02ECBBDF2EFD","MaxPlayerIndex":1,
         "Patterns":{"48":{"PatternConfigGuid":"03de57bd-4329-4de6-a722-a171c11fdd16","PerformedChartConfigGuid":"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1","Length":192,"RandomSeed":-2147483648,"StartPositionInclusive":True,"EndPositionInclusive":False,"IgnorePrecedingDistribution":True},"384":{"Length":0}}}
     for label,content in {"defaults":"{}","complete":json.dumps(metadata),"null-patterns":'{"Patterns":null}',"comments":'/* original */ {"Patterns": {"0": {/* marker */ "Length":48}}}',"trailing-comma":'{"Patterns":{},}',"invalid-guid":'{"ExpressedChartConfig":"invalid"}',"braced-guid":'{"ExpressedChartConfig":"{a19d532e-b0ce-4759-ad1c-02ecbbdf2efd}"}'}.items():

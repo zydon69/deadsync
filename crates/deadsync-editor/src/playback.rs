@@ -13,6 +13,7 @@ use std::{
 pub struct Preview {
     music: PathBuf,
     offset: f64,
+    sync_offset: f64,
     timeline: EditorTimeline,
 }
 impl Preview {
@@ -38,6 +39,7 @@ impl Preview {
             )));
         }
         let offset = chart_properties::Draft::capture(session, chart)?.effective_music_offset();
+        let sync_offset = crate::song_properties::sync_offset(document)?;
         let timing = GenerationTiming::from_document(document, chart)?;
         // Playback needs rate events, not note interpretation. An empty grid also
         // keeps the clock available for Couple/Routine and empty charts.
@@ -46,6 +48,7 @@ impl Preview {
         Ok(Self {
             music,
             offset,
+            sync_offset,
             timeline,
         })
     }
@@ -54,11 +57,17 @@ impl Preview {
     }
     /// Audio-file seconds. Negative positions are valid silent lead-in.
     pub fn music_time(&self, row: u64) -> Result<f64, Error> {
-        finite(self.timeline.position_time(row)? - self.offset)
+        self.chart_time_to_music(self.timeline.position_time(row)?)
     }
     pub fn position(&self, music_seconds: f64) -> Result<f64, Error> {
         self.timeline
-            .time_position(finite(music_seconds + self.offset)?)
+            .time_position(self.music_to_chart_time(music_seconds)?)
+    }
+    pub fn chart_time_to_music(&self, chart_seconds: f64) -> Result<f64, Error> {
+        finite(chart_seconds - self.offset + self.sync_offset)
+    }
+    pub fn music_to_chart_time(&self, music_seconds: f64) -> Result<f64, Error> {
+        finite(music_seconds + self.offset - self.sync_offset)
     }
 }
 fn finite(value: f64) -> Result<f64, Error> {

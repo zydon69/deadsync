@@ -387,6 +387,15 @@ impl Workspace {
     pub fn chart_properties(&self) -> Result<crate::chart_properties::Draft, Error> {
         crate::chart_properties::Draft::capture(&self.file.session, self.chart)
     }
+    pub fn song_properties(&self) -> Result<crate::song_properties::Draft, Error> {
+        crate::song_properties::Draft::capture(&self.file.session)
+    }
+    pub fn apply_song_properties(
+        &mut self,
+        draft: &crate::song_properties::Draft,
+    ) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session)
+    }
     pub fn apply_chart_properties(
         &mut self,
         draft: &crate::chart_properties::Draft,

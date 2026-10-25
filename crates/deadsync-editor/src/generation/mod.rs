@@ -12,7 +12,7 @@ pub mod graph;
 pub mod interpretation_cost;
 pub mod interpretation_path;
 pub mod job;
-mod jsonc;
+pub(crate) mod jsonc;
 pub mod marker_edit;
 pub mod metadata;
 pub mod mines;

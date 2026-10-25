@@ -1636,3 +1636,39 @@ stop/resume, stale/unmapped snapshots, editing/close cleanup, missing audio and
 preserved selection controls. A separate French workflow checks visible controls,
 playing/stopped/error statuses. These use temporary fixture assets and synthetic
 snapshots; they do not prove device output, audible alignment or physical input.
+
+### Song preview synchronization (F11)
+
+`GASongDataVersion:1` / `GASongData` now supplies the editor-only `SyncOffset`.
+The fallback for a file without song metadata is GrooveAuthor's default open-song
+preference, 0.009 seconds; a V1 object with no SyncOffset uses the original C#
+field default, zero. Configurable new/open-song preferences remain pending.
+The music-file clock now follows the original order of operations exactly:
+`music = chart - effective_music_offset + sync_offset`, and
+`chart = music + effective_music_offset - sync_offset`. This replaces the initial
+preview implementation's implicit zero editor sync. Preview snapshots retain
+both offsets independently when later document edits occur.
+
+F11 opens a compact song sync panel. Left/Right changes by 1 ms, Shift by 0.1 ms,
+0 sets zero and Home restores 9 ms. Apply records one undo gesture; Cancel/Escape
+and unchanged Apply retain file bytes/history. Save remains explicit. Opening
+the panel stops playback first. Root/individual chart OFFSET and all timing maps
+are untouched; the whole V1 JSON object is retained so default chart selection
+and unknown nested fields survive edits, including in SM. Malformed, incomplete,
+nonfinite or future-version metadata returns an error rather than being replaced.
+Other song fields and default chart selection are retained but not editable yet.
+
+Five C# oracle fixtures extract the original song data schema and the unchanged
+EditorPosition conversion methods at the pinned editor commit. Four core
+workflows compare both directions exactly, plus default/no-op/foreign/stale
+handling, finite validation, comments, unknown fields, save/reparse and undo/redo
+in SM and SSC. Two native workflows exercise F11 cancellation, unchanged Apply,
+playback cleanup, the changed actual audio cut, undo/redo and Save/reopen. A French
+actor workflow verifies visible value, help and action/status labels. Existing
+preview fixtures now declare an explicit zero song sync where zero is intended.
+Device output, full decoder lifecycle, waveform/loop/scrub and the other editor
+features listed in the delivery matrix remain required.
+
+Validation for this checkpoint: 243 core tests, 73 native editor tests and
+`cargo check -p deadsync --locked` pass. Enter on the numeric keypad is also
+accepted for playback and covered by the F11 audio-cut workflow.

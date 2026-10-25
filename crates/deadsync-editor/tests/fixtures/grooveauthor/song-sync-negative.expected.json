@@ -1,0 +1,35 @@
+{
+  "SyncOffset": -0.125,
+  "Positions": [
+    {
+      "Time": -2,
+      "SongTime": -2.5,
+      "ChartTime": -1.5
+    },
+    {
+      "Time": -0.5,
+      "SongTime": -1,
+      "ChartTime": 0
+    },
+    {
+      "Time": 0,
+      "SongTime": -0.5,
+      "ChartTime": 0.5
+    },
+    {
+      "Time": 0.009,
+      "SongTime": -0.491,
+      "ChartTime": 0.509
+    },
+    {
+      "Time": 1,
+      "SongTime": 0.5,
+      "ChartTime": 1.5
+    },
+    {
+      "Time": 25.5,
+      "SongTime": 25,
+      "ChartTime": 26
+    }
+  ]
+}

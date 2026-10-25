@@ -3,6 +3,7 @@
 mod batch;
 mod pattern_set;
 mod playback;
+mod song_properties;
 mod timing;
 
 use crate::{act, i18n};
@@ -46,6 +47,7 @@ enum Panel {
     Marker(usize),
     Profiles(usize),
     ChartProperties(usize),
+    SongProperties(usize),
     Timing(usize),
     TimingMigration(usize),
     ChartExpression(usize),
@@ -192,6 +194,7 @@ pub struct State {
     pattern_set: Option<pattern_set::Settings>,
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
+    song_properties: Option<deadsync_editor::song_properties::Draft>,
     timing: Option<timing::Settings>,
     timing_migration: Option<deadsync_editor::timing_edit::migration::Draft>,
     catalog_target: ProfileTarget,
@@ -290,6 +293,7 @@ impl State {
             },
             marker: None,
             chart_properties: None,
+            song_properties: None,
             timing: None,
             timing_migration: None,
             catalog_target: ProfileTarget::Marker,
@@ -1134,8 +1138,10 @@ impl State {
         if !event.pressed {
             return false;
         }
-        let repeating_offset = matches!(self.panel, Some(Panel::ChartProperties(2)))
-            && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
+        let repeating_offset = matches!(
+            self.panel,
+            Some(Panel::ChartProperties(2) | Panel::SongProperties(0))
+        ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !repeating_offset
             && !matches!(
@@ -1148,11 +1154,18 @@ impl State {
         if self.panel.is_some() {
             return self.panel_key(event.code);
         }
-        if event.code == KeyCode::Enter && !self.control && !self.shift {
+        if matches!(event.code, KeyCode::Enter | KeyCode::NumpadEnter)
+            && !self.control
+            && !self.shift
+        {
             self.toggle_audio();
             return false;
         }
         self.stop_audio();
+        if event.code == KeyCode::F11 {
+            self.open_song_properties();
+            return false;
+        }
         if event.code == KeyCode::Escape || event.code == KeyCode::F2 {
             return self.request_close();
         }
@@ -1330,6 +1343,7 @@ impl State {
             self.timing_migration = None;
             self.timing = None;
             self.chart_properties = None;
+            self.song_properties = None;
             self.marker = None;
             self.preview = None;
             self.panel = None;
@@ -1380,6 +1394,7 @@ impl State {
                 }
             }
             Panel::Timing(index) => self.timing_key(index, code),
+            Panel::SongProperties(index) => self.song_properties_key(index, code),
             Panel::TimingMigration(index) => self.timing_migration_key(index, code),
             Panel::ChartProperties(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
@@ -1951,7 +1966,7 @@ impl State {
             && self.preview.is_none()
             && !matches!(
                 self.panel,
-                Some(Panel::Timing(_) | Panel::TimingMigration(_))
+                Some(Panel::Timing(_) | Panel::TimingMigration(_) | Panel::SongProperties(_))
             )
         {
             self.help_actors(actors);
@@ -2050,6 +2065,9 @@ impl State {
                 "ProfileBack",
             ],
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
+            Panel::SongProperties(_) => &[
+                "SongSyncOffset", "SongPropertiesApply", "SongPropertiesCancel",
+            ],
             Panel::Timing(_) => &[
                 "TimingScope",
                 "TimingBeat",
@@ -2098,6 +2116,7 @@ impl State {
             | Panel::TimingMigration(i)
             | Panel::Timing(i)
             | Panel::ChartProperties(i)
+            | Panel::SongProperties(i)
             | Panel::ChartExpression(i)
             | Panel::ConversionProfiles(i)
             | Panel::Generation(i)
@@ -2430,6 +2449,9 @@ impl State {
                 i18n::tr("Edition", "PatternSetApply")
             } else if matches!(panel, Panel::Timing(_)) {
                 self.timing_label(index, key)
+            } else if matches!(panel, Panel::SongProperties(_)) && index == 0 {
+                let offset = self.song_properties.as_ref().map_or(0.0, |draft| draft.sync_offset());
+                i18n::tr_fmt("Edition", key, &[("seconds", &format!("{offset:.6}"))])
             } else if matches!(panel, Panel::PatternSet(_)) {
                 self.pattern_set_label(index, key)
             } else if matches!(panel, Panel::Batch(_)) {

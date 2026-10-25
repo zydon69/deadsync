@@ -5,7 +5,7 @@ use deadsync_editor::{
 };
 use std::{fs, path::Path};
 fn session(local: &str) -> Session {
-    Session::new(Document::parse(format!("#VERSION:0.83;#MUSIC:song.ogg;#OFFSET:0.25;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;{local}#NOTES:1000\n0000\n0000\n0000; ").into_bytes(), Format::Ssc).unwrap())
+    Session::new(Document::parse(format!("#VERSION:0.83;#GASongDataVersion:1;#GASongData:{{\"SyncOffset\":0}};#MUSIC:song.ogg;#OFFSET:0.25;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;{local}#NOTES:1000\n0000\n0000\n0000; ").into_bytes(), Format::Ssc).unwrap())
 }
 fn audio(dir: &Path) -> std::path::PathBuf {
     fs::write(
@@ -87,7 +87,14 @@ fn sm_and_multiplayer_charts_can_preview_without_generation_layout_restrictions(
             "#VERSION:0.83;#MUSIC:song.ogg;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-routine;#NOTES:10000000\n00000000\n00000000\n00000000\n&\n00001000\n00000000\n00000000\n00000000;",
         ),
     ] {
-        let session = Session::new(Document::parse(source.as_bytes(), format).unwrap());
+        let session = Session::new(
+            Document::parse(
+                format!("#GASongDataVersion:1;#GASongData:{{\"SyncOffset\":0}};{source}")
+                    .into_bytes(),
+                format,
+            )
+            .unwrap(),
+        );
         let preview = Preview::capture(&session, 0, &path).unwrap();
         assert_eq!(preview.music_time(96).unwrap(), 1.0);
         assert_eq!(preview.position(1.0).unwrap(), 96.0);

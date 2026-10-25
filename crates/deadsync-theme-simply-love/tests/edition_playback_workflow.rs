@@ -7,7 +7,7 @@ use std::{
     fs,
     time::{Duration, Instant},
 };
-const SONG: &str = "#VERSION:0.83;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000;";
+const SONG: &str = "#VERSION:0.83;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000;";
 fn key(state: &mut State, code: KeyCode) -> bool {
     state.raw_key(&RawKeyboardEvent {
         code,
@@ -133,4 +133,79 @@ fn missing_audio_emits_no_play_and_space_still_selects() {
     assert_eq!(state.workspace().selection(), Some((0, 48)));
     key(&mut state, KeyCode::Space);
     assert_eq!(state.workspace().selection(), None);
+}
+
+#[test]
+fn f11_sync_apply_changes_audio_cut_and_supports_undo_save_reopen() {
+    let (dir, mut state) = setup();
+    key(&mut state, KeyCode::Enter);
+    state.take_audio_commands();
+    key(&mut state, KeyCode::F11);
+    assert!(!state.is_playing());
+    assert_eq!(
+        state.take_audio_commands(),
+        vec![GameplayAudioCommand::StopMusic]
+    );
+    key(&mut state, KeyCode::ArrowRight);
+    key(&mut state, KeyCode::ArrowDown);
+    key(&mut state, KeyCode::Enter);
+    assert_eq!(
+        deadsync_editor::song_properties::sync_offset(state.workspace().file().session.document())
+            .unwrap(),
+        0.001
+    );
+    assert!(state.workspace().file().session.is_dirty());
+    key(&mut state, KeyCode::NumpadEnter);
+    match &state.take_audio_commands()[0] {
+        GameplayAudioCommand::PlayMusic { cut, .. } => assert_eq!(cut.start_sec, -0.25 + 0.001),
+        other => panic!("unexpected audio command {other:?}"),
+    }
+    fn ctrl(state: &mut State, code: KeyCode) {
+        key(state, KeyCode::ControlLeft);
+        key(state, code);
+        state.raw_key(&RawKeyboardEvent {
+            code: KeyCode::ControlLeft,
+            pressed: false,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+    }
+    ctrl(&mut state, KeyCode::KeyZ);
+    assert!(!state.is_playing());
+    assert!(!state.workspace().file().session.is_dirty());
+    ctrl(&mut state, KeyCode::KeyY);
+    ctrl(&mut state, KeyCode::KeyS);
+    let reopened = State::open(&dir.path().join("song.ssc"), 0).unwrap();
+    assert_eq!(
+        deadsync_editor::song_properties::sync_offset(
+            reopened.workspace().file().session.document()
+        )
+        .unwrap(),
+        0.001
+    );
+    assert_eq!(
+        reopened
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "OFFSET")
+            .unwrap(),
+        "0.25"
+    );
+}
+#[test]
+fn f11_cancel_and_unchanged_apply_leave_document_clean() {
+    let (_dir, mut state) = setup();
+    let bytes = state.workspace().file().session.serialize().unwrap();
+    key(&mut state, KeyCode::F11);
+    key(&mut state, KeyCode::ArrowRight);
+    key(&mut state, KeyCode::Escape);
+    assert_eq!(state.workspace().file().session.serialize().unwrap(), bytes);
+    key(&mut state, KeyCode::F11);
+    key(&mut state, KeyCode::ArrowDown);
+    key(&mut state, KeyCode::Enter);
+    assert_eq!(state.workspace().file().session.serialize().unwrap(), bytes);
+    assert!(!state.workspace().file().session.is_dirty());
 }
