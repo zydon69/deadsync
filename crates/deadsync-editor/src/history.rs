@@ -184,14 +184,6 @@ impl Session {
         name: &str,
         text: &str,
     ) -> Result<bool, Error> {
-        if matches!(
-            name.to_ascii_uppercase().as_str(),
-            "NOTES" | "NOTES2" | "NOTEDATA" | "STEPSTYPE"
-        ) {
-            return Err(Error::InvalidEdit(
-                "Structural chart properties require a chart operation".into(),
-            ));
-        }
         let after: Arc<[u8]> = escape_text(text).into();
         self.set_property_bytes(chart, name, after)
     }
@@ -202,6 +194,14 @@ impl Session {
         name: &str,
         after: Arc<[u8]>,
     ) -> Result<bool, Error> {
+        if matches!(
+            name.to_ascii_uppercase().as_str(),
+            "NOTES" | "NOTES2" | "NOTEDATA" | "STEPSTYPE"
+        ) {
+            return Err(Error::InvalidEdit(
+                "Structural chart properties require a chart operation".into(),
+            ));
+        }
         let Some(tag) = self.document.tag(chart, name) else {
             let before = self.document.added_property(chart, name);
             if before.as_deref() == Some(after.as_ref()) {
@@ -242,18 +242,37 @@ impl Session {
         properties: &[(&str, &str)],
         label: impl Into<String>,
     ) -> Result<bool, Error> {
+        let properties = properties
+            .iter()
+            .map(|(name, text)| {
+                (
+                    chart,
+                    (*name).to_owned(),
+                    Arc::<[u8]>::from(escape_text(text)),
+                )
+            })
+            .collect::<Vec<_>>();
+        self.set_property_bytes_atomic(&properties, label)
+    }
+
+    /// Preserve copied timing fields byte-for-byte while recording one gesture.
+    pub(crate) fn set_property_bytes_atomic(
+        &mut self,
+        properties: &[(Option<usize>, String, Arc<[u8]>)],
+        label: impl Into<String>,
+    ) -> Result<bool, Error> {
         if properties.is_empty() {
             return Ok(false);
         }
         let mut names = std::collections::BTreeSet::new();
         let mut temporary = Session::new(self.document.clone());
-        for (name, text) in properties {
-            if !names.insert(name.to_ascii_uppercase()) {
+        for (scope, name, bytes) in properties {
+            if !names.insert((*scope, name.to_ascii_uppercase())) {
                 return Err(Error::InvalidEdit(
                     "Atomic property edits must have distinct names".into(),
                 ));
             }
-            temporary.set_text(chart, name, text)?;
+            temporary.set_property_bytes(*scope, name, bytes.clone())?;
         }
         let changes: Vec<_> = temporary
             .undo

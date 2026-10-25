@@ -21,9 +21,27 @@ var options = new JsonSerializerOptions
 };
 var request = JsonDocument.Parse(File.ReadAllBytes(args[1])).RootElement;
 var operation = request.GetProperty("Operation").GetString();
+if (operation == "Tempo") { Console.WriteLine(JsonSerializer.Serialize(TempoOracle.Reference.Run(request), options)); return; }
 if (operation == "Profile") { Console.WriteLine(JsonSerializer.Serialize(ProfilesOracle.Reference.Run(request), options)); return; }
 if (operation == "Metadata") { Console.WriteLine(JsonSerializer.Serialize(MetadataOracle.EditorChart.Run(request), options)); return; }
 if (operation == "EditorTiming") { Console.WriteLine(JsonSerializer.Serialize(EditorTimingOracle.Reference.Run(request,args[0]), options)); return; }
+if (operation == "TimingFile") {
+    async Task<object> Read(string content) {
+        var extension=request.GetProperty("Format").GetString()!;
+        var path=System.IO.Path.Combine(System.IO.Path.GetTempPath(),Guid.NewGuid()+"."+extension);
+        try {
+            await File.WriteAllTextAsync(path,content);
+            Fumen.Converters.Reader reader=extension=="ssc"?new Fumen.Converters.SSCReader(path):new Fumen.Converters.SMReader(path);
+            var song=await reader.LoadAsync(CancellationToken.None);
+            return song.Charts.Select(chart=>new {
+                Offset=chart.ChartOffsetFromMusic,
+                Bpms=chart.Layers[0].Events.OfType<Tempo>().Select(tempo=>new{Row=tempo.IntegerPosition,Bpm=tempo.TempoBPM}).ToArray(),
+                Notes=chart.Layers[0].Events.OfType<LaneNote>().Select(note=>new{Row=note.IntegerPosition,Lane=note.Lane,Time=note.TimeSeconds}).ToArray()
+            }).ToArray();
+        } finally {File.Delete(path);}
+    }
+    Console.WriteLine(JsonSerializer.Serialize(new{Before=await Read(request.GetProperty("Content").GetString()!),After=await Read(request.GetProperty("EditedContent").GetString()!)},options));return;
+}
 if (operation == "FileClock")
 {
     var extension = request.GetProperty("Format").GetString()!;

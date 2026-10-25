@@ -1,0 +1,20 @@
+{
+  "Operation": "TimingFile",
+  "Format": "sm",
+  "Scope": "Song",
+  "Chart": 0,
+  "Content": "#TITLE:Timing;#OFFSET:0.25;#BPMS:0=120,4=180;#STOPS:2=0.25;#DELAYS:3=0.125;#NOTES:dance-single::Hard:9::1000\n0100\n0010\n0001;#NOTES:dance-single::Hard:9::1000\n0100\n0010\n0001;",
+  "EditedContent": "#TITLE:Timing;#OFFSET:0.25;#BPMS:0=160,2=200,4=180;#STOPS:2=0.25;#DELAYS:3=0.125;#NOTES:dance-single::Hard:9::1000\n0100\n0010\n0001;#NOTES:dance-single::Hard:9::1000\n0100\n0010\n0001;",
+  "Operations": [
+    [
+      "set",
+      0,
+      160
+    ],
+    [
+      "set",
+      96,
+      200
+    ]
+  ]
+}

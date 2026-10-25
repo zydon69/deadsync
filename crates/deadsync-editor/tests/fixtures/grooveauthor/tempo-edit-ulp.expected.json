@@ -1,0 +1,40 @@
+{
+  "Initial": [
+    {
+      "Row": 0,
+      "Bpm": 120
+    }
+  ],
+  "Stages": [
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 120
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 120.00000000000003
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 120
+        }
+      ]
+    }
+  ]
+}

@@ -1197,3 +1197,61 @@ native workflows also pass. These checks prove dispatch and constructed actors,
 not GPU rendering, physical input or full original-editor runtime parity. The
 broader delivery matrix, including timing/audio tools, profile management,
 additional layouts and scalability validation, remains required.
+
+### Scoped BPM editing core (native panel pending)
+
+`timing_edit::TempoDraft` stages song-shared or chart-local BPM maps against a
+session identity/revision. It exposes the charts affected by a shared edit and
+supports adding/updating, deleting and moving nodes. The initial row-zero BPM
+cannot be removed or moved; collisions with another tempo node are refused,
+matching the original miscellaneous-event movement guard. Finite values follow
+the original 0.000001 BPM minimum and one-ULP setter equality. Values must also
+fit DeadSync's RSSP gameplay timing representation. No invalid/discarded/stale/
+foreign/wrong-chart draft can change the file or clear redo. Acceptance is one
+property history action, and Save remains explicit. Workspace methods expose
+capture and acceptance for the forthcoming native timing panel.
+
+The tempo loader mirrors Fumen's AddTempos row conflict resolution and invalid
+value handling, plus GrooveAuthor's minimum clamp and missing initial-tempo
+fallback. Later beats win when they quantize to one row, duplicate exact beats
+keep the final value, and the original subdivision rounding is preserved.
+Missing row-zero tempo uses earlier charts' starting-tempo histogram, enumerated
+by first-seen chart-type groups as in EditorSong (including
+last-key tie handling), then the song's explicit zero-beat tempo/display BPM,
+then 120 BPM. A no-op draft keeps the original source bytes rather than rewriting
+its normalized representation. A real BPM edit serializes the normalized map.
+This is not a claim that all legacy loader normalization is finished.
+
+The first local SSC timing tag switches the entire chart to its own timing set.
+`inherited_fields_for_write` therefore copies the complete inherited timing set,
+including raw labels/comments/legacy bytes and OFFSET, before replacing the
+selected fields. An already-independent chart keeps its own timing without
+pulling unrelated song fields into it. Song edits affect inheriting charts only.
+SM has one shared timing set and rejects chart-local scope. SSC below 0.7 or with
+an absent/unrecognized split-timing version currently rejects chart-local edits;
+shared song edits remain available. Atomic legacy migration is still required.
+
+This revealed and fixed the same detachment issue in F7: adding an audio OFFSET
+to an inheriting chart now retains its BPMs, stops, delays, warps and other timing
+rather than silently activating an incomplete local timing set. The shared raw
+property transaction preserves copied values byte-for-byte and keeps all changes
+under one undo. Structural and duplicate property guards still run before live
+mutation. Expression-only chart-property edits do not detach timing.
+
+Fifteen committed tempo fixtures exercise the pinned Fumen importer, unchanged
+GrooveAuthor tempo setter/minimum and unchanged CanEventExistAtRow/
+CanEventBeMovedToRow guards through explicit adapters. They compare loaded maps
+and every resulting node value, including half-row/negative/duplicate positions,
+invalid tempos, minimum clamps, fractional values, integer row bounds and ULP
+behavior. Five additional file fixtures run the actual pinned SM/SSC reader
+before and after explicit expected exports, comparing all charts' BPM maps,
+per-note times and audio offsets. They cover inherited/local/shared BPM edits and
+the F7 offset regression. Ten Rust workflows add actual atomic save/reopen,
+one undo/redo, note/other-chart preservation, all inherited raw timing fields,
+no-op redo, rejected edits, missing/legacy/offset-only timing, fallback behavior
+and shared property-transaction validation. Ordinary tests need no .NET runtime.
+
+The adapters do not replay the complete original editor action/notification loop.
+The native BPM panel, other typed timing/gimmick editors, legacy migration,
+complete timing normalization, edited audio preview/cache invalidation and the
+remaining delivery matrix are still required for the full port.

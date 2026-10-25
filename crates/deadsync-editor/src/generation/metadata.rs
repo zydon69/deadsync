@@ -278,11 +278,31 @@ impl ChartData {
         let (scope, version, data) = tags(session.document(), chart)?;
         let json = serde_json::to_string(self).map_err(|e| Error::InvalidFormat(e.to_string()))?;
         let offset = chart_offset.map(|value| value.to_string());
-        let mut properties = vec![(version.as_str(), "1"), (data.as_str(), json.as_str())];
-        if let Some(offset) = &offset {
-            properties.push(("OFFSET", offset.as_str()));
+        let mut properties: Vec<(Option<usize>, String, std::sync::Arc<[u8]>)> = if chart_offset
+            .is_some()
+        {
+            crate::timing_edit::inherited_fields_for_write(session.document(), chart, &["OFFSET"])?
+                .into_iter()
+                .map(|(name, bytes)| (Some(chart), name, bytes))
+                .collect()
+        } else {
+            Vec::new()
+        };
+        for (name, value) in [(version.as_str(), "1"), (data.as_str(), json.as_str())] {
+            properties.push((
+                scope,
+                name.to_owned(),
+                crate::document::escape_text(value).into(),
+            ));
         }
-        session.set_properties_atomic(scope, &properties, label)
+        if let Some(offset) = &offset {
+            properties.push((
+                scope,
+                "OFFSET".into(),
+                crate::document::escape_text(offset).into(),
+            ));
+        }
+        session.set_property_bytes_atomic(&properties, label)
     }
     pub fn options(&self, row: u64, registry: &Registry) -> Result<Options, Error> {
         self.validate()?;
@@ -439,9 +459,5 @@ fn invalid<T>(message: &str) -> Result<T, Error> {
 
 /// Original DoubleEquals music-offset comparison (one ULP, signed zero equal).
 pub(crate) fn music_offsets_equal(a: f64, b: f64) -> bool {
-    if a.to_bits() >> 63 != b.to_bits() >> 63 {
-        a == b
-    } else {
-        a.to_bits().abs_diff(b.to_bits()) <= 1
-    }
+    crate::number::reference_equal(a, b)
 }

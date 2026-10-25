@@ -1,0 +1,67 @@
+// Setter body and minimum extracted unchanged from the pinned editor. Input and
+// dictionary/selection adapters do not emulate the complete editor action loop.
+using System.Text.Json;
+using Fumen;
+using Fumen.ChartDefinition;
+using static Fumen.FumenExtensions;
+using static System.Diagnostics.Debug;
+namespace TempoOracle;
+internal sealed class SilentLogger:ILogger {public void Info(string _){}public void Warn(string _){}public void Error(string _){}}
+internal class EditorEvent(int row) {
+    public int Row=row;
+    public int GetRow()=>Row;
+    public int GetLane()=>-1;
+    public bool IsLaneNote()=>false;
+}
+internal class EditorPatternEvent(int row):EditorEvent(row) {}
+internal class EditorHoldNoteEvent(int row):EditorEvent(row) {}
+internal class Events:List<EditorEvent>{public IEnumerable<EditorEvent> FindEventsAtRow(int row)=>this.Where(value=>value.GetRow()==row);}
+internal sealed class EditorChart {
+    private const int InvalidArrowIndex=-1;
+    private int NumInputs=4;
+    public Events EditorEvents=new();
+    public bool CanBeEdited()=>true;
+    public bool IsMultiPlayer()=>false;
+    public List<EditorHoldNoteEvent> GetHoldsOverlappingPosition(int row)=>[];
+    public void OnTempoModified(EditorTempoEvent _) {}
+    // MOVEMENT
+}
+internal sealed class EditorTempoEvent:EditorEvent {
+    // MINIMUM
+    private readonly EditorChart EditorChart;
+    private readonly Tempo TempoEvent;
+    private bool WidthDirty;
+    public EditorTempoEvent(double value,int row=0,EditorChart? owner=null):base(row){EditorChart=owner??new();TempoEvent=new Tempo(Math.Max(MinTempo,value));}
+    // SETTER
+}
+internal static class Reference {
+    public static object Run(JsonElement input) {
+        var source=new Dictionary<double,double>();foreach(var pair in input.GetProperty("Segments").EnumerateArray())source[pair[0].GetDouble()]=pair[1].GetDouble();
+        var chart=new Chart{Layers=[new Layer()]};Fumen.Converters.SMCommon.AddTempos(source,chart,new SilentLogger(),false);
+        var store=new EditorChart();
+        var nodes=new SortedDictionary<int,EditorTempoEvent>();foreach(var tempo in chart.Layers[0].Events.OfType<Tempo>())nodes[tempo.IntegerPosition]=new(tempo.TempoBPM,tempo.IntegerPosition,store);
+        if(!nodes.ContainsKey(0))nodes[0]=new(input.GetProperty("Fallback").GetDouble(),0,store);
+        store.EditorEvents.AddRange(nodes.Values);
+        object Values()=>nodes.Select(pair=>new {Row=pair.Key,Bpm=pair.Value.DoubleValue}).ToArray();
+        var initial=Values();var stages=new List<object>();
+        foreach(var operation in input.GetProperty("Operations").EnumerateArray()) {
+            var kind=operation[0].GetString();var row=operation[1].GetInt32();var changed=false;string? error=null;
+            if(kind=="set") {
+                var bpm=operation[2].GetDouble();
+                if(bpm<EditorTempoEvent.MinTempo) error="invalid";
+                else if(nodes.TryGetValue(row,out var node)){var before=node.DoubleValue;node.DoubleValue=bpm;changed=before!=node.DoubleValue;}
+                else{nodes[row]=new(bpm,row,store);store.EditorEvents.Add(nodes[row]);changed=true;}
+            } else if(kind=="remove") {if(row==0)error="initial";else {if(nodes.TryGetValue(row,out var removed))store.EditorEvents.Remove(removed);changed=nodes.Remove(row);}}
+            else if(kind=="move") {
+                var target=operation[2].GetInt32();
+                if(row==0 && target!=0)error="initial";
+                else if(!nodes.TryGetValue(row,out var node))error="missing";
+                else if(row==target){}
+                else if(!store.CanEventBeMovedToRow(node,target))error="collision";
+                else{nodes.Remove(row);nodes[target]=node;node.Row=target;changed=true;}
+            }else throw new ArgumentException("Unknown tempo operation");
+            stages.Add(new {Changed=changed,Error=error,Values=Values()});
+        }
+        return new {Initial=initial,Stages=stages};
+    }
+}

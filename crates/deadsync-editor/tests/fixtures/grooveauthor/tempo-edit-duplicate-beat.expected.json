@@ -1,0 +1,160 @@
+{
+  "Initial": [
+    {
+      "Row": 0,
+      "Bpm": 180
+    },
+    {
+      "Row": 192,
+      "Bpm": 200
+    }
+  ],
+  "Stages": [
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 192,
+          "Bpm": 200
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 96,
+          "Bpm": 180
+        },
+        {
+          "Row": 192,
+          "Bpm": 200
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 96,
+          "Bpm": 180
+        },
+        {
+          "Row": 192,
+          "Bpm": 200
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 144,
+          "Bpm": 180
+        },
+        {
+          "Row": 192,
+          "Bpm": 200
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 144,
+          "Bpm": 180
+        },
+        {
+          "Row": 192,
+          "Bpm": 200
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "initial",
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 144,
+          "Bpm": 180
+        },
+        {
+          "Row": 192,
+          "Bpm": 200
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 192,
+          "Bpm": 200
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 192,
+          "Bpm": 200
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 192,
+          "Bpm": 200
+        }
+      ]
+    }
+  ]
+}

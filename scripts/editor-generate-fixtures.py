@@ -82,6 +82,18 @@ def prepare_metadata_reference(editor):
 
 
 
+def prepare_tempo_reference(editor):
+    source=subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/EditorEvents/EditorTempoEvent.cs"],cwd=editor).decode("utf-8-sig")
+    minimum=re.search(r"public const double MinTempo = [^;]+;",source).group()
+    setter=extract_member(source,r"\tpublic double DoubleValue\s*")
+    chart=subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/EditorChart.cs"],cwd=editor).decode("utf-8-sig")
+    movement="\n\n".join(extract_member(chart,r"\tpublic bool "+name+r"\(") for name in ["CanEventExistAtRow","CanEventBeMovedToRow"])
+    project=ROOT/"scripts/editor-oracle"
+    template=(project/"TempoReference.cs.template").read_text().replace("// MINIMUM",minimum).replace("// SETTER",setter).replace("// MOVEMENT",movement)
+    (project/"obj/TempoReference.cs").write_text(template)
+    return hashlib.sha256((minimum+"\n"+setter+"\n"+movement).encode()).hexdigest()
+
+
 def prepare_profiles_reference(editor):
     def read(path):
         return subprocess.check_output(["git", "show", f"{EDITOR_PIN}:StepManiaEditor/{path}"],cwd=editor).decode("utf-8-sig")
@@ -500,6 +512,38 @@ def requests(reference: Path):
         item["InsertionClear"]=[[row,0,12,True,True] for row in sorted({note[0] for stage in item["Insertions"] for note in stage})]
         item["InsertionRanges"]=[[0,47],[48,96],[97,768],[0,-1]]
         cases[name.replace("editor-timing-","editor-insertion-")]=item
+    tempo_cases={
+        "basic":[[0,120],[4,180]],"unsorted":[[4,180],[0,120],[2,150]],
+        "duplicate-beat":[[0,120],[0,180],[4,190],[4,200]],
+        "row-collision":[[0,120],[1.001,170],[1.009,190],[1.005,180]],
+        "half-row":[[0,120],[0.5/48,130],[1.5/48,140],[2.5/48,150],[47.5/48,160]],
+        "negative-rows":[[-2,90],[-0.1,100],[-0.00001,110],[4,180]],
+        "invalid-first":[[0,-1],[2,-10],[4,180],[8,200]],
+        "invalid-all":[[0,0],[2,-1],[4,-180]],"below-min":[[0,0.00000001],[4,0.0000001]],
+        "empty":[],"future-first":[[4,180],[8,200]],
+        "fractional":[[0,187.3],[0.3333333333333333,157.7],[2.0000000001,143.456789123]],
+        "ulp":[[0,120]],"large-row":[[0,120],[2147483647/48,180]],
+    }
+    for label,segments in tempo_cases.items():
+        cases["tempo-edit-"+label]={"Operation":"Tempo","Segments":segments,"Fallback":120.0,
+            "Operations":[["set",0,150],["set",96,180],["set",96,180],["move",96,144],["move",144,0],["remove",0],["remove",144],["remove",144],["set",48,0.0000001]]}
+    cases["tempo-edit-ulp"]["Operations"]=[["set",0,value] for value in [float.fromhex("0x1.e000000000001p+6"),float.fromhex("0x1.e000000000002p+6"),120.0]]
+    cases["tempo-edit-empty-display"]=copy.deepcopy(cases["tempo-edit-empty"]);cases["tempo-edit-empty-display"]["Fallback"]=187.3
+    timing_fields={"OFFSET":"0.25","BPMS":"0=120,4=180","STOPS":"2=0.25","DELAYS":"3=0.125","WARPS":"8=1","TIMESIGNATURES":"0=4=4,16=3=4","TICKCOUNTS":"0=4","COMBOS":"0=1=1","SPEEDS":"0=1=0=0,6=2=1=0","SCROLLS":"0=1,4=0.5","FAKES":"12=1","LABELS":"1=Café"}
+    def tags(fields):return "".join(f"#{tag}:{value};" for tag,value in fields.items())
+    def chart(fields=None):return "#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;"+tags(fields or {})+"#NOTES:1000\n0100\n0010\n0001;"
+    own={"BPMS":"0=150","OFFSET":"-0.125","STOPS":"1=0.1"}
+    root="#VERSION:0.83;#TITLE:Timing;"+tags(timing_fields)
+    content=root+chart()+chart(own)+chart()
+    edits={"inherited":("Chart",0,root+chart({**timing_fields,"BPMS":"0=160,2=200,4=180"})+chart(own)+chart(),[["set",0,160],["set",96,200]]),
+        "own":("Chart",1,root+chart()+chart({**own,"BPMS":"0=175"})+chart(),[["set",0,175]]),
+        "song":("Song",0,"#VERSION:0.83;#TITLE:Timing;"+tags({**timing_fields,"BPMS":"0=160,2=200,4=180"})+chart()+chart(own)+chart(),[["set",0,160],["set",96,200]])}
+    for label,(scope,index,edited,operations) in edits.items():
+        cases["tempo-file-"+label]={"Operation":"TimingFile","Format":"ssc","Scope":scope,"Chart":index,"Content":content,"EditedContent":edited,"Operations":operations}
+    cases["tempo-file-offset"]={"Operation":"TimingFile","Format":"ssc","Scope":"Offset","Chart":0,"Content":content,
+        "EditedContent":root+chart({**timing_fields,"OFFSET":"0.5"})+chart(own)+chart(),"Operations":[["offset",0,0.5]]}
+    sm="#TITLE:Timing;#OFFSET:0.25;#BPMS:0=120,4=180;#STOPS:2=0.25;#DELAYS:3=0.125;"+"#NOTES:dance-single::Hard:9::1000\n0100\n0010\n0001;"*2
+    cases["tempo-file-sm"]={"Operation":"TimingFile","Format":"sm","Scope":"Song","Chart":0,"Content":sm,"EditedContent":sm.replace("#BPMS:0=120,4=180;","#BPMS:0=160,2=200,4=180;"),"Operations":[["set",0,160],["set",96,200]]}
     metadata={"MusicOffset":-0.125,"ShouldUseChartMusicOffset":True,"ExpressedChartConfig":"A19D532E-B0CE-4759-AD1C-02ECBBDF2EFD","MaxPlayerIndex":1,
         "Patterns":{"48":{"PatternConfigGuid":"03de57bd-4329-4de6-a722-a171c11fdd16","PerformedChartConfigGuid":"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1","Length":192,"RandomSeed":-2147483648,"StartPositionInclusive":True,"EndPositionInclusive":False,"IgnorePrecedingDistribution":True},"384":{"Length":0}}}
     for label,content in {"defaults":"{}","complete":json.dumps(metadata),"null-patterns":'{"Patterns":null}',"comments":'/* original */ {"Patterns": {"0": {/* marker */ "Length":48}}}',"trailing-comma":'{"Patterns":{},}',"invalid-guid":'{"ExpressedChartConfig":"invalid"}',"braced-guid":'{"ExpressedChartConfig":"{a19d532e-b0ce-4759-ad1c-02ecbbdf2efd}"}'}.items():
@@ -557,6 +601,7 @@ def main():
     timing_hash = prepare_timing_reference(args.editor_root.resolve())
     metadata_hash = prepare_metadata_reference(args.editor_root.resolve())
     profiles_hash = prepare_profiles_reference(args.editor_root.resolve())
+    tempo_hash = prepare_tempo_reference(args.editor_root.resolve())
     project = ROOT / "scripts/editor-oracle/EditorOracle.csproj"
     build = subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if build.returncode:
@@ -579,7 +624,7 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
-        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash,
+        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
         "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],

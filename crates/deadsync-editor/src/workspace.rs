@@ -338,6 +338,16 @@ impl Workspace {
         .map(|task| task.with_chart_expression())
     }
 
+    pub fn tempo_draft(
+        &self,
+        scope: crate::timing_edit::Scope,
+    ) -> Result<crate::timing_edit::TempoDraft, Error> {
+        crate::timing_edit::TempoDraft::capture(&self.file.session, self.chart, scope)
+    }
+    pub fn apply_tempo(&mut self, draft: &crate::timing_edit::TempoDraft) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session, self.chart)
+    }
+
     pub fn chart_properties(&self) -> Result<crate::chart_properties::Draft, Error> {
         crate::chart_properties::Draft::capture(&self.file.session, self.chart)
     }

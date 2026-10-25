@@ -1,0 +1,120 @@
+{
+  "Initial": [
+    {
+      "Row": 0,
+      "Bpm": 187.3
+    }
+  ],
+  "Stages": [
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 96,
+          "Bpm": 180
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 96,
+          "Bpm": 180
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 144,
+          "Bpm": 180
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 144,
+          "Bpm": 180
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "initial",
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        },
+        {
+          "Row": 144,
+          "Bpm": 180
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 0,
+          "Bpm": 150
+        }
+      ]
+    }
+  ]
+}
