@@ -2586,3 +2586,34 @@ Validation for song text/global music: all 324 core tests, 144 native editor tes
 and the two shell adapter contracts pass. `cargo check -p deadsync --locked`
 passes. The documented original live-model, native OS/GPU/audio and unrelated
 shell unit-test fixture gaps remain outside these results.
+
+### Native keyboard runtime observation (2026-10-25)
+
+Built commit `ac1cd77702` with `cargo build -p deadsync --locked` and
+packaged a separately identified `org.deadsync.editorqa` macOS app. Its portable
+Resources directory contains only a synthetic SSC and two generated WAVs; the
+user song library/configuration was not used. Windowed OpenGL, 1280x720, French.
+The standalone startup log confirms focused-window keyboard fallback when raw
+Input Monitoring is unavailable. No permission was granted.
+
+Using native keyboard input only, observed title -> guest profile -> colour ->
+single -> standard -> song selection -> P practice -> F2 editor. The editor
+renders the eight synthetic notes. F11, Up, Enter opens song text; PageDown, Down,
+F2 opens the native audio chooser in the fixture song directory. Keyboard
+selection and Return close it with a successful music-selection status; Tab then
+moves to Back, proving focused keyboard navigation resumes. The selected music
+remained `song.wav`; this observation does not prove switching tracks, persistence,
+clipboard transfer, decoding, audible output, or complete keyboard coverage.
+
+Observed UI defect: the French text-field help is a single long bottom line
+which clips at the right edge. It needs wrapping or shorter contextual help and
+a rendered regression check. These runtime observations supplement the tests;
+they do not establish GrooveAuthor feature parity.
+
+The footer now reserves 42 logical pixels for wrapped status/help, bounded to
+the viewport width with 18-pixel side margins. Chart rendering ends above the
+shortcut/footer area. A native actor contract checks the wrap width, position
+and height at 854x480. This addresses the observed single-line overflow in code;
+rendering the rebuilt application is still required to assess final readability.
+
+Footer validation: `cargo test -p deadsync-theme-simply-love --test edition_song_text_workflow --locked` passes all five tests, including the bounded-footer actor contract. The contract checks layout properties, not glyph readability or GPU output.

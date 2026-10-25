@@ -2004,18 +2004,13 @@ impl State {
             actors,
             &i18n::tr("Edition", if self.workspace.has_chart(){"Shortcuts"}else{"NoChartShortcuts"}),
             18.0,
-            height - 43.0,
+            height - 70.0,
             0.5,
             [0.65, 0.7, 0.8, 1.0],
         );
-        text(
-            actors,
-            &self.status,
-            18.0,
-            height - 20.0,
-            0.5,
-            [0.9, 0.9, 0.9, 1.0],
-        );
+        // Reserve a bounded multiline footer for localized help and errors.
+        let status_width = (width - 36.0).max(1.0);
+        actors.push(act!(text: font("miso"): settext(self.status.clone()): align(0.0,0.0): xy(18.0,height-50.0): zoom(0.5): wrapwidthpixels(status_width/0.5): maxwidth(status_width): maxheight(42.0): diffuse(0.9,0.9,0.9,1.0): z(8006)));
         if !self.workspace.has_chart() {
             self.no_chart_actors(actors);
             return;
@@ -2040,7 +2035,7 @@ impl State {
         let field_width = lane_width * f32::from(grid.columns());
         let left = field_center - field_width * 0.5;
         let top = 105.0;
-        let bottom = (height - 65.0).max(top);
+        let bottom = (height - 85.0).max(top);
         let cursor_y = top + 55.0;
         let pixels_per_row = 1.0;
         let row = self.workspace.row();

@@ -325,3 +325,31 @@ fn text_cancel_and_chartless_song_properties_remain_keyboard_accessible_and_pers
         Some("Empty song")
     );
 }
+
+#[test]
+fn song_text_help_has_a_bounded_multiline_footer() {
+    let (_dir, mut state, _) = setup(false, false);
+    open(&mut state);
+    let help = i18n::tr("Edition", "SongTextHelp");
+    let mut actors = Vec::new();
+    state.actors(&mut actors);
+    let footer = actors.iter().find(|actor| {
+        matches!(actor,
+        Actor::Text { content, .. } if content.to_string() == help.as_ref())
+    });
+    match footer.expect("song text help is rendered") {
+        Actor::Text {
+            offset,
+            wrap_width_pixels,
+            max_width,
+            max_height,
+            ..
+        } => {
+            assert_eq!(*offset, [18.0, 430.0]);
+            assert_eq!(*wrap_width_pixels, Some(1636));
+            assert_eq!(*max_width, Some(818.0));
+            assert_eq!(*max_height, Some(42.0));
+        }
+        _ => unreachable!(),
+    }
+}
