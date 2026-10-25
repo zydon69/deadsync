@@ -2,8 +2,9 @@
 use super::{Panel, State};
 impl State {
     pub fn wants_text_input(&self) -> bool {
-        matches!(self.panel, Some(Panel::Timing(2)))
-            && self.timing.as_ref().is_some_and(|s| s.is_label())
+        self.chart_text_field().is_some()
+            || (matches!(self.panel, Some(Panel::Timing(2)))
+                && self.timing.as_ref().is_some_and(|s| s.is_label()))
     }
     pub fn text_input(&mut self, text: &str) -> bool {
         if !self.wants_text_input()
@@ -12,6 +13,9 @@ impl State {
             || text.chars().all(char::is_control)
         {
             return false;
+        }
+        if self.chart_text_field().is_some() {
+            return self.chart_text_input(text);
         }
         let Some(settings) = self.timing.as_mut() else {
             return false;

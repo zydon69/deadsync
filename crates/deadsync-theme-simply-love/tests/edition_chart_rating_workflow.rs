@@ -44,7 +44,7 @@ fn init() {
     ));
 }
 fn choose(s: &mut State, from: usize, to: usize) {
-    for _ in 0..((to + 9 - from) % 9) {
+    for _ in 0..((to + 10 - from) % 10) {
         press(s, KeyCode::ArrowDown);
     }
 }
@@ -93,6 +93,7 @@ fn native_identity_edits_stage_apply_undo_redo_save_and_reopen_both_formats() {
         let mut s = State::open(&path, 0).unwrap();
         press(&mut s, KeyCode::F7);
         press(&mut s, KeyCode::ArrowUp);
+        press(&mut s, KeyCode::ArrowUp);
         number(&mut s, "14");
         press(&mut s, KeyCode::Enter);
         assert_eq!(identity(&s).rating(), 9);
@@ -133,6 +134,7 @@ fn invalid_rating_blocks_apply_and_timing_then_cancel_preserves_source() {
     for invalid in ["0", "-1", "9.5", "2147483648", ""] {
         press(&mut s, KeyCode::F7);
         press(&mut s, KeyCode::ArrowUp);
+        press(&mut s, KeyCode::ArrowUp);
         number(&mut s, invalid);
         choose(&mut s, 8, 4);
         press(&mut s, KeyCode::Enter);
@@ -163,6 +165,7 @@ fn rating_arrows_clamp_and_shift_steps_are_staged_until_apply() {
     .unwrap();
     let mut s = State::open(&path, 0).unwrap();
     press(&mut s, KeyCode::F7);
+    press(&mut s, KeyCode::ArrowUp);
     press(&mut s, KeyCode::ArrowUp);
     press(&mut s, KeyCode::ArrowLeft);
     assert!(has(&s, "Rating: 1"));

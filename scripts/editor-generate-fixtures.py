@@ -754,6 +754,13 @@ def requests(reference: Path):
     for label,format,difficulty,rating in [("ssc-decimal","ssc","Hard","9.5"),("ssc-thousands","ssc","Edit","1,000"),("ssc-unknown","ssc","Future","bad"),("ssc-nonfinite","ssc","99","NaN"),("ssc-number","ssc","3","+12"),("sm-decimal","sm","Easy","9.5"),("sm-legacy","sm","Hard","-7")]:
         content=("#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:"+difficulty+";#METER:"+rating+";#NOTES:1000;") if format=="ssc" else ("#BPMS:0=120;#NOTES2:dance-single:Desc:"+difficulty+":"+rating+":0,0,0,0,0:1000;")
         cases["chart-identity-"+label]={"Operation":"ChartIdentity","Format":format,"Content":content}
+    for label,format,content in [
+        ("ssc-fields","ssc","#VERSION:0.83;#BPMS:0=120;#CREDIT:Song author;#NOTEDATA:;#STEPSTYPE:dance-single;#CHARTNAME:Été 日本語;#DESCRIPTION:A\\:B\\;C\\\\D;#CREDIT:Local;#CHARTSTYLE:Pad;#NOTES:1000;"),
+        ("ssc-inherited","ssc","#VERSION:0.83;#BPMS:0=120;#CREDIT:Song author;#NOTEDATA:;#STEPSTYPE:dance-single;#CREDIT:;#NOTES:1000;"),
+        ("ssc-missing","ssc","#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;"),
+        ("sm-fields","sm","#BPMS:0=120;#CREDIT:Song author;#NOTES2:dance-single:Été 日本語 A\\:B:Hard:9::1000;")
+    ]:
+        cases["chart-text-"+label]={"Operation":"ChartText","Format":format,"Content":content}
     def empty_chart(layout="dance-single",bpm=None,signature=None):
         return "#NOTEDATA:;#STEPSTYPE:"+layout+";"+("#BPMS:"+bpm+";" if bpm is not None else "")+("#TIMESIGNATURES:"+signature+";" if signature is not None else "")+"#NOTES:1"+"0"*({"dance-double":8,"dance-solo":6}.get(layout,4)-1)+";"
     for label,content in {

@@ -35,6 +35,7 @@ if (operation == "Tempo") { Console.WriteLine(JsonSerializer.Serialize(TempoOrac
 if (operation == "Profile") { Console.WriteLine(JsonSerializer.Serialize(ProfilesOracle.Reference.Run(request), options)); return; }
 if (operation == "SongSync") { Console.WriteLine(JsonSerializer.Serialize(MetadataOracle.EditorSong.Run(request), options)); return; }
 if (operation == "ChartIdentity") { Console.WriteLine(JsonSerializer.Serialize(await MetadataOracle.EditorChart.ReadIdentity(request), options)); return; }
+if (operation == "ChartText") { Console.WriteLine(JsonSerializer.Serialize(await MetadataOracle.EditorChart.ReadIdentity(request), options)); return; }
 if (operation == "Metadata") { Console.WriteLine(JsonSerializer.Serialize(MetadataOracle.EditorChart.Run(request), options)); return; }
 if (operation == "EditorTiming") { Console.WriteLine(JsonSerializer.Serialize(EditorTimingOracle.Reference.Run(request,args[0]), options)); return; }
 if (operation == "RegionFile") {

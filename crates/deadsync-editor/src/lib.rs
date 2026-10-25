@@ -5,6 +5,7 @@
 pub mod analysis;
 pub mod chart_properties;
 pub mod chart_identity;
+pub mod chart_text;
 pub mod chart_creation;
 pub mod chart_deletion;
 pub mod document;

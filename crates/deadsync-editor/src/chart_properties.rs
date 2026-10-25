@@ -22,6 +22,7 @@ pub struct Draft {
     selection: Option<ExpressionSelection>,
     format: Format,
     identity: crate::chart_identity::Identity,
+    text: crate::chart_text::Text,
 }
 impl Draft {
     pub fn capture(session: &Session, chart: usize) -> Result<Self, Error> {
@@ -51,7 +52,17 @@ impl Draft {
             selection: None,
             format: session.document().format,
             identity: crate::chart_identity::Identity::read(session.document(), chart)?,
+            text: crate::chart_text::Text::read(session.document(), chart)?,
         })
+    }
+    pub fn text(&self, field: crate::chart_text::Field) -> &str {
+        self.text.get(field)
+    }
+    pub fn supports_text(&self, field: crate::chart_text::Field) -> bool {
+        self.text.supports(field)
+    }
+    pub fn set_text(&mut self, field: crate::chart_text::Field, value: &str) -> Result<(), Error> {
+        self.text.set(field, value)
     }
     pub fn difficulty(&self) -> Option<crate::chart_identity::Difficulty> {
         self.identity.difficulty()
@@ -104,6 +115,7 @@ impl Draft {
         self.offset_changed()
             || self.expression != self.original_expression
             || self.identity.has_changes()
+            || self.text.has_changes()
     }
     fn check(&self, session: &Session, chart: usize) -> Result<(), Error> {
         if chart != self.chart || !session.accepts_token(&self.token) {
@@ -158,6 +170,7 @@ impl Draft {
                 data.save_with_offset(staged, chart, exported, "Change chart properties")?;
             }
             self.identity.apply(staged, chart)?;
+            self.text.apply(staged, chart)?;
             Ok(())
         })
     }

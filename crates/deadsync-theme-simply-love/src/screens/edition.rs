@@ -5,6 +5,7 @@ mod batch;
 mod chart_creation;
 mod chart_deletion;
 mod chart_rating;
+mod chart_text;
 mod pattern_set;
 mod playback;
 mod song_properties;
@@ -56,6 +57,7 @@ enum Panel {
     Marker(usize),
     Profiles(usize),
     ChartProperties(usize),
+    ChartText(usize),
     SongProperties(usize),
     Timing(usize),
     TimingMigration(usize),
@@ -204,6 +206,7 @@ pub struct State {
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
     chart_rating_input: Option<String>,
+    chart_text_fresh: bool,
     song_properties: Option<deadsync_editor::song_properties::Draft>,
     timing: Option<timing::Settings>,
     timing_migration: Option<deadsync_editor::timing_edit::migration::Draft>,
@@ -317,6 +320,7 @@ impl State {
             marker: None,
             chart_properties: None,
             chart_rating_input: None,
+            chart_text_fresh: true,
             song_properties: None,
             timing: None,
             timing_migration: None,
@@ -1390,6 +1394,10 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if let Panel::ChartText(index) = panel {
+            self.chart_text_key(index, code);
+            return false;
+        }
         if matches!(panel, Panel::Analysis) {
             return self.analysis_key(code);
         }
@@ -1465,6 +1473,7 @@ impl State {
             return false;
         }
         match panel {
+            Panel::ChartText(_) => unreachable!("chart text input dispatched above"),
             Panel::NewChart(index) => self.new_chart_key(index, code),
             Panel::DeleteChart(index) => self.deletion_key(index, code),
             Panel::EmptyMenu(index) => return self.empty_menu_key(index, code),
@@ -1524,7 +1533,7 @@ impl State {
                 }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ChartProperties(
-                        (index + if code == KeyCode::ArrowUp { 8 } else { 1 }) % 9,
+                        (index + if code == KeyCode::ArrowUp { 9 } else { 1 }) % 10,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(draft) = &mut self.chart_properties {
@@ -1566,6 +1575,7 @@ impl State {
                         0 => self.open_chart_expression(),
                         4 => self.apply_chart_properties(),
                         6 => self.open_timing(),
+                        9 => self.open_chart_text(),
                         8 => {
                             if self.stage_chart_rating() {
                                 self.status = i18n::tr("Edition", "ChartRatingStaged");
@@ -2251,6 +2261,9 @@ impl State {
                 "TimingAccept",
                 "TimingCancel",
             ],
+            Panel::ChartText(_) => &[
+                "ChartName", "ChartDescription", "ChartCredit", "ChartStyle", "ChartTextBack",
+            ],
             Panel::ChartProperties(_) => &[
                 "ChartChooseExpression",
                 "ChartUseOffset",
@@ -2261,6 +2274,7 @@ impl State {
                 "TimingOpen",
                 "ChartDifficulty",
                 "ChartRating",
+                "ChartTextOpen",
             ],
             Panel::ChartExpression(_) => {
                 &["ProfileExpression", "ChartStageExpression", "ProfileBack"]
@@ -2292,6 +2306,7 @@ impl State {
             | Panel::TimingMigration(i)
             | Panel::Timing(i)
             | Panel::ChartProperties(i)
+            | Panel::ChartText(i)
             | Panel::SongProperties(i)
             | Panel::ChartExpression(i)
             | Panel::ConversionProfiles(i)
@@ -2461,7 +2476,9 @@ impl State {
             } else {
                 [0.8, 0.8, 0.85, 1.0]
             };
-            let label = if matches!(panel, Panel::ChartProperties(_)) && index == 7 {
+            let label = if matches!(panel, Panel::ChartText(_)) && index < 4 {
+                self.chart_text_label(index)
+            } else if matches!(panel, Panel::ChartProperties(_)) && index == 7 {
                 self.chart_difficulty_label()
             } else if matches!(panel, Panel::ChartProperties(_)) && index == 8 {
                 self.chart_rating_label()

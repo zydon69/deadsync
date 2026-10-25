@@ -45,7 +45,7 @@ reviewable and tested.
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/move; broader GrooveAuthor transformations pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
-| Metadata | Existing and new scoped tags with escaping/history; F7 difficulty, rating, expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
+| Metadata | Existing and new scoped tags with escaping/history; F7 difficulty, rating, chart text, expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
 | Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; F11 edits Song SyncOffset | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
@@ -2330,3 +2330,44 @@ invalid/stale guards. Four additional native tests cover both file formats,
 invalid input, clamping/Shift increments and French labels. The previously
 recorded missing shell unit-test fixtures and physical runtime checks remain
 outside this validation.
+
+
+### Chart names, descriptions, credits and styles
+
+F7 > Name, description and credit opens an optional text panel. SSC exposes all
+four original chart text fields (CHARTNAME, DESCRIPTION, CREDIT and CHARTSTYLE).
+SM exposes only its positional chart description; other fields are marked
+unavailable and skipped during keyboard navigation. This reflects the pinned
+Fumen SM writer, which does not serialize the other three per-chart fields. Full
+transient SM property editing and a guided format-conversion flow remain pending;
+we do not claim this persistence guard implements that original transient UI.
+
+Up/Down chooses a field, committed Unicode input replaces its initial value and
+then appends, Backspace removes a scalar, and Delete clears it. IME preedit is
+shown without accepting it or triggering editor shortcuts. Escape/Back returns
+to chart properties with staged changes; Apply commits all text, difficulty,
+rating, expression and offset changes in one undo gesture. Escape from the main
+properties panel discards them. Single-line input preserves punctuation through
+MSD escaping instead of applying the stricter timing-label sanitizer. Control
+characters are rejected by the core setter and ignored by native text entry.
+
+The reader follows Fumen's chart credit inheritance: an absent/empty SSC CREDIT
+uses the song CREDIT. Explicitly clearing it writes an empty local tag; reopening
+then restores the inherited song credit, as in the original reader. Unchanged
+inherited values do not create local tags or GrooveAuthor metadata. Unknown tags,
+other charts, existing CP1252 bytes, escaped SM headers and note payloads remain
+intact. Four actual-reader fixtures compare the pinned EditorChart text-field
+projection, including Unicode, reserved punctuation and inherited/missing values.
+These fixtures use Fumen plus a constructor adapter, not the full original UI.
+
+Four core workflows cover the reader fixtures, combined atomic edits, Unicode
+save/reopen, SM persistence restrictions and stale/foreign/wrong-chart guards.
+Native workflows cover committed text/IME, shortcut suppression, cancel/back,
+empty credit, both file formats and French labels. Full text selection, cursor
+movement within a field, very-long-field horizontal scrolling, original live
+chart sorting and physical rendering remain outstanding.
+
+Validation for chart text: all 311 core tests and 127 native editor tests pass;
+`cargo check -p deadsync --locked` passes. The native suite was rerun against the
+final panel navigation. These results retain the prior limits concerning
+physical/GPU validation and the unrelated missing shell unit-test fixtures.

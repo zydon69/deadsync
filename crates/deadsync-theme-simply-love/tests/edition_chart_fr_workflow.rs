@@ -200,6 +200,7 @@ fn french_chart_difficulty_rating_validation_and_pending_timing_are_translated()
     );
     assert!(labels.iter().any(|text| text.contains("Niveau : 9")));
     press(&mut state, KeyCode::ArrowUp);
+    press(&mut state, KeyCode::ArrowUp);
     press(&mut state, KeyCode::Digit0);
     press(&mut state, KeyCode::Enter);
     assert!(
@@ -207,7 +208,7 @@ fn french_chart_difficulty_rating_validation_and_pending_timing_are_translated()
             .iter()
             .any(|text| text.contains("Saisissez un niveau entier"))
     );
-    for _ in 0..7 {
+    for _ in 0..8 {
         press(&mut state, KeyCode::ArrowDown);
     }
     press(&mut state, KeyCode::Enter);
@@ -222,4 +223,52 @@ fn french_chart_difficulty_rating_validation_and_pending_timing_are_translated()
         song.as_bytes()
     );
     assert_eq!(fs::read_to_string(path).unwrap(), song);
+}
+
+#[test]
+fn french_chart_text_panel_labels_input_and_staging_remain_translated() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let song =
+        "#VERSION:0.83;#BPMS:0=120;#CREDIT:Auteur;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path, song).unwrap();
+    let mut s = State::open(&path, 0).unwrap();
+    press(&mut s, KeyCode::F7);
+    press(&mut s, KeyCode::ArrowUp);
+    assert!(
+        texts(&s)
+            .iter()
+            .any(|text| text == "Nom, description et crédit...")
+    );
+    press(&mut s, KeyCode::Enter);
+    assert!(s.text_input("Été"));
+    let labels = texts(&s);
+    for expected in [
+        "Nom : Été",
+        "Description : ",
+        "Crédit : Auteur",
+        "Style : ",
+        "Retour aux propriétés de la partition",
+    ] {
+        assert!(
+            labels.iter().any(|text| text == expected),
+            "{expected}: {labels:?}"
+        );
+    }
+    assert!(!labels.iter().any(|text| text.contains('{')));
+    press(&mut s, KeyCode::Escape);
+    assert!(
+        texts(&s)
+            .iter()
+            .any(|text| text.contains("Textes préparés."))
+    );
+    press(&mut s, KeyCode::Escape);
+    assert_eq!(
+        s.workspace().file().session.serialize().unwrap(),
+        song.as_bytes()
+    );
 }

@@ -261,7 +261,7 @@ impl Session {
         field: usize,
         text: &str,
     ) -> Result<bool, Error> {
-        if !matches!(field, 2 | 3) {
+        if !matches!(field, 1 | 2 | 3) {
             return Err(Error::InvalidEdit("Unsupported SM header edit".into()));
         }
         let range = self.document.sm_header_range(chart, field)?;
