@@ -3482,3 +3482,45 @@ including the original default 9ms sync offset. `cargo check -p deadsync --jobs 
 macOS application packaged and launched successfully.
 The 15 targeted core zoom/projection/note-overview/region-index tests passed
 again after native integration.
+
+### Persistent zoom settings and keyboard panel
+
+The shared version-1 application preferences now include a `Zoom` object with
+`ScrollInterpolationDuration`, `ZoomMultiplier`, `SizeCap` and `LimitZoomToSize`.
+Defaults/ranges follow GrooveAuthor PreferencesScroll / UIScrollPreferences:
+0.1 seconds [0,1], multiplier 1.2 [1,4], cap 1 [1e-6,1], limit disabled. Values
+are validated before mutation; applying them configures a clone of the original
+numerical manager before replacing the live controller. The size-cap notification
+is applied before the limit notification, preserving their original behavior.
+The current session zoom factor is not persisted by these four settings.
+
+The existing atomic preference file adapter preserves unknown root/group fields,
+keeps exact bytes on no-op, refuses future/malformed known settings and detects
+external writes. Audio/waveform saves retain the zoom group and vice versa.
+Missing files remain missing until a setting actually changes and is saved.
+This is DeadSync's own grouped preference document, not an importer for the
+complete original GrooveAuthor preferences file.
+
+Shift+Z opens a seven-row keyboard panel: animation duration, zoom multiplier,
+note size cap, spacing-limit toggle, defaults, save and discard. Left/right
+adjust; Shift uses finer steps, Home restores a field default, and 0 chooses its
+minimum/off value. Numeric steps are 0.01/0.001 seconds, 0.1/0.01 multiplier,
+and 0.01/0.001 size cap. The six-decimal cap label represents the 1e-6 minimum.
+Enter toggles the limit. Tab and Shift+Tab navigate. Edits/defaults remain staged;
+save writes before applying to the view, Escape discards. Failed saves retain
+the reviewable draft and prior active controller settings. English/French help
+exposes the panel; Ctrl/Cmd+Shift+Z continues to redo rather than opening it.
+
+Four new core workflows cover defaults/bounds/atomic validation, manager
+configuration, preservation/roundtrip, invalid files, missing/no-op files and
+external conflicts. Three native workflows cover the French panel, fine steps,
+staging/defaults/cancel, save/reload, real capped key zoom, song preservation and
+failed writes without applying a draft. Constant-time/variable spacing modes,
+original preference import and remaining scroll controls are still pending.
+
+Validation: the complete editor core suite passed 370 tests; all
+186 native editor integration tests passed. The 15 targeted preference
+workflows passed, and the three new native settings workflows passed again
+after adding fresh-editor reload assertions. `cargo check -p deadsync --jobs 2
+--locked` passed. The panel is validated through native key/actor integration;
+no physical screenshot validation of this new settings panel is claimed.

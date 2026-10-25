@@ -1,4 +1,5 @@
-//! Editor audio preferences, stored independently of simfiles.
+//! Shared editor application preferences, stored independently of simfiles.
+//! Audio, waveform and zoom groups share conflict-safe atomic persistence.
 use crate::{Error, waveform_preferences::Preferences as Waveform};
 use serde_json::{Map, Value};
 use std::{
@@ -56,6 +57,7 @@ fn read_bytes(path: &Path) -> Result<Option<Vec<u8>>, Error> {
 struct Settings {
     audio: Audio,
     waveform: Waveform,
+    zoom: crate::zoom_preferences::Preferences,
 }
 
 pub struct File {
@@ -64,6 +66,7 @@ pub struct File {
     root: Map<String, Value>,
     audio_fields: Map<String, Value>,
     waveform_fields: Map<String, Value>,
+    zoom_fields: Map<String, Value>,
     original: Settings,
     written: Settings,
     settings: Settings,
@@ -119,9 +122,19 @@ impl File {
                 ));
             }
         };
+        let zoom_fields = match root.get("Zoom") {
+            None => Map::new(),
+            Some(Value::Object(fields)) => fields.clone(),
+            Some(_) => {
+                return Err(Error::InvalidFormat(
+                    "Editor zoom preferences must be an object".into(),
+                ));
+            }
+        };
         let settings = Settings {
             audio,
             waveform: Waveform::read(&waveform_fields)?,
+            zoom: crate::zoom_preferences::Preferences::read(&zoom_fields)?,
         };
         Ok(Self {
             path: path.to_owned(),
@@ -129,6 +142,7 @@ impl File {
             root,
             audio_fields,
             waveform_fields,
+            zoom_fields,
             original: settings,
             written: settings,
             settings,
@@ -145,6 +159,12 @@ impl File {
     }
     pub fn set_waveform(&mut self, waveform: Waveform) {
         self.settings.waveform = waveform;
+    }
+    pub fn zoom(&self) -> crate::zoom_preferences::Preferences {
+        self.settings.zoom
+    }
+    pub fn set_zoom(&mut self, zoom: crate::zoom_preferences::Preferences) {
+        self.settings.zoom = zoom;
     }
     pub fn has_changes(&self) -> bool {
         self.settings != self.original || self.settings != self.written
@@ -183,7 +203,10 @@ impl File {
         );
         let mut waveform_fields = self.waveform_fields.clone();
         self.settings.waveform.write(&mut waveform_fields);
+        let mut zoom_fields = self.zoom_fields.clone();
+        self.settings.zoom.write(&mut zoom_fields);
         let mut root = self.root.clone();
+        root.insert("Zoom".into(), Value::Object(zoom_fields.clone()));
         root.insert("Waveform".into(), Value::Object(waveform_fields.clone()));
         root.insert("Audio".into(), Value::Object(fields.clone()));
         let mut bytes = serde_json::to_vec_pretty(&root)
@@ -208,6 +231,7 @@ impl File {
         self.root = root;
         self.audio_fields = fields;
         self.waveform_fields = waveform_fields;
+        self.zoom_fields = zoom_fields;
         crate::storage::sync_directory(parent)?;
         self.original = self.settings;
         Ok(true)

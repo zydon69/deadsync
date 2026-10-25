@@ -2,6 +2,7 @@
 //! deadsync-editor; this module owns presentation, shortcuts, and exit prompts.
 mod analysis_panel;
 mod zoom_view;
+mod zoom_settings;
 mod audio_settings;
 mod batch;
 mod chart_creation;
@@ -70,6 +71,7 @@ enum Panel {
     SongProperties(usize),
     SongSample(usize),
     AudioSettings(usize),
+    ZoomSettings(usize),
     WaveformSettings(usize),
     WaveformColors(usize),
     Timing(usize),
@@ -211,6 +213,8 @@ impl GenerationPreview {
 pub struct State {
     zoom: deadsync_editor::zoom::Manager,
     zoom_epoch: std::time::Instant,
+    zoom_preferences: deadsync_editor::zoom_preferences::Preferences,
+    zoom_preferences_draft: Option<deadsync_editor::zoom_preferences::Preferences>,
     playback: Option<playback::Playing>,
     audio_preferences: deadsync_editor::audio_preferences::Audio,
     audio_preferences_file: Option<deadsync_editor::audio_preferences::File>,
@@ -323,6 +327,8 @@ impl State {
             .unwrap_or(0);
         let mut state = Self {
             zoom: Default::default(),
+            zoom_preferences: Default::default(),
+            zoom_preferences_draft: None,
             zoom_epoch: std::time::Instant::now(),
             playback: None,
             audio_preferences: Default::default(),
@@ -1315,7 +1321,7 @@ impl State {
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
-            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0 | 1) | Panel::WaveformSettings(2 | 3) | Panel::WaveformColors(1..=13))
+            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0 | 1) | Panel::ZoomSettings(0..=2) | Panel::WaveformSettings(2 | 3) | Panel::WaveformColors(1..=13))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !repeating_offset
@@ -1344,6 +1350,7 @@ impl State {
             self.stop_audio();
             return self.no_chart_key(event.code);
         }
+        if self.shift && !self.control && event.code == KeyCode::KeyZ { self.open_zoom_settings(); return false; }
         if self.zoom_key(event) { return false; }
         if event.code == KeyCode::KeyW && !self.control {
             if self.shift { self.open_waveform_settings(); } else { self.toggle_waveform(); }
@@ -1511,6 +1518,7 @@ impl State {
             self.waveform_settings_key(index, code);
             return false;
         }
+        if let Panel::ZoomSettings(index) = panel { self.zoom_settings_key(index, code); return false; }
         if let Panel::AudioSettings(index) = panel {
             self.audio_settings_key(index, code);
             return false;
@@ -1647,6 +1655,7 @@ impl State {
             Panel::SongSample(_) => unreachable!("sample input dispatched above"),
             Panel::WaveformColors(_) => unreachable!("waveform colours dispatched above"),
             Panel::WaveformSettings(_) => unreachable!("waveform settings dispatched above"),
+            Panel::ZoomSettings(_) => unreachable!("zoom settings dispatched above"),
             Panel::AudioSettings(_) => unreachable!("audio settings dispatched above"),
             Panel::TimingMigration(index) => self.timing_migration_key(index, code),
             Panel::ChartProperties(index) => {
@@ -2268,7 +2277,7 @@ impl State {
                 self.panel,
                 Some(
                     Panel::Timing(_) | Panel::TimingMigration(_)
-                        | Panel::SongProperties(_) | Panel::SongSample(_) | Panel::AudioSettings(_) | Panel::WaveformSettings(_) | Panel::WaveformColors(_) | Panel::SongText(_)
+                        | Panel::SongProperties(_) | Panel::SongSample(_) | Panel::ZoomSettings(_) | Panel::AudioSettings(_) | Panel::WaveformSettings(_) | Panel::WaveformColors(_) | Panel::SongText(_)
                 )
             )
         {
@@ -2386,6 +2395,7 @@ impl State {
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
             Panel::WaveformColors(_) => &["WaveformColorMode","WaveformColorDarken","WaveformDenseRed","WaveformDenseGreen","WaveformDenseBlue","WaveformDenseAlpha","WaveformSparseRed","WaveformSparseGreen","WaveformSparseBlue","WaveformSparseAlpha","WaveformBackgroundRed","WaveformBackgroundGreen","WaveformBackgroundBlue","WaveformBackgroundAlpha","WaveformColorsBack"],
             Panel::WaveformSettings(_) => &["WaveformSettingShow", "WaveformSettingEnabled", "WaveformSettingWidth", "WaveformSettingDense", "WaveformSettingsDefaults", "WaveformSettingsSave", "WaveformSettingsCancel"],
+            Panel::ZoomSettings(_) => &["ZoomDuration", "ZoomMultiplier", "ZoomSizeCap", "ZoomLimited", "ZoomSettingsDefaults", "ZoomSettingsSave", "ZoomSettingsCancel"],
             Panel::AudioSettings(_) => &["AudioFadeIn", "AudioFadeOut", "AudioSettingsDefaults", "AudioSettingsApply", "AudioSettingsCancel"],
             Panel::SongSample(_) => &["SongSampleStart", "SongSampleLength", "SongLastSecondHint", "SongSampleBack"],
             Panel::SongProperties(_) => &[
@@ -2457,6 +2467,7 @@ impl State {
             | Panel::SongText(i)
             | Panel::SongProperties(i)
             | Panel::SongSample(i)
+            | Panel::ZoomSettings(i)
             | Panel::AudioSettings(i)
             | Panel::WaveformSettings(i)
             | Panel::WaveformColors(i)
@@ -2835,6 +2846,8 @@ impl State {
                 self.waveform_colors_label(index,key)
             } else if matches!(panel, Panel::WaveformSettings(_)) && index < 4 {
                 self.waveform_settings_label(index, key)
+            } else if matches!(panel, Panel::ZoomSettings(_)) && index < 4 {
+                self.zoom_settings_label(index, key)
             } else if matches!(panel, Panel::AudioSettings(_)) && index < 2 {
                 self.audio_settings_label(index, key)
             } else if matches!(panel, Panel::SongSample(_)) && index < 3 {
