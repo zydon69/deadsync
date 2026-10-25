@@ -3,7 +3,7 @@
 use super::step_data::StepType;
 use crate::{Error, pad::Pad};
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, HashMap},
     io::{Cursor, Write},
     ops::Range,
     sync::{Arc, OnceLock},
@@ -163,6 +163,7 @@ pub struct StepGraph {
     pub nodes: Vec<Node>,
     pub edges: Vec<Edge>,
     pub targets: Vec<usize>,
+    link_index: Vec<OnceLock<HashMap<GraphLink, usize>>>,
 }
 
 impl StepGraph {
@@ -289,10 +290,12 @@ impl StepGraph {
                 "Unexpected data after step graph".into(),
             ));
         }
+        let link_index = (0..nodes.len()).map(|_| OnceLock::new()).collect();
         Ok(Self {
             nodes,
             edges,
             targets,
+            link_index,
         })
     }
 
@@ -302,6 +305,17 @@ impl StepGraph {
             orientation: Orientation::Normal,
         };
         self.nodes.iter().position(|node| node.state == state)
+    }
+
+    pub fn edge_for_link(&self, node: usize, link: &GraphLink) -> Option<&Edge> {
+        let index = self.link_index.get(node)?.get_or_init(|| {
+            self.nodes[node]
+                .edges
+                .clone()
+                .map(|index| (self.edges[index].link, index))
+                .collect()
+        });
+        index.get(link).map(|&index| &self.edges[index])
     }
 
     pub fn builtin(layout: &str) -> Result<Arc<Self>, Error> {

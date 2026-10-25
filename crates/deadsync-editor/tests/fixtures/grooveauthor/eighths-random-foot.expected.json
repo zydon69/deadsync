@@ -1,0 +1,351 @@
+{
+  "Success": true,
+  "Notes": [
+    {
+      "Row": 0,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 24,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 48,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 72,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 96,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 120,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 144,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 168,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 192,
+      "Lane": 1,
+      "Kind": "1"
+    }
+  ],
+  "Nodes": [
+    {
+      "Row": 0,
+      "Time": 0,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 24,
+      "Time": 0.2,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 48,
+      "Time": 0.4,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 72,
+      "Time": 0.6,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 96,
+      "Time": 0.8,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 120,
+      "Time": 1,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 144,
+      "Time": 1.2,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 168,
+      "Time": 1.4,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 192,
+      "Time": 1.6,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    }
+  ],
+  "Scores": [
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 0,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.375
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 0,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.25
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 0,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 0,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 0,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.075
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 0,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.08333333
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 0,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.053571437
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 0,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 0,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.041666668
+    }
+  ]
+}

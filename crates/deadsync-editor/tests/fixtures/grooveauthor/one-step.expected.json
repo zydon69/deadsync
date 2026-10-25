@@ -1,0 +1,47 @@
+{
+  "Success": true,
+  "Notes": [
+    {
+      "Row": 0,
+      "Lane": 0,
+      "Kind": "1"
+    }
+  ],
+  "Nodes": [
+    {
+      "Row": 0,
+      "Time": 0,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    }
+  ],
+  "Scores": [
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 0,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.375
+    }
+  ]
+}

@@ -36,10 +36,11 @@ def main() -> None:
         "notice": "Inventory of reference files, not a claim of review, implementation, or test coverage.",
         "grooveauthor": inventory(args.grooveauthor, {".cs", ".json", ".md", ".csproj", ".fsg"}),
         "stepmania_library": inventory(args.step_library, {".cs", ".json", ".md", ".csproj", ".fsg"}),
+        "fumen": inventory(args.step_library / "Fumen", {".cs", ".json", ".md", ".csproj"}),
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
-    for name in ("grooveauthor", "stepmania_library"):
+    for name in ("grooveauthor", "stepmania_library", "fumen"):
         print(f"{name}: {result[name]['commit']}, {len(result[name]['files'])} files")
 
 

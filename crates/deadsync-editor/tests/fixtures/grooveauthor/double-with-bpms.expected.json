@@ -1,0 +1,2479 @@
+{
+  "Success": true,
+  "Notes": [
+    {
+      "Row": 192,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 204,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 216,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 228,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 240,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 252,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 264,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 276,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 288,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 300,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 312,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 324,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 336,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 348,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 360,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 372,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 384,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 396,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 408,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 420,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 432,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 444,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 456,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 468,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 480,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 492,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 504,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 516,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 528,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 540,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 552,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 564,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 576,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 588,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 600,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 612,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 624,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 636,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 648,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 660,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 672,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 684,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 696,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 708,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 720,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 732,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 744,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 756,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 768,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 780,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 792,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 804,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 816,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 828,
+      "Lane": 2,
+      "Kind": "1"
+    },
+    {
+      "Row": 840,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 852,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 864,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 876,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 888,
+      "Lane": 0,
+      "Kind": "1"
+    },
+    {
+      "Row": 900,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 912,
+      "Lane": 1,
+      "Kind": "1"
+    },
+    {
+      "Row": 924,
+      "Lane": 4,
+      "Kind": "1"
+    },
+    {
+      "Row": 936,
+      "Lane": 3,
+      "Kind": "1"
+    },
+    {
+      "Row": 948,
+      "Lane": 4,
+      "Kind": "1"
+    },
+    {
+      "Row": 960,
+      "Lane": 3,
+      "Kind": "1"
+    }
+  ],
+  "Nodes": [
+    {
+      "Row": 192,
+      "Time": 1.3333333333333333,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 4,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 204,
+      "Time": 1.4166666666666665,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 216,
+      "Time": 1.5,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 228,
+      "Time": 1.5833333333333333,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 240,
+      "Time": 1.6666666666666665,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 252,
+      "Time": 1.75,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 264,
+      "Time": 1.8333333333333333,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 276,
+      "Time": 1.9166666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 288,
+      "Time": 2,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 300,
+      "Time": 2.083333333333333,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 312,
+      "Time": 2.1666666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 324,
+      "Time": 2.25,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 336,
+      "Time": 2.333333333333333,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 348,
+      "Time": 2.4166666666666665,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 360,
+      "Time": 2.5,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 372,
+      "Time": 2.583333333333333,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 384,
+      "Time": 2.6666666666666665,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 396,
+      "Time": 2.7291666666666665,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 408,
+      "Time": 2.7916666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 420,
+      "Time": 2.8541666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 432,
+      "Time": 2.9166666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 444,
+      "Time": 2.9791666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 456,
+      "Time": 3.0416666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 468,
+      "Time": 3.1041666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 480,
+      "Time": 3.1666666666666665,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 492,
+      "Time": 3.2291666666666665,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 504,
+      "Time": 3.2916666666666665,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 516,
+      "Time": 3.3541666666666665,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 528,
+      "Time": 3.4166666666666665,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 540,
+      "Time": 3.4791666666666665,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 552,
+      "Time": 3.5416666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 564,
+      "Time": 3.6041666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 576,
+      "Time": 3.6666666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 588,
+      "Time": 3.7291666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 600,
+      "Time": 3.7916666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 612,
+      "Time": 3.8541666666666665,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 624,
+      "Time": 3.9166666666666665,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 636,
+      "Time": 3.9791666666666665,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 648,
+      "Time": 4.041666666666666,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 660,
+      "Time": 4.104166666666666,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 672,
+      "Time": 4.166666666666666,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 684,
+      "Time": 4.229166666666666,
+      "Feet": [
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 696,
+      "Time": 4.291666666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 708,
+      "Time": 4.354166666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 720,
+      "Time": 4.416666666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 732,
+      "Time": 4.479166666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 744,
+      "Time": 4.541666666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 756,
+      "Time": 4.604166666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 768,
+      "Time": 4.666666666666666,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 780,
+      "Time": 4.729166666666666,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 792,
+      "Time": 4.791666666666666,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 804,
+      "Time": 4.854166666666666,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 816,
+      "Time": 4.916666666666666,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 828,
+      "Time": 4.979166666666666,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 840,
+      "Time": 5.041666666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 2,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 852,
+      "Time": 5.104166666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 864,
+      "Time": 5.166666666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 876,
+      "Time": 5.229166666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 888,
+      "Time": 5.291666666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 900,
+      "Time": 5.354166666666666,
+      "Feet": [
+        {
+          "Lane": 0,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 912,
+      "Time": 5.416666666666666,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 924,
+      "Time": 5.479166666666666,
+      "Feet": [
+        {
+          "Lane": 1,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 4,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        }
+      ]
+    },
+    {
+      "Row": 936,
+      "Time": 5.541666666666666,
+      "Feet": [
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 1
+        },
+        {
+          "Lane": 4,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 948,
+      "Time": 5.604166666666666,
+      "Feet": [
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        },
+        {
+          "Lane": 4,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        }
+      ]
+    },
+    {
+      "Row": 960,
+      "Time": 5.666666666666666,
+      "Feet": [
+        {
+          "Lane": 3,
+          "State": 0,
+          "Valid": true,
+          "Step": 0
+        },
+        {
+          "Lane": 4,
+          "State": 0,
+          "Valid": false,
+          "Step": 0
+        }
+      ]
+    }
+  ],
+  "Scores": [
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 0,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.22
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.19500001
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.19500001
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.19500001
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.19500001
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.19500001
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0.3333339999999999,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.18
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0.6666679999999997,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.14875
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0.6666679999999997,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.15222222
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0.6666679999999997,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.13
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0.6666679999999997,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.13454546
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 0.6666679999999997,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 1.0000019999999996,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 1.3333359999999994,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.12642857
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 1.3333359999999994,
+      "pattern_type": 0,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.13
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 1.3333359999999994,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.133125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 1.3333359999999994,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.13588235
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 1.3333359999999994,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.13833334
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 1.6666699999999994,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.14052631
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 2.0000039999999992,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.13
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 2.0000039999999992,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.13238095
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 2.0000039999999992,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 2.0000039999999992,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.12565216
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 2.0000039999999992,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 2.333337999999999,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 2.666671999999999,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 2.666671999999999,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 2.666671999999999,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.12642857
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 2.666671999999999,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.12827586
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 2.666671999999999,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.13
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 3.0000059999999986,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.1316129
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 3.3333399999999984,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.1253125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 3.3333399999999984,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.1269697
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 3.3333399999999984,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 3.3333399999999984,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 3.3333399999999984,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 3.666673999999998,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 4.000007999999998,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 4.000007999999998,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 4.000007999999998,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 4.000007999999998,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.12512195
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 4.000007999999998,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.12642857
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 4.333341999999997,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.12767442
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 4.666675999999997,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 4.666675999999997,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 4.666675999999997,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 4.666675999999997,
+      "pattern_type": 0.75,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 4.666675999999997,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 5.000009999999997,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 5.333343999999997,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 5.333343999999997,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 5.333343999999997,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 5.333343999999997,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 5.333343999999997,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 5.6666779999999966,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.12545455
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 6.000011999999996,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 6.000011999999996,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 6.000011999999996,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 6.000011999999996,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 6.000011999999996,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 6.333345999999996,
+      "pattern_type": 0.8333334,
+      "lateral": 9.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.125
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 6.666679999999996,
+      "pattern_type": 0.8333334,
+      "lateral": 14.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.12096774
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 7.000013999999996,
+      "pattern_type": 0.8333334,
+      "lateral": 19.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.12103175
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 7.000013999999996,
+      "pattern_type": 0.78125,
+      "lateral": 19.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.11718751
+    },
+    {
+      "fallback": 0,
+      "misleading": 0,
+      "ambiguous": 0,
+      "same_run_over_max": 0,
+      "stretch": 0,
+      "facing": 0,
+      "distance": 0,
+      "speed": 7.000013999999996,
+      "pattern_type": 0.78125,
+      "lateral": 19.00000000000001,
+      "early_transition": 0,
+      "late_transition": 0,
+      "distribution": 0.1173077
+    }
+  ]
+}

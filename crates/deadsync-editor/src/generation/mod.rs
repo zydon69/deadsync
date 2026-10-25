@@ -1,5 +1,11 @@
 //! GrooveAuthor generation domain. Graph data and step semantics are ported
-//! here first; expressed/performed search and the user-facing generator remain
-//! separate work and must not be represented by a random-note substitute.
+//! with pattern search and performed-path scoring. Expressed-chart interpretation,
+//! whole-chart generation and native generation panels remain separate work.
+pub mod config;
+pub mod geometry;
 pub mod graph;
+pub mod pattern;
+pub mod random;
+pub mod search;
 pub mod step_data;
+pub mod timing;
