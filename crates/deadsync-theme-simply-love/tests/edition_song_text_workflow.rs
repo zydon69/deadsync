@@ -98,6 +98,8 @@ fn setup(sm: bool, override_audio: bool) -> (tempfile::TempDir, State, String) {
 fn open(s: &mut State) {
     press(s, KeyCode::F11);
     press(s, KeyCode::ArrowUp);
+    press(s, KeyCode::ArrowUp);
+    press(s, KeyCode::ArrowUp);
     press(s, KeyCode::Enter);
 }
 fn music(s: &mut State) {
@@ -107,7 +109,9 @@ fn music(s: &mut State) {
 }
 fn apply(s: &mut State, sync: bool) {
     press(s, KeyCode::Escape);
-    press(s, KeyCode::ArrowDown);
+    for _ in 0..3 {
+        press(s, KeyCode::ArrowDown);
+    }
     if sync {
         press(s, KeyCode::ArrowRight);
     }
@@ -351,5 +355,53 @@ fn song_text_help_has_a_bounded_multiline_footer() {
             assert_eq!(*max_height, Some(42.0));
         }
         _ => unreachable!(),
+    }
+}
+
+#[test]
+fn song_music_offset_and_itg_action_apply_once_undo_and_save_in_both_formats() {
+    for sm in [false, true] {
+        let (dir, mut state, original) = setup(sm, false);
+        press(&mut state, KeyCode::F11);
+        press(&mut state, KeyCode::ArrowUp); // explicit non-idempotent ITG action
+        press(&mut state, KeyCode::Enter);
+        assert!(has(&state, "0.009000"));
+        press(&mut state, KeyCode::ArrowUp); // global music offset
+        press(&mut state, KeyCode::ArrowRight);
+        assert!(has(&state, "0.010000"));
+        assert_eq!(
+            state.workspace().file().session.serialize().unwrap(),
+            original.as_bytes()
+        );
+        for _ in 0..3 {
+            press(&mut state, KeyCode::ArrowDown);
+        }
+        press(&mut state, KeyCode::Enter); // Apply
+        let offset: f64 = state
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "OFFSET")
+            .unwrap()
+            .parse()
+            .unwrap();
+        assert!((offset - 0.010).abs() < 1e-12);
+        let applied = state.workspace().file().session.serialize().unwrap();
+        ctrl(&mut state, KeyCode::KeyZ);
+        assert_eq!(
+            state.workspace().file().session.serialize().unwrap(),
+            original.as_bytes()
+        );
+        ctrl(&mut state, KeyCode::KeyY);
+        assert_eq!(
+            state.workspace().file().session.serialize().unwrap(),
+            applied
+        );
+        ctrl(&mut state, KeyCode::KeyS);
+        assert_eq!(
+            fs::read(dir.path().join(if sm { "song.sm" } else { "song.ssc" })).unwrap(),
+            applied
+        );
     }
 }

@@ -15,9 +15,9 @@ impl State {
     pub(super) fn song_properties_key(&mut self, index: usize, code: KeyCode) {
         if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
             self.panel = Some(Panel::SongProperties(
-                (index + if code == KeyCode::ArrowUp { 3 } else { 1 }) % 4,
+                (index + if code == KeyCode::ArrowUp { 5 } else { 1 }) % 6,
             ));
-        } else if index == 0
+        } else if matches!(index, 0 | 4)
             && matches!(
                 code,
                 KeyCode::ArrowLeft
@@ -29,18 +29,42 @@ impl State {
         {
             if let Some(draft) = self.song_properties.as_mut() {
                 let delta = if self.shift { 0.0001 } else { 0.001 };
-                let value = match code {
-                    KeyCode::Home => deadsync_editor::song_properties::DEFAULT_SYNC_OFFSET,
-                    KeyCode::Digit0 | KeyCode::Numpad0 => 0.0,
-                    KeyCode::ArrowLeft => draft.sync_offset() - delta,
-                    _ => draft.sync_offset() + delta,
+                let current = if index == 4 {
+                    draft.music_offset()
+                } else {
+                    draft.sync_offset()
                 };
-                if let Err(error) = draft.set_sync_offset(value) {
+                let value = match code {
+                    KeyCode::Home if index == 0 => {
+                        deadsync_editor::song_properties::DEFAULT_SYNC_OFFSET
+                    }
+                    KeyCode::Home => 0.0,
+                    KeyCode::Digit0 | KeyCode::Numpad0 => 0.0,
+                    KeyCode::ArrowLeft => current - delta,
+                    _ => current + delta,
+                };
+                let result = if index == 4 {
+                    draft.set_music_offset(value)
+                } else {
+                    draft.set_sync_offset(value)
+                };
+                if let Err(error) = result {
                     self.status =
                         i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
                 }
             }
         } else if matches!(code, KeyCode::Enter | KeyCode::NumpadEnter) {
+            if index == 5 {
+                if let Some(draft) = self.song_properties.as_mut() {
+                    self.status = match draft.apply_itg_offset() {
+                        Ok(()) => i18n::tr("Edition", "SongItgStaged"),
+                        Err(error) => {
+                            i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+                        }
+                    };
+                }
+                return;
+            }
             if index == 3 {
                 self.open_song_text();
                 return;

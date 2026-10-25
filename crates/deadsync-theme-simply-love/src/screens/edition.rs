@@ -1254,7 +1254,7 @@ impl State {
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
-            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0))
+            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !repeating_offset
@@ -2284,7 +2284,7 @@ impl State {
             ],
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
             Panel::SongProperties(_) => &[
-                "SongSyncOffset", "SongPropertiesApply", "SongPropertiesCancel", "SongTextOpen",
+                "SongSyncOffset", "SongPropertiesApply", "SongPropertiesCancel", "SongTextOpen", "SongMusicOffset", "SongItgApply",
             ],
             Panel::Timing(_) => &[
                 "TimingScope",
@@ -2722,8 +2722,8 @@ impl State {
                 i18n::tr("Edition", "PatternSetApply")
             } else if matches!(panel, Panel::Timing(_)) {
                 self.timing_label(index, key)
-            } else if matches!(panel, Panel::SongProperties(_)) && index == 0 {
-                let offset = self.song_properties.as_ref().map_or(0.0, |draft| draft.sync_offset());
+            } else if matches!(panel, Panel::SongProperties(_)) && matches!(index, 0 | 4) {
+                let offset = self.song_properties.as_ref().map_or(0.0, |draft| if index == 4 { draft.music_offset() } else { draft.sync_offset() });
                 i18n::tr_fmt("Edition", key, &[("seconds", &format!("{offset:.6}"))])
             } else if matches!(panel, Panel::PatternSet(_)) {
                 self.pattern_set_label(index, key)

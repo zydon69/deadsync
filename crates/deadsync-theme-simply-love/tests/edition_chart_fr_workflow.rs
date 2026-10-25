@@ -396,6 +396,8 @@ fn french_song_properties_pages_text_music_and_cancel_use_shared_translated_cont
             .any(|v| v == "Textes et musique du morceau...")
     );
     press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::ArrowUp);
     press(&mut s, KeyCode::Enter);
     assert!(s.text_input("Été 日本語"));
     assert!(texts(&s).iter().any(|v| v == "Titre : Été 日本語|"));
@@ -429,6 +431,44 @@ fn french_song_properties_pages_text_music_and_cancel_use_shared_translated_cont
     press(&mut s, KeyCode::Escape);
     assert_eq!(
         s.workspace().file().session.serialize().unwrap(),
+        song.as_bytes()
+    );
+}
+
+#[test]
+fn french_song_music_offset_and_itg_explanation_are_keyboard_accessible() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let song =
+        "#VERSION:0.83;#BPMS:0=120;#OFFSET:0.125;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path, song).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    press(&mut state, KeyCode::F11);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|s| s.contains("Décalage musique du morceau (OFFSET) : 0.125000 s"))
+    );
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|s| s.contains("ITG ajoute 9 ms à chaque activation"))
+    );
+    press(&mut state, KeyCode::ArrowUp);
+    press(&mut state, KeyCode::Enter);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|s| s.contains("9 ms ajoutées au décalage musique"))
+    );
+    assert!(texts(&state).iter().any(|s| s.contains("0.134000 s")));
+    press(&mut state, KeyCode::Escape);
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
         song.as_bytes()
     );
 }

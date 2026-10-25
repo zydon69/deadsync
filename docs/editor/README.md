@@ -45,7 +45,7 @@ reviewable and tested.
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/move; broader GrooveAuthor transformations pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
-| Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
+| Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
 | Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; F11 edits Song SyncOffset | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
@@ -2693,3 +2693,20 @@ repeated ITG migration, one-ULP no-op, invalid-number rejection and malformed
 OFFSET rejection. No audio decoder or audible playback is exercised. These are
 workflow checks against inspected original methods, not newly generated C#
 differential fixtures for the ITG action.
+
+Native F11 follow-up: the song-properties panel now exposes global music OFFSET
+and an explicit Add ITG 9 ms action. Left/Right edit by 1 ms (Shift: 0.1 ms),
+0 and Home reset the music offset to zero. Editor sync retains its own 9 ms
+Home default. The ITG action stages both fields; Apply accepts them together,
+Escape discards them. English/French help distinguishes preview-only sync from
+gameplay OFFSET and warns that repeating the ITG action adds another 9 ms.
+The text-panel wraparound tests were adapted for the two added menu entries.
+Native rendered/audio validation of these new controls remains pending.
+
+Validation of the native song-offset controls: all 326 core tests pass. The
+selected native playback, French timing, French chart-properties and song-text
+workflows pass; a final rerun includes the newly added French OFFSET/ITG test.
+The new English workflow stages ITG + an additional 1 ms, proves the document
+unchanged before Apply, then applies/undoes/redoes/saves SM and SSC. The French
+workflow verifies offset/action labels, repeated-action help and Escape discard.
+No real decoder/speaker check is implied by these native adapter workflows.
