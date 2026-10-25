@@ -2663,3 +2663,15 @@ The original synthetic source copy still has no CHARTNAME. This proves one
 macOS paste -> apply -> keyboard save path after modifier reconciliation.
 Copy/cut, mixed held modifiers, focus recovery across every panel, physical
 hardware combinations and other operating systems remain separate checks.
+
+### Simultaneously held editor modifiers
+
+Editor shortcut state now tracks the four Control/Super physical keys and two
+Shift keys independently. Releasing one no longer disables a modifier while
+another is still held. `edition_clipboard_workflow` passes five tests, including
+three Control/Super hold/release combinations driving text paste, final release
+stopping clipboard IO, and both Shift keys selecting an accented grapheme after
+left Shift is released. These checks exercise the public native editor adapter;
+they do not prove physical OS delivery. The later native copy/cut follow-up could
+not proceed because the QA process had exited before input; no new clipboard
+claim is made from that attempt.

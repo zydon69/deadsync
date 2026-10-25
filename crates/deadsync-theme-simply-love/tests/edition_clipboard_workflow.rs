@@ -232,3 +232,43 @@ fn stale_requests_composition_empty_selection_and_note_shortcuts_never_touch_tex
     assert_eq!((board.reads, board.writes), (0, 0));
     assert_eq!(s.workspace().grid().iter().count(), 1);
 }
+
+#[test]
+fn releasing_one_command_modifier_keeps_other_held_modifiers_active() {
+    for (held, released) in [
+        (KeyCode::SuperLeft, KeyCode::ControlLeft),
+        (KeyCode::ControlRight, KeyCode::ControlLeft),
+        (KeyCode::SuperRight, KeyCode::SuperLeft),
+    ] {
+        let (_dir, mut state) = setup();
+        let mut board = Board {
+            value: "Mixed modifiers".into(),
+            ..Board::default()
+        };
+        key(&mut state, held, true);
+        key(&mut state, released, true);
+        key(&mut state, released, false);
+        press(&mut state, KeyCode::KeyV);
+        assert!(state.process_text_clipboard(&mut board));
+        assert!(has(&state, "Mixed modifiers"));
+        key(&mut state, held, false);
+        press(&mut state, KeyCode::KeyV);
+        assert!(!state.process_text_clipboard(&mut board));
+        assert_eq!(board.reads, 1);
+    }
+}
+
+#[test]
+fn releasing_left_shift_does_not_cancel_selection_while_right_shift_is_held() {
+    let (_dir, mut state) = setup();
+    let mut board = Board::default();
+    press(&mut state, KeyCode::Home);
+    key(&mut state, KeyCode::ShiftLeft, true);
+    key(&mut state, KeyCode::ShiftRight, true);
+    key(&mut state, KeyCode::ShiftLeft, false);
+    press(&mut state, KeyCode::ArrowRight);
+    key(&mut state, KeyCode::ShiftRight, false);
+    ctrl(&mut state, KeyCode::KeyC);
+    assert!(state.process_text_clipboard(&mut board));
+    assert_eq!(board.value, "É");
+}

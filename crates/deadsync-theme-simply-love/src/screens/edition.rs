@@ -233,7 +233,9 @@ pub struct State {
     preview: Option<GenerationPreview>,
     label_preedit: String,
     control: bool,
+    control_keys: u8,
     shift: bool,
+    shift_keys: u8,
     help: bool,
     panel: Option<Panel>,
     status: Arc<str>,
@@ -351,7 +353,9 @@ impl State {
             workspace,
             label_preedit: String::new(),
             control: false,
+            control_keys: 0,
             shift: false,
+            shift_keys: 0,
             help: false,
             panel: None,
             status: i18n::tr("Edition", "Ready"),
@@ -1200,11 +1204,29 @@ impl State {
             | KeyCode::ControlRight
             | KeyCode::SuperLeft
             | KeyCode::SuperRight => {
-                self.control = event.pressed;
+                let bit = match event.code {
+                    KeyCode::ControlLeft => 1,
+                    KeyCode::ControlRight => 2,
+                    KeyCode::SuperLeft => 4,
+                    KeyCode::SuperRight => 8,
+                    _ => unreachable!(),
+                };
+                if event.pressed {
+                    self.control_keys |= bit;
+                } else {
+                    self.control_keys &= !bit;
+                }
+                self.control = self.control_keys != 0;
                 return false;
             }
             KeyCode::ShiftLeft | KeyCode::ShiftRight => {
-                self.shift = event.pressed;
+                let bit = if event.code == KeyCode::ShiftLeft { 1 } else { 2 };
+                if event.pressed {
+                    self.shift_keys |= bit;
+                } else {
+                    self.shift_keys &= !bit;
+                }
+                self.shift = self.shift_keys != 0;
                 return false;
             }
             _ => {}
