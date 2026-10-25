@@ -99,3 +99,30 @@ fn empty_invalid_and_clipped_ranges_are_explicit_and_bad_packet_is_atomic() {
     assert_eq!(empty.duration_seconds(), 0.0);
     assert!(empty.envelope(0, 0, 1).is_none());
 }
+
+#[test]
+fn memory_budget_covers_all_levels_and_refused_packet_preserves_previous_samples() {
+    // Three stereo frames require (3 + 2 + 1) * 2 * 4 = 48 packed bytes.
+    let mut builder = Builder::with_memory_limit(2, 48000, 48).unwrap();
+    builder.push_i16(&[0, 100, 200, 300, 400, 500]).unwrap();
+    assert!(builder.push_i16(&[600, 700]).is_err());
+    let wave = builder.finish().unwrap();
+    assert_eq!(wave.frames(), 3);
+    assert_eq!(wave.envelope(1, 0, 3).unwrap().max, quantize(500));
+    let mut zero = Builder::with_memory_limit(1, 48000, 0).unwrap();
+    assert!(zero.push_i16(&[0]).is_err());
+    assert_eq!(zero.finish().unwrap().frames(), 0);
+}
+
+#[test]
+fn cancelled_pyramid_publishes_no_partial_waveform() {
+    use std::sync::atomic::AtomicBool;
+    let mut builder = Builder::new(1, 48000).unwrap();
+    builder.push_i16(&[0, 100, -100, 200]).unwrap();
+    assert!(
+        builder
+            .finish_cancellable(&AtomicBool::new(true))
+            .unwrap()
+            .is_none()
+    );
+}

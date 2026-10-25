@@ -2003,6 +2003,7 @@ dependencies = [
  "bitflags 2.13.2",
  "chrono",
  "deadlib-assets",
+ "deadlib-audio-decode",
  "deadlib-input-native",
  "deadlib-lua-legacy",
  "deadlib-platform",

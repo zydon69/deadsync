@@ -47,7 +47,7 @@ reviewable and tested.
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
-| Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; optional F11/F6 sample panel edits region and auditions with F4 | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
+| Playback and audio | Enter starts/stops native audio preview; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3 and native actor geometry/offset tests; actual GPU waveform review, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
@@ -3044,3 +3044,76 @@ pending. Waveform decoding must use DeadSync's music timeline options
 with playback. Memory currently scales with all packed sample levels (less than
 approximately 8 bytes per input sample, excluding vector overhead); do not start
 unbounded decoding on the UI thread.
+
+
+### Background waveform decoding and first native view
+
+editor_audio::Loader runs actual deadlib-audio-decode readers on a named worker,
+without opening a sound device. Its per-editor permit remains held until work
+ends, including cancellation; replacing requests cannot accumulate workers on
+that loader. Dropping/cancelling a Job is nonblocking. Poll consumes one result,
+rejects even already-completed results after cancellation, and reports unexpected
+worker disconnects. Decode and pyramid construction check cancellation regularly;
+codec file-open/read operations themselves are not interruptible.
+
+Builder::with_memory_limit accounts for packed samples plus all pyramid levels.
+It bounds geometric base-vector growth and rejects a packet before mutating the
+builder if the packed-data budget would be exceeded. Native loading uses 256 MiB;
+codec buffers, vector headers and other editor state are outside that budget.
+This is an explicit failure for an oversized full-resolution waveform, not a
+silent reduction of source resolution. Automatic downsampling/disk caching for
+very large audio remains future work.
+
+DecodeOptions::STEP_MANIA_TIMELINE centralizes the existing playback policy;
+both audio-stream and waveform loading use it. MP3 encoder delay/padding and the
+Info-header silent frame remain present, so using decoder defaults cannot shift
+the waveform relative to music playback. Audio-stream's option values are
+unchanged.
+
+W in the main keyboard editor toggles loading/display without stopping music.
+The initial view is opt-in; original default visibility and configurable waveform
+preferences still need porting. The view uses chart MUSIC overrides, otherwise
+the staged song music or source song music; PREVIEW is not the chart waveform.
+It reuses decoded data when timing/offsets change, rebuilding only its playback
+clock. Changing the selected audio cancels the old request, clears old data, and
+retries when the old worker actually releases its permit. Errors are localized;
+hide/show explicitly retries loading, including after replacing a file at the
+same path. There is no filesystem watcher.
+
+The view draws separate sparse envelopes and dense regions behind the chart,
+clipped to the note field, using the existing row-based scroll and shared music
+clock. Rendering work is bounded by viewport height (at most 4096 bands) and
+channel count. Clock errors clear pending/old data rather than publishing a stale
+waveform. The current rendering uses integer-row time intervals; continuous
+sub-row zoom, scroll/speed visual semantics, original dense-region numerical
+parity, channel scaling/colors/preferences, GPU observation and original C#
+differential rendering remain incomplete.
+
+New native workflows decode a real generated stereo WAV across packets, compare
+it to direct PCM envelopes without changing source bytes, test cancellation,
+budget failure and subsequent retry, and decode the generated MP3 fixture using
+the playback timeline (including its silent Info frame). Native keyboard/actor
+workflows cover chart audio priority, view clipping/hide, preservation of playback
+when toggling, offset alignment of a timed pulse and recovery after a missing
+file. Core tests add packed memory budget and cancellation contracts. These are
+CPU state/actor and real decoder tests; they do not prove actual GPU output or
+physical audio fade equivalence.
+
+
+Validation checkpoint for the native waveform implementation:
+
+- `cargo test -p deadsync-editor --jobs 2 --locked`: 344 tests pass.
+- `cargo test -p deadsync-theme-simply-love --test 'edition_*' --jobs 2 --locked`:
+  169 tests pass across the 19 targets present at that run.
+- The subsequently added `edition_waveform_worker_contracts` target passes all
+  three source-level unit contracts (permit exclusion/release, cancellation after
+  success is queued, and one-shot unexpected-disconnect reporting). It compiles
+  the worker module directly: the complete theme unit target depends on the
+  unrelated missing `native-out-clocks.json` SongLua fixture in this checkout.
+  This isolated target is not evidence that the entire theme unit suite passes.
+- `cargo check -p deadsync --locked`: passes. Existing dead-code/platform warnings
+  and the upstream `block` future-compatibility notice remain.
+
+Use a limited Cargo job count for broad local suites; unrestricted parallel
+linking of the native integration binaries caused substantial host pressure and
+was explicitly stopped before rerunning successfully with two jobs.

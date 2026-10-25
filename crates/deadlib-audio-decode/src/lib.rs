@@ -22,6 +22,15 @@ pub struct DecodeOptions {
     pub mp3_info_silence: bool,
 }
 
+impl DecodeOptions {
+    /// StepMania/ITG source timeline used by DeadSync music and editor waveforms.
+    /// Keep encoder delay/padding and emit silence for an MP3 Info header frame.
+    pub const STEP_MANIA_TIMELINE: Self = Self {
+        mp3_gapless: false,
+        mp3_info_silence: true,
+    };
+}
+
 impl Default for DecodeOptions {
     fn default() -> Self {
         Self {

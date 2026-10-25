@@ -4,6 +4,7 @@
 //! and 14-bit mean sample-to-sample distance. Channels never mix. A range query
 //! decomposes its interval into aligned powers of two rather than scanning PCM.
 use crate::Error;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 const MAX: u16 = 511;
 
@@ -47,9 +48,19 @@ pub struct Builder {
     rate: u32,
     previous: Vec<f32>,
     samples: Vec<Node>,
+    max_bytes: usize,
 }
 impl Builder {
     pub fn new(channels: usize, sample_rate: u32) -> Result<Self, Error> {
+        Self::with_memory_limit(channels, sample_rate, usize::MAX)
+    }
+    /// Budget for packed sample allocations, including all pyramid levels.
+    /// Decoder buffers and small vector headers are outside this budget.
+    pub fn with_memory_limit(
+        channels: usize,
+        sample_rate: u32,
+        max_bytes: usize,
+    ) -> Result<Self, Error> {
         if channels == 0 || channels > 32 || sample_rate == 0 {
             return Err(Error::InvalidEdit(
                 "Invalid waveform channel count or sample rate".into(),
@@ -60,6 +71,7 @@ impl Builder {
             rate: sample_rate,
             previous: vec![0.5; channels],
             samples: Vec::new(),
+            max_bytes,
         })
     }
     pub fn push_i16(&mut self, pcm: &[i16]) -> Result<(), Error> {
@@ -68,9 +80,29 @@ impl Builder {
                 "Incomplete interleaved waveform frame".into(),
             ));
         }
-        self.samples
-            .try_reserve(pcm.len())
-            .map_err(|e| Error::InvalidEdit(e.to_string()))?;
+        let wanted = self
+            .samples
+            .len()
+            .checked_add(pcm.len())
+            .ok_or_else(memory_limit)?;
+        if pyramid_bytes(wanted / self.channels, self.channels)
+            .is_none_or(|bytes| bytes > self.max_bytes)
+        {
+            return Err(memory_limit());
+        }
+        if wanted > self.samples.capacity() {
+            let grown = self.samples.capacity().saturating_mul(2).max(wanted);
+            let capacity = if pyramid_bytes(grown.div_ceil(self.channels), self.channels)
+                .is_some_and(|bytes| bytes <= self.max_bytes)
+            {
+                grown
+            } else {
+                wanted
+            };
+            self.samples
+                .try_reserve_exact(capacity - self.samples.len())
+                .map_err(|e| Error::InvalidEdit(e.to_string()))?;
+        }
         for frame in pcm.chunks_exact(self.channels) {
             for (channel, &sample) in frame.iter().enumerate() {
                 let value = f32::from(sample) / 32768.0;
@@ -84,6 +116,14 @@ impl Builder {
         Ok(())
     }
     pub fn finish(self) -> Result<Waveform, Error> {
+        self.finish_cancellable(&AtomicBool::new(false))?
+            .ok_or_else(|| Error::InvalidEdit("Waveform load cancelled".into()))
+    }
+    /// Cancellation discards all unpublished data. No partial waveform escapes.
+    pub fn finish_cancellable(self, cancelled: &AtomicBool) -> Result<Option<Waveform>, Error> {
+        if cancelled.load(Ordering::Relaxed) {
+            return Ok(None);
+        }
         let frames = self.samples.len() / self.channels;
         let mut levels = vec![self.samples];
         let mut count = frames;
@@ -94,6 +134,9 @@ impl Builder {
             next.try_reserve_exact(next_count * self.channels)
                 .map_err(|e| Error::InvalidEdit(e.to_string()))?;
             for frame in 0..next_count {
+                if frame % 4096 == 0 && cancelled.load(Ordering::Relaxed) {
+                    return Ok(None);
+                }
                 for channel in 0..self.channels {
                     let first = previous[frame * 2 * self.channels + channel];
                     let second = (frame * 2 + 1) * self.channels + channel;
@@ -108,12 +151,15 @@ impl Builder {
             levels.push(next);
             count = next_count;
         }
-        Ok(Waveform {
+        if cancelled.load(Ordering::Relaxed) {
+            return Ok(None);
+        }
+        Ok(Some(Waveform {
             channels: self.channels,
             sample_rate: self.rate,
             frames,
             levels,
-        })
+        }))
     }
 }
 
@@ -169,4 +215,18 @@ impl Waveform {
             mean_distance: distance / (end - start) as f64,
         })
     }
+}
+
+fn memory_limit() -> Error {
+    Error::InvalidEdit("Waveform exceeds its packed-data memory budget".into())
+}
+fn pyramid_bytes(mut frames: usize, channels: usize) -> Option<usize> {
+    let mut nodes = frames;
+    while frames > 1 {
+        frames = frames.div_ceil(2);
+        nodes = nodes.checked_add(frames)?;
+    }
+    nodes
+        .checked_mul(channels)?
+        .checked_mul(std::mem::size_of::<Node>())
 }

@@ -21,7 +21,5 @@ pub use sfx_cache::SfxId;
 
 // ITG charts include encoder delay/padding and one silent Info header frame.
 // Keep this source timeline for music, previews and effects alike.
-const DECODE_OPTIONS: deadlib_audio_decode::DecodeOptions = deadlib_audio_decode::DecodeOptions {
-    mp3_gapless: false,
-    mp3_info_silence: true,
-};
+const DECODE_OPTIONS: deadlib_audio_decode::DecodeOptions =
+    deadlib_audio_decode::DecodeOptions::STEP_MANIA_TIMELINE;

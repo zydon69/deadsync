@@ -8,6 +8,7 @@ license = "GPL-3.0"
 test-support = []
 
 [dependencies]
+deadlib-audio-decode = { path = "../deadlib-audio-decode" }
 deadsync-editor = { path = "../deadsync-editor" }
 deadsync-song-lua = { path = "../deadsync-song-lua" }
 null-or-die = { git = "https://github.com/pnn64/null-or-die", branch = "main" }
