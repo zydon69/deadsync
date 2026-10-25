@@ -214,9 +214,11 @@ impl Workspace {
             }
             Command::Undo => {
                 self.file.session.undo()?;
+                self.sync_active_chart()?;
             }
             Command::Redo => {
                 self.file.session.redo()?;
+                self.sync_active_chart()?;
             }
             Command::Save => self.file.save()?,
             Command::SaveRecovery => self.file.save_recovery()?,
@@ -245,6 +247,48 @@ impl Workspace {
                     transform,
                 )?;
             }
+        }
+        Ok(())
+    }
+
+    pub fn generation_task(
+        &self,
+        options: crate::generation::job::ChartOptions,
+    ) -> Result<crate::generation::job::ChartTask, Error> {
+        crate::generation::job::ChartTask::capture(&self.file.session, self.chart, options)
+    }
+
+    pub fn apply_generated(
+        &mut self,
+        preview: &crate::generation::job::ChartPreview,
+    ) -> Result<usize, Error> {
+        if self.chart != preview.source_chart() {
+            return Err(Error::InvalidEdit(
+                "Select the source chart before applying its generation preview".into(),
+            ));
+        }
+        let chart = preview.apply(&mut self.file.session)?;
+        self.file.session.grid(chart)?;
+        self.chart = chart;
+        self.player = 0;
+        self.anchor = None;
+        Ok(chart)
+    }
+
+    fn sync_active_chart(&mut self) -> Result<(), Error> {
+        let previous_chart = self.chart;
+        self.chart = self.chart.min(
+            self.file
+                .session
+                .document()
+                .charts()
+                .len()
+                .saturating_sub(1),
+        );
+        let grid = self.file.session.grid(self.chart)?;
+        self.player = self.player.min(grid.players() - 1);
+        if self.chart != previous_chart {
+            self.anchor = None;
         }
         Ok(())
     }

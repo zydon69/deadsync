@@ -226,7 +226,7 @@ def requests(reference: Path):
             content = "#VERSION:" + version + ";" + content + "#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;" + extra_chart + "#NOTES:\n" + body + "\n;"
         else:
             content += "#NOTES:dance-single:Oracle:Hard:9:0,0,0,0,0:\n" + body + "\n;"
-        cases["file-clock-" + label] = {"Operation": "FileClock", "Format": extension, "Chart": 0, "Content": content}
+        cases["file-clock-" + label] = {"Operation": "FileClock", "Format": extension, "Chart": 0, "Content": content, "TargetLayout": "dance-double", "PerformedConfig": copy.deepcopy(performed), "Seed": 42}
     return cases
 
 

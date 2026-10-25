@@ -1,5 +1,5 @@
 //! GrooveAuthor graph, interpretation, pattern and chart-performance engine.
-//! Native generation jobs, preview/application and panels are separate stages.
+//! Snapshot-bound jobs expose previews to the native generation panel.
 pub mod config;
 pub mod expressed;
 pub mod fallbacks;
@@ -7,6 +7,7 @@ pub mod geometry;
 pub mod graph;
 pub mod interpretation_cost;
 pub mod interpretation_path;
+pub mod job;
 mod jsonc;
 pub mod mines;
 pub mod output;

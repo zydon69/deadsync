@@ -166,3 +166,101 @@ fn failed_save_in_close_prompt_preserves_edits_and_does_not_close() {
     assert!(screen.workspace().file().session.is_dirty());
     assert_eq!(fs::read(&path).unwrap(), b"external changes");
 }
+
+const SINGLE: &[u8] = b"#VERSION:0.83;#TITLE:Test;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000\n0100\n0010\n0001;";
+fn start_generation(screen: &mut State) {
+    press(screen, KeyCode::F3);
+    press(screen, KeyCode::ArrowRight); // dance-single -> dance-double
+    for _ in 0..3 {
+        press(screen, KeyCode::ArrowDown);
+    }
+    press(screen, KeyCode::Enter);
+}
+fn finish_generation(screen: &mut State) {
+    let deadline = Instant::now() + std::time::Duration::from_secs(30);
+    while screen.is_generating() {
+        screen.update();
+        assert!(
+            Instant::now() < deadline,
+            "Native generation did not finish"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(2));
+    }
+}
+#[test]
+fn generation_shortcut_previews_without_editing_then_applies_undoes_and_saves() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    start_generation(&mut screen);
+    press(&mut screen, KeyCode::Digit1); // no editing during calculation or preview
+    finish_generation(&mut screen);
+    assert_eq!(screen.generation_report().unwrap().notes, 4);
+    assert_eq!(
+        screen.workspace().file().session.document().charts().len(),
+        1
+    );
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    assert_eq!(fs::read(&path).unwrap(), SINGLE);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|actor| matches!(actor, Actor::Text {content, z:8021,..} if content.contains("dance-double") && !content.contains("{notes}"))));
+    press(&mut screen, KeyCode::PageDown);
+    press(&mut screen, KeyCode::Home);
+    press(&mut screen, KeyCode::Enter); // explicit application
+    assert!(screen.generation_report().is_none());
+    assert_eq!(screen.workspace().chart(), 1);
+    assert_eq!(screen.workspace().grid().columns(), 8);
+    assert_eq!(fs::read(&path).unwrap(), SINGLE);
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(screen.workspace().chart(), 0);
+    assert_eq!(screen.workspace().grid().columns(), 4);
+    ctrl(&mut screen, KeyCode::KeyY);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 1).unwrap();
+    assert_eq!(reopened.workspace().grid().columns(), 8);
+    assert_eq!(reopened.workspace().grid().iter().count(), 4);
+}
+#[test]
+fn preview_discard_and_worker_cancel_leave_source_and_history_untouched() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    start_generation(&mut screen);
+    finish_generation(&mut screen);
+    assert!(screen.generation_report().is_some());
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert!(screen.generation_report().is_none());
+    assert!(!screen.workspace().file().session.is_dirty());
+    start_generation(&mut screen);
+    press(&mut screen, KeyCode::Escape);
+    finish_generation(&mut screen);
+    assert!(screen.generation_report().is_none());
+    assert_eq!(screen.workspace().file().session.revision(), 0);
+    assert_eq!(fs::read(&path).unwrap(), SINGLE);
+}
+#[test]
+fn unsupported_generation_reports_failure_without_modifying_multiplayer_chart() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    start_generation(&mut screen);
+    finish_generation(&mut screen);
+    assert!(screen.generation_report().is_none());
+    assert_eq!(screen.workspace().grid().players(), 2);
+    assert_eq!(screen.workspace().file().session.revision(), 0);
+    assert_eq!(fs::read(&path).unwrap(), SONG);
+}

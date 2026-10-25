@@ -20,6 +20,8 @@ pub struct PreparedChart {
     pub frames: Vec<Frame>,
     pub times: Vec<f64>,
     pub mines: Vec<SourceMine>,
+    pub ignored_keysounds: usize,
+    pub source_notes: usize,
     pub difficulty: f64,
     pub event_span: [f64; 2],
 }
@@ -116,6 +118,14 @@ pub fn prepare(
         ));
     }
     Ok(PreparedChart {
+        source_notes: grid
+            .iter()
+            .filter(|(_, note)| !matches!(note.kind, Kind::Mine | Kind::Keysound))
+            .count(),
+        ignored_keysounds: grid
+            .iter()
+            .filter(|(_, note)| note.kind == Kind::Keysound)
+            .count(),
         layout: entry.steps_type.clone(),
         frames,
         times,

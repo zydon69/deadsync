@@ -48,8 +48,8 @@ reviewable and tested.
 | Metadata | Existing and new scoped tags with escaping and history | Property add/undo/reopen tests; full song/chart/pack property panels pending |
 | Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
-| Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Multi-view comparison, chart creation/clone/delete and library pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and native asynchronous generation panels pending |
+| Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; native pattern generation, full configurations and batch generation remain pending |
 | Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -93,9 +93,10 @@ footing and pattern configuration. The Rust port must preserve these contracts.
 A random lane picker or a basic difficulty filter would not meet the request.
 
 Automatic fallback selection, generated-note assembly and reversible chart
-creation are implemented below. Next work must connect source preparation,
-preview identity and native asynchronous generation panels. Differential
-fixtures must extend the existing tech, bracket, crossover,
+creation, source preparation, session-bound previews and a native chart-generation
+panel are implemented below. Next work must add pattern-generation controls,
+surrounding-chart context, complete configurations and batch generation.
+Differential fixtures must extend the existing tech, bracket, crossover,
 hold, mine, layout and seed cases to that complete conversion pipeline.
 Generation results need preview and one reversible application gesture before
 being exposed as complete. The other advanced editor domains remain required
@@ -267,8 +268,7 @@ cancellation, invalid roots and invalid mine associations return no partial
 performance. These cases use synthetic lane events with explicit timestamps.
 The source adapter tests below cover split timing and the interpreter's
 first-event-of-row grouping; a wider full-conversion corpus remains needed.
-No native generation panel or generated-chart save workflow is claimed complete
-by these engine tests.
+The native conversion panel and save workflow are covered separately below.
 
 ### Generated notes and chart creation
 
@@ -322,4 +322,49 @@ This is not yet complete input parity. Attack timing and generation of multiple
 participants are explicitly rejected by source preparation. Fumen timing-entry
 validation, conflicting/rounded beat positions, unusual encodings and broader
 cross-format/legacy timing cases still require reader-level differential coverage.
-Native generation jobs and panels remain pending.
+Native conversion jobs and the first panel are described below; full input
+parity and the complete set of GrooveAuthor generation tools remain unfinished.
+
+### Background chart generation and native preview
+
+`ChartTask::capture` snapshots unsaved document bytes and validated configuration.
+`run` composes preparation, expressed interpretation, automatic replacements,
+performed conversion and output validation. `spawn` runs it on a named worker;
+progress uses one shared slot and completion uses a bounded single-result channel.
+The worker never borrows the editor, mutates a session, or writes a file. Dropping
+a job requests cancellation without blocking the UI; cancellation also discards
+an already-computed result before publication. The screen retains a cancelled job
+until terminal so repeated input cannot launch concurrent generation jobs there.
+Initial graph loading and snapshot serialization are not yet interruptible.
+
+Preview identity combines a live-session identity and history revision, so equal
+revision numbers after reload/recovery cannot authorize application. The source
+chart must still be selected. One explicit apply adds one undoable chart; no file
+write occurs until Save. Structural undo/redo reloads the active grid and clamps
+a selection whose generated chart was removed. Reports disclose source/output
+note and mine counts, skipped events, dropped/merged mines, ignored keysounds and
+empty output. They do not silently apply a lossy or empty result.
+
+F3 or F1 > Generate opens the native panel: eleven official destination layouts,
+Balanced/Stamina Single/Stamina Double profiles, and a reproducible signed seed.
+Up/Down chooses a field; Left/Right changes it. Calculate produces an immutable
+preview. Page Up/Down and Home/End inspect its notes; Apply adds it, Escape or
+Discard abandons it. The normal Practice update loop polls the worker. Polling
+does not occur inside a key handler, so an Enter intended to cancel cannot become
+an Apply merely because a result arrived during that event. Controls and status
+labels are provided in English and French, with the existing locale fallback.
+
+`generation_job_workflows` covers worker completion/cancellation at every stage,
+late cancellation, immutable snapshots, stale/reloaded/recovered sessions, source
+selection, explicit mine merging, empty/keysound-only results, one-gesture history,
+Save/reopen and unchanged source bytes. Seven real Fumen-reader fixtures now
+continue through the original C# performed converter and CreateSMChartEvents;
+the Rust task's final generated notes are compared with those outputs. Native
+keyboard workflows cover preview actors, explicit apply, undo/redo, save/reopen,
+discard, cancellation and unsupported multiplayer input without modifications.
+These actor assertions still do not establish GPU rendering or physical input.
+
+This first chart-conversion panel does not complete the generation feature set:
+full expressed/performed configuration editing, presets management, batch
+creation, advanced roots/fallback controls and native pattern generation remain
+required. The rest of the editor delivery matrix remains in scope.

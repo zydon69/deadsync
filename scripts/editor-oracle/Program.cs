@@ -40,8 +40,19 @@ if (operation == "FileClock")
         fileConfig.Init();
         var fileExpressed = StepManiaLibrary.ExpressedChart.ExpressedChart.CreateFromSMEvents(fileEvents, fileGraph, fileConfig, 9.0, "Oracle");
 
+        var fileTargetName = request.GetProperty("TargetLayout").GetString()!;
+        var fileTargetPad = await PadData.LoadPadData(fileTargetName, Path.Combine(args[0], "StepManiaLibrary", fileTargetName + ".json"));
+        var fileTargetGraph = StepGraph.Load(Path.Combine(args[0], "StepManiaLibrary", fileTargetName + ".fsg"), fileTargetPad);
+        var filePerformed = JsonSerializer.Deserialize<PerformedConfig>(request.GetProperty("PerformedConfig"), options)!;
+        filePerformed.Init();
+        var fileRoots = new List<List<GraphNode>> { new() { fileTargetGraph.GetRoot() } };
+        for (var tier = 1; tier < fileTargetPad.StartingPositions.Length; tier++)
+            fileRoots.Add(fileTargetPad.StartingPositions[tier].Select(pos => fileTargetGraph.FindGraphNode(pos[0], GraphArrowState.Resting, pos[1], GraphArrowState.Resting)).ToList());
+        var fileFallbacks = filePad.CanFitWithin(fileTargetPad) ? null : await StepTypeFallbacks.Load(Path.Combine(args[0], "StepManiaLibrary", StepTypeFallbacks.DefaultFallbacksFileName));
+        var fileConverted = fileExpressed == null ? null : PerformedChart.CreateFromExpressedChart(fileTargetGraph, filePerformed, fileRoots, fileFallbacks, fileExpressed, request.GetProperty("Seed").GetInt32(), "Oracle");
         Console.WriteLine(JsonSerializer.Serialize(new {
             Success = fileExpressed != null,
+            ConvertedNotes = fileConverted?.CreateSMChartEvents().OfType<LaneNote>().Select(note => new { Row = note.IntegerPosition, Lane = note.Lane, Symbol = note.SourceType }).ToArray(),
             Steps = fileExpressed?.StepEvents.Select(e => new { Row = e.Position, Time = e.Time,
                 Link = Enumerable.Range(0, 4).SelectMany(i => new int[] {
                     e.LinkInstance.GraphLink.Links[i / 2, i % 2].Valid ? 1 : 0,

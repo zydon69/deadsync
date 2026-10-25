@@ -48,7 +48,16 @@ struct Entry {
     after_revision: u64,
 }
 
+/// A revision is only meaningful within one live session. Recovery/reload creates
+/// a new identity even when bytes and revision numbers happen to be identical.
+#[derive(Clone, Debug)]
+pub(crate) struct RevisionToken {
+    identity: Arc<()>,
+    revision: u64,
+}
+
 pub struct Session {
+    identity: Arc<()>,
     document: Document,
     grids: BTreeMap<usize, Grid>,
     undo: Vec<Entry>,
@@ -61,6 +70,7 @@ pub struct Session {
 impl Session {
     pub fn new(document: Document) -> Self {
         Self {
+            identity: Arc::new(()),
             document,
             grids: BTreeMap::new(),
             undo: Vec::new(),
@@ -75,6 +85,17 @@ impl Session {
         let mut session = Self::new(document);
         session.saved_revision = u64::MAX;
         session
+    }
+
+    pub(crate) fn revision_token(&self) -> RevisionToken {
+        RevisionToken {
+            identity: self.identity.clone(),
+            revision: self.revision,
+        }
+    }
+
+    pub(crate) fn accepts_token(&self, token: &RevisionToken) -> bool {
+        Arc::ptr_eq(&self.identity, &token.identity) && self.revision == token.revision
     }
 
     pub fn document(&self) -> &Document {

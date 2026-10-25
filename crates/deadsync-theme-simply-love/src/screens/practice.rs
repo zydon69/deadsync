@@ -670,6 +670,10 @@ fn update_inner(
     fallback_host_nanos: impl FnOnce() -> u64,
     snap_music_start: MusicStartSnap,
 ) -> ThemeEffect {
+    if let Some(editor) = state.edition.as_mut() {
+        editor.update();
+        return ThemeEffect::None;
+    }
     if let Some((_, remaining)) = state.flash.as_mut() {
         *remaining -= delta_time;
         if *remaining <= 0.0 {
