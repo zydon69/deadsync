@@ -11,7 +11,7 @@ mod chart_creation;
 mod chart_deletion;
 mod chart_rating;
 mod display_tempo;
-mod expression_edit;
+mod profile_edit;
 mod text_fields;
 mod clipboard;
 mod music_file;
@@ -71,7 +71,7 @@ enum Panel {
     Profiles(usize),
     ChartProperties(usize),
     DisplayTempo(usize),
-    ExpressionEdit(usize),
+    ProfileEdit(usize),
     ChartText(usize),
     SongText(usize),
     SongProperties(usize),
@@ -244,8 +244,8 @@ pub struct State {
     chart_rating_input: Option<String>,
     display_tempo_draft: Option<deadsync_editor::display_tempo::Value>,
     display_tempo_input: Option<(usize, String)>,
-    expression_edit: Option<expression_edit::Draft>,
-    expression_saved_guid: Option<deadsync_editor::generation::metadata::Guid>,
+    profile_edit: Option<profile_edit::Draft>,
+    profile_saved_choices: Option<profile_edit::Choices>,
     text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
     text_clipboard_request: Option<clipboard::Request>,
     music_picker_request: Option<music_file::Request>,
@@ -386,8 +386,8 @@ impl State {
             chart_rating_input: None,
             display_tempo_draft: None,
             display_tempo_input: None,
-            expression_edit: None,
-            expression_saved_guid: None,
+            profile_edit: None,
+            profile_saved_choices: None,
             text_buffer: None,
             text_clipboard_request: None,
             music_picker_request: None,
@@ -814,7 +814,7 @@ impl State {
             return;
         };
         self.catalog_job = None;
-        let saved_choice = self.expression_saved_guid.take();
+        let saved_choice = self.profile_saved_choices.take();
         self.panel = Some(self.profile_return_panel());
         match result {
             Ok(catalog)
@@ -825,7 +825,7 @@ impl State {
                         ProfileTarget::Conversion | ProfileTarget::Batch => true,
                     } =>
             {
-                let (pattern, performed, expressed) = match self.catalog_target {
+                let (mut pattern, mut performed, mut expressed) = match self.catalog_target {
                     ProfileTarget::Marker => {
                         let draft = self.marker.as_ref().unwrap();
                         (
@@ -855,7 +855,7 @@ impl State {
                             catalog
                                 .entries(ProfileKind::Expressed)
                                 .iter()
-                                .position(|entry| &entry.guid == saved_choice.as_ref().unwrap_or(draft.expression())),
+                                .position(|entry| &entry.guid == draft.expression()),
                         )
                     }
                     ProfileTarget::Conversion | ProfileTarget::Batch => {
@@ -877,6 +877,19 @@ impl State {
                         )
                     }
                 };
+                if let Some(choices) = saved_choice {
+                    let index = |kind, id: Option<&deadsync_editor::generation::metadata::Guid>| {
+                        let offset = usize::from(matches!(self.catalog_target, ProfileTarget::Conversion | ProfileTarget::Batch));
+                        match id {
+                            Some(id) => catalog.entries(kind).iter().position(|entry| &entry.guid == id).map(|i| i + offset),
+                            None if offset == 1 => Some(0),
+                            None => None,
+                        }
+                    };
+                    pattern = index(ProfileKind::Pattern, choices.pattern.as_ref());
+                    performed = index(ProfileKind::Performed, choices.performed.as_ref());
+                    expressed = index(ProfileKind::Expressed, choices.expressed.as_ref());
+                }
                 self.status = i18n::tr_fmt(
                     "Edition",
                     match self.catalog_target {
@@ -1544,7 +1557,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
-        if let Panel::ExpressionEdit(index) = panel { self.expression_edit_key(index, code); return false; }
+        if let Panel::ProfileEdit(index) = panel { self.profile_edit_key(index, code); return false; }
         if let Panel::DisplayTempo(index) = panel { self.display_tempo_key(index, code); return false; }
         if let Panel::ChartText(index) | Panel::SongText(index) = panel {
             self.text_field_key(index, code);
@@ -1644,16 +1657,19 @@ impl State {
             return false;
         }
         match panel {
-            Panel::ExpressionEdit(_) => unreachable!("expression editing dispatched above"),
+            Panel::ProfileEdit(_) => unreachable!("expression editing dispatched above"),
             Panel::DisplayTempo(_) => unreachable!("display tempo dispatched above"),
             Panel::ChartText(_) | Panel::SongText(_) => unreachable!("text field input dispatched above"),
             Panel::NewChart(index) => self.new_chart_key(index, code),
             Panel::DeleteChart(index) => self.deletion_key(index, code),
             Panel::EmptyMenu(index) => return self.empty_menu_key(index, code),
             Panel::ConversionProfiles(index) => {
+                if code == KeyCode::KeyE && !self.control && index < 2 {
+                    self.open_profile_edit([ProfileKind::Performed, ProfileKind::Expressed][index], Panel::ConversionProfiles(index)); return false;
+                }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ConversionProfiles(
-                        (index + if code == KeyCode::ArrowUp { 3 } else { 1 }) % 4,
+                        (index + if code == KeyCode::ArrowUp { 5 } else { 1 }) % 6,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(settings) = &mut self.profile_selection {
@@ -1685,6 +1701,7 @@ impl State {
                 } else if code == KeyCode::Enter {
                     match index {
                         2 => self.stage_conversion_profiles(),
+                        4..=5 => self.open_profile_edit([ProfileKind::Performed, ProfileKind::Expressed][index-4], Panel::ConversionProfiles(index-4)),
                         3 => {
                             self.profile_selection = None;
                             self.panel = Some(self.profile_return_panel());
@@ -1771,7 +1788,7 @@ impl State {
                 }
             }
             Panel::ChartExpression(index) => {
-                if index == 0 && code == KeyCode::KeyE && !self.control { self.open_expression_edit(); return false; }
+                if index == 0 && code == KeyCode::KeyE && !self.control { self.open_profile_edit(ProfileKind::Expressed, Panel::ChartExpression(0)); return false; }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ChartExpression(
                         (index + if code == KeyCode::ArrowUp { 3 } else { 1 }) % 4,
@@ -1803,7 +1820,7 @@ impl State {
                 } else if code == KeyCode::Enter {
                     match index {
                         1 => self.stage_chart_expression(),
-                        3 => self.open_expression_edit(),
+                        3 => self.open_profile_edit(ProfileKind::Expressed, Panel::ChartExpression(0)),
                         2 => {
                             self.profile_selection = None;
                             self.panel = Some(Panel::ChartProperties(0));
@@ -1813,9 +1830,12 @@ impl State {
                 }
             }
             Panel::Profiles(index) => {
+                if code == KeyCode::KeyE && !self.control && index < 3 {
+                    self.open_profile_edit([ProfileKind::Pattern, ProfileKind::Performed, ProfileKind::Expressed][index], Panel::Profiles(index)); return false;
+                }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::Profiles(
-                        (index + if code == KeyCode::ArrowUp { 4 } else { 1 }) % 5,
+                        (index + if code == KeyCode::ArrowUp { 7 } else { 1 }) % 8,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(settings) = &mut self.profile_selection {
@@ -1850,6 +1870,7 @@ impl State {
                 } else if code == KeyCode::Enter {
                     match index {
                         3 => self.stage_marker_profiles(),
+                        5..=7 => self.open_profile_edit([ProfileKind::Pattern, ProfileKind::Performed, ProfileKind::Expressed][index-5], Panel::Profiles(index-5)),
                         4 => {
                             self.profile_selection = None;
                             self.panel = Some(Panel::Marker(12));
@@ -2464,6 +2485,11 @@ impl State {
             self.analysis_actors(actors);
             return;
         }
+        let profile_keys: Vec<&str> = self.profile_edit.as_ref().map(|draft| {
+            let mut keys = vec!["ProfileEditField"; draft.editor.fields().len()];
+            keys.extend(["ExpressionEditSaveCopy", "ExpressionEditCancel"]);
+            keys
+        }).unwrap_or_default();
         let keys: &[&str] = match panel {
             Panel::Analysis => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
@@ -2550,6 +2576,7 @@ impl State {
                 "GenerationExpressionProfile",
                 "ConversionProfileUse",
                 "ProfileBack",
+                "ProfileEditPerformed", "ExpressionEditOpen",
             ],
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
             Panel::WaveformColors(_) => &["WaveformColorMode","WaveformColorDarken","WaveformDenseRed","WaveformDenseGreen","WaveformDenseBlue","WaveformDenseAlpha","WaveformSparseRed","WaveformSparseGreen","WaveformSparseBlue","WaveformSparseAlpha","WaveformBackgroundRed","WaveformBackgroundGreen","WaveformBackgroundBlue","WaveformBackgroundAlpha","WaveformColorsBack"],
@@ -2581,7 +2608,7 @@ impl State {
                 "ChartName", "ChartDescription", "ChartCredit", "ChartStyle",
                 "ChartMusic", "ChartTextBack",
             ],
-            Panel::ExpressionEdit(_) => &["ExpressionEditMethod", "ExpressionEditDetermination", "ExpressionEditLevel", "ExpressionEditAggressive", "ExpressionEditHigh", "ExpressionEditLow", "ExpressionEditSaveCopy", "ExpressionEditCancel"],
+            Panel::ProfileEdit(_) => &profile_keys,
             Panel::DisplayTempo(_) => &["DisplayTempoMode", "DisplayTempoMin", "DisplayTempoRange", "DisplayTempoMax", "DisplayTempoStage", "DisplayTempoCancel"],
             Panel::ChartProperties(_) => &[
                 "ChartChooseExpression",
@@ -2605,6 +2632,7 @@ impl State {
                 "ProfileExpression",
                 "ProfileStage",
                 "ProfileBack",
+                "ProfileEditPattern", "ProfileEditPerformed", "ExpressionEditOpen",
             ],
             Panel::ConfirmMarkerDelete => &["MarkerConfirmDelete"],
             Panel::Generating => &["GenerationCancel"],
@@ -2625,7 +2653,7 @@ impl State {
             | Panel::Profiles(i)
             | Panel::TimingMigration(i)
             | Panel::Timing(i)
-            | Panel::ExpressionEdit(i)
+            | Panel::ProfileEdit(i)
             | Panel::DisplayTempo(i)
             | Panel::ChartProperties(i)
             | Panel::ChartText(i)
@@ -2646,10 +2674,10 @@ impl State {
             | Panel::GenerationPreview(i) => i,
             _ => 0,
         };
-        let menu_start = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_)) {
+        let menu_start = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
             selected / 8 * 8
         } else { 0 };
-        let visible_keys = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_)) {
+        let visible_keys = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
             keys.len().saturating_sub(menu_start).min(8)
         } else {
             keys.len()
@@ -2681,7 +2709,7 @@ impl State {
         } else {
             0.0
         };
-        let menu_footer = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_)) {
+        let menu_footer = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
             24.0
         } else { 0.0 };
         let row_height = if matches!(panel, Panel::ChartProperties(_)) { 26.0 } else { 32.0 };
@@ -2692,7 +2720,7 @@ impl State {
             screen_height() * 0.5
         };
         actors.push(act!(quad: xy(panel_x, panel_y): setsize(panel_width, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
-        if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_)) {
+        if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
             let page = i18n::tr_fmt("Edition",
                 if matches!(panel, Panel::WaveformColors(_)) { "WaveformColorsPage" } else if matches!(panel, Panel::SongText(_)) { "TextFieldsPage" } else { "MenuPage" }, &[
                 ("page", &(selected / 8 + 1).to_string()),
@@ -2815,8 +2843,8 @@ impl State {
                 || (matches!(panel, Panel::SongText(_)) && index < deadsync_editor::song_text::Field::ALL.len())
             {
                 self.text_field_label(index)
-            } else if matches!(panel, Panel::ExpressionEdit(_)) {
-                self.expression_edit_label(index, key)
+            } else if matches!(panel, Panel::ProfileEdit(_)) {
+                self.profile_edit_label(index, key)
             } else if matches!(panel, Panel::DisplayTempo(_)) {
                 self.display_tempo_label(index, key)
             } else if matches!(panel, Panel::ChartProperties(_)) && index == 7 {
@@ -3043,7 +3071,7 @@ impl State {
                 let y=panel_y-panel_height*0.5+extra_height+30.0+(index-menu_start) as f32*32.0;
                 actors.push(act!(quad: xy(panel_x+panel_width*0.5-20.0,y): zoomto(16.0,16.0): diffuse(rgba[0],rgba[1],rgba[2],rgba[3]): z(8022)));
             }
-            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_) | Panel::ExpressionEdit(_)) {
+            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_) | Panel::ProfileEdit(_)) {
                 if let Some(Actor::Text { max_width, .. }) = actors.last_mut() {
                     *max_width = Some(panel_width - 30.0);
                 }

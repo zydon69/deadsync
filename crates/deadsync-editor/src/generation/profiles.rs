@@ -79,7 +79,7 @@ impl Config {
         }
         .map_err(json_error)
     }
-    fn validate(&mut self) -> Result<(), Error> {
+    pub(crate) fn validate(&mut self) -> Result<(), Error> {
         match self {
             Self::Pattern(c) => c.validate(),
             Self::Performed(c) => {

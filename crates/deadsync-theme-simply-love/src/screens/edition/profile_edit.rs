@@ -1,0 +1,362 @@
+use super::{Panel, ProfileTarget, State};
+use crate::i18n;
+use deadlib_platform::input::KeyCode;
+use deadsync_editor::generation::{
+    metadata::Guid,
+    profile_controls::{Control, Editor},
+    profiles::{Kind, Profile},
+};
+#[derive(Default)]
+pub(super) struct Choices {
+    pub pattern: Option<Guid>,
+    pub performed: Option<Guid>,
+    pub expressed: Option<Guid>,
+}
+pub(super) struct Draft {
+    source: Guid,
+    kind: Kind,
+    profile: Profile,
+    pub editor: Editor,
+    input: Option<(usize, String)>,
+    back: Panel,
+}
+impl State {
+    pub(super) fn open_profile_edit(&mut self, kind: Kind, back: Panel) {
+        let result: Result<Draft, String> = (|| {
+            let settings = self
+                .profile_selection
+                .as_ref()
+                .ok_or_else(|| i18n::tr("Edition", "ProfileMissing").to_string())?;
+            let selected = match kind {
+                Kind::Pattern => settings.pattern,
+                Kind::Performed => settings.performed,
+                Kind::Expressed => settings.expressed,
+            };
+            let selected = if matches!(back, Panel::ConversionProfiles(_)) {
+                selected.and_then(|i| i.checked_sub(1))
+            } else {
+                selected
+            };
+            let entry = selected
+                .and_then(|i| settings.catalog.entries(kind).get(i))
+                .ok_or_else(|| i18n::tr("Edition", "ProfileMissing").to_string())?;
+            let source = settings
+                .catalog
+                .profile(
+                    &self.workspace.file().session,
+                    self.workspace.chart(),
+                    kind,
+                    &entry.guid,
+                )
+                .map_err(|e| e.to_string())?;
+            let name = i18n::tr_fmt(
+                "Edition",
+                "ExpressionEditCopyName",
+                &[("name", &super::profile_entry_name(entry))],
+            );
+            let profile = source.duplicate(&name).map_err(|e| e.to_string())?;
+            let editor = Editor::new(profile.config()).map_err(|e| e.to_string())?;
+            Ok(Draft {
+                source: entry.guid.clone(),
+                kind,
+                profile,
+                editor,
+                input: None,
+                back,
+            })
+        })();
+        match result {
+            Ok(draft) => {
+                self.profile_edit = Some(draft);
+                self.panel = Some(Panel::ProfileEdit(0));
+                self.status = i18n::tr("Edition", "ProfileEditHelp");
+            }
+            Err(error) => self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error)]),
+        }
+    }
+    fn stage_profile_input(&mut self) -> bool {
+        let Some(draft) = self.profile_edit.as_mut() else {
+            return false;
+        };
+        let Some((index, text)) = &draft.input else {
+            return true;
+        };
+        if draft.editor.set_text(*index, text).is_err() {
+            self.status = i18n::tr(
+                "Edition",
+                if draft.kind == Kind::Expressed {
+                    "ExpressionEditInvalid"
+                } else {
+                    "ProfileEditInvalid"
+                },
+            );
+            return false;
+        }
+        draft.input = None;
+        true
+    }
+    pub(super) fn profile_edit_key(&mut self, index: usize, code: KeyCode) {
+        let Some(draft) = self.profile_edit.as_ref() else {
+            return;
+        };
+        let count = draft.editor.fields().len();
+        if code == KeyCode::Escape || (index == count + 1 && code == KeyCode::Enter) {
+            let back = draft.back;
+            self.profile_edit = None;
+            self.panel = Some(back);
+            self.status = i18n::tr("Edition", "ExpressionEditDiscarded");
+            return;
+        }
+        let numeric = draft
+            .editor
+            .fields()
+            .get(index)
+            .is_some_and(|f| matches!(f.control, Control::Integer | Control::Number));
+        if !self.control && numeric {
+            let character = match code {
+                KeyCode::Digit0 | KeyCode::Numpad0 => Some('0'),
+                KeyCode::Digit1 | KeyCode::Numpad1 => Some('1'),
+                KeyCode::Digit2 | KeyCode::Numpad2 => Some('2'),
+                KeyCode::Digit3 | KeyCode::Numpad3 => Some('3'),
+                KeyCode::Digit4 | KeyCode::Numpad4 => Some('4'),
+                KeyCode::Digit5 | KeyCode::Numpad5 => Some('5'),
+                KeyCode::Digit6 | KeyCode::Numpad6 => Some('6'),
+                KeyCode::Digit7 | KeyCode::Numpad7 => Some('7'),
+                KeyCode::Digit8 | KeyCode::Numpad8 => Some('8'),
+                KeyCode::Digit9 | KeyCode::Numpad9 => Some('9'),
+                KeyCode::Minus | KeyCode::NumpadSubtract => Some('-'),
+                KeyCode::Period | KeyCode::NumpadDecimal => Some('.'),
+                KeyCode::KeyE => Some('e'),
+                KeyCode::NumpadAdd => Some('+'),
+                KeyCode::Equal if self.shift => Some('+'),
+                _ => None,
+            };
+
+            if let Some(draft) = self.profile_edit.as_mut() {
+                if let Some(c) = character {
+                    let (_, text) = draft.input.get_or_insert_with(|| (index, String::new()));
+                    if text.len() < 64 {
+                        text.push(c);
+                    }
+                    return;
+                }
+                if code == KeyCode::Delete {
+                    draft.input = Some((index, String::new()));
+                    return;
+                }
+                if code == KeyCode::Backspace {
+                    let value = draft
+                        .editor
+                        .value(index)
+                        .map(ToString::to_string)
+                        .unwrap_or_default();
+                    draft.input.get_or_insert((index, value)).1.pop();
+                    return;
+                }
+            }
+        }
+        if !self.stage_profile_input() {
+            return;
+        }
+        let next = match code {
+            KeyCode::ArrowUp => Some((index + count + 1) % (count + 2)),
+            KeyCode::ArrowDown => Some((index + 1) % (count + 2)),
+            KeyCode::Tab => Some((index + if self.shift { count + 1 } else { 1 }) % (count + 2)),
+            KeyCode::PageDown => Some((index + 8).min(count + 1)),
+            KeyCode::PageUp => Some(index.saturating_sub(8)),
+            KeyCode::Home => Some(0),
+            KeyCode::End => Some(count),
+            _ => None,
+        };
+        if let Some(next) = next {
+            self.panel = Some(Panel::ProfileEdit(next));
+            return;
+        }
+        if index == count && code == KeyCode::Enter {
+            self.save_profile_copy();
+            return;
+        }
+        if index >= count
+            || !matches!(
+                code,
+                KeyCode::ArrowLeft | KeyCode::ArrowRight | KeyCode::Enter
+            )
+        {
+            return;
+        }
+        if code == KeyCode::Enter && numeric {
+            return;
+        }
+        if let Some(draft) = self.profile_edit.as_mut() {
+            if let Err(error) = draft
+                .editor
+                .step(index, code != KeyCode::ArrowLeft, self.shift)
+            {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
+            }
+        }
+    }
+    fn save_profile_copy(&mut self) {
+        let result: Result<Choices, String> = (|| {
+            let directory = self
+                .profile_directory
+                .as_deref()
+                .ok_or_else(|| i18n::tr("Edition", "ExpressionEditUnavailable").to_string())?;
+            let draft = self
+                .profile_edit
+                .as_mut()
+                .ok_or_else(|| i18n::tr("Edition", "ProfileMissing").to_string())?;
+            let settings = self
+                .profile_selection
+                .as_ref()
+                .ok_or_else(|| i18n::tr("Edition", "ProfileMissing").to_string())?;
+            settings
+                .catalog
+                .profile(
+                    &self.workspace.file().session,
+                    self.workspace.chart(),
+                    draft.kind,
+                    &draft.source,
+                )
+                .map_err(|e| e.to_string())?;
+            let config = draft.editor.finish().map_err(|error| {
+                if error.to_string().contains("Aggressive bracket threshold") {
+                    i18n::tr("Edition", "ExpressionEditThresholdOrder").to_string()
+                } else {
+                    error.to_string()
+                }
+            })?;
+            draft
+                .profile
+                .set_config(config)
+                .map_err(|e| e.to_string())?;
+            draft
+                .profile
+                .export_new(directory)
+                .map_err(|e| e.to_string())?;
+            let offset = usize::from(matches!(draft.back, Panel::ConversionProfiles(_)));
+            let selected = |kind, index: Option<usize>| {
+                index
+                    .and_then(|i| i.checked_sub(offset))
+                    .and_then(|i| settings.catalog.entries(kind).get(i))
+                    .map(|entry| entry.guid.clone())
+            };
+            let mut choices = Choices {
+                pattern: selected(Kind::Pattern, settings.pattern),
+                performed: selected(Kind::Performed, settings.performed),
+                expressed: selected(Kind::Expressed, settings.expressed),
+            };
+            let id = Some(draft.profile.guid().clone());
+            match draft.kind {
+                Kind::Pattern => choices.pattern = id,
+                Kind::Performed => choices.performed = id,
+                Kind::Expressed => choices.expressed = id,
+            };
+            Ok(choices)
+        })();
+        match result {
+            Ok(choices) => {
+                self.profile_edit = None;
+                match self.catalog_target {
+                    ProfileTarget::Chart => self.open_chart_expression(),
+                    ProfileTarget::Marker => self.open_marker_profiles(),
+                    target => self.open_conversion_profiles_for(target),
+                };
+                if self.catalog_job.is_some() {
+                    self.profile_saved_choices = Some(choices);
+                }
+            }
+            Err(error) => self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error)]),
+        }
+    }
+    pub(super) fn profile_edit_label(&self, index: usize, key: &str) -> std::sync::Arc<str> {
+        let Some(draft) = &self.profile_edit else {
+            return i18n::tr("Edition", key);
+        };
+        let Some(field) = draft.editor.fields().get(index) else {
+            return i18n::tr("Edition", key);
+        };
+        let Some(value) = draft.editor.value(index) else {
+            return i18n::tr("Edition", "ProfileMissing");
+        };
+        let value = if let Some((_, text)) = draft.input.as_ref().filter(|(i, _)| *i == index) {
+            text.clone()
+        } else {
+            match field.control {
+                Control::Boolean | Control::OptionalBoolean => i18n::tr(
+                    "Edition",
+                    match value.as_bool() {
+                        Some(true) => "PatternYes",
+                        Some(false) => "PatternNo",
+                        None => "ProfileEditInherit",
+                    },
+                )
+                .to_string(),
+                Control::Choice(_) => {
+                    let text = value
+                        .as_str()
+                        .map(str::to_owned)
+                        .unwrap_or_else(|| value.to_string());
+                    if field.name() == "BeatSubDivision" {
+                        format!("1/{}", value.as_u64().unwrap_or(1) * 4)
+                    } else if field.name() == "StartingFootSpecified" {
+                        i18n::tr(
+                            "Edition",
+                            if text == "0" {
+                                "ProfileChoiceLeft"
+                            } else {
+                                "ProfileChoiceRight"
+                            },
+                        )
+                        .to_string()
+                    } else {
+                        i18n::tr("Edition", &format!("ProfileChoice{text}")).to_string()
+                    }
+                }
+                Control::Number
+                    if draft.kind == Kind::Performed
+                        && value.as_f64() == Some(-1.0)
+                        && !matches!(
+                            field.name(),
+                            "LateralMinPanelDistance" | "LongitudinalMinPanelDistance"
+                        ) =>
+                {
+                    i18n::tr("Edition", "ProfileEditInheritNumeric").to_string()
+                }
+                Control::Number => format!("{:.6}", value.as_f64().unwrap_or_default()),
+                Control::Integer => value.to_string(),
+            }
+        };
+        let key = match field.name() {
+            "DefaultBracketParsingMethod" => "ExpressionEditMethod".to_owned(),
+            "BracketParsingDetermination" => "ExpressionEditDetermination".to_owned(),
+            "MinLevelForBrackets" => "ExpressionEditLevel".to_owned(),
+            "UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets" => {
+                "ExpressionEditAggressive".to_owned()
+            }
+            "BalancedBracketsPerMinuteForAggressiveBrackets" => "ExpressionEditHigh".to_owned(),
+            "BalancedBracketsPerMinuteForNoBrackets" => "ExpressionEditLow".to_owned(),
+            _ => format!("ProfileField{}", field.name()),
+        };
+        if field.path().first().is_some_and(|p| p == "ArrowWeights") {
+            return i18n::tr_fmt(
+                "Edition",
+                "ProfileFieldArrowWeight",
+                &[
+                    ("layout", &field.path()[1]),
+                    (
+                        "lane",
+                        &(field.name().parse::<usize>().unwrap_or(0) + 1).to_string(),
+                    ),
+                    ("value", &value),
+                ],
+            );
+        }
+        let key = if field.name() == "Enabled" {
+            format!("ProfileField{}Enabled", field.path()[0])
+        } else {
+            key
+        };
+        i18n::tr_fmt("Edition", &key, &[("value", &value)])
+    }
+}

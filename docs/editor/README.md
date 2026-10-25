@@ -4518,3 +4518,54 @@ Validation: 225 native editor integration tests across 35 targets passed, plus
 `/tmp/deadsync-expression-edit-core.log`. The theme cargo check also passed
 before the final menu/validation additions; the final complete integration run
 compiled those additions successfully. Physical app review remains pending.
+
+### Shared native controls for Pattern, Performed and Expressed profiles
+
+The interpretation-only copy editor is replaced by a shared typed inspector.
+`generation::profile_controls::Editor` derives controls for every serialized
+configuration leaf: signed integers, finite floats, booleans, nullable inherited
+booleans and the original enum/subdivision choices. It exposes all 16 pattern
+fields and every existing Performed field, including each layout's individual
+arrow weights. Typed conversion and the original configuration validator run
+before save; cross-field edits may remain temporarily invalid while staged.
+Unknown future control types fail explicitly rather than disappearing silently.
+
+Pattern fields follow the original logical order. Performed fields are grouped
+by facing, lateral travel, step tightening, transitions and arrow weights. The
+native inspector shows eight rows per page, with Up/Down/Tab, Page Up/Down,
+Home, End (save row), direct number input, and Left/Right adjustment. Nullable
+booleans cycle through inherit/no/yes. Negative-one inherited float settings are
+identified as inherited, excluding signed physical panel compensations. Labels
+and choices are supplied in English and French, with zero-based specified-panel
+indices explained in the labels.
+
+Marker profile selection has explicit copy actions for all three families;
+conversion and batch profile selection expose Performed/Expressed copies. E on
+an explicit selected profile is also supported. Save uses the same guarded
+source capture, new GUID and no-clobber export, then reloads the catalog with the
+copy selected. Other unaccepted profile choices are retained by identity across
+the reload, including conversion's inherited/default entries. Staging/applying
+remains a separate document action with the existing undo semantics.
+
+Core tests count serialized leaves and assert full control coverage and typed
+round-trip for every built-in preset, cycle every enum, validate integer bounds,
+reject nonfinite input and test inherited boolean cycling and invalid-draft
+repair. Native tests cover pattern copies, pages, preservation of other selected
+profiles, marker apply/undo, Performed copies selected for conversion, and every
+page of all three families in French. The previous interpretation-panel tests
+continue to exercise the shared implementation.
+
+This connects existing configuration fields, not the entire remaining editor
+scope. Custom-profile renaming/in-place save/deletion, adding absent dictionary
+layouts, travel-speed BPM wrapper controls, richer category navigation and full
+localized constraint diagnostics remain open. Some original configurations defer
+arrow-weight checks until generation, as the existing generator contract does.
+No physical app/GPU review or new C# differential run is claimed for this panel.
+
+Validation: all 228 native editor integration tests across 37 targets passed,
+along with 11 targeted core tests (3 controls, 6 profile edits and 2 snapshots).
+`cargo check -p deadsync-theme-simply-love --jobs 2 --locked` passed on the final
+source. Logs: `/tmp/deadsync-profile-controls-all-native.log`,
+`/tmp/deadsync-profile-controls-core.log` and
+`/tmp/deadsync-profile-controls-check.log`. These are scoped editor checks, not a
+claim that the full project suite or the complete GrooveAuthor port is finished.
