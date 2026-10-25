@@ -661,3 +661,55 @@ fn dedicated_preview_picker_stages_audio_and_saves_while_sm_refuses_unsupported_
         original.as_bytes()
     );
 }
+
+#[test]
+fn last_second_hint_keyboard_field_is_staged_saved_and_refused_in_sm() {
+    for sm in [false, true] {
+        let (dir, mut state, original) = setup(sm, false);
+        press(&mut state, KeyCode::F11);
+        press(&mut state, KeyCode::F6);
+        press(&mut state, KeyCode::Tab);
+        press(&mut state, KeyCode::Tab);
+        press(&mut state, KeyCode::ArrowRight);
+        assert_eq!(
+            state.workspace().file().session.serialize().unwrap(),
+            original.as_bytes()
+        );
+        press(&mut state, KeyCode::Escape);
+        press(&mut state, KeyCode::ArrowDown);
+        press(&mut state, KeyCode::Enter);
+        if sm {
+            assert!(
+                state
+                    .workspace()
+                    .file()
+                    .session
+                    .document()
+                    .text(None, "LASTSECONDHINT")
+                    .is_none()
+            );
+        } else {
+            assert_eq!(
+                state
+                    .workspace()
+                    .file()
+                    .session
+                    .document()
+                    .text(None, "LASTSECONDHINT")
+                    .as_deref(),
+                Some("0.001")
+            );
+            ctrl(&mut state, KeyCode::KeyS);
+            assert!(
+                fs::read_to_string(dir.path().join("song.ssc"))
+                    .unwrap()
+                    .contains("#LASTSECONDHINT:0.001;")
+            );
+            ctrl(&mut state, KeyCode::KeyZ);
+            assert_eq!(
+                state.workspace().file().session.serialize().unwrap(),
+                original.as_bytes()
+            );
+        }
+    }
+}

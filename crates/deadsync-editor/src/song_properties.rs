@@ -134,6 +134,7 @@ pub struct Draft {
     offset: f64,
     original_music_offset: f64,
     music_offset: f64,
+    last_second_hint: Option<[f64; 2]>,
     original_sample: [f64; 2],
     sample: [f64; 2],
     fields: Map<String, Value>,
@@ -171,12 +172,31 @@ impl Draft {
                 .transpose()?
                 .unwrap_or(0.0);
         }
+        let last_second_hint = if session.document().format == crate::document::Format::Ssc {
+            let value = session
+                .document()
+                .text(None, "LASTSECONDHINT")
+                .map(|value| {
+                    value
+                        .trim()
+                        .parse::<f64>()
+                        .ok()
+                        .filter(|v| v.is_finite())
+                        .ok_or_else(|| Error::InvalidEdit("Invalid last second hint".into()))
+                })
+                .transpose()?
+                .unwrap_or(0.0);
+            Some([value, value])
+        } else {
+            None
+        };
         Ok(Self {
             token: session.revision_token(),
             original: offset,
             offset,
             original_music_offset: music_offset,
             music_offset,
+            last_second_hint,
             original_sample: sample,
             sample,
             fields,
@@ -193,7 +213,9 @@ impl Draft {
         self.text.set(field, value)
     }
     pub fn has_changes(&self) -> bool {
-        self.text.has_changes()
+        self.last_second_hint
+            .is_some_and(|[original, value]| !crate::number::reference_equal(original, value))
+            || self.text.has_changes()
             || !crate::number::reference_equal(self.original, self.offset)
             || !crate::number::reference_equal(self.original_music_offset, self.music_offset)
             || self
@@ -201,6 +223,24 @@ impl Draft {
                 .iter()
                 .zip(self.original_sample)
                 .any(|(value, original)| !crate::number::reference_equal(*value, original))
+    }
+    pub fn supports_last_second_hint(&self) -> bool {
+        self.last_second_hint.is_some()
+    }
+    pub fn last_second_hint(&self) -> f64 {
+        self.last_second_hint.map_or(0.0, |values| values[1])
+    }
+    pub fn set_last_second_hint(&mut self, value: f64) -> Result<(), Error> {
+        if !value.is_finite() {
+            return invalid("Last second hint must be finite");
+        }
+        let Some(values) = self.last_second_hint.as_mut() else {
+            return Err(Error::Unsupported("Last second hint requires SSC".into()));
+        };
+        if !crate::number::reference_equal(values[1], value) {
+            values[1] = value;
+        }
+        Ok(())
     }
     pub fn clock(&self, session: &Session, chart: usize) -> Result<crate::playback::Clock, Error> {
         if !session.accepts_token(&self.token) {
@@ -351,6 +391,16 @@ impl Draft {
                 )
             })
             .collect::<Vec<_>>();
+        let hint_changed = self
+            .last_second_hint
+            .is_some_and(|[original, value]| !crate::number::reference_equal(original, value));
+        if hint_changed {
+            properties.push((
+                None,
+                "LASTSECONDHINT".to_owned(),
+                std::sync::Arc::from(self.last_second_hint().to_string().into_bytes()),
+            ));
+        }
         let mut sample_changed = false;
         for (index, name) in ["SAMPLESTART", "SAMPLELENGTH"].into_iter().enumerate() {
             if !crate::number::reference_equal(self.sample[index], self.original_sample[index]) {
@@ -407,7 +457,7 @@ impl Draft {
         }
         session.set_property_bytes_atomic(
             &properties,
-            if text_changes.is_empty() && !music_changed && !sample_changed {
+            if text_changes.is_empty() && !music_changed && !sample_changed && !hint_changed {
                 "Change editor sync offset"
             } else {
                 "Change song properties"

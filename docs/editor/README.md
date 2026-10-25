@@ -2897,3 +2897,22 @@ supersedes the earlier note excluding PREVIEW/sample fields from those fixtures;
 it still does not prove the entire original editor UI or audio implementation.
 The broader core suite was launched before fixture regeneration; its result
 must not be reported as a clean current-state full-suite run without a rerun.
+
+### Last-second hint property
+
+SSC song drafts now read/write LASTSECONDHINT, with finite setters and original
+one-ULP equality. Missing defaults to zero. Existing negative legacy values
+remain byte-preserved if untouched. SM rejects edits and retains any unknown
+source tag. The optional F11/F6 audio panel exposes the hint after sample length;
+numeric edits clamp to zero, F2 uses nonnegative current song time, F3 jumps
+through the same draft clock. Apply groups it with other song properties.
+Reference: pinned EditorSong.LastSecondHint, SSCReader TagLastSecondHint and
+UISongProperties.SetLastSecondHintFromCurrentTime/JumpToLastSecondHint. The hint
+means an optional song end time extending play after the last note, per the
+original event description. Original event-widget rendering and gameplay
+consumption of the hint remain unverified.
+
+All 14 core song-properties tests pass, including finite validation, untouched
+legacy value, SSC apply/undo/redo/reopen and SM refusal. The previous broad core
+run completed successfully but preceded final source/fixture edits; a fresh
+full core run is active at the current state and must be reported separately.

@@ -391,3 +391,37 @@ fn dedicated_preview_draft_drives_audition_and_reversible_ssc_save_only() {
     assert!(draft.set_text(Field::PreviewMusic, "preview.wav").is_err());
     assert!(!draft.has_changes());
 }
+
+#[test]
+fn last_second_hint_is_ssc_only_reversible_and_preserves_unedited_legacy_values() {
+    let mut session = song(Format::Ssc);
+    session
+        .set_text(None, "LASTSECONDHINT", "-2.000000")
+        .unwrap();
+    let original = session.serialize().unwrap();
+    let mut draft = Draft::capture(&session).unwrap();
+    assert!(draft.supports_last_second_hint());
+    assert_eq!(draft.last_second_hint(), -2.0);
+    assert!(!draft.apply(&mut session).unwrap());
+    for value in [f64::NAN, f64::INFINITY] {
+        assert!(draft.set_last_second_hint(value).is_err());
+    }
+    draft.set_last_second_hint(12.5).unwrap();
+    assert!(draft.apply(&mut session).unwrap());
+    let changed = session.serialize().unwrap();
+    assert_eq!(
+        session.document().text(None, "LASTSECONDHINT").as_deref(),
+        Some("12.5")
+    );
+    session.undo().unwrap();
+    assert_eq!(session.serialize().unwrap(), original);
+    session.redo().unwrap();
+    assert_eq!(session.serialize().unwrap(), changed);
+    let reopened = Session::new(Document::parse(changed, Format::Ssc).unwrap());
+    assert_eq!(Draft::capture(&reopened).unwrap().last_second_hint(), 12.5);
+    let session = song(Format::Sm);
+    let mut draft = Draft::capture(&session).unwrap();
+    assert!(!draft.supports_last_second_hint());
+    assert!(draft.set_last_second_hint(1.0).is_err());
+    assert!(!draft.has_changes());
+}

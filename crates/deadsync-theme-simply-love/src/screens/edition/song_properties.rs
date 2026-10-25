@@ -108,7 +108,21 @@ impl State {
             return;
         }
         self.stop_audio();
-        if index < 2 && matches!(code, KeyCode::F2 | KeyCode::F3) {
+        if index == 2
+            && self
+                .song_properties
+                .as_ref()
+                .is_some_and(|draft| !draft.supports_last_second_hint())
+        {
+            if !matches!(
+                code,
+                KeyCode::Escape | KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab
+            ) {
+                self.status = i18n::tr("Edition", "ChartTextUnsupportedSm");
+                return;
+            }
+        }
+        if index < 3 && matches!(code, KeyCode::F2 | KeyCode::F3) {
             let result = (|| -> Result<(), deadsync_editor::Error> {
                 let Some(draft) = self.song_properties.as_mut() else {
                     return Ok(());
@@ -118,14 +132,18 @@ impl State {
                     let seconds = clock.music_time(self.workspace.row())?;
                     if index == 0 {
                         draft.set_sample_start_from_time(seconds)?;
-                    } else {
+                    } else if index == 1 {
                         draft.set_sample_end_from_time(seconds)?;
+                    } else {
+                        draft.set_last_second_hint(seconds.max(0.0))?;
                     }
                 } else {
                     let seconds = if index == 0 {
                         draft.sample_start()
-                    } else {
+                    } else if index == 1 {
                         draft.sample_end()?
+                    } else {
+                        draft.last_second_hint()
                     };
                     let row = clock
                         .position(seconds)?
@@ -152,16 +170,16 @@ impl State {
             return;
         }
         if code == KeyCode::Escape
-            || (index == 2 && matches!(code, KeyCode::Enter | KeyCode::NumpadEnter))
+            || (index == 3 && matches!(code, KeyCode::Enter | KeyCode::NumpadEnter))
         {
             self.panel = Some(Panel::SongProperties(0));
             self.status = i18n::tr("Edition", "SongSampleStaged");
         } else if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
             let backwards = code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift);
             self.panel = Some(Panel::SongSample(
-                (index + if backwards { 2 } else { 1 }) % 3,
+                (index + if backwards { 3 } else { 1 }) % 4,
             ));
-        } else if index < 2
+        } else if index < 3
             && matches!(
                 code,
                 KeyCode::ArrowLeft
@@ -174,8 +192,10 @@ impl State {
             if let Some(draft) = self.song_properties.as_mut() {
                 let current = if index == 0 {
                     draft.sample_start()
-                } else {
+                } else if index == 1 {
                     draft.sample_length()
+                } else {
+                    draft.last_second_hint()
                 };
                 let delta = if self.shift { 0.0001 } else { 0.001 };
                 let value = match code {
@@ -185,8 +205,10 @@ impl State {
                 };
                 let result = if index == 0 {
                     draft.set_sample_start(value)
-                } else {
+                } else if index == 1 {
                     draft.set_sample_length(value.max(0.0))
+                } else {
+                    draft.set_last_second_hint(value.max(0.0))
                 };
                 if let Err(error) = result {
                     self.status =

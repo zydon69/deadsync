@@ -1270,7 +1270,7 @@ impl State {
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
-            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1))
+            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !repeating_offset
@@ -2306,7 +2306,7 @@ impl State {
                 "ProfileBack",
             ],
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
-            Panel::SongSample(_) => &["SongSampleStart", "SongSampleLength", "SongSampleBack"],
+            Panel::SongSample(_) => &["SongSampleStart", "SongSampleLength", "SongLastSecondHint", "SongSampleBack"],
             Panel::SongProperties(_) => &[
                 "SongSyncOffset", "SongPropertiesApply", "SongPropertiesCancel", "SongTextOpen", "SongMusicOffset", "SongItgApply",
             ],
@@ -2747,8 +2747,8 @@ impl State {
                 i18n::tr("Edition", "PatternSetApply")
             } else if matches!(panel, Panel::Timing(_)) {
                 self.timing_label(index, key)
-            } else if matches!(panel, Panel::SongSample(_)) && index < 2 {
-                let seconds = self.song_properties.as_ref().map_or(0.0, |draft| if index == 0 { draft.sample_start() } else { draft.sample_length() });
+            } else if matches!(panel, Panel::SongSample(_)) && index < 3 {
+                let seconds = self.song_properties.as_ref().map_or(0.0, |draft| if index == 0 { draft.sample_start() } else if index == 1 { draft.sample_length() } else { draft.last_second_hint() });
                 i18n::tr_fmt("Edition", key, &[("seconds", &format!("{seconds:.6}"))])
             } else if matches!(panel, Panel::SongProperties(_)) && matches!(index, 0 | 4) {
                 let offset = self.song_properties.as_ref().map_or(0.0, |draft| if index == 4 { draft.music_offset() } else { draft.sync_offset() });
