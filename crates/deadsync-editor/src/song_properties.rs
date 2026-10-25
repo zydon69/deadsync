@@ -127,6 +127,8 @@ pub struct Draft {
     offset: f64,
     original_music_offset: f64,
     music_offset: f64,
+    original_sample: [f64; 2],
+    sample: [f64; 2],
     fields: Map<String, Value>,
     text: crate::song_text::Text,
 }
@@ -146,12 +148,30 @@ impl Draft {
             })
             .transpose()?
             .unwrap_or(0.0);
+        let mut sample = [0.0; 2];
+        for (index, name) in ["SAMPLESTART", "SAMPLELENGTH"].into_iter().enumerate() {
+            sample[index] = session
+                .document()
+                .text(None, name)
+                .map(|value| {
+                    value
+                        .trim()
+                        .parse::<f64>()
+                        .ok()
+                        .filter(|value| value.is_finite())
+                        .ok_or_else(|| Error::InvalidEdit(format!("Invalid {name}")))
+                })
+                .transpose()?
+                .unwrap_or(0.0);
+        }
         Ok(Self {
             token: session.revision_token(),
             original: offset,
             offset,
             original_music_offset: music_offset,
             music_offset,
+            original_sample: sample,
+            sample,
             fields,
             text: crate::song_text::Text::read(session.document()),
         })
@@ -166,6 +186,32 @@ impl Draft {
         self.text.has_changes()
             || !crate::number::reference_equal(self.original, self.offset)
             || !crate::number::reference_equal(self.original_music_offset, self.music_offset)
+            || self
+                .sample
+                .iter()
+                .zip(self.original_sample)
+                .any(|(value, original)| !crate::number::reference_equal(*value, original))
+    }
+    pub fn sample_start(&self) -> f64 {
+        self.sample[0]
+    }
+    pub fn sample_length(&self) -> f64 {
+        self.sample[1]
+    }
+    pub fn set_sample_start(&mut self, value: f64) -> Result<(), Error> {
+        self.set_sample(0, value)
+    }
+    pub fn set_sample_length(&mut self, value: f64) -> Result<(), Error> {
+        self.set_sample(1, value)
+    }
+    fn set_sample(&mut self, index: usize, value: f64) -> Result<(), Error> {
+        if !value.is_finite() {
+            return invalid("Preview sample time must be finite");
+        }
+        if !crate::number::reference_equal(self.sample[index], value) {
+            self.sample[index] = value;
+        }
+        Ok(())
     }
     pub fn music_offset(&self) -> f64 {
         self.music_offset
@@ -212,6 +258,17 @@ impl Draft {
                 )
             })
             .collect::<Vec<_>>();
+        let mut sample_changed = false;
+        for (index, name) in ["SAMPLESTART", "SAMPLELENGTH"].into_iter().enumerate() {
+            if !crate::number::reference_equal(self.sample[index], self.original_sample[index]) {
+                sample_changed = true;
+                properties.push((
+                    None,
+                    name.to_owned(),
+                    std::sync::Arc::from(self.sample[index].to_string().into_bytes()),
+                ));
+            }
+        }
         let music_changed =
             !crate::number::reference_equal(self.original_music_offset, self.music_offset);
         if music_changed {
@@ -257,7 +314,7 @@ impl Draft {
         }
         session.set_property_bytes_atomic(
             &properties,
-            if text_changes.is_empty() && !music_changed {
+            if text_changes.is_empty() && !music_changed && !sample_changed {
                 "Change editor sync offset"
             } else {
                 "Change song properties"

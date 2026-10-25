@@ -188,3 +188,62 @@ fn song_music_offset_validation_and_noop_preserve_history_and_metadata_bytes() {
     session.set_text(None, "OFFSET", "invalid").unwrap();
     assert!(Draft::capture(&session).is_err());
 }
+
+#[test]
+fn sample_region_changes_are_one_reversible_song_transaction_in_sm_and_ssc() {
+    for format in [Format::Sm, Format::Ssc] {
+        let mut session = song(format);
+        let original = session.serialize().unwrap();
+        let mut draft = Draft::capture(&session).unwrap();
+        assert_eq!(draft.sample_start(), 0.0);
+        assert_eq!(draft.sample_length(), 0.0);
+        draft.set_sample_start(12.3456).unwrap();
+        draft.set_sample_length(15.25).unwrap();
+        draft.set_music_offset(-0.125).unwrap();
+        assert!(draft.apply(&mut session).unwrap());
+        assert_eq!(
+            session.document().text(None, "SAMPLESTART").as_deref(),
+            Some("12.3456")
+        );
+        assert_eq!(
+            session.document().text(None, "SAMPLELENGTH").as_deref(),
+            Some("15.25")
+        );
+        assert_eq!(
+            session.document().text(None, "UNKNOWN").as_deref(),
+            Some("preserve")
+        );
+        assert!(session.document().text(None, "GASongData").is_none());
+        let changed = session.serialize().unwrap();
+        session.undo().unwrap();
+        assert_eq!(session.serialize().unwrap(), original);
+        session.redo().unwrap();
+        assert_eq!(session.serialize().unwrap(), changed);
+        let reopened = Session::new(Document::parse(changed, format).unwrap());
+        let read = Draft::capture(&reopened).unwrap();
+        assert_eq!(read.sample_start(), 12.3456);
+        assert_eq!(read.sample_length(), 15.25);
+    }
+}
+
+#[test]
+fn sample_region_noops_and_invalid_values_do_not_create_history_or_erase_source() {
+    let mut session = song(Format::Ssc);
+    session.set_text(None, "SAMPLESTART", "-1.250000").unwrap();
+    session.set_text(None, "SAMPLELENGTH", "15.000000").unwrap();
+    let original = session.serialize().unwrap();
+    let mut draft = Draft::capture(&session).unwrap();
+    draft.set_sample_start(-1.25).unwrap();
+    draft
+        .set_sample_length(f64::from_bits(15.0f64.to_bits() + 1))
+        .unwrap();
+    for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+        assert!(draft.set_sample_start(value).is_err());
+        assert!(draft.set_sample_length(value).is_err());
+    }
+    assert!(!draft.has_changes());
+    assert!(!draft.apply(&mut session).unwrap());
+    assert_eq!(session.serialize().unwrap(), original);
+    session.set_text(None, "SAMPLELENGTH", "invalid").unwrap();
+    assert!(Draft::capture(&session).is_err());
+}

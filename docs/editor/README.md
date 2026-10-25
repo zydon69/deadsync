@@ -2710,3 +2710,21 @@ The new English workflow stages ITG + an additional 1 ms, proves the document
 unchanged before Apply, then applies/undoes/redoes/saves SM and SSC. The French
 workflow verifies offset/action labels, repeated-action help and Escape discard.
 No real decoder/speaker check is implied by these native adapter workflows.
+
+### Preview sample region draft (core; native controls pending)
+
+Song properties now capture SAMPLESTART and SAMPLELENGTH (missing defaults zero,
+as in Fumen Song), expose finite setters with original one-ULP equality and
+include changed values in the same reversible song transaction. Unchanged values
+retain their source bytes. Reference: pinned EditorSong.SampleStart/SampleLength,
+UISongProperties preview rows, Fumen SM/SSC readers and writers. Original model
+setters accept signed values; the original length UI clamps its drag minimum to
+zero. The Rust core preserves signed legacy data; the forthcoming native length
+control must enforce that UI minimum on edits.
+
+All eight song_properties_workflows tests pass, including SM/SSC atomic offset +
+sample changes, undo/redo/reopen, invalid-number rejection and no-op preservation
+of original decimal formatting. These tests do not cover an actual original
+reader comparison for sample regions. Native fields, current-time shortcuts,
+jump-to-region actions, preview-region rendering and audio audition remain
+required; the new draft API alone does not deliver that feature.
