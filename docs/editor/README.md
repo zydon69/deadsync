@@ -713,8 +713,9 @@ helper as F5. Start and length move by the current chart snap; the signed seed
 and both inclusive endpoint flags and distribution flag are editable. Apply
 commits the settings as one undoable metadata gesture without moving, removing
 or regenerating notes. F5 then generates from the changed marker. Profile GUIDs
-and unknown fields are retained. Profile selection/editing still requires an
-advanced inspector; this panel does not expose all GrooveAuthor configuration.
+and unknown fields are retained. Pattern/performed profile selection uses the
+optional selector described below; detailed configuration editing still requires
+an advanced inspector. This panel does not expose all GrooveAuthor configuration.
 
 Deleting a marker requires a separate confirmation and keeps its notes. Escape
 discards the draft or cancels confirmation. Applying to another chart, another
@@ -784,3 +785,49 @@ actors, explicit apply/discard, worker cancellation, save/reopen, retained marke
 actors and navigation with pending edits. These do not prove physical input or
 GPU rendering. Batch generation, advanced configuration, waveform/audio editing
 and the rest of the delivery matrix remain required for the complete port.
+
+
+### Choosing saved-marker generation profiles
+
+F6 > Choose generation profiles loads a read-only catalog through the bounded
+background worker. Left/Right cycles the pattern and performed profiles; Use
+these profiles in the draft stages their GUIDs. Applying marker settings commits
+those GUIDs with the other pending marker fields in one undoable gesture. Escape
+from the selector returns without changing the existing draft; Escape from the
+inspector abandons it. Cancelling catalog loading also retains the prior draft.
+No profile files or directories are created by catalog loading or selection.
+
+The catalog includes the original two pattern, seven performed and three
+expressed built-ins and successfully loaded custom files. The native marker
+selector exposes pattern/performed profiles; chart-level expressed-profile
+selection remains pending. Built-in labels are translated, custom display names
+have whitespace collapsed and are shortened for the panel without changing their
+file contents. Missing referenced identities are shown explicitly and must be
+replaced deliberately; opening the selector never substitutes a default. Invalid
+unrelated files are reported and preserved. Built-ins precede custom names, with
+GUIDs breaking ties deterministically inside each kind's namespace.
+
+Catalog results and staged selections are bound to chart/session identity and
+revision. Selected custom files retain their byte snapshots; changed contents
+reject marker application without altering metadata or redo history. The check
+covers the opened dependency files, not a locked directory or filesystem-wide
+transaction. No-op marker application does not rewrite the original metadata.
+After staging, unused catalog/config bodies are released while the selected
+dependency snapshots remain with the marker draft.
+
+Five core workflows cover all twelve built-ins, custom/unnamed profiles, separate
+kind namespaces, invalid files, missing directories, read-only loading, SM/SSC
+profile selection/save/reopen/generation, preserved unknown fields and chart
+expression, one-gesture undo/redo, identity/revision guards, external custom-file
+changes, missing-profile replacement, no-op/redo retention and worker cancellation.
+Three native workflows cover asynchronous loading, translated entry strings,
+custom name display, explicit staging/application, back/discard/loading cancel,
+retained prior drafts, undo/redo/save/reopen, F5 with the selected custom profiles
+and explicit missing-profile replacement. They exercise adapters and actors, not
+physical input or GPU rendering. They compose the previously compared original
+profile codec and generation contracts; no complete original UI oracle is claimed.
+
+Editing/cloning/creating/deleting profiles through the native library, all
+advanced configuration controls, chart expression selection, batch generation,
+waveform/audio editing and the remaining delivery matrix are still required for
+the complete port.

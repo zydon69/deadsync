@@ -23,6 +23,7 @@ pub mod pattern_region;
 pub mod performed;
 pub mod random;
 pub mod profiles;
+pub mod profile_catalog;
 pub mod reference_sort;
 pub mod search;
 pub mod source;

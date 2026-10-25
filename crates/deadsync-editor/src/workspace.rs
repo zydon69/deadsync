@@ -295,6 +295,23 @@ impl Workspace {
         }
     }
 
+    pub fn marker_profile_task(
+        &self,
+        draft: &crate::generation::marker_edit::Draft,
+        directory: Option<&Path>,
+    ) -> Result<crate::generation::profile_catalog::Task, Error> {
+        draft.profile_task(&self.file.session, self.chart, directory)
+    }
+    pub fn select_marker_profiles(
+        &self,
+        draft: &mut crate::generation::marker_edit::Draft,
+        catalog: &crate::generation::profile_catalog::Catalog,
+        pattern: &crate::generation::metadata::Guid,
+        performed: &crate::generation::metadata::Guid,
+    ) -> Result<(), Error> {
+        draft.select_profiles(&self.file.session, self.chart, catalog, pattern, performed)
+    }
+
     pub fn clear_pattern_task(
         &self,
         draft: &crate::generation::marker_edit::Draft,

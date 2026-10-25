@@ -12,6 +12,8 @@ use deadsync_editor::{
         config::{PatternConfig, PerformedConfig, PerformedPreset},
         job::{ChartOptions, ChartPreview, Job, Phase, Progress, Report, TARGET_LAYOUTS},
         pattern_job::{self, Span},
+        profile_catalog::{self, BuiltinLabel},
+        profiles::Kind as ProfileKind,
     },
     notes::{Kind, ROWS_PER_BEAT},
     workspace::{Command, SNAP_NAMES, SNAP_ROWS, TOOLS, Workspace},
@@ -30,6 +32,7 @@ enum Panel {
     Generation(usize),
     Pattern(usize),
     Marker(usize),
+    Profiles(usize),
     ConfirmMarkerDelete,
     Generating,
     GenerationPreview(usize),
@@ -55,6 +58,12 @@ struct PatternSettings {
     seed: i32,
     ignore_distribution: bool,
 }
+struct ProfileSettings {
+    catalog: profile_catalog::Catalog,
+    pattern: Option<usize>,
+    performed: Option<usize>,
+}
+
 enum GenerationJob {
     Chart(Job),
     Pattern(Job<pattern_job::Preview>),
@@ -127,6 +136,8 @@ pub struct State {
     saved_regions: Vec<(u64, u64)>,
     marker_cache: Option<(Arc<[u8]>, u64, usize)>,
     job: Option<GenerationJob>,
+    catalog_job: Option<Job<profile_catalog::Catalog>>,
+    profile_selection: Option<ProfileSettings>,
     preview: Option<GenerationPreview>,
     control: bool,
     shift: bool,
@@ -212,6 +223,8 @@ impl State {
             saved_regions: Vec::new(),
             marker_cache: None,
             job: None,
+            catalog_job: None,
+            profile_selection: None,
             preview: None,
             workspace,
             control: false,
@@ -232,7 +245,7 @@ impl State {
     }
 
     pub fn is_generating(&self) -> bool {
-        self.job.is_some()
+        self.job.is_some() || self.catalog_job.is_some()
     }
     pub fn generation_report(&self) -> Option<Report> {
         self.preview.as_ref().and_then(|p| match p {
@@ -261,7 +274,7 @@ impl State {
         self.status = i18n::tr("Edition", "GenerationOptionsHelp");
     }
     fn start_pattern(&mut self) {
-        if self.job.is_some() {
+        if self.is_generating() {
             return;
         }
         let options = pattern_job::Options {
@@ -293,6 +306,7 @@ impl State {
     }
 
     fn open_marker(&mut self) {
+        self.profile_selection = None;
         match self.workspace.edit_saved_pattern() {
             Ok(draft) => {
                 self.marker = Some(draft);
@@ -333,8 +347,108 @@ impl State {
         }
     }
 
+    fn open_marker_profiles(&mut self) {
+        if self.is_generating() {
+            return;
+        }
+        let Some(draft) = &self.marker else {
+            return;
+        };
+        match self
+            .workspace
+            .marker_profile_task(draft, self.profile_directory.as_deref())
+            .and_then(|task| task.spawn())
+        {
+            Ok(job) => {
+                self.profile_selection = None;
+                self.catalog_job = Some(job);
+                self.panel = Some(Panel::Generating);
+                self.status = i18n::tr("Edition", "ProfileLoading");
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+    fn stage_marker_profiles(&mut self) {
+        let (Some(settings), Some(draft)) = (&self.profile_selection, &mut self.marker) else {
+            return;
+        };
+        let pattern = settings
+            .pattern
+            .and_then(|index| settings.catalog.entries(ProfileKind::Pattern).get(index));
+        let performed = settings
+            .performed
+            .and_then(|index| settings.catalog.entries(ProfileKind::Performed).get(index));
+        let (Some(pattern), Some(performed)) = (pattern, performed) else {
+            self.status = i18n::tr("Edition", "ProfileChooseMissing");
+            return;
+        };
+        match self.workspace.select_marker_profiles(
+            draft,
+            &settings.catalog,
+            &pattern.guid,
+            &performed.guid,
+        ) {
+            Ok(()) => {
+                self.profile_selection = None;
+                self.panel = Some(Panel::Marker(12));
+                self.status = i18n::tr("Edition", "ProfileStaged");
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+    fn poll_profile_catalog(&mut self) {
+        let Some(job) = &mut self.catalog_job else {
+            return;
+        };
+        let cancelled = job.is_cancelled();
+        let Some(result) = job.poll() else {
+            return;
+        };
+        self.catalog_job = None;
+        self.panel = Some(Panel::Marker(12));
+        match result {
+            Ok(catalog)
+                if catalog.is_current(&self.workspace.file().session, self.workspace.chart())
+                    && self.marker.is_some() =>
+            {
+                let draft = self.marker.as_ref().unwrap();
+                let pattern = catalog
+                    .entries(ProfileKind::Pattern)
+                    .iter()
+                    .position(|entry| entry.guid == draft.definition.pattern_config_guid);
+                let performed = catalog
+                    .entries(ProfileKind::Performed)
+                    .iter()
+                    .position(|entry| entry.guid == draft.definition.performed_chart_config_guid);
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "ProfilePickerHelp",
+                    &[("issues", &catalog.issues().len().to_string())],
+                );
+                self.profile_selection = Some(ProfileSettings {
+                    catalog,
+                    pattern,
+                    performed,
+                });
+                self.panel = Some(Panel::Profiles(0));
+            }
+            Ok(_) => self.status = i18n::tr("Edition", "ProfileStale"),
+            Err(error) => {
+                self.status = if cancelled {
+                    i18n::tr("Edition", "GenerationCancelled")
+                } else {
+                    i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+                }
+            }
+        }
+    }
+
     fn clear_marker_notes(&mut self) {
-        if self.job.is_some() {
+        if self.is_generating() {
             return;
         }
         let Some(draft) = &self.marker else {
@@ -383,7 +497,7 @@ impl State {
     }
 
     fn regenerate_saved_pattern(&mut self) {
-        if self.job.is_some() {
+        if self.is_generating() {
             return;
         }
         let result = if let Some(directory) = &self.profile_directory {
@@ -410,6 +524,10 @@ impl State {
 
     /// Polling is nonblocking and is called by Practice's normal update loop.
     pub fn update(&mut self) {
+        if self.catalog_job.is_some() {
+            self.poll_profile_catalog();
+            return;
+        }
         let Some(job) = self.job.as_mut() else {
             return;
         };
@@ -458,7 +576,7 @@ impl State {
     }
 
     fn start_generation(&mut self) {
-        if self.job.is_some() {
+        if self.is_generating() {
             return;
         }
         let mut options = ChartOptions::balanced(TARGET_LAYOUTS[self.generation.target]);
@@ -486,6 +604,10 @@ impl State {
     }
 
     fn cancel_generation(&mut self) {
+        if let Some(job) = &self.catalog_job {
+            job.cancel();
+            self.status = i18n::tr("Edition", "GenerationCancelling");
+        }
         if let Some(job) = &self.job {
             job.cancel();
             self.status = i18n::tr("Edition", "GenerationCancelling");
@@ -732,12 +854,62 @@ impl State {
             return false;
         }
         if code == KeyCode::Escape {
+            if matches!(panel, Panel::Profiles(_)) {
+                self.profile_selection = None;
+                self.panel = Some(Panel::Marker(12));
+                return false;
+            }
             self.marker = None;
             self.preview = None;
             self.panel = None;
             return false;
         }
         match panel {
+            Panel::Profiles(index) => {
+                if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
+                    self.panel = Some(Panel::Profiles(
+                        (index + if code == KeyCode::ArrowUp { 3 } else { 1 }) % 4,
+                    ));
+                } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
+                    if let Some(settings) = &mut self.profile_selection {
+                        let (selected, kind) = match index {
+                            0 => (&mut settings.pattern, ProfileKind::Pattern),
+                            1 => (&mut settings.performed, ProfileKind::Performed),
+                            _ => return false,
+                        };
+                        let count = settings.catalog.entries(kind).len();
+                        if count > 0 {
+                            *selected = Some(match *selected {
+                                Some(current) => {
+                                    (current
+                                        + if code == KeyCode::ArrowRight {
+                                            1
+                                        } else {
+                                            count - 1
+                                        })
+                                        % count
+                                }
+                                None => {
+                                    if code == KeyCode::ArrowRight {
+                                        0
+                                    } else {
+                                        count - 1
+                                    }
+                                }
+                            });
+                        }
+                    }
+                } else if code == KeyCode::Enter {
+                    match index {
+                        2 => self.stage_marker_profiles(),
+                        3 => {
+                            self.profile_selection = None;
+                            self.panel = Some(Panel::Marker(12));
+                        }
+                        _ => {}
+                    }
+                }
+            }
             Panel::ConfirmMarkerDelete => {
                 if code == KeyCode::Enter {
                     self.commit_marker(true);
@@ -746,7 +918,7 @@ impl State {
             Panel::Marker(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::Marker(
-                        (index + if code == KeyCode::ArrowUp { 11 } else { 1 }) % 12,
+                        (index + if code == KeyCode::ArrowUp { 12 } else { 1 }) % 13,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(draft) = &mut self.marker {
@@ -794,6 +966,7 @@ impl State {
                         9 => self.clear_marker_notes(),
                         10 => self.navigate_marker(false),
                         11 => self.navigate_marker(true),
+                        12 => self.open_marker_profiles(),
                         _ => {}
                     }
                 }
@@ -1193,6 +1366,13 @@ impl State {
                 "MarkerClearNotes",
                 "MarkerPrevious",
                 "MarkerNext",
+                "MarkerProfiles",
+            ],
+            Panel::Profiles(_) => &[
+                "ProfilePattern",
+                "ProfilePerformed",
+                "ProfileStage",
+                "ProfileBack",
             ],
             Panel::ConfirmMarkerDelete => &["MarkerConfirmDelete"],
             Panel::Generating => &["GenerationCancel"],
@@ -1204,6 +1384,7 @@ impl State {
             | Panel::Unsaved(i)
             | Panel::Pattern(i)
             | Panel::Marker(i)
+            | Panel::Profiles(i)
             | Panel::Generation(i)
             | Panel::GenerationPreview(i) => i,
             _ => 0,
@@ -1298,7 +1479,31 @@ impl State {
             } else {
                 [0.8, 0.8, 0.85, 1.0]
             };
-            let label = if matches!(panel, Panel::Marker(_)) {
+            let label = if matches!(panel, Panel::Profiles(_)) && index < 2 {
+                let value = self
+                    .profile_selection
+                    .as_ref()
+                    .and_then(|settings| {
+                        let (selected, kind) = if index == 0 {
+                            (settings.pattern, ProfileKind::Pattern)
+                        } else {
+                            (settings.performed, ProfileKind::Performed)
+                        };
+                        let entries = settings.catalog.entries(kind);
+                        selected.and_then(|selected| {
+                            entries.get(selected).map(|entry| {
+                                format!(
+                                    "{}/{} {}",
+                                    selected + 1,
+                                    entries.len(),
+                                    profile_entry_name(entry)
+                                )
+                            })
+                        })
+                    })
+                    .unwrap_or_else(|| i18n::tr("Edition", "ProfileMissing").to_string());
+                i18n::tr_fmt("Edition", key, &[("value", &value)])
+            } else if matches!(panel, Panel::Marker(_)) {
                 let value = self
                     .marker
                     .as_ref()
@@ -1410,6 +1615,41 @@ impl State {
             actors.push(act!(text: font("miso"): settext(label): align(0.5, 0.5): xy(screen_width() * 0.5, panel_y - panel_height * 0.5 + extra_height + 30.0 + index as f32 * 32.0): zoom(0.8): diffuse(color[0], color[1], color[2], color[3]): z(8021)));
         }
     }
+}
+
+fn profile_entry_name(entry: &profile_catalog::Entry) -> String {
+    if let Some(builtin) = entry.builtin {
+        let key = match builtin {
+            BuiltinLabel::Sixteenths => "ProfileSixteenths",
+            BuiltinLabel::Eighths => "ProfileEighths",
+            BuiltinLabel::Balanced => "GenerationBalanced",
+            BuiltinLabel::StaminaSingle => "GenerationStaminaSingle",
+            BuiltinLabel::StaminaDouble => "GenerationStaminaDouble",
+            BuiltinLabel::PatternBalanced => "PatternBalanced",
+            BuiltinLabel::NoCandles => "PatternNoCandles",
+            BuiltinLabel::NoInward => "PatternNoInward",
+            BuiltinLabel::NoTransitionLimit => "PatternNoTransitionLimit",
+            BuiltinLabel::Dynamic => "ProfileDynamic",
+            BuiltinLabel::AggressiveBrackets => "ProfileAggressiveBrackets",
+            BuiltinLabel::NoBrackets => "ProfileNoBrackets",
+        };
+        return i18n::tr("Edition", key).to_string();
+    }
+    let name = entry
+        .name
+        .as_deref()
+        .unwrap_or("")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    if name.is_empty() {
+        return i18n::tr("Edition", "ProfileUnnamed").to_string();
+    }
+    let mut short: String = name.chars().take(32).collect();
+    if name.chars().count() > 32 {
+        short.push_str("...");
+    }
+    short
 }
 
 fn text(actors: &mut Vec<Actor>, label: &str, x: f32, y: f32, zoom: f32, color: [f32; 4]) {

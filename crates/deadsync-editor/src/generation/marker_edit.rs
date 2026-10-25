@@ -10,6 +10,7 @@ pub struct Draft {
     chart: usize,
     original_start: u64,
     original: Definition,
+    profiles: Option<super::profile_catalog::Selection>,
     pub start: u64,
     pub definition: Definition,
 }
@@ -26,6 +27,7 @@ impl Draft {
             chart,
             original_start: start,
             original: definition.clone(),
+            profiles: None,
             start,
             definition: definition.clone(),
         })
@@ -57,6 +59,31 @@ impl Draft {
         super::clear_patterns::Task::capture(session, chart, [self.original_start], directory)
     }
 
+    pub fn profile_task(
+        &self,
+        session: &Session,
+        chart: usize,
+        directory: Option<&std::path::Path>,
+    ) -> Result<super::profile_catalog::Task, Error> {
+        self.data(session, chart)?;
+        super::profile_catalog::Task::capture(session, chart, directory)
+    }
+    pub fn select_profiles(
+        &mut self,
+        session: &Session,
+        chart: usize,
+        catalog: &super::profile_catalog::Catalog,
+        pattern: &super::metadata::Guid,
+        performed: &super::metadata::Guid,
+    ) -> Result<(), Error> {
+        self.data(session, chart)?;
+        let selection = catalog.select(session, chart, pattern, performed)?;
+        self.definition.pattern_config_guid = pattern.clone();
+        self.definition.performed_chart_config_guid = performed.clone();
+        self.profiles = Some(selection);
+        Ok(())
+    }
+
     pub fn apply(&self, session: &mut Session, chart: usize) -> Result<bool, Error> {
         let mut data = self.data(session, chart)?;
         if !self.has_changes() {
@@ -71,6 +98,13 @@ impl Draft {
         }
         patterns.remove(&self.original_start);
         patterns.insert(self.start, self.definition.clone());
+        data.validate()?;
+        if let Some(selection) = &self.profiles {
+            selection.check(
+                &self.definition.pattern_config_guid,
+                &self.definition.performed_chart_config_guid,
+            )?;
+        }
         data.save(session, chart)
     }
     /// Deleting a marker does not delete or regenerate its notes.
