@@ -110,3 +110,57 @@ impl Iterator for RowBands {
 }
 impl ExactSizeIterator for RowBands {}
 impl std::iter::FusedIterator for RowBands {}
+
+/// Linear chart-time axis. Audio/sample projection uses this directly so a
+/// pause retains its screen height instead of collapsing through a row inverse.
+#[derive(Clone, Copy, Debug)]
+pub struct TimeProjection {
+    time: f64,
+    cursor: f64,
+    scale: f64,
+    top: f64,
+    bottom: f64,
+}
+impl TimeProjection {
+    pub fn new(
+        time: f64,
+        cursor: f64,
+        pixels_per_second: f64,
+        top: f64,
+        bottom: f64,
+        reverse: bool,
+    ) -> Result<Self, Error> {
+        if ![time, cursor, pixels_per_second, top, bottom]
+            .iter()
+            .all(|v| v.is_finite())
+            || pixels_per_second <= 0.0
+            || top > cursor
+            || cursor > bottom
+        {
+            return Err(Error::InvalidEdit("Invalid time projection".into()));
+        }
+        Ok(Self {
+            time,
+            cursor,
+            scale: pixels_per_second * if reverse { -1.0 } else { 1.0 },
+            top,
+            bottom,
+        })
+    }
+    pub fn y(self, time: f64) -> Result<f64, Error> {
+        self.finite(self.cursor + (time - self.time) * self.scale)
+    }
+    pub fn time_at(self, y: f64) -> Result<f64, Error> {
+        self.finite(self.time + (y - self.cursor) / self.scale)
+    }
+    pub fn clipped_y(self, time: f64) -> Result<f64, Error> {
+        Ok(self.y(time)?.clamp(self.top, self.bottom))
+    }
+    fn finite(self, value: f64) -> Result<f64, Error> {
+        if value.is_finite() {
+            Ok(value)
+        } else {
+            Err(Error::InvalidEdit("Nonfinite time projection".into()))
+        }
+    }
+}

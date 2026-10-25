@@ -2,6 +2,7 @@
 //! deadsync-editor; this module owns presentation, shortcuts, and exit prompts.
 mod analysis_panel;
 mod zoom_view;
+mod spacing_view;
 mod zoom_settings;
 mod audio_settings;
 mod batch;
@@ -211,6 +212,8 @@ impl GenerationPreview {
 }
 
 pub struct State {
+    time_spacing: bool,
+    time_view: Option<spacing_view::Cache>,
     zoom: deadsync_editor::zoom::Manager,
     zoom_epoch: std::time::Instant,
     zoom_preferences: deadsync_editor::zoom_preferences::Preferences,
@@ -326,6 +329,8 @@ impl State {
             .position(|candidate| *candidate == layout)
             .unwrap_or(0);
         let mut state = Self {
+            time_spacing: false,
+            time_view: None,
             zoom: Default::default(),
             zoom_preferences: Default::default(),
             zoom_preferences_draft: None,
@@ -1163,6 +1168,7 @@ impl State {
     }
 
     fn refresh(&mut self) {
+        if self.time_spacing { self.refresh_time_view(); }
         self.refresh_waveform();
         self.refresh_sample_region();
         if !self.workspace.has_chart() {
@@ -1351,6 +1357,7 @@ impl State {
             return self.no_chart_key(event.code);
         }
         if self.shift && !self.control && event.code == KeyCode::KeyZ { self.open_zoom_settings(); return false; }
+        if self.control && event.code == KeyCode::KeyT { self.toggle_spacing_mode(); return false; }
         if self.zoom_key(event) { return false; }
         if event.code == KeyCode::KeyW && !self.control {
             if self.shift { self.open_waveform_settings(); } else { self.toggle_waveform(); }
@@ -2120,7 +2127,14 @@ impl State {
         );
         text(
             actors,
-            &i18n::tr("Edition", if self.workspace.has_chart(){"Shortcuts"}else{"NoChartShortcuts"}),
+            &i18n::tr(
+                "Edition",
+                if self.workspace.has_chart() {
+                    "Shortcuts"
+                } else {
+                    "NoChartShortcuts"
+                },
+            ),
             18.0,
             height - 70.0,
             0.5,
@@ -2155,61 +2169,132 @@ impl State {
         let top = 105.0;
         let bottom = (height - 85.0).max(top);
         let cursor_y = (top + 55.0).min(bottom);
-        let projection = self.row_projection(top, bottom, cursor_y);
-        let (start, end) = projection.visible_rows();
-        self.waveform_actors(actors, field_center, field_width, top, bottom, cursor_y);
-        self.sample_region_actors(actors, field_center, field_width, top, bottom, cursor_y);
+        let projection = match self.display_projection(top, bottom, cursor_y) {
+            Ok(projection) => projection,
+            Err(error) => {
+                text(
+                    actors,
+                    &i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]),
+                    18.0,
+                    top,
+                    0.6,
+                    [1.0, 0.5, 0.5, 1.0],
+                );
+                return;
+            }
+        };
+        let ranges = match projection.visible_ranges(top, bottom) {
+            Ok(ranges) => ranges,
+            Err(error) => {
+                text(
+                    actors,
+                    &i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]),
+                    18.0,
+                    top,
+                    0.6,
+                    [1.0, 0.5, 0.5, 1.0],
+                );
+                return;
+            }
+        };
+        self.waveform_actors(actors, field_center, field_width, top, bottom, &projection);
+        self.sample_region_actors(actors, field_center, field_width, top, bottom, &projection);
         for lane in 0..=grid.columns() {
             actors.push(act!(quad: xy(left + f32::from(lane) * lane_width, (top + bottom) * 0.5): zoomto(1.0, bottom - top): diffuse(0.12, 0.16, 0.22, 1.0): z(8001)));
         }
-        let overview_bins = ((bottom - top).ceil() as usize).saturating_add(2).clamp(1, 4096);
-        let bands = deadsync_editor::projection::RowBands::new(start, end, overview_bins)
-            .expect("ordered viewport bounds and bounded overview bins");
-        for (a, b) in bands {
-            // Query one representative boundary per pixel band. At detailed
-            // scales each band contains at most two integer rows.
-            if let Some(beat_row) = a.div_ceil(48).checked_mul(48).filter(|r| *r <= b) {
-                let is_measure = self.signatures.as_ref().is_some_and(|signatures| {
-                    signatures.measure_position(beat_row).is_ok_and(|position| position.row_in_measure == 0)
-                });
-                if !is_measure {
-                    let y = projection.y(beat_row) as f32;
-                    actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.15): z(8001)));
-                }
-            }
-            if let Some(signatures) = &self.signatures {
-                if a <= i32::MAX as u64 {
-                    if let Ok(mut starts) = signatures.measure_starts(a, b.min(i32::MAX as u64)) {
-                        if let Some((measure_row, measure)) = starts.next() {
-                            let y = projection.y(measure_row) as f32;
-                            actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.4): z(8001)));
-                            text(actors, &(measure + 1).to_string(), left - 30.0, y, 0.45, [0.6,0.7,0.8,1.0]);
+        let overview_bins = ((bottom - top).ceil() as usize)
+            .saturating_add(2)
+            .clamp(1, 4096);
+        let range_budget = (overview_bins / ranges.len().max(1)).max(1);
+        for &(start, end) in ranges.iter().take(overview_bins) {
+            let bands = deadsync_editor::projection::RowBands::new(start, end, range_budget)
+                .expect("ordered viewport bounds and bounded overview bins");
+            for (a, b) in bands {
+                // Query one representative boundary per pixel band. At detailed
+                // scales each band contains at most two integer rows.
+                if let Some(beat_row) = a.div_ceil(48).checked_mul(48).filter(|r| *r <= b) {
+                    let is_measure = self.signatures.as_ref().is_some_and(|signatures| {
+                        signatures
+                            .measure_position(beat_row)
+                            .is_ok_and(|position| position.row_in_measure == 0)
+                    });
+                    if !is_measure {
+                        if let Some(y) = projection
+                            .y(beat_row)
+                            .filter(|y| *y >= f64::from(top) && *y <= f64::from(bottom))
+                        {
+                            let y = y as f32;
+                            actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.15): z(8001)));
                         }
                     }
                 }
-            }
-            if let Some(labels) = &self.labels {
-                if let Some((&label_row, label)) = labels.values().range(a..=b).next() {
-                    let y = projection.y(label_row) as f32;
-                    let x = left + field_width + 12.0;
-                    actors.push(act!(text: font("miso"): settext(label.clone()): align(0.0,0.5): xy(x,y): zoom(0.55): maxwidth((width-x-12.0).max(20.0)): diffuse(0.6,0.9,0.65,1.0): z(8005)));
+                if let Some(signatures) = &self.signatures {
+                    if a <= i32::MAX as u64 {
+                        if let Ok(mut starts) = signatures.measure_starts(a, b.min(i32::MAX as u64))
+                        {
+                            if let Some((measure_row, measure)) = starts.next() {
+                                if let Some(y) = projection
+                                    .y(measure_row)
+                                    .filter(|y| *y >= f64::from(top) && *y <= f64::from(bottom))
+                                {
+                                    let y = y as f32;
+                                    actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.4): z(8001)));
+                                    text(
+                                        actors,
+                                        &(measure + 1).to_string(),
+                                        left - 30.0,
+                                        y,
+                                        0.45,
+                                        [0.6, 0.7, 0.8, 1.0],
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+                if let Some(labels) = &self.labels {
+                    if let Some((&label_row, label)) = labels.values().range(a..=b).next() {
+                        let Some(y) = projection
+                            .y(label_row)
+                            .filter(|y| *y >= f64::from(top) && *y <= f64::from(bottom))
+                        else {
+                            continue;
+                        };
+                        let y = y as f32;
+                        let x = left + field_width + 12.0;
+                        actors.push(act!(text: font("miso"): settext(label.clone()): align(0.0,0.5): xy(x,y): zoom(0.55): maxwidth((width-x-12.0).max(20.0)): diffuse(0.6,0.9,0.65,1.0): z(8005)));
+                    }
                 }
             }
         }
-        for (a, b) in self.region_index.visible(start, end, 4096)
-            .expect("ordered viewport bounds and bounded region budget") {
-            let y1 = projection.clipped_y(a) as f32;
-            let y2 = projection.clipped_y(b) as f32;
-            actors.push(act!(quad: xy(left-9.0,(y1+y2)*0.5): zoomto(4.0,(y2-y1).max(2.0)): diffuse(0.7,0.4,1.0,0.8): z(8002)));
-            if a >= start {
-                text(
-                    actors,
-                    &i18n::tr("Edition", "PatternMarker"),
-                    left - 85.0,
-                    y1 - 9.0,
-                    0.5,
-                    [0.8, 0.6, 1.0, 1.0],
-                );
+        let mut shown_regions = std::collections::BTreeSet::new();
+        for &(start, end) in ranges.iter().take(overview_bins) {
+            for (a, b) in self
+                .region_index
+                .visible(start, end, range_budget)
+                .expect("ordered viewport bounds and bounded region budget")
+            {
+                if !shown_regions.insert((a, b)) {
+                    continue;
+                }
+                let (Some(y1), Some(y2)) = (
+                    projection.clipped_y(a, top, bottom),
+                    projection.clipped_y(b, top, bottom),
+                ) else {
+                    continue;
+                };
+                let (y1, y2) = (y1 as f32, y2 as f32);
+                actors.push(act!(quad: xy(left-9.0,(y1+y2)*0.5): zoomto(4.0,(y2-y1).max(2.0)): diffuse(0.7,0.4,1.0,0.8): z(8002)));
+                if a >= start {
+                    text(
+                        actors,
+                        &i18n::tr("Edition", "PatternMarker"),
+                        left - 85.0,
+                        y1 - 9.0,
+                        0.5,
+                        [0.8, 0.6, 1.0, 1.0],
+                    );
+                }
             }
         }
         let selection = match &self.preview {
@@ -2225,49 +2310,74 @@ impl State {
             _ => self.workspace.selection(),
         };
         if let Some((a, b)) = selection {
-            let y1 = projection.clipped_y(a) as f32;
-            let y2 = projection.clipped_y(b) as f32;
-            actors.push(act!(quad: xy(field_center, (y1 + y2) * 0.5): zoomto(field_width, (y2 - y1).abs().max(2.0)): diffuse(0.2, 0.6, 0.9, 0.2): z(8002)));
+            if let (Some(y1), Some(y2)) = (
+                projection.clipped_y(a, top, bottom),
+                projection.clipped_y(b, top, bottom),
+            ) {
+                let (y1, y2) = (y1 as f32, y2 as f32);
+                actors.push(act!(quad: xy(field_center, (y1 + y2) * 0.5): zoomto(field_width, (y2 - y1).abs().max(2.0)): diffuse(0.2, 0.6, 0.9, 0.2): z(8002)));
+            }
         }
         let size_zoom = self.zoom.size_zoom() as f32;
         let note_bins = ((bottom - top).ceil() as usize).clamp(1, 4096);
-        let visible_notes = grid.visible_overview(start, end, note_bins)
-            .expect("ordered viewport bounds and bounded overview bins");
-        for (position, note) in visible_notes {
-            let x = left + (f32::from(position.lane) + 0.5) * lane_width;
-            let y = projection.y(position.row) as f32;
-            let color = player_color(position.player);
-            if let Some(tail) = note.end {
-                let a = y.max(top);
-                let b = (projection.y(tail) as f32).min(bottom);
-                actors.push(act!(quad: xy(x, (a + b) * 0.5): zoomto(lane_width * 0.3 * size_zoom, (b - a).max(0.0)): diffuse(color[0], color[1], color[2], 0.65): z(8003)));
-            }
-            if y < top || y > bottom {
-                continue;
-            }
-            let symbol = match note.kind {
-                Kind::Mine => "M",
-                Kind::Lift => "L",
-                Kind::Fake => "F",
-                Kind::Keysound => "K",
-                Kind::Attack => "A",
-                _ => "",
-            };
-            if symbol.is_empty() {
-                let rotation = lane_rotation(
-                    self.preview
-                        .as_ref()
-                        .map(GenerationPreview::layout)
-                        .unwrap_or_else(|| {
-                            &self.workspace.file().session.document().charts()
-                                [self.workspace.chart()]
-                            .steps_type
-                        }),
-                    position.lane,
-                );
-                actors.push(act!(sprite("test_input/highlightarrow.png"): xy(x, y): setsize(lane_width * 0.7 * size_zoom, lane_width * 0.7 * size_zoom): rotationz(rotation): diffuse(color[0], color[1], color[2], 1.0): z(8004)));
-            } else {
-                text(actors, symbol, x - 6.0 * size_zoom, y - 9.0 * size_zoom, 0.65 * size_zoom, color);
+        let bins_per_range = (note_bins / ranges.len().max(1)).max(1);
+        let mut shown_notes = std::collections::BTreeSet::new();
+        for &(start, end) in ranges.iter().take(note_bins) {
+            let visible_notes = grid
+                .visible_overview(start, end, bins_per_range)
+                .expect("ordered viewport bounds and bounded overview bins");
+            for (position, note) in visible_notes {
+                if !shown_notes.insert(position) {
+                    continue;
+                }
+                let x = left + (f32::from(position.lane) + 0.5) * lane_width;
+                let Some(y) = projection.note_y(position.row) else {
+                    continue;
+                };
+                let y = y as f32;
+                let color = player_color(position.player);
+                if let Some(tail) = note.end {
+                    let a = y.max(top);
+                    let Some(tail_y) = projection.note_y(tail) else {
+                        continue;
+                    };
+                    let b = (tail_y as f32).min(bottom);
+                    actors.push(act!(quad: xy(x, (a + b) * 0.5): zoomto(lane_width * 0.3 * size_zoom, (b - a).max(0.0)): diffuse(color[0], color[1], color[2], 0.65): z(8003)));
+                }
+                if y < top || y > bottom {
+                    continue;
+                }
+                let symbol = match note.kind {
+                    Kind::Mine => "M",
+                    Kind::Lift => "L",
+                    Kind::Fake => "F",
+                    Kind::Keysound => "K",
+                    Kind::Attack => "A",
+                    _ => "",
+                };
+                if symbol.is_empty() {
+                    let rotation = lane_rotation(
+                        self.preview
+                            .as_ref()
+                            .map(GenerationPreview::layout)
+                            .unwrap_or_else(|| {
+                                &self.workspace.file().session.document().charts()
+                                    [self.workspace.chart()]
+                                .steps_type
+                            }),
+                        position.lane,
+                    );
+                    actors.push(act!(sprite("test_input/highlightarrow.png"): xy(x, y): setsize(lane_width * 0.7 * size_zoom, lane_width * 0.7 * size_zoom): rotationz(rotation): diffuse(color[0], color[1], color[2], 1.0): z(8004)));
+                } else {
+                    text(
+                        actors,
+                        symbol,
+                        x - 6.0 * size_zoom,
+                        y - 9.0 * size_zoom,
+                        0.65 * size_zoom,
+                        color,
+                    );
+                }
             }
         }
         actors.push(act!(quad: xy(field_center, cursor_y): zoomto(field_width, 2.0): diffuse(1.0, 0.85, 0.25, 1.0): z(8005)));
@@ -2276,8 +2386,15 @@ impl State {
             && !matches!(
                 self.panel,
                 Some(
-                    Panel::Timing(_) | Panel::TimingMigration(_)
-                        | Panel::SongProperties(_) | Panel::SongSample(_) | Panel::ZoomSettings(_) | Panel::AudioSettings(_) | Panel::WaveformSettings(_) | Panel::WaveformColors(_) | Panel::SongText(_)
+                    Panel::Timing(_)
+                        | Panel::TimingMigration(_)
+                        | Panel::SongProperties(_)
+                        | Panel::SongSample(_)
+                        | Panel::ZoomSettings(_)
+                        | Panel::AudioSettings(_)
+                        | Panel::WaveformSettings(_)
+                        | Panel::WaveformColors(_)
+                        | Panel::SongText(_)
                 )
             )
         {

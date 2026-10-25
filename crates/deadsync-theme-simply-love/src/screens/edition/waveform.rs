@@ -212,7 +212,7 @@ impl State {
         width: f32,
         top: f32,
         bottom: f32,
-        cursor_y: f32,
+        projection: &spacing_view::Projection<'_>,
     ) {
         if !self.waveform.enabled || self.waveform_preferences.channel_width() == 0.0 {
             return;
@@ -220,7 +220,6 @@ impl State {
         let (Some(data), Some(clock)) = (&self.waveform.data, &self.waveform.clock) else {
             return;
         };
-        let projection = self.row_projection(top, bottom, cursor_y);
         let rows = ((bottom - top).ceil() as usize).min(4096);
         if rows == 0 {
             return;
@@ -232,23 +231,16 @@ impl State {
         let palette = self.waveform_preferences.palette();
         for pixel in 0..rows {
             let y = top + pixel as f32 * step;
-            let first = projection.row_at(f64::from(y));
-            let last = projection.row_at(f64::from(y + step));
-            let interval = if last <= 0.0 {
-                None
-            } else {
-                match (
-                    clock.music_time(first.max(0.0).floor() as u64),
-                    clock.music_time(last.ceil() as u64),
-                ) {
-                    (Ok(a), Ok(b)) if b > 0.0 && b >= a => {
-                        let start = (a.max(0.0) * f64::from(data.sample_rate())).floor() as usize;
-                        let end = (b.max(0.0) * f64::from(data.sample_rate())).ceil() as usize;
-                        Some((start, end.max(start.saturating_add(1))))
+            let interval = projection
+                .music_interval(f64::from(y), f64::from(y + step), clock)
+                .and_then(|(a, b)| {
+                    if b <= 0.0 || b < a {
+                        return None;
                     }
-                    _ => None,
-                }
-            };
+                    let start = (a.max(0.0) * f64::from(data.sample_rate())).floor() as usize;
+                    let end = (b.max(0.0) * f64::from(data.sample_rate())).ceil() as usize;
+                    Some((start, end.max(start.saturating_add(1))))
+                });
             for channel in 0..data.channels() {
                 let left = x - width * 0.5 + channel as f32 * channel_width;
                 let right = left + channel_width;

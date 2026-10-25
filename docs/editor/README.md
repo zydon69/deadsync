@@ -3851,3 +3851,49 @@ Validation for viewport discovery: all 18 workflows in the geometry, index,
 search, initialized-section and scalar-spacing integration targets passed.
 `cargo check -p deadsync --jobs 2 --locked` passed. This is targeted validation;
 the full editor suite was not rerun for this addition.
+
+### Native constant-time display
+
+Ctrl/Cmd+T now switches the native editor between row and time display, with
+English/French help and status strings. Switching is routed after modal panels
+and leaves cursor, notes, document history, and audio playback unchanged. Zoom
+uses the selected spacing mode. Row display retains the prior integer-difference
+projection, including precision at very large row anchors.
+
+A source/revision/chart-keyed cache owns the immutable Clock and spacing Index;
+no timing timeline is parsed during actor generation. Time display uses the
+new TimeProjection axis at 300 chart-time pixels per second before zoom. It
+consumes the section-aware viewport candidates and merges overlapping row ranges
+before bounded grid, region, label and note queries. Notes use post-delay note
+time; cursor/grid/selection boundaries use cursor-domain time. Hold tails use
+the same post-delay domain. Duplicate candidates are removed before drawing.
+Candidate sampling shares the existing per-viewport presentation budget;
+queries do not walk every chart row.
+
+Waveform pixel bands in time mode convert screen Y directly to chart time and
+then audio-file seconds. Sample cache stores both fractional rows and direct
+chart-time endpoints from the staged song clock. A sample wholly inside a delay
+therefore keeps its duration and visible rectangle instead of collapsing through
+a row round trip. Sample cache refresh also updates waveform clock offsets when
+song-property drafts change or are discarded. Time mode does not multiply the
+axis by SPEEDS; zero valid SPEEDS leaves it usable. Invalid timing capture reports
+an error and refuses the switch without changing document data.
+
+Native actor tests cover exact note/hold coordinates with tempo changes, delays
+and stops; several notes collapsed by a warp; a decoded WAV pulse and sample
+inside a delay; chart-local timing after chart switch; modal shortcut focus;
+animated time zoom/reset; and cache invalidation after tempo edits plus undo/redo.
+The standalone axis test checks inverse projection, clipping, Reverse, extreme
+zoom and invalid inputs. These are actor and numeric tests, not screenshot/GPU
+validation of this addition.
+
+Variable and Reverse native display, waveform scroll policies, richer original
+hold-cap visuals and the other remaining editor features are still pending.
+The full GrooveAuthor port is not complete.
+
+Validation on the final source: all 191 tests across the 25 native edition
+integration targets passed, followed by 31 tests across projection, geometry,
+playback and song-property core targets. The native time workflow includes staged
+music-offset movement and discard restoration for both sample and decoded pulse,
+plus animated time zoom/reset. `cargo check -p deadsync --jobs 2 --locked` passed.
+The complete core suite and unrelated theme unit suites were not rerun here.

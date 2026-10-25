@@ -25,7 +25,7 @@ impl State {
                         delta,
                         true,
                         false,
-                        deadsync_editor::zoom::SpacingMode::ConstantRow,
+                        self.spacing_mode(),
                     )
                     .expect("finite keyboard zoom input");
             }

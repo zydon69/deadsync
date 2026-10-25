@@ -6,9 +6,11 @@ pub(super) struct Cache {
     chart: usize,
     values: [u64; 4],
     positions: Option<[f64; 2]>,
+    times: Option<[f64; 2]>,
 }
 impl State {
     pub(super) fn refresh_sample_region(&mut self) {
+        self.refresh_waveform();
         if !self.workspace.has_chart() {
             self.sample_region = None;
             return;
@@ -41,16 +43,33 @@ impl State {
         }) {
             return;
         }
+        let interval = if draft.sample_length() > 0.0 {
+            draft
+                .sample_end()
+                .ok()
+                .and_then(|end| draft.clock(session, chart).ok().map(|clock| (clock, end)))
+        } else {
+            None
+        };
+        let times = interval.as_ref().and_then(|(clock, end)| {
+            Some([
+                clock.music_to_chart_time(draft.sample_start()).ok()?,
+                clock.music_to_chart_time(*end).ok()?,
+            ])
+        });
+        let positions = interval.as_ref().and_then(|(clock, end)| {
+            Some([
+                clock.position(draft.sample_start()).ok()?,
+                clock.position(*end).ok()?,
+            ])
+        });
         self.sample_region = Some(Cache {
             source: Arc::clone(session.document().source()),
             revision: session.revision(),
             chart,
             values,
-            positions: if draft.sample_length() > 0.0 {
-                draft.sample_positions(session, chart).ok()
-            } else {
-                None
-            },
+            times,
+            positions,
         });
     }
     pub(super) fn sample_region_actors(
@@ -60,18 +79,23 @@ impl State {
         width: f32,
         top: f32,
         bottom: f32,
-        cursor_y: f32,
+        projection: &spacing_view::Projection<'_>,
     ) {
-        let Some([start, end]) = self
-            .sample_region
-            .as_ref()
-            .and_then(|cache| cache.positions)
-        else {
+        let Some(cache) = &self.sample_region else {
             return;
         };
-        let projection = self.row_projection(top, bottom, cursor_y);
-        let a = projection.clipped_fractional_y(start) as f32;
-        let b = projection.clipped_fractional_y(end) as f32;
+        let Some(times) = cache.times else {
+            return;
+        };
+        let positions = cache.positions.unwrap_or([f64::NAN; 2]);
+        let Some(start) = projection.sample_y(positions[0], times[0]) else {
+            return;
+        };
+        let Some(end) = projection.sample_y(positions[1], times[1]) else {
+            return;
+        };
+        let a = start.clamp(f64::from(top), f64::from(bottom)) as f32;
+        let b = end.clamp(f64::from(top), f64::from(bottom)) as f32;
         if b <= a {
             return;
         }
@@ -79,7 +103,7 @@ impl State {
             act!(quad: xy(x,(a+b)*0.5): zoomto(width,b-a): diffuse(0.2,0.85,0.65,0.14): z(8001)),
         );
         for boundary in [start, end] {
-            let position = projection.fractional_y(boundary);
+            let position = boundary;
             if position >= f64::from(top) && position <= f64::from(bottom) {
                 actors.push(act!(quad: xy(x,position as f32): zoomto(width,1.0): diffuse(0.2,0.85,0.65,0.8): z(8002)));
             }

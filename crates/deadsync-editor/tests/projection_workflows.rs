@@ -92,3 +92,33 @@ fn overview_bands_cover_full_integer_domain_without_overflow_or_unbounded_iterat
         assert!(RowBands::new(a, b, n).is_err());
     }
 }
+
+#[test]
+fn time_axis_keeps_pause_intervals_and_inverts_at_all_zoom_levels() {
+    use deadsync_editor::projection::TimeProjection;
+    for zoom in [0.000001, 0.5, 1.0, 1.2, 1000000.0] {
+        for reverse in [false, true] {
+            let p = TimeProjection::new(1.0, 160.0, 300.0 * zoom, 105.0, 395.0, reverse).unwrap();
+            for time in [-1.0, 0.0, 1.0, 1.125, 1.25, 100.0] {
+                let y = p.y(time).unwrap();
+                assert!((p.time_at(y).unwrap() - time).abs() < 0.000001);
+                assert_eq!(p.clipped_y(time).unwrap(), y.clamp(105.0, 395.0));
+            }
+            let sign = if reverse { -1.0 } else { 1.0 };
+            assert!(
+                (p.y(1.25).unwrap() - p.y(1.125).unwrap() - 37.5 * zoom * sign).abs() < 0.000001
+            );
+            assert!(p.y(f64::NAN).is_err());
+            assert!(p.time_at(f64::INFINITY).is_err());
+        }
+    }
+    for (time, cursor, scale, top, bottom) in [
+        (f64::NAN, 160.0, 300.0, 105.0, 395.0),
+        (0.0, 100.0, 300.0, 105.0, 395.0),
+        (0.0, 160.0, 0.0, 105.0, 395.0),
+        (0.0, 160.0, -1.0, 105.0, 395.0),
+        (0.0, 160.0, 300.0, 200.0, 100.0),
+    ] {
+        assert!(TimeProjection::new(time, cursor, scale, top, bottom, false).is_err());
+    }
+}
