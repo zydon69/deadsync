@@ -26,6 +26,7 @@ pub mod song_properties;
 pub mod song_text;
 pub mod storage;
 pub mod spacing;
+pub mod spacing_search;
 pub mod scroll_interpolation;
 pub mod text_buffer;
 pub mod timing_edit;

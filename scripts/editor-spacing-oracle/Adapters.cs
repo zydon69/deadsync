@@ -16,7 +16,7 @@ internal sealed class PreferencesScroll {
  public Editor.SpacingMode SpacingMode;
  public double TimeBasedPixelsPerSecond=300,RowBasedPixelsPerRow=2,VariablePixelsPerSecondAtDefaultBPM=300;
 }
-internal sealed class EditorChart {}
+internal sealed class EditorChart { public SearchRateList Rates; public SearchRateList GetRateAlteringEvents()=>Rates; }
 internal class EditorEvent {
  public double Time,Row;
  public double GetChartTime()=>Time;

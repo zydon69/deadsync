@@ -5,6 +5,19 @@ double N(JsonElement e,string key)=>e.GetProperty(key).GetDouble();
 var prefs=Preferences.Instance.PreferencesScroll;
 prefs.SpacingMode=Enum.Parse<Editor.SpacingMode>(request.GetProperty("Mode").GetString());
 Editor.Reverse=request.GetProperty("Reverse").GetBoolean();
+if(request.TryGetProperty("Operation",out var operation) && operation.GetString()=="Search") {
+ object Number(double value)=>double.IsFinite(value) ? value : (object)value.ToString("R",System.Globalization.CultureInfo.InvariantCulture);
+ var speeds=request.GetProperty("Speeds");prefs.TimeBasedPixelsPerSecond=N(speeds,"Time");prefs.RowBasedPixelsPerRow=N(speeds,"Row");prefs.VariablePixelsPerSecondAtDefaultBPM=N(speeds,"Variable");
+ var rates=request.GetProperty("Rates").EnumerateArray().Select(r=>new EditorRateAlteringEvent {Time=N(r,"Time"),Row=N(r,"Row"),Tempo=N(r,"Tempo"),SecondsPerRow=N(r,"SecondsPerRow"),RowsPerSecond=N(r,"RowsPerSecond"),Scroll=N(r,"Scroll"),WarpRowsRemaining=N(r,"Warp"),StopTimeRemaining=N(r,"Stop")}).ToArray();
+ var values=new List<object>();
+ foreach(var query in request.GetProperty("Queries").EnumerateArray()) {
+  var focal=query.GetProperty("Focal");
+  var search=new ActiveChartSearch {Chart=new EditorChart{Rates=new SearchRateList(rates,query.GetProperty("Active").GetInt32())},Position=new SearchPosition{ChartTime=N(focal,"Time"),ChartPosition=N(focal,"Row")},FocalPointScreenSpaceY=N(focal,"Y"),ZoomManager=new SearchZoom{Value=N(request,"Zoom")},Interpolated=N(request,"Interpolated")};
+  var result=search.FindChartTimeAndRowForScreenSpaceY(query.GetProperty("Target").GetInt32());
+  values.Add(new {Time=Number(result.Item1),Row=Number(result.Item2)});
+ }
+ Console.WriteLine(JsonSerializer.Serialize(values));return;
+}
 var helper=EventSpacingHelper.GetSpacingHelper(new EditorChart());
 var output=new List<object>();
 foreach(var stage in request.GetProperty("Stages").EnumerateArray()) {

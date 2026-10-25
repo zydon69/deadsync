@@ -1,6 +1,8 @@
 {
   "GrooveAuthor": "48e18f71655d0f0d86144c63239331833501fda2",
   "EventSpacingHelperSHA256": "67deae613750c28f54442f4379f65f7c7e7728b8603bb5ea16c25807bc35fd5b",
+  "ActiveChartSourceSHA256": "60bde1681bba77f08a7c4d772c247c0b6725901fd8b0e2225f3e02e5d728ac3a",
+  "SearchMemberSHA256": "42abca27488253861de49f0ddd7a87343eba3a3bce59500179db89bea6f9fecb",
   "RateSourceSHA256": "65df864234461b543af99e6f640e43998be9343ba64829f3d0d28cb027e481ce",
   "RateMembersSHA256": [
     "044472a2e337ead0932f84e821fa9609f1e9744519ab4c291fc75b3d7ea872a4",
@@ -11,8 +13,26 @@
     "spacing-constantrow.request",
     "spacing-constanttime-reverse.request",
     "spacing-constanttime.request",
+    "spacing-search-constantrow-negative-reverse.request",
+    "spacing-search-constantrow-negative.request",
+    "spacing-search-constantrow-normal-reverse.request",
+    "spacing-search-constantrow-normal.request",
+    "spacing-search-constantrow-zero-reverse.request",
+    "spacing-search-constantrow-zero.request",
+    "spacing-search-constanttime-negative-reverse.request",
+    "spacing-search-constanttime-negative.request",
+    "spacing-search-constanttime-normal-reverse.request",
+    "spacing-search-constanttime-normal.request",
+    "spacing-search-constanttime-zero-reverse.request",
+    "spacing-search-constanttime-zero.request",
+    "spacing-search-variable-negative-reverse.request",
+    "spacing-search-variable-negative.request",
+    "spacing-search-variable-normal-reverse.request",
+    "spacing-search-variable-normal.request",
+    "spacing-search-variable-zero-reverse.request",
+    "spacing-search-variable-zero.request",
     "spacing-variable-reverse.request",
     "spacing-variable.request"
   ],
-  "AdapterScope": "Scalar preferences and event/region accessors only; spacing helper and extracted rate conversion members unchanged; timeline search not emulated"
+  "AdapterScope": "Scalar preferences and event/region accessors only; spacing helper and extracted rate conversion members unchanged; original active-chart search member unchanged; active index supplied by fixture rather than original tree selection"
 }

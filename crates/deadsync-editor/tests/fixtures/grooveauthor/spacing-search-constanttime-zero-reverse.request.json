@@ -1,0 +1,316 @@
+{
+  "Operation": "Search",
+  "Mode": "ConstantTime",
+  "Reverse": true,
+  "Rates": [
+    {
+      "Row": 0,
+      "Time": 0,
+      "Tempo": 150,
+      "Scroll": 1,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 0,
+      "Stop": 0
+    },
+    {
+      "Row": 0,
+      "Time": 0,
+      "Tempo": 150,
+      "Scroll": 1,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 0,
+      "Stop": 0
+    },
+    {
+      "Row": 0,
+      "Time": 0,
+      "Tempo": 150,
+      "Scroll": 1,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 0,
+      "Stop": 0
+    },
+    {
+      "Row": 48,
+      "Time": 0.4,
+      "Tempo": 150,
+      "Scroll": 1,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 192,
+      "Stop": 0
+    },
+    {
+      "Row": 96,
+      "Time": 0.4,
+      "Tempo": 150,
+      "Scroll": -0.75,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 144,
+      "Stop": 0
+    },
+    {
+      "Row": 96,
+      "Time": 0.4,
+      "Tempo": 150,
+      "Scroll": -0.75,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 144,
+      "Stop": -0.5
+    },
+    {
+      "Row": 144,
+      "Time": 0.4,
+      "Tempo": 150,
+      "Scroll": -0.75,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 96,
+      "Stop": -0.09999999999999998
+    },
+    {
+      "Row": 168,
+      "Time": 0.4,
+      "Tempo": 150,
+      "Scroll": -0.75,
+      "SecondsPerRow": 0.008333333333333333,
+      "RowsPerSecond": 120,
+      "Warp": 72,
+      "Stop": 0
+    },
+    {
+      "Row": 192,
+      "Time": 0.4,
+      "Tempo": 240,
+      "Scroll": -0.75,
+      "SecondsPerRow": 0.005208333333333333,
+      "RowsPerSecond": 192,
+      "Warp": 48,
+      "Stop": 0
+    },
+    {
+      "Row": 240,
+      "Time": 0.4,
+      "Tempo": 240,
+      "Scroll": 2,
+      "SecondsPerRow": 0.005208333333333333,
+      "RowsPerSecond": 192,
+      "Warp": 0,
+      "Stop": 0
+    },
+    {
+      "Row": 240,
+      "Time": 0.4,
+      "Tempo": 240,
+      "Scroll": 2,
+      "SecondsPerRow": 0.005208333333333333,
+      "RowsPerSecond": 192,
+      "Warp": 0,
+      "Stop": 0.25
+    }
+  ],
+  "Speeds": {
+    "Time": 300,
+    "Row": 2,
+    "Variable": 300
+  },
+  "Interpolated": 0,
+  "Zoom": 1.2,
+  "Queries": [
+    {
+      "Active": 2,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.125,
+        "Row": 12
+      },
+      "Target": -50
+    },
+    {
+      "Active": 2,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.125,
+        "Row": 12
+      },
+      "Target": 105
+    },
+    {
+      "Active": 2,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.125,
+        "Row": 12
+      },
+      "Target": 159
+    },
+    {
+      "Active": 2,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.125,
+        "Row": 12
+      },
+      "Target": 160
+    },
+    {
+      "Active": 2,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.125,
+        "Row": 12
+      },
+      "Target": 161
+    },
+    {
+      "Active": 2,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.125,
+        "Row": 12
+      },
+      "Target": 320
+    },
+    {
+      "Active": 2,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.125,
+        "Row": 12
+      },
+      "Target": 635
+    },
+    {
+      "Active": 5,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 108
+      },
+      "Target": -50
+    },
+    {
+      "Active": 5,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 108
+      },
+      "Target": 105
+    },
+    {
+      "Active": 5,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 108
+      },
+      "Target": 159
+    },
+    {
+      "Active": 5,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 108
+      },
+      "Target": 160
+    },
+    {
+      "Active": 5,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 108
+      },
+      "Target": 161
+    },
+    {
+      "Active": 5,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 108
+      },
+      "Target": 320
+    },
+    {
+      "Active": 5,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 108
+      },
+      "Target": 635
+    },
+    {
+      "Active": 10,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 252
+      },
+      "Target": -50
+    },
+    {
+      "Active": 10,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 252
+      },
+      "Target": 105
+    },
+    {
+      "Active": 10,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 252
+      },
+      "Target": 159
+    },
+    {
+      "Active": 10,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 252
+      },
+      "Target": 160
+    },
+    {
+      "Active": 10,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 252
+      },
+      "Target": 161
+    },
+    {
+      "Active": 10,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 252
+      },
+      "Target": 320
+    },
+    {
+      "Active": 10,
+      "Focal": {
+        "Y": 160,
+        "Time": 0.525,
+        "Row": 252
+      },
+      "Target": 635
+    }
+  ],
+  "RateSourceFixture": "spacing-sections-overlapping-warp-stop.expected.json"
+}

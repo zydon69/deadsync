@@ -3690,3 +3690,43 @@ old speed-seconds, row-interruption and editor-timing baseline output checks.
 The initialized-section generator also regenerated its six traces with the
 extended timestamp adapter. `cargo check -p deadsync --jobs 2 --locked` passed.
 Native time/variable rendering remains pending.
+
+### Original directional screen-position search
+
+`spacing_search::find_location` ports the directional control flow of original
+ActiveEditorChart.FindChartTimeAndRowForScreenSpaceY. It uses ordered initialized
+sections, a supplied active index, focal time/row/Y and frozen frame settings.
+When searching backward it changes coefficients before locating the previous
+boundary; when searching forward it locates the next boundary before changing
+coefficients. A crossed boundary uses previous coefficients with the current
+section's rate-conversion callback, exactly as in the original. Reverse changes
+the directional comparisons independently of negative section scroll.
+
+The search is linear in the number of visited sections, uses constant extra
+memory, and terminates at section-list boundaries. At the focal Y it returns the
+captured focal time/row. Empty section lists return the original (0,0) fallback.
+Invalid inputs/active indices and singular inverse rates return explicit errors.
+For folded variable geometry it follows the original first-crossing policy;
+it does not enumerate every chart position sharing the same screen coordinate.
+
+The development runner compiles the entire unchanged pinned active-chart search
+member together with the unchanged helper and rate conversions. A list-enumerator
+adapter accepts a fixture-supplied active index: original tree FindBest selection
+is not emulated or claimed as tested. Eighteen traces cover three spacing modes,
+both directions and three interpolation signs. Their rate arrays are checked
+against the independently generated initialized overlapping-warp/negative-stop
+fixture. Rust compares all 378 search results within two ULP, or requires an
+explicit error when the original returns a nonfinite location. Additional checks
+cover empty lists, exact focal position, invalid indices and invalid values.
+
+The shared generator now regenerates 24 traces (six scalar helper plus eighteen
+search cases). Source/member hashes are in spacing-reference.json; reproduction
+and scope are documented in scripts/editor-spacing-oracle/SEARCH.md. This search
+is not yet wired into native rendering. Automatic active-event selection,
+forward event geometry and complete folded-section visibility remain pending.
+
+Validation: the complete editor core suite passed 385 tests. All 24 original
+spacing/search traces regenerated successfully; the eighteen search traces
+contain 378 queries. `cargo check -p deadsync --jobs 2 --locked` passed. These
+checks establish the scoped inverse search, not native display wiring or
+original tree-based active-event selection.

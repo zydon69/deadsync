@@ -18,7 +18,7 @@ are the original stop/warp/negative-lead-in formulas, not linear replacements.
 The runner does not emulate EditorChart event selection, traversal or complete
 native rendering across rate boundaries. No Fumen or GUI assemblies are needed.
 
-Six fixtures cover all three modes in both directions, with six successive
+Six scalar helper fixtures cover all three modes in both directions, with six successive
 rates and four query sets per rate (144 query sets), including positive/negative
 stops, warps and negative time/row queries. Valid nonzero rates are used for inverse
 comparisons. Rust additionally checks invalid inputs, failed callbacks, missing
@@ -30,3 +30,6 @@ Ordinary tests need no .NET runtime:
 ```sh
 cargo test -p deadsync-editor --test spacing_workflows --jobs 2 --locked
 ```
+
+The same generator also runs eighteen original active-chart search fixtures;
+see SEARCH.md for their event-selection scope and reproduction.
