@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate differential fixtures with pinned, unmodified StepManiaLibrary.
+"""Generate fixtures with pinned libraries and unchanged GrooveAuthor helpers.
 
 The .NET tool is development-only. Committed expected files let ordinary Rust
 tests run without .NET, network access, or the source reference checkout.
@@ -16,6 +16,44 @@ import subprocess
 PIN = "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8"
 EDITOR_PIN = "48e18f71655d0f0d86144c63239331833501fda2"
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def extract_member(source, signature):
+    match = re.search(signature, source)
+    if match is None: raise SystemExit(f"Missing original member {signature}")
+    start = source.index("{", match.start())
+    level, end = 1, start + 1
+    while level:
+        if source[end] == "{": level += 1
+        elif source[end] == "}": level -= 1
+        end += 1
+    return source[match.start():end]
+
+
+def prepare_timing_reference(editor):
+    def read(path):
+        return subprocess.check_output(["git", "show", f"{EDITOR_PIN}:StepManiaEditor/{path}"], cwd=editor).decode("utf-8-sig")
+    chart = read("EditorChart.cs")
+    rate = read("EditorEvents/EditorRateAlteringEvent.cs")
+    stop = read("EditorEvents/EditorStopEvent.cs")
+    density = read("EditorActions/ActionAutoGeneratePatterns.cs")
+    groups = {
+        "CHART_METHODS": [extract_member(chart, r"\tprivate void " + name + r"\(") for name in ["RefreshEventTimingData", "RefreshRateAlteringEvents"]]
+            + [extract_member(chart, r"\tpublic double " + name + r"\(") for name in ["GetStartChartTime", "GetEndChartTime"]]
+            + [extract_member(chart, r"\tpublic bool TryGetTimeFromChartPosition\(")],
+        "RATE_METHODS": [extract_member(rate, r"\tpublic double " + name + r"\(") for name in ["GetChartTimeFromPosition", "GetChartPositionFromTime"]],
+        "STOP_METHODS": [extract_member(stop, r"\tpublic void RefreshEndChartPosition\(")],
+        "DENSITY_METHODS": [extract_member(density, r"\tprivate double GetNps\(")],
+    }
+    project = ROOT / "scripts/editor-oracle"
+    template = (project / "EditorTimingReference.cs.template").read_text()
+    original = []
+    for key, methods in groups.items():
+        text = "\n\n".join(methods)
+        template = template.replace("    // " + key, text)
+        original.append(text)
+    (project / "obj/EditorTimingReference.cs").write_text(template)
+    return hashlib.sha256("\n".join(original).encode()).hexdigest()
 
 
 def prepare_context_reference(editor: Path):
@@ -284,6 +322,43 @@ def requests(reference: Path):
             if variant == "equal-time": pc["TimeScale"] = 0.0
             if variant == "overlap-order": pc["BeforeEditorEvents"] = [[12, right, True], [0, left, True]]
             cases[f"context-{layout}-{variant}"] = pc
+    editor_notes = [[0, 0, "1"], [12, 1, "1"], [24, 2, "F"], [36, 3, "L"], [48, 0, "2", 96], [120, 2, "M"], [144, 3, "K"], [192, 1, "1"]]
+    editor_cases = {
+        "baseline": {},
+        "stop": {"Extra": [[48, "stop", 0.4]]},
+        "delay": {"Extra": [[48, "delay", 0.4]]},
+        "simultaneous": {"Extra": [[48, "tempo", 180], [48, "delay", 0.25], [48, "stop", 0.4]]},
+        "warp": {"Extra": [[48, "warp", 96]]},
+        "warp-delay": {"Extra": [[48, "delay", 0.0], [48, "warp", 96]]},
+        "warp-stop": {"Extra": [[48, "stop", 0.25], [48, "warp", 96]]},
+        "overlapping-warps": {"Extra": [[48, "warp", 144], [96, "warp", 240], [144, "tempo", 187.3]]},
+        "negative-stop": {"Extra": [[48, "stop", -0.4]]},
+        "stacked-negative-stops": {"Extra": [[48, "stop", -1.0], [96, "stop", -0.3], [144, "stop", 0.2]]},
+        "negative-stop-delay": {"Extra": [[48, "delay", 0.1], [48, "stop", -0.4]]},
+        "signature-in-warp": {"Extra": [[24, "warp", 240], [37, "signature", 3, 4], [89, "tempo", 187.3]]},
+        "nested-fakes": {"Extra": [[0, "fake", 384], [48, "fake", 48]]},
+        "last-fake": {"Extra": [[384, "fake", 384]]},
+        "last-fake-and-label": {"Extra": [[384, "fake", 384], [384, "label", 0]]},
+        "last-stop": {"Extra": [[512, "stop", 0.75]]},
+        "last-delay": {"Extra": [[512, "delay", 0.75]]},
+        "last-warp": {"Extra": [[512, "warp", 384]]},
+        "last-long-hold": {"Notes": [[0, 0, "2", 960]], "LastStep": 0},
+        "hold-before-metadata": {"Notes": [[0, 0, "2", 960]], "Extra": [[192, "label", 0]]},
+        "region-end": {"Notes": [], "Region": [96, 385], "LastStep": 384},
+        "region-delay": {"Notes": [], "Region": [96, 384], "Extra": [[384, "delay", 0.4]]},
+        "no-tempo": {"Timing": [[0, "signature", 4, 4]]},
+        "empty": {"Notes": [], "LastStep": 0},
+        "scroll-in-negative-stop": {"Extra": [[48, "stop", -1.0], [72, "scroll", 0.5], [96, "tempo", 187.3], [120, "scroll", 2.0]]},
+        "zero-duration": {"Notes": [[0, 0, "1"]], "LastStep": 0},
+        "last-tick": {"Extra": [[384, "tick", 4]]},
+        "last-combo": {"Extra": [[384, "combo", 1]]},
+        "last-speed": {"Extra": [[384, "speed", 1]]},
+    }
+    for label, values in editor_cases.items():
+        values = copy.deepcopy(values)
+        extra = values.pop("Extra", [])
+        cases["editor-timing-" + label] = {"Operation": "EditorTiming", "Timing": [[0, "signature", 4, 4], [0, "tempo", 150]] + extra,
+            "Notes": copy.deepcopy(editor_notes), "Rows": [0, 12, 24, 48, 72, 96, 120, 144, 192, 240, 384, 768], "NumSteps": 17, "LastStep": 384, **values}
     return cases
 
 
@@ -300,8 +375,11 @@ def main():
         raise SystemExit(f"Reference must be pinned at {PIN}, found {commit}")
     env = {**os.environ, "DOTNET_CLI_TELEMETRY_OPTOUT": "1", "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1"}
     context_hash = prepare_context_reference(args.editor_root.resolve())
+    timing_hash = prepare_timing_reference(args.editor_root.resolve())
     project = ROOT / "scripts/editor-oracle/EditorOracle.csproj"
-    subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, check=True, stdout=subprocess.DEVNULL)
+    build = subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    if build.returncode:
+        raise SystemExit(build.stdout)
     oracle = project.parent / "bin/Release/net10.0/EditorOracle.dll"
     output = ROOT / "crates/deadsync-editor/tests/fixtures/grooveauthor"
     output.mkdir(parents=True, exist_ok=True)
@@ -320,7 +398,7 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
-        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash,
+        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
         "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],

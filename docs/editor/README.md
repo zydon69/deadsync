@@ -415,7 +415,68 @@ exact original bytes, redo, save and reopen the resulting grid. The selected-own
 primitive is explicit; whole multiplayer generation remains unfinished.
 
 These primitives do not yet complete source-to-pattern preparation. Automatic
-region assembly from all editor/timing events, the original density estimate
-(including fake/warp handling), session-bound background pattern jobs and their
+region assembly from all editor/timing events, the remaining source-to-pattern density/region adapter, session-bound background
+pattern jobs and their
 native panel remain required. They are not replaced by fixed footing or a density
 estimate chosen merely to match the existing tests.
+
+### Editor timing and pattern-density decisions
+
+`source::read` now creates an owned SourceChart (grid, effective timing,
+layout and difficulty). Chart conversion retains its existing `prepare` entry
+point. Alternate grids can reuse the same parsed source without changing the
+original grid or live editor. Attack-note rejection and unsupported participant
+checks remain explicit.
+
+`GenerationTiming` now retains distinct time-signature, fake-region, tick, combo,
+label and scroll event categories. Fumen generation preserves its clock semantics.
+`EditorTimeline` implements the separate GrooveAuthor editor timing/dependency
+pass: active warps/fakes, shorter nested fakes ending an earlier region, negative
+stop clamping, and retroactive same-row fake flags with stop/delay exceptions.
+Time signatures inside warps commit elapsed warp time only in the editor pass,
+as the two original implementations differ here.
+
+A second pass prepares rate-altering event states. Position-only time queries
+use the preceding rate event and fall back to the first event; event-type queries
+respect same-row order. The first tempo backfills earlier rate states. Hold ends
+use hold-tail order. Positive stop/delay ends include their duration, fake/pattern
+ends query their end position, and warp ends retain the original point time.
+Chart end follows the final editor event, not the largest sustain tail. Source
+step counts exclude explicit fakes and notes made fake by timing. Pattern NPS
+combines that count and the supplied pattern-step count over the original end-time
+rule. No fixed NPS or substitute lane-density formula is introduced.
+
+The development oracle compiles nine unchanged method bodies from the pinned
+editor: timing refresh, rate refresh, position/time queries, negative-stop end
+refresh, chart start/end, and pattern GetNps. Minimal containers/accessors replace
+UI/tree plumbing; the test does not run the whole GrooveAuthor editor or its file
+loader. Provenance records the additional method hash. Twenty-nine committed
+cases compare exact f64 head times, fake flags, step counts, chart ends, position
+queries and NPS. Cases include simultaneous events, zero-delay guards, nested
+warps/fakes, time signatures inside warps, negative-stop stacks, long holds before
+later metadata, final stop/delay/fake/warp events, scroll changes, pattern-region
+ends, missing tempo and zero duration. Tests also reject cancelled, invalid and
+numerically unrepresentable inputs, and reuse chart-local timing without altering
+the original source grid.
+
+The remaining pattern adapter must retain the whole editor timeline's assigned
+times when extracting preceding/following regions. Recomputing Fumen times from
+an isolated region is not equivalent, especially for warp/time-signature changes
+and stop clamping. The first included event of each row and the full included
+event span must come from those assigned times. Global timing events and local
+non-timing metadata also have different inclusion rules in the original action.
+Lane-only deletion in the original action retains already assigned times and
+fake flags on surviving heads and rate events. The final adapter must project
+those retained events and shortened holds onto the existing timeline, rather
+than refresh a cleared grid and accidentally change floating-point clamp history.
+A newly inserted pattern event also needs the original active-rate query behavior;
+the optional region in these timing-refresh fixtures models an event already
+present during that refresh. Existing loaded markers and newly inserted markers
+must be distinguished when wiring the live action.
+These are required before connecting native pattern jobs; the clock tests alone
+do not prove the full source-to-pattern workflow.
+
+Reader normalization for invalid/conflicting timing entries, unsupported attack
+timing, existing persisted pattern metadata, previews/last-second hints and wider
+legacy input coverage remain unfinished. In particular the missing-tempo case
+above verifies these extracted methods, not the complete editor loader's defaults.

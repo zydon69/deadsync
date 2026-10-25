@@ -10,6 +10,12 @@ pub enum EventKind {
     Delay(f64),
     Stop(f64),
     Warp(i64),
+    Fake(i64),
+    TimeSignature,
+    TickCount,
+    Combo,
+    Label,
+    Scroll(f64),
     /// Time signatures, ticks, fakes, combos and labels precede delays.
     LeadingMarker,
     /// Scroll and speed events follow notes but precede ordinary stops.
@@ -23,14 +29,20 @@ pub struct Event {
 }
 
 impl Event {
-    fn order(self) -> u8 {
+    pub(crate) fn order(self) -> u8 {
         match self.kind {
-            EventKind::Tempo(_) | EventKind::LeadingMarker => 0,
-            EventKind::Delay(_) => 1,
-            EventKind::TrailingMarker => 2,
-            EventKind::Stop(length) if length >= 0.0 => 3,
-            EventKind::Stop(_) => 4,
-            EventKind::Warp(_) => 5,
+            EventKind::TimeSignature => 0,
+            EventKind::Tempo(_) => 1,
+            EventKind::LeadingMarker | EventKind::TickCount => 2,
+            EventKind::Fake(_) => 3,
+            EventKind::Combo => 4,
+            EventKind::Label => 5,
+            EventKind::Delay(_) => 7,
+            EventKind::Scroll(_) => 13,
+            EventKind::TrailingMarker => 14,
+            EventKind::Stop(length) if length >= 0.0 => 15,
+            EventKind::Stop(_) => 16,
+            EventKind::Warp(_) => 17,
         }
     }
 }
@@ -47,13 +59,19 @@ impl GenerationTiming {
                 return invalid("Timing row exceeds the reference range");
             }
             match event.kind {
-                EventKind::Tempo(bpm) if !bpm.is_finite() || bpm <= 0.0 => {
-                    return invalid("Generation requires finite positive BPM values");
+                EventKind::Tempo(bpm)
+                    if !bpm.is_finite()
+                        || bpm <= 0.0
+                        || !(60.0 / bpm / ROWS_PER_BEAT as f64).is_finite() =>
+                {
+                    return invalid(
+                        "Generation requires finite positive BPM values with representable row times",
+                    );
                 }
                 EventKind::Stop(value) | EventKind::Delay(value) if !value.is_finite() => {
                     return invalid("Stop duration must be finite");
                 }
-                EventKind::Warp(rows)
+                EventKind::Warp(rows) | EventKind::Fake(rows)
                     if rows < 0
                         || event
                             .row
@@ -61,6 +79,9 @@ impl GenerationTiming {
                             .is_none_or(|end| end > i64::from(i32::MAX)) =>
                 {
                     return invalid("Invalid warp row range");
+                }
+                EventKind::Scroll(value) if !value.is_finite() => {
+                    return invalid("Scroll rate must be finite");
                 }
                 _ => {}
             }
@@ -149,7 +170,7 @@ impl GenerationTiming {
                 } else {
                     parsed.time_signatures
                 },
-                4,
+                6,
             ),
             (
                 if own {
@@ -157,7 +178,7 @@ impl GenerationTiming {
                 } else {
                     parsed.tickcounts
                 },
-                4,
+                7,
             ),
             (
                 if own {
@@ -165,7 +186,7 @@ impl GenerationTiming {
                 } else {
                     parsed.fakes
                 },
-                4,
+                8,
             ),
             (
                 if own {
@@ -173,7 +194,7 @@ impl GenerationTiming {
                 } else {
                     parsed.combos
                 },
-                4,
+                9,
             ),
             (
                 if own {
@@ -181,7 +202,7 @@ impl GenerationTiming {
                 } else {
                     parsed.labels
                 },
-                4,
+                10,
             ),
             (
                 if own {
@@ -189,7 +210,7 @@ impl GenerationTiming {
                 } else {
                     parsed.scrolls
                 },
-                5,
+                11,
             ),
             (
                 if own {
@@ -202,7 +223,7 @@ impl GenerationTiming {
         ];
         let mut events = vec![Event {
             row: 0,
-            kind: EventKind::LeadingMarker,
+            kind: EventKind::TimeSignature,
         }];
         for (field, kind) in fields {
             let Some(field) = field else {
@@ -225,13 +246,16 @@ impl GenerationTiming {
                     .trim()
                     .parse::<f64>()
                     .map_err(|_| Error::InvalidFormat("Invalid timing beat".into()))?;
-                if kind >= 4 {
+                if matches!(kind, 4 | 5 | 6 | 7 | 9 | 10) {
                     events.push(Event {
                         row: beat_to_row(beat)?,
-                        kind: if kind == 4 {
-                            EventKind::LeadingMarker
-                        } else {
-                            EventKind::TrailingMarker
+                        kind: match kind {
+                            4 => EventKind::LeadingMarker,
+                            5 => EventKind::TrailingMarker,
+                            6 => EventKind::TimeSignature,
+                            7 => EventKind::TickCount,
+                            9 => EventKind::Combo,
+                            _ => EventKind::Label,
                         },
                     });
                     continue;
@@ -245,12 +269,25 @@ impl GenerationTiming {
                     0 => EventKind::Tempo(value),
                     1 => EventKind::Delay(value),
                     2 => EventKind::Stop(value),
-                    _ => EventKind::Warp(beat_to_row(value)?),
+                    3 => EventKind::Warp(beat_to_row(value)?),
+                    8 => EventKind::Fake(beat_to_row(value)?),
+                    _ => EventKind::Scroll(value),
                 };
                 events.push(Event { row, kind });
             }
         }
+        if events
+            .iter()
+            .skip(1)
+            .any(|event| event.row == 0 && matches!(event.kind, EventKind::TimeSignature))
+        {
+            events.remove(0);
+        }
         Self::new(events)
+    }
+
+    pub(crate) fn events(&self) -> &[Event] {
+        &self.events
     }
 
     pub fn times(&self, rows: impl IntoIterator<Item = u64>) -> Result<Vec<f64>, Error> {
@@ -334,7 +371,7 @@ impl GenerationTiming {
                 return invalid("Generation rows must be ordered and within the reference range");
             }
             while let Some(event) = self.events.get(cursor).filter(|event| {
-                event.row < row || (!grouped && event.row == row && event.order() < 2)
+                event.row < row || (!grouped && event.row == row && event.order() < 8)
             }) {
                 checkpoint()?;
                 clock.event(event.row, Some(event.kind));
@@ -352,7 +389,7 @@ impl GenerationTiming {
 }
 
 #[derive(Default)]
-struct Clock {
+pub(crate) struct Clock {
     tempo_row: i64,
     tempo_time: f64,
     seconds_per_row: Option<f64>,
@@ -363,8 +400,21 @@ struct Clock {
     warp_time: f64,
 }
 
+pub(crate) struct ClockSample {
+    pub time: f64,
+    pub clamped: bool,
+    pub warping: bool,
+}
 impl Clock {
     fn event(&mut self, row: i64, kind: Option<EventKind>) -> f64 {
+        self.sample(row, kind, false).time
+    }
+
+    pub(crate) fn editor_event(&mut self, row: i64, kind: Option<EventKind>) -> ClockSample {
+        self.sample(row, kind, true)
+    }
+
+    fn sample(&mut self, row: i64, kind: Option<EventKind>, editor: bool) -> ClockSample {
         let absolute = self.tempo_time
             + self
                 .seconds_per_row
@@ -381,9 +431,16 @@ impl Clock {
                 current_warp = 0.0;
             }
         }
-        let time = (absolute - current_warp - self.warp_time + self.stops).max(self.previous_time);
+        let raw = absolute - current_warp - self.warp_time + self.stops;
+        let clamped = raw < self.previous_time;
+        let time = raw.max(self.previous_time);
+        let warping = self.warp_end.is_some();
         self.previous_time = time;
         match kind {
+            Some(EventKind::TimeSignature) if editor && self.warp_end.is_some() => {
+                self.warp_time += current_warp;
+                self.warp_start = Some(row);
+            }
             Some(EventKind::Tempo(bpm)) => {
                 self.seconds_per_row = Some(60.0 / bpm / ROWS_PER_BEAT as f64);
                 self.tempo_row = row;
@@ -400,9 +457,23 @@ impl Clock {
                     self.warp_start = Some(row);
                 }
             }
-            None | Some(EventKind::LeadingMarker | EventKind::TrailingMarker) => {}
+            None
+            | Some(
+                EventKind::LeadingMarker
+                | EventKind::TrailingMarker
+                | EventKind::TimeSignature
+                | EventKind::TickCount
+                | EventKind::Combo
+                | EventKind::Label
+                | EventKind::Fake(_)
+                | EventKind::Scroll(_),
+            ) => {}
         }
-        time
+        ClockSample {
+            time,
+            clamped,
+            warping,
+        }
     }
 }
 

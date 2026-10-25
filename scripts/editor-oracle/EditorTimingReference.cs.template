@@ -1,0 +1,172 @@
+// Development-only containers/accessors around unchanged pinned editor methods.
+// No rendering, game input, audio, file loading or full editor runtime is emulated.
+using System.Text.Json;
+using Fumen;
+using Fumen.ChartDefinition;
+using Fumen.Converters;
+using StepManiaLibrary;
+using static Fumen.Converters.SMCommon;
+namespace EditorTimingOracle;
+
+internal class Cursor<T>(IList<T> values, int index) {
+    private int Index=index;
+    public T Current => values[Index];
+    public bool MoveNext() { Index++; return Index>=0 && Index<values.Count; }
+    public bool MovePrev() { Index--; return Index>=0 && Index<values.Count; }
+}
+internal class EventList<T> : List<T> {
+    public void Validate() { }
+    public int GetCount() => Count;
+    public Cursor<T> First() => new(this,-1);
+    public Cursor<T> Last() => new(this,Count-2);
+}
+internal class EventIntervalTree<T> : List<T> {
+    public void Insert(T value,double start,double end) => Add(value);
+}
+internal class EditorEvent(EditorChart chart, Event data) {
+    public Event Data=data;
+    protected EditorChart EditorChart=chart;
+    public double Time;
+    public bool Fake;
+    public bool IsPositionImmutable;
+    public int GetRow() => Data.IntegerPosition;
+    public double GetChartPosition() => GetRow();
+    public double GetChartTime() => Time;
+    public virtual double GetEndChartTime() => Time;
+    public virtual double GetEndChartPosition() => GetRow();
+    public virtual bool IsStep() => false;
+    public virtual bool IsFake() => Fake;
+    public void SetIsFakeDueToRow(bool fake) => Fake=fake;
+    public void SetRowDependencies(double time,short relative,short denominator,bool fake) {Time=time;Data.TimeSeconds=time;Fake=fake;}
+}
+internal abstract class EditorPreviewRegionEvent(EditorChart chart, Event data) : EditorEvent(chart,data);
+internal class EditorNoteEvent(EditorChart chart,LaneNote data) : EditorEvent(chart,data) {
+    public int Lane => data.Lane;
+    public string Symbol => data.SourceType;
+    public override bool IsStep() => Symbol is "1" or "2" or "4" or "F" or "L";
+    public override bool IsFake() => base.IsFake() || Symbol == "F";
+}
+internal class EditorHoldNoteEvent(EditorChart chart,LaneHoldStartNote data,int end) : EditorNoteEvent(chart,data) {
+    private double EndTime;
+    public void RefreshHoldEndTime() { EndTime=EditorChart.RateAlteringEvents.ForEvent(new LaneHoldEndNote {IntegerPosition=end}).GetChartTimeFromPosition(end); }
+    public override double GetEndChartTime() => EndTime;
+}
+internal class EditorRateAlteringEvent(EditorChart chart, Event data) : EditorEvent(chart,data) {
+    protected int WarpRowsRemaining;
+    protected double StopTimeRemaining;
+    protected double RowsPerSecond, SecondsPerRow;
+    public void Init(int warp,double stop,double scroll,double tempo,double rows,double seconds,EditorTimeSignatureEvent signature,bool immutable) { WarpRowsRemaining=warp;StopTimeRemaining=stop;RowsPerSecond=rows;SecondsPerRow=seconds;IsPositionImmutable=immutable; }
+    public void UpdateTempo(double tempo,double rows,double seconds) {RowsPerSecond=rows;SecondsPerRow=seconds;}
+    public void UpdateScrollRate(double rate) { }
+    public void UpdateLastTimeSignature(EditorTimeSignatureEvent signature) { }
+    // RATE_METHODS
+}
+internal class EditorTempoEvent(EditorChart chart,Tempo data) : EditorRateAlteringEvent(chart,data) {
+    public double GetTempo() => data.TempoBPM;
+    public double GetSecondsPerRow(int rows) => data.GetSecondsPerRow(rows);
+    public double GetRowsPerSecond(int rows) => data.GetRowsPerSecond(rows);
+}
+internal class EditorTimeSignatureEvent(EditorChart chart,TimeSignature data) : EditorRateAlteringEvent(chart,data) {
+    public Fraction GetSignature() => data.Signature;
+    public int Measure {get;set;}
+}
+internal class EditorScrollRateEvent(EditorChart chart,ScrollRate data) : EditorRateAlteringEvent(chart,data) { public double GetScrollRate() => data.Rate; }
+internal class EditorDelayEvent(EditorChart chart,Stop data) : EditorRateAlteringEvent(chart,data) {
+    public double GetDelayLengthSeconds() => data.LengthSeconds;
+    public override double GetEndChartTime() => Time+data.LengthSeconds;
+}
+internal class EditorStopEvent(EditorChart chart,Stop data) : EditorRateAlteringEvent(chart,data) {
+    private readonly Stop StopEvent=data;
+    private double EndChartPosition;
+    public double GetStopLengthSeconds() => StopEvent.LengthSeconds;
+    public override double GetEndChartTime() => Time+Math.Max(0.0,StopEvent.LengthSeconds);
+    // STOP_METHODS
+}
+internal class EditorWarpEvent(EditorChart chart,Warp data) : EditorRateAlteringEvent(chart,data) {
+    public int GetWarpLengthRows() => data.LengthIntegerPosition;
+    public override double GetEndChartPosition() => GetRow()+data.LengthIntegerPosition;
+}
+internal class EditorFakeSegmentEvent(EditorChart chart,FakeSegment data) : EditorEvent(chart,data) {
+    public int GetFakeLengthRows() => data.LengthIntegerPosition;
+    public override double GetEndChartPosition() => GetRow()+data.LengthIntegerPosition;
+    public override double GetEndChartTime() {double end=0;EditorChart.TryGetTimeFromChartPosition(GetEndChartPosition(),ref end);return end;}
+}
+internal class EditorPatternEvent(EditorChart chart,int row,int end) : EditorEvent(chart,new Pattern {IntegerPosition=row}) {
+    public override double GetEndChartPosition() => end;
+    public override double GetEndChartTime() {double time=0;EditorChart.TryGetTimeFromChartPosition(end,ref time);return time;}
+}
+internal class RateTree : EventList<EditorRateAlteringEvent> {
+    private static readonly SMEventComparer Comparer=new(EventOrder.Order);
+    public Cursor<EditorRateAlteringEvent> FindActiveRateAlteringEventEnumerator(EditorEvent value) {
+        var index=FindLastIndex(rate=>Comparer.Compare(rate.Data,value.Data)<=0);
+        return new(this,Math.Max(0,index)-1);
+    }
+    public EditorRateAlteringEvent FindActiveRateAlteringEventForPosition(double row,bool equal) => this.LastOrDefault(rate=>equal ? rate.GetRow()<=row : rate.GetRow()<row) ?? this.FirstOrDefault()!;
+    public EditorRateAlteringEvent ForEvent(Event value) => this.LastOrDefault(rate=>Comparer.Compare(rate.Data,value)<0) ?? this.FirstOrDefault()!;
+}
+internal class Totals(EditorChart chart) { public int GetStepCount() => chart.EditorEvents.Count(e=>e.IsStep() && !e.IsFake()); }
+internal class EditorChart {
+    public EventList<EditorEvent> EditorEvents=new();
+    public RateTree RateAlteringEvents=new();
+    public List<EditorHoldNoteEvent> Holds=new();
+    private EventIntervalTree<EditorStopEvent> Stops=new();
+    private EventIntervalTree<EditorDelayEvent> Delays=new();
+    private EventIntervalTree<EditorFakeSegmentEvent> Fakes=new();
+    private EventIntervalTree<EditorWarpEvent> Warps=new();
+    private EventIntervalTree<EditorPatternEvent> Patterns=new();
+    private double MostCommonTempo,MinTempo,MaxTempo;
+    private const int NotificationTimingChanged=0;
+    public bool DeletePreviewEvent()=>false;
+    public bool DeleteLastSecondHintEvent()=>false;
+    public void AddPreviewEvent() { }
+    public void AddLastSecondHintEvent() { }
+    private void Notify(int notification,EditorChart chart) { }
+    public RateTree GetRateAlteringEvents()=>RateAlteringEvents;
+    public Totals GetStepTotals()=>new(this);
+    public void Refresh() {EditorEvents.Sort((a,b)=>new SMEventComparer(EventOrder.Order).Compare(a.Data,b.Data));RateAlteringEvents.AddRange(EditorEvents.OfType<EditorRateAlteringEvent>());Holds.AddRange(EditorEvents.OfType<EditorHoldNoteEvent>());RefreshEventTimingData();}
+    // CHART_METHODS
+}
+internal class DensityReference(EditorChart chart,int count,int last) {
+    private EditorChart EditorChart=chart;
+    private int GetTotalStepsFromAllPatterns()=>count;
+    private double GetLastPatternStepTime() {double time=0;chart.TryGetTimeFromChartPosition(last,ref time);return time;}
+    public double Run()=>GetNps();
+    // DENSITY_METHODS
+}
+internal static class Reference {
+    public static object Run(JsonElement request) {
+        var chart=new EditorChart();
+        foreach(var item in request.GetProperty("Timing").EnumerateArray()) {
+            var row=item[0].GetInt32(); var kind=item[1].GetString();
+            EditorEvent value=kind switch {
+                "tempo"=>new EditorTempoEvent(chart,new Tempo(item[2].GetDouble())),
+                "signature"=>new EditorTimeSignatureEvent(chart,new TimeSignature(new Fraction(item[2].GetInt32(),item[3].GetInt32()),0)),
+                "stop"=>new EditorStopEvent(chart,new Stop(item[2].GetDouble())),
+                "delay"=>new EditorDelayEvent(chart,new Stop(item[2].GetDouble(),true)),
+                "warp"=>new EditorWarpEvent(chart,new Warp(item[2].GetInt32())),
+                "fake"=>new EditorFakeSegmentEvent(chart,new FakeSegment(item[2].GetInt32())),
+                "scroll"=>new EditorScrollRateEvent(chart,new ScrollRate(item[2].GetDouble())),
+                "label"=>new EditorEvent(chart,new Label("label")),
+                "tick"=>new EditorEvent(chart,new TickCount(4)),
+                "combo"=>new EditorEvent(chart,new Multipliers(1,1)),
+                "speed"=>new EditorEvent(chart,new ScrollRateInterpolation(1,48,0,false)),
+                _=>throw new ArgumentException("Unknown editor timing event")
+            };
+            value.Data.IntegerPosition=row; chart.EditorEvents.Add(value);
+        }
+        foreach(var item in request.GetProperty("Notes").EnumerateArray()) {
+            var symbol=item[2].GetString()!; var row=item[0].GetInt32();var lane=item[1].GetInt32();
+            LaneNote data=symbol switch {"2" or "4"=>new LaneHoldStartNote(),"M" or "K"=>new LaneNote(),_=>new LaneTapNote()};
+            data.IntegerPosition=row;data.Lane=lane;data.SourceType=symbol;
+            chart.EditorEvents.Add(data is LaneHoldStartNote hold ? new EditorHoldNoteEvent(chart,hold,item[3].GetInt32()) : new EditorNoteEvent(chart,data));
+        }
+        if(request.TryGetProperty("Region",out var region)) chart.EditorEvents.Add(new EditorPatternEvent(chart,region[0].GetInt32(),region[1].GetInt32()));
+        chart.Refresh();
+        return new {
+            Heads=chart.EditorEvents.OfType<EditorNoteEvent>().Select(note=>new {Row=note.GetRow(),Lane=note.Lane,Symbol=note.Symbol,Time=note.GetChartTime(),Fake=note.IsFake()}).ToArray(),
+            StepCount=chart.GetStepTotals().GetStepCount(),End=chart.GetEndChartTime(),
+            Times=request.GetProperty("Rows").EnumerateArray().Select(row=>{double time=0;chart.TryGetTimeFromChartPosition(row.GetDouble(),ref time);return time;}).ToArray(),
+            Nps=new DensityReference(chart,request.GetProperty("NumSteps").GetInt32(),request.GetProperty("LastStep").GetInt32()).Run()
+        };
+    }
+}

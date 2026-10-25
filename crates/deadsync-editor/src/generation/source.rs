@@ -38,12 +38,12 @@ impl PreparedChart {
 
 /// Call with a serialized editor snapshot so unsaved notes, timing and metadata
 /// are included together. The snapshot is never mutated during preparation.
-pub fn prepare(
+pub fn read(
     bytes: Arc<[u8]>,
     format: Format,
     chart: usize,
     cancelled: &AtomicBool,
-) -> Result<PreparedChart, Error> {
+) -> Result<SourceChart, Error> {
     let checkpoint = || {
         if cancelled.load(Ordering::Relaxed) {
             Err(Error::InvalidEdit(
@@ -62,6 +62,12 @@ pub fn prepare(
     let columns = layout_columns(&entry.steps_type)
         .ok_or_else(|| Error::Unsupported("Unknown generation layout".into()))?;
     let grid = Grid::parse(document.value(entry.notes.clone()), columns)?;
+    checkpoint()?;
+    if grid.iter().any(|(_, note)| note.kind == Kind::Attack) {
+        return Err(Error::Unsupported(
+            "Reference interpretation does not support attack notes".into(),
+        ));
+    }
     if grid.players() != 1 {
         return Err(Error::Unsupported(
             "Generation requires a chart with one participant".into(),
@@ -85,29 +91,6 @@ pub fn prepare(
         ));
     }
     let timing = GenerationTiming::from_simfile(&bytes, format, chart)?;
-    let frames = expressed::frames(&grid, 0, cancelled)?;
-    let times = timing.grouped_times_checked(frames.iter().map(|frame| frame.row), checkpoint)?;
-    let mut note_rows = Vec::new();
-    let mut mine_positions = Vec::new();
-    for (position, note) in grid.iter() {
-        checkpoint()?;
-        note_rows.push(position.row);
-        if let Some(end) = note.end {
-            note_rows.push(end);
-        }
-        if note.kind == Kind::Mine {
-            mine_positions.push((position.row, position.lane));
-        }
-    }
-    mine_positions.sort_unstable();
-    let mine_times =
-        timing.times_checked(mine_positions.iter().map(|(row, _)| *row), checkpoint)?;
-    let mines = mine_positions
-        .into_iter()
-        .zip(mine_times)
-        .map(|((row, lane), time)| SourceMine { row, lane, time })
-        .collect();
-    let event_span = timing.event_span_checked(note_rows, checkpoint)?;
     let difficulty = entry
         .meter
         .parse::<f64>()
@@ -117,20 +100,100 @@ pub fn prepare(
             "Chart difficulty must be finite".into(),
         ));
     }
-    Ok(PreparedChart {
-        source_notes: grid
-            .iter()
-            .filter(|(_, note)| !matches!(note.kind, Kind::Mine | Kind::Keysound))
-            .count(),
-        ignored_keysounds: grid
-            .iter()
-            .filter(|(_, note)| note.kind == Kind::Keysound)
-            .count(),
+    Ok(SourceChart {
         layout: entry.steps_type.clone(),
-        frames,
-        times,
-        mines,
+        grid,
+        timing,
         difficulty,
-        event_span,
     })
+}
+
+/// Parsed once, then shared by source interpretation and pattern preparation.
+/// The worker owns these values; no live editor document is borrowed.
+pub struct SourceChart {
+    pub layout: String,
+    pub grid: Grid,
+    pub timing: GenerationTiming,
+    pub difficulty: f64,
+}
+
+pub fn prepare(
+    bytes: Arc<[u8]>,
+    format: Format,
+    chart: usize,
+    cancelled: &AtomicBool,
+) -> Result<PreparedChart, Error> {
+    let source = read(bytes, format, chart, cancelled)?;
+    source.prepare_grid(&source.grid, cancelled)
+}
+
+impl SourceChart {
+    /// Recompute Fumen engine timestamps for this grid. GrooveAuthor pattern
+    /// contexts instead retain their whole-editor timeline's assigned times;
+    /// they must not be built by recomputing a standalone partial-grid clock.
+    pub fn prepare_grid(
+        &self,
+        grid: &Grid,
+        cancelled: &AtomicBool,
+    ) -> Result<PreparedChart, Error> {
+        let checkpoint = || {
+            if cancelled.load(Ordering::Relaxed) {
+                Err(Error::InvalidEdit(
+                    "Generation preparation cancelled".into(),
+                ))
+            } else {
+                Ok(())
+            }
+        };
+        checkpoint()?;
+        if grid.players() != 1
+            || layout_columns(&self.layout) != Some(grid.columns())
+            || !self.difficulty.is_finite()
+        {
+            return Err(Error::InvalidEdit(
+                "Interpretation grid does not match its source layout".into(),
+            ));
+        }
+        let timing = &self.timing;
+        let frames = expressed::frames(grid, 0, cancelled)?;
+        let times =
+            timing.grouped_times_checked(frames.iter().map(|frame| frame.row), checkpoint)?;
+        let mut note_rows = Vec::new();
+        let mut mine_positions = Vec::new();
+        for (position, note) in grid.iter() {
+            checkpoint()?;
+            note_rows.push(position.row);
+            if let Some(end) = note.end {
+                note_rows.push(end);
+            }
+            if note.kind == Kind::Mine {
+                mine_positions.push((position.row, position.lane));
+            }
+        }
+        mine_positions.sort_unstable();
+        let mine_times =
+            timing.times_checked(mine_positions.iter().map(|(row, _)| *row), checkpoint)?;
+        let mines = mine_positions
+            .into_iter()
+            .zip(mine_times)
+            .map(|((row, lane), time)| SourceMine { row, lane, time })
+            .collect();
+        let event_span = timing.event_span_checked(note_rows, checkpoint)?;
+        Ok(PreparedChart {
+            source_notes: grid
+                .iter()
+                .filter(|(_, note)| !matches!(note.kind, Kind::Mine | Kind::Keysound))
+                .count(),
+            ignored_keysounds: grid
+                .iter()
+                .filter(|(_, note)| note.kind == Kind::Keysound)
+                .count(),
+            layout: self.layout.clone(),
+            frames,
+            times,
+            mines,
+            difficulty: self.difficulty,
+            event_span,
+        })
+    }
 }

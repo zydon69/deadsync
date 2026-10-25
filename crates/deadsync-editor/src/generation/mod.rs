@@ -2,6 +2,7 @@
 //! Snapshot-bound jobs expose previews to the native generation panel.
 pub mod config;
 pub mod context;
+pub mod editor_timing;
 pub mod expressed;
 pub mod fallbacks;
 pub mod geometry;

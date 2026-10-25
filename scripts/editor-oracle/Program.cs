@@ -1,6 +1,6 @@
-// Development-only differential oracle. All generation and cost decisions are
-// executed by the pinned, unmodified StepManiaLibrary project referenced by
-// ReferenceRoot. This tool is not linked into DeadSync or shipped with the game.
+// Development-only oracle using pinned libraries and unchanged editor helper
+// bodies. Explicit adapters replace UI/container plumbing; this does not run
+// the full editor. It is not linked into DeadSync or shipped with the game.
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Reflection;
@@ -21,6 +21,7 @@ var options = new JsonSerializerOptions
 };
 var request = JsonDocument.Parse(File.ReadAllBytes(args[1])).RootElement;
 var operation = request.GetProperty("Operation").GetString();
+if (operation == "EditorTiming") { Console.WriteLine(JsonSerializer.Serialize(EditorTimingOracle.Reference.Run(request), options)); return; }
 if (operation == "FileClock")
 {
     var extension = request.GetProperty("Format").GetString()!;

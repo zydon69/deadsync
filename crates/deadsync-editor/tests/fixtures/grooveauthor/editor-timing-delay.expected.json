@@ -1,0 +1,77 @@
+{
+  "Heads": [
+    {
+      "Row": 0,
+      "Lane": 0,
+      "Symbol": "1",
+      "Time": 0,
+      "Fake": false
+    },
+    {
+      "Row": 12,
+      "Lane": 1,
+      "Symbol": "1",
+      "Time": 0.1,
+      "Fake": false
+    },
+    {
+      "Row": 24,
+      "Lane": 2,
+      "Symbol": "F",
+      "Time": 0.2,
+      "Fake": true
+    },
+    {
+      "Row": 36,
+      "Lane": 3,
+      "Symbol": "L",
+      "Time": 0.3,
+      "Fake": false
+    },
+    {
+      "Row": 48,
+      "Lane": 0,
+      "Symbol": "2",
+      "Time": 0.8,
+      "Fake": false
+    },
+    {
+      "Row": 120,
+      "Lane": 2,
+      "Symbol": "M",
+      "Time": 1.4,
+      "Fake": false
+    },
+    {
+      "Row": 144,
+      "Lane": 3,
+      "Symbol": "K",
+      "Time": 1.6,
+      "Fake": false
+    },
+    {
+      "Row": 192,
+      "Lane": 1,
+      "Symbol": "1",
+      "Time": 2,
+      "Fake": false
+    }
+  ],
+  "StepCount": 5,
+  "End": 2,
+  "Times": [
+    0,
+    0.1,
+    0.2,
+    0.4,
+    1,
+    1.2000000000000002,
+    1.4,
+    1.6,
+    2,
+    2.4,
+    3.5999999999999996,
+    6.800000000000001
+  ],
+  "Nps": 6.111111111111112
+}
