@@ -1,4 +1,57 @@
 {
+  "Conversion": {
+    "Success": true,
+    "Notes": []
+  },
+  "Projected": {
+    "Heads": [],
+    "StepCount": 0,
+    "End": 0.8083333333333333,
+    "Nps": 6.185567010309279,
+    "Regions": [
+      {
+        "Span": [
+          0,
+          0
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          }
+        ],
+        "EditorEvents": []
+      },
+      {
+        "Span": [
+          0,
+          0
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          }
+        ],
+        "EditorEvents": []
+      },
+      {
+        "Span": [
+          0,
+          0
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          }
+        ],
+        "EditorEvents": []
+      }
+    ],
+    "Removed": 0,
+    "Shortened": 0
+  },
   "Heads": [],
   "StepCount": 0,
   "End": 0,

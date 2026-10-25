@@ -21,7 +21,7 @@ var options = new JsonSerializerOptions
 };
 var request = JsonDocument.Parse(File.ReadAllBytes(args[1])).RootElement;
 var operation = request.GetProperty("Operation").GetString();
-if (operation == "EditorTiming") { Console.WriteLine(JsonSerializer.Serialize(EditorTimingOracle.Reference.Run(request), options)); return; }
+if (operation == "EditorTiming") { Console.WriteLine(JsonSerializer.Serialize(EditorTimingOracle.Reference.Run(request,args[0]), options)); return; }
 if (operation == "FileClock")
 {
     var extension = request.GetProperty("Format").GetString()!;

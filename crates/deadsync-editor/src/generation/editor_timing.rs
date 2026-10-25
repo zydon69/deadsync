@@ -50,6 +50,16 @@ impl Entry {
             EntryKind::Head { .. } => 12,
         }
     }
+    fn key(self) -> (u64, u8, u16) {
+        (
+            self.row,
+            self.order(),
+            match self.kind {
+                EntryKind::Head { position, .. } => position.lane,
+                _ => 0,
+            },
+        )
+    }
     fn is_rate(self) -> bool {
         matches!(
             self.kind,
@@ -87,6 +97,7 @@ impl Rate {
     }
 }
 pub struct EditorTimeline {
+    columns: u16,
     entries: Vec<Entry>,
     rates: Vec<Rate>,
     heads: Vec<TimedHead>,
@@ -146,16 +157,7 @@ impl EditorTimeline {
                 time: 0.0,
             });
         }
-        entries.sort_by_key(|entry| {
-            (
-                entry.row,
-                entry.order(),
-                match entry.kind {
-                    EntryKind::Head { position, .. } => position.lane,
-                    _ => 0,
-                },
-            )
-        });
+        entries.sort_by(|a, b| event_cmp(a.key(), b.key()));
         let mut clock = Clock::default();
         let mut heads: Vec<TimedHead> = Vec::new();
         let mut current_row = None;
@@ -255,11 +257,244 @@ impl EditorTimeline {
             previous_row = entry.row;
         }
         Ok(Self {
+            columns: grid.columns(),
             entries,
             rates,
             heads,
         })
     }
+    /// Apply lane-only deletions/hold shortening without recalculating the
+    /// assigned times, fake flags or rate states of surviving events.
+    /// A new pattern marker obtains its time from the existing typed rate query.
+    pub fn project(
+        &self,
+        retained: &Grid,
+        region: Option<(u64, u64)>,
+        cancelled: &AtomicBool,
+    ) -> Result<Self, Error> {
+        check(cancelled)?;
+        if retained.columns() != self.columns || retained.players() != 1 {
+            return invalid("Projected grid does not match its editor timeline");
+        }
+        let mut entries = Vec::new();
+        let mut found = 0;
+        for entry in self.entries.iter().copied() {
+            check(cancelled)?;
+            match entry.kind {
+                EntryKind::Head {
+                    position,
+                    kind,
+                    end,
+                } => {
+                    if let Some(note) = retained.get(position) {
+                        if note.kind != kind
+                            || note.end.is_some() != end.is_some()
+                            || note.end.zip(end).is_some_and(|(new, old)| new > old)
+                        {
+                            return invalid(
+                                "Timeline projection only supports removal and hold shortening",
+                            );
+                        }
+                        entries.push(Entry {
+                            kind: EntryKind::Head {
+                                position,
+                                kind,
+                                end: note.end,
+                            },
+                            ..entry
+                        });
+                        found += 1;
+                    }
+                }
+                _ => entries.push(entry),
+            }
+        }
+        let mut expected = 0;
+        for _ in retained.iter() {
+            check(cancelled)?;
+            expected += 1;
+        }
+        if found != expected {
+            return invalid("Projected notes were not present in the original timeline");
+        }
+        if let Some((start, end)) = region {
+            valid_row(start)?;
+            valid_row(end)?;
+            if start > end {
+                return invalid("Invalid projected pattern region");
+            }
+            if !entries.iter().any(|entry| {
+                entry.row == start && matches!(entry.kind,EntryKind::Region {end:old} if old==end)
+            }) {
+                let entry = Entry {
+                    row: start,
+                    kind: EntryKind::Region { end },
+                    time: self.query(start, Some(9))?,
+                };
+                let index = entries
+                    .partition_point(|existing| event_cmp(existing.key(), entry.key()).is_le());
+                entries.insert(index, entry);
+            }
+        }
+        let mut heads = Vec::new();
+        for head in self.heads.iter().copied() {
+            check(cancelled)?;
+            if retained.get(head.position).is_some() {
+                heads.push(head);
+            }
+        }
+        let mut rates = Vec::with_capacity(self.rates.len());
+        for rate in self.rates.iter().copied() {
+            check(cancelled)?;
+            rates.push(rate);
+        }
+        check(cancelled)?;
+        Ok(Self {
+            columns: self.columns,
+            entries,
+            rates,
+            heads,
+        })
+    }
+
+    /// Extract complete hold pairs and local non-timing metadata, then include
+    /// every global timing event exactly as the original pattern action does.
+    /// Frames retain the time of the first included event at their row.
+    pub fn prepare_region(
+        &self,
+        grid: &Grid,
+        range: Option<(u64, u64)>,
+        cancelled: &AtomicBool,
+    ) -> Result<PreparedRegion, Error> {
+        use super::expressed;
+        check(cancelled)?;
+        if grid.columns() != self.columns || grid.players() != 1 {
+            return invalid("Context grid does not match its timeline");
+        }
+        if let Some((start, end)) = range {
+            valid_row(start)?;
+            valid_row(end)?;
+        }
+        let (selected, head_events) =
+            if let Some((start, end)) = range.filter(|(start, end)| start <= end) {
+                pattern_region::extract(grid, 0, start, end, cancelled)?
+            } else {
+                (Grid::new(grid.columns(), 1)?, Vec::new())
+            };
+        let mut included: Vec<(u64, u8, u16, f64)> = Vec::new();
+        for (position, note) in selected.iter() {
+            check(cancelled)?;
+            let probe = Entry {
+                row: position.row,
+                kind: EntryKind::Head {
+                    position,
+                    kind: note.kind,
+                    end: note.end,
+                },
+                time: 0.0,
+            };
+            let index = self
+                .entries
+                .binary_search_by(|entry| event_cmp(entry.key(), probe.key()))
+                .map_err(|_| {
+                    Error::InvalidEdit("Context head is absent from its timeline".into())
+                })?;
+            let original = self.entries[index];
+            if !matches!(original.kind,EntryKind::Head {kind,end,..} if kind==note.kind && end==note.end)
+            {
+                return invalid("Context hold differs from its timeline");
+            }
+            included.push((position.row, probe.order(), position.lane, original.time));
+            if let Some(end) = note.end {
+                included.push((end, 11, position.lane, self.query(end, Some(11))?));
+            }
+        }
+        let mut metadata = Vec::new();
+        for entry in self.entries.iter().copied() {
+            check(cancelled)?;
+            if let EntryKind::Timing(kind) = entry.kind {
+                let clock = matches!(
+                    kind,
+                    EventKind::TimeSignature
+                        | EventKind::Tempo(_)
+                        | EventKind::Stop(_)
+                        | EventKind::Delay(_)
+                        | EventKind::Warp(_)
+                );
+                let local =
+                    range.is_some_and(|(start, end)| start <= entry.row && entry.row <= end);
+                if clock || local {
+                    included.push((entry.row, entry.order(), 0, entry.time));
+                }
+                if !clock && local {
+                    metadata.push((
+                        entry.row,
+                        entry.order(),
+                        0,
+                        ContextEvent {
+                            row: entry.row,
+                            lane: None,
+                            is_step: false,
+                        },
+                    ));
+                }
+            }
+        }
+        included.sort_by(|a, b| event_cmp((a.0, a.1, a.2), (b.0, b.1, b.2)));
+        let frames = expressed::frames(&selected, 0, cancelled)?;
+        let mut times = Vec::with_capacity(frames.len());
+        for frame in &frames {
+            check(cancelled)?;
+            let index = included.partition_point(|event| event.0 < frame.row);
+            let first = included
+                .get(index)
+                .filter(|event| event.0 == frame.row)
+                .ok_or_else(|| Error::InvalidEdit("Context frame has no timed event".into()))?;
+            times.push(first.3);
+        }
+        let overlaps = if let Some((start, _)) = range {
+            selected
+                .iter()
+                .filter(|(position, note)| note.end.is_some() && position.row <= start)
+                .count()
+        } else {
+            0
+        };
+        let mut editor_events = head_events[..overlaps].to_vec();
+        for event in &head_events[overlaps..] {
+            check(cancelled)?;
+            let position = Position {
+                player: 0,
+                lane: event.lane.unwrap(),
+                row: event.row,
+            };
+            let note = selected.get(position).unwrap();
+            let entry = Entry {
+                row: position.row,
+                kind: EntryKind::Head {
+                    position,
+                    kind: note.kind,
+                    end: note.end,
+                },
+                time: 0.0,
+            };
+            metadata.push((event.row, entry.order(), position.lane, *event));
+        }
+        metadata.sort_by(|a, b| event_cmp((a.0, a.1, a.2), (b.0, b.1, b.2)));
+        editor_events.extend(metadata.into_iter().map(|event| event.3));
+        let event_span = [
+            included.first().map_or(0.0, |event| event.3),
+            included.last().map_or(0.0, |event| event.3),
+        ];
+        check(cancelled)?;
+        Ok(PreparedRegion {
+            frames,
+            times,
+            event_span,
+            editor_events,
+        })
+    }
+
     pub fn heads(&self) -> &[TimedHead] {
         &self.heads
     }
@@ -337,6 +572,23 @@ impl EditorTimeline {
         Ok(nps)
     }
 }
+pub struct PreparedRegion {
+    pub frames: Vec<super::expressed::Frame>,
+    pub times: Vec<f64>,
+    pub event_span: [f64; 2],
+    pub editor_events: Vec<ContextEvent>,
+}
+impl PreparedRegion {
+    pub fn request(&self, difficulty: f64) -> super::expressed::PolicyRequest<'_> {
+        super::expressed::PolicyRequest {
+            frames: &self.frames,
+            times: &self.times,
+            event_span: self.event_span,
+            difficulty,
+        }
+    }
+}
+
 fn check(cancelled: &AtomicBool) -> Result<(), Error> {
     if cancelled.load(Ordering::Relaxed) {
         return invalid("Editor timing preparation cancelled");
@@ -357,4 +609,16 @@ fn finite(value: f64) -> Result<(), Error> {
 }
 fn invalid<T>(message: &str) -> Result<T, Error> {
     Err(Error::InvalidEdit(message.into()))
+}
+
+// SMEventComparer compares lanes before types whenever both events are notes.
+fn event_cmp(a: (u64, u8, u16), b: (u64, u8, u16)) -> std::cmp::Ordering {
+    a.0.cmp(&b.0).then_with(|| {
+        let lane = |order| matches!(order, 8 | 10 | 11 | 12);
+        if lane(a.1) && lane(b.1) {
+            a.2.cmp(&b.2).then(a.1.cmp(&b.1))
+        } else {
+            a.1.cmp(&b.1)
+        }
+    })
 }

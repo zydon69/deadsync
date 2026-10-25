@@ -146,7 +146,7 @@ fn density_fake_flags_end_times_and_rate_queries_match_unchanged_editor_methods(
             "{name} pattern NPS"
         );
     }
-    assert_eq!(count, 29, "Every committed editor timing case must run");
+    assert_eq!(count, 31, "Every committed editor timing case must run");
 }
 #[test]
 fn editor_timing_rejects_cancelled_invalid_and_overflowing_inputs() {
@@ -223,4 +223,393 @@ fn source_reuse_keeps_effective_timing_and_metadata_with_original_grid_unchanged
     assert_eq!(prepared.times[0], 0.4);
     assert_eq!(events.len(), 3);
     assert_eq!(source.grid, original);
+}
+
+#[test]
+fn projected_timing_and_context_regions_match_original_deletion_and_extraction() {
+    use deadsync_editor::generation::pattern_region;
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/grooveauthor");
+    let mut count = 0;
+    for entry in fs::read_dir(&root).unwrap() {
+        let path = entry.unwrap().path();
+        let name = path.file_name().unwrap().to_string_lossy();
+        if !name.starts_with("editor-timing-") || !name.ends_with(".request.json") {
+            continue;
+        }
+        count += 1;
+        let input: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+        let expected: Value = serde_json::from_slice(
+            &fs::read(root.join(name.replace(".request.json", ".expected.json"))).unwrap(),
+        )
+        .unwrap();
+        let expected = &expected["Projected"];
+        let options = &input["Projection"];
+        let original = grid(&input);
+        let timing = timing(&input);
+        let loaded_region = input["Region"]
+            .as_array()
+            .map(|values| (values[0].as_u64().unwrap(), values[1].as_u64().unwrap()));
+        let timeline =
+            EditorTimeline::build(&timing, &original, loaded_region, &AtomicBool::new(false))
+                .unwrap();
+        let (edits, report) = pattern_region::deletion_edits(
+            &original,
+            0,
+            options["Start"].as_u64().unwrap(),
+            options["End"].as_u64().unwrap(),
+            options["Spacing"].as_u64().unwrap(),
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        let mut retained = original.clone();
+        for (position, note) in edits {
+            retained.set(position, note).unwrap();
+        }
+        let region = options["Region"].as_array().unwrap();
+        let region = (region[0].as_u64().unwrap(), region[1].as_u64().unwrap());
+        let projected = timeline
+            .project(&retained, Some(region), &AtomicBool::new(false))
+            .unwrap();
+        assert_eq!(
+            report.removed as u64,
+            expected["Removed"].as_u64().unwrap(),
+            "{name}"
+        );
+        assert_eq!(
+            report.shortened_holds as u64,
+            expected["Shortened"].as_u64().unwrap(),
+            "{name}"
+        );
+        assert_eq!(
+            projected.heads().len(),
+            expected["Heads"].as_array().unwrap().len(),
+            "{name}"
+        );
+        for (head, reference) in projected
+            .heads()
+            .iter()
+            .zip(expected["Heads"].as_array().unwrap())
+        {
+            assert_eq!(
+                head.position.row,
+                reference["Row"].as_u64().unwrap(),
+                "{name}"
+            );
+            assert_eq!(
+                u64::from(head.position.lane),
+                reference["Lane"].as_u64().unwrap(),
+                "{name}"
+            );
+            assert_eq!(
+                head.time,
+                reference["Time"].as_f64().unwrap(),
+                "{name} projected time"
+            );
+            assert_eq!(
+                head.fake,
+                reference["Fake"].as_bool().unwrap(),
+                "{name} projected fake"
+            );
+            assert_eq!(
+                retained.get(head.position).unwrap().end,
+                reference["End"].as_u64(),
+                "{name} shortened hold"
+            );
+        }
+        assert_eq!(
+            projected.step_count() as u64,
+            expected["StepCount"].as_u64().unwrap(),
+            "{name}"
+        );
+        assert_eq!(
+            projected.chart_end().unwrap(),
+            expected["End"].as_f64().unwrap(),
+            "{name} projected chart end"
+        );
+        assert_eq!(
+            projected
+                .pattern_nps(
+                    options["NumSteps"].as_u64().unwrap(),
+                    options["End"].as_u64().unwrap()
+                )
+                .unwrap(),
+            expected["Nps"].as_f64().unwrap(),
+            "{name} projected NPS"
+        );
+        for (range, reference) in options["Ranges"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .zip(expected["Regions"].as_array().unwrap())
+        {
+            let range = range[1]
+                .as_u64()
+                .map(|end| (range[0].as_u64().unwrap(), end));
+            let prepared = projected
+                .prepare_region(&retained, range, &AtomicBool::new(false))
+                .unwrap();
+            assert_eq!(
+                prepared.event_span,
+                serde_json::from_value::<[f64; 2]>(reference["Span"].clone()).unwrap(),
+                "{name} context span {range:?}"
+            );
+            for (frame, time) in prepared.frames.iter().zip(&prepared.times) {
+                let group = reference["Groups"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .find(|group| group["Row"].as_u64().unwrap() == frame.row)
+                    .unwrap();
+                assert_eq!(
+                    *time,
+                    group["Time"].as_f64().unwrap(),
+                    "{name} context row {}",
+                    frame.row
+                );
+            }
+            let actual=prepared.editor_events.iter().map(|event|serde_json::json!({"Row":event.row,"Lane":event.lane.map(i64::from).unwrap_or(-1),"Step":event.is_step})).collect::<Vec<_>>();
+            assert_eq!(
+                serde_json::json!(actual),
+                reference["EditorEvents"],
+                "{name} editor context order {range:?}"
+            );
+        }
+        assert_eq!(original, grid(&input), "{name} immutable original");
+    }
+    assert_eq!(count, 31);
+}
+#[test]
+fn projections_reject_new_or_altered_heads_and_do_not_retime_survivors() {
+    let timing = GenerationTiming::new(vec![
+        Event {
+            row: 0,
+            kind: EventKind::Tempo(187.3),
+        },
+        Event {
+            row: 48,
+            kind: EventKind::Warp(144),
+        },
+        Event {
+            row: 63,
+            kind: EventKind::TimeSignature,
+        },
+        Event {
+            row: 120,
+            kind: EventKind::Stop(-0.25),
+        },
+    ])
+    .unwrap();
+    let mut original = Grid::new(4, 1).unwrap();
+    let position = Position {
+        player: 0,
+        lane: 0,
+        row: 0,
+    };
+    original
+        .set(
+            position,
+            Some(Note {
+                kind: Kind::Hold,
+                end: Some(240),
+                ..Note::tap()
+            }),
+        )
+        .unwrap();
+    original
+        .set(
+            Position {
+                player: 0,
+                lane: 1,
+                row: 60,
+            },
+            Some(Note::tap()),
+        )
+        .unwrap();
+    let timeline =
+        EditorTimeline::build(&timing, &original, None, &AtomicBool::new(false)).unwrap();
+    let mut retained = original.clone();
+    let mut shortened = retained.get(position).unwrap().clone();
+    shortened.end = Some(36);
+    retained.set(position, Some(shortened)).unwrap();
+    let projected = timeline
+        .project(&retained, Some((48, 97)), &AtomicBool::new(false))
+        .unwrap();
+    for (actual, previous) in projected.heads().iter().zip(timeline.heads()) {
+        assert_eq!(actual.time, previous.time);
+        assert_eq!(actual.fake, previous.fake);
+    }
+    assert!(
+        timeline
+            .project(&original, None, &AtomicBool::new(true))
+            .is_err()
+    );
+    assert!(
+        projected
+            .prepare_region(&retained, Some((0, 47)), &AtomicBool::new(true))
+            .is_err()
+    );
+    assert!(
+        projected
+            .prepare_region(
+                &retained,
+                Some((0, i32::MAX as u64 + 1)),
+                &AtomicBool::new(false)
+            )
+            .is_err()
+    );
+    let mut altered = original.clone();
+    altered.set(position, Some(Note::tap())).unwrap();
+    assert!(
+        timeline
+            .project(&altered, None, &AtomicBool::new(false))
+            .is_err()
+    );
+    let mut inserted = original.clone();
+    inserted
+        .set(
+            Position {
+                player: 0,
+                lane: 2,
+                row: 72,
+            },
+            Some(Note::tap()),
+        )
+        .unwrap();
+    assert!(
+        timeline
+            .project(&inserted, None, &AtomicBool::new(false))
+            .is_err()
+    );
+    let mut extended = original.clone();
+    extended
+        .set(
+            position,
+            Some(Note {
+                kind: Kind::Hold,
+                end: Some(288),
+                ..Note::tap()
+            }),
+        )
+        .unwrap();
+    assert!(
+        timeline
+            .project(&extended, None, &AtomicBool::new(false))
+            .is_err()
+    );
+}
+
+#[test]
+fn native_chart_conversion_uses_editor_assigned_times() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::{
+            config::{BracketDetermination, ExpressedConfig},
+            job::{ChartOptions, ChartTask},
+        },
+        history::Session,
+    };
+    use std::sync::Arc;
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/grooveauthor");
+    let mut count = 0;
+    for entry in fs::read_dir(&root).unwrap() {
+        let path = entry.unwrap().path();
+        let name = path.file_name().unwrap().to_string_lossy();
+        if !name.starts_with("editor-timing-") || !name.ends_with(".request.json") {
+            continue;
+        }
+        let input: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+        // Persisted pattern markers and missing-tempo loader defaults are separate contracts.
+        if input.get("Region").is_some()
+            || !input["Timing"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|v| v[1] == "tempo")
+        {
+            continue;
+        }
+        let expected: Value = serde_json::from_slice(
+            &fs::read(root.join(name.replace(".request.json", ".expected.json"))).unwrap(),
+        )
+        .unwrap();
+        let mut tags = std::collections::BTreeMap::<&str, Vec<String>>::new();
+        for value in input["Timing"].as_array().unwrap() {
+            let beat = value[0].as_f64().unwrap() / 48.0;
+            let (tag, data) = match value[1].as_str().unwrap() {
+                "tempo" => ("BPMS", value[2].to_string()),
+                "signature" => ("TIMESIGNATURES", "4=4".into()),
+                "stop" => ("STOPS", value[2].to_string()),
+                "delay" => ("DELAYS", value[2].to_string()),
+                "warp" => ("WARPS", (value[2].as_f64().unwrap() / 48.0).to_string()),
+                "fake" => ("FAKES", (value[2].as_f64().unwrap() / 48.0).to_string()),
+                "scroll" => ("SCROLLS", value[2].to_string()),
+                "speed" => ("SPEEDS", "1=1=0".into()),
+                "label" => ("LABELS", "label".into()),
+                "tick" => ("TICKCOUNTS", "4".into()),
+                "combo" => ("COMBOS", "1=1".into()),
+                _ => panic!("Unknown fixture timing"),
+            };
+            tags.entry(tag).or_default().push(format!("{beat}={data}"));
+        }
+        let mut bytes = b"#VERSION:0.83;".to_vec();
+        for (tag, values) in tags {
+            bytes.extend_from_slice(format!("#{tag}:{};", values.join(",")).as_bytes());
+        }
+        bytes.extend_from_slice(b"#NOTEDATA:;#STEPSTYPE:dance-single;#METER:9;#NOTES:");
+        bytes.extend(grid(&input).serialize().unwrap());
+        bytes.push(b';');
+        let session = Session::new(Document::parse(Arc::<[u8]>::from(bytes), Format::Ssc).unwrap());
+        let mut options = ChartOptions::balanced("dance-double");
+        options.seed = 42;
+        options.expressed = ExpressedConfig {
+            bracket_parsing_determination: BracketDetermination::UseDefaultMethod,
+            ..ExpressedConfig::default()
+        };
+        options.performed =
+            serde_json::from_value(input["Conversion"]["PerformedConfig"].clone()).unwrap();
+        let result = ChartTask::capture(&session, 0, options)
+            .unwrap()
+            .run(&AtomicBool::new(false), |_| {});
+        assert_eq!(
+            result.is_ok(),
+            expected["Conversion"]["Success"].as_bool().unwrap(),
+            "{name}"
+        );
+        if let Ok(preview) = result {
+            let mut actual = Vec::new();
+            for (position, note) in preview.grid().iter() {
+                let symbol = match note.kind {
+                    Kind::Tap => "1",
+                    Kind::Hold => "2",
+                    Kind::Roll => "4",
+                    Kind::Mine => "M",
+                    Kind::Fake => "F",
+                    Kind::Lift => "L",
+                    _ => panic!("Unexpected output"),
+                };
+                actual.push((position.row, u64::from(position.lane), symbol.to_owned()));
+                if let Some(end) = note.end {
+                    actual.push((end, u64::from(position.lane), "3".to_owned()));
+                }
+            }
+            let mut reference = expected["Conversion"]["Notes"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|v| {
+                    (
+                        v["Row"].as_u64().unwrap(),
+                        v["Lane"].as_u64().unwrap(),
+                        v["Symbol"].as_str().unwrap().to_owned(),
+                    )
+                })
+                .collect::<Vec<_>>();
+            actual.sort();
+            reference.sort();
+            reference.dedup();
+            assert_eq!(actual, reference, "{name}");
+        }
+        count += 1;
+    }
+    assert_eq!(count, 28);
 }

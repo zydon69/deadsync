@@ -103,7 +103,7 @@ pub fn extract(
         }
     }
     overlapping.sort_by_key(|event| event.lane);
-    normal.sort_by_key(|event| (event.row, note_order(grid, player, *event), event.lane));
+    normal.sort_by_key(|event| (event.row, event.lane, note_order(grid, player, *event)));
     overlapping.extend(normal);
     Ok((selected, overlapping))
 }

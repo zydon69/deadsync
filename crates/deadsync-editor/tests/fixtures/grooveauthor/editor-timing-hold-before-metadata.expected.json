@@ -1,4 +1,97 @@
 {
+  "Conversion": {
+    "Success": true,
+    "Notes": [
+      {
+        "Row": 0,
+        "Lane": 3,
+        "Symbol": "2"
+      },
+      {
+        "Row": 960,
+        "Lane": 3,
+        "Symbol": "3"
+      }
+    ]
+  },
+  "Projected": {
+    "Heads": [
+      {
+        "Row": 0,
+        "Lane": 0,
+        "Symbol": "2",
+        "Time": 0,
+        "Fake": false,
+        "End": 36
+      }
+    ],
+    "StepCount": 1,
+    "End": 1.6,
+    "Nps": 3.75,
+    "Regions": [
+      {
+        "Span": [
+          0,
+          0.3
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 36,
+            "Time": 0.3
+          }
+        ],
+        "EditorEvents": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Step": true
+          }
+        ]
+      },
+      {
+        "Span": [
+          0,
+          1.6
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 192,
+            "Time": 1.6
+          }
+        ],
+        "EditorEvents": [
+          {
+            "Row": 192,
+            "Lane": -1,
+            "Step": false
+          }
+        ]
+      },
+      {
+        "Span": [
+          0,
+          0
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          }
+        ],
+        "EditorEvents": []
+      }
+    ],
+    "Removed": 0,
+    "Shortened": 1
+  },
   "Heads": [
     {
       "Row": 0,

@@ -133,7 +133,8 @@ impl ChartTask {
     ) -> Result<ChartPreview, Error> {
         check(cancelled)?;
         progress(Progress::default());
-        let prepared = source::prepare(self.bytes, self.format, self.source_chart, cancelled)?;
+        let prepared =
+            source::prepare_editor(self.bytes, self.format, self.source_chart, cancelled)?;
         check(cancelled)?;
         let source_graph = StepGraph::builtin(&prepared.layout)?;
         let interpreted = expressed::build_chart(

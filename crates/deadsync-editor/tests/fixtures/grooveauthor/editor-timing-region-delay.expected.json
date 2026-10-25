@@ -1,4 +1,69 @@
 {
+  "Conversion": {
+    "Success": true,
+    "Notes": []
+  },
+  "Projected": {
+    "Heads": [],
+    "StepCount": 0,
+    "End": 3.6,
+    "Nps": 1.3888888888888888,
+    "Regions": [
+      {
+        "Span": [
+          0,
+          3.2
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 384,
+            "Time": 3.2
+          }
+        ],
+        "EditorEvents": []
+      },
+      {
+        "Span": [
+          0,
+          3.2
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 384,
+            "Time": 3.2
+          }
+        ],
+        "EditorEvents": []
+      },
+      {
+        "Span": [
+          0,
+          3.2
+        ],
+        "Groups": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 384,
+            "Time": 3.2
+          }
+        ],
+        "EditorEvents": []
+      }
+    ],
+    "Removed": 0,
+    "Shortened": 0
+  },
   "Heads": [],
   "StepCount": 0,
   "End": 3.6,

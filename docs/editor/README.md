@@ -423,8 +423,9 @@ estimate chosen merely to match the existing tests.
 ### Editor timing and pattern-density decisions
 
 `source::read` now creates an owned SourceChart (grid, effective timing,
-layout and difficulty). Chart conversion retains its existing `prepare` entry
-point. Alternate grids can reuse the same parsed source without changing the
+layout and difficulty). Native chart conversion now uses `prepare_editor`,
+which retains editor-assigned times like the original GenerateSmEvents action.
+The standalone `prepare` entry point retains Fumen clock semantics. Alternate grids can reuse the same parsed source without changing the
 original grid or live editor. Attack-note rejection and unsupported participant
 checks remain explicit.
 
@@ -450,7 +451,7 @@ The development oracle compiles nine unchanged method bodies from the pinned
 editor: timing refresh, rate refresh, position/time queries, negative-stop end
 refresh, chart start/end, and pattern GetNps. Minimal containers/accessors replace
 UI/tree plumbing; the test does not run the whole GrooveAuthor editor or its file
-loader. Provenance records the additional method hash. Twenty-nine committed
+loader. Provenance records the extracted method hashes. Thirty-one committed
 cases compare exact f64 head times, fake flags, step counts, chart ends, position
 queries and NPS. Cases include simultaneous events, zero-delay guards, nested
 warps/fakes, time signatures inside warps, negative-stop stacks, long holds before
@@ -459,22 +460,28 @@ ends, missing tempo and zero duration. Tests also reject cancelled, invalid and
 numerically unrepresentable inputs, and reuse chart-local timing without altering
 the original source grid.
 
-The remaining pattern adapter must retain the whole editor timeline's assigned
-times when extracting preceding/following regions. Recomputing Fumen times from
-an isolated region is not equivalent, especially for warp/time-signature changes
-and stop clamping. The first included event of each row and the full included
-event span must come from those assigned times. Global timing events and local
-non-timing metadata also have different inclusion rules in the original action.
-Lane-only deletion in the original action retains already assigned times and
-fake flags on surviving heads and rate events. The final adapter must project
-those retained events and shortened holds onto the existing timeline, rather
-than refresh a cleared grid and accidentally change floating-point clamp history.
-A newly inserted pattern event also needs the original active-rate query behavior;
-the optional region in these timing-refresh fixtures models an event already
-present during that refresh. Existing loaded markers and newly inserted markers
-must be distinguished when wiring the live action.
-These are required before connecting native pattern jobs; the clock tests alone
-do not prove the full source-to-pattern workflow.
+`EditorTimeline::project` now preserves surviving assigned times, fake flags and
+rate states after lane-only deletion, validates shortened sustains, and inserts a
+new pattern marker using the typed active-rate query. `prepare_region` extracts
+complete hold pairs, global clock events and local metadata without recomputing
+an isolated Fumen timeline. It retains the first included event's time per row
+and the full included event span. The development oracle additionally compiles
+unchanged original region extraction and deletion helpers. All 31 cases compare
+these projected regions, including empty ranges and shortened tails. Mixed note
+kinds on one row verify the original lane-before-type comparison.
+
+A separate native ChartTask test serializes 28 of these cases as SSC and compares
+the generated double-chart notes against the original library consuming the
+editor-assigned events. Loaded pattern markers and missing-tempo loader defaults
+are excluded from this test and remain separate unfinished contracts. This is
+not a claim of complete original file-loader fidelity, especially for keysounds.
+
+The remaining pattern adapter must connect these projections, bounds, density,
+separate preceding/following interpretations and context derivation to the
+pattern kernel. Native pattern jobs and their interface remain unfinished.
+Repeated live edits also need timeline cache semantics: rebuilding after each
+edit can change floating-point clamp history. These tests alone do not prove
+the full source-to-pattern workflow or the complete editor port.
 
 Reader normalization for invalid/conflicting timing entries, unsupported attack
 timing, existing persisted pattern metadata, previews/last-second hints and wider

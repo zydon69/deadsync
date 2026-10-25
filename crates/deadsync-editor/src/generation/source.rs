@@ -127,6 +127,54 @@ pub fn prepare(
     source.prepare_grid(&source.grid, cancelled)
 }
 
+/// Native editor conversion mirrors GenerateSmEvents: consume the editor's
+/// assigned event times, rather than recompute the standalone Fumen clock.
+pub fn prepare_editor(
+    bytes: Arc<[u8]>,
+    format: Format,
+    chart: usize,
+    cancelled: &AtomicBool,
+) -> Result<PreparedChart, Error> {
+    let source = read(bytes, format, chart, cancelled)?;
+    let timeline =
+        super::editor_timing::EditorTimeline::build(&source.timing, &source.grid, None, cancelled)?;
+    let region = timeline.prepare_region(&source.grid, Some((0, i32::MAX as u64)), cancelled)?;
+    let mut mines = timeline
+        .heads()
+        .iter()
+        .filter(|head| head.kind == Kind::Mine)
+        .map(|head| SourceMine {
+            row: head.position.row,
+            lane: head.position.lane,
+            time: head.time,
+        })
+        .collect::<Vec<_>>();
+    mines.sort_by_key(|mine| (mine.row, mine.lane));
+    if cancelled.load(Ordering::Relaxed) {
+        return Err(Error::InvalidEdit(
+            "Generation preparation cancelled".into(),
+        ));
+    }
+    Ok(PreparedChart {
+        layout: source.layout,
+        frames: region.frames,
+        times: region.times,
+        event_span: region.event_span,
+        difficulty: source.difficulty,
+        mines,
+        source_notes: source
+            .grid
+            .iter()
+            .filter(|(_, note)| !matches!(note.kind, Kind::Mine | Kind::Keysound))
+            .count(),
+        ignored_keysounds: source
+            .grid
+            .iter()
+            .filter(|(_, note)| note.kind == Kind::Keysound)
+            .count(),
+    })
+}
+
 impl SourceChart {
     /// Recompute Fumen engine timestamps for this grid. GrooveAuthor pattern
     /// contexts instead retain their whole-editor timeline's assigned times;

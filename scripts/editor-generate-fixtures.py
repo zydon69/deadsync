@@ -37,12 +37,15 @@ def prepare_timing_reference(editor):
     rate = read("EditorEvents/EditorRateAlteringEvent.cs")
     stop = read("EditorEvents/EditorStopEvent.cs")
     density = read("EditorActions/ActionAutoGeneratePatterns.cs")
+    deletion = read("EditorActions/ActionDeletePatternNotes.cs")
     groups = {
         "CHART_METHODS": [extract_member(chart, r"\tprivate void " + name + r"\(") for name in ["RefreshEventTimingData", "RefreshRateAlteringEvents"]]
             + [extract_member(chart, r"\tpublic double " + name + r"\(") for name in ["GetStartChartTime", "GetEndChartTime"]]
             + [extract_member(chart, r"\tpublic bool TryGetTimeFromChartPosition\(")],
         "RATE_METHODS": [extract_member(rate, r"\tpublic double " + name + r"\(") for name in ["GetChartTimeFromPosition", "GetChartPositionFromTime"]],
         "STOP_METHODS": [extract_member(stop, r"\tpublic void RefreshEndChartPosition\(")],
+        "REGION_METHODS": [extract_member(chart, r"\tpublic \(List<Event>, List<EditorEvent>\) GetEventsInRangeForPattern\(")],
+        "DELETION_METHODS": [extract_member(deletion, r"\tpublic class Alterations\s*"), extract_member(deletion, r"\tpublic static Alterations DeleteEventsOverlappingPatterns\(")],
         "DENSITY_METHODS": [extract_member(density, r"\tprivate double GetNps\(")],
     }
     project = ROOT / "scripts/editor-oracle"
@@ -353,12 +356,16 @@ def requests(reference: Path):
         "last-tick": {"Extra": [[384, "tick", 4]]},
         "last-combo": {"Extra": [[384, "combo", 1]]},
         "last-speed": {"Extra": [[384, "speed", 1]]},
+        "mixed-row-order": {"Notes": [[0, 0, "2", 96], [0, 3, "4", 96], [0, 1, "1"], [0, 2, "M"], [108, 0, "L"], [108, 1, "1"], [108, 2, "F"]]},
+        "dense-warp-rounding": {"Notes": [[row, row % 4, "1"] for row in range(384)], "Timing": [[0, "signature", 4, 4], [0, "tempo", 187.3], [5, "warp", 300], [37, "signature", 3, 4]]},
     }
     for label, values in editor_cases.items():
         values = copy.deepcopy(values)
         extra = values.pop("Extra", [])
         cases["editor-timing-" + label] = {"Operation": "EditorTiming", "Timing": [[0, "signature", 4, 4], [0, "tempo", 150]] + extra,
             "Notes": copy.deepcopy(editor_notes), "Rows": [0, 12, 24, 48, 72, 96, 120, 144, 192, 240, 384, 768], "NumSteps": 17, "LastStep": 384, **values}
+        cases["editor-timing-" + label]["Conversion"] = {"PerformedConfig": copy.deepcopy(performed)}
+        cases["editor-timing-" + label]["Projection"] = {"Start": 48, "End": 96, "Spacing": 12, "Region": [48, 97], "NumSteps": 5, "Ranges": [[0, 47], [97, 768], [0, -1]]}
     return cases
 
 

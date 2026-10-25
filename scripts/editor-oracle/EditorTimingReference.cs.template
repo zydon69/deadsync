@@ -14,7 +14,9 @@ internal class Cursor<T>(IList<T> values, int index) {
     public bool MoveNext() { Index++; return Index>=0 && Index<values.Count; }
     public bool MovePrev() { Index--; return Index>=0 && Index<values.Count; }
 }
-internal class EventList<T> : List<T> {
+internal class EventList<T> : List<T> where T:EditorEvent {
+    public Cursor<T> FindBestByPosition(int row) {var index=FindIndex(e=>e.GetRow()>=row);return new(this,(index<0?Count:index)-1);}
+    public Cursor<T> FindLeastAtOrAfterChartPosition(int row)=>FindBestByPosition(row);
     public void Validate() { }
     public int GetCount() => Count;
     public Cursor<T> First() => new(this,-1);
@@ -35,6 +37,10 @@ internal class EditorEvent(EditorChart chart, Event data) {
     public virtual double GetEndChartTime() => Time;
     public virtual double GetEndChartPosition() => GetRow();
     public virtual bool IsStep() => false;
+    public virtual bool IsLaneNote()=>false;
+    public virtual int GetLane()=>-1;
+    public virtual Event GetEvent()=>Data;
+    public virtual Event? GetAdditionalEvent()=>null;
     public virtual bool IsFake() => Fake;
     public void SetIsFakeDueToRow(bool fake) => Fake=fake;
     public void SetRowDependencies(double time,short relative,short denominator,bool fake) {Time=time;Data.TimeSeconds=time;Fake=fake;}
@@ -42,13 +48,20 @@ internal class EditorEvent(EditorChart chart, Event data) {
 internal abstract class EditorPreviewRegionEvent(EditorChart chart, Event data) : EditorEvent(chart,data);
 internal class EditorNoteEvent(EditorChart chart,LaneNote data) : EditorEvent(chart,data) {
     public int Lane => data.Lane;
+    public override bool IsLaneNote()=>true;
+    public override int GetLane()=>data.Lane;
     public string Symbol => data.SourceType;
     public override bool IsStep() => Symbol is "1" or "2" or "4" or "F" or "L";
     public override bool IsFake() => base.IsFake() || Symbol == "F";
 }
 internal class EditorHoldNoteEvent(EditorChart chart,LaneHoldStartNote data,int end) : EditorNoteEvent(chart,data) {
     private double EndTime;
-    public void RefreshHoldEndTime() { EndTime=EditorChart.RateAlteringEvents.ForEvent(new LaneHoldEndNote {IntegerPosition=end}).GetChartTimeFromPosition(end); }
+    private int End=end;
+    public int GetRowDuration()=>End-GetRow();
+    public void SetRowDuration(int length) {End=GetRow()+length;RefreshHoldEndTime();}
+    public override double GetEndChartPosition()=>End;
+    public override Event GetAdditionalEvent()=>new LaneHoldEndNote {IntegerPosition=End,Lane=Lane,SourceType="3",TimeSeconds=EndTime};
+    public void RefreshHoldEndTime() { EndTime=EditorChart.RateAlteringEvents.ForEvent(new LaneHoldEndNote {IntegerPosition=End}).GetChartTimeFromPosition(End); }
     public override double GetEndChartTime() => EndTime;
 }
 internal class EditorRateAlteringEvent(EditorChart chart, Event data) : EditorEvent(chart,data) {
@@ -91,7 +104,11 @@ internal class EditorFakeSegmentEvent(EditorChart chart,FakeSegment data) : Edit
     public override double GetEndChartPosition() => GetRow()+data.LengthIntegerPosition;
     public override double GetEndChartTime() {double end=0;EditorChart.TryGetTimeFromChartPosition(GetEndChartPosition(),ref end);return end;}
 }
-internal class EditorPatternEvent(EditorChart chart,int row,int end) : EditorEvent(chart,new Pattern {IntegerPosition=row}) {
+internal class EditorPatternEvent(EditorChart chart,int row,int end,int spacing=12) : EditorEvent(chart,new Pattern {IntegerPosition=row}) {
+    public int GetNumSteps()=>Math.Max(0,(end-row)/spacing+1);
+    public int GetFirstStepRow()=>row;
+    public int GetLastStepRow()=>end;
+    public int GetStepSpacing()=>spacing;
     public override double GetEndChartPosition() => end;
     public override double GetEndChartTime() {double time=0;EditorChart.TryGetTimeFromChartPosition(end,ref time);return time;}
 }
@@ -123,7 +140,16 @@ internal class EditorChart {
     private void Notify(int notification,EditorChart chart) { }
     public RateTree GetRateAlteringEvents()=>RateAlteringEvents;
     public Totals GetStepTotals()=>new(this);
+    public EventList<EditorEvent> GetEvents()=>EditorEvents;
+    public EditorHoldNoteEvent?[] GetHoldsOverlappingPosition(int row) {
+        var result=new EditorHoldNoteEvent?[4];
+        foreach(var hold in EditorEvents.OfType<EditorHoldNoteEvent>()) if(hold.GetRow()<=row && hold.GetEndChartPosition()>=row) result[hold.Lane]=hold;
+        return result;
+    }
+    public void DeleteEvents(IEnumerable<EditorEvent> values) {var set=values.ToHashSet();EditorEvents.RemoveAll(set.Contains);}
+    public void AddEvents(IEnumerable<EditorEvent> values) {EditorEvents.AddRange(values.Where(value=>!EditorEvents.Contains(value)).Distinct());EditorEvents.Sort((a,b)=>new SMEventComparer(EventOrder.Order).Compare(a.Data,b.Data));}
     public void Refresh() {EditorEvents.Sort((a,b)=>new SMEventComparer(EventOrder.Order).Compare(a.Data,b.Data));RateAlteringEvents.AddRange(EditorEvents.OfType<EditorRateAlteringEvent>());Holds.AddRange(EditorEvents.OfType<EditorHoldNoteEvent>());RefreshEventTimingData();}
+    // REGION_METHODS
     // CHART_METHODS
 }
 internal class DensityReference(EditorChart chart,int count,int last) {
@@ -133,8 +159,11 @@ internal class DensityReference(EditorChart chart,int count,int last) {
     public double Run()=>GetNps();
     // DENSITY_METHODS
 }
+internal static class PatternDeletionReference {
+    // DELETION_METHODS
+}
 internal static class Reference {
-    public static object Run(JsonElement request) {
+    public static object Run(JsonElement request,string referenceRoot) {
         var chart=new EditorChart();
         foreach(var item in request.GetProperty("Timing").EnumerateArray()) {
             var row=item[0].GetInt32(); var kind=item[1].GetString();
@@ -162,11 +191,59 @@ internal static class Reference {
         }
         if(request.TryGetProperty("Region",out var region)) chart.EditorEvents.Add(new EditorPatternEvent(chart,region[0].GetInt32(),region[1].GetInt32()));
         chart.Refresh();
+        var originalHeads=chart.EditorEvents.OfType<EditorNoteEvent>().Select(note=>new {Row=note.GetRow(),Lane=note.Lane,Symbol=note.Symbol,Time=note.GetChartTime(),Fake=note.IsFake()}).ToArray();
+        var originalCount=chart.GetStepTotals().GetStepCount();var originalEnd=chart.GetEndChartTime();
+        var originalNps=new DensityReference(chart,request.GetProperty("NumSteps").GetInt32(),request.GetProperty("LastStep").GetInt32()).Run();
+        object? conversion=null;
+        if(request.TryGetProperty("Conversion",out var conversionOptions)) {
+            var sourcePad=PadData.LoadPadData("dance-single",System.IO.Path.Combine(referenceRoot,"StepManiaLibrary","dance-single.json")).GetAwaiter().GetResult();
+            var sourceGraph=StepGraph.Load(System.IO.Path.Combine(referenceRoot,"StepManiaLibrary","dance-single.fsg"),sourcePad);
+            var targetPad=PadData.LoadPadData("dance-double",System.IO.Path.Combine(referenceRoot,"StepManiaLibrary","dance-double.json")).GetAwaiter().GetResult();
+            var targetGraph=StepGraph.Load(System.IO.Path.Combine(referenceRoot,"StepManiaLibrary","dance-double.fsg"),targetPad);
+            var events=new List<Event>();
+            foreach(var entry in chart.EditorEvents.Where(e=>e is not EditorPatternEvent)) {events.Add(entry.GetEvent());var tail=entry.GetAdditionalEvent();if(tail!=null)events.Add(tail);}
+            events.Sort(new SMEventComparer());
+            var expression=new StepManiaLibrary.ExpressedChart.Config {BracketParsingDetermination=StepManiaLibrary.ExpressedChart.BracketParsingDetermination.UseDefaultMethod,DefaultBracketParsingMethod=StepManiaLibrary.ExpressedChart.BracketParsingMethod.Balanced};expression.Init();
+            var expressed=StepManiaLibrary.ExpressedChart.ExpressedChart.CreateFromSMEvents(events,sourceGraph,expression,9.0,"Oracle");
+            var config=JsonSerializer.Deserialize<StepManiaLibrary.PerformedChart.Config>(conversionOptions.GetProperty("PerformedConfig"),new JsonSerializerOptions {IncludeFields=true})!;config.Init();
+            var roots=new List<List<GraphNode>> {new(){targetGraph.GetRoot()}};
+            for(var tier=1;tier<targetPad.StartingPositions.Length;tier++)roots.Add(targetPad.StartingPositions[tier].Select(pos=>targetGraph.FindGraphNode(pos[0],GraphArrowState.Resting,pos[1],GraphArrowState.Resting)).ToList());
+            var performed=expressed==null?null:StepManiaLibrary.PerformedChart.PerformedChart.CreateFromExpressedChart(targetGraph,config,roots,null,expressed,42,"Oracle");
+            conversion=new {Success=performed!=null,Notes=performed?.CreateSMChartEvents().OfType<LaneNote>().Select(note=>new {Row=note.IntegerPosition,Lane=note.Lane,Symbol=note.SourceType}).ToArray()};
+        }
+        object? projected=null;
+        if(request.TryGetProperty("Projection",out var projection)) {
+            var start=projection.GetProperty("Start").GetInt32();var end=projection.GetProperty("End").GetInt32();var spacing=projection.GetProperty("Spacing").GetInt32();
+            var pattern=new EditorPatternEvent(chart,start,end,spacing);
+            var changes=PatternDeletionReference.DeleteEventsOverlappingPatterns(chart,new[]{pattern});
+            var rawRegion=projection.GetProperty("Region");
+            var marker=new EditorPatternEvent(chart,rawRegion[0].GetInt32(),rawRegion[1].GetInt32(),spacing);
+            marker.SetRowDependencies(chart.RateAlteringEvents.ForEvent(marker.Data).GetChartTimeFromPosition(marker.GetRow()),0,4,false);
+            chart.AddEvents(new[]{marker});
+            var regions=new List<object>();
+            foreach(var range in projection.GetProperty("Ranges").EnumerateArray()) {
+                var (events,editorEvents)=chart.GetEventsInRangeForPattern(range[0].GetInt32(),range[1].GetInt32());
+                events.AddRange(chart.RateAlteringEvents.Select(rate=>rate.GetEvent()).Where(DoesEventAffectTiming));
+                events.Sort(new SMEventComparer());
+                regions.Add(new {
+                    Span=new[]{events.FirstOrDefault()?.TimeSeconds??0.0,events.LastOrDefault()?.TimeSeconds??0.0},
+                    Groups=events.GroupBy(e=>e.IntegerPosition).Select(group=>new {Row=group.Key,Time=group.First().TimeSeconds}).ToArray(),
+                    EditorEvents=editorEvents.Select(e=>new {Row=e.GetRow(),Lane=e.GetLane(),Step=e.IsStep()}).ToArray()
+                });
+            }
+            projected=new {
+                Heads=chart.EditorEvents.OfType<EditorNoteEvent>().Select(note=>new {Row=note.GetRow(),Lane=note.Lane,Symbol=note.Symbol,Time=note.GetChartTime(),Fake=note.IsFake(),End=note is EditorHoldNoteEvent hold?(int?)hold.GetEndChartPosition():null}).ToArray(),
+                StepCount=chart.GetStepTotals().GetStepCount(),End=chart.GetEndChartTime(),
+                Nps=new DensityReference(chart,projection.GetProperty("NumSteps").GetInt32(),end).Run(),
+                Regions=regions,Removed=changes.DeletedEvents.Distinct().Count(),Shortened=changes.ShortenedHolds.Count
+            };
+        }
         return new {
-            Heads=chart.EditorEvents.OfType<EditorNoteEvent>().Select(note=>new {Row=note.GetRow(),Lane=note.Lane,Symbol=note.Symbol,Time=note.GetChartTime(),Fake=note.IsFake()}).ToArray(),
-            StepCount=chart.GetStepTotals().GetStepCount(),End=chart.GetEndChartTime(),
+            Conversion=conversion,Projected=projected,
+            Heads=originalHeads,
+            StepCount=originalCount,End=originalEnd,
             Times=request.GetProperty("Rows").EnumerateArray().Select(row=>{double time=0;chart.TryGetTimeFromChartPosition(row.GetDouble(),ref time);return time;}).ToArray(),
-            Nps=new DensityReference(chart,request.GetProperty("NumSteps").GetInt32(),request.GetProperty("LastStep").GetInt32()).Run()
+            Nps=originalNps
         };
     }
 }
