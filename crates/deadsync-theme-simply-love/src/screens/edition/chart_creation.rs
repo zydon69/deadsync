@@ -8,16 +8,21 @@ pub(super) struct Settings {
 }
 impl State {
     pub(super) fn open_new_chart(&mut self) {
-        if deadsync_editor::timing_edit::migration::needed(self.workspace.file().session.document())
+        if !self.workspace.file().session.document().charts().is_empty()
+            && deadsync_editor::timing_edit::migration::needed(
+                self.workspace.file().session.document(),
+            )
         {
             self.open_timing_migration();
             return;
         }
         match self.workspace.new_chart_draft() {
             Ok(draft) => {
-                let kind = &self.workspace.file().session.document().charts()
-                    [self.workspace.chart()]
-                .steps_type;
+                let kind = self
+                    .workspace
+                    .active_chart()
+                    .and_then(|i| self.workspace.file().session.document().charts().get(i))
+                    .map_or(LAYOUTS[0], |chart| chart.steps_type.as_str());
                 self.new_chart = Some(Settings {
                     draft,
                     layout: LAYOUTS.iter().position(|name| *name == kind).unwrap_or(0),

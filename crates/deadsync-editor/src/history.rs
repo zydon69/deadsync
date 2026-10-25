@@ -444,6 +444,24 @@ impl Session {
         Ok((start..start + additions.len()).collect())
     }
 
+    pub(crate) fn remove_chart(&mut self, chart: usize) -> Result<(), Error> {
+        let snapshot = Document::parse(self.serialize()?, self.document.format)?;
+        let bytes = crate::chart_deletion::prepare(&snapshot, chart)?;
+        let after = Document::parse(bytes, self.document.format)?;
+        if after.charts().len() + 1 != snapshot.charts().len() {
+            return Err(Error::InvalidEdit(
+                "Deleted chart structure is ambiguous".into(),
+            ));
+        }
+        self.execute(
+            "Delete chart".into(),
+            Change::DocumentSwap(Box::new(DocumentState {
+                document: after,
+                grids: BTreeMap::new(),
+            })),
+        )
+    }
+
     pub(crate) fn insert_empty_chart(
         &mut self,
         block: Vec<u8>,

@@ -48,7 +48,7 @@ reviewable and tested.
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
 | Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; F11 edits Song SyncOffset | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
-| Multi-chart | Switch charts with Ctrl/Cmd+Tab; shared history; duplicate with Ctrl/Cmd+D/F1; create an empty chart with Ctrl/Cmd+N | Generated/empty creation and duplication are available; chart deletion, no-active-chart UI, original live chart ordering, complete properties, multi-view comparison and library remain pending |
+| Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
@@ -2226,3 +2226,67 @@ creation tests remain in their existing suite; empty-chart workflows live in a
 separate file. The original-method oracle adapters and remaining live-ordering,
 SM transient timing, empty-workspace and missing shell-fixture limits above are
 not included as claims of completed parity.
+
+
+### Delete charts and retain a usable empty workspace
+
+Ctrl/Cmd+Shift+Backspace opens a confirmation for the working chart. Cancel is
+selected initially. The dialog captures current serialized descriptors, identity
+and revision, so confirmation cannot delete another chart or apply stale data.
+Opening it stops audio. Successful deletion removes the SSC chart block (local
+notes/timing/properties) or SM NOTES/NOTES2 block in one structural history swap.
+Pending edits in surviving charts are retained. Undo restores exact pre-deletion
+bytes/grids and the original active chart; redo restores the post-deletion state.
+
+SM GAChartDataVersionCHARTnnnn/GAChartDataCHARTnnnn fields for the removed chart
+are removed and subsequent real-chart indices are renamed. Values, unknown JSON
+members and unrelated global/vendor fields remain intact. Unbound orphan indices
+are retained; unknown vendor indexing conventions are not guessed. Known V1 song
+timing-chart references are updated within their chart type, including numeric
+enum values, case-insensitive enum names and a missing index's default zero.
+When their owner is deleted, the explicit type is cleared to request normal
+selection fallback. Other song fields, including SyncOffset and future members,
+are retained. Unknown/incomplete song-metadata schemas reject deletion before any
+history/document mutation. As in original EditorSong loading, V1 timing-chart
+references resolve from type-group file-load order before UpdateChartSortInternal;
+this differs from the still-pending live UI sort/tie context.
+
+Active-chart replacement follows the original SelectBestChart priorities: same
+type and difficulty, highest preferred difficulty, Single/Double counterpart,
+then supported-type order. It uses file order for ties; original ChartComparer
+sorting/runtime GUID tie behavior remains unported. Source inspected at the
+pinned revision: ActionDeleteChart.cs, Editor.DeleteChart and EditorSong's
+DeleteChart/SelectBestChart/custom-song loading. These functional tests do not
+execute the full original editor or prove live sorted-tab equivalence.
+
+Deleting the final editable chart keeps the editor open with a no-active-chart
+view. It supports Undo/Redo, Save, explicit recovery drafts, song sync properties,
+Close and Ctrl/Cmd+N creation. F1 offers the applicable file actions. Note,
+transport, generation and timing commands are blocked without a chart. Existing
+opaque unsupported charts remain in the file and do not become a fabricated
+editable grid. Empty/opaque-only files can reopen, including through a cached
+song selection after the last editable chart was saved away. Native empty-file
+creation and history transitions are now exercised rather than closing the editor
+and losing access to undo.
+
+Workspace exposes active_chart()/has_chart()/try_grid() for this state. Its legacy
+chart()/grid() accessors retain an active-chart precondition; UI/render/input paths
+check presence before using them. Recovery can replace an empty document without
+loading a nonexistent grid. Creation, undo and redo preserve the distinct state
+of no active chart even when opaque chart blocks still exist.
+
+Seven core workflows cover SSC middle removal, pending edits and unknown fields,
+SM indices/raw values/reparse, timing references and future metadata, stale/
+foreign/wrong-chart/schema guards, final deletion, empty recovery/save/reopen,
+new chart after deletion, participant restoration, replacement priority/focus,
+and opaque survivors. Native English/French workflows cover confirmation/cancel,
+modal focus, audio stop, safe empty-state inputs, song properties, Undo/Redo,
+file menu, creation, cached reopening and persistence. No physical keyboard,
+rendered GPU output, original live-order equivalence or full file-browser UX is
+claimed by these synthetic tests. The remaining delivery matrix is still required.
+
+Validation for chart deletion: all 303 core tests and 119 native editor tests
+pass; `cargo check -p deadsync --locked` passes. The native deletion suite was
+rerun after adding an explicit empty-state song-properties check. Original live
+chart ordering/ties, physical runtime validation and the previously documented
+missing shell unit-test fixtures remain outside these passing claims.

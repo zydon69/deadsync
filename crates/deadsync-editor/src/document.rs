@@ -361,6 +361,10 @@ impl Document {
         Ok(clone.serialize())
     }
 
+    pub(crate) fn tag_marker_range(&self, tag: &Tag) -> Range<usize> {
+        self.marker_start(tag)..tag.value.end + 1
+    }
+
     fn marker_start(&self, tag: &Tag) -> usize {
         self.source[..tag.value.start]
             .iter()

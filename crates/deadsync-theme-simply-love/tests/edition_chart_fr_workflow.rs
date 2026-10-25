@@ -114,3 +114,67 @@ fn french_empty_chart_layout_summary_cancel_and_create_labels_are_resolved() {
     );
     assert_eq!(fs::read_to_string(path).unwrap(), song);
 }
+
+#[test]
+fn french_last_chart_delete_empty_view_undo_and_new_chart_remain_translated() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let song = "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Été;#DIFFICULTY:Hard;#NOTES:1000;";
+    fs::write(&path, song).unwrap();
+    let mut s = State::open(&path, 0).unwrap();
+    for code in [KeyCode::SuperLeft, KeyCode::ShiftLeft] {
+        s.raw_key(&RawKeyboardEvent {
+            code,
+            pressed: true,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+    }
+    press(&mut s, KeyCode::Backspace);
+    for code in [KeyCode::ShiftLeft, KeyCode::SuperLeft] {
+        s.raw_key(&RawKeyboardEvent {
+            code,
+            pressed: false,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+    }
+    let labels = texts(&s);
+    assert!(
+        labels
+            .iter()
+            .any(|text| text.contains("Supprimer la dernière partition"))
+    );
+    assert!(
+        labels
+            .iter()
+            .any(|text| text == "Supprimer cette partition")
+    );
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::Enter);
+    assert!(!s.workspace().has_chart());
+    assert!(
+        texts(&s)
+            .iter()
+            .any(|text| text == "Aucune partition active")
+    );
+    assert!(!texts(&s).iter().any(|text| text.contains('{')));
+    press(&mut s, KeyCode::F1);
+    assert!(
+        texts(&s)
+            .iter()
+            .any(|text| text == "Créer une partition vide")
+    );
+    press(&mut s, KeyCode::Enter);
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::Enter);
+    assert!(s.workspace().has_chart());
+    assert_eq!(s.workspace().grid().iter().count(), 0);
+    assert_eq!(fs::read_to_string(path).unwrap(), song);
+}

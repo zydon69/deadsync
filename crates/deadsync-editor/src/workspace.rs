@@ -74,7 +74,19 @@ impl Workspace {
     }
 
     pub fn from_file(mut file: FileSession, chart: usize) -> Result<Self, Error> {
-        file.session.grid(chart)?;
+        let chart = if chart == 0
+            && file
+                .session
+                .document()
+                .charts()
+                .iter()
+                .all(|c| crate::notes::layout_columns(&c.steps_type).is_none())
+        {
+            usize::MAX
+        } else {
+            file.session.grid(chart)?;
+            chart
+        };
         Ok(Self {
             file,
             chart,
@@ -92,15 +104,28 @@ impl Workspace {
     pub fn file(&self) -> &FileSession {
         &self.file
     }
+    pub fn active_chart(&self) -> Option<usize> {
+        (self.chart < self.file.session.document().charts().len()).then_some(self.chart)
+    }
+    pub fn has_chart(&self) -> bool {
+        self.active_chart().is_some()
+    }
+    pub fn try_grid(&self) -> Option<&Grid> {
+        self.active_chart()
+            .and_then(|chart| self.file.session.loaded_grid(chart))
+    }
+    /// Requires an active chart. Empty-workspace callers should use try_grid.
     pub fn grid(&self) -> &Grid {
         self.file
             .session
             .loaded_grid(self.chart)
             .expect("Active editor chart is loaded")
     }
+    /// Legacy active index. Empty-aware callers must use active_chart instead.
     pub fn chart(&self) -> usize {
         self.chart
     }
+
     pub fn row(&self) -> u64 {
         self.row
     }
@@ -122,6 +147,9 @@ impl Workspace {
     }
 
     pub fn execute(&mut self, command: Command) -> Result<(), Error> {
+        if !self.has_chart() && !matches!(command, Command::Undo | Command::Redo | Command::Save | Command::SaveRecovery | Command::Recover | Command::SelectChart(_)) {
+            return Err(Error::InvalidEdit("No active chart".into()));
+        }
         match command {
             Command::Move(steps) => {
                 let distance = SNAP_ROWS[self.snap]
@@ -285,17 +313,7 @@ impl Workspace {
             Command::Recover => {
                 self.file.recover()?;
                 self.structural_focus.clear();
-                let chart = self.chart.min(
-                    self.file
-                        .session
-                        .document()
-                        .charts()
-                        .len()
-                        .saturating_sub(1),
-                );
-                self.file.session.grid(chart)?;
-                self.chart = chart;
-                self.player = self.player.min(self.grid().players() - 1);
+                self.sync_active_chart()?;
             }
             Command::Transform(transform) => {
                 let (start, end) = self.selection().unwrap_or((self.row, self.row));
@@ -683,6 +701,45 @@ impl Workspace {
         Ok(indices)
     }
 
+    pub fn deletion_draft(&self) -> Result<crate::chart_deletion::Draft, Error> {
+        crate::chart_deletion::Draft::capture(&self.file.session, self.chart)
+    }
+    pub fn delete_chart(&mut self, draft: &crate::chart_deletion::Draft) -> Result<(), Error> {
+        draft.check(&self.file.session, self.chart)?;
+        let before_revision = self.file.session.revision();
+        let before_chart = self.chart;
+        let current = crate::document::Document::parse(
+            self.file.session.serialize()?,
+            self.file.session.document().format,
+        )?;
+        let next = crate::chart_deletion::successor(&current, self.chart);
+        if let Some(chart) = next {
+            self.file.session.grid(chart)?;
+        }
+        draft.apply(&mut self.file.session)?;
+        self.chart = next.map_or(usize::MAX, |chart| {
+            if chart > before_chart {
+                chart - 1
+            } else {
+                chart
+            }
+        });
+        self.structural_focus.insert(
+            self.file.session.revision(),
+            StructuralFocus {
+                before_revision,
+                before_chart,
+                after_chart: self.chart,
+            },
+        );
+        self.player = 0;
+        self.anchor = None;
+        if self.has_chart() {
+            self.file.session.grid(self.chart)?;
+        }
+        Ok(())
+    }
+
     pub fn new_chart_draft(&self) -> Result<crate::chart_creation::Draft, Error> {
         crate::chart_creation::Draft::capture(&self.file.session)
     }
@@ -760,6 +817,27 @@ impl Workspace {
     }
 
     fn sync_active_chart(&mut self) -> Result<(), Error> {
+        if self.file.session.document().charts().is_empty() {
+            self.chart = usize::MAX;
+            self.player = 0;
+            self.anchor = None;
+            return Ok(());
+        }
+        if self.chart == usize::MAX {
+            let candidate = self
+                .file
+                .session
+                .document()
+                .charts()
+                .iter()
+                .position(|c| crate::notes::layout_columns(&c.steps_type).is_some());
+            let Some(chart) = candidate else {
+                self.player = 0;
+                self.anchor = None;
+                return Ok(());
+            };
+            self.chart = chart;
+        }
         let previous_chart = self.chart;
         self.chart = self.chart.min(
             self.file

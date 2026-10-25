@@ -3,6 +3,7 @@
 mod analysis_panel;
 mod batch;
 mod chart_creation;
+mod chart_deletion;
 mod pattern_set;
 mod playback;
 mod song_properties;
@@ -40,6 +41,8 @@ use std::{
 enum Panel {
     Analysis,
     NewChart(usize),
+    DeleteChart(usize),
+    EmptyMenu(usize),
     Menu(usize),
     Transforms(usize),
     Unsaved(usize),
@@ -214,6 +217,7 @@ pub struct State {
     analysis_report: Option<deadsync_editor::analysis::task::Report>,
     analysis_bin: usize,
     new_chart: Option<chart_creation::Settings>,
+    deletion: Option<deadsync_editor::chart_deletion::Draft>,
     profile_selection: Option<ProfileSettings>,
     preview: Option<GenerationPreview>,
     label_preedit: String,
@@ -250,6 +254,10 @@ impl State {
         meter: u32,
     ) -> Result<Self, deadsync_editor::Error> {
         let file = deadsync_editor::storage::FileSession::open(path)?;
+        if file.session.document().charts().iter()
+            .all(|c| deadsync_editor::notes::layout_columns(&c.steps_type).is_none()) {
+            return Self::from_workspace(Workspace::from_file(file, 0)?);
+        }
         let matches: Vec<_> = file
             .session
             .document()
@@ -273,7 +281,8 @@ impl State {
     }
 
     fn from_workspace(workspace: Workspace) -> Result<Self, deadsync_editor::Error> {
-        let layout = &workspace.file().session.document().charts()[workspace.chart()].steps_type;
+        let layout = workspace.active_chart().and_then(|i| workspace.file().session.document().charts().get(i))
+            .map_or("dance-single", |chart| chart.steps_type.as_str());
         let target = TARGET_LAYOUTS
             .iter()
             .position(|candidate| *candidate == layout)
@@ -320,6 +329,7 @@ impl State {
             analysis_report: None,
             analysis_bin: 0,
             new_chart: None,
+            deletion: None,
             profile_selection: None,
             preview: None,
             workspace,
@@ -1066,6 +1076,12 @@ impl State {
     }
 
     fn refresh(&mut self) {
+        if !self.workspace.has_chart() {
+            self.saved_regions.clear(); self.labels=None; self.signatures=None; self.marker_cache=None;
+            self.chart_label=i18n::tr("Edition", "NoActiveChart");
+            self.toolbar=i18n::tr_fmt("Edition", "NoChartToolbar", &[("dirty", if self.workspace.file().session.is_dirty(){" *"}else{""})]);
+            return;
+        }
         let session = &self.workspace.file().session;
         let chart = self.workspace.chart();
         let source = session.document().source();
@@ -1202,6 +1218,10 @@ impl State {
         if self.panel.is_some() {
             return self.panel_key(event.code);
         }
+        if !self.workspace.has_chart() {
+            self.stop_audio();
+            return self.no_chart_key(event.code);
+        }
         if matches!(event.code, KeyCode::Enter | KeyCode::NumpadEnter)
             && !self.control
             && !self.shift
@@ -1210,6 +1230,10 @@ impl State {
             return false;
         }
         self.stop_audio();
+        if self.control && self.shift && event.code == KeyCode::Backspace {
+            self.open_chart_deletion();
+            return false;
+        }
         if self.control && event.code == KeyCode::KeyN {
             self.open_new_chart();
             return false;
@@ -1401,7 +1425,7 @@ impl State {
                 self.panel = Some(self.profile_return_panel());
                 return false;
             }
-            if matches!(panel, Panel::NewChart(_)) {
+            if matches!(panel, Panel::NewChart(_) | Panel::DeleteChart(_)) {
                 self.status = i18n::tr("Edition", "Ready");
             }
             if matches!(panel, Panel::Timing(_)) {
@@ -1410,6 +1434,7 @@ impl State {
             if matches!(panel, Panel::TimingMigration(_)) {
                 self.status = i18n::tr("Edition", "LegacyTimingDiscarded");
             }
+            self.deletion = None;
             self.new_chart = None;
             self.timing_migration = None;
             self.timing = None;
@@ -1422,6 +1447,8 @@ impl State {
         }
         match panel {
             Panel::NewChart(index) => self.new_chart_key(index, code),
+            Panel::DeleteChart(index) => self.deletion_key(index, code),
+            Panel::EmptyMenu(index) => return self.empty_menu_key(index, code),
             Panel::ConversionProfiles(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ConversionProfiles(
@@ -1905,7 +1932,7 @@ impl State {
         );
         text(
             actors,
-            &i18n::tr("Edition", "Shortcuts"),
+            &i18n::tr("Edition", if self.workspace.has_chart(){"Shortcuts"}else{"NoChartShortcuts"}),
             18.0,
             height - 43.0,
             0.5,
@@ -1919,6 +1946,10 @@ impl State {
             0.5,
             [0.9, 0.9, 0.9, 1.0],
         );
+        if !self.workspace.has_chart() {
+            self.no_chart_actors(actors);
+            return;
+        }
         let grid = self
             .preview
             .as_ref()
@@ -2076,6 +2107,8 @@ impl State {
         }
         let keys: &[&str] = match panel {
             Panel::Analysis => &[],
+            Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
+            Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
             Panel::Menu(_) => &[
                 "Resume",
@@ -2202,7 +2235,9 @@ impl State {
             Panel::GenerationPreview(_) => &["GenerationApply", "GenerationDiscard"],
         };
         let selected = match panel {
-            Panel::NewChart(i)
+            Panel::EmptyMenu(i)
+            | Panel::DeleteChart(i)
+            | Panel::NewChart(i)
             | Panel::Menu(i)
             | Panel::Transforms(i)
             | Panel::Unsaved(i)
@@ -2246,7 +2281,7 @@ impl State {
             220.0
         } else if previewing {
             128.0
-        } else if matches!(panel, Panel::NewChart(_)) {
+        } else if matches!(panel, Panel::NewChart(_) | Panel::DeleteChart(_)) {
             85.0
         } else if matches!(panel, Panel::TimingMigration(_)) {
             125.0
@@ -2269,6 +2304,10 @@ impl State {
                 ("pages", &keys.len().div_ceil(8).to_string()),
             ]);
             actors.push(act!(text: font("miso"): settext(page): align(0.5,0.5): xy(panel_x,panel_y+panel_height*0.5-10.0): zoom(0.45): z(8021)));
+        }
+        if matches!(panel, Panel::DeleteChart(_)) {
+            let summary = self.deletion_summary();
+            actors.push(act!(text: font("miso"): settext(summary): align(0.5,0.0): xy(panel_x,panel_y-panel_height*0.5+12.0): zoom(0.65): wrapwidthpixels((panel_width-30.0)/0.65): maxwidth(panel_width-30.0): maxheight(70.0): z(8021)));
         }
         if matches!(panel, Panel::NewChart(_)) {
             let summary = self.new_chart_summary();
