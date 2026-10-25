@@ -379,3 +379,103 @@ fn time_viewport_keeps_entire_warp_and_negative_stop_plateaus_without_row_walks(
         }
     }
 }
+
+#[test]
+fn frame_queries_are_stable_and_match_canonical_section_traversal() {
+    use deadsync_editor::spacing_geometry::Frame;
+    let index = Index::new(
+        [1.0, -1.0, 0.0, 0.5]
+            .into_iter()
+            .enumerate()
+            .map(|(i, scroll)| SpacingSection {
+                order: 13,
+                mapping: RateMapping::new(i as f64 * 48.0, i as f64 * 0.5, 0.0, 0.0, 1.0 / 96.0)
+                    .unwrap(),
+                tempo: 120.0,
+                scroll,
+            })
+            .collect(),
+    )
+    .unwrap();
+    for reverse in [false, true] {
+        for factor in [1.0, -0.5, 0.0] {
+            let settings = Settings {
+                mode: SpacingMode::Variable,
+                reverse,
+                speeds: Speeds::default(),
+                interpolated_scroll: factor,
+                zoom: 1.2,
+            };
+            let origin = Cursor::begin(
+                &index,
+                Anchor {
+                    y: 160.0,
+                    time: 0.75,
+                    row: 72.0,
+                },
+                settings,
+            )
+            .unwrap()
+            .unwrap();
+            let frame = Frame::capture(origin).unwrap();
+            let mut canonical = origin;
+            canonical.move_to(0).unwrap();
+            let mut expected = Vec::new();
+            for row in 0..=300 {
+                for order in [0, 8, 11, 13, 18] {
+                    let section = index.event_active(row as f64, order).unwrap().unwrap();
+                    canonical.move_to(section).unwrap();
+                    let time = index.sections()[section]
+                        .mapping
+                        .time_at(row as f64)
+                        .unwrap();
+                    let y = canonical.y_in_section(time, row as f64).unwrap();
+                    close(frame.row_y(row as f64, order).unwrap(), y);
+                    expected.push((row, order, y));
+                }
+            }
+            for (row, order, y) in expected.into_iter().rev() {
+                close(frame.row_y(row as f64, order).unwrap(), y);
+            }
+            assert_eq!(
+                frame.visible_rows(105.0, 395.0, 300).unwrap(),
+                origin.visible_rows(105.0, 395.0, 300).unwrap()
+            );
+            assert!(frame.row_y(f64::NAN, 8).is_err());
+        }
+    }
+}
+
+#[test]
+fn sparse_grid_bound_includes_hold_tails_and_all_participants() {
+    use deadsync_editor::notes::{Grid, Kind, Note, Position};
+    let mut grid = Grid::new(4, 2).unwrap();
+    assert_eq!(grid.last_row(), 0);
+    let pos = Position {
+        row: 10,
+        lane: 0,
+        player: 1,
+    };
+    grid.set(
+        pos,
+        Some(Note {
+            kind: Kind::Hold,
+            end: Some(1000),
+            attributes: Arc::from(""),
+            tail_attributes: Arc::from(""),
+        }),
+    )
+    .unwrap();
+    grid.set(
+        Position {
+            row: 200,
+            lane: 1,
+            player: 0,
+        },
+        Some(Note::tap()),
+    )
+    .unwrap();
+    assert_eq!(grid.last_row(), 1000);
+    grid.set(pos, None).unwrap();
+    assert_eq!(grid.last_row(), 200);
+}

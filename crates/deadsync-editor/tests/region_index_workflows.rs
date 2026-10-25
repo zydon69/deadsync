@@ -51,3 +51,14 @@ fn integer_edges_empty_indices_and_invalid_ranges_are_explicit() {
         assert!(index.visible(a, b, n).is_err());
     }
 }
+
+#[test]
+fn final_region_bound_uses_cached_maximum_including_crossing_regions() {
+    assert_eq!(RegionIndex::default().last_row(), 0);
+    assert_eq!(
+        RegionIndex::new(vec![(0, 10000), (48, 96), (200, 300)])
+            .unwrap()
+            .last_row(),
+        10000
+    );
+}

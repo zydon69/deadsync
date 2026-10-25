@@ -125,10 +125,15 @@ fn mirror_rects(a: &[(f32, f32)], b: &[(f32, f32)]) {
 }
 
 #[test]
-fn reverse_mirrors_notes_sustains_selection_sample_labels_and_waveform_in_both_modes() {
+fn reverse_mirrors_notes_sustains_selection_sample_labels_and_waveform_in_all_modes() {
     i18n::init_for_tests();
     set_current_metrics(Metrics::centered(854.0, 480.0));
-    for time_mode in [false, true] {
+    use deadsync_editor::zoom::SpacingMode;
+    for mode in [
+        SpacingMode::ConstantRow,
+        SpacingMode::ConstantTime,
+        SpacingMode::Variable,
+    ] {
         let dir = tempfile::tempdir().unwrap();
         let audio = dir.path().join("pulse.wav");
         wav(&audio);
@@ -165,8 +170,13 @@ fn reverse_mirrors_notes_sustains_selection_sample_labels_and_waveform_in_both_m
         let path = dir.path().join("reverse.ssc");
         fs::write(&path, &source).unwrap();
         let mut state = State::open(&path, 0).unwrap();
-        if time_mode {
+        if mode == SpacingMode::ConstantTime {
             shortcut(&mut state, KeyCode::SuperLeft, KeyCode::KeyT);
+        }
+        if mode == SpacingMode::Variable {
+            key(&mut state, KeyCode::SuperLeft, true);
+            shortcut(&mut state, KeyCode::ShiftLeft, KeyCode::KeyT);
+            key(&mut state, KeyCode::SuperLeft, false);
         }
         press(&mut state, KeyCode::Space);
         press(&mut state, KeyCode::ArrowDown);
@@ -221,6 +231,11 @@ fn reverse_mirrors_notes_sustains_selection_sample_labels_and_waveform_in_both_m
         shortcut(&mut state, KeyCode::SuperLeft, KeyCode::KeyT);
         assert!(state.display_reversed());
         shortcut(&mut state, KeyCode::SuperLeft, KeyCode::KeyT);
+        if mode == SpacingMode::Variable {
+            key(&mut state, KeyCode::SuperLeft, true);
+            shortcut(&mut state, KeyCode::ShiftLeft, KeyCode::KeyT);
+            key(&mut state, KeyCode::SuperLeft, false);
+        }
         assert_eq!(arrows(&state), reversed_heads);
         press(&mut state, KeyCode::F1);
         reverse(&mut state);

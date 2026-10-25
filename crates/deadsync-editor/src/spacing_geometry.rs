@@ -269,3 +269,47 @@ impl<'a> Cursor<'a> {
         Ok(y)
     }
 }
+
+/// Stable per-frame section anchors. Point queries use binary event lookup and
+/// constant work, without rewalking sections for every lane or overlay.
+pub struct Frame<'a> {
+    origin: Cursor<'a>,
+    anchors: Vec<f64>,
+}
+impl<'a> Frame<'a> {
+    pub fn capture(origin: Cursor<'a>) -> Result<Self, Error> {
+        let mut cursor = origin;
+        cursor.walk_to(0)?;
+        let mut anchors = Vec::with_capacity(origin.index.sections().len());
+        for section in 0..origin.index.sections().len() {
+            cursor.walk_to(section)?;
+            anchors.push(cursor.anchor.y);
+        }
+        Ok(Self { origin, anchors })
+    }
+    pub fn row_y(&self, row: f64, order: u8) -> Result<f64, Error> {
+        let section = self
+            .origin
+            .index
+            .event_active(row, order)?
+            .ok_or_else(|| Error::InvalidEdit("Missing geometry section".into()))?;
+        let rate = self.origin.index.sections()[section];
+        let settings = self.origin.settings;
+        let mut helper = Helper::new(settings.mode, settings.reverse);
+        helper.update(
+            rate.spacing_rate(),
+            settings.speeds,
+            settings.interpolated_scroll,
+            settings.zoom,
+        )?;
+        helper.row_y(row, self.anchors[section], |row| rate.mapping.time_at(row))
+    }
+    pub fn visible_rows(
+        &self,
+        top: f64,
+        bottom: f64,
+        last_row: u64,
+    ) -> Result<Vec<VisibleRows>, Error> {
+        self.origin.visible_rows(top, bottom, last_row)
+    }
+}

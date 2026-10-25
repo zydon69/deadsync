@@ -3937,3 +3937,60 @@ saved as /tmp/deadsync-reverse-{row,time}[-normal].png; runtime review and file
 hashes are in /tmp/deadsync-reverse-runtime-review.json. The simfile and WAV hashes
 were unchanged after the session. The isolated app was closed after review.
 This scoped visual check does not prove audible DSP or full-editor runtime parity.
+
+### Native variable display
+
+Ctrl/Cmd+Shift+T selects Variable or returns to Rows; Ctrl/Cmd+T continues to
+select Time/Rows. Reverse and modal focus are retained. The spacing cache now
+owns the source/revision/chart-keyed Clock, initialized rate index and a separate
+captured SPEEDS timeline. Variable freezes the interpolated SPEEDS factor at the
+current cursor row/chart time, as in original UpdateChartEvents. Its frame uses
+original section scroll/tempo coefficients, including zero and negative values.
+
+`spacing_geometry::Frame` builds canonical section Y anchors once per actor
+frame. Point queries then perform binary phase lookup plus constant work, with
+no query-order-dependent section walks or allocations. Notes/tails use the note
+phase; row markers and region boundaries use the preceding boundary phase.
+Viewport discovery retains all folded/collapsed sections. Inclusive row ranges
+are merged before bounded native queries. Variable's terminal domain includes
+actual note/tail, label and pattern bounds plus a cursor-relative grid lead-out;
+it does not use u64::MAX for an unbounded collapsed final section. Grid::last_row
+reads final entries per track, and RegionIndex::last_row reads its cached tree
+maximum; neither scans all chart heads/regions during drawing.
+
+The Variable waveform currently uses the original CurrentTempo policy: a
+separate temporal axis at variableSpeed * activeTempo / 300 before zoom/Reverse.
+This remains defined with zero or negative SCROLLS/SPEEDS. MostCommonTempo and
+CurrentTempoAndRate waveform policies and their preference UI remain pending;
+this addition does not claim the original default waveform-policy parity.
+
+Native workflows cover disjoint folded sections with later notes returning to
+the viewport, zero SCROLLS/SPEEDS, signed-factor composition, row/seconds SPEEDS
+interpolation with same-row delay, cursor movement, zoom/reset, mode/panel focus,
+and a real decoded pulse when chart spacing collapses. The Reverse workflow
+now checks holds, selection, saved patterns, samples, labels and waveform bands
+in all three modes. Core tests check canonical/stable frame queries across
+signed/zero factors and both directions, plus sparse grid/region bounds.
+Full editor parity, remaining waveform policies, playback follow/scrub and the
+other outstanding requirements are not complete.
+
+Visual inspection found row labels colliding after folded sections returned to
+the same Y. Exactly coincident projected labels now share one text actor joined
+in logical row order; distinct adjacent positions remain separate. A native
+regression checks the folded pair in both directions. The existing 200-adjacent-
+label workflow caught an overbroad first grouping attempt; the final policy
+preserves that detailed-view contract and its tiny-viewport checks unchanged.
+
+Final validation: all 197 tests in the 27 native edition integration targets
+passed after the coincident-label regression fix. The 50 targeted core tests
+passed. `cargo check` and a real `cargo build -p deadsync --jobs 2 --locked`
+succeeded, followed by successful macOS packaging. The full core suite and
+unrelated theme unit suites were not rerun for this addition.
+
+EditorQA-Variable.app was exercised with the same isolated generated stereo
+WAV/SSC used for Reverse QA. Variable normal and reversed views showed signed
+and collapsed sections and readable grouped labels. Final screenshots are
+/tmp/deadsync-variable-normal.png and /tmp/deadsync-variable-reverse.png;
+/tmp/deadsync-variable-runtime-review.json records the scoped review and unchanged
+SSC/WAV hashes. The isolated app was closed after review. Muted output and this
+small fixture do not establish audible DSP or full-editor/runtime parity.

@@ -124,6 +124,17 @@ impl Grid {
     pub fn columns(&self) -> u16 {
         self.columns
     }
+    /// Maximum note/tail row without walking chart heads. Same-track sustains
+    /// cannot overlap, so the final entry also has the greatest tail.
+    pub fn last_row(&self) -> u64 {
+        self.tracks
+            .values()
+            .filter_map(|track| track.last_key_value())
+            .map(|(&row, note)| note.end.unwrap_or(row))
+            .max()
+            .unwrap_or(0)
+    }
+
     pub fn players(&self) -> u32 {
         self.players
     }

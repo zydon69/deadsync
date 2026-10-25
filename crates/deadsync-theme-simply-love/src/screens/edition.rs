@@ -212,9 +212,9 @@ impl GenerationPreview {
 }
 
 pub struct State {
-    time_spacing: bool,
+    spacing_mode: deadsync_editor::zoom::SpacingMode,
     reverse_display: bool,
-    time_view: Option<spacing_view::Cache>,
+    spacing_cache: Option<spacing_view::Cache>,
     zoom: deadsync_editor::zoom::Manager,
     zoom_epoch: std::time::Instant,
     zoom_preferences: deadsync_editor::zoom_preferences::Preferences,
@@ -330,9 +330,9 @@ impl State {
             .position(|candidate| *candidate == layout)
             .unwrap_or(0);
         let mut state = Self {
-            time_spacing: false,
+            spacing_mode: deadsync_editor::zoom::SpacingMode::ConstantRow,
             reverse_display: false,
-            time_view: None,
+            spacing_cache: None,
             zoom: Default::default(),
             zoom_preferences: Default::default(),
             zoom_preferences_draft: None,
@@ -1170,7 +1170,7 @@ impl State {
     }
 
     fn refresh(&mut self) {
-        if self.time_spacing { self.refresh_time_view(); }
+        if self.spacing_mode != deadsync_editor::zoom::SpacingMode::ConstantRow { self.refresh_spacing_cache(); }
         self.refresh_waveform();
         self.refresh_sample_region();
         if !self.workspace.has_chart() {
@@ -1360,7 +1360,7 @@ impl State {
         }
         if self.shift && !self.control && event.code == KeyCode::KeyZ { self.open_zoom_settings(); return false; }
         if self.shift && !self.control && event.code == KeyCode::KeyV { self.toggle_reverse_display(); return false; }
-        if self.control && event.code == KeyCode::KeyT { self.toggle_spacing_mode(); return false; }
+        if self.control && event.code == KeyCode::KeyT { self.toggle_spacing_mode(self.shift); return false; }
         if self.zoom_key(event) { return false; }
         if event.code == KeyCode::KeyW && !self.control {
             if self.shift { self.open_waveform_settings(); } else { self.toggle_waveform(); }
@@ -2186,7 +2186,14 @@ impl State {
                 return;
             }
         };
-        let ranges = match projection.visible_ranges(top, bottom) {
+        let label_end = self.labels.as_ref().and_then(|labels| {
+            labels.values().last_key_value().map(|(&row, _)| row)
+        }).unwrap_or(0);
+        let last_row = grid.last_row()
+            .max(self.workspace.row().saturating_add(48 * 16))
+            .max(self.region_index.last_row())
+            .max(label_end);
+        let ranges = match projection.visible_ranges(top, bottom, last_row) {
             Ok(ranges) => ranges,
             Err(error) => {
                 text(
@@ -2209,6 +2216,7 @@ impl State {
             .saturating_add(2)
             .clamp(1, 4096);
         let range_budget = (overview_bins / ranges.len().max(1)).max(1);
+        let mut label_candidates = Vec::new();
         for &(start, end) in ranges.iter().take(overview_bins) {
             let bands = deadsync_editor::projection::RowBands::new(start, end, range_budget)
                 .expect("ordered viewport bounds and bounded overview bins");
@@ -2264,12 +2272,12 @@ impl State {
                             continue;
                         };
                         let y = y as f32;
-                        let x = left + field_width + 12.0;
-                        actors.push(act!(text: font("miso"): settext(label.clone()): align(0.0,0.5): xy(x,y): zoom(0.55): maxwidth((width-x-12.0).max(20.0)): diffuse(0.6,0.9,0.65,1.0): z(8005)));
+                        label_candidates.push((label_row, f64::from(y), label.clone()));
                     }
                 }
             }
         }
+        spacing_view::label_actors(actors, label_candidates, left + field_width + 12.0, width);
         let mut shown_regions = std::collections::BTreeSet::new();
         for &(start, end) in ranges.iter().take(overview_bins) {
             for (a, b) in self

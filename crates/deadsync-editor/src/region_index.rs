@@ -35,6 +35,9 @@ impl RegionIndex {
             base,
         })
     }
+    pub fn last_row(&self) -> u64 {
+        self.maximum_end.get(1).copied().unwrap_or(0)
+    }
     /// Sorted, deterministic visible regions, including crossing boundaries.
     /// At most `limit` regions are returned, bounding actor work in overviews.
     /// Overlapping regions beyond this presentation budget remain in metadata.
