@@ -153,6 +153,13 @@ impl Signatures {
             .expect("Initial signature")
             .1
     }
+    /// Destination one measure away using the signature at the departure row,
+    /// including a negative destination before row zero (as in GrooveAuthor).
+    pub fn measure_destination(&self, row: u64, previous: bool) -> Result<i64, Error> {
+        valid_row(row)?;
+        let length = self.at(row).rows()? as i64;
+        Ok(row as i64 + if previous { -length } else { length })
+    }
     pub fn measure_position(&self, row: u64) -> Result<MeasurePosition, Error> {
         valid_row(row)?;
         let index = self.measures.partition_point(|&(start, _, _)| start <= row) - 1;

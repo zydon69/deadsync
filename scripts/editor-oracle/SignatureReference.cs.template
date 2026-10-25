@@ -4,6 +4,7 @@ using Fumen;
 using Fumen.ChartDefinition;
 using Fumen.Converters;
 using static System.Diagnostics.Debug;
+using static Fumen.Converters.SMCommon;
 namespace SignatureOracle;
 internal sealed class EditorChart:PauseOracle.EditorChart {
     public void OnTimeSignatureModified(EditorTimeSignatureEvent _) {}
@@ -15,6 +16,24 @@ internal sealed class EditorTimeSignatureEvent(int row,TimeSignature value,Edito
     // VALIDATOR
     // SETTER
     public Fraction Signature=>TimeSignatureEvent.Signature;
+}
+// Navigation position/rate-tree adapters supply only the active signature.
+// The command methods themselves are extracted unchanged from Editor.cs.
+internal sealed class NavigationEditor(TimeSignature[] events,double row) {
+    private sealed record Position(double ChartPosition);
+    private sealed record Signature(int N,int D){public int GetNumerator()=>N;public int GetDenominator()=>D;}
+    private sealed record Rate(Signature Signature){public Signature GetTimeSignature()=>Signature;}
+    private sealed class Chart(TimeSignature[] events){
+        public Chart GetRateAlteringEvents()=>this;
+        public Rate? FindActiveRateAlteringEventForPosition(double row){var ts=events.LastOrDefault(ts=>ts.IntegerPosition<=row);return ts is null?null:new Rate(new Signature(ts.Signature.Numerator,ts.Signature.Denominator));}
+    }
+    private readonly Chart FocusedChart=new(events);
+    private double destination=row;
+    private Position GetPosition()=>new(row);
+    private void MoveToChartPosition(double value)=>destination=value;
+    // PREVIOUS_MEASURE
+    // NEXT_MEASURE
+    public (double Previous,double Next) Query(){OnMoveToPreviousMeasure();var previous=destination;OnMoveToNextMeasure();return(previous,destination);}
 }
 internal static class Reference {
     public static object Run(JsonElement input) {
@@ -31,7 +50,7 @@ internal static class Reference {
             SMCommon.AddTimeSignatures(nodes.ToDictionary(pair=>pair.Key/48.0,pair=>pair.Value.Signature),current,new TempoOracle.SilentLogger(),false);
             var events=current.Layers[0].Events.OfType<TimeSignature>().OrderBy(ts=>ts.IntegerPosition).ToArray();
             return new {Nodes=events.Select(ts=>new {Row=ts.IntegerPosition,Numerator=ts.Signature.Numerator,Denominator=ts.Signature.Denominator,Measure=ts.Measure}).ToArray(),
-                Positions=input.GetProperty("Rows").EnumerateArray().Select(value=>{var row=value.GetInt32();var ts=events.Last(ts=>ts.IntegerPosition<=row);var length=ts.Signature.Numerator*192/ts.Signature.Denominator;return new {Row=row,Measure=ts.Measure+(row-ts.IntegerPosition)/length,Relative=(row-ts.IntegerPosition)%length,Length=length};}).ToArray()};
+                Positions=input.GetProperty("Rows").EnumerateArray().Select(value=>{var row=value.GetInt32();var ts=events.Last(ts=>ts.IntegerPosition<=row);var length=ts.Signature.Numerator*192/ts.Signature.Denominator;var navigation=new NavigationEditor(events,row).Query();return new {Row=row,Measure=ts.Measure+(row-ts.IntegerPosition)/length,Relative=(row-ts.IntegerPosition)%length,Length=length,Previous=navigation.Previous,Next=navigation.Next};}).ToArray()};
         }
         var initial=Values();var stages=new List<object>();
         foreach(var op in input.GetProperty("Operations").EnumerateArray()) {

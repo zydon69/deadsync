@@ -1255,8 +1255,8 @@ impl State {
             match event.code {
                 KeyCode::ArrowUp => Some(Command::Move(-1)),
                 KeyCode::ArrowDown => Some(Command::Move(1)),
-                KeyCode::PageUp => Some(Command::Move(-16)),
-                KeyCode::PageDown => Some(Command::Move(16)),
+                KeyCode::PageUp => Some(Command::PreviousMeasure),
+                KeyCode::PageDown => Some(Command::NextMeasure),
                 KeyCode::Home => Some(Command::Seek(0)),
                 KeyCode::End => Some(Command::Seek(
                     self.workspace
@@ -1294,6 +1294,7 @@ impl State {
             if !event.repeat
                 || matches!(command,
                     Command::Move(_) | Command::Seek(_) | Command::PreviousLabel | Command::NextLabel
+                    | Command::PreviousMeasure | Command::NextMeasure
                 )
             {
                 self.command(command);

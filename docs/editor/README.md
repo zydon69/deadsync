@@ -1983,3 +1983,40 @@ including 792 differential navigation queries (both directions) against the
 original extracted looping methods. `cargo check -p deadsync --locked` passes.
 The label core workflows were also rerun after extending their oracle assertions.
 This does not remove the previously documented missing shell-test fixtures.
+
+### Measure navigation follows the departure time signature
+
+In the chart view, Page Up/Down now moves by one measure instead of sixteen snap
+increments. Snap still controls single
+Up/Down movement. A measure jump uses the time signature active at the departure
+row; it does not snap to a measure boundary, split the movement at an intervening
+signature, or undo the previous jump when the signature changes between jumps.
+The workspace reads effective chart timing, including unsaved F10 changes and
+undo/redo. Key repeat, selection anchors and stopping native audio are retained.
+Inspectors keep keyboard focus. English/French help explains the shortcut.
+
+`Signatures::measure_destination` returns the signed destination, including
+negative positions exactly as the original commands request. The current
+workspace still stores nonnegative integral note cursor rows and clamps its
+visible destination to 0..i32::MAX. Negative/fractional editor cursor navigation
+therefore remains an explicit parity gap, not a completed feature. Future signed
+cursor work must preserve safe note placement and selection rules rather than
+casting negative positions into note rows.
+
+The signature oracle now extracts `OnMoveToPreviousMeasure` and
+`OnMoveToNextMeasure` unchanged from the pinned Editor.cs. Position and active
+signature adapters replace the full UI/rate-event tree; original Fumen signature
+loading remains in use. Five fixtures compare both signed destinations at 1,040
+positions initially and after edit stages, alongside the existing signature
+setter and measure-grid checks. Four workspace workflows cover exact-boundary
+behavior, crossing signatures, reader-only denominators, snap independence,
+selection, local timing, unsaved changes, undo/redo, save/reopen, bounds and
+invalid-map atomicity. Two native workflows cover page shortcuts, snap, repeat,
+audio stop and inspector focus. Physical input/GPU behavior and the full delivery
+matrix remain unproven by these tests.
+
+Validation for measure navigation: all 276 core tests and 101 native editor
+tests pass; `cargo check -p deadsync --locked` passes. The oracle comparisons
+include signed destinations before zero; the workspace tests separately verify
+its documented nonnegative boundary. Missing shell unit-test fixtures documented
+above remain unresolved and are not included as passing tests.

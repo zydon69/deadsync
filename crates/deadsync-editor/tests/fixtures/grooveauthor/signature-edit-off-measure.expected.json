@@ -31,79 +31,105 @@
         "Row": 0,
         "Measure": 0,
         "Relative": 0,
-        "Length": 192
+        "Length": 192,
+        "Previous": -192,
+        "Next": 192
       },
       {
         "Row": 1,
         "Measure": 0,
         "Relative": 1,
-        "Length": 192
+        "Length": 192,
+        "Previous": -191,
+        "Next": 193
       },
       {
         "Row": 47,
         "Measure": 0,
         "Relative": 47,
-        "Length": 192
+        "Length": 192,
+        "Previous": -145,
+        "Next": 239
       },
       {
         "Row": 48,
         "Measure": 1,
         "Relative": 0,
-        "Length": 144
+        "Length": 144,
+        "Previous": -96,
+        "Next": 192
       },
       {
         "Row": 49,
         "Measure": 1,
         "Relative": 1,
-        "Length": 144
+        "Length": 144,
+        "Previous": -95,
+        "Next": 193
       },
       {
         "Row": 96,
         "Measure": 2,
         "Relative": 0,
-        "Length": 120
+        "Length": 120,
+        "Previous": -24,
+        "Next": 216
       },
       {
         "Row": 144,
         "Measure": 2,
         "Relative": 48,
-        "Length": 120
+        "Length": 120,
+        "Previous": 24,
+        "Next": 264
       },
       {
         "Row": 191,
         "Measure": 2,
         "Relative": 95,
-        "Length": 120
+        "Length": 120,
+        "Previous": 71,
+        "Next": 311
       },
       {
         "Row": 192,
         "Measure": 2,
         "Relative": 96,
-        "Length": 120
+        "Length": 120,
+        "Previous": 72,
+        "Next": 312
       },
       {
         "Row": 240,
         "Measure": 3,
         "Relative": 24,
-        "Length": 120
+        "Length": 120,
+        "Previous": 120,
+        "Next": 360
       },
       {
         "Row": 312,
         "Measure": 3,
         "Relative": 96,
-        "Length": 120
+        "Length": 120,
+        "Previous": 192,
+        "Next": 432
       },
       {
         "Row": 384,
         "Measure": 5,
         "Relative": 0,
-        "Length": 192
+        "Length": 192,
+        "Previous": 192,
+        "Next": 576
       },
       {
         "Row": 768,
         "Measure": 7,
         "Relative": 0,
-        "Length": 192
+        "Length": 192,
+        "Previous": 576,
+        "Next": 960
       }
     ]
   },
@@ -143,79 +169,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 0,
             "Relative": 47,
-            "Length": 192
+            "Length": 192,
+            "Previous": -145,
+            "Next": 239
           },
           {
             "Row": 48,
             "Measure": 1,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 1,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 2,
             "Relative": 0,
-            "Length": 120
+            "Length": 120,
+            "Previous": -24,
+            "Next": 216
           },
           {
             "Row": 144,
             "Measure": 2,
             "Relative": 48,
-            "Length": 120
+            "Length": 120,
+            "Previous": 24,
+            "Next": 264
           },
           {
             "Row": 191,
             "Measure": 2,
             "Relative": 95,
-            "Length": 120
+            "Length": 120,
+            "Previous": 71,
+            "Next": 311
           },
           {
             "Row": 192,
             "Measure": 2,
             "Relative": 96,
-            "Length": 120
+            "Length": 120,
+            "Previous": 72,
+            "Next": 312
           },
           {
             "Row": 240,
             "Measure": 3,
             "Relative": 24,
-            "Length": 120
+            "Length": 120,
+            "Previous": 120,
+            "Next": 360
           },
           {
             "Row": 312,
             "Measure": 3,
             "Relative": 96,
-            "Length": 120
+            "Length": 120,
+            "Previous": 192,
+            "Next": 432
           },
           {
             "Row": 384,
             "Measure": 5,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 7,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -255,79 +307,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 0,
             "Relative": 47,
-            "Length": 192
+            "Length": 192,
+            "Previous": -145,
+            "Next": 239
           },
           {
             "Row": 48,
             "Measure": 1,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 1,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 2,
             "Relative": 0,
-            "Length": 120
+            "Length": 120,
+            "Previous": -24,
+            "Next": 216
           },
           {
             "Row": 144,
             "Measure": 2,
             "Relative": 48,
-            "Length": 120
+            "Length": 120,
+            "Previous": 24,
+            "Next": 264
           },
           {
             "Row": 191,
             "Measure": 2,
             "Relative": 95,
-            "Length": 120
+            "Length": 120,
+            "Previous": 71,
+            "Next": 311
           },
           {
             "Row": 192,
             "Measure": 2,
             "Relative": 96,
-            "Length": 120
+            "Length": 120,
+            "Previous": 72,
+            "Next": 312
           },
           {
             "Row": 240,
             "Measure": 3,
             "Relative": 24,
-            "Length": 120
+            "Length": 120,
+            "Previous": 120,
+            "Next": 360
           },
           {
             "Row": 312,
             "Measure": 3,
             "Relative": 96,
-            "Length": 120
+            "Length": 120,
+            "Previous": 192,
+            "Next": 432
           },
           {
             "Row": 384,
             "Measure": 5,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 7,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -373,79 +451,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 1,
             "Relative": 23,
-            "Length": 72
+            "Length": 72,
+            "Previous": -25,
+            "Next": 119
           },
           {
             "Row": 48,
             "Measure": 2,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 2,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 3,
             "Relative": 0,
-            "Length": 120
+            "Length": 120,
+            "Previous": -24,
+            "Next": 216
           },
           {
             "Row": 144,
             "Measure": 3,
             "Relative": 48,
-            "Length": 120
+            "Length": 120,
+            "Previous": 24,
+            "Next": 264
           },
           {
             "Row": 191,
             "Measure": 3,
             "Relative": 95,
-            "Length": 120
+            "Length": 120,
+            "Previous": 71,
+            "Next": 311
           },
           {
             "Row": 192,
             "Measure": 3,
             "Relative": 96,
-            "Length": 120
+            "Length": 120,
+            "Previous": 72,
+            "Next": 312
           },
           {
             "Row": 240,
             "Measure": 4,
             "Relative": 24,
-            "Length": 120
+            "Length": 120,
+            "Previous": 120,
+            "Next": 360
           },
           {
             "Row": 312,
             "Measure": 4,
             "Relative": 96,
-            "Length": 120
+            "Length": 120,
+            "Previous": 192,
+            "Next": 432
           },
           {
             "Row": 384,
             "Measure": 6,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 8,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -491,79 +595,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 1,
             "Relative": 23,
-            "Length": 72
+            "Length": 72,
+            "Previous": -25,
+            "Next": 119
           },
           {
             "Row": 48,
             "Measure": 2,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 2,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 3,
             "Relative": 0,
-            "Length": 120
+            "Length": 120,
+            "Previous": -24,
+            "Next": 216
           },
           {
             "Row": 144,
             "Measure": 3,
             "Relative": 48,
-            "Length": 120
+            "Length": 120,
+            "Previous": 24,
+            "Next": 264
           },
           {
             "Row": 191,
             "Measure": 3,
             "Relative": 95,
-            "Length": 120
+            "Length": 120,
+            "Previous": 71,
+            "Next": 311
           },
           {
             "Row": 192,
             "Measure": 3,
             "Relative": 96,
-            "Length": 120
+            "Length": 120,
+            "Previous": 72,
+            "Next": 312
           },
           {
             "Row": 240,
             "Measure": 4,
             "Relative": 24,
-            "Length": 120
+            "Length": 120,
+            "Previous": 120,
+            "Next": 360
           },
           {
             "Row": 312,
             "Measure": 4,
             "Relative": 96,
-            "Length": 120
+            "Length": 120,
+            "Previous": 192,
+            "Next": 432
           },
           {
             "Row": 384,
             "Measure": 6,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 8,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -609,79 +739,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 1,
             "Relative": 23,
-            "Length": 72
+            "Length": 72,
+            "Previous": -25,
+            "Next": 119
           },
           {
             "Row": 48,
             "Measure": 2,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 2,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 3,
             "Relative": 0,
-            "Length": 84
+            "Length": 84,
+            "Previous": 12,
+            "Next": 180
           },
           {
             "Row": 144,
             "Measure": 3,
             "Relative": 48,
-            "Length": 84
+            "Length": 84,
+            "Previous": 60,
+            "Next": 228
           },
           {
             "Row": 191,
             "Measure": 4,
             "Relative": 11,
-            "Length": 84
+            "Length": 84,
+            "Previous": 107,
+            "Next": 275
           },
           {
             "Row": 192,
             "Measure": 4,
             "Relative": 12,
-            "Length": 84
+            "Length": 84,
+            "Previous": 108,
+            "Next": 276
           },
           {
             "Row": 240,
             "Measure": 4,
             "Relative": 60,
-            "Length": 84
+            "Length": 84,
+            "Previous": 156,
+            "Next": 324
           },
           {
             "Row": 312,
             "Measure": 5,
             "Relative": 48,
-            "Length": 84
+            "Length": 84,
+            "Previous": 228,
+            "Next": 396
           },
           {
             "Row": 384,
             "Measure": 7,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 9,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -727,79 +883,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 1,
             "Relative": 23,
-            "Length": 72
+            "Length": 72,
+            "Previous": -25,
+            "Next": 119
           },
           {
             "Row": 48,
             "Measure": 2,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 2,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 3,
             "Relative": 0,
-            "Length": 84
+            "Length": 84,
+            "Previous": 12,
+            "Next": 180
           },
           {
             "Row": 144,
             "Measure": 3,
             "Relative": 48,
-            "Length": 84
+            "Length": 84,
+            "Previous": 60,
+            "Next": 228
           },
           {
             "Row": 191,
             "Measure": 4,
             "Relative": 11,
-            "Length": 84
+            "Length": 84,
+            "Previous": 107,
+            "Next": 275
           },
           {
             "Row": 192,
             "Measure": 4,
             "Relative": 12,
-            "Length": 84
+            "Length": 84,
+            "Previous": 108,
+            "Next": 276
           },
           {
             "Row": 240,
             "Measure": 4,
             "Relative": 60,
-            "Length": 84
+            "Length": 84,
+            "Previous": 156,
+            "Next": 324
           },
           {
             "Row": 312,
             "Measure": 5,
             "Relative": 48,
-            "Length": 84
+            "Length": 84,
+            "Previous": 228,
+            "Next": 396
           },
           {
             "Row": 384,
             "Measure": 7,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 9,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -845,79 +1027,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 1,
             "Relative": 23,
-            "Length": 72
+            "Length": 72,
+            "Previous": -25,
+            "Next": 119
           },
           {
             "Row": 48,
             "Measure": 2,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 2,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 3,
             "Relative": 0,
-            "Length": 84
+            "Length": 84,
+            "Previous": 12,
+            "Next": 180
           },
           {
             "Row": 144,
             "Measure": 3,
             "Relative": 48,
-            "Length": 84
+            "Length": 84,
+            "Previous": 60,
+            "Next": 228
           },
           {
             "Row": 191,
             "Measure": 4,
             "Relative": 11,
-            "Length": 84
+            "Length": 84,
+            "Previous": 107,
+            "Next": 275
           },
           {
             "Row": 192,
             "Measure": 4,
             "Relative": 12,
-            "Length": 84
+            "Length": 84,
+            "Previous": 108,
+            "Next": 276
           },
           {
             "Row": 240,
             "Measure": 4,
             "Relative": 60,
-            "Length": 84
+            "Length": 84,
+            "Previous": 156,
+            "Next": 324
           },
           {
             "Row": 312,
             "Measure": 5,
             "Relative": 48,
-            "Length": 84
+            "Length": 84,
+            "Previous": 228,
+            "Next": 396
           },
           {
             "Row": 384,
             "Measure": 7,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 9,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -969,79 +1177,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 1,
             "Relative": 23,
-            "Length": 72
+            "Length": 72,
+            "Previous": -25,
+            "Next": 119
           },
           {
             "Row": 48,
             "Measure": 2,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 2,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 3,
             "Relative": 0,
-            "Length": 84
+            "Length": 84,
+            "Previous": 12,
+            "Next": 180
           },
           {
             "Row": 144,
             "Measure": 4,
             "Relative": 24,
-            "Length": 30
+            "Length": 30,
+            "Previous": 114,
+            "Next": 174
           },
           {
             "Row": 191,
             "Measure": 6,
             "Relative": 11,
-            "Length": 30
+            "Length": 30,
+            "Previous": 161,
+            "Next": 221
           },
           {
             "Row": 192,
             "Measure": 6,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 162,
+            "Next": 222
           },
           {
             "Row": 240,
             "Measure": 8,
             "Relative": 0,
-            "Length": 30
+            "Length": 30,
+            "Previous": 210,
+            "Next": 270
           },
           {
             "Row": 312,
             "Measure": 10,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 282,
+            "Next": 342
           },
           {
             "Row": 384,
             "Measure": 13,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 15,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -1093,79 +1327,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 1,
             "Relative": 23,
-            "Length": 72
+            "Length": 72,
+            "Previous": -25,
+            "Next": 119
           },
           {
             "Row": 48,
             "Measure": 2,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 2,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 3,
             "Relative": 0,
-            "Length": 84
+            "Length": 84,
+            "Previous": 12,
+            "Next": 180
           },
           {
             "Row": 144,
             "Measure": 4,
             "Relative": 24,
-            "Length": 30
+            "Length": 30,
+            "Previous": 114,
+            "Next": 174
           },
           {
             "Row": 191,
             "Measure": 6,
             "Relative": 11,
-            "Length": 30
+            "Length": 30,
+            "Previous": 161,
+            "Next": 221
           },
           {
             "Row": 192,
             "Measure": 6,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 162,
+            "Next": 222
           },
           {
             "Row": 240,
             "Measure": 8,
             "Relative": 0,
-            "Length": 30
+            "Length": 30,
+            "Previous": 210,
+            "Next": 270
           },
           {
             "Row": 312,
             "Measure": 10,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 282,
+            "Next": 342
           },
           {
             "Row": 384,
             "Measure": 13,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 15,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -1217,79 +1477,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 1,
             "Relative": 23,
-            "Length": 72
+            "Length": 72,
+            "Previous": -25,
+            "Next": 119
           },
           {
             "Row": 48,
             "Measure": 2,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 2,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 3,
             "Relative": 0,
-            "Length": 84
+            "Length": 84,
+            "Previous": 12,
+            "Next": 180
           },
           {
             "Row": 144,
             "Measure": 4,
             "Relative": 24,
-            "Length": 30
+            "Length": 30,
+            "Previous": 114,
+            "Next": 174
           },
           {
             "Row": 191,
             "Measure": 6,
             "Relative": 11,
-            "Length": 30
+            "Length": 30,
+            "Previous": 161,
+            "Next": 221
           },
           {
             "Row": 192,
             "Measure": 6,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 162,
+            "Next": 222
           },
           {
             "Row": 240,
             "Measure": 8,
             "Relative": 0,
-            "Length": 30
+            "Length": 30,
+            "Previous": 210,
+            "Next": 270
           },
           {
             "Row": 312,
             "Measure": 10,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 282,
+            "Next": 342
           },
           {
             "Row": 384,
             "Measure": 13,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 15,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -1341,79 +1627,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 1,
             "Relative": 22,
-            "Length": 72
+            "Length": 72,
+            "Previous": -25,
+            "Next": 119
           },
           {
             "Row": 48,
             "Measure": 2,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 2,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 3,
             "Relative": 0,
-            "Length": 84
+            "Length": 84,
+            "Previous": 12,
+            "Next": 180
           },
           {
             "Row": 144,
             "Measure": 4,
             "Relative": 24,
-            "Length": 30
+            "Length": 30,
+            "Previous": 114,
+            "Next": 174
           },
           {
             "Row": 191,
             "Measure": 6,
             "Relative": 11,
-            "Length": 30
+            "Length": 30,
+            "Previous": 161,
+            "Next": 221
           },
           {
             "Row": 192,
             "Measure": 6,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 162,
+            "Next": 222
           },
           {
             "Row": 240,
             "Measure": 8,
             "Relative": 0,
-            "Length": 30
+            "Length": 30,
+            "Previous": 210,
+            "Next": 270
           },
           {
             "Row": 312,
             "Measure": 10,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 282,
+            "Next": 342
           },
           {
             "Row": 384,
             "Measure": 13,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 15,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -1465,79 +1777,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 1,
             "Relative": 22,
-            "Length": 72
+            "Length": 72,
+            "Previous": -25,
+            "Next": 119
           },
           {
             "Row": 48,
             "Measure": 2,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 2,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 3,
             "Relative": 0,
-            "Length": 84
+            "Length": 84,
+            "Previous": 12,
+            "Next": 180
           },
           {
             "Row": 144,
             "Measure": 4,
             "Relative": 24,
-            "Length": 30
+            "Length": 30,
+            "Previous": 114,
+            "Next": 174
           },
           {
             "Row": 191,
             "Measure": 6,
             "Relative": 11,
-            "Length": 30
+            "Length": 30,
+            "Previous": 161,
+            "Next": 221
           },
           {
             "Row": 192,
             "Measure": 6,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 162,
+            "Next": 222
           },
           {
             "Row": 240,
             "Measure": 8,
             "Relative": 0,
-            "Length": 30
+            "Length": 30,
+            "Previous": 210,
+            "Next": 270
           },
           {
             "Row": 312,
             "Measure": 10,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 282,
+            "Next": 342
           },
           {
             "Row": 384,
             "Measure": 13,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 15,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -1589,79 +1927,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 1,
             "Relative": 22,
-            "Length": 72
+            "Length": 72,
+            "Previous": -25,
+            "Next": 119
           },
           {
             "Row": 48,
             "Measure": 2,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 2,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 3,
             "Relative": 0,
-            "Length": 84
+            "Length": 84,
+            "Previous": 12,
+            "Next": 180
           },
           {
             "Row": 144,
             "Measure": 4,
             "Relative": 24,
-            "Length": 30
+            "Length": 30,
+            "Previous": 114,
+            "Next": 174
           },
           {
             "Row": 191,
             "Measure": 6,
             "Relative": 11,
-            "Length": 30
+            "Length": 30,
+            "Previous": 161,
+            "Next": 221
           },
           {
             "Row": 192,
             "Measure": 6,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 162,
+            "Next": 222
           },
           {
             "Row": 240,
             "Measure": 8,
             "Relative": 0,
-            "Length": 30
+            "Length": 30,
+            "Previous": 210,
+            "Next": 270
           },
           {
             "Row": 312,
             "Measure": 10,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 282,
+            "Next": 342
           },
           {
             "Row": 384,
             "Measure": 13,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 15,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -1707,79 +2071,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 0,
             "Relative": 47,
-            "Length": 192
+            "Length": 192,
+            "Previous": -145,
+            "Next": 239
           },
           {
             "Row": 48,
             "Measure": 1,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 1,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 2,
             "Relative": 0,
-            "Length": 84
+            "Length": 84,
+            "Previous": 12,
+            "Next": 180
           },
           {
             "Row": 144,
             "Measure": 3,
             "Relative": 24,
-            "Length": 30
+            "Length": 30,
+            "Previous": 114,
+            "Next": 174
           },
           {
             "Row": 191,
             "Measure": 5,
             "Relative": 11,
-            "Length": 30
+            "Length": 30,
+            "Previous": 161,
+            "Next": 221
           },
           {
             "Row": 192,
             "Measure": 5,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 162,
+            "Next": 222
           },
           {
             "Row": 240,
             "Measure": 7,
             "Relative": 0,
-            "Length": 30
+            "Length": 30,
+            "Previous": 210,
+            "Next": 270
           },
           {
             "Row": 312,
             "Measure": 9,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 282,
+            "Next": 342
           },
           {
             "Row": 384,
             "Measure": 12,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 14,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }
@@ -1825,79 +2215,105 @@
             "Row": 0,
             "Measure": 0,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": -192,
+            "Next": 192
           },
           {
             "Row": 1,
             "Measure": 0,
             "Relative": 1,
-            "Length": 192
+            "Length": 192,
+            "Previous": -191,
+            "Next": 193
           },
           {
             "Row": 47,
             "Measure": 0,
             "Relative": 47,
-            "Length": 192
+            "Length": 192,
+            "Previous": -145,
+            "Next": 239
           },
           {
             "Row": 48,
             "Measure": 1,
             "Relative": 0,
-            "Length": 144
+            "Length": 144,
+            "Previous": -96,
+            "Next": 192
           },
           {
             "Row": 49,
             "Measure": 1,
             "Relative": 1,
-            "Length": 144
+            "Length": 144,
+            "Previous": -95,
+            "Next": 193
           },
           {
             "Row": 96,
             "Measure": 2,
             "Relative": 0,
-            "Length": 84
+            "Length": 84,
+            "Previous": 12,
+            "Next": 180
           },
           {
             "Row": 144,
             "Measure": 3,
             "Relative": 24,
-            "Length": 30
+            "Length": 30,
+            "Previous": 114,
+            "Next": 174
           },
           {
             "Row": 191,
             "Measure": 5,
             "Relative": 11,
-            "Length": 30
+            "Length": 30,
+            "Previous": 161,
+            "Next": 221
           },
           {
             "Row": 192,
             "Measure": 5,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 162,
+            "Next": 222
           },
           {
             "Row": 240,
             "Measure": 7,
             "Relative": 0,
-            "Length": 30
+            "Length": 30,
+            "Previous": 210,
+            "Next": 270
           },
           {
             "Row": 312,
             "Measure": 9,
             "Relative": 12,
-            "Length": 30
+            "Length": 30,
+            "Previous": 282,
+            "Next": 342
           },
           {
             "Row": 384,
             "Measure": 12,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 192,
+            "Next": 576
           },
           {
             "Row": 768,
             "Measure": 14,
             "Relative": 0,
-            "Length": 192
+            "Length": 192,
+            "Previous": 576,
+            "Next": 960
           }
         ]
       }

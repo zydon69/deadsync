@@ -279,3 +279,68 @@ fn label_shortcuts_are_scoped_to_chart_view_and_support_command_modifier() {
     assert_eq!(empty.workspace().row(), 0);
     assert!(!empty.workspace().file().session.is_dirty());
 }
+
+#[test]
+fn page_keys_use_departure_measure_independently_of_snap_and_keep_selection() {
+    let (dir, _) = setup();
+    let path = dir.path().join("meters.ssc");
+    fs::write(
+        &path,
+        SONG.replace("#BPMS:0=120;", "#BPMS:0=120;#TIMESIGNATURES:0=3=4,4=7=8;"),
+    )
+    .unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    let bytes = state.workspace().file().session.serialize().unwrap();
+    key(&mut state, KeyCode::PageDown);
+    assert_eq!(state.workspace().row(), 144);
+    key(&mut state, KeyCode::ArrowRight); // eighth-note snap
+    key(&mut state, KeyCode::ArrowDown);
+    assert_eq!(state.workspace().row(), 168);
+    key(&mut state, KeyCode::Space);
+    key(&mut state, KeyCode::PageDown); // 3/4 at departure, crosses 7/8 change
+    assert_eq!(state.workspace().row(), 312);
+    assert_eq!(state.workspace().selection(), Some((168, 312)));
+    key(&mut state, KeyCode::PageUp); // 7/8 now, not an inverse of the first move
+    assert_eq!(state.workspace().row(), 144);
+    assert_eq!(state.workspace().file().session.serialize().unwrap(), bytes);
+    assert!(!state.workspace().file().session.is_dirty());
+}
+
+#[test]
+fn measure_shortcut_repeat_stops_audio_and_inspectors_retain_focus() {
+    let (dir, _) = setup();
+    let path = dir.path().join("meters.ssc");
+    fs::write(
+        &path,
+        SONG.replace("#BPMS:0=120;", "#BPMS:0=120;#TIMESIGNATURES:0=3=4,4=7=8;"),
+    )
+    .unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    key(&mut state, KeyCode::Enter);
+    state.take_audio_commands();
+    key(&mut state, KeyCode::PageDown);
+    assert_eq!(state.workspace().row(), 144);
+    assert!(!state.is_playing());
+    assert_eq!(
+        state.take_audio_commands(),
+        vec![GameplayAudioCommand::StopMusic]
+    );
+    let repeat = RawKeyboardEvent {
+        code: KeyCode::PageDown,
+        pressed: true,
+        repeat: true,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    };
+    state.raw_key(&repeat);
+    assert_eq!(state.workspace().row(), 288);
+    state.raw_key(&repeat);
+    assert_eq!(state.workspace().row(), 456);
+    key(&mut state, KeyCode::F10);
+    key(&mut state, KeyCode::PageUp);
+    assert_eq!(state.workspace().row(), 456);
+    key(&mut state, KeyCode::Escape);
+    key(&mut state, KeyCode::PageUp);
+    assert_eq!(state.workspace().row(), 288);
+    assert!(!state.workspace().file().session.is_dirty());
+}

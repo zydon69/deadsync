@@ -25,6 +25,8 @@ pub const TOOLS: [Kind; 6] = [
 pub enum Command {
     Move(i64),
     Seek(u64),
+    PreviousMeasure,
+    NextMeasure,
     PreviousLabel,
     NextLabel,
     SetSnap(usize),
@@ -131,6 +133,18 @@ impl Workspace {
                 };
             }
             Command::Seek(row) => self.row = row,
+            Command::PreviousMeasure | Command::NextMeasure => {
+                let signatures = crate::timing_edit::signature::Signatures::from_document(
+                    self.file.session.document(),
+                    self.chart,
+                )?;
+                let destination = signatures.measure_destination(
+                    self.row,
+                    matches!(command, Command::PreviousMeasure),
+                )?;
+                // Workspace note positions are currently nonnegative reference rows.
+                self.row = destination.clamp(0, i32::MAX as i64) as u64;
+            }
             Command::PreviousLabel | Command::NextLabel => {
                 let labels = crate::timing_edit::label::Labels::from_document(
                     self.file.session.document(),

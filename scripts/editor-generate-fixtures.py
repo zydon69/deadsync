@@ -174,6 +174,9 @@ def prepare_scroll_reference(editor):
 def prepare_signature_reference(editor):
     source=subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/EditorEvents/EditorTimeSignatureEvent.cs"],cwd=editor).decode("utf-8-sig")
     pieces={"VALIDATOR":extract_member(source,r"\tpublic static \(bool, Fraction\) IsValidTimeSignatureString\("),"SETTER":extract_member(source,r"\tpublic string StringValue\s*")}
+    editor_source=subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/Editor.cs"],cwd=editor).decode("utf-8-sig")
+    pieces["PREVIOUS_MEASURE"]=extract_member(editor_source,r"\tprivate void OnMoveToPreviousMeasure\(")
+    pieces["NEXT_MEASURE"]=extract_member(editor_source,r"\tprivate void OnMoveToNextMeasure\(")
     project=ROOT/"scripts/editor-oracle";text=(project/"SignatureReference.cs.template").read_text()
     for name,body in pieces.items():text=text.replace("// "+name,body)
     (project/"obj/SignatureReference.cs").write_text(text)

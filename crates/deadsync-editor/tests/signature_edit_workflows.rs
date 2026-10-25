@@ -39,6 +39,15 @@ fn check(map: &Signatures, expected: &Value) {
         assert_eq!(position.measure, node["Measure"].as_u64().unwrap());
         assert_eq!(position.row_in_measure, node["Relative"].as_u64().unwrap());
         assert_eq!(position.rows_per_measure, node["Length"].as_u64().unwrap());
+        let row = node["Row"].as_u64().unwrap();
+        assert_eq!(
+            map.measure_destination(row, true).unwrap() as f64,
+            node["Previous"].as_f64().unwrap()
+        );
+        assert_eq!(
+            map.measure_destination(row, false).unwrap() as f64,
+            node["Next"].as_f64().unwrap()
+        );
     }
 }
 #[test]
