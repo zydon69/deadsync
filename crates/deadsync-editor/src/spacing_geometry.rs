@@ -4,7 +4,17 @@ use crate::{
     spacing::{Anchor, Helper},
     spacing_index::Index,
     spacing_search::Settings,
+    zoom::SpacingMode,
 };
+/// Conservative inclusive candidate rows for one rate section. Adjacent spans
+/// may overlap at event phases; callers still filter exact event Y and phase.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct VisibleRows {
+    pub section: usize,
+    pub start: u64,
+    pub end: u64,
+}
+
 #[derive(Clone, Copy)]
 pub struct Cursor<'a> {
     index: &'a Index,
@@ -107,6 +117,117 @@ impl<'a> Cursor<'a> {
         }
         Ok(())
     }
+    /// Visit every rate section, retaining all viewport crossings when variable
+    /// scrolling folds back on itself. Work is proportional to rate events,
+    /// never chart rows. Collapsed sections need no inverse division.
+    ///
+    /// The supplied last row bounds the chart domain. Results are conservative
+    /// candidates for bounded note/grid queries, not a replacement for exact
+    /// event projection. In particular same-row timing phases may overlap.
+    pub fn visible_rows(
+        &self,
+        top: f64,
+        bottom: f64,
+        last_row: u64,
+    ) -> Result<Vec<VisibleRows>, Error> {
+        if !top.is_finite() || !bottom.is_finite() || top > bottom {
+            return Err(Error::InvalidEdit("Invalid geometry viewport".into()));
+        }
+        let mut cursor = *self;
+        cursor.walk_to(0)?;
+        let mut result = Vec::new();
+        for section in 0..self.index.sections().len() {
+            cursor.walk_to(section)?;
+            let rate = self.index.sections()[section];
+            // Include neighboring integer rows to retain exact-boundary events
+            // despite floating-point inverse rounding, including large rows.
+            let lower = if section == 0 {
+                0
+            } else {
+                rate.mapping.row().next_down().floor().max(0.0) as u64
+            };
+            let upper = self
+                .index
+                .sections()
+                .get(section + 1)
+                .map(|next| next.mapping.row().next_up().ceil().max(0.0) as u64)
+                .unwrap_or(last_row)
+                .min(last_row);
+            if lower > upper {
+                continue;
+            }
+            let coefficient = if self.settings.mode == SpacingMode::ConstantTime {
+                cursor.helper.pixels_per_second()
+            } else {
+                cursor.helper.pixels_per_row()
+            };
+            let (start, end) = if coefficient == 0.0 {
+                if cursor.anchor.y < top || cursor.anchor.y > bottom {
+                    continue;
+                }
+                (lower, upper)
+            } else if self.settings.mode == SpacingMode::ConstantTime {
+                // time_at is monotone within a section but not injective:
+                // warps and negative stops collapse entire row intervals.
+                // Find both ends of that preimage instead of using position_at,
+                // whose single answer would discard collapsed visible notes.
+                let direction = if self.settings.reverse { -1.0 } else { 1.0 };
+                let minimum = (top * direction).min(bottom * direction);
+                let maximum = (top * direction).max(bottom * direction);
+                let first = |threshold: f64, strict: bool| -> Result<u128, Error> {
+                    let mut lo = u128::from(lower);
+                    let mut hi = u128::from(upper) + 1;
+                    while lo < hi {
+                        let mid = lo + (hi - lo) / 2;
+                        let y = cursor
+                            .helper
+                            .row_y(mid as f64, cursor.anchor.y, |row| rate.mapping.time_at(row))?
+                            * direction;
+                        if y < threshold || (strict && y == threshold) {
+                            lo = mid + 1;
+                        } else {
+                            hi = mid;
+                        }
+                    }
+                    Ok(lo)
+                };
+                let start = first(minimum, false)?;
+                let end = first(maximum, true)?;
+                if start >= end {
+                    continue;
+                }
+                (start as u64, (end - 1) as u64)
+            } else {
+                let row_at = |y| {
+                    cursor
+                        .helper
+                        .location(
+                            y,
+                            cursor.anchor,
+                            false,
+                            |time| rate.mapping.position_at(time),
+                            |row| rate.mapping.time_at(row),
+                        )
+                        .map(|(_, row)| row)
+                };
+                let a = row_at(top)?;
+                let b = row_at(bottom)?;
+                let start = (a.min(b).next_down().floor().max(0.0) as u64).max(lower);
+                let end = (a.max(b).next_up().ceil().max(0.0) as u64).min(upper);
+                if start > end {
+                    continue;
+                }
+                (start, end)
+            };
+            result.push(VisibleRows {
+                section,
+                start,
+                end,
+            });
+        }
+        Ok(result)
+    }
+
     /// Original CheckForCompletingHold endpoint: the tail's phase is 11,
     /// and the cap follows Reverse, independently of a negative scroll rate.
     /// Cap height is already scaled by the caller's note-size zoom.

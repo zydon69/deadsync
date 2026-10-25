@@ -3821,3 +3821,33 @@ whole completion method. Four targeted workflows passed, including actual SSC
 same-row delay/stop timing and negative-scroll cap-direction checks. The prior
 full editor suite completed with 391 passing tests before this endpoint addition.
 Native hold rendering remains to be connected to the new geometry.
+
+### Viewport candidates across folded and collapsed sections
+
+`spacing_geometry::Cursor::visible_rows` now returns inclusive candidate row
+spans per rate section, visiting every section rather than stopping at the first
+viewport crossing. This retains disjoint visible intervals after negative scroll
+changes. Exact event Y/phase filtering remains the renderer's responsibility;
+neighboring spans deliberately overlap at rate boundaries.
+
+ConstantTime discovery searches both ends of the monotone row-to-time preimage
+inside each section. A single time-to-row inverse is insufficient: warps and
+negative stops can map an entire interval of rows onto one visible instant.
+The monotone searches require at most 64 probes apiece even for a u64-wide chart
+domain; they never enumerate chart rows. Row/Variable discovery uses conservative
+inverse bounds, and zero-rate sections retain their entire domain when their
+shared Y lies in the viewport. All traversal operates on a copied cursor.
+
+Tests compare candidate completeness against 86,616 direct event projections
+across 54 viewports from the eighteen original geometry cases. Dedicated cases
+check three disjoint folded intervals, zero-rate sections, invalid bounds, and
+warp/negative-stop plateaus (including u64::MAX domain) in both directions.
+The viewport discovery is new Rust rendering support, not an unchanged original
+GrooveAuthor method or an original-renderer parity claim. It addresses the
+negative-scroll early-cutoff limitation noted in the original renderer.
+Native display-mode wiring and bounded consumption of these spans remain pending.
+
+Validation for viewport discovery: all 18 workflows in the geometry, index,
+search, initialized-section and scalar-spacing integration targets passed.
+`cargo check -p deadsync --jobs 2 --locked` passed. This is targeted validation;
+the full editor suite was not rerun for this addition.
