@@ -102,6 +102,25 @@ impl State {
         }
         self.refresh_sample_region();
     }
+    pub(super) fn song_sample_label(&self, index: usize, key: &str) -> Arc<str> {
+        if index == 2
+            && self
+                .song_properties
+                .as_ref()
+                .is_some_and(|draft| !draft.supports_last_second_hint())
+        {
+            return i18n::tr("Edition", "SongLastSecondHintUnsupported");
+        }
+        let seconds = self
+            .song_properties
+            .as_ref()
+            .map_or(0.0, |draft| match index {
+                0 => draft.sample_start(),
+                1 => draft.sample_length(),
+                _ => draft.last_second_hint(),
+            });
+        i18n::tr_fmt("Edition", key, &[("seconds", &format!("{seconds:.6}"))])
+    }
     pub(super) fn song_sample_key(&mut self, index: usize, code: KeyCode) {
         if code == KeyCode::F4 {
             self.toggle_sample_audio();
@@ -176,9 +195,16 @@ impl State {
             self.status = i18n::tr("Edition", "SongSampleStaged");
         } else if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
             let backwards = code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift);
-            self.panel = Some(Panel::SongSample(
-                (index + if backwards { 3 } else { 1 }) % 4,
-            ));
+            let next = (index + if backwards { 3 } else { 1 }) % 4;
+            self.panel = Some(Panel::SongSample(next));
+            self.status = i18n::tr(
+                "Edition",
+                if next == 2 {
+                    "SongLastSecondHintHelp"
+                } else {
+                    "SongSampleHelp"
+                },
+            );
         } else if index < 3
             && matches!(
                 code,

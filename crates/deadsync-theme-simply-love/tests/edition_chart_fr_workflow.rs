@@ -472,3 +472,32 @@ fn french_song_music_offset_and_itg_explanation_are_keyboard_accessible() {
         song.as_bytes()
     );
 }
+
+#[test]
+fn french_end_hint_explains_song_end_and_marks_sm_unavailable() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    for sm in [false, true] {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join(if sm { "song.sm" } else { "song.ssc" });
+        fs::write(&path,if sm {"#BPMS:0=120;#NOTES:dance-single::Hard:9::1000;"} else {"#VERSION:0.83;#BPMS:0=120;#LASTSECONDHINT:12.5;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;"}).unwrap();
+        let mut state = State::open(&path, 0).unwrap();
+        press(&mut state, KeyCode::F11);
+        press(&mut state, KeyCode::F6);
+        press(&mut state, KeyCode::Tab);
+        press(&mut state, KeyCode::Tab);
+        let labels = texts(&state);
+        assert!(
+            labels
+                .iter()
+                .any(|s| s.contains("continuer après la dernière note"))
+        );
+        assert!(labels.iter().any(|s| s.contains(if sm {
+            "Indication de fin : indisponible en SM"
+        } else {
+            "Indication de fin (SSC) : 12.500000 s"
+        })));
+    }
+}

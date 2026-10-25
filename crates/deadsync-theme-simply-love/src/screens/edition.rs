@@ -2748,8 +2748,7 @@ impl State {
             } else if matches!(panel, Panel::Timing(_)) {
                 self.timing_label(index, key)
             } else if matches!(panel, Panel::SongSample(_)) && index < 3 {
-                let seconds = self.song_properties.as_ref().map_or(0.0, |draft| if index == 0 { draft.sample_start() } else if index == 1 { draft.sample_length() } else { draft.last_second_hint() });
-                i18n::tr_fmt("Edition", key, &[("seconds", &format!("{seconds:.6}"))])
+                self.song_sample_label(index, key)
             } else if matches!(panel, Panel::SongProperties(_)) && matches!(index, 0 | 4) {
                 let offset = self.song_properties.as_ref().map_or(0.0, |draft| if index == 4 { draft.music_offset() } else { draft.sync_offset() });
                 i18n::tr_fmt("Edition", key, &[("seconds", &format!("{offset:.6}"))])

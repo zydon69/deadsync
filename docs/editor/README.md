@@ -2916,3 +2916,12 @@ All 14 core song-properties tests pass, including finite validation, untouched
 legacy value, SSC apply/undo/redo/reopen and SM refusal. The previous broad core
 run completed successfully but preceded final source/fixture edits; a fresh
 full core run is active at the current state and must be reported separately.
+
+The end-hint native label now explicitly displays unavailable in SM instead of
+a numeric value. Selecting that row explains its optional song-end purpose in
+English/French and lists the current-time/jump/Apply controls. This is a field
+explanation, not proof that gameplay consumes LASTSECONDHINT. A French public
+keyboard workflow covers SSC value formatting, SM unavailable state and help.
+A broader `edition_*` integration run is also launched at this source state.
+
+All 23 selected French chart-property and song-text workflows pass after the end-hint label/help update. Full core and editor integration results are pending.
