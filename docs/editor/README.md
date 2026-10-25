@@ -2473,3 +2473,58 @@ and the one shell adapter lifetime test pass. `cargo check -p deadsync --locked`
 passes. Actual OS transfers, backend latency, physical/GPU behavior and the
 previously documented unrelated shell unit-test fixture gap are not certified
 by these synthetic tests.
+
+### Per-chart music files
+
+F7 > Chart text and music now includes the SSC chart MUSIC override. Type or
+paste a path, press F2 in that field to choose a file, or F3 to clear it and
+inherit the song music. The empty field displays that inheritance explicitly.
+Like the existing text fields, music supports cursor/selection, clipboard and
+local undo. It is staged with the other chart properties and applies in their
+single history gesture. SM cannot persist per-chart music and marks this field
+unavailable; song-level music editing and transient SM chart overrides remain
+separate outstanding work.
+
+The original EditorChart constructor reads the raw TagMusic extra, rather than
+the reader's inherited Chart.MusicFile. Four actual Fumen reader fixtures prove
+this distinction in SSC override/empty/missing fields and SM. Six fixtures call
+the pinned Fumen.Path.GetRelativePath helper directly and compare same-folder,
+subfolder, outside-folder, dot components, spaces/hash, Unicode and literal
+percent paths with the Rust lexical conversion. Other platform-specific URI,
+root/case and symlink edge cases are not certified by those six fixtures.
+
+The native picker uses the existing rfd dependency and the original five audio
+extensions (mp3/oga/ogg/opus/wav), plus All files. It starts in the song folder
+when the current override is empty, or the current audio directory when valid.
+It selects one existing file and stores a relative path, including ../ for an
+outside file; it never copies or rewrites the audio. Different filesystem roots
+retain an absolute path. Selected paths must be Unicode without controls; Unix
+literal backslashes are rejected because playback treats them as separators.
+Typed paths may reference a missing asset, matching the original permissive
+property setter; playback reports that condition before issuing an audio command.
+
+A music picker request is bound to the field edit serial. Changes of field,
+text, IME state or clearing the override invalidate a pending request before any
+dialog opens. Cancel/failure leaves the draft and its undo history intact. The
+shell services requests after Practice raw keys through a testable Picker
+boundary. The actual platform dialog is modal and runs on the UI thread; live
+focus/input behavior, keyboard interaction in that dialog and audible playback
+still require runtime validation.
+
+The existing playback snapshot already resolves an explicit working chart MUSIC
+before song MUSIC. Tests now exercise that path through the F7 draft, application,
+undo/redo, clear, save/reopen and real GameplayAudioCommand::PlayMusic payloads.
+Opening properties stops transport before changing files. Command tests use
+small file fixtures and do not claim decoder or speaker output validation.
+Four core workflows cover reader inheritance, combined atomic edits, path
+fixtures, filesystem validation and unsupported SM persistence. Three native
+workflows cover picker/clear/audio commands, cancel/invalid/stale requests and
+keyboard path entry. A French workflow verifies labels and cancel/clear without
+saving. One shell integration target tests the actual adapter's initial-directory
+calculation without opening an OS dialog.
+
+Validation for per-chart music: all 320 core tests, 139 native editor tests and
+both shell adapter contract/lifetime tests pass. `cargo check -p deadsync --locked`
+passes. Native modal focus/input, physical rendering, actual decoding/audibility,
+other platform path edge cases and the existing unrelated shell unit-test fixture
+gap remain outside those passing claims.

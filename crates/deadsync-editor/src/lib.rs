@@ -12,6 +12,7 @@ pub mod clipboard;
 pub mod document;
 pub mod generation;
 pub mod history;
+pub mod music_file;
 pub mod notes;
 mod number;
 pub mod pad;

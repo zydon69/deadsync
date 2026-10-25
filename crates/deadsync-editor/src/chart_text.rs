@@ -10,15 +10,23 @@ pub enum Field {
     Description,
     Credit,
     Style,
+    Music,
 }
 impl Field {
-    pub const ALL: [Self; 4] = [Self::Name, Self::Description, Self::Credit, Self::Style];
+    pub const ALL: [Self; 5] = [
+        Self::Name,
+        Self::Description,
+        Self::Credit,
+        Self::Style,
+        Self::Music,
+    ];
     fn tag(self) -> &'static str {
         match self {
             Self::Name => "CHARTNAME",
             Self::Description => "DESCRIPTION",
             Self::Credit => "CREDIT",
             Self::Style => "CHARTSTYLE",
+            Self::Music => "MUSIC",
         }
     }
     fn index(self) -> usize {
@@ -27,8 +35,8 @@ impl Field {
 }
 pub struct Text {
     format: Format,
-    original: [String; 4],
-    values: [String; 4],
+    original: [String; 5],
+    values: [String; 5],
 }
 impl Text {
     pub fn read(document: &Document, chart: usize) -> Result<Self, Error> {
@@ -40,6 +48,7 @@ impl Text {
                 String::new(),
                 document.sm_header_text(chart, 1)?,
                 document.text(None, "CREDIT").unwrap_or_default(),
+                String::new(),
                 String::new(),
             ]
         } else {

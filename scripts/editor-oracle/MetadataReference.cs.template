@@ -32,7 +32,8 @@ internal class EditorChart {
                 return song.Charts.Select(chart=> {
                     chart.Extras.TryGetExtra(TagChartName,out string name,true);
                     chart.Extras.TryGetExtra(TagChartStyle,out string style,true);
-                    return new {Name=name??"",Description=chart.Description??"",Credit=chart.Author??"",Style=style??""};
+                    chart.Extras.TryGetExtra(TagMusic,out string music,true);
+                    return new {Name=name??"",Description=chart.Description??"",Credit=chart.Author??"",Style=style??"",Music=music??"",EffectiveMusic=chart.MusicFile??""};
                 }).ToArray();
             }
             return song.Charts.Select(chart=>new {Difficulty=Enum.TryParse<ChartDifficultyType>(chart.DifficultyType,out var difficulty)&&Enum.IsDefined(difficulty)?difficulty.ToString():null,Rating=(int)chart.DifficultyRating}).ToArray();

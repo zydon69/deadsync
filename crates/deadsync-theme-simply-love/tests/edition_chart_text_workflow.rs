@@ -141,6 +141,7 @@ fn cancel_controls_back_navigation_and_empty_credit_follow_source_persistence() 
     assert!(has(&s, "Credit: "));
     press(&mut s, KeyCode::ArrowDown);
     press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::ArrowDown);
     assert!(!s.wants_text_input());
     press(&mut s, KeyCode::Enter);
     for _ in 0..5 {

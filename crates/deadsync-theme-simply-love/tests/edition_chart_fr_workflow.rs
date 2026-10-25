@@ -239,11 +239,7 @@ fn french_chart_text_panel_labels_input_and_staging_remain_translated() {
     let mut s = State::open(&path, 0).unwrap();
     press(&mut s, KeyCode::F7);
     press(&mut s, KeyCode::ArrowUp);
-    assert!(
-        texts(&s)
-            .iter()
-            .any(|text| text == "Nom, description et crédit...")
-    );
+    assert!(texts(&s).iter().any(|text| text == "Textes et musique..."));
     press(&mut s, KeyCode::Enter);
     assert!(s.text_input("Été"));
     let labels = texts(&s);
@@ -319,6 +315,63 @@ fn french_clipboard_failures_are_translated_without_changing_the_chart() {
         });
         assert!(texts(&s).iter().any(|text| text.contains(label)));
     }
+    assert_eq!(
+        s.workspace().file().session.serialize().unwrap(),
+        song.as_bytes()
+    );
+}
+
+#[test]
+fn french_music_picker_clear_and_cancel_labels_are_resolved_without_saving() {
+    struct Cancel;
+    impl deadsync_editor::music_file::Picker for Cancel {
+        fn choose(
+            &mut self,
+            _: &deadsync_editor::music_file::Browse,
+        ) -> Result<Option<std::path::PathBuf>, deadsync_editor::Error> {
+            Ok(None)
+        }
+    }
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let song =
+        "#VERSION:0.83;#MUSIC:song.ogg;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path, song).unwrap();
+    let mut s = State::open(&path, 0).unwrap();
+    press(&mut s, KeyCode::F7);
+    press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::Enter);
+    for _ in 0..4 {
+        press(&mut s, KeyCode::Tab);
+    }
+    assert!(s.wants_text_input());
+    assert!(s.text_input("Été.ogg"));
+    assert!(
+        texts(&s)
+            .iter()
+            .any(|text| text.contains("Musique : Été.ogg|"))
+    );
+    press(&mut s, KeyCode::F2);
+    assert!(s.process_music_picker(&mut Cancel));
+    assert!(
+        texts(&s)
+            .iter()
+            .any(|text| text.contains("Sélection audio annulée"))
+    );
+    press(&mut s, KeyCode::F3);
+    assert!(
+        texts(&s)
+            .iter()
+            .any(|text| text.contains("Remplacement audio effacé"))
+    );
+    assert_eq!(
+        &*i18n::tr("Edition", "MusicPickerTitle"),
+        "Choisir la musique de la partition"
+    );
     assert_eq!(
         s.workspace().file().session.serialize().unwrap(),
         song.as_bytes()

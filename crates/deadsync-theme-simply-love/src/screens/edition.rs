@@ -7,6 +7,7 @@ mod chart_deletion;
 mod chart_rating;
 mod chart_text;
 mod clipboard;
+mod music_file;
 mod pattern_set;
 mod playback;
 mod song_properties;
@@ -209,6 +210,7 @@ pub struct State {
     chart_rating_input: Option<String>,
     chart_text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
     text_clipboard_request: Option<clipboard::Request>,
+    music_picker_request: Option<music_file::Request>,
     text_edit_serial: u64,
     song_properties: Option<deadsync_editor::song_properties::Draft>,
     timing: Option<timing::Settings>,
@@ -325,6 +327,7 @@ impl State {
             chart_rating_input: None,
             chart_text_buffer: None,
             text_clipboard_request: None,
+            music_picker_request: None,
             text_edit_serial: 0,
             song_properties: None,
             timing: None,
@@ -2273,7 +2276,8 @@ impl State {
                 "TimingCancel",
             ],
             Panel::ChartText(_) => &[
-                "ChartName", "ChartDescription", "ChartCredit", "ChartStyle", "ChartTextBack",
+                "ChartName", "ChartDescription", "ChartCredit", "ChartStyle",
+                "ChartMusic", "ChartTextBack",
             ],
             Panel::ChartProperties(_) => &[
                 "ChartChooseExpression",
@@ -2487,7 +2491,7 @@ impl State {
             } else {
                 [0.8, 0.8, 0.85, 1.0]
             };
-            let label = if matches!(panel, Panel::ChartText(_)) && index < 4 {
+            let label = if matches!(panel, Panel::ChartText(_)) && index < 5 {
                 self.chart_text_label(index)
             } else if matches!(panel, Panel::ChartProperties(_)) && index == 7 {
                 self.chart_difficulty_label()

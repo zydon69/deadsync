@@ -72,11 +72,24 @@ impl State {
     }
     pub(super) fn chart_text_key(&mut self, index: usize, code: KeyCode) {
         self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
+        if self.chart_text_field() == Some(Field::Music) {
+            if code == KeyCode::F2 {
+                if !self.sync_chart_text() {
+                    return;
+                }
+                self.queue_music_picker();
+                return;
+            }
+            if code == KeyCode::F3 {
+                self.clear_chart_music();
+                return;
+            }
+        }
         if self.control && matches!(code, KeyCode::KeyC | KeyCode::KeyX | KeyCode::KeyV) {
             self.queue_text_clipboard(code);
             return;
         }
-        if matches!(code, KeyCode::Escape) || (index == 4 && code == KeyCode::Enter) {
+        if matches!(code, KeyCode::Escape) || (index == 5 && code == KeyCode::Enter) {
             let accepted = self.sync_chart_text();
             self.label_preedit.clear();
             self.chart_text_buffer = None;
@@ -96,15 +109,15 @@ impl State {
                 return;
             }
             let backward = code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift);
-            let delta = if backward { 4 } else { 1 };
-            let mut next = (index + delta) % 5;
-            while next < 4
+            let delta = if backward { 5 } else { 1 };
+            let mut next = (index + delta) % 6;
+            while next < 5
                 && self
                     .chart_properties
                     .as_ref()
                     .is_some_and(|d| !d.supports_text(Field::ALL[next]))
             {
-                next = (next + delta) % 5;
+                next = (next + delta) % 6;
             }
             self.panel = Some(Panel::ChartText(next));
             self.focus_chart_text();
@@ -160,6 +173,7 @@ impl State {
             Field::Description => "ChartDescription",
             Field::Credit => "ChartCredit",
             Field::Style => "ChartStyle",
+            Field::Music => "ChartMusic",
         };
         let value = self
             .chart_properties
@@ -181,6 +195,21 @@ impl State {
                 }
             })
             .unwrap_or_default();
+        let inherited = field == Field::Music
+            && self
+                .chart_properties
+                .as_ref()
+                .is_some_and(|draft| draft.supports_text(field) && draft.text(field).is_empty());
+        let value = if inherited && (value.is_empty() || value == "|") {
+            let hint = i18n::tr("Edition", "ChartMusicInherited");
+            if value.is_empty() {
+                hint.to_string()
+            } else {
+                format!("{value} {hint}")
+            }
+        } else {
+            value
+        };
         i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
 }

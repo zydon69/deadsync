@@ -1,0 +1,5 @@
+{
+  "Operation": "ChartText",
+  "Format": "sm",
+  "Content": "#MUSIC:song.ogg;#BPMS:0=120;#NOTES:dance-single::Hard:9::1000;"
+}

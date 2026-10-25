@@ -761,6 +761,11 @@ def requests(reference: Path):
         ("sm-fields","sm","#BPMS:0=120;#CREDIT:Song author;#NOTES2:dance-single:Été 日本語 A\\:B:Hard:9::1000;")
     ]:
         cases["chart-text-"+label]={"Operation":"ChartText","Format":format,"Content":content}
+    for label,local in [("override","#MUSIC:sub/Été.ogg;"),("empty","#MUSIC:;"),("missing","")]:
+        cases["chart-music-"+label]={"Operation":"ChartText","Format":"ssc","Content":"#VERSION:0.83;#MUSIC:song.ogg;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;"+local+"#NOTES:1000;"}
+    cases["chart-music-sm"]={"Operation":"ChartText","Format":"sm","Content":"#MUSIC:song.ogg;#BPMS:0=120;#NOTES:dance-single::Hard:9::1000;"}
+    for label,directory,path in [("same","/Songs/Pack/Song","/Songs/Pack/Song/chart.ogg"),("subfolder","/Songs/Pack/Song","/Songs/Pack/Song/audio/Été.ogg"),("outside","/Songs/Pack/Song","/Songs/Pack/Other/chart.ogg"),("dots","/Songs/Pack/Song","/Songs/Pack/Song/audio/../chart.ogg"),("spaces","/Songs/Pack/Song","/Songs/Pack/Song/a b#c.ogg"),("percent","/Songs/Pack/Song","/Songs/Pack/Song/a%20b.ogg")]:
+        cases["music-relative-"+label]={"Operation":"MusicRelative","Directory":directory,"Path":path}
     def empty_chart(layout="dance-single",bpm=None,signature=None):
         return "#NOTEDATA:;#STEPSTYPE:"+layout+";"+("#BPMS:"+bpm+";" if bpm is not None else "")+("#TIMESIGNATURES:"+signature+";" if signature is not None else "")+"#NOTES:1"+"0"*({"dance-double":8,"dance-solo":6}.get(layout,4)-1)+";"
     for label,content in {

@@ -8811,6 +8811,10 @@ impl App {
                 };
                 if let Some(state) = self.state.screens.practice_state.as_mut() {
                     screens::practice::process_editor_clipboard(state, &mut self.editor_clipboard);
+                    screens::practice::process_editor_music_picker(
+                        state,
+                        &mut crate::editor_music_picker::NativeMusicPicker,
+                    );
                 }
                 let has_effect = !self.theme_effect_scratch.is_empty();
                 if let Err(e) = self.drain_theme_effects(event_loop) {

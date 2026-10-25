@@ -638,6 +638,12 @@ pub fn wants_editor_text_input(state: &State) -> bool {
 pub fn handle_editor_text(state: &mut State, text: &str) -> bool {
     state.edition.as_mut().is_some_and(|editor|editor.text_input(text))
 }
+pub fn process_editor_music_picker(
+    state: &mut State,
+    picker: &mut impl deadsync_editor::music_file::Picker,
+) -> bool {
+    state.edition.as_mut().is_some_and(|editor| editor.process_music_picker(picker))
+}
 pub fn process_editor_clipboard(
     state: &mut State,
     clipboard: &mut impl deadsync_editor::clipboard::TextClipboard,
