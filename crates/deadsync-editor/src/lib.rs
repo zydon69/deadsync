@@ -19,6 +19,7 @@ pub mod pad;
 pub mod playback;
 pub mod runtime;
 pub mod song_properties;
+pub mod song_text;
 pub mod storage;
 pub mod text_buffer;
 pub mod timing_edit;

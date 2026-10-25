@@ -5,7 +5,7 @@ mod batch;
 mod chart_creation;
 mod chart_deletion;
 mod chart_rating;
-mod chart_text;
+mod text_fields;
 mod clipboard;
 mod music_file;
 mod pattern_set;
@@ -60,6 +60,7 @@ enum Panel {
     Profiles(usize),
     ChartProperties(usize),
     ChartText(usize),
+    SongText(usize),
     SongProperties(usize),
     Timing(usize),
     TimingMigration(usize),
@@ -208,7 +209,7 @@ pub struct State {
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
     chart_rating_input: Option<String>,
-    chart_text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
+    text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
     text_clipboard_request: Option<clipboard::Request>,
     music_picker_request: Option<music_file::Request>,
     text_edit_serial: u64,
@@ -325,7 +326,7 @@ impl State {
             marker: None,
             chart_properties: None,
             chart_rating_input: None,
-            chart_text_buffer: None,
+            text_buffer: None,
             text_clipboard_request: None,
             music_picker_request: None,
             text_edit_serial: 0,
@@ -1220,7 +1221,9 @@ impl State {
                     && matches!(self.panel, None | Some(Panel::Marker(_)))));
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
-        let repeating_text_cursor = matches!(self.panel, Some(Panel::ChartText(_)))
+        let repeating_text_cursor = matches!(
+            self.panel, Some(Panel::ChartText(_) | Panel::SongText(_))
+        )
             && matches!(
                 event.code,
                 KeyCode::ArrowLeft | KeyCode::ArrowRight | KeyCode::Home | KeyCode::End
@@ -1408,8 +1411,8 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
-        if let Panel::ChartText(index) = panel {
-            self.chart_text_key(index, code);
+        if let Panel::ChartText(index) | Panel::SongText(index) = panel {
+            self.text_field_key(index, code);
             return false;
         }
         if matches!(panel, Panel::Analysis) {
@@ -1487,7 +1490,7 @@ impl State {
             return false;
         }
         match panel {
-            Panel::ChartText(_) => unreachable!("chart text input dispatched above"),
+            Panel::ChartText(_) | Panel::SongText(_) => unreachable!("text field input dispatched above"),
             Panel::NewChart(index) => self.new_chart_key(index, code),
             Panel::DeleteChart(index) => self.deletion_key(index, code),
             Panel::EmptyMenu(index) => return self.empty_menu_key(index, code),
@@ -2151,7 +2154,10 @@ impl State {
             && self.preview.is_none()
             && !matches!(
                 self.panel,
-                Some(Panel::Timing(_) | Panel::TimingMigration(_) | Panel::SongProperties(_))
+                Some(
+                    Panel::Timing(_) | Panel::TimingMigration(_)
+                        | Panel::SongProperties(_) | Panel::SongText(_)
+                )
             )
         {
             self.help_actors(actors);
@@ -2261,7 +2267,7 @@ impl State {
             ],
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
             Panel::SongProperties(_) => &[
-                "SongSyncOffset", "SongPropertiesApply", "SongPropertiesCancel",
+                "SongSyncOffset", "SongPropertiesApply", "SongPropertiesCancel", "SongTextOpen",
             ],
             Panel::Timing(_) => &[
                 "TimingScope",
@@ -2274,6 +2280,10 @@ impl State {
                 "TimingNext",
                 "TimingAccept",
                 "TimingCancel",
+            ],
+            Panel::SongText(_) => &[
+                "SongTitle", "SongSubtitle", "SongArtist", "SongCredit", "SongGenre", "SongOrigin",
+                "SongTitleTranslit", "SongSubtitleTranslit", "SongArtistTranslit", "SongMusic", "SongTextBack",
             ],
             Panel::ChartText(_) => &[
                 "ChartName", "ChartDescription", "ChartCredit", "ChartStyle",
@@ -2322,6 +2332,7 @@ impl State {
             | Panel::Timing(i)
             | Panel::ChartProperties(i)
             | Panel::ChartText(i)
+            | Panel::SongText(i)
             | Panel::SongProperties(i)
             | Panel::ChartExpression(i)
             | Panel::ConversionProfiles(i)
@@ -2332,8 +2343,10 @@ impl State {
             | Panel::GenerationPreview(i) => i,
             _ => 0,
         };
-        let menu_start = if matches!(panel, Panel::Menu(_)) { selected / 8 * 8 } else { 0 };
-        let visible_keys = if matches!(panel, Panel::Menu(_)) {
+        let menu_start = if matches!(panel, Panel::Menu(_) | Panel::SongText(_)) {
+            selected / 8 * 8
+        } else { 0 };
+        let visible_keys = if matches!(panel, Panel::Menu(_) | Panel::SongText(_)) {
             keys.len().saturating_sub(menu_start).min(8)
         } else {
             keys.len()
@@ -2365,7 +2378,9 @@ impl State {
         } else {
             0.0
         };
-        let menu_footer = if matches!(panel, Panel::Menu(_)) { 24.0 } else { 0.0 };
+        let menu_footer = if matches!(panel, Panel::Menu(_) | Panel::SongText(_)) {
+            24.0
+        } else { 0.0 };
         let panel_height = visible_keys as f32 * 32.0 + 30.0 + extra_height + menu_footer;
         let panel_y = if previewing && !side_panel {
             screen_height() - panel_height * 0.5 - 8.0
@@ -2373,8 +2388,9 @@ impl State {
             screen_height() * 0.5
         };
         actors.push(act!(quad: xy(panel_x, panel_y): setsize(panel_width, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
-        if matches!(panel, Panel::Menu(_)) {
-            let page = i18n::tr_fmt("Edition", "MenuPage", &[
+        if matches!(panel, Panel::Menu(_) | Panel::SongText(_)) {
+            let page = i18n::tr_fmt("Edition",
+                if matches!(panel, Panel::SongText(_)) { "TextFieldsPage" } else { "MenuPage" }, &[
                 ("page", &(selected / 8 + 1).to_string()),
                 ("pages", &keys.len().div_ceil(8).to_string()),
             ]);
@@ -2491,8 +2507,10 @@ impl State {
             } else {
                 [0.8, 0.8, 0.85, 1.0]
             };
-            let label = if matches!(panel, Panel::ChartText(_)) && index < 5 {
-                self.chart_text_label(index)
+            let label = if (matches!(panel, Panel::ChartText(_)) && index < 5)
+                || (matches!(panel, Panel::SongText(_)) && index < 10)
+            {
+                self.text_field_label(index)
             } else if matches!(panel, Panel::ChartProperties(_)) && index == 7 {
                 self.chart_difficulty_label()
             } else if matches!(panel, Panel::ChartProperties(_)) && index == 8 {
@@ -2700,7 +2718,7 @@ impl State {
                 i18n::tr("Edition", key)
             };
             actors.push(act!(text: font("miso"): settext(label): align(0.5, 0.5): xy(panel_x, panel_y - panel_height * 0.5 + extra_height + 30.0 + (index - menu_start) as f32 * 32.0): zoom(0.8): diffuse(color[0], color[1], color[2], color[3]): z(8021)));
-            if side_panel || matches!(panel, Panel::ChartText(_)) {
+            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_)) {
                 if let Some(Actor::Text { max_width, .. }) = actors.last_mut() {
                     *max_width = Some(panel_width - 30.0);
                 }

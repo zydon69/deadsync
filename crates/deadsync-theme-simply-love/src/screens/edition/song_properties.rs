@@ -15,7 +15,7 @@ impl State {
     pub(super) fn song_properties_key(&mut self, index: usize, code: KeyCode) {
         if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
             self.panel = Some(Panel::SongProperties(
-                (index + if code == KeyCode::ArrowUp { 2 } else { 1 }) % 3,
+                (index + if code == KeyCode::ArrowUp { 3 } else { 1 }) % 4,
             ));
         } else if index == 0
             && matches!(
@@ -41,6 +41,10 @@ impl State {
                 }
             }
         } else if matches!(code, KeyCode::Enter | KeyCode::NumpadEnter) {
+            if index == 3 {
+                self.open_song_text();
+                return;
+            }
             if index == 2 {
                 self.song_properties = None;
                 self.panel = None;

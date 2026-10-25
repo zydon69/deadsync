@@ -45,7 +45,7 @@ reviewable and tested.
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/move; broader GrooveAuthor transformations pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
-| Metadata | Existing and new scoped tags with escaping/history; F7 difficulty, rating, chart text, expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
+| Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
 | Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; F11 edits Song SyncOffset | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
@@ -2528,3 +2528,61 @@ both shell adapter contract/lifetime tests pass. `cargo check -p deadsync --lock
 passes. Native modal focus/input, physical rendering, actual decoding/audibility,
 other platform path edge cases and the existing unrelated shell unit-test fixture
 gap remain outside those passing claims.
+
+
+### Song text, global music and shared property editing
+
+F11 now exposes an optional Song text and music panel. It edits TITLE, SUBTITLE,
+ARTIST, CREDIT, GENRE, ORIGIN, TITLETRANSLIT, SUBTITLETRANSLIT, ARTISTTRANSLIT and
+MUSIC in both SM and SSC, including chartless files. Fields are split into two
+pages (eight visible rows maximum); Up/Down or Tab selects a field and Page
+Up/Down changes page. Escape returns to the F11 property draft, where Apply
+commits the complete draft and editor sync offset as one undo gesture. Escape
+from F11 discards it. The sync-only history label and preview-only sync semantics
+are retained. This does not add an editor for the song's gameplay OFFSET.
+
+`text_fields` is now the single native implementation for song and chart text:
+cursor/selection, grapheme and word movement, local undo, IME, bounded preview,
+clipboard, music picker and clearing share the same code. A typed target carries
+both scope and field, so a pending chart request cannot write a song field (or
+the reverse). Existing F7 chart workflows remain regression targets. Song music
+uses the same F2 picker and F3 clear commands. It has no inheritance placeholder
+when empty; clearing it removes the fallback song audio while explicit chart
+MUSIC overrides remain usable. Picker labels are scope-neutral and localized.
+
+The song draft combines text and sync edits with the existing atomic scoped
+property helper, preserving pending grids, unknown tags, raw legacy bytes and
+future JSON fields. Text-only edits do not introduce GASongData. No-op drafts
+preserve redo, and stale/foreign drafts cannot apply. Legacy original control
+text can be restored without rewriting source; new control-containing values
+are rejected consistently with chart fields.
+
+Four fixtures use the actual pinned Fumen readers and the EditorSong constructor
+field projection for all ten fields, escaped Unicode and initial chart authors.
+The original chart holds its inherited author from loading; the song Credit
+setter does not reassign chart Credit. For supported SSC charts with missing or
+empty CREDIT and a nonempty previous file credit, applying a new file credit
+therefore materializes that previous author locally in the same undo gesture.
+Explicit chart credits and opaque chart payloads are left intact. SM has no
+persistent per-chart credit and follows the changed file credit on reload.
+This is a file projection contract; full original live author lifetime (notably
+explicit empty-author states across several unsaved UI operations), sorted live
+chart identity and unsupported layouts still require separate fidelity work.
+
+Four core workflows cover the reader fixtures, atomic text/sync changes, author
+preservation, pending notes, JSON/vendor bytes, SM/SSC/chartless files, exact
+undo/redo/save/reopen and invalid/stale/foreign/no-op behavior. Four native
+workflows cover Unicode clipboard editing, global audio selection/clear with
+explicit chart overrides, scope-switch request invalidation, cancel and empty
+workspace persistence. A French workflow checks fields, paging and clear/cancel;
+the previous sync translation test retains its preview-only explanation. Audio
+assertions inspect real command payloads using fixtures; actual decoding,
+speakers, OS dialogs and GPU rendering are not proven by those assertions.
+Song image/video assets, gameplay offset, display tempo, remaining inspectors,
+validation dialogs and original live model semantics remain on the full delivery
+matrix.
+
+Validation for song text/global music: all 324 core tests, 144 native editor tests
+and the two shell adapter contracts pass. `cargo check -p deadsync --locked`
+passes. The documented original live-model, native OS/GPU/audio and unrelated
+shell unit-test fixture gaps remain outside these results.

@@ -28,6 +28,16 @@ internal class EditorChart {
             await File.WriteAllTextAsync(path,request.GetProperty("Content").GetString()!);
             Fumen.Converters.Reader reader=format=="sm"?new Fumen.Converters.SMReader(path):new Fumen.Converters.SSCReader(path);
             var song=await reader.LoadAsync(CancellationToken.None);
+            if(request.GetProperty("Operation").GetString()=="SongText") {
+                song.Extras.TryGetExtra(TagCredit,out string credit,true);
+                song.Extras.TryGetExtra(TagOrigin,out string origin,true);
+                song.Extras.TryGetExtra(TagMusic,out string music,true);
+                return new {Fields=new Dictionary<string,string> {
+                    ["TITLE"]=song.Title??"",["SUBTITLE"]=song.SubTitle??"",["ARTIST"]=song.Artist??"",
+                    ["TITLETRANSLIT"]=song.TitleTransliteration??"",["SUBTITLETRANSLIT"]=song.SubTitleTransliteration??"",["ARTISTTRANSLIT"]=song.ArtistTransliteration??"",
+                    ["GENRE"]=song.Genre??"",["CREDIT"]=credit??"",["ORIGIN"]=origin??"",["MUSIC"]=music??""
+                },ChartCredits=song.Charts.Select(chart=>chart.Author??"").ToArray()};
+            }
             if(request.GetProperty("Operation").GetString()=="ChartText") {
                 return song.Charts.Select(chart=> {
                     chart.Extras.TryGetExtra(TagChartName,out string name,true);

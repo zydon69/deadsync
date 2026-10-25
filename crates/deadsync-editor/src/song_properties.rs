@@ -126,6 +126,7 @@ pub struct Draft {
     original: f64,
     offset: f64,
     fields: Map<String, Value>,
+    text: crate::song_text::Text,
 }
 impl Draft {
     pub fn capture(session: &Session) -> Result<Self, Error> {
@@ -135,7 +136,17 @@ impl Draft {
             original: offset,
             offset,
             fields,
+            text: crate::song_text::Text::read(session.document()),
         })
+    }
+    pub fn text(&self, field: crate::song_text::Field) -> &str {
+        self.text.get(field)
+    }
+    pub fn set_text(&mut self, field: crate::song_text::Field, value: &str) -> Result<(), Error> {
+        self.text.set(field, value)
+    }
+    pub fn has_changes(&self) -> bool {
+        self.text.has_changes() || !crate::number::reference_equal(self.original, self.offset)
     }
     pub fn sync_offset(&self) -> f64 {
         self.offset
@@ -151,17 +162,61 @@ impl Draft {
         if !session.accepts_token(&self.token) {
             return invalid("Song properties draft is stale or belongs to another document");
         }
-        if crate::number::reference_equal(self.original, self.offset) {
+        if !self.has_changes() {
             return Ok(false);
         }
-        let mut fields = self.fields.clone();
-        fields.insert("SyncOffset".into(), Value::from(self.offset));
-        let json =
-            serde_json::to_string(&fields).map_err(|e| Error::InvalidFormat(e.to_string()))?;
-        session.set_properties_atomic(
-            None,
-            &[(VERSION, "1"), (DATA, &json)],
-            "Change editor sync offset",
+        let text_changes = self.text.changes();
+        let mut properties = text_changes
+            .iter()
+            .map(|(name, value)| {
+                (
+                    None,
+                    (*name).to_owned(),
+                    std::sync::Arc::<[u8]>::from(crate::document::escape_text(value)),
+                )
+            })
+            .collect::<Vec<_>>();
+        if !crate::number::reference_equal(self.original, self.offset) {
+            let mut fields = self.fields.clone();
+            fields.insert("SyncOffset".into(), Value::from(self.offset));
+            let json =
+                serde_json::to_string(&fields).map_err(|e| Error::InvalidFormat(e.to_string()))?;
+            properties.push((None, VERSION.to_owned(), std::sync::Arc::from(&b"1"[..])));
+            properties.push((
+                None,
+                DATA.to_owned(),
+                std::sync::Arc::from(crate::document::escape_text(&json)),
+            ));
+        }
+        // EditorChart holds the reader's inherited author at load time; changing
+        // the file credit does not reassign those existing chart authors.
+        let old_credit = self.text.original(crate::song_text::Field::Credit);
+        if session.document().format == crate::document::Format::Ssc
+            && !old_credit.is_empty()
+            && old_credit != self.text.get(crate::song_text::Field::Credit)
+        {
+            for (index, chart) in session.document().charts().iter().enumerate() {
+                if crate::notes::layout_columns(&chart.steps_type).is_some()
+                    && session
+                        .document()
+                        .text(Some(index), "CREDIT")
+                        .is_none_or(|value| value.is_empty())
+                {
+                    properties.push((
+                        Some(index),
+                        "CREDIT".to_owned(),
+                        std::sync::Arc::from(crate::document::escape_text(old_credit)),
+                    ));
+                }
+            }
+        }
+        session.set_property_bytes_atomic(
+            &properties,
+            if text_changes.is_empty() {
+                "Change editor sync offset"
+            } else {
+                "Change song properties"
+            },
         )
     }
 }

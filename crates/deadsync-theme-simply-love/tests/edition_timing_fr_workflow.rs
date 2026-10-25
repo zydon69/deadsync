@@ -366,7 +366,7 @@ fn french_song_sync_panel_explains_scope_and_applies_with_translated_labels() {
             .iter()
             .any(|s| s.contains("Synchro audio de l’éditeur : 0.009000 s"))
     );
-    assert!(labels.iter().any(|s| s.contains("Appliquer le décalage")));
+    assert!(labels.iter().any(|s| s.contains("Appliquer les propriétés du morceau")));
     assert!(labels.iter().any(|s| s.contains("Préécoute uniquement")));
     press(&mut screen, KeyCode::Digit0);
     press(&mut screen, KeyCode::ArrowDown);
@@ -374,7 +374,7 @@ fn french_song_sync_panel_explains_scope_and_applies_with_translated_labels() {
     assert!(
         texts(&screen)
             .iter()
-            .any(|s| s.contains("Synchro audio appliquée"))
+            .any(|s| s.contains("Propriétés du morceau appliquées"))
     );
 }
 

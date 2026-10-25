@@ -1,10 +1,11 @@
 use super::State;
+use super::text_fields::Target;
 use crate::i18n;
 use deadlib_platform::input::KeyCode;
-use deadsync_editor::{chart_text::Field, clipboard::TextClipboard};
+use deadsync_editor::clipboard::TextClipboard;
 pub(super) struct Request {
     serial: u64,
-    field: Field,
+    field: Target,
     operation: Operation,
 }
 enum Operation {
@@ -14,10 +15,10 @@ enum Operation {
 }
 impl State {
     pub(super) fn queue_text_clipboard(&mut self, code: KeyCode) {
-        let Some(field) = self.chart_text_field() else {
+        let Some(field) = self.text_target() else {
             return;
         };
-        let Some(buffer) = self.chart_text_buffer.as_ref() else {
+        let Some(buffer) = self.text_buffer.as_ref() else {
             return;
         };
         let selected = buffer.selection();
@@ -52,7 +53,7 @@ impl State {
             return false;
         };
         if request.serial != self.text_edit_serial
-            || self.chart_text_field() != Some(request.field)
+            || self.text_target() != Some(request.field)
             || !self.label_preedit.is_empty()
         {
             return false;
@@ -62,18 +63,18 @@ impl State {
                 .write_text(&text)
                 .map(|()| Some("ClipboardCopied")),
             Operation::Cut(text) => clipboard.write_text(&text).map(|()| {
-                if let Some(buffer) = self.chart_text_buffer.as_mut() {
+                if let Some(buffer) = self.text_buffer.as_mut() {
                     buffer.delete(false);
                 }
                 self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
-                self.sync_chart_text().then_some("ClipboardCut")
+                self.sync_text().then_some("ClipboardCut")
             }),
             Operation::Paste => clipboard.read_text().map(|text| {
                 if text.is_empty() || text.chars().all(char::is_control) {
                     return Some("ClipboardNoChange");
                 }
-                self.chart_text_input(&text);
-                self.sync_chart_text().then_some("ClipboardPasted")
+                self.edit_text_input(&text);
+                self.sync_text().then_some("ClipboardPasted")
             }),
         };
         match result {

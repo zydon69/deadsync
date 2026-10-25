@@ -370,8 +370,63 @@ fn french_music_picker_clear_and_cancel_labels_are_resolved_without_saving() {
     );
     assert_eq!(
         &*i18n::tr("Edition", "MusicPickerTitle"),
-        "Choisir la musique de la partition"
+        "Choisir un fichier audio"
     );
+    assert_eq!(
+        s.workspace().file().session.serialize().unwrap(),
+        song.as_bytes()
+    );
+}
+
+#[test]
+fn french_song_properties_pages_text_music_and_cancel_use_shared_translated_controls() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let song = "#VERSION:0.83;#TITLE:Ancien;#ARTIST:A;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path, song).unwrap();
+    let mut s = State::open(&path, 0).unwrap();
+    press(&mut s, KeyCode::F11);
+    assert!(
+        texts(&s)
+            .iter()
+            .any(|v| v == "Textes et musique du morceau...")
+    );
+    press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::Enter);
+    assert!(s.text_input("Été 日本語"));
+    assert!(texts(&s).iter().any(|v| v == "Titre : Été 日本語|"));
+    press(&mut s, KeyCode::PageDown);
+    let second = texts(&s);
+    assert!(second.iter().any(|v| v.contains("Champs 2/2")));
+    assert!(
+        second
+            .iter()
+            .any(|v| v.contains("Translittération de l’artiste"))
+    );
+    press(&mut s, KeyCode::ArrowDown);
+    assert!(s.wants_text_input());
+    assert!(
+        texts(&s)
+            .iter()
+            .any(|v| v.contains("Musique du morceau : | (aucune musique pour le morceau)"))
+    );
+    press(&mut s, KeyCode::F3);
+    assert!(
+        texts(&s)
+            .iter()
+            .any(|v| v.contains("Musique du morceau effacée"))
+    );
+    press(&mut s, KeyCode::Escape);
+    assert!(
+        texts(&s)
+            .iter()
+            .any(|v| v.contains("Textes du morceau préparés"))
+    );
+    press(&mut s, KeyCode::Escape);
     assert_eq!(
         s.workspace().file().session.serialize().unwrap(),
         song.as_bytes()

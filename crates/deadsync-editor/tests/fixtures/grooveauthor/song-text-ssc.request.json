@@ -1,0 +1,5 @@
+{
+  "Operation": "SongText",
+  "Format": "ssc",
+  "Content": "#VERSION:0.83;#BPMS:0=120;#TITLE:\u00c9t\u00e9 \u65e5\u672c\u8a9e;#SUBTITLE:Version;#ARTIST:Composer;#CREDIT:File author;#GENRE:Dance;#ORIGIN:Arcade;#TITLETRANSLIT:Summer;#SUBTITLETRANSLIT:Mix;#ARTISTTRANSLIT:Latin;#MUSIC:song.ogg;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#CREDIT:Local;#NOTES:0001;"
+}

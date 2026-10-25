@@ -1,0 +1,17 @@
+{
+  "Fields": {
+    "TITLE": "\u00c9t\u00e9 \u65e5\u672c\u8a9e",
+    "SUBTITLE": "Version",
+    "ARTIST": "Composer",
+    "TITLETRANSLIT": "Summer",
+    "SUBTITLETRANSLIT": "Mix",
+    "ARTISTTRANSLIT": "Latin",
+    "GENRE": "Dance",
+    "CREDIT": "File author",
+    "ORIGIN": "Arcade",
+    "MUSIC": "song.ogg"
+  },
+  "ChartCredits": [
+    "File author"
+  ]
+}

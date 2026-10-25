@@ -1,0 +1,18 @@
+{
+  "Fields": {
+    "TITLE": "A:B;C\\D",
+    "SUBTITLE": "",
+    "ARTIST": "\u00c9t\u00e9 / \u65e5\u672c\u8a9e",
+    "TITLETRANSLIT": "",
+    "SUBTITLETRANSLIT": "",
+    "ARTISTTRANSLIT": "",
+    "GENRE": "",
+    "CREDIT": "Old",
+    "ORIGIN": "",
+    "MUSIC": "audio/\u00c9t\u00e9%20.ogg"
+  },
+  "ChartCredits": [
+    "Old",
+    "Local"
+  ]
+}
