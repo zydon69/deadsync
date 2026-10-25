@@ -1,0 +1,81 @@
+// Real Fumen reader plus unchanged editor fallback/constructor-adjustment bodies.
+// Explicit chart/node adapters do not reproduce the full editor application.
+using System.Text.Json;
+using System.Globalization;
+using Fumen;
+using Fumen.ChartDefinition;
+using Fumen.Converters;
+using Path=System.IO.Path;
+using static Fumen.Converters.SMCommon;
+using EditorTempoEvent=TempoOracle.EditorTempoEvent;
+namespace SourceTimingOracle;
+// DISPLAY_MODE
+// DISPLAY_TYPE
+internal sealed class EditorChart(double tempo) {
+    // DEFAULT_TEMPO
+    public double GetStartingTempo()=>tempo;
+}
+internal sealed class EditorSong(Song song) {
+    private readonly Extras OriginalSongExtras=song.Extras;
+    public Dictionary<string,List<EditorChart>> Charts=new();
+    // STARTING_TEMPO
+}
+internal static class Reference {
+    private const int MinLength=RegionOracle.EditorWarpEvent.MinLength;
+    private const int MinFakeSegmentLength=RegionOracle.EditorFakeSegmentEvent.MinFakeSegmentLength;
+    private static void LogWarn(string _){}
+    private static double ClampTempo(Tempo t) {
+        // TEMPO_CLAMP
+        return t.TempoBPM;
+    }
+    private static int ClampWarp(Warp WarpEvent) {
+        // WARP_CLAMP
+        return WarpEvent.LengthIntegerPosition;
+    }
+    private static int ClampFake(FakeSegment FakeSegmentEvent) {
+        // FAKE_CLAMP
+        return FakeSegmentEvent.LengthIntegerPosition;
+    }
+    public static async Task<object> Run(JsonElement request,string referenceRoot) {
+        // GrooveAuthor Editor.cs installs invariant culture before loading.
+        CultureInfo.DefaultThreadCurrentCulture=CultureInfo.InvariantCulture;
+        CultureInfo.DefaultThreadCurrentUICulture=CultureInfo.InvariantCulture;
+        CultureInfo.CurrentCulture=CultureInfo.InvariantCulture;
+        CultureInfo.CurrentUICulture=CultureInfo.InvariantCulture;
+        var extension=request.GetProperty("Format").GetString()!;
+        var path=Path.Combine(Path.GetTempPath(),Guid.NewGuid()+"."+extension);
+        try {
+            await File.WriteAllTextAsync(path,request.GetProperty("Content").GetString()!);
+            Fumen.Converters.Reader reader=extension=="sm"?new Fumen.Converters.SMReader(path):new Fumen.Converters.SSCReader(path);
+            var song=await reader.LoadAsync(CancellationToken.None);var owner=new EditorSong(song);var results=new List<object>();
+            foreach(var chart in song.Charts) {
+                var events=chart.Layers[0].Events;
+                var notes=events.OfType<LaneNote>().Select(note=>new{Row=note.IntegerPosition,Lane=note.Lane,Time=note.TimeSeconds,GroupTime=events.First(e=>e.IntegerPosition==note.IntegerPosition).TimeSeconds}).ToArray();
+                var timing=new List<object[]>();
+                foreach(var original in events) {
+                    var e=original.Clone();
+                    object[]? entry=e switch {
+                        Tempo t=>[e.IntegerPosition,"tempo",ClampTempo(t)],
+                        TimeSignature t=>[e.IntegerPosition,"signature",t.Signature.Numerator,t.Signature.Denominator],
+                        Stop t=>[e.IntegerPosition,t.IsDelay?"delay":"stop",t.LengthSeconds],
+                        Warp t=>[e.IntegerPosition,"warp",ClampWarp(t)],
+                        FakeSegment t=>[e.IntegerPosition,"fake",ClampFake(t)],
+                        ScrollRate t=>[e.IntegerPosition,"scroll",t.Rate],
+                        ScrollRateInterpolation _=>[e.IntegerPosition,"speed"],
+                        Label _=>[e.IntegerPosition,"label"],TickCount _=>[e.IntegerPosition,"tick"],Multipliers _=>[e.IntegerPosition,"combo"],_=>null
+                    };
+                    if(entry!=null)timing.Add(entry);
+                }
+                if(!timing.Any(e=>(int)e[0]==0 && (string)e[1]=="tempo"))timing.Add([0,"tempo",owner.GetBestChartStartingTempo()]);
+                var initial=(double)timing.Single(e=>(int)e[0]==0 && (string)e[1]=="tempo")[2];
+                var state=new Dictionary<string,object>{["Timing"]=timing,["Notes"]=events.OfType<LaneNote>().Select(note=>new object[]{note.IntegerPosition,note.Lane,note.SourceType}).ToArray(),["Rows"]=Enumerable.Range(0,33).Select(i=>i*12).ToArray(),["NumSteps"]=notes.Length,["LastStep"]=notes.Max(note=>note.Row)};
+                if(request.TryGetProperty("PerformedConfig",out var config))state["Conversion"]=new{PerformedConfig=config};
+                var input=JsonSerializer.SerializeToElement(state);
+                results.Add(new{FileNotes=notes,EditorInput=input,Editor=EditorTimingOracle.Reference.Run(input,referenceRoot),StartingTempo=initial});
+                if(!owner.Charts.TryGetValue(chart.Type,out var charts)){charts=[];owner.Charts.Add(chart.Type,charts);}charts.Add(new(initial));
+            }
+            return results;
+        }catch(ArgumentException error){return new{Error=error.GetType().Name,Message=error.Message};}
+        finally{File.Delete(path);}
+    }
+}

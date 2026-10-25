@@ -1,0 +1,999 @@
+[
+  {
+    "FileNotes": [
+      {
+        "Row": 0,
+        "Lane": 0,
+        "Time": 0,
+        "GroupTime": 0
+      },
+      {
+        "Row": 12,
+        "Lane": 1,
+        "Time": 0.125,
+        "GroupTime": 0.125
+      },
+      {
+        "Row": 24,
+        "Lane": 2,
+        "Time": 0.25,
+        "GroupTime": 0.25
+      },
+      {
+        "Row": 36,
+        "Lane": 3,
+        "Time": 0.375,
+        "GroupTime": 0.375
+      },
+      {
+        "Row": 48,
+        "Lane": 0,
+        "Time": 0.5,
+        "GroupTime": 0.5
+      },
+      {
+        "Row": 60,
+        "Lane": 1,
+        "Time": 0.625,
+        "GroupTime": 0.625
+      },
+      {
+        "Row": 72,
+        "Lane": 2,
+        "Time": 0.75,
+        "GroupTime": 0.75
+      },
+      {
+        "Row": 84,
+        "Lane": 3,
+        "Time": 0.875,
+        "GroupTime": 0.875
+      },
+      {
+        "Row": 96,
+        "Lane": 0,
+        "Time": 1,
+        "GroupTime": 1
+      },
+      {
+        "Row": 108,
+        "Lane": 1,
+        "Time": 1.125,
+        "GroupTime": 1.125
+      },
+      {
+        "Row": 120,
+        "Lane": 2,
+        "Time": 1.25,
+        "GroupTime": 1.25
+      },
+      {
+        "Row": 132,
+        "Lane": 3,
+        "Time": 1.375,
+        "GroupTime": 1.375
+      },
+      {
+        "Row": 144,
+        "Lane": 0,
+        "Time": 1.5,
+        "GroupTime": 1.5
+      },
+      {
+        "Row": 156,
+        "Lane": 1,
+        "Time": 1.625,
+        "GroupTime": 1.625
+      },
+      {
+        "Row": 168,
+        "Lane": 2,
+        "Time": 1.75,
+        "GroupTime": 1.75
+      },
+      {
+        "Row": 180,
+        "Lane": 3,
+        "Time": 1.875,
+        "GroupTime": 1.875
+      },
+      {
+        "Row": 192,
+        "Lane": 0,
+        "Time": 2,
+        "GroupTime": 2
+      },
+      {
+        "Row": 204,
+        "Lane": 1,
+        "Time": 2.0833333333333335,
+        "GroupTime": 2.0833333333333335
+      },
+      {
+        "Row": 216,
+        "Lane": 2,
+        "Time": 2.1666666666666665,
+        "GroupTime": 2.1666666666666665
+      },
+      {
+        "Row": 228,
+        "Lane": 3,
+        "Time": 2.25,
+        "GroupTime": 2.25
+      },
+      {
+        "Row": 240,
+        "Lane": 0,
+        "Time": 2.3333333333333335,
+        "GroupTime": 2.3333333333333335
+      },
+      {
+        "Row": 252,
+        "Lane": 1,
+        "Time": 2.4166666666666665,
+        "GroupTime": 2.4166666666666665
+      },
+      {
+        "Row": 264,
+        "Lane": 2,
+        "Time": 2.5,
+        "GroupTime": 2.5
+      },
+      {
+        "Row": 276,
+        "Lane": 3,
+        "Time": 2.583333333333333,
+        "GroupTime": 2.583333333333333
+      },
+      {
+        "Row": 288,
+        "Lane": 0,
+        "Time": 2.6666666666666665,
+        "GroupTime": 2.6666666666666665
+      },
+      {
+        "Row": 300,
+        "Lane": 1,
+        "Time": 2.75,
+        "GroupTime": 2.75
+      },
+      {
+        "Row": 312,
+        "Lane": 2,
+        "Time": 2.833333333333333,
+        "GroupTime": 2.833333333333333
+      },
+      {
+        "Row": 324,
+        "Lane": 3,
+        "Time": 2.9166666666666665,
+        "GroupTime": 2.9166666666666665
+      },
+      {
+        "Row": 336,
+        "Lane": 0,
+        "Time": 3,
+        "GroupTime": 3
+      },
+      {
+        "Row": 348,
+        "Lane": 1,
+        "Time": 3.083333333333333,
+        "GroupTime": 3.083333333333333
+      },
+      {
+        "Row": 360,
+        "Lane": 2,
+        "Time": 3.1666666666666665,
+        "GroupTime": 3.1666666666666665
+      },
+      {
+        "Row": 372,
+        "Lane": 3,
+        "Time": 3.25,
+        "GroupTime": 3.25
+      }
+    ],
+    "EditorInput": {
+      "Timing": [
+        [
+          0,
+          "signature",
+          4,
+          4
+        ],
+        [
+          0,
+          "tempo",
+          120
+        ],
+        [
+          48,
+          "warp",
+          1
+        ],
+        [
+          96,
+          "warp",
+          1
+        ],
+        [
+          144,
+          "fake",
+          1
+        ],
+        [
+          192,
+          "tempo",
+          180
+        ],
+        [
+          192,
+          "fake",
+          1
+        ]
+      ],
+      "Notes": [
+        [
+          0,
+          0,
+          "1"
+        ],
+        [
+          12,
+          1,
+          "1"
+        ],
+        [
+          24,
+          2,
+          "1"
+        ],
+        [
+          36,
+          3,
+          "1"
+        ],
+        [
+          48,
+          0,
+          "1"
+        ],
+        [
+          60,
+          1,
+          "1"
+        ],
+        [
+          72,
+          2,
+          "1"
+        ],
+        [
+          84,
+          3,
+          "1"
+        ],
+        [
+          96,
+          0,
+          "1"
+        ],
+        [
+          108,
+          1,
+          "1"
+        ],
+        [
+          120,
+          2,
+          "1"
+        ],
+        [
+          132,
+          3,
+          "1"
+        ],
+        [
+          144,
+          0,
+          "1"
+        ],
+        [
+          156,
+          1,
+          "1"
+        ],
+        [
+          168,
+          2,
+          "1"
+        ],
+        [
+          180,
+          3,
+          "1"
+        ],
+        [
+          192,
+          0,
+          "1"
+        ],
+        [
+          204,
+          1,
+          "1"
+        ],
+        [
+          216,
+          2,
+          "1"
+        ],
+        [
+          228,
+          3,
+          "1"
+        ],
+        [
+          240,
+          0,
+          "1"
+        ],
+        [
+          252,
+          1,
+          "1"
+        ],
+        [
+          264,
+          2,
+          "1"
+        ],
+        [
+          276,
+          3,
+          "1"
+        ],
+        [
+          288,
+          0,
+          "1"
+        ],
+        [
+          300,
+          1,
+          "1"
+        ],
+        [
+          312,
+          2,
+          "1"
+        ],
+        [
+          324,
+          3,
+          "1"
+        ],
+        [
+          336,
+          0,
+          "1"
+        ],
+        [
+          348,
+          1,
+          "1"
+        ],
+        [
+          360,
+          2,
+          "1"
+        ],
+        [
+          372,
+          3,
+          "1"
+        ]
+      ],
+      "Rows": [
+        0,
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120,
+        132,
+        144,
+        156,
+        168,
+        180,
+        192,
+        204,
+        216,
+        228,
+        240,
+        252,
+        264,
+        276,
+        288,
+        300,
+        312,
+        324,
+        336,
+        348,
+        360,
+        372,
+        384
+      ],
+      "NumSteps": 32,
+      "LastStep": 372,
+      "Conversion": {
+        "PerformedConfig": {
+          "Facing": {
+            "MaxInwardPercentage": 1.0,
+            "InwardPercentageCutoff": 0.34,
+            "MaxOutwardPercentage": 1.0,
+            "OutwardPercentageCutoff": 0.34
+          },
+          "StepTightening": {
+            "SpeedTighteningEnabled": true,
+            "SpeedMinTimeSeconds": 0.17647058823529413,
+            "SpeedMaxTimeSeconds": 0.24,
+            "SpeedTighteningMinDistance": 0,
+            "DistanceTighteningEnabled": true,
+            "DistanceMin": 1.4,
+            "DistanceMax": 2.333333,
+            "StretchTighteningEnabled": true,
+            "StretchDistanceMin": 2.333333,
+            "StretchDistanceMax": 3.333333,
+            "LateralMinPanelDistance": 0.166667,
+            "LongitudinalMinPanelDistance": -0.125
+          },
+          "LateralTightening": {
+            "Enabled": true,
+            "RelativeNPS": 1.65,
+            "AbsoluteNPS": 12,
+            "Speed": 3
+          },
+          "Transitions": {
+            "Enabled": false,
+            "StepsPerTransitionMin": 0,
+            "StepsPerTransitionMax": 1024,
+            "MinimumPadWidth": 5,
+            "TransitionCutoffPercentage": 0.5
+          },
+          "ArrowWeights": {
+            "dance-single": [
+              25,
+              25,
+              25,
+              25
+            ],
+            "dance-double": [
+              6,
+              12,
+              10,
+              22,
+              22,
+              12,
+              10,
+              6
+            ],
+            "dance-solo": [
+              13,
+              12,
+              25,
+              25,
+              12,
+              13
+            ],
+            "dance-threepanel": [
+              25,
+              50,
+              25
+            ],
+            "pump-single": [
+              17,
+              16,
+              34,
+              16,
+              17
+            ],
+            "pump-halfdouble": [
+              25,
+              12,
+              13,
+              13,
+              12,
+              25
+            ],
+            "pump-double": [
+              4,
+              4,
+              17,
+              12,
+              13,
+              13,
+              12,
+              17,
+              4,
+              4
+            ],
+            "smx-beginner": [
+              25,
+              50,
+              25
+            ],
+            "smx-single": [
+              25,
+              21,
+              8,
+              21,
+              25
+            ],
+            "smx-dual": [
+              8,
+              17,
+              25,
+              25,
+              17,
+              8
+            ],
+            "smx-full": [
+              6,
+              8,
+              7,
+              8,
+              22,
+              22,
+              8,
+              7,
+              8,
+              6
+            ]
+          }
+        }
+      }
+    },
+    "Editor": {
+      "Conversion": {
+        "Success": true,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Symbol": "1"
+          },
+          {
+            "Row": 12,
+            "Lane": 5,
+            "Symbol": "1"
+          },
+          {
+            "Row": 24,
+            "Lane": 4,
+            "Symbol": "1"
+          },
+          {
+            "Row": 36,
+            "Lane": 7,
+            "Symbol": "1"
+          },
+          {
+            "Row": 48,
+            "Lane": 6,
+            "Symbol": "1"
+          },
+          {
+            "Row": 60,
+            "Lane": 5,
+            "Symbol": "1"
+          },
+          {
+            "Row": 72,
+            "Lane": 4,
+            "Symbol": "1"
+          },
+          {
+            "Row": 84,
+            "Lane": 6,
+            "Symbol": "1"
+          },
+          {
+            "Row": 96,
+            "Lane": 3,
+            "Symbol": "1"
+          },
+          {
+            "Row": 108,
+            "Lane": 4,
+            "Symbol": "1"
+          },
+          {
+            "Row": 120,
+            "Lane": 1,
+            "Symbol": "1"
+          },
+          {
+            "Row": 132,
+            "Lane": 2,
+            "Symbol": "1"
+          },
+          {
+            "Row": 144,
+            "Lane": 0,
+            "Symbol": "1"
+          },
+          {
+            "Row": 156,
+            "Lane": 1,
+            "Symbol": "1"
+          },
+          {
+            "Row": 168,
+            "Lane": 2,
+            "Symbol": "1"
+          },
+          {
+            "Row": 180,
+            "Lane": 3,
+            "Symbol": "1"
+          },
+          {
+            "Row": 192,
+            "Lane": 1,
+            "Symbol": "1"
+          },
+          {
+            "Row": 204,
+            "Lane": 2,
+            "Symbol": "1"
+          },
+          {
+            "Row": 216,
+            "Lane": 0,
+            "Symbol": "1"
+          },
+          {
+            "Row": 228,
+            "Lane": 3,
+            "Symbol": "1"
+          },
+          {
+            "Row": 240,
+            "Lane": 2,
+            "Symbol": "1"
+          },
+          {
+            "Row": 252,
+            "Lane": 1,
+            "Symbol": "1"
+          },
+          {
+            "Row": 264,
+            "Lane": 0,
+            "Symbol": "1"
+          },
+          {
+            "Row": 276,
+            "Lane": 3,
+            "Symbol": "1"
+          },
+          {
+            "Row": 288,
+            "Lane": 2,
+            "Symbol": "1"
+          },
+          {
+            "Row": 300,
+            "Lane": 4,
+            "Symbol": "1"
+          },
+          {
+            "Row": 312,
+            "Lane": 3,
+            "Symbol": "1"
+          },
+          {
+            "Row": 324,
+            "Lane": 6,
+            "Symbol": "1"
+          },
+          {
+            "Row": 336,
+            "Lane": 4,
+            "Symbol": "1"
+          },
+          {
+            "Row": 348,
+            "Lane": 7,
+            "Symbol": "1"
+          },
+          {
+            "Row": 360,
+            "Lane": 5,
+            "Symbol": "1"
+          },
+          {
+            "Row": 372,
+            "Lane": 6,
+            "Symbol": "1"
+          }
+        ]
+      },
+      "Projected": null,
+      "Pipeline": null,
+      "Cleared": null,
+      "Heads": [
+        {
+          "Row": 0,
+          "Lane": 0,
+          "Symbol": "1",
+          "Time": 0,
+          "Fake": false
+        },
+        {
+          "Row": 12,
+          "Lane": 1,
+          "Symbol": "1",
+          "Time": 0.125,
+          "Fake": false
+        },
+        {
+          "Row": 24,
+          "Lane": 2,
+          "Symbol": "1",
+          "Time": 0.25,
+          "Fake": false
+        },
+        {
+          "Row": 36,
+          "Lane": 3,
+          "Symbol": "1",
+          "Time": 0.375,
+          "Fake": false
+        },
+        {
+          "Row": 48,
+          "Lane": 0,
+          "Symbol": "1",
+          "Time": 0.5,
+          "Fake": true
+        },
+        {
+          "Row": 60,
+          "Lane": 1,
+          "Symbol": "1",
+          "Time": 0.6145833333333334,
+          "Fake": false
+        },
+        {
+          "Row": 72,
+          "Lane": 2,
+          "Symbol": "1",
+          "Time": 0.7395833333333334,
+          "Fake": false
+        },
+        {
+          "Row": 84,
+          "Lane": 3,
+          "Symbol": "1",
+          "Time": 0.8645833333333334,
+          "Fake": false
+        },
+        {
+          "Row": 96,
+          "Lane": 0,
+          "Symbol": "1",
+          "Time": 0.9895833333333334,
+          "Fake": true
+        },
+        {
+          "Row": 108,
+          "Lane": 1,
+          "Symbol": "1",
+          "Time": 1.1041666666666667,
+          "Fake": false
+        },
+        {
+          "Row": 120,
+          "Lane": 2,
+          "Symbol": "1",
+          "Time": 1.2291666666666667,
+          "Fake": false
+        },
+        {
+          "Row": 132,
+          "Lane": 3,
+          "Symbol": "1",
+          "Time": 1.3541666666666667,
+          "Fake": false
+        },
+        {
+          "Row": 144,
+          "Lane": 0,
+          "Symbol": "1",
+          "Time": 1.4791666666666667,
+          "Fake": true
+        },
+        {
+          "Row": 156,
+          "Lane": 1,
+          "Symbol": "1",
+          "Time": 1.6041666666666667,
+          "Fake": false
+        },
+        {
+          "Row": 168,
+          "Lane": 2,
+          "Symbol": "1",
+          "Time": 1.7291666666666667,
+          "Fake": false
+        },
+        {
+          "Row": 180,
+          "Lane": 3,
+          "Symbol": "1",
+          "Time": 1.8541666666666667,
+          "Fake": false
+        },
+        {
+          "Row": 192,
+          "Lane": 0,
+          "Symbol": "1",
+          "Time": 1.9791666666666667,
+          "Fake": true
+        },
+        {
+          "Row": 204,
+          "Lane": 1,
+          "Symbol": "1",
+          "Time": 2.0625,
+          "Fake": false
+        },
+        {
+          "Row": 216,
+          "Lane": 2,
+          "Symbol": "1",
+          "Time": 2.145833333333333,
+          "Fake": false
+        },
+        {
+          "Row": 228,
+          "Lane": 3,
+          "Symbol": "1",
+          "Time": 2.2291666666666665,
+          "Fake": false
+        },
+        {
+          "Row": 240,
+          "Lane": 0,
+          "Symbol": "1",
+          "Time": 2.3125,
+          "Fake": false
+        },
+        {
+          "Row": 252,
+          "Lane": 1,
+          "Symbol": "1",
+          "Time": 2.395833333333333,
+          "Fake": false
+        },
+        {
+          "Row": 264,
+          "Lane": 2,
+          "Symbol": "1",
+          "Time": 2.4791666666666665,
+          "Fake": false
+        },
+        {
+          "Row": 276,
+          "Lane": 3,
+          "Symbol": "1",
+          "Time": 2.5624999999999996,
+          "Fake": false
+        },
+        {
+          "Row": 288,
+          "Lane": 0,
+          "Symbol": "1",
+          "Time": 2.645833333333333,
+          "Fake": false
+        },
+        {
+          "Row": 300,
+          "Lane": 1,
+          "Symbol": "1",
+          "Time": 2.7291666666666665,
+          "Fake": false
+        },
+        {
+          "Row": 312,
+          "Lane": 2,
+          "Symbol": "1",
+          "Time": 2.8124999999999996,
+          "Fake": false
+        },
+        {
+          "Row": 324,
+          "Lane": 3,
+          "Symbol": "1",
+          "Time": 2.895833333333333,
+          "Fake": false
+        },
+        {
+          "Row": 336,
+          "Lane": 0,
+          "Symbol": "1",
+          "Time": 2.9791666666666665,
+          "Fake": false
+        },
+        {
+          "Row": 348,
+          "Lane": 1,
+          "Symbol": "1",
+          "Time": 3.0624999999999996,
+          "Fake": false
+        },
+        {
+          "Row": 360,
+          "Lane": 2,
+          "Symbol": "1",
+          "Time": 3.145833333333333,
+          "Fake": false
+        },
+        {
+          "Row": 372,
+          "Lane": 3,
+          "Symbol": "1",
+          "Time": 3.2291666666666665,
+          "Fake": false
+        }
+      ],
+      "StepCount": 28,
+      "End": 3.2291666666666665,
+      "Times": [
+        0,
+        0.125,
+        0.25,
+        0.375,
+        0.5,
+        0.6145833333333334,
+        0.7395833333333333,
+        0.8645833333333333,
+        0.9895833333333333,
+        1.1041666666666667,
+        1.2291666666666667,
+        1.3541666666666667,
+        1.4791666666666667,
+        1.6041666666666665,
+        1.7291666666666665,
+        1.8541666666666665,
+        1.9791666666666665,
+        2.0625,
+        2.1458333333333335,
+        2.229166666666667,
+        2.3125,
+        2.3958333333333335,
+        2.479166666666667,
+        2.5625,
+        2.6458333333333335,
+        2.729166666666667,
+        2.8125,
+        2.8958333333333335,
+        2.979166666666667,
+        3.0625,
+        3.145833333333333,
+        3.229166666666667,
+        3.3125
+      ],
+      "Nps": 18.58064516129032
+    },
+    "StartingTempo": 120
+  }
+]

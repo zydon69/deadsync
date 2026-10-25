@@ -90,7 +90,7 @@ pub fn read(
             "Attack event timing is not ported for generation yet".into(),
         ));
     }
-    let timing = GenerationTiming::from_simfile(&bytes, format, chart)?;
+    let timing = GenerationTiming::from_document(&document, chart)?;
     let difficulty = entry
         .meter
         .parse::<f64>()

@@ -122,6 +122,21 @@ def prepare_region_reference(editor):
     return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
 
 
+def prepare_source_timing_reference(editor):
+    def read(path):return subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/{path}"],cwd=editor).decode("utf-8-sig")
+    chart=read("EditorChart.cs");display=read("DisplayTempo.cs")
+    pieces={"DISPLAY_MODE":extract_member(display,r"internal enum DisplayTempoMode\s*"),"DISPLAY_TYPE":extract_member(display,r"internal sealed class DisplayTempo\s*"),
+        "DEFAULT_TEMPO":re.search(r"public const double DefaultTempo = [^;]+;",chart).group(),
+        "STARTING_TEMPO":extract_member(read("EditorSong.cs"),r"\tpublic double GetBestChartStartingTempo\("),
+        "TEMPO_CLAMP":extract_member(chart,r"if \(t.TempoBPM < EditorTempoEvent.MinTempo\)"),
+        "WARP_CLAMP":re.search(r"if \(WarpEvent.LengthIntegerPosition < MinLength\)\s*WarpEvent.LengthIntegerPosition = MinLength;",read("EditorEvents/EditorWarpEvent.cs")).group(),
+        "FAKE_CLAMP":re.search(r"if \(FakeSegmentEvent.LengthIntegerPosition < MinFakeSegmentLength\)\s*FakeSegmentEvent.LengthIntegerPosition = MinFakeSegmentLength;",read("EditorEvents/EditorFakeSegmentEvent.cs")).group()}
+    project=ROOT/"scripts/editor-oracle";template=(project/"SourceTimingReference.cs.template").read_text()
+    for name,body in pieces.items():template=template.replace("// "+name,body)
+    (project/"obj/SourceTimingReference.cs").write_text(template)
+    return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
+
+
 def prepare_profiles_reference(editor):
     def read(path):
         return subprocess.check_output(["git", "show", f"{EDITOR_PIN}:StepManiaEditor/{path}"],cwd=editor).decode("utf-8-sig")
@@ -637,6 +652,25 @@ def requests(reference: Path):
     }
     for label,(scope,index,edited,operations) in region_edits.items():
         cases["region-file-"+label]={"Operation":"RegionFile","Format":"ssc","Scope":scope,"Chart":index,"Content":region_source,"EditedContent":edited,"Operations":operations}
+    source_base={"BPMS":"0=120,4=180","TIMESIGNATURES":"0=4=4"}
+    source_cases={
+        "half-rows":{**source_base,"BPMS":"0=120,0.010416666666666666=150,0.03125=180,0.052083333333333336=210","STOPS":"0.010416666666666666=0.25,0.03125=-0.125","DELAYS":"0.052083333333333336=0.25","WARPS":"1.0104166666666667=0.010416666666666666","FAKES":"2.03125=0.03125"},
+        "invalid-masks":{**source_base,"BPMS":"0=-1,2=-10,4=180","STOPS":"1.001=0.5,1.009=0,2=-0.25","DELAYS":"1.001=0.5,1.009=-1","WARPS":"1.001=2,1.009=0","FAKES":"0=6,1.001=1,1.009=-1"},
+        "tiny-regions":{**source_base,"WARPS":"1=0.000001,2=0.001","FAKES":"3=0.000001,4=0.001"},
+        "below-min-bpm":{**source_base,"BPMS":"0=0.0000001,4=120"},
+        "empty-bpm":{"BPMS":"","DISPLAYBPM":"143.5:190"},
+        "future-bpm":{"BPMS":"4=180","DISPLAYBPM":"143.5:190"},
+        "display-invalid-range":{"DISPLAYBPM":"143.5:bad"},
+        "negative-positions":{**source_base,"STOPS":"-2=1,-0.1=0.5,2=0.25","DELAYS":"-2=1,1=-1,2=0","WARPS":"-2=1,1=-1,2=1","FAKES":"-2=1,3=1"},
+        "metadata-conflicts":{**source_base,"TIMESIGNATURES":"0=4=4,1.001=3=4,1.009=0=4,2=3=5,3=3=4","TICKCOUNTS":"1.001=4,1.009=8","COMBOS":"1.001=1,1.009=2=3","LABELS":"1.001=First,1.009=Last","SCROLLS":"1.001=1,1.009=0.5","SPEEDS":"1.001=1=0=0,1.009=2=1=0","WARPS":"0=4"},
+        "malformed":{**source_base,"BPMS":"bad,0=120,1=nope,2=180","STOPS":"bad,1=0.25,2=nope","DELAYS":"1=bad,2=0.25","WARPS":"bad,1=1","FAKES":"bad,2=1"},
+    }
+    for label,fields in source_cases.items():
+        cases["source-timing-"+label]={"Operation":"NormalizedFile","Format":"ssc","Content":"#VERSION:0.83;"+tags(fields)+region_chart()}
+    for label in ["half-rows","tiny-regions"]:cases["source-timing-"+label]["PerformedConfig"]=copy.deepcopy(performed)
+    cases["source-timing-repeat-tags"]={"Operation":"NormalizedFile","Format":"ssc","Content":"#VERSION:0.83;#BPMS:0=120,2=150;#BPMS:4=180,2=200;#STOPS:1=0.25;#STOPS:3=0.5;#FAKES:0=6;#FAKES:1=1;"+region_chart()+region_chart({"BPMS":"0=150"})}
+    cases["source-timing-histogram"]={"Operation":"NormalizedFile","Format":"ssc","Content":"#VERSION:0.83;#BPMS:4=180;#DISPLAYBPM:143.5;"+region_chart({"BPMS":"0=150"})+region_chart({"BPMS":"0=180"}).replace("dance-single","pump-single").replace(region_notes,"10000\n01000\n00100\n00010")+region_chart({"BPMS":"0=210"})+region_chart({"OFFSET":"0.25"})}
+    cases["source-timing-sm"]={"Operation":"NormalizedFile","Format":"sm","Content":"#BPMS:0=120,0.010416666666666666=180;#FREEZES:1=0.25;#FREEZES:2=0.125;#STOPS:3=0.5;#DELAYS:2=0.125;#WARPS:0=4;#FAKES:0=4;#SCROLLS:0=2;#NOTES:dance-single::Hard:9::"+region_notes+";"}
     metadata={"MusicOffset":-0.125,"ShouldUseChartMusicOffset":True,"ExpressedChartConfig":"A19D532E-B0CE-4759-AD1C-02ECBBDF2EFD","MaxPlayerIndex":1,
         "Patterns":{"48":{"PatternConfigGuid":"03de57bd-4329-4de6-a722-a171c11fdd16","PerformedChartConfigGuid":"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1","Length":192,"RandomSeed":-2147483648,"StartPositionInclusive":True,"EndPositionInclusive":False,"IgnorePrecedingDistribution":True},"384":{"Length":0}}}
     for label,content in {"defaults":"{}","complete":json.dumps(metadata),"null-patterns":'{"Patterns":null}',"comments":'/* original */ {"Patterns": {"0": {/* marker */ "Length":48}}}',"trailing-comma":'{"Patterns":{},}',"invalid-guid":'{"ExpressedChartConfig":"invalid"}',"braced-guid":'{"ExpressedChartConfig":"{a19d532e-b0ce-4759-ad1c-02ecbbdf2efd}"}'}.items():
@@ -697,6 +731,7 @@ def main():
     tempo_hash = prepare_tempo_reference(args.editor_root.resolve())
     pause_hash = prepare_pause_reference(args.editor_root.resolve())
     region_hash = prepare_region_reference(args.editor_root.resolve())
+    source_timing_hash = prepare_source_timing_reference(args.editor_root.resolve())
     project = ROOT / "scripts/editor-oracle/EditorOracle.csproj"
     build = subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if build.returncode:
@@ -721,7 +756,7 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
-        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash,
+        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash, "editor_source_timing_methods_sha256": source_timing_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
         "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],

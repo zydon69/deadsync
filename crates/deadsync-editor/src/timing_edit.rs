@@ -225,15 +225,21 @@ fn song_fallback(document: &Document) -> f64 {
                 .map(|(_, bpm)| bpm)
         })
         .filter(|bpm| bpm.is_finite() && *bpm >= tempo::MIN_BPM);
-    first
-        .or_else(|| {
-            document
-                .text(None, "DISPLAYBPM")
-                .and_then(|value| value.split(':').next()?.trim().parse::<f64>().ok())
-                .filter(|bpm| bpm.is_finite() && *bpm >= tempo::MIN_BPM)
-        })
-        .unwrap_or(120.0)
+    first.or_else(|| display_tempo(document)).unwrap_or(120.0)
 }
+pub(crate) fn display_tempo(document: &Document) -> Option<f64> {
+    let text = document.text(None, "DISPLAYBPM")?;
+    let values = text
+        .split(':')
+        .map(|part| part.trim().parse::<f64>().ok())
+        .collect::<Option<Vec<_>>>()?;
+    if values.len() != 1 && values.len() != 2 {
+        return None;
+    }
+    let first = values[0];
+    (first.is_finite() && first >= tempo::MIN_BPM).then_some(first)
+}
+
 fn chart_fallback(document: &Document, chart: usize) -> Result<f64, Error> {
     // EditorSong enumerates chart-type groups in first-seen order, and charts
     // inside each group in load order. Rebuild that histogram before loading

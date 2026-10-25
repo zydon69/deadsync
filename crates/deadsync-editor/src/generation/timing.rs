@@ -2,7 +2,13 @@
 //! Fumen 0fe292f9). Gameplay/analysis keep RSSP timing. The reference generator
 //! uses row-based f64 arithmetic; replacing it with beat-based queries can
 //! change strict NPS threshold decisions through floating-point rounding.
-use crate::{Error, document::Format, notes::ROWS_PER_BEAT};
+mod load;
+use crate::{
+    Error,
+    document::{Document, Format},
+    notes::ROWS_PER_BEAT,
+};
+use std::sync::Arc;
 
 #[derive(Clone, Copy, Debug)]
 pub enum EventKind {
@@ -50,6 +56,7 @@ impl Event {
 #[derive(Clone, Debug)]
 pub struct GenerationTiming {
     events: Vec<Event>,
+    editor_events: Option<Vec<Event>>,
 }
 
 impl GenerationTiming {
@@ -87,207 +94,26 @@ impl GenerationTiming {
             }
         }
         events.sort_by_key(|event| (event.row, event.order()));
-        Ok(Self { events })
+        Ok(Self {
+            events,
+            editor_events: None,
+        })
     }
 
-    /// Reuse RSSP's file parser and chart inheritance rules, retaining raw f64
-    /// values for the generation clock instead of narrowing through f32.
+    /// Source normalization retains separate file and editor event sets.
     pub fn from_simfile(bytes: &[u8], format: Format, chart: usize) -> Result<Self, Error> {
-        let parsed = rssp::parse::extract_sections(bytes, format.extension())?;
-        let entry = parsed
-            .notes_list
-            .get(chart)
-            .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?;
-        let timing_format = if format == Format::Ssc {
-            rssp::timing::TimingFormat::Ssc
-        } else {
-            rssp::timing::TimingFormat::Sm
-        };
-        let allow = rssp::timing::steps_timing_allowed(
-            rssp::parse::parse_version(parsed.version, timing_format),
-            timing_format,
-        );
-        let source = rssp::timing::resolve_chart_timing(
-            allow,
-            0.0,
-            entry.chart_offset.as_deref(),
-            entry.chart_bpms.as_deref(),
-            entry.chart_stops.as_deref(),
-            entry.chart_delays.as_deref(),
-            entry.chart_warps.as_deref(),
-            entry.chart_speeds.as_deref(),
-            entry.chart_scrolls.as_deref(),
-            entry.chart_fakes.as_deref(),
-            entry.chart_time_signatures.as_deref(),
-            entry.chart_labels.as_deref(),
-            entry.chart_tickcounts.as_deref(),
-            entry.chart_combos.as_deref(),
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-        );
-        let own = source.chart_has_own_timing;
-        let fields = [
-            (
-                if own {
-                    entry.chart_bpms.as_deref()
-                } else {
-                    parsed.bpms
-                },
-                0,
-            ),
-            (
-                if own {
-                    entry.chart_delays.as_deref()
-                } else {
-                    parsed.delays
-                },
-                1,
-            ),
-            (
-                if own {
-                    entry.chart_stops.as_deref()
-                } else {
-                    parsed.stops
-                },
-                2,
-            ),
-            (
-                if own {
-                    entry.chart_warps.as_deref()
-                } else {
-                    parsed.warps
-                },
-                3,
-            ),
-            (
-                if own {
-                    entry.chart_time_signatures.as_deref()
-                } else {
-                    parsed.time_signatures
-                },
-                6,
-            ),
-            (
-                if own {
-                    entry.chart_tickcounts.as_deref()
-                } else {
-                    parsed.tickcounts
-                },
-                7,
-            ),
-            (
-                if own {
-                    entry.chart_fakes.as_deref()
-                } else {
-                    parsed.fakes
-                },
-                8,
-            ),
-            (
-                if own {
-                    entry.chart_combos.as_deref()
-                } else {
-                    parsed.combos
-                },
-                9,
-            ),
-            (
-                if own {
-                    entry.chart_labels.as_deref()
-                } else {
-                    parsed.labels
-                },
-                10,
-            ),
-            (
-                if own {
-                    entry.chart_scrolls.as_deref()
-                } else {
-                    parsed.scrolls
-                },
-                11,
-            ),
-            (
-                if own {
-                    entry.chart_speeds.as_deref()
-                } else {
-                    parsed.speeds
-                },
-                5,
-            ),
-        ];
-        let mut events = vec![Event {
-            row: 0,
-            kind: EventKind::TimeSignature,
-        }];
-        for (field, kind) in fields {
-            let Some(field) = field else {
-                continue;
-            };
-            let decoded = rssp::parse::decode_unescape(field);
-            let cleaned = decoded
-                .lines()
-                .map(|line| line.split_once("//").map_or(line, |(before, _)| before))
-                .collect::<Vec<_>>()
-                .join("");
-            for segment in cleaned
-                .split(',')
-                .filter(|segment| !segment.trim().is_empty())
-            {
-                let Some((beat, value)) = segment.trim().split_once('=') else {
-                    return invalid("Invalid timing segment");
-                };
-                let beat = beat
-                    .trim()
-                    .parse::<f64>()
-                    .map_err(|_| Error::InvalidFormat("Invalid timing beat".into()))?;
-                if matches!(kind, 4 | 5 | 6 | 7 | 9 | 10) {
-                    events.push(Event {
-                        row: beat_to_row(beat)?,
-                        kind: match kind {
-                            4 => EventKind::LeadingMarker,
-                            5 => EventKind::TrailingMarker,
-                            6 => EventKind::TimeSignature,
-                            7 => EventKind::TickCount,
-                            9 => EventKind::Combo,
-                            _ => EventKind::Label,
-                        },
-                    });
-                    continue;
-                }
-                let value = value
-                    .trim()
-                    .parse::<f64>()
-                    .map_err(|_| Error::InvalidFormat("Invalid timing value".into()))?;
-                let row = beat_to_row(beat)?;
-                let kind = match kind {
-                    0 => EventKind::Tempo(value),
-                    1 => EventKind::Delay(value),
-                    2 => EventKind::Stop(value),
-                    3 => EventKind::Warp(beat_to_row(value)?),
-                    8 => EventKind::Fake(beat_to_row(value)?),
-                    _ => EventKind::Scroll(value),
-                };
-                events.push(Event { row, kind });
-            }
-        }
-        if events
-            .iter()
-            .skip(1)
-            .any(|event| event.row == 0 && matches!(event.kind, EventKind::TimeSignature))
-        {
-            events.remove(0);
-        }
-        Self::new(events)
+        Self::from_document(&Document::parse(Arc::<[u8]>::from(bytes), format)?, chart)
     }
-
-    pub(crate) fn events(&self) -> &[Event] {
-        &self.events
+    pub(crate) fn from_document(document: &Document, chart: usize) -> Result<Self, Error> {
+        load::load(document, chart)
+    }
+    fn with_editor_events(file: Vec<Event>, editor: Vec<Event>) -> Result<Self, Error> {
+        let mut result = Self::new(file)?;
+        result.editor_events = Some(Self::new(editor)?.events);
+        Ok(result)
+    }
+    pub(crate) fn editor_events(&self) -> &[Event] {
+        self.editor_events.as_deref().unwrap_or(&self.events)
     }
 
     pub fn times(&self, rows: impl IntoIterator<Item = u64>) -> Result<Vec<f64>, Error> {
@@ -477,13 +303,6 @@ impl Clock {
     }
 }
 
-fn beat_to_row(beat: f64) -> Result<i64, Error> {
-    let row = (beat * ROWS_PER_BEAT as f64).round_ties_even();
-    if !row.is_finite() || row < f64::from(i32::MIN) || row > f64::from(i32::MAX) {
-        return invalid("Timing position exceeds the reference row range");
-    }
-    Ok(row as i64)
-}
 fn invalid<T>(message: &str) -> Result<T, Error> {
     Err(Error::InvalidEdit(message.to_owned()))
 }

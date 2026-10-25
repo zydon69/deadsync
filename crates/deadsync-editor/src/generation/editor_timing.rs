@@ -118,7 +118,7 @@ impl EditorTimeline {
             return invalid("Pattern timing requires one participant");
         }
         let mut entries = Vec::new();
-        for event in timing.events() {
+        for event in timing.editor_events() {
             check(cancelled)?;
             let row = u64::try_from(event.row).map_err(|_| {
                 Error::Unsupported(

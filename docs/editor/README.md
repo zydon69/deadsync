@@ -46,7 +46,7 @@ reviewable and tested.
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
-| Timing/gimmicks | F10 scoped BPM/stop/delay/warp/fake editing; typed region core; shared revision/inheritance transaction | Original C# map, file-clock and editor dependency comparisons; fractional loader normalization, other typed events, drawing and conversion remain pending |
+| Timing/gimmicks | F10 scoped BPM/stop/delay/warp/fake editing; typed region core; shared revision/inheritance transaction | Original C# map, file-clock and editor dependency comparisons; broader legacy/escape normalization, other typed events, drawing and conversion remain pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
@@ -1413,14 +1413,10 @@ Region drawing/selection, SM conversion and legacy migration, complete loader no
 audio/cache integration and the full delivery matrix remain work for the port.
 
 
-The file-clock integration cases above use integral region lengths. Fractional
-source positions/lengths still require one authoritative loader path: the raw
-GenerationTiming importer uses its existing row rounding, while typed region
-import uses Fumen subdivision rounding and the editor constructor minimum clamp.
-EditorTimeline does not yet obtain all these normalized source values from the
-typed maps. Consequently the new map/edit comparisons do not prove complete
-runtime equivalence for fractional legacy input. This remains a concrete loader
-integration requirement before full parity can be claimed.
+The region file-clock integration cases above use integral region lengths. The
+fractional raw-source gap identified at that checkpoint is now addressed by the
+normalized source timing path described below. This does not establish complete
+legacy-format or whole-editor runtime equivalence.
 
 
 ### Native warp and fake region inspector
@@ -1459,3 +1455,82 @@ headings, duration units, invalid-length message and paired acceptance. These
 join the existing editor regression workflows; physical input, GPU layout,
 region interval drawing, audio preview and complete source normalization remain
 separate requirements.
+
+
+### Normalized source timing and separate file/editor event sets
+
+`generation::timing::load` now constructs normalized source events for both the
+standalone Fumen generation clock and the editor dependency clock. It uses the
+same subdivision-to-row conversion as the typed timing importers. Valid records
+are ordered by their exact source beat; later beats and final duplicate-beat
+values win rounded-row conflicts before semantic filtering. Negative positions
+are discarded after rounding. Malformed individual values are skipped as in the
+original property parsers. Nonfinite positions/values and unsupported row/end
+ranges produce errors instead of propagating unsafe clocks.
+
+The loader handles first-invalid-tempo replacement, invalid later tempos,
+zero-equivalent stops, negative delays, nonpositive warp/fake lengths, signature
+validation/default insertion and same-row metadata conflicts. It respects the
+SM reader's supported property set and FREEZES alias. Duplicate timing property
+tags are rejected with an error: the actual original reader throws an
+ArgumentException for the corresponding case. No source tags or notes are
+rewritten by import.
+
+The file event set retains Fumen's imported values, including a positive warp or
+fake length that rounded to zero rows, subminimum tempos and missing initial
+BPMs. A separate editor event set applies the original constructors' one-row
+warp/fake minimum, tempo minimum and missing initial BPM fallback. Fallback uses
+previous charts grouped by first-seen chart type, original histogram tie order,
+then the song's exact zero-beat BPM, valid explicit display range and 120 BPM.
+`EditorTimeline::build` consumes this editor set; standalone generation-clock
+queries retain the file set. Explicit `GenerationTiming::new` events retain the
+existing single-clock contract. Source preparation reuses its already parsed
+Document instead of copying/parsing a second file snapshot for normalization.
+
+Thirteen additional committed source fixtures use the real pinned SM/SSC reader,
+unchanged original editor tempo-fallback and display parser, constructor clamp
+conditions and editor timing/dependency bodies. The oracle runs with the same
+invariant culture installed by GrooveAuthor's Editor constructor; it does not
+inherit macOS French decimal parsing for editor helper calls. Twelve cases
+produce reader/editor results; the repeated-tag case records the original
+reader's failure. The adapters supply chart containers, typed nodes and fields;
+this still does not execute the full original editor application.
+
+Four new Rust workflows compare note times, first-event group times, editor
+head times/fake flags, eligible step counts, end times, position queries and NPS,
+plus missing-tempo histograms, source-preserving save/reopen and rejected
+nonfinite inputs. Cases include half rows, tiny regions, subminimum/missing/
+future tempos, invalid/masking/malformed records, metadata conflicts, mixed chart
+types and SM-only semantics. Normalization does not mutate document bytes,
+CP1252 metadata, pending note history or redo.
+
+This removes the earlier fractional generation-clock/editor-constructor mismatch
+for the compared modern source paths. Legacy split-timing version migration,
+broader malformed/escape/format corpora, typed UI handling of all remaining
+metadata, interval rendering, audio integration and scale/cancellation checks
+remain requirements for the full port. Gameplay/analysis continue to use the
+existing pinned RSSP implementation; its timing quantization is not replaced by
+these editor-generation clocks.
+
+
+Two of the source-normalization fixtures also run the actual original expressed
+and performed chart pipeline after the editor dependency pass, using the pinned
+configuration, seed 42 and dance-double target. A functional Rust workflow runs
+ChartTask against the original fractional SSC bytes and compares every emitted
+note with those C# results, then applies one new-chart gesture, saves, reopens
+and undoes it. This covers the production generation path, in addition to the
+clock and fake-flag comparisons above.
+
+
+Remaining import boundaries are explicit: generation keeps the target's RSSP
+split-timing version gate, while the original Fumen reader can treat old SSC
+chart timing as independent regardless of version. Atomic legacy migration is
+still required to reconcile that case with gameplay. Some typed inspectors also
+still reject malformed raw maps that the generation reader can skip; the shared
+record normalization must extend to those inspectors before full import/editor
+parity is claimed. The display-tempo range fallback is already shared by the BPM
+inspector and normalized loader, including rejection of partially valid ranges.
+The SM FREEZES alias may occur multiple times in the original reader and is
+merged in source order; this differs from duplicate ordinary timing tags, whose
+raw-extra dictionaries cause the original reader to throw. Both behaviors are
+included in the new source corpus.
