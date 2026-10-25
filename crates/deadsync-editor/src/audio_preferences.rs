@@ -58,6 +58,7 @@ pub struct File {
     root: Map<String, Value>,
     audio_fields: Map<String, Value>,
     original: Audio,
+    written: Audio,
     audio: Audio,
 }
 impl File {
@@ -108,6 +109,7 @@ impl File {
             root,
             audio_fields,
             original: audio,
+            written: audio,
             audio,
         })
     }
@@ -118,10 +120,13 @@ impl File {
         self.audio = audio;
     }
     pub fn has_changes(&self) -> bool {
-        self.audio != self.original
+        self.audio != self.original || self.audio != self.written
     }
     pub fn save(&mut self) -> Result<bool, Error> {
         if !self.has_changes() {
+            if read_bytes(&self.path)? != self.expected {
+                return Err(Error::ExternalChange);
+            }
             return Ok(false);
         }
         let parent = self
@@ -166,6 +171,7 @@ impl File {
             .persist(&self.path)
             .map_err(|error| Error::Io(error.error))?;
         self.expected = Some(bytes);
+        self.written = self.audio;
         self.root = root;
         self.audio_fields = fields;
         crate::storage::sync_directory(parent)?;

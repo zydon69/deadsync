@@ -54,6 +54,7 @@ fn competing_preferences_sessions_refuse_stale_writes_without_marking_clean() {
     first.set_audio(audio);
     first.save().unwrap();
     let saved = fs::read(&path).unwrap();
+    assert!(matches!(second.save(), Err(Error::ExternalChange)));
     audio.set_fade_out(4.0).unwrap();
     second.set_audio(audio);
     assert!(matches!(second.save(), Err(Error::ExternalChange)));

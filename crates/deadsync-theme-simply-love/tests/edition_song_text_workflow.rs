@@ -752,3 +752,113 @@ fn application_audio_preferences_reload_and_drive_audition_without_touching_song
     assert_eq!(reopened.audio_preferences(), audio);
     assert_eq!(fs::read(&prefs_path).unwrap(), b"invalid preferences");
 }
+
+#[test]
+fn keyboard_audio_settings_save_reload_cancel_and_drive_audition_without_song_history() {
+    let (dir, mut state, original) = setup(false, false);
+    let path = dir.path().join("editor-preferences.json");
+    state.configure_audio_preferences(&path).unwrap();
+    press(&mut state, KeyCode::F11);
+    press(&mut state, KeyCode::F6);
+    press(&mut state, KeyCode::F5);
+    press(&mut state, KeyCode::ArrowRight);
+    press(&mut state, KeyCode::Tab);
+    press(&mut state, KeyCode::Digit0);
+    assert!(!path.exists());
+    assert_eq!(state.audio_preferences().fade_in(), 0.0);
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::Enter);
+    assert!(has(&state, "Audio preferences saved"));
+    assert_eq!(state.audio_preferences().fade_in(), 0.001);
+    assert_eq!(state.audio_preferences().fade_out(), 0.0);
+    let saved = fs::read(&path).unwrap();
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        original.as_bytes()
+    );
+    assert!(!state.workspace().file().session.is_dirty());
+    press(&mut state, KeyCode::F5);
+    press(&mut state, KeyCode::ArrowRight);
+    press(&mut state, KeyCode::Escape);
+    assert_eq!(fs::read(&path).unwrap(), saved);
+    assert_eq!(state.audio_preferences().fade_in(), 0.001);
+    press(&mut state, KeyCode::Tab);
+    press(&mut state, KeyCode::ArrowRight);
+    press(&mut state, KeyCode::F4);
+    match state.take_audio_commands().as_slice() {
+        [GameplayAudioCommand::PlayMusic { cut, .. }] => {
+            assert_eq!(cut.fade_in_sec, 0.001);
+            assert_eq!(cut.fade_out_sec, 0.0);
+        }
+        other => panic!("unexpected commands {other:?}"),
+    }
+    let mut reopened = State::open(&dir.path().join("song.ssc"), 0).unwrap();
+    reopened.configure_audio_preferences(&path).unwrap();
+    assert_eq!(reopened.audio_preferences(), state.audio_preferences());
+}
+
+#[test]
+fn keyboard_preference_save_refuses_external_or_future_files_and_keeps_active_settings() {
+    for future in [false, true] {
+        let (dir, mut state, original) = setup(false, false);
+        let path = dir.path().join("editor-preferences.json");
+        let external = if future {
+            r#"{"Version":2}"#
+        } else {
+            r#"{"Version":1,"Audio":{"PreviewFadeInTime":0.5}}"#
+        };
+        if future {
+            fs::write(&path, external).unwrap();
+            assert!(state.configure_audio_preferences(&path).is_err());
+        } else {
+            state.configure_audio_preferences(&path).unwrap();
+        }
+        press(&mut state, KeyCode::F11);
+        press(&mut state, KeyCode::F6);
+        press(&mut state, KeyCode::F5);
+        press(&mut state, KeyCode::ArrowRight);
+        if !future {
+            fs::write(&path, external).unwrap();
+        }
+        for _ in 0..3 {
+            press(&mut state, KeyCode::ArrowDown);
+        }
+        press(&mut state, KeyCode::Enter);
+        assert_eq!(fs::read_to_string(&path).unwrap(), external);
+        assert_eq!(state.audio_preferences().fade_in(), 0.0);
+        assert!(has(&state, "Preview fade in:")); // draft stays reviewable after refusal
+        press(&mut state, KeyCode::Escape);
+        assert_eq!(
+            state.workspace().file().session.serialize().unwrap(),
+            original.as_bytes()
+        );
+    }
+}
+
+#[test]
+fn keyboard_audio_settings_show_fine_steps_restore_defaults_and_cancel_without_creating_file() {
+    let (dir, mut state, _) = setup(false, false);
+    let path = dir.path().join("editor-preferences.json");
+    state.configure_audio_preferences(&path).unwrap();
+    for code in [KeyCode::F11, KeyCode::F6, KeyCode::F5] {
+        press(&mut state, code);
+    }
+    key(&mut state, KeyCode::ShiftLeft, true);
+    press(&mut state, KeyCode::ArrowRight);
+    key(&mut state, KeyCode::ShiftLeft, false);
+    assert!(has(&state, "0.0001"));
+    press(&mut state, KeyCode::Tab);
+    press(&mut state, KeyCode::Digit0);
+    assert!(has(&state, "Preview fade out: 0.0000"));
+    press(&mut state, KeyCode::Tab);
+    press(&mut state, KeyCode::Enter);
+    assert!(has(&state, "Preview fade in: 0.0000"));
+    assert!(has(&state, "Preview fade out: 1.5000"));
+    press(&mut state, KeyCode::Tab);
+    press(&mut state, KeyCode::Tab);
+    press(&mut state, KeyCode::Enter);
+    assert!(!path.exists());
+    assert_eq!(state.audio_preferences(), Default::default());
+    assert!(!state.workspace().file().session.is_dirty());
+}

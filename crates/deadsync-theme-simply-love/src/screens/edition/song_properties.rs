@@ -127,6 +127,11 @@ impl State {
             return;
         }
         self.stop_audio();
+        if code == KeyCode::F5 {
+            self.open_audio_settings();
+            return;
+        }
+
         if index == 2
             && self
                 .song_properties

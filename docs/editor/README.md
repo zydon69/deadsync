@@ -2988,3 +2988,29 @@ command payload, reopen and invalid-file retention without song edits.
 not actual fade samples produced by a decoder.
 
 The dedicated edition_preferences_runtime_workflow also passes: the real State constructor reads the installed runtime path, then opening with a future-version preference file succeeds with default audio and a visible error while both preference bytes and song source remain untouched.
+
+
+### Keyboard audio preferences panel
+
+The native editor now opens audio preferences with F11 → F6 → F5 (song
+properties, sample, audio settings). Tab/Shift+Tab and arrows navigate. Left/right
+adjust fades by 1 ms, Shift by 0.1 ms; four decimal places keep fine edits visible.
+Home restores the selected default and 0 clears it. A separate action restores
+both original defaults (0 / 1.5 seconds). Changes remain staged until Save;
+Escape or Discard returns without changing active settings or song history.
+
+Saving writes editor-preferences.json through the application preference adapter.
+Malformed/future files and externally changed bytes are refused; the draft stays
+open and active audition settings remain unchanged on failure. Even a no-op save
+checks for external changes. The adapter separately remembers bytes written before
+a directory-sync failure, so reverting a draft cannot silently leave a different
+on-disk value treated as clean. Unknown fields remain preserved.
+
+Native tests cover keyboard save/reopen, cancellation, defaults, fine-step display,
+audition command values and conflict/future-version refusal without song edits.
+These tests exercise native state/actors and commands, not physical audio output
+or GPU layout. Full original audio preference coverage and audible DSP comparison
+remain incomplete.
+
+Validation for this checkpoint: four core preference workflows and 18 native
+workflows (17 song-text/settings plus one runtime bootstrap) pass.
