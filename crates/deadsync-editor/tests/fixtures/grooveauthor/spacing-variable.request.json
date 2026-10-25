@@ -274,6 +274,285 @@
           }
         }
       ]
+    },
+    {
+      "Rate": {
+        "Time": 6,
+        "Row": 576,
+        "Tempo": 150,
+        "SecondsPerRow": 0.008333333333333333,
+        "RowsPerSecond": 120.0,
+        "Scroll": 1.5,
+        "Warp": 96,
+        "Stop": 0
+      },
+      "Speeds": {
+        "Time": 300,
+        "Row": 2,
+        "Variable": 300
+      },
+      "Interpolated": 0.8,
+      "Zoom": 0.6,
+      "Queries": [
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 6,
+            "Row": 576
+          },
+          "Time": -0.5,
+          "Row": -24,
+          "Y": 208,
+          "Region": {
+            "Time": 5.5,
+            "Row": 552,
+            "TimeDuration": 0,
+            "RowDuration": 0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 6,
+            "Row": 576
+          },
+          "Time": 6.4,
+          "Row": 624,
+          "Y": 208,
+          "Region": {
+            "Time": 5.5,
+            "Row": 552,
+            "TimeDuration": 2,
+            "RowDuration": 96,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 6,
+            "Row": 576
+          },
+          "Time": 5.8,
+          "Row": 552,
+          "Y": 208,
+          "Region": {
+            "Time": 5.5,
+            "Row": 552,
+            "TimeDuration": -1,
+            "RowDuration": -48,
+            "Selection": true,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 6,
+            "Row": 576
+          },
+          "Time": 7.6,
+          "Row": 768,
+          "Y": 208,
+          "Region": {
+            "Time": 5.5,
+            "Row": 552,
+            "TimeDuration": -0.5,
+            "RowDuration": -24.0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        }
+      ]
+    },
+    {
+      "Rate": {
+        "Time": 6,
+        "Row": 672,
+        "Tempo": 150,
+        "SecondsPerRow": 0.008333333333333333,
+        "RowsPerSecond": 120.0,
+        "Scroll": 1.5,
+        "Warp": 0,
+        "Stop": 1.25
+      },
+      "Speeds": {
+        "Time": 300,
+        "Row": 2,
+        "Variable": 300
+      },
+      "Interpolated": 0.8,
+      "Zoom": 0.6,
+      "Queries": [
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 6,
+            "Row": 672
+          },
+          "Time": -0.5,
+          "Row": -24,
+          "Y": 208,
+          "Region": {
+            "Time": 5.5,
+            "Row": 648,
+            "TimeDuration": 0,
+            "RowDuration": 0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 6,
+            "Row": 672
+          },
+          "Time": 6.4,
+          "Row": 720,
+          "Y": 208,
+          "Region": {
+            "Time": 5.5,
+            "Row": 648,
+            "TimeDuration": 2,
+            "RowDuration": 96,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 6,
+            "Row": 672
+          },
+          "Time": 5.8,
+          "Row": 648,
+          "Y": 208,
+          "Region": {
+            "Time": 5.5,
+            "Row": 648,
+            "TimeDuration": -1,
+            "RowDuration": -48,
+            "Selection": true,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 6,
+            "Row": 672
+          },
+          "Time": 7.6,
+          "Row": 864,
+          "Y": 208,
+          "Region": {
+            "Time": 5.5,
+            "Row": 648,
+            "TimeDuration": -0.5,
+            "RowDuration": -24.0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        }
+      ]
+    },
+    {
+      "Rate": {
+        "Time": 7.25,
+        "Row": 720,
+        "Tempo": 123.456,
+        "SecondsPerRow": 0.010125064800414722,
+        "RowsPerSecond": 98.76480000000001,
+        "Scroll": 1.5,
+        "Warp": 48,
+        "Stop": -0.75
+      },
+      "Speeds": {
+        "Time": 300,
+        "Row": 2,
+        "Variable": 300
+      },
+      "Interpolated": 0.8,
+      "Zoom": 0.6,
+      "Queries": [
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 7.25,
+            "Row": 720
+          },
+          "Time": -0.5,
+          "Row": -24,
+          "Y": 208,
+          "Region": {
+            "Time": 6.75,
+            "Row": 696,
+            "TimeDuration": 0,
+            "RowDuration": 0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 7.25,
+            "Row": 720
+          },
+          "Time": 7.736003110419906,
+          "Row": 768,
+          "Y": 208,
+          "Region": {
+            "Time": 6.75,
+            "Row": 696,
+            "TimeDuration": 2,
+            "RowDuration": 96,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 7.25,
+            "Row": 720
+          },
+          "Time": 7.006998444790047,
+          "Row": 696,
+          "Y": 208,
+          "Region": {
+            "Time": 6.75,
+            "Row": 696,
+            "TimeDuration": -1,
+            "RowDuration": -48,
+            "Selection": true,
+            "DrawnY": 123.25
+          }
+        },
+        {
+          "Anchor": {
+            "Y": 160,
+            "Time": 7.25,
+            "Row": 720
+          },
+          "Time": 9.194012441679627,
+          "Row": 912,
+          "Y": 208,
+          "Region": {
+            "Time": 6.75,
+            "Row": 696,
+            "TimeDuration": -0.5,
+            "RowDuration": -24.0,
+            "Selection": false,
+            "DrawnY": 123.25
+          }
+        }
+      ]
     }
   ]
 }

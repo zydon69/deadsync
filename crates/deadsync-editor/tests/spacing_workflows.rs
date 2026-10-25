@@ -92,9 +92,24 @@ fn original_spacing_helper_matches_all_modes_reverse_previous_rates_and_regions(
                     };
                     let time = n(query, "Time");
                     let row = n(query, "Row");
-                    let time_to_row =
-                        |time| Ok(rate.row + (time - rate.time) / rate.seconds_per_row);
-                    let row_to_time = |row| Ok(rate.time + (row - rate.row) * rate.seconds_per_row);
+                    let mapping = deadsync_editor::rate_mapping::RateMapping::new(
+                        rate.row,
+                        rate.time,
+                        stage["Rate"]
+                            .get("Warp")
+                            .and_then(Value::as_f64)
+                            .unwrap_or(0.0),
+                        stage["Rate"]
+                            .get("Stop")
+                            .and_then(Value::as_f64)
+                            .unwrap_or(0.0),
+                        rate.seconds_per_row,
+                    )
+                    .unwrap();
+                    let time_to_row = |time| mapping.position_at(time);
+                    let row_to_time = |row| mapping.time_at(row);
+                    compare(mapping.time_at(row).unwrap(), expected, "RowTime");
+                    compare(mapping.position_at(time).unwrap(), expected, "TimeRow");
                     for (previous, key) in [(false, "Location"), (true, "Previous")] {
                         let (time, row) = helper
                             .location(n(query, "Y"), anchor, previous, time_to_row, row_to_time)

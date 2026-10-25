@@ -3546,12 +3546,12 @@ reject use before initialization; caller timeline failures propagate.
 
 A development-only runner compiles the whole unchanged pinned C# source with
 scalar preference/event/region adapters. Six original request/expected traces
-cover 18 successive rate updates and 72 query sets across all modes/directions,
+cover 36 successive rate updates and 144 query sets across all modes/directions,
 including tempo changes, negative/interpolated scroll, different speeds, reverse,
 previous-rate inverse positions and region edge cases. Rust compares numerical
 outputs within two ULP and booleans exactly. Source hash/pin are committed in
-spacing-reference.json. Fixtures use explicit linear rate conversion callbacks;
-they do not establish original stop/warp/delay conversions or chart traversal.
+spacing-reference.json. Fixtures now use the unchanged original rate conversion members, including
+stop/warp/negative-lead-in arithmetic. They do not establish chart traversal.
 Five Rust workflows additionally check invalid/atomic updates, missing rate
 initialization, conversion failures, zero rates and strict/signed region edges.
 
@@ -3566,3 +3566,45 @@ workflows passed separately again after extending strict region/selection and
 signed-height checks to all three modes. The original C# runner regenerated
 all six traces successfully. `cargo check -p deadsync --jobs 2 --locked` passed.
 No new native spacing mode or GPU behavior is claimed by this numerical port.
+
+### Shared original rate conversions and timeline snapshots
+
+`RateMapping` centralizes EditorRateAlteringEvent's chart-position/time
+conversions. Fractional and negative positions are supported. Clamping depends
+on the sign of the queried position/time, exactly as in the original; positive
+stops, negative stops and remaining warp rows therefore retain their distinct
+plateaus/jumps. Negative lead-in extrapolates without the nonnegative clamps.
+The representation is immutable and validates finite rate inputs, nonnegative
+anchor/warp rows and a positive seconds-per-row value with a representable
+reciprocal. Nonfinite query/results are explicit errors.
+
+EditorTimeline's existing row/time conversion and negative-stop insertion probes
+share the same functions rather than repeating the arithmetic. Timeline event
+selection and ordering remain unchanged. EditorTimeline and the playback Clock
+expose ordered (timing-order byte, RateMapping) snapshots for subsequent visual
+spacing integration. Snapshot times are chart times; audio-file offsets must
+still be applied through Clock's conversion methods. Snapshots intentionally do
+not include scroll/interpolated-speed metadata yet.
+
+The spacing oracle now compiles the unchanged original helper together with the
+two unchanged conversion members extracted from the pinned original rate-event
+source. The previous linear conversion adapters are removed. Six traces now
+cover six successive rates each, including normal tempo, warp, positive stop,
+combined warp/negative stop, fractional positions and negative lead-in. Each of
+144 query sets compares direct rate conversions as well as spacing/region
+geometry and current/previous inverse mapping. The original rate source and
+both member hashes are recorded in the manifest.
+
+Three new mapping workflows check explicit discontinuity boundaries, exported
+snapshot ordering/state against the real parsed timing/Clock, and invalid inputs.
+These conversions are not generally bijective: warps and negative stops collapse
+positions, and positive stops hold position over a time interval. Rendering must
+use the selected rate and actual temporal interval, rather than assuming a
+round-trip inverse at these boundaries. Native time/variable display wiring and
+nonmonotonic visibility traversal remain pending.
+
+Validation: all 378 editor core tests and all 186 native editor integration
+tests passed after centralizing the conversions. The eight mapping/spacing
+workflows passed again with Clock snapshot assertions. The original C# runner
+regenerated all six expanded traces; `cargo check -p deadsync --jobs 2 --locked`
+passed. Native display mode wiring remains pending.

@@ -1,6 +1,6 @@
 // Development-only scalar and conversion adapters. The spacing helper source
-// is copied unchanged. Linear rate conversions are explicit fixture inputs;
-// this runner does not emulate the real EditorChart timeline.
+// is copied unchanged. Rate conversion members are copied unchanged from the pinned source;
+// this runner does not emulate the real EditorChart event search/traversal.
 namespace StepManiaEditor;
 internal static class Editor {
  public enum SpacingMode { ConstantTime, ConstantRow, Variable }
@@ -23,14 +23,13 @@ internal class EditorEvent {
  public double GetChartPosition()=>Row;
  public double GetRow()=>Row;
 }
-internal sealed class EditorRateAlteringEvent : EditorEvent {
+internal sealed partial class EditorRateAlteringEvent : EditorEvent {
  public double Tempo,SecondsPerRow,RowsPerSecond,Scroll;
  public double GetTempo()=>Tempo;
  public double GetSecondsPerRow()=>SecondsPerRow;
  public double GetRowsPerSecond()=>RowsPerSecond;
  public double GetScrollRate()=>Scroll;
- public double GetChartTimeFromPosition(double row)=>Time+(row-Row)*SecondsPerRow;
- public double GetChartPositionFromTime(double time)=>Row+(time-Time)/SecondsPerRow;
+ public double WarpRowsRemaining,StopTimeRemaining;
 }
 internal interface IChartRegion {
  double GetChartTime();double GetChartPosition();double GetChartTimeDurationForRegion();double GetChartPositionDurationForRegion();bool IsRegionSelection();double GetRegionY();

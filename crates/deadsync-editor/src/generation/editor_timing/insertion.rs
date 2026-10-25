@@ -163,15 +163,9 @@ impl InsertionFakes {
                             .take_while(|rate| rate.time <= entry.time)
                         {
                             check(cancelled)?;
-                            let relative = entry.time - (rate.time + rate.stop);
-                            let relative = if entry.time >= 0.0 {
-                                relative.max(0.0)
-                            } else {
-                                relative
-                            };
-                            end = rate.row as f64
-                                + relative * (1.0 / rate.seconds_per_row)
-                                + rate.warp as f64;
+                            end = crate::rate_mapping::rate_position(rate.row as f64,
+                                rate.time, rate.warp as f64, rate.stop,
+                                1.0 / rate.seconds_per_row, entry.time);
                         }
                         finite(end)?;
                     }

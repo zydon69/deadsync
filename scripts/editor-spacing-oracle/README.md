@@ -10,17 +10,17 @@ python3 scripts/editor-generate-spacing-fixtures.py \
   --editor-root /path/to/GrooveAuthor --dotnet /path/to/dotnet
 ```
 
-`Adapters.cs` provides the helper's scalar preferences, event/region accessors,
-and direction flag. Rate conversions are **explicit linear fixture callbacks**
-using the supplied time, row and seconds-per-row. These callbacks deliberately
-are not a reconstruction of EditorRateAlteringEvent's stop/warp/delay semantics.
-Thus the traces compare the original helper's arithmetic and dispatch, previous
-rates, signed geometry and region decisions; they do not establish full chart
-projection or actual native rendering across rate boundaries. No Fumen or
-original GUI assemblies are needed by this standalone runner.
+`Adapters.cs` provides scalar preferences, event/region accessors, rate fields
+and the direction flag. The two rate conversion members are extracted unchanged
+from the pinned `EditorRateAlteringEvent.cs` into an ignored partial class. The
+source and extracted-member hashes are recorded in the fixture manifest. These
+are the original stop/warp/negative-lead-in formulas, not linear replacements.
+The runner does not emulate EditorChart event selection, traversal or complete
+native rendering across rate boundaries. No Fumen or GUI assemblies are needed.
 
-Six fixtures cover all three modes in both directions, with three successive
-rates and four query sets per rate. Valid nonzero rates are used for inverse
+Six fixtures cover all three modes in both directions, with six successive
+rates and four query sets per rate (144 query sets), including positive/negative
+stops, warps and negative time/row queries. Valid nonzero rates are used for inverse
 comparisons. Rust additionally checks invalid inputs, failed callbacks, missing
 rate initialization and the zero-variable-rate case: forward geometry remains
 valid but inverse projection returns an explicit error instead of NaN/infinity.

@@ -1,6 +1,11 @@
 {
   "GrooveAuthor": "48e18f71655d0f0d86144c63239331833501fda2",
   "EventSpacingHelperSHA256": "67deae613750c28f54442f4379f65f7c7e7728b8603bb5ea16c25807bc35fd5b",
+  "RateSourceSHA256": "65df864234461b543af99e6f640e43998be9343ba64829f3d0d28cb027e481ce",
+  "RateMembersSHA256": [
+    "044472a2e337ead0932f84e821fa9609f1e9744519ab4c291fc75b3d7ea872a4",
+    "6cdfafb1ae56bd37be3a37fccac896c3b723772f02660bff47f82b24955ef012"
+  ],
   "Cases": [
     "spacing-constantrow-reverse.request",
     "spacing-constantrow.request",
@@ -9,5 +14,5 @@
     "spacing-variable-reverse.request",
     "spacing-variable.request"
   ],
-  "AdapterScope": "Scalar preferences, event/region accessors and explicit linear rate conversion callbacks only; original helper unchanged"
+  "AdapterScope": "Scalar preferences and event/region accessors only; spacing helper and extracted rate conversion members unchanged; timeline search not emulated"
 }

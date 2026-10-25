@@ -94,8 +94,10 @@ struct Rate {
 }
 impl Rate {
     fn position_time(self, row: u64) -> f64 {
-        let relative = (row as f64 - (self.row as f64 + self.warp as f64)).max(0.0);
-        self.time + (relative * self.seconds_per_row + self.stop).max(0.0)
+        crate::rate_mapping::rate_time(
+            self.row as f64, self.time, self.warp as f64,
+            self.stop, self.seconds_per_row, row as f64,
+        )
     }
 }
 pub struct EditorTimeline {
@@ -606,6 +608,17 @@ impl EditorTimeline {
             })
             .collect()
     }
+    /// Ordered rate snapshots for spacing traversal. The order byte preserves
+    /// distinct timing events at the same row. Constructed only after validation.
+    pub fn rate_mappings(&self) -> impl Iterator<Item = (u8, crate::rate_mapping::RateMapping)> + '_ {
+        self.rates.iter().map(|rate| {
+            let mapping = crate::rate_mapping::RateMapping::new(
+                rate.row as f64, rate.time, rate.warp as f64,
+                rate.stop, rate.seconds_per_row,
+            ).expect("validated editor timing rate");
+            (rate.order, mapping)
+        })
+    }
     pub fn position_time(&self, row: u64) -> Result<f64, Error> {
         self.query(row, None)
     }
@@ -626,13 +639,8 @@ impl EditorTimeline {
         let Some(rate) = rate else {
             return invalid("Cannot locate playback without a timing rate");
         };
-        let relative = time - (rate.time + rate.stop);
-        let relative = if time >= 0.0 {
-            relative.max(0.0)
-        } else {
-            relative
-        };
-        let row = rate.row as f64 + relative * (1.0 / rate.seconds_per_row) + rate.warp as f64;
+        let row = crate::rate_mapping::rate_position(rate.row as f64, rate.time,
+            rate.warp as f64, rate.stop, 1.0 / rate.seconds_per_row, time);
         finite(row)?;
         Ok(row)
     }

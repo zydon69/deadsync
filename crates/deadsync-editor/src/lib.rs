@@ -19,6 +19,7 @@ mod number;
 pub mod pad;
 pub mod playback;
 pub mod projection;
+pub mod rate_mapping;
 pub mod region_index;
 pub mod runtime;
 pub mod song_properties;

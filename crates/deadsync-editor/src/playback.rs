@@ -80,6 +80,11 @@ impl Clock {
             timeline,
         })
     }
+    /// Ordered chart-time rate snapshots for visual spacing. Use
+    /// chart_time_to_music when converting these times to audio-file seconds.
+    pub fn rate_mappings(&self) -> impl Iterator<Item = (u8, crate::rate_mapping::RateMapping)> + '_ {
+        self.timeline.rate_mappings()
+    }
     pub(crate) fn with_song_draft(mut self, offset: f64, sync_offset: f64) -> Self {
         self.offset = offset;
         self.sync_offset = sync_offset;
