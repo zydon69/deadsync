@@ -1,0 +1,19 @@
+{
+  "Operation": "PadFit",
+  "Layouts": [
+    "dance-single",
+    "dance-double",
+    "dance-solo",
+    "dance-threepanel",
+    "pump-single",
+    "pump-halfdouble",
+    "pump-double",
+    "smx-beginner",
+    "smx-single",
+    "smx-dual",
+    "smx-full",
+    "dance-routine",
+    "pump-routine",
+    "smx-team"
+  ]
+}

@@ -132,5 +132,17 @@
       ]
     }
   ],
-  "Mines": []
+  "Mines": [],
+  "NoteEvents": [
+    {
+      "Row": 0,
+      "Lane": 3,
+      "Symbol": "1"
+    },
+    {
+      "Row": 12,
+      "Lane": 1,
+      "Symbol": "1"
+    }
+  ]
 }

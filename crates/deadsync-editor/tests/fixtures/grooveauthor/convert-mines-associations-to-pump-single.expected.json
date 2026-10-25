@@ -264,5 +264,77 @@
       "Time": 0.9,
       "Lane": 4
     }
+  ],
+  "NoteEvents": [
+    {
+      "Row": 12,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 36,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 36,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 60,
+      "Lane": 4,
+      "Symbol": "1"
+    },
+    {
+      "Row": 96,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 0,
+      "Lane": 0,
+      "Symbol": "M"
+    },
+    {
+      "Row": 0,
+      "Lane": 1,
+      "Symbol": "M"
+    },
+    {
+      "Row": 24,
+      "Lane": 0,
+      "Symbol": "M"
+    },
+    {
+      "Row": 24,
+      "Lane": 1,
+      "Symbol": "M"
+    },
+    {
+      "Row": 48,
+      "Lane": 0,
+      "Symbol": "M"
+    },
+    {
+      "Row": 48,
+      "Lane": 2,
+      "Symbol": "M"
+    },
+    {
+      "Row": 72,
+      "Lane": 0,
+      "Symbol": "M"
+    },
+    {
+      "Row": 84,
+      "Lane": 2,
+      "Symbol": "M"
+    },
+    {
+      "Row": 108,
+      "Lane": 4,
+      "Symbol": "M"
+    }
   ]
 }

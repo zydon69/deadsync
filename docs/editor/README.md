@@ -254,8 +254,8 @@ states, links, roll/fake/lift instances, starting tiers, steps and mines. They
 cover eight Dance/Pump/SMX layout pairs, fixed positive/negative seeds, root
 tier fallback, blanks, impossible paths, empty and mine-only charts, recency
 fallback and simultaneous NoArrow mines. The last case retains the source's
-raw duplicate mine behavior; file assembly still requires canonicalization and
-validation before applying a preview.
+raw duplicate mine behavior; file assembly merges identical duplicate mines and
+validates the resulting note grid before applying a preview.
 
 A recency-fallback fixture exposed a PRNG mismatch that ordinary step-path tests
 had not detected: LINQ OrderBy().ToList/ToArray does not evaluate its key selector
@@ -268,3 +268,26 @@ End-to-end SM/SSC conversion, including split timing and the source interpreter'
 first-event-of-row timestamp grouping, still needs separate adapter tests.
 No native generation panel or generated-chart save workflow is claimed complete
 by these engine tests.
+
+### Generated notes and chart creation
+
+`output::assemble` converts performed foot states and instance metadata to a
+canonical Grid, including holds, rolls, lifts, fakes and mines. It rejects
+orphan releases, unterminated holds and conflicting cells, and reports merged
+identical mines. All twenty-nine conversion fixtures compare the assembled notes
+with `CreateSMChartEvents` from the original C# library. Automatic fallback
+selection is checked against the original fourteen-by-fourteen pad containment
+matrix, with sparse and translated custom-pad cases.
+
+`Session::append_chart` copies current source chart metadata and effective timing
+into a new SM/SSC chart, preserving existing file bytes and unknown properties.
+Structural history owns both document states, so chart creation, earlier note
+edits and subsequent metadata changes remain independently undoable and redoable.
+The final simfile is reparsed before history changes. Note attributes reject
+unescaped simfile delimiters and comment openers, preserving valid escaped data.
+Tests cover save/reopen, RSSP analysis, legacy metadata, multiple additions,
+opaque unsupported charts, stale revisions and atomic rejection. One real-file
+workflow reads source notes, timing and mines through FileSession before
+interpretation, conversion, assembly, append and save/reopen. This does not yet
+prove the full split-timing adapter behavior described above, and generation UI
+remains pending.

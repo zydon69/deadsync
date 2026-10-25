@@ -48,6 +48,17 @@ struct Cursor {
     links: Arc<[LinkInstance]>,
 }
 
+/// Original ActionAutoGenerateCharts only enables replacements when the source
+/// pad cannot be embedded without losing any of its supported movements.
+pub fn automatic_fallbacks(
+    source_layout: &str,
+    target_layout: &str,
+) -> Result<Option<&'static Fallbacks>, Error> {
+    let source = Pad::builtin(source_layout)?;
+    let target = Pad::builtin(target_layout)?;
+    Ok((!source.can_fit_within(target)).then(Fallbacks::builtin))
+}
+
 pub fn root_tiers(graph: &StepGraph, pad: &Pad) -> Result<Vec<Vec<usize>>, Error> {
     pad.starting_positions
         .iter()

@@ -57,5 +57,17 @@
       "Time": 0.1,
       "Lane": 0
     }
+  ],
+  "NoteEvents": [
+    {
+      "Row": 0,
+      "Lane": 0,
+      "Symbol": "M"
+    },
+    {
+      "Row": 12,
+      "Lane": 0,
+      "Symbol": "M"
+    }
   ]
 }

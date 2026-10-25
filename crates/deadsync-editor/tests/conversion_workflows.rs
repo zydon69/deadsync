@@ -222,6 +222,39 @@ fn compare(name: &str) {
             "{name}"
         );
     }
+    let assembled = deadsync_editor::generation::output::assemble(&result, &AtomicBool::new(false))
+        .unwrap_or_else(|error| panic!("{name}: output assembly: {error}"));
+    let columns = deadsync_editor::notes::layout_columns(layout).unwrap();
+    let note_events = expected["NoteEvents"].as_array().unwrap();
+    let max_row = note_events
+        .iter()
+        .map(|event| event["Row"].as_u64().unwrap())
+        .max()
+        .unwrap_or(0);
+    let mut rows = vec![vec![b'0'; usize::from(columns)]; ((max_row / 192 + 1) * 192) as usize];
+    for event in note_events {
+        rows[event["Row"].as_u64().unwrap() as usize][event["Lane"].as_u64().unwrap() as usize] =
+            event["Symbol"].as_str().unwrap().as_bytes()[0];
+    }
+    let text = rows
+        .chunks(192)
+        .map(|measure| {
+            measure
+                .iter()
+                .map(|row| std::str::from_utf8(row).unwrap())
+                .collect::<Vec<_>>()
+                .join("\n")
+        })
+        .collect::<Vec<_>>()
+        .join("\n,\n");
+    let original_grid = Grid::parse(text.as_bytes(), columns).unwrap();
+    assert_eq!(assembled.grid, original_grid, "{name}: canonical SM notes");
+    let unique_mines = assembled
+        .grid
+        .iter()
+        .filter(|(_, note)| note.kind == deadsync_editor::notes::Kind::Mine)
+        .count();
+    assert_eq!(assembled.merged_mines, result.mines.len() - unique_mines);
     let result = result.steps;
     assert_eq!(result.layout, layout);
     assert_eq!(
@@ -412,4 +445,179 @@ fn mine_placement_cancellation_and_invalid_associations_fail_without_partial_out
         ..mine
     };
     assert!(mines::place(&nodes, 4, &[mine], &mut random, &AtomicBool::new(false)).is_err());
+}
+
+#[test]
+fn original_pad_containment_controls_automatic_replacements_for_all_layout_pairs() {
+    let input = fixture("pad-containment", "request");
+    let expected = fixture("pad-containment", "expected");
+    let layouts = input["Layouts"].as_array().unwrap();
+    assert_eq!(layouts.len(), 14);
+    for (a, source) in layouts.iter().enumerate() {
+        for (b, target) in layouts.iter().enumerate() {
+            let source = source.as_str().unwrap();
+            let target = target.as_str().unwrap();
+            let fit = deadsync_editor::pad::Pad::builtin(source)
+                .unwrap()
+                .can_fit_within(deadsync_editor::pad::Pad::builtin(target).unwrap());
+            assert_eq!(
+                fit,
+                expected[a][b].as_bool().unwrap(),
+                "{source} -> {target}"
+            );
+            assert_eq!(
+                performed::automatic_fallbacks(source, target)
+                    .unwrap()
+                    .is_some(),
+                !fit
+            );
+        }
+    }
+}
+
+#[test]
+fn containment_preserves_relationships_and_handles_sparse_custom_coordinates() {
+    use deadsync_editor::pad::Pad;
+    let source = Pad::builtin("dance-single").unwrap();
+    let mut target = source.clone();
+    let other = source.arrows[0].other_foot_pairings[0]
+        .iter()
+        .position(|&value| value)
+        .unwrap();
+    target.arrows[0].other_foot_pairings[0][other] = false;
+    assert!(
+        !source.can_fit_within(&target),
+        "Same geometry must not lose a supported move"
+    );
+    let mut translated = source.clone();
+    for arrow in &mut translated.arrows {
+        arrow.x += 1_000_000_000;
+        arrow.y -= 1_000_000_000;
+    }
+    assert!(source.can_fit_within(&translated));
+    let mut sparse = source.clone();
+    for (i, arrow) in sparse.arrows.iter_mut().enumerate() {
+        arrow.x = i as i32 * 500_000_000;
+    }
+    assert!(!source.can_fit_within(&sparse));
+}
+
+#[test]
+fn actual_file_chart_generation_applies_once_saves_and_reopens_through_rssp() {
+    use deadsync_editor::{
+        analysis,
+        generation::{output, timing::GenerationTiming},
+        storage::FileSession,
+    };
+    let input = fixture("convert-dance-single-to-dance-double-42", "request");
+    let (events, _) = source_data(&input);
+    // Build a real source file from the same source notes, including holds,
+    // rolls, mines, fake/lift and keysounds, instead of editing a dummy chart.
+    let notes = input["Notes"].as_array().unwrap();
+    let mut rows = vec![vec![b'0'; 4]; 192];
+    for note in notes {
+        rows[note[0].as_u64().unwrap() as usize][note[1].as_u64().unwrap() as usize] =
+            note[2].as_str().unwrap().as_bytes()[0];
+    }
+    let raw = rows
+        .iter()
+        .map(|row| std::str::from_utf8(row).unwrap())
+        .collect::<Vec<_>>()
+        .join("\n");
+    let bytes = format!("#VERSION:0.83;#TITLE:Keep title;#ARTIST:Keep author;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Source;#DIFFICULTY:Hard;#METER:9;#CREDIT:Keep credit;#VENDOR:keep;#BPMS:0=150;#NOTES:\n{raw}\n;").into_bytes();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, &bytes).unwrap();
+    let mut file = FileSession::open(&path).unwrap();
+    let source_grid = file.session.grid(0).unwrap().clone();
+    let frames = expressed::frames(&source_grid, 0, &AtomicBool::new(false)).unwrap();
+    let timing =
+        GenerationTiming::from_simfile(&bytes, deadsync_editor::document::Format::Ssc, 0).unwrap();
+    let times = timing.times(frames.iter().map(|frame| frame.row)).unwrap();
+    let mut mine_positions = source_grid
+        .iter()
+        .filter(|(_, note)| note.kind == deadsync_editor::notes::Kind::Mine)
+        .map(|(position, _)| (position.row, position.lane))
+        .collect::<Vec<_>>();
+    mine_positions.sort_unstable();
+    let mine_times = timing
+        .times(mine_positions.iter().map(|(row, _)| *row))
+        .unwrap();
+    let source_mines = mine_positions
+        .into_iter()
+        .zip(mine_times)
+        .map(
+            |((row, lane), time)| deadsync_editor::generation::mines::SourceMine {
+                row,
+                lane,
+                time,
+            },
+        )
+        .collect::<Vec<_>>();
+    let source_graph = StepGraph::builtin("dance-single").unwrap();
+    let config = ExpressedConfig {
+        bracket_parsing_determination: BracketDetermination::UseDefaultMethod,
+        ..ExpressedConfig::default()
+    };
+    let interpreted = expressed::build_chart(
+        &source_graph,
+        deadsync_editor::pad::Pad::builtin("dance-single").unwrap(),
+        &expressed::PolicyRequest {
+            frames: &frames,
+            times: &times,
+            difficulty: 9.0,
+            event_span: [0.0, 1.3],
+        },
+        &config,
+        &source_mines,
+        &AtomicBool::new(false),
+        |_, _, _| {},
+    )
+    .unwrap();
+    assert_eq!(interpreted.events.len(), events.len());
+    let config: PerformedConfig = serde_json::from_value(input["PerformedConfig"].clone()).unwrap();
+    let converted = performed::convert(
+        &Request {
+            layout: "dance-double",
+            events: &interpreted.events,
+            config: &config,
+            fallbacks: performed::automatic_fallbacks("dance-single", "dance-double").unwrap(),
+            seed: 42,
+            roots: None,
+        },
+        &interpreted.mines,
+        &AtomicBool::new(false),
+        |_, _, _| {},
+    )
+    .unwrap();
+    let assembled = output::assemble(&converted, &AtomicBool::new(false)).unwrap();
+    let revision = file.session.revision();
+    let added = file
+        .session
+        .append_chart(
+            0,
+            &converted.steps.layout,
+            &assembled.grid,
+            revision,
+            "Generate chart",
+        )
+        .unwrap();
+    assert_eq!(added, 1);
+    assert_eq!(file.session.grid(0).unwrap(), &source_grid);
+    assert!(file.session.serialize().unwrap().starts_with(&bytes));
+    let analyzed =
+        analysis::chart(&file.session, added, &rssp::AnalysisOptions::default()).unwrap();
+    file.save().unwrap();
+    let mut reopened = FileSession::open(&path).unwrap();
+    assert_eq!(reopened.session.grid(added).unwrap(), &assembled.grid);
+    assert_eq!(
+        analysis::chart(&reopened.session, added, &rssp::AnalysisOptions::default())
+            .unwrap()
+            .short_hash,
+        analyzed.short_hash
+    );
+    file.session.undo().unwrap();
+    assert_eq!(file.session.serialize().unwrap(), bytes);
+    file.session.redo().unwrap();
+    assert_eq!(file.session.grid(added).unwrap(), &assembled.grid);
 }

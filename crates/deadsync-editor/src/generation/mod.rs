@@ -9,6 +9,7 @@ pub mod interpretation_cost;
 pub mod interpretation_path;
 mod jsonc;
 pub mod mines;
+pub mod output;
 pub mod pattern;
 pub mod performed;
 pub mod random;

@@ -310,5 +310,42 @@
       "Time": 0.8,
       "Lane": 1
     }
+  ],
+  "NoteEvents": [
+    {
+      "Row": 0,
+      "Lane": 3,
+      "Symbol": "1"
+    },
+    {
+      "Row": 12,
+      "Lane": 3,
+      "Symbol": "1"
+    },
+    {
+      "Row": 24,
+      "Lane": 3,
+      "Symbol": "1"
+    },
+    {
+      "Row": 36,
+      "Lane": 3,
+      "Symbol": "1"
+    },
+    {
+      "Row": 48,
+      "Lane": 3,
+      "Symbol": "1"
+    },
+    {
+      "Row": 60,
+      "Lane": 3,
+      "Symbol": "1"
+    },
+    {
+      "Row": 96,
+      "Lane": 1,
+      "Symbol": "M"
+    }
   ]
 }

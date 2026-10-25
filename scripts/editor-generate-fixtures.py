@@ -197,6 +197,7 @@ def requests(reference: Path):
         for seed in [0, 42, -7] for length in [0, 1, 2, 3, 8, 128]]}
     cases["convert-mines-simultaneous-no-arrow"] = {"Operation": "Convert", "SourceLayout": "dance-single", "Layout": "dance-double",
         "Notes": [[0, 0, "M"], [0, 1, "M"], [12, 2, "M"]], "Seed": 19, "FallbackMode": "default", "PerformedConfig": copy.deepcopy(performed)}
+    cases["pad-containment"] = {"Operation": "PadFit", "Layouts": list(performed["ArrowWeights"]) + ["dance-routine", "pump-routine", "smx-team"]}
     return cases
 
 

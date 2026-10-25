@@ -4,7 +4,7 @@
 //! See docs/editor/licenses/StepManiaLibrary-MIT.txt.
 use crate::Error;
 use serde::Deserialize;
-use std::sync::OnceLock;
+use std::{collections::BTreeSet, sync::OnceLock};
 
 pub const LAYOUTS: [&str; 16] = [
     "dance-single",
@@ -42,6 +42,23 @@ pub struct Arrow {
     pub other_foot_pairings_inverted_stretch: [Vec<bool>; 2],
 }
 
+impl Arrow {
+    fn relationships(&self) -> [&[Vec<bool>; 2]; 10] {
+        [
+            &self.bracketable_pairings_heel,
+            &self.bracketable_pairings_toe,
+            &self.other_foot_pairings,
+            &self.other_foot_pairings_stretch,
+            &self.other_foot_pairings_crossover_front,
+            &self.other_foot_pairings_crossover_front_stretch,
+            &self.other_foot_pairings_crossover_behind,
+            &self.other_foot_pairings_crossover_behind_stretch,
+            &self.other_foot_pairings_inverted,
+            &self.other_foot_pairings_inverted_stretch,
+        ]
+    }
+}
+
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase", deny_unknown_fields)]
 struct Definition {
@@ -58,6 +75,77 @@ pub struct Pad {
 }
 
 impl Pad {
+    /// PadData.CanFitWithin: a translated coordinate embedding must preserve
+    /// every relationship supported by the source, not just its lane count.
+    pub fn can_fit_within(&self, target: &Self) -> bool {
+        if std::ptr::eq(self, target) {
+            return true;
+        }
+        if self.arrows.len() > target.arrows.len() {
+            return false;
+        }
+        let bounds = |pad: &Self| {
+            let xs = pad.arrows.iter().map(|a| i64::from(a.x));
+            let ys = pad.arrows.iter().map(|a| i64::from(a.y));
+            (
+                xs.clone().min().unwrap(),
+                xs.max().unwrap(),
+                ys.clone().min().unwrap(),
+                ys.max().unwrap(),
+            )
+        };
+        let (sx, ex, sy, ey) = bounds(self);
+        let (tx, ux, ty, uy) = bounds(target);
+        let extra_x = (ux - tx) - (ex - sx);
+        let extra_y = (uy - ty) - (ey - sy);
+        if extra_x < 0 || extra_y < 0 {
+            return false;
+        }
+        // Any embedding must align the first source arrow with a target arrow.
+        // Enumerating those translations avoids scanning huge empty coordinate
+        // bounds in custom pad definitions while retaining the same fit test.
+        let anchor = &self.arrows[0];
+        let candidates: BTreeSet<_> = target
+            .arrows
+            .iter()
+            .map(|arrow| {
+                (
+                    i64::from(arrow.x) - (i64::from(anchor.x) - sx),
+                    i64::from(arrow.y) - (i64::from(anchor.y) - sy),
+                )
+            })
+            .filter(|&(x, y)| x >= tx && x <= tx + extra_x && y >= ty && y <= ty + extra_y)
+            .collect();
+        for (x, y) in candidates {
+            let mapping: Option<Vec<_>> = self
+                .arrows
+                .iter()
+                .map(|arrow| {
+                    target.arrows.iter().position(|other| {
+                        i64::from(other.x) == i64::from(arrow.x) - sx + x
+                            && i64::from(other.y) == i64::from(arrow.y) - sy + y
+                    })
+                })
+                .collect();
+            let Some(mapping) = mapping else {
+                continue;
+            };
+            if self.arrows.iter().enumerate().all(|(a, source)| {
+                let source = source.relationships();
+                let other = target.arrows[mapping[a]].relationships();
+                (0..source.len()).all(|kind| {
+                    (0..2).all(|foot| {
+                        (0..self.arrows.len())
+                            .all(|b| !source[kind][foot][b] || other[kind][foot][mapping[b]])
+                    })
+                })
+            }) {
+                return true;
+            }
+        }
+        false
+    }
+
     pub fn parse(json: &str) -> Result<Self, Error> {
         let definition: Definition = serde_json::from_str(json)
             .map_err(|error| Error::InvalidFormat(format!("Invalid pad definition: {error}")))?;

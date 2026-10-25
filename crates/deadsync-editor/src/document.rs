@@ -242,6 +242,108 @@ impl Document {
         Ok(())
     }
 
+    /// Clone current chart metadata without rewriting any existing chart.
+    /// Generated note data replaces the source body; chart-local unknown tags
+    /// and legacy metadata bytes remain intact in the new block.
+    pub(crate) fn cloned_chart_bytes(
+        &self,
+        chart: usize,
+        layout: &str,
+        notes: Arc<[u8]>,
+    ) -> Result<Vec<u8>, Error> {
+        let descriptor = self
+            .charts
+            .get(chart)
+            .ok_or_else(|| Error::InvalidEdit("Source chart does not exist".into()))?;
+        let (start, end) = if self.format == Format::Ssc {
+            let marker = self
+                .tags
+                .iter()
+                .find(|tag| tag.chart == Some(chart) && tag.name == "NOTEDATA")
+                .ok_or_else(|| {
+                    Error::InvalidFormat("Source chart has no NOTEDATA marker".into())
+                })?;
+            let start = self.marker_start(marker);
+            let end = self
+                .tags
+                .iter()
+                .find(|tag| tag.chart == Some(chart + 1) && tag.name == "NOTEDATA")
+                .map_or(self.source.len(), |tag| self.marker_start(tag));
+            (start, end)
+        } else {
+            let marker = self
+                .tags
+                .iter()
+                .find(|tag| {
+                    tag.chart == Some(chart) && matches!(tag.name.as_str(), "NOTES" | "NOTES2")
+                })
+                .ok_or_else(|| Error::InvalidFormat("Source chart has no NOTES marker".into()))?;
+            (self.marker_start(marker), marker.value.end + 1)
+        };
+        let mut clone = Self::parse(Arc::<[u8]>::from(&self.source[start..end]), self.format)?;
+        if clone.charts.len() != 1 {
+            return Err(Error::InvalidFormat("Ambiguous source chart block".into()));
+        }
+        if self.format == Format::Ssc {
+            for tag in self
+                .tags
+                .iter()
+                .filter(|tag| tag.chart == Some(chart) && tag.name != "NOTEDATA")
+            {
+                let range = tag.value.start - start..tag.value.end - start;
+                let value = if tag.name == "STEPSTYPE" {
+                    Arc::from(layout.as_bytes())
+                } else if matches!(tag.name.as_str(), "NOTES" | "NOTES2") {
+                    Arc::clone(&notes)
+                } else {
+                    Arc::from(self.value(tag.value.clone()))
+                };
+                clone.replace(range, Some(value))?;
+            }
+            if self.tag(Some(chart), "STEPSTYPE").is_none() {
+                clone.set_added_property(
+                    Some(0),
+                    "STEPSTYPE",
+                    Some(Arc::from(layout.as_bytes())),
+                )?;
+            }
+            for ((scope, name), value) in &self.added {
+                if *scope == Some(chart)
+                    && !matches!(name.as_str(), "STEPSTYPE" | "NOTES" | "NOTES2" | "NOTEDATA")
+                {
+                    clone.set_added_property(Some(0), name, Some(Arc::clone(value)))?;
+                }
+            }
+        } else {
+            let value_start = self
+                .tags
+                .iter()
+                .find(|tag| tag.chart == Some(chart))
+                .unwrap()
+                .value
+                .start
+                - start;
+            let first_colon = delimiter(&clone.source, value_start, b':')
+                .ok_or_else(|| Error::InvalidFormat("Invalid SM chart header".into()))?;
+            clone.replace(
+                value_start..first_colon,
+                Some(format!("\n     {layout}").into_bytes().into()),
+            )?;
+            clone.replace(
+                descriptor.notes.start - start..descriptor.notes.end - start,
+                Some(notes),
+            )?;
+        }
+        Ok(clone.serialize())
+    }
+
+    fn marker_start(&self, tag: &Tag) -> usize {
+        self.source[..tag.value.start]
+            .iter()
+            .rposition(|&byte| byte == b'#')
+            .unwrap_or(0)
+    }
+
     pub fn serialize(&self) -> Vec<u8> {
         let mut replacements = self.replacements.clone();
         let mut insertions: BTreeMap<usize, Vec<u8>> = BTreeMap::new();

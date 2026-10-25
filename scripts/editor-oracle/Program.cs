@@ -21,6 +21,14 @@ var options = new JsonSerializerOptions
 };
 var request = JsonDocument.Parse(File.ReadAllBytes(args[1])).RootElement;
 var operation = request.GetProperty("Operation").GetString();
+if (operation == "PadFit")
+{
+    var fitNames = request.GetProperty("Layouts").Deserialize<string[]>()!;
+    var fitPads = new List<PadData>();
+    foreach (var fitName in fitNames) fitPads.Add(await PadData.LoadPadData(fitName, Path.Combine(args[0], "StepManiaLibrary", fitName + ".json")));
+    Console.WriteLine(JsonSerializer.Serialize(fitPads.Select(source => fitPads.Select(target => source.CanFitWithin(target)).ToArray()).ToArray(), options));
+    return;
+}
 if (operation == "RandomOrder")
 {
     var orderResults = new List<object>();
@@ -207,7 +215,9 @@ if (operation == "Convert")
                 Instance = (int)step.GraphNodeInstance.InstanceTypes[f, p]
             }).ToArray()).ToArray() });
     }
-    Console.WriteLine(JsonSerializer.Serialize(new { Success = true, Tier = convertedTier, Steps = convertedSteps, Mines = convertedMines }, options));
+    var smEvents = converted.CreateSMChartEvents().OfType<LaneNote>()
+        .Select(note => new { Row = note.IntegerPosition, Lane = note.Lane, Symbol = note.SourceType }).ToArray();
+    Console.WriteLine(JsonSerializer.Serialize(new { Success = true, Tier = convertedTier, Steps = convertedSteps, Mines = convertedMines, NoteEvents = smEvents }, options));
     return;
 }
 if (operation == "InterpretChart")

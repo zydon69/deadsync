@@ -61,6 +61,23 @@ impl Note {
             ));
         }
         for attributes in [&self.attributes, &self.tail_attributes] {
+            let mut escaped = false;
+            let mut slash = false;
+            for byte in attributes.bytes() {
+                if escaped {
+                    escaped = false;
+                    slash = false;
+                } else if byte == b'\\' {
+                    escaped = true;
+                    slash = false;
+                } else if matches!(byte, b';' | b'#') || (slash && byte == b'/') {
+                    return Err(Error::InvalidEdit(
+                        "Unescaped simfile delimiter in note attributes".into(),
+                    ));
+                } else {
+                    slash = byte == b'/';
+                }
+            }
             let token = format!("1{attributes}");
             let parsed = tokens(&token)?;
             if parsed.len() != 1 || parsed[0].1 != attributes.as_ref() {

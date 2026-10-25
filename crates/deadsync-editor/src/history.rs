@@ -14,8 +14,15 @@ struct NoteChange {
     after: Option<Note>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
+struct DocumentState {
+    document: Document,
+    grids: BTreeMap<usize, Grid>,
+}
+
+#[derive(Debug)]
 enum Change {
+    DocumentSwap(Box<DocumentState>),
     Notes {
         chart: usize,
         changes: Vec<NoteChange>,
@@ -33,7 +40,7 @@ enum Change {
     },
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 struct Entry {
     label: String,
     change: Change,
@@ -200,33 +207,96 @@ impl Session {
     }
 
     pub fn undo(&mut self) -> Result<bool, Error> {
-        let Some(entry) = self.undo.last().cloned() else {
+        let Some(mut entry) = self.undo.pop() else {
             return Ok(false);
         };
-        self.apply(&entry.change, false)?;
+        if let Err(error) = self.apply(&mut entry.change, false) {
+            self.undo.push(entry);
+            return Err(error);
+        }
         self.revision = entry.before_revision;
-        self.undo.pop();
         self.redo.push(entry);
         Ok(true)
     }
 
     pub fn redo(&mut self) -> Result<bool, Error> {
-        let Some(entry) = self.redo.last().cloned() else {
+        let Some(mut entry) = self.redo.pop() else {
             return Ok(false);
         };
-        self.apply(&entry.change, true)?;
+        if let Err(error) = self.apply(&mut entry.change, true) {
+            self.redo.push(entry);
+            return Err(error);
+        }
         self.revision = entry.after_revision;
-        self.redo.pop();
         self.undo.push(entry);
         Ok(true)
     }
 
-    fn execute(&mut self, label: String, change: Change) -> Result<(), Error> {
+    /// Structural changes own the alternate document state. Swapping preserves
+    /// earlier byte-span history and avoids cloning every loaded note grid.
+    pub fn append_chart(
+        &mut self,
+        source_chart: usize,
+        layout: &str,
+        grid: &Grid,
+        expected_revision: u64,
+        label: impl Into<String>,
+    ) -> Result<usize, Error> {
+        if self.revision != expected_revision {
+            return Err(Error::InvalidEdit(
+                "Document changed since chart preview".into(),
+            ));
+        }
+        let columns = layout_columns(layout)
+            .ok_or_else(|| Error::Unsupported(format!("Unknown chart layout {layout}")))?;
+        if columns != grid.columns() {
+            return Err(Error::InvalidEdit(
+                "Generated grid does not match its chart layout".into(),
+            ));
+        }
+        let notes: Arc<[u8]> = grid.serialize()?.into();
+        // Re-parse before changing history to reject unsafe attributes or a
+        // malformed chart body without clearing redo or changing revisions.
+        if Grid::parse(&notes, columns)? != *grid {
+            return Err(Error::InvalidEdit(
+                "Generated notes do not round-trip".into(),
+            ));
+        }
+        let block = self
+            .document
+            .cloned_chart_bytes(source_chart, layout, notes)?;
+        let mut bytes = self.serialize()?;
+        bytes.extend_from_slice(b"\n\n");
+        bytes.extend_from_slice(&block);
+        let after = Document::parse(Arc::<[u8]>::from(bytes), self.document.format)?;
+        let index = self.document.charts().len();
+        if after.charts().len() != index + 1 || after.charts()[index].steps_type != layout {
+            return Err(Error::InvalidEdit(
+                "Generated chart structure is ambiguous".into(),
+            ));
+        }
+        let added = &after.charts()[index];
+        if Grid::parse(after.value(added.notes.clone()), columns)? != *grid {
+            return Err(Error::InvalidEdit(
+                "Generated notes changed inside the simfile".into(),
+            ));
+        }
+        self.execute(
+            label.into(),
+            Change::DocumentSwap(Box::new(DocumentState {
+                document: after,
+                grids: BTreeMap::new(),
+            })),
+        )?;
+        Ok(index)
+    }
+
+    fn execute(&mut self, label: String, mut change: Change) -> Result<(), Error> {
         let next = self
             .next_revision
             .checked_add(1)
             .ok_or_else(|| Error::InvalidEdit("Editor revision overflow".into()))?;
-        self.apply(&change, true)?;
+        self.apply(&mut change, true)?;
         self.undo.push(Entry {
             label,
             change,
@@ -239,8 +309,13 @@ impl Session {
         Ok(())
     }
 
-    fn apply(&mut self, change: &Change, forward: bool) -> Result<(), Error> {
+    fn apply(&mut self, change: &mut Change, forward: bool) -> Result<(), Error> {
         match change {
+            Change::DocumentSwap(state) => {
+                std::mem::swap(&mut self.document, &mut state.document);
+                std::mem::swap(&mut self.grids, &mut state.grids);
+                Ok(())
+            }
             Change::AddedProperty {
                 chart,
                 name,
@@ -271,20 +346,20 @@ impl Session {
                         "Lane or participant lies outside this chart".into(),
                     ));
                 }
-                for change in changes {
+                for change in changes.iter() {
                     grid.set(change.position, None)?;
                 }
-                for change in changes {
+                for change in changes.iter() {
                     let value = if forward {
                         &change.after
                     } else {
                         &change.before
                     };
                     if let Err(error) = grid.set(change.position, value.clone()) {
-                        for change in changes {
+                        for change in changes.iter() {
                             grid.set(change.position, None)?;
                         }
-                        for change in changes {
+                        for change in changes.iter() {
                             let original = if forward {
                                 &change.before
                             } else {
@@ -306,6 +381,8 @@ impl Session {
         let changed: std::collections::BTreeSet<_> = self
             .undo
             .iter()
+            .rev()
+            .take_while(|entry| !matches!(entry.change, Change::DocumentSwap(..)))
             .filter_map(|entry| match entry.change {
                 Change::Notes { chart, .. } => Some(chart),
                 _ => None,
