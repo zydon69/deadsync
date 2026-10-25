@@ -1,0 +1,707 @@
+{
+  "Success": true,
+  "Nodes": [
+    {
+      "Row": 0,
+      "Time": 0,
+      "Cost": 0,
+      "TotalCost": 0,
+      "OrientationCost": 0,
+      "LastFoot": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 0,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 5,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 0,
+      "Time": 0,
+      "Cost": 0,
+      "TotalCost": 0,
+      "OrientationCost": 0,
+      "LastFoot": [
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 0,
+            "State": 1,
+            "Valid": true,
+            "Step": 0,
+            "Action": 1,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 5,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 12,
+      "Time": 0.1,
+      "Cost": 0,
+      "TotalCost": 0,
+      "OrientationCost": 0,
+      "LastFoot": [
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 0,
+            "State": 1,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 5,
+            "State": 1,
+            "Valid": true,
+            "Step": 0,
+            "Action": 1,
+            "Instance": 1
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 36,
+      "Time": 0.3,
+      "Cost": 0,
+      "TotalCost": 0,
+      "OrientationCost": 0,
+      "LastFoot": [
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 0,
+            "State": 0,
+            "Valid": true,
+            "Step": 0,
+            "Action": 2,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 5,
+            "State": 1,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 36,
+      "Time": 0.3,
+      "Cost": 4,
+      "TotalCost": 4,
+      "OrientationCost": 0,
+      "LastFoot": [
+        0,
+        0,
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 1,
+            "State": 0,
+            "Valid": true,
+            "Step": 1,
+            "Action": 0,
+            "Instance": 2
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 5,
+            "State": 1,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 48,
+      "Time": 0.4,
+      "Cost": 0,
+      "TotalCost": 4,
+      "OrientationCost": 0,
+      "LastFoot": [
+        0,
+        0,
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 5,
+            "State": 0,
+            "Valid": true,
+            "Step": 0,
+            "Action": 2,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 60,
+      "Time": 0.5,
+      "Cost": 0,
+      "TotalCost": 4,
+      "OrientationCost": 0,
+      "LastFoot": [
+        0,
+        0,
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 5,
+            "State": 0,
+            "Valid": true,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 3
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 72,
+      "Time": 0.6,
+      "Cost": 5,
+      "TotalCost": 9,
+      "OrientationCost": 0,
+      "LastFoot": [
+        0,
+        0,
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 0,
+            "State": 0,
+            "Valid": true,
+            "Step": 18,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": 1,
+            "State": 0,
+            "Valid": true,
+            "Step": 18,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 5,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 84,
+      "Time": 0.7,
+      "Cost": 0,
+      "TotalCost": 9,
+      "OrientationCost": 0,
+      "LastFoot": [
+        0,
+        0,
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 0,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": 1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 5,
+            "State": 0,
+            "Valid": true,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 96,
+      "Time": 0.8,
+      "Cost": 0,
+      "TotalCost": 9,
+      "OrientationCost": 0,
+      "LastFoot": [
+        0,
+        0,
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 1,
+            "State": 0,
+            "Valid": true,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 5,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 120,
+      "Time": 1,
+      "Cost": 0,
+      "TotalCost": 9,
+      "OrientationCost": 0,
+      "LastFoot": [
+        1,
+        0,
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 0,
+            "State": 0,
+            "Valid": true,
+            "Step": 1,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 132,
+      "Time": 1.1,
+      "Cost": 6,
+      "TotalCost": 15,
+      "OrientationCost": 2,
+      "LastFoot": [
+        1,
+        0,
+        -1,
+        -1,
+        -1,
+        0
+      ],
+      "Orientation": 2,
+      "Feet": [
+        [
+          {
+            "Lane": 5,
+            "State": 0,
+            "Valid": true,
+            "Step": 4,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 0,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    },
+    {
+      "Row": 144,
+      "Time": 1.2,
+      "Cost": 3,
+      "TotalCost": 18,
+      "OrientationCost": 2,
+      "LastFoot": [
+        0,
+        0,
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 0,
+            "State": 0,
+            "Valid": true,
+            "Step": 17,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": 1,
+            "State": 0,
+            "Valid": true,
+            "Step": 17,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 5,
+            "State": 0,
+            "Valid": true,
+            "Step": 1,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    }
+  ]
+}

@@ -82,6 +82,20 @@ impl PathNode {
         }))
     }
 
+    pub fn set_cost(&mut self, cost: i32, orientation: i32) {
+        self.cost = cost;
+        self.total_cost = self
+            .previous
+            .as_ref()
+            .map_or(0, |p| p.total_cost)
+            .wrapping_add(cost);
+        self.total_orientation_cost = self
+            .previous
+            .as_ref()
+            .map_or(0, |p| p.total_orientation_cost)
+            .wrapping_add(orientation);
+    }
+
     /// Includes this node's link, skipping release links, as the source does.
     pub fn previous_step_link(&self, mut nth: usize) -> Option<GraphLink> {
         let mut current = Some(self);

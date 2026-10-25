@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Multi-view comparison, chart creation/clone/delete and library pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation domain costs and complete search, whole-chart generation, fallback rules, mine expression and native asynchronous generation panels pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs and fixed-policy full step search match original chart searches; automatic bracket policy selection, whole-chart generation, fallback rules, mine expression and native asynchronous generation panels pending |
 | Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -92,12 +92,13 @@ seed. `ActionAutoGeneratePatterns` additionally constrains preceding/following
 footing and pattern configuration. The Rust port must preserve these contracts.
 A random lane picker or a basic difficulty filter would not meet the request.
 
-Next implementation work must include the library's `Constants`, `GraphNode`,
-`GraphLink`, `StepGraph`, expressed/performed chart search, configurations and
-pattern generation. Differential fixtures should exercise tech, brackets,
-crossovers, holds, mines, different layouts, fixed seeds, and generation failure
-without document changes. Generation results need preview and one reversible
-application gesture before being exposed as complete.
+Next implementation work must finish automatic bracket policy selection and
+mine expression, then performed-chart conversion with the original fallback
+rules. Differential fixtures must extend the existing tech, bracket, crossover,
+hold, mine, layout and seed cases to that complete conversion pipeline.
+Generation results need preview and one reversible application gesture before
+being exposed as complete. The other advanced editor domains remain required
+as recorded in the delivery contract and matrix above.
 
 ## Pattern generation reference checks
 
@@ -142,8 +143,8 @@ step types, actions and roll/fake/lift instance assignments with the original
 private `GetLinkInstanceIfStateMatches` through the development oracle. Fixtures
 cover all eleven original layouts. Grid workflows additionally cover participant
 isolation and simultaneous releases, mines and heads. This verifies candidate
-matching, not the final interpretation: domain move costs, complete search and dynamic bracket parsing still require
-porting and differential tests.
+matching, not the final interpretation: automatic bracket selection and mine expression still require porting and
+differential tests.
 
 ### Interpretation path selection
 
@@ -156,6 +157,30 @@ The development oracle executes the original `GetCost`, `GetOrientationCost`,
 `ChartSearchNode.CompareTo` and private `Prune` on branching graph interpretations
 under Balanced, Aggressive and NoBrackets policies. Rust tests replay those
 original move costs and verify retained paths, final choices, cumulative costs,
-last-foot ownership and preceding-step identities. These tests establish the
-history/comparison/pruning port; they deliberately do not claim that move costs
-are already calculated in Rust. A small-stack test drops 100,000 history nodes.
+last-foot ownership and preceding-step identities. These tests now also compare every candidate move cost and orientation cost
+calculated in Rust. A small-stack test drops 100,000 history nodes.
+
+### Movement costs and full step search
+
+`interpretation_cost` ports all source cost branches for single steps, swaps,
+crossovers, inversions, jumps, brackets and three/four-arrow combinations, using
+the original pad relationships. Source decision order is retained, including the
+pinned two-arrow helper's duplicated Behind pairing check. `expressed::search`
+combines matching, Rust costs and deterministic pruning, with progress and
+cancellation. Source grids remain immutable; no partial path is returned on
+failure or cancellation.
+
+The original private `ExpressedChart.Search` is invoked on complete synthetic
+charts by the development oracle. Thirty-three committed cases cover all eleven
+original graph layouts and all three fixed bracket policies. They include holds,
+rolls, releases simultaneous with heads, mine cues, lifts, fakes, jumps, brackets,
+keysounds and impossible interpretations. Rust checks the chosen path's complete
+foot/portion states, actions, instance types, per-move and cumulative costs,
+orientation costs and ownership history. Thirty reference searches succeed;
+three fail, and Rust matches both outcomes. Keysounds are ignored as movement
+instructions like the reference's generic LaneNote; unsupported attack notes are
+explicitly refused rather than converted into steps.
+
+These checks establish fixed-policy step interpretation, not complete chart
+conversion. Dynamic bracket policy selection, mine expression, performed-chart
+fallback search and native generation panels remain pending.

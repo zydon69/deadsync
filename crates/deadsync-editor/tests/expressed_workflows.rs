@@ -266,8 +266,7 @@ fn branch_pruning_and_foot_history_match_original_for_all_bracket_policies() {
                         node_json(graph.nodes[candidate.node].state),
                         original["Node"]
                     );
-                    // Domain move costs deliberately come from the original here.
-                    // This test proves history and path selection, not the cost port.
+                    // Compare Rust move costs before asserting the same pruning.
                     let child = PathNode::child(
                         &graph,
                         parent,
@@ -279,6 +278,37 @@ fn branch_pruning_and_foot_history_match_original_for_all_bracket_policies() {
                         original["OrientationCost"].as_i64().unwrap() as i32,
                     )
                     .unwrap();
+                    let scoring = deadsync_editor::generation::interpretation_cost::Scoring {
+                        graph: &graph,
+                        pad: deadsync_editor::pad::Pad::builtin("dance-single").unwrap(),
+                        method: match method {
+                            "aggressive" => {
+                                deadsync_editor::generation::config::BracketMethod::Aggressive
+                            }
+                            "nobrackets" => {
+                                deadsync_editor::generation::config::BracketMethod::NoBrackets
+                            }
+                            _ => deadsync_editor::generation::config::BracketMethod::Balanced,
+                        },
+                    };
+                    let cost_frame = expressed::Frame {
+                        row: child.row,
+                        release: frame["Release"].as_bool().unwrap(),
+                        state: states.clone(),
+                        last_mines: vec![0; 4],
+                        last_releases: vec![0; 4],
+                    };
+                    assert_eq!(
+                        scoring.cost(&child, &cost_frame).unwrap(),
+                        original["Cost"].as_i64().unwrap() as i32,
+                        "{method}: cost at row {} for {:?}",
+                        child.row,
+                        candidate.instance.link
+                    );
+                    assert_eq!(
+                        scoring.orientation(&child),
+                        original["OrientationCost"].as_i64().unwrap() as i32
+                    );
                     assert_eq!(
                         i64::from(child.total_cost),
                         original["TotalCost"].as_i64().unwrap()
@@ -389,4 +419,200 @@ fn equal_total_cost_prefers_the_earlier_easier_move_and_long_history_drops_itera
         .unwrap()
         .join()
         .unwrap();
+}
+
+fn chart_grid(input: &Value) -> Grid {
+    use deadsync_editor::notes::{Kind, Note, Position};
+    let columns =
+        deadsync_editor::notes::layout_columns(input["Layout"].as_str().unwrap()).unwrap();
+    let mut grid = Grid::new(columns, 1).unwrap();
+    let notes = input["Notes"].as_array().unwrap();
+    for item in notes {
+        let row = item[0].as_u64().unwrap();
+        let lane = item[1].as_u64().unwrap() as u16;
+        let symbol = item[2].as_str().unwrap();
+        let kind = match symbol {
+            "1" => Kind::Tap,
+            "2" => Kind::Hold,
+            "4" => Kind::Roll,
+            "M" => Kind::Mine,
+            "F" => Kind::Fake,
+            "L" => Kind::Lift,
+            "K" => Kind::Keysound,
+            "3" => continue,
+            _ => panic!("Unknown fixture note"),
+        };
+        let end = matches!(kind, Kind::Hold | Kind::Roll).then(|| {
+            notes
+                .iter()
+                .find(|tail| {
+                    tail[0].as_u64().unwrap() > row && tail[1] == item[1] && tail[2] == "3"
+                })
+                .unwrap()[0]
+                .as_u64()
+                .unwrap()
+        });
+        grid.set(
+            Position {
+                player: 0,
+                lane,
+                row,
+            },
+            Some(Note {
+                kind,
+                end,
+                ..Note::tap()
+            }),
+        )
+        .unwrap();
+    }
+    grid
+}
+
+#[test]
+fn complete_rust_cost_search_matches_original_chart_search_on_all_layouts() {
+    use deadsync_editor::generation::config::BracketMethod;
+    let mut successful = 0;
+    for layout in [
+        "dance-single",
+        "dance-double",
+        "dance-solo",
+        "dance-threepanel",
+        "pump-single",
+        "pump-halfdouble",
+        "pump-double",
+        "smx-beginner",
+        "smx-single",
+        "smx-dual",
+        "smx-full",
+    ] {
+        let graph = StepGraph::builtin(layout).unwrap();
+        let pad = deadsync_editor::pad::Pad::builtin(layout).unwrap();
+        for (name, method) in [
+            ("balanced", BracketMethod::Balanced),
+            ("aggressive", BracketMethod::Aggressive),
+            ("nobrackets", BracketMethod::NoBrackets),
+        ] {
+            let name = format!("chart-{layout}-{name}");
+            let input = fixture(&name, "request");
+            let expected = fixture(&name, "expected");
+            let grid = chart_grid(&input);
+            let before = grid.clone();
+            let frames = expressed::frames(&grid, 0, &AtomicBool::new(false)).unwrap();
+            let times: Vec<_> = frames
+                .iter()
+                .map(|frame| frame.row as f64 / 120.0)
+                .collect();
+            let result = expressed::search(
+                &graph,
+                pad,
+                &frames,
+                &times,
+                method,
+                &AtomicBool::new(false),
+                |_, _| {},
+            );
+            assert_eq!(grid, before, "{name}: search cannot alter source notes");
+            if !expected["Success"].as_bool().unwrap() {
+                assert!(result.is_err(), "{name}");
+                continue;
+            }
+            successful += 1;
+            let last = result.unwrap_or_else(|error| panic!("{name}: {error}"));
+            let mut path = Vec::new();
+            let mut current = Some(last.as_ref());
+            while let Some(node) = current {
+                path.push(node);
+                current = node.previous.as_deref();
+            }
+            path.reverse();
+            let original_nodes = expected["Nodes"].as_array().unwrap();
+            assert_eq!(path.len(), original_nodes.len(), "{name}");
+            for (node, original) in path.iter().zip(original_nodes) {
+                assert_eq!(node.row, original["Row"].as_u64().unwrap(), "{name}");
+                assert_eq!(node.time, original["Time"].as_f64().unwrap(), "{name}");
+                assert_eq!(
+                    i64::from(node.cost),
+                    original["Cost"].as_i64().unwrap(),
+                    "{name}: cost at {}",
+                    node.row
+                );
+                assert_eq!(
+                    i64::from(node.total_cost),
+                    original["TotalCost"].as_i64().unwrap(),
+                    "{name}"
+                );
+                assert_eq!(
+                    i64::from(node.total_orientation_cost),
+                    original["OrientationCost"].as_i64().unwrap(),
+                    "{name}"
+                );
+                let state = graph.nodes[node.node].state;
+                assert_eq!(
+                    node_json(state)["Orientation"],
+                    original["Orientation"],
+                    "{name}"
+                );
+                assert_eq!(
+                    json!(
+                        node.last_foot
+                            .iter()
+                            .map(|foot| foot.map(|f| f as i32).unwrap_or(-1))
+                            .collect::<Vec<_>>()
+                    ),
+                    original["LastFoot"],
+                    "{name}"
+                );
+                for foot in 0..2 {
+                    for portion in 0..2 {
+                        let position = state.feet[foot][portion];
+                        let action = node.instance.map(|i| i.link.feet[foot][portion]);
+                        let actual = json!({"Lane": position.lane.map(i32::from).unwrap_or(-1), "State": position.state as u8,
+                        "Valid": action.is_some_and(|a| a.valid), "Step": action.map_or(0, |a| a.step as u8),
+                        "Action": action.map_or(0, |a| a.action as u8), "Instance": node.instance.map_or(0, |i| i.types[foot][portion] as u8)});
+                        assert_eq!(
+                            actual, original["Feet"][foot][portion],
+                            "{name}: foot {foot}/{portion} at {}",
+                            node.row
+                        );
+                    }
+                }
+            }
+        }
+    }
+    assert!(
+        successful >= 25,
+        "Most fixtures must exercise successful whole searches"
+    );
+}
+
+#[test]
+fn full_search_cancellation_keeps_the_grid_and_returns_no_partial_path() {
+    use deadsync_editor::generation::config::BracketMethod;
+    let input = fixture("chart-dance-single-balanced", "request");
+    let grid = chart_grid(&input);
+    let before = grid.clone();
+    let cancelled = AtomicBool::new(false);
+    let frames = expressed::frames(&grid, 0, &cancelled).unwrap();
+    let times: Vec<_> = frames
+        .iter()
+        .map(|frame| frame.row as f64 / 120.0)
+        .collect();
+    let graph = StepGraph::builtin("dance-single").unwrap();
+    let pad = deadsync_editor::pad::Pad::builtin("dance-single").unwrap();
+    let result = expressed::search(
+        &graph,
+        pad,
+        &frames,
+        &times,
+        BracketMethod::Balanced,
+        &cancelled,
+        |done, _| {
+            if done == 4 {
+                cancelled.store(true, std::sync::atomic::Ordering::Relaxed);
+            }
+        },
+    );
+    assert!(result.is_err());
+    assert_eq!(grid, before);
 }

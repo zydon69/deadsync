@@ -112,6 +112,18 @@ def requests(reference: Path):
                        [0, 0, 1, 1], [0, 1, 0, 0], [1, 0, 1, 0], [0, 0, 0, 1]] * 2:
             request["Frames"].append({"State": values, "Release": False})
         cases["interpret-paths-" + method.lower()] = request
+    for layout, weights in performed["ArrowWeights"].items():
+        definition = json.loads((reference / "StepManiaLibrary" / f"{layout}.json").read_text())
+        left, right = definition["StartingPositions"][0][0]
+        free = next(lane for lane in range(len(weights)) if lane not in [left, right])
+        notes = [[0, left, "2"], [12, right, "4"], [24, free, "M"], [36, left, "3"],
+                 [36, free, "F"], [48, right, "3"], [48, left, "M"], [60, right, "L"],
+                 [72, left, "1"], [72, free, "1"], [84, right, "1"], [96, free, "1"],
+                 [108, free, "M"], [120, left, "1"], [132, right, "1"],
+                 [144, left, "1"], [144, free, "1"], [144, right, "1"], [156, free, "K"]]
+        for method in ["Balanced", "Aggressive", "NoBrackets"]:
+            cases["chart-" + layout + "-" + method.lower()] = {
+                "Operation": "InterpretChart", "Layout": layout, "Method": method, "Notes": notes}
     return cases
 
 

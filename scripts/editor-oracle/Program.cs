@@ -57,13 +57,55 @@ if (operation == "Configurations")
     Console.WriteLine(JsonSerializer.Serialize(results, options));
     return;
 }
-if (operation != "Pattern" && operation != "InterpretMatches" && operation != "InterpretPaths")
+if (operation != "Pattern" && operation != "InterpretMatches" && operation != "InterpretPaths" && operation != "InterpretChart")
     throw new ArgumentException("Unknown oracle operation");
 
 var name = request.GetProperty("Layout").GetString()!;
 var pad = await PadData.LoadPadData(name, Path.Combine(args[0], "StepManiaLibrary", name + ".json"));
 var graph = StepGraph.Load(Path.Combine(args[0], "StepManiaLibrary", name + ".fsg"), pad);
 if (graph == null) throw new InvalidDataException("Could not load reference graph");
+if (operation == "InterpretChart")
+{
+    var expressedType = typeof(StepManiaLibrary.ExpressedChart.ExpressedChart);
+    var noteEvents = new List<Event>();
+    foreach (var item in request.GetProperty("Notes").EnumerateArray())
+    {
+        var symbol = item[2].GetString()!;
+        LaneNote note = symbol switch {
+            "2" or "4" => new LaneHoldStartNote(), "3" => new LaneHoldEndNote(),
+            "M" or "K" => new LaneNote(), _ => new LaneTapNote()
+        };
+        note.SourceType = symbol;
+        note.Lane = item[1].GetInt32();
+        note.IntegerPosition = item[0].GetInt32();
+        note.TimeSeconds = note.IntegerPosition / 120.0;
+        noteEvents.Add(note);
+    }
+    noteEvents.Sort(new Fumen.Converters.SMCommon.SMEventComparer());
+    var interpreter = Activator.CreateInstance(expressedType, BindingFlags.Instance | BindingFlags.NonPublic,
+        null, new object[] { noteEvents, "Oracle", graph }, null)!;
+    var field = expressedType.GetField("BracketParsingMethod", BindingFlags.Instance | BindingFlags.NonPublic)!;
+    field.SetValue(interpreter, Enum.Parse(field.FieldType, request.GetProperty("Method").GetString()!));
+    var success = (bool)expressedType.GetMethod("Search", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(interpreter, null)!;
+    var result = new List<object>();
+    var node = ((StepManiaLibrary.ExpressedChart.ExpressedChart)interpreter).GetRootSearchNode();
+    while (node != null)
+    {
+        result.Add(new { Row = node.Position, Time = node.TimeSeconds, Cost = node.Cost, TotalCost = node.TotalCost,
+            OrientationCost = node.TotalOrientationCost, LastFoot = node.LastFootUsedToStepOnArrow,
+            Orientation = (int)node.GraphNode.Orientation,
+            Feet = Enumerable.Range(0, 2).Select(f => Enumerable.Range(0, 2).Select(p => new {
+                Lane = node.GraphNode.State[f, p].Arrow, State = (int)node.GraphNode.State[f, p].State,
+                Valid = node.PreviousLink?.GraphLink.Links[f, p].Valid ?? false,
+                Step = (int)(node.PreviousLink?.GraphLink.Links[f, p].Step ?? StepType.SameArrow),
+                Action = (int)(node.PreviousLink?.GraphLink.Links[f, p].Action ?? FootAction.Tap),
+                Instance = (int)(node.PreviousLink?.InstanceTypes[f, p] ?? InstanceStepType.Default)
+            }).ToArray()).ToArray() });
+        node = node.GetNextNode();
+    }
+    Console.WriteLine(JsonSerializer.Serialize(new { Success = success, Nodes = result }, options));
+    return;
+}
 if (operation == "InterpretPaths")
 {
     var expressedType = typeof(StepManiaLibrary.ExpressedChart.ExpressedChart);

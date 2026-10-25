@@ -6,6 +6,7 @@ pub mod expressed;
 pub mod geometry;
 pub mod graph;
 pub mod interpretation_path;
+pub mod interpretation_cost;
 pub mod pattern;
 pub mod random;
 pub mod search;

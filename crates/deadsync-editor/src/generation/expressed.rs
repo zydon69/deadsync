@@ -1,5 +1,6 @@
 //! Expressed-chart lane state and graph matching from ExpressedChart.cs (MIT,
-//! StepManiaLibrary bdbc427f). This is the matching stage, not the cost search.
+//! StepManiaLibrary bdbc427f), with fixed-policy movement-cost search. Mine
+//! expression and automatic bracket-policy selection are separate stages.
 use super::graph::{ArrowState, FootAction, GraphLink, NodeState, StepGraph};
 use crate::{
     Error,
@@ -222,7 +223,14 @@ pub fn frames(grid: &Grid, player: u32, cancelled: &AtomicBool) -> Result<Vec<Fr
         let lane = usize::from(position.lane);
         let row = rows.entry(position.row).or_default();
         let state = match note.kind {
-            Kind::Tap | Kind::Keysound | Kind::Attack => SearchState::Tap,
+            Kind::Tap => SearchState::Tap,
+            // Fumen represents keysounds as LaneNote, not LaneTapNote.
+            Kind::Keysound => continue,
+            Kind::Attack => {
+                return Err(Error::InvalidEdit(
+                    "Reference interpretation does not support attack notes".into(),
+                ));
+            }
             Kind::Fake => SearchState::Fake,
             Kind::Lift => SearchState::Lift,
             Kind::Hold => SearchState::Hold,
@@ -287,4 +295,71 @@ pub fn frames(grid: &Grid, player: u32, cancelled: &AtomicBool) -> Result<Vec<Fr
         }
     }
     Ok(output)
+}
+
+/// Search every viable graph interpretation, score it, and keep the best path
+/// per destination. Input frames and the editor grid remain immutable.
+pub fn search(
+    graph: &StepGraph,
+    pad: &crate::pad::Pad,
+    frames: &[Frame],
+    times: &[f64],
+    method: super::config::BracketMethod,
+    cancelled: &AtomicBool,
+    mut progress: impl FnMut(usize, usize),
+) -> Result<std::sync::Arc<super::interpretation_path::PathNode>, Error> {
+    use super::{
+        interpretation_cost::Scoring,
+        interpretation_path::{self, PathNode},
+    };
+    use std::sync::Arc;
+    if frames.len() != times.len() || pad.arrows.len() != graph.columns() {
+        return Err(Error::InvalidEdit(
+            "Interpretation timing or geometry mismatch".into(),
+        ));
+    }
+    let scoring = Scoring { graph, pad, method };
+    let mut current = vec![PathNode::root(graph, 0)?];
+    progress(0, frames.len());
+    for (index, (frame, &time)) in frames.iter().zip(times).enumerate() {
+        if cancelled.load(Ordering::Relaxed) {
+            return Err(Error::InvalidEdit("Interpretation cancelled".into()));
+        }
+        let mut children = Vec::new();
+        for parent in &current {
+            for candidate in candidates(graph, parent.node, &frame.state, frame.release, cancelled)?
+            {
+                let mut child = PathNode::child(
+                    graph,
+                    parent,
+                    candidate.node,
+                    frame.row,
+                    time,
+                    candidate.instance,
+                    0,
+                    0,
+                )?;
+                let cost = scoring.cost(&child, frame)?;
+                let orientation = scoring.orientation(&child);
+                Arc::get_mut(&mut child)
+                    .expect("New interpretation node is uniquely owned")
+                    .set_cost(cost, orientation);
+                children.push(child);
+            }
+        }
+        current = interpretation_path::prune(children);
+        if current.is_empty() {
+            return Err(Error::InvalidEdit(format!(
+                "No interpretation at row {}",
+                frame.row
+            )));
+        }
+        progress(index + 1, frames.len());
+    }
+    if cancelled.load(Ordering::Relaxed) {
+        return Err(Error::InvalidEdit("Interpretation cancelled".into()));
+    }
+    interpretation_path::best(&current)
+        .cloned()
+        .ok_or_else(|| Error::InvalidEdit("No chart interpretation".into()))
 }
