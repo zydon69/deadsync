@@ -91,6 +91,8 @@ struct Rate {
     warp: i64,
     stop: f64,
     seconds_per_row: f64,
+    tempo: f64,
+    scroll: f64,
 }
 impl Rate {
     fn position_time(self, row: u64) -> f64 {
@@ -98,6 +100,27 @@ impl Rate {
             self.row as f64, self.time, self.warp as f64,
             self.stop, self.seconds_per_row, row as f64,
         )
+    }
+}
+/// The initialized state of one original rate-altering event. Speed interpolation
+/// is supplied separately; it is not equivalent to this constant scroll value.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SpacingSection {
+    pub order: u8,
+    pub mapping: crate::rate_mapping::RateMapping,
+    pub tempo: f64,
+    pub scroll: f64,
+}
+impl SpacingSection {
+    pub fn spacing_rate(self) -> crate::spacing::Rate {
+        crate::spacing::Rate {
+            row: self.mapping.row(),
+            time: self.mapping.time(),
+            tempo: self.tempo,
+            seconds_per_row: self.mapping.seconds_per_row(),
+            rows_per_second: self.mapping.rows_per_second(),
+            scroll: self.scroll,
+        }
     }
 }
 pub struct EditorTimeline {
@@ -221,6 +244,9 @@ impl EditorTimeline {
         let mut warp = 0i64;
         let mut stop = 0.0;
         let mut seconds_per_row = 1.0;
+        let mut tempo = 1.0;
+        let mut scroll = 1.0;
+        let mut first_scroll = true;
         let mut previous_row = entries
             .iter()
             .find(|entry| entry.is_rate())
@@ -235,13 +261,24 @@ impl EditorTimeline {
             }
             match entry.kind {
                 EntryKind::Timing(EventKind::Tempo(bpm)) => {
+                    tempo = bpm;
                     seconds_per_row = 60.0 / bpm / 48.0;
                     if first_tempo {
                         for rate in &mut rates {
                             rate.seconds_per_row = seconds_per_row;
+                            rate.tempo = tempo;
                         }
                     }
                     first_tempo = false;
+                }
+                EntryKind::Timing(EventKind::Scroll(value)) => {
+                    scroll = value;
+                    if first_scroll {
+                        for rate in &mut rates {
+                            rate.scroll = scroll;
+                        }
+                    }
+                    first_scroll = false;
                 }
                 EntryKind::Timing(EventKind::Stop(length) | EventKind::Delay(length)) => {
                     stop += length
@@ -258,6 +295,8 @@ impl EditorTimeline {
                 warp,
                 stop,
                 seconds_per_row,
+                tempo,
+                scroll,
             });
             previous_row = entry.row;
         }
@@ -617,6 +656,13 @@ impl EditorTimeline {
                 rate.stop, rate.seconds_per_row,
             ).expect("validated editor timing rate");
             (rate.order, mapping)
+        })
+    }
+    /// Ordered initialized tempo/scroll state, including original backfill of
+    /// events preceding the first tempo or first constant-scroll event.
+    pub fn spacing_sections(&self) -> impl Iterator<Item = SpacingSection> + '_ {
+        self.rates.iter().zip(self.rate_mappings()).map(|(rate, (order, mapping))| {
+            SpacingSection { order, mapping, tempo: rate.tempo, scroll: rate.scroll }
         })
     }
     pub fn position_time(&self, row: u64) -> Result<f64, Error> {

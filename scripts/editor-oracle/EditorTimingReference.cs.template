@@ -67,14 +67,21 @@ internal class EditorRateAlteringEvent(EditorChart chart, Event data) : EditorEv
     protected int WarpRowsRemaining;
     protected double StopTimeRemaining;
     protected double RowsPerSecond, SecondsPerRow;
-    public void Init(int warp,double stop,double scroll,double tempo,double rows,double seconds,EditorTimeSignatureEvent signature,bool immutable) { WarpRowsRemaining=warp;StopTimeRemaining=stop;RowsPerSecond=rows;SecondsPerRow=seconds;IsPositionImmutable=immutable; }
-    public void UpdateTempo(double tempo,double rows,double seconds) {RowsPerSecond=rows;SecondsPerRow=seconds;}
-    public void UpdateScrollRate(double rate) { }
+    private double TempoValue, ScrollValue;
+    public virtual double GetTempo()=>TempoValue;
+    public virtual double GetScrollRate()=>ScrollValue;
+    public int GetWarpRemaining()=>WarpRowsRemaining;
+    public double GetStopRemaining()=>StopTimeRemaining;
+    public double GetSecondsPerRow()=>SecondsPerRow;
+    public double GetRowsPerSecond()=>RowsPerSecond;
+    public void Init(int warp,double stop,double scroll,double tempo,double rows,double seconds,EditorTimeSignatureEvent signature,bool immutable) { WarpRowsRemaining=warp;StopTimeRemaining=stop;RowsPerSecond=rows;SecondsPerRow=seconds;IsPositionImmutable=immutable;TempoValue=tempo;ScrollValue=scroll; }
+    public void UpdateTempo(double tempo,double rows,double seconds) {RowsPerSecond=rows;SecondsPerRow=seconds;TempoValue=tempo;}
+    public void UpdateScrollRate(double rate) { ScrollValue=rate; }
     public void UpdateLastTimeSignature(EditorTimeSignatureEvent signature) { }
     // RATE_METHODS
 }
 internal class EditorTempoEvent(EditorChart chart,Tempo data) : EditorRateAlteringEvent(chart,data) {
-    public double GetTempo() => data.TempoBPM;
+    public override double GetTempo() => data.TempoBPM;
     public double GetSecondsPerRow(int rows) => data.GetSecondsPerRow(rows);
     public double GetRowsPerSecond(int rows) => data.GetRowsPerSecond(rows);
 }
@@ -82,7 +89,7 @@ internal class EditorTimeSignatureEvent(EditorChart chart,TimeSignature data) : 
     public Fraction GetSignature() => data.Signature;
     public int Measure {get;set;}
 }
-internal class EditorScrollRateEvent(EditorChart chart,ScrollRate data) : EditorRateAlteringEvent(chart,data) { public double GetScrollRate() => data.Rate; }
+internal class EditorScrollRateEvent(EditorChart chart,ScrollRate data) : EditorRateAlteringEvent(chart,data) { public override double GetScrollRate() => data.Rate; }
 internal class EditorDelayEvent(EditorChart chart,Stop data) : EditorRateAlteringEvent(chart,data) , IEquatable<EditorDelayEvent> {
     public bool Equals(EditorDelayEvent? other)=>ReferenceEquals(this,other);
     public double GetDelayLengthSeconds() => data.LengthSeconds;
@@ -283,6 +290,14 @@ internal static class Reference {
         }
         if(request.TryGetProperty("Region",out var region)) chart.EditorEvents.Add(new EditorPatternEvent(chart,region[0].GetInt32(),region[1].GetInt32()));
         chart.Refresh();
+        if (request.TryGetProperty("SpacingSections",out var spacingSections) && spacingSections.GetBoolean()) {
+            return chart.RateAlteringEvents.Select(rate=>new {
+                Row=rate.GetRow(),Time=rate.GetChartTime(),Tempo=rate.GetTempo(),Scroll=rate.GetScrollRate(),
+                SecondsPerRow=rate.GetSecondsPerRow(),RowsPerSecond=rate.GetRowsPerSecond(),
+                Warp=rate.GetWarpRemaining(),Stop=rate.GetStopRemaining()
+            }).ToArray();
+        }
+
         if(request.TryGetProperty("LoadedRegions",out var loadedRegions)) {
             foreach(var loaded in loadedRegions.EnumerateArray()) {
                 var marker=new EditorPatternEvent(chart,loaded[0].GetInt32(),loaded[1].GetInt32());

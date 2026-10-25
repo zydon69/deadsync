@@ -37,7 +37,7 @@ def main():
     env=dict(os.environ,DOTNET_CLI_TELEMETRY_OPTOUT='1',DOTNET_NOLOGO='1')
     subprocess.run([args.dotnet,'build',str(project/'SpacingOracle.csproj'),'-c','Release','--ignore-failed-sources'],check=True,env=env)
     destination=ROOT/'crates/deadsync-editor/tests/fixtures/grooveauthor'
-    requests=sorted(destination.glob('spacing-*.request.json'))
+    requests=sorted(path for path in destination.glob('spacing-*.request.json') if not path.name.startswith('spacing-sections-'))
     if not requests: raise SystemExit('No spacing requests found')
     for path in requests:
         output=subprocess.check_output([args.dotnet,str(project/'bin/Release/net10.0/SpacingOracle.dll'),str(path)],env=env)

@@ -1,0 +1,62 @@
+[
+  {
+    "Row": 0,
+    "Time": 0,
+    "Tempo": 120,
+    "Scroll": 0,
+    "SecondsPerRow": 0.010416666666666666,
+    "RowsPerSecond": 96,
+    "Warp": 0,
+    "Stop": 0
+  },
+  {
+    "Row": 0,
+    "Time": 0,
+    "Tempo": 120,
+    "Scroll": 0,
+    "SecondsPerRow": 0.010416666666666666,
+    "RowsPerSecond": 96,
+    "Warp": 0,
+    "Stop": 0
+  },
+  {
+    "Row": 0,
+    "Time": 0,
+    "Tempo": 120,
+    "Scroll": 0,
+    "SecondsPerRow": 0.010416666666666666,
+    "RowsPerSecond": 96,
+    "Warp": 0,
+    "Stop": 0
+  },
+  {
+    "Row": 96,
+    "Time": 1,
+    "Tempo": 150,
+    "Scroll": 0,
+    "SecondsPerRow": 0.008333333333333333,
+    "RowsPerSecond": 120,
+    "Warp": 0,
+    "Stop": 0
+  },
+  {
+    "Row": 144,
+    "Time": 1.4,
+    "Tempo": 150,
+    "Scroll": 2,
+    "SecondsPerRow": 0.008333333333333333,
+    "RowsPerSecond": 120,
+    "Warp": 0,
+    "Stop": 0
+  },
+  {
+    "Row": 192,
+    "Time": 1.8,
+    "Tempo": 150,
+    "Scroll": 0,
+    "SecondsPerRow": 0.008333333333333333,
+    "RowsPerSecond": 120,
+    "Warp": 0,
+    "Stop": 0
+  }
+]

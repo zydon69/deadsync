@@ -1,0 +1,33 @@
+{
+  "Operation": "EditorTiming",
+  "SpacingSections": true,
+  "Timing": [
+    [
+      0,
+      "signature",
+      4,
+      4
+    ],
+    [
+      0,
+      "scroll",
+      1.5
+    ],
+    [
+      48,
+      "stop",
+      -0.25
+    ],
+    [
+      96,
+      "tempo",
+      75
+    ],
+    [
+      192,
+      "tempo",
+      240
+    ]
+  ],
+  "Notes": []
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "Row": 0,
+    "Time": 0,
+    "Tempo": 123.456,
+    "Scroll": -2,
+    "SecondsPerRow": 0.010125064800414722,
+    "RowsPerSecond": 98.76480000000001,
+    "Warp": 0,
+    "Stop": 0
+  },
+  {
+    "Row": 0,
+    "Time": 0,
+    "Tempo": 123.456,
+    "Scroll": -2,
+    "SecondsPerRow": 0.010125064800414722,
+    "RowsPerSecond": 98.76480000000001,
+    "Warp": 0,
+    "Stop": 0
+  },
+  {
+    "Row": 48,
+    "Time": 0.4860031104199066,
+    "Tempo": 123.456,
+    "Scroll": -2,
+    "SecondsPerRow": 0.010125064800414722,
+    "RowsPerSecond": 98.76480000000001,
+    "Warp": 0,
+    "Stop": 0.5
+  },
+  {
+    "Row": 96,
+    "Time": 1.4720062208398133,
+    "Tempo": 123.456,
+    "Scroll": -2,
+    "SecondsPerRow": 0.010125064800414722,
+    "RowsPerSecond": 98.76480000000001,
+    "Warp": 0,
+    "Stop": 0
+  },
+  {
+    "Row": 144,
+    "Time": 1.95800933125972,
+    "Tempo": 123.456,
+    "Scroll": -2,
+    "SecondsPerRow": 0.010125064800414722,
+    "RowsPerSecond": 98.76480000000001,
+    "Warp": 96,
+    "Stop": 0
+  },
+  {
+    "Row": 192,
+    "Time": 1.95800933125972,
+    "Tempo": 75,
+    "Scroll": -2,
+    "SecondsPerRow": 0.016666666666666666,
+    "RowsPerSecond": 60,
+    "Warp": 48,
+    "Stop": 0
+  }
+]

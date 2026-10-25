@@ -45,6 +45,10 @@ fn timeline_exports_ordered_validated_rate_mappings_with_actual_pause_and_warp_s
     let session = deadsync_editor::history::Session::new(document);
     let clock = deadsync_editor::playback::Clock::capture(&session, 0).unwrap();
     assert_eq!(clock.rate_mappings().collect::<Vec<_>>(), rates);
+    assert_eq!(
+        clock.spacing_sections().collect::<Vec<_>>(),
+        timeline.spacing_sections().collect::<Vec<_>>()
+    );
 
     assert!(
         rates

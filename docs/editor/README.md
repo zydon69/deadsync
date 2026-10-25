@@ -3608,3 +3608,43 @@ tests passed after centralizing the conversions. The eight mapping/spacing
 workflows passed again with Clock snapshot assertions. The original C# runner
 regenerated all six expanded traces; `cargo check -p deadsync --jobs 2 --locked`
 passed. Native display mode wiring remains pending.
+
+### Exact initialized tempo and constant-scroll sections
+
+EditorTimeline now stores the tempo and constant scroll multiplier initialized
+for each rate event. As in original RefreshRateAlteringEvents, the first tempo
+backfills earlier rate events' tempo/row rates, and the first constant-scroll
+value backfills earlier rate events' scroll. These are the original scalar
+values, not BPM reconstructed from a reciprocal row time. Later events replace
+the active value normally; zero and negative scroll multipliers are retained.
+
+`spacing_sections()` on EditorTimeline and Clock exposes the mapping, timing
+order, tempo and scroll. `SpacingSection::spacing_rate()` supplies the exact
+input type required by the numerical spacing helper. The separate original
+interpolated-speed multiplier is intentionally still a caller input. Retained
+projected timelines copy the initialized state with the existing rates.
+
+Six new C# traces execute the unchanged pinned RefreshEventTimingData and
+RefreshRateAlteringEvents members through the existing development oracle.
+Scalar Init/update adapters retain the original passed values; new getters
+observe them. Cases cover ordinary initialization, late first tempo/scroll,
+negative/zero scroll, tempo changes, positive/negative stops, overlapping warps
+and a time signature inside a warp. Rust compares every initialized mapping,
+tempo and scroll field, then feeds those sections into the variable helper.
+An additional workflow covers missing scroll defaults and late-first backfill.
+Clock snapshots are compared to the parsed source timeline in the mapping tests.
+
+The runner additionally compares existing baseline, warp and stacked-negative
+stop oracle outputs against committed expectations. The original method and
+adapter hashes are stored in spacing-sections-reference.json; reproduction is
+explained in scripts/editor-oracle/SPACING-SECTIONS.md. No .NET dependency is
+introduced into the game. Native temporal/variable display and interpolation
+traversal remain pending; these traces establish section initialization only.
+
+Validation: all 380 editor core tests and all 186 native editor integration
+tests passed. The six original initialized-state traces regenerated successfully
+and compare 37 section snapshots; existing baseline, warp and stacked-negative
+stop reference outputs still match. The separate spacing-helper generator also
+regenerated its original six traces after excluding the new section fixtures.
+`cargo check -p deadsync --jobs 2 --locked` passed. Native variable display and
+interpolated-speed traversal remain pending.

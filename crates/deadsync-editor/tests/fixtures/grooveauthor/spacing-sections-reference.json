@@ -1,0 +1,20 @@
+{
+  "GrooveAuthor": "48e18f71655d0f0d86144c63239331833501fda2",
+  "StepManiaLibrary": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "Fumen": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "OriginalTimingMethodsSHA256": "aa750e7bfaee572d9d4fbd0d66bf8d5cae74f9498a86a84b033b22bbc6225d5a",
+  "AssembliesSHA256": {
+    "Fumen": "904e93e98908befc28f14a70dc03992b5cd836b0f548918939af4dfdd9c256d1",
+    "StepManiaLibrary": "b7f4963074b8c6b64c4427865f0866728df9b0b9efa47eb49d90fdb096106e42"
+  },
+  "TimingAdapterSHA256": "5cbb70ff59fa3676a4f748d3a51fefcbcfc41038e1d3fc65931ff9b3e817dbb6",
+  "Cases": [
+    "spacing-sections-baseline.request",
+    "spacing-sections-late-negative-scroll.request",
+    "spacing-sections-late-tempo-and-scroll.request",
+    "spacing-sections-late-tempo.request",
+    "spacing-sections-overlapping-warp-stop.request",
+    "spacing-sections-zero-scroll.request"
+  ],
+  "Scope": "Unchanged RefreshRateAlteringEvents/RefreshEventTimingData; scalar init/update storage and getters; not full native editor"
+}
