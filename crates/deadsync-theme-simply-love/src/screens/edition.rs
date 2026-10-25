@@ -33,6 +33,8 @@ enum Panel {
     Pattern(usize),
     Marker(usize),
     Profiles(usize),
+    ChartProperties(usize),
+    ChartExpression(usize),
     ConfirmMarkerDelete,
     Generating,
     GenerationPreview(usize),
@@ -58,6 +60,12 @@ struct PatternSettings {
     seed: i32,
     ignore_distribution: bool,
 }
+#[derive(Clone, Copy)]
+enum ProfileTarget {
+    Marker,
+    Chart,
+}
+
 struct ProfileSettings {
     catalog: profile_catalog::Catalog,
     pattern: Option<usize>,
@@ -133,6 +141,8 @@ pub struct State {
     generation: GenerationSettings,
     pattern: PatternSettings,
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
+    chart_properties: Option<deadsync_editor::chart_properties::Draft>,
+    catalog_target: ProfileTarget,
     profile_directory: Option<PathBuf>,
     saved_regions: Vec<(u64, u64)>,
     marker_cache: Option<(Arc<[u8]>, u64, usize)>,
@@ -220,6 +230,8 @@ impl State {
                 ignore_distribution: false,
             },
             marker: None,
+            chart_properties: None,
+            catalog_target: ProfileTarget::Marker,
             profile_directory: deadsync_editor::runtime::configs_dir().map(Path::to_path_buf),
             saved_regions: Vec::new(),
             marker_cache: None,
@@ -357,6 +369,98 @@ impl State {
         }
     }
 
+    fn open_chart_properties(&mut self) {
+        match self.workspace.chart_properties() {
+            Ok(draft) => {
+                self.status = i18n::tr(
+                    "Edition",
+                    if draft.format() == deadsync_editor::document::Format::Sm {
+                        "ChartPropertiesHelpSm"
+                    } else {
+                        "ChartPropertiesHelpSsc"
+                    },
+                );
+                self.chart_properties = Some(draft);
+                self.panel = Some(Panel::ChartProperties(0));
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+    fn open_chart_expression(&mut self) {
+        if self.is_generating() {
+            return;
+        }
+        let Some(draft) = &self.chart_properties else {
+            return;
+        };
+        match self
+            .workspace
+            .chart_expression_task(draft, self.profile_directory.as_deref())
+            .and_then(|task| task.spawn())
+        {
+            Ok(job) => {
+                self.profile_selection = None;
+                self.catalog_target = ProfileTarget::Chart;
+                self.catalog_job = Some(job);
+                self.panel = Some(Panel::Generating);
+                self.status = i18n::tr("Edition", "ProfileLoading");
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+    fn stage_chart_expression(&mut self) {
+        let (Some(settings), Some(draft)) = (&self.profile_selection, &mut self.chart_properties)
+        else {
+            return;
+        };
+        let Some(entry) = settings
+            .expressed
+            .and_then(|index| settings.catalog.entries(ProfileKind::Expressed).get(index))
+        else {
+            self.status = i18n::tr("Edition", "ChartChooseExpression");
+            return;
+        };
+        match self
+            .workspace
+            .select_chart_expression(draft, &settings.catalog, &entry.guid)
+        {
+            Ok(()) => {
+                self.profile_selection = None;
+                self.panel = Some(Panel::ChartProperties(0));
+                self.status = i18n::tr("Edition", "ChartExpressionStaged");
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+    fn apply_chart_properties(&mut self) {
+        let Some(draft) = &self.chart_properties else {
+            return;
+        };
+        match self.workspace.apply_chart_properties(draft) {
+            Ok(_) => {
+                self.chart_properties = None;
+                self.panel = None;
+                self.status = i18n::tr("Edition", "ChartPropertiesApplied");
+                self.refresh();
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
+    }
+    fn profile_return_panel(&self) -> Panel {
+        match self.catalog_target {
+            ProfileTarget::Marker => Panel::Marker(12),
+            ProfileTarget::Chart => Panel::ChartProperties(0),
+        }
+    }
+
     fn open_marker_profiles(&mut self) {
         if self.is_generating() {
             return;
@@ -371,6 +475,7 @@ impl State {
         {
             Ok(job) => {
                 self.profile_selection = None;
+                self.catalog_target = ProfileTarget::Marker;
                 self.catalog_job = Some(job);
                 self.panel = Some(Panel::Generating);
                 self.status = i18n::tr("Edition", "ProfileLoading");
@@ -424,28 +529,55 @@ impl State {
             return;
         };
         self.catalog_job = None;
-        self.panel = Some(Panel::Marker(12));
+        self.panel = Some(self.profile_return_panel());
         match result {
             Ok(catalog)
                 if catalog.is_current(&self.workspace.file().session, self.workspace.chart())
-                    && self.marker.is_some() =>
+                    && match self.catalog_target {
+                        ProfileTarget::Marker => self.marker.is_some(),
+                        ProfileTarget::Chart => self.chart_properties.is_some(),
+                    } =>
             {
-                let draft = self.marker.as_ref().unwrap();
-                let pattern = catalog
-                    .entries(ProfileKind::Pattern)
-                    .iter()
-                    .position(|entry| entry.guid == draft.definition.pattern_config_guid);
-                let performed = catalog
-                    .entries(ProfileKind::Performed)
-                    .iter()
-                    .position(|entry| entry.guid == draft.definition.performed_chart_config_guid);
-                let expressed = catalog
-                    .entries(ProfileKind::Expressed)
-                    .iter()
-                    .position(|entry| entry.guid == draft.expressed_chart_config);
+                let (pattern, performed, expressed) = match self.catalog_target {
+                    ProfileTarget::Marker => {
+                        let draft = self.marker.as_ref().unwrap();
+                        (
+                            catalog
+                                .entries(ProfileKind::Pattern)
+                                .iter()
+                                .position(|entry| {
+                                    entry.guid == draft.definition.pattern_config_guid
+                                }),
+                            catalog
+                                .entries(ProfileKind::Performed)
+                                .iter()
+                                .position(|entry| {
+                                    entry.guid == draft.definition.performed_chart_config_guid
+                                }),
+                            catalog
+                                .entries(ProfileKind::Expressed)
+                                .iter()
+                                .position(|entry| entry.guid == draft.expressed_chart_config),
+                        )
+                    }
+                    ProfileTarget::Chart => {
+                        let draft = self.chart_properties.as_ref().unwrap();
+                        (
+                            None,
+                            None,
+                            catalog
+                                .entries(ProfileKind::Expressed)
+                                .iter()
+                                .position(|entry| &entry.guid == draft.expression()),
+                        )
+                    }
+                };
                 self.status = i18n::tr_fmt(
                     "Edition",
-                    "ProfilePickerHelp",
+                    match self.catalog_target {
+                        ProfileTarget::Marker => "ProfilePickerHelp",
+                        ProfileTarget::Chart => "ChartExpressionPickerHelp",
+                    },
                     &[("issues", &catalog.issues().len().to_string())],
                 );
                 self.profile_selection = Some(ProfileSettings {
@@ -454,7 +586,10 @@ impl State {
                     performed,
                     expressed,
                 });
-                self.panel = Some(Panel::Profiles(0));
+                self.panel = Some(match self.catalog_target {
+                    ProfileTarget::Marker => Panel::Profiles(0),
+                    ProfileTarget::Chart => Panel::ChartExpression(0),
+                });
             }
             Ok(_) => self.status = i18n::tr("Edition", "ProfileStale"),
             Err(error) => {
@@ -727,7 +862,10 @@ impl State {
         if !event.pressed {
             return false;
         }
+        let repeating_offset = matches!(self.panel, Some(Panel::ChartProperties(2)))
+            && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
+            && !repeating_offset
             && !matches!(
                 event.code,
                 KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::PageUp | KeyCode::PageDown
@@ -740,6 +878,10 @@ impl State {
         }
         if event.code == KeyCode::Escape || event.code == KeyCode::F2 {
             return self.request_close();
+        }
+        if event.code == KeyCode::F7 {
+            self.open_chart_properties();
+            return false;
         }
         if event.code == KeyCode::F6 {
             self.open_marker();
@@ -874,17 +1016,99 @@ impl State {
             return false;
         }
         if code == KeyCode::Escape {
-            if matches!(panel, Panel::Profiles(_)) {
+            if matches!(panel, Panel::Profiles(_) | Panel::ChartExpression(_)) {
                 self.profile_selection = None;
-                self.panel = Some(Panel::Marker(12));
+                self.panel = Some(self.profile_return_panel());
                 return false;
             }
+            self.chart_properties = None;
             self.marker = None;
             self.preview = None;
             self.panel = None;
             return false;
         }
         match panel {
+            Panel::ChartProperties(index) => {
+                if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
+                    self.panel = Some(Panel::ChartProperties(
+                        (index + if code == KeyCode::ArrowUp { 5 } else { 1 }) % 6,
+                    ));
+                } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
+                    if let Some(draft) = &mut self.chart_properties {
+                        match index {
+                            1 => draft.set_use_chart_offset(!draft.uses_chart_offset()),
+                            2 => {
+                                let delta = if self.shift { 0.001 } else { 0.0001 }
+                                    * if code == KeyCode::ArrowRight {
+                                        1.0
+                                    } else {
+                                        -1.0
+                                    };
+                                if let Err(error) =
+                                    draft.set_music_offset(draft.music_offset() + delta)
+                                {
+                                    self.status = i18n::tr_fmt(
+                                        "Edition",
+                                        "Error",
+                                        &[("message", &error.to_string())],
+                                    );
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                } else if code == KeyCode::Enter {
+                    match index {
+                        0 => self.open_chart_expression(),
+                        4 => self.apply_chart_properties(),
+                        5 => {
+                            self.chart_properties = None;
+                            self.panel = None;
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            Panel::ChartExpression(index) => {
+                if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
+                    self.panel = Some(Panel::ChartExpression(
+                        (index + if code == KeyCode::ArrowUp { 2 } else { 1 }) % 3,
+                    ));
+                } else if index == 0 && matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
+                    if let Some(settings) = &mut self.profile_selection {
+                        let count = settings.catalog.entries(ProfileKind::Expressed).len();
+                        if count > 0 {
+                            settings.expressed = Some(match settings.expressed {
+                                Some(current) => {
+                                    (current
+                                        + if code == KeyCode::ArrowRight {
+                                            1
+                                        } else {
+                                            count - 1
+                                        })
+                                        % count
+                                }
+                                None => {
+                                    if code == KeyCode::ArrowRight {
+                                        0
+                                    } else {
+                                        count - 1
+                                    }
+                                }
+                            });
+                        }
+                    }
+                } else if code == KeyCode::Enter {
+                    match index {
+                        1 => self.stage_chart_expression(),
+                        2 => {
+                            self.profile_selection = None;
+                            self.panel = Some(Panel::ChartProperties(0));
+                        }
+                        _ => {}
+                    }
+                }
+            }
             Panel::Profiles(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::Profiles(
@@ -1109,7 +1333,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 12,
+                    Panel::Menu(_) => 13,
                     Panel::Transforms(_) => 4,
                     _ => 3,
                 };
@@ -1159,9 +1383,10 @@ impl State {
                             6 => self.open_pattern(),
                             7 => self.regenerate_saved_pattern(),
                             8 => self.open_marker(),
-                            9 => self.command(Command::SaveRecovery),
-                            10 => self.help = !self.help,
-                            11 => return self.request_close(),
+                            9 => self.open_chart_properties(),
+                            10 => self.command(Command::SaveRecovery),
+                            11 => self.help = !self.help,
+                            12 => return self.request_close(),
                             _ => {}
                         }
                     }
@@ -1349,6 +1574,7 @@ impl State {
                 "GeneratePattern",
                 "RegeneratePattern",
                 "EditPatternMarker",
+                "ChartProperties",
                 "SaveDraft",
                 "ToggleHelp",
                 "Close",
@@ -1389,6 +1615,17 @@ impl State {
                 "MarkerNext",
                 "MarkerProfiles",
             ],
+            Panel::ChartProperties(_) => &[
+                "ChartChooseExpression",
+                "ChartUseOffset",
+                "ChartMusicOffset",
+                "ChartEffectiveOffset",
+                "ChartApplyProperties",
+                "KeepEditing",
+            ],
+            Panel::ChartExpression(_) => {
+                &["ProfileExpression", "ChartStageExpression", "ProfileBack"]
+            }
             Panel::Profiles(_) => &[
                 "ProfilePattern",
                 "ProfilePerformed",
@@ -1407,6 +1644,8 @@ impl State {
             | Panel::Pattern(i)
             | Panel::Marker(i)
             | Panel::Profiles(i)
+            | Panel::ChartProperties(i)
+            | Panel::ChartExpression(i)
             | Panel::Generation(i)
             | Panel::GenerationPreview(i) => i,
             _ => 0,
@@ -1509,12 +1748,36 @@ impl State {
             } else {
                 [0.8, 0.8, 0.85, 1.0]
             };
-            let label = if matches!(panel, Panel::Profiles(_)) && index < 3 {
+            let label = if matches!(panel, Panel::ChartProperties(_)) && (1..=3).contains(&index) {
+                let value = self
+                    .chart_properties
+                    .as_ref()
+                    .map(|draft| match index {
+                        1 => i18n::tr(
+                            "Edition",
+                            if draft.uses_chart_offset() {
+                                "PatternYes"
+                            } else {
+                                "PatternNo"
+                            },
+                        )
+                        .to_string(),
+                        2 => format!("{:.6}", draft.music_offset()),
+                        _ => format!("{:.6}", draft.effective_music_offset()),
+                    })
+                    .unwrap_or_default();
+                i18n::tr_fmt("Edition", key, &[("value", &value)])
+            } else if (matches!(panel, Panel::Profiles(_)) && index < 3)
+                || (matches!(panel, Panel::ChartExpression(_)) && index == 0)
+            {
                 let value = self
                     .profile_selection
                     .as_ref()
                     .and_then(|settings| {
                         let (selected, kind) = match index {
+                            _ if matches!(panel, Panel::ChartExpression(_)) => {
+                                (settings.expressed, ProfileKind::Expressed)
+                            }
                             0 => (settings.pattern, ProfileKind::Pattern),
                             1 => (settings.performed, ProfileKind::Performed),
                             _ => (settings.expressed, ProfileKind::Expressed),

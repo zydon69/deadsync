@@ -69,8 +69,11 @@ def prepare_metadata_reference(editor):
     custom=extract_member(read("EditorChart.cs"),r"\tprivate class CustomSaveDataV1\s*")
     project=ROOT/"scripts/editor-oracle"
     text=(project/"MetadataReference.cs.template").read_text().replace("// DEFINITION",definition).replace("// CUSTOM_DATA",custom)
+    offset=extract_member(read("EditorChart.cs"),r"\tpublic double GetMusicOffset\(")
+    text=text.replace("// MUSIC_OFFSET",offset)
     (project/"obj/MetadataReference.cs").write_text(text)
-    return hashlib.sha256((definition+"\n"+custom).encode()).hexdigest()
+    return hashlib.sha256((definition+"\n"+custom+"\n"+offset).encode()).hexdigest()
+
 
 
 def prepare_profiles_reference(editor):
@@ -443,6 +446,8 @@ def requests(reference: Path):
         "Patterns":{"48":{"PatternConfigGuid":"03de57bd-4329-4de6-a722-a171c11fdd16","PerformedChartConfigGuid":"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1","Length":192,"RandomSeed":-2147483648,"StartPositionInclusive":True,"EndPositionInclusive":False,"IgnorePrecedingDistribution":True},"384":{"Length":0}}}
     for label,content in {"defaults":"{}","complete":json.dumps(metadata),"null-patterns":'{"Patterns":null}',"comments":'/* original */ {"Patterns": {"0": {/* marker */ "Length":48}}}',"trailing-comma":'{"Patterns":{},}',"invalid-guid":'{"ExpressedChartConfig":"invalid"}',"braced-guid":'{"ExpressedChartConfig":"{a19d532e-b0ce-4759-ad1c-02ecbbdf2efd}"}'}.items():
         cases["metadata-"+label]={"Operation":"Metadata","Content":content}
+    for label,song,offset,use in [("song-positive",0.25,-0.125,False),("chart-negative",0.25,-0.125,True),("song-negative",-0.375,0.5,False),("chart-zero",0.25,0.0,True),("song-zero",0.0,-0.125,False),("chart-positive",-0.5,0.125,True)]:
+        cases["chart-offset-"+label]={"Operation":"Metadata","Content":json.dumps({"MusicOffset":offset,"ShouldUseChartMusicOffset":use}),"SongOffset":song}
     profile_guid="12345678-9abc-4def-8123-456789abcdef"
     profile_base={"Guid":profile_guid,"Name":"Custom","Description":"Preserve"}
     profile_cases={

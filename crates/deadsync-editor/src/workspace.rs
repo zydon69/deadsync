@@ -288,6 +288,31 @@ impl Workspace {
         .map(|task| task.with_chart_expression())
     }
 
+    pub fn chart_properties(&self) -> Result<crate::chart_properties::Draft, Error> {
+        crate::chart_properties::Draft::capture(&self.file.session, self.chart)
+    }
+    pub fn apply_chart_properties(
+        &mut self,
+        draft: &crate::chart_properties::Draft,
+    ) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session, self.chart)
+    }
+    pub fn chart_expression_task(
+        &self,
+        draft: &crate::chart_properties::Draft,
+        directory: Option<&Path>,
+    ) -> Result<crate::generation::profile_catalog::Task, Error> {
+        draft.profile_task(&self.file.session, self.chart, directory)
+    }
+    pub fn select_chart_expression(
+        &self,
+        draft: &mut crate::chart_properties::Draft,
+        catalog: &crate::generation::profile_catalog::Catalog,
+        expression: &crate::generation::metadata::Guid,
+    ) -> Result<(), Error> {
+        draft.select_expression(&self.file.session, self.chart, catalog, expression)
+    }
+
     pub fn edit_saved_pattern(&self) -> Result<crate::generation::marker_edit::Draft, Error> {
         crate::generation::marker_edit::Draft::at_cursor(&self.file.session, self.chart, self.row)
     }

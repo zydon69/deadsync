@@ -1,0 +1,10 @@
+{
+  "Success": true,
+  "Data": {
+    "MusicOffset": -0.125,
+    "ShouldUseChartMusicOffset": true,
+    "ExpressedChartConfig": "a19d532e-b0ce-4759-ad1c-02ecbbdf2efd",
+    "Patterns": null
+  },
+  "EffectiveOffset": -0.125
+}

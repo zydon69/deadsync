@@ -45,7 +45,7 @@ reviewable and tested.
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/move; broader GrooveAuthor transformations pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
-| Metadata | Existing and new scoped tags with escaping and history | Property add/undo/reopen tests; full song/chart/pack property panels pending |
+| Metadata | Existing and new scoped tags with escaping/history; F7 chart expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
@@ -828,8 +828,8 @@ physical input or GPU rendering. They compose the previously compared original
 profile codec and generation contracts; no complete original UI oracle is claimed.
 
 Editing/cloning/creating/deleting profiles through the native library, all
-advanced configuration controls, chart properties without a marker, per-request
-expression overrides, batch generation,
+advanced configuration controls, the remaining song/chart/pack properties,
+per-request expression overrides, batch generation,
 waveform/audio editing and the remaining delivery matrix are still required for
 the complete port.
 
@@ -850,9 +850,9 @@ detection. Pending expression-only changes therefore block clear/navigation just
 like pending marker edits. Deleting a marker continues to discard pending edits
 and preserves the chart's currently committed expression. Missing referenced
 expression profiles require an explicit replacement; unsupported identities are
-not silently converted to Dynamic. The inspector currently requires a saved
-marker. Choosing chart properties with no marker and per-request expression
-overrides in the conversion panel remain unfinished.
+not silently converted to Dynamic. The F6 inspector requires a saved marker; F7 now exposes chart-wide properties
+without one, as described below. Per-request expression overrides in the conversion
+panel remain unfinished.
 
 Native F3 now resolves the saved chart expression on its worker, using the same
 AutogenConfigs root as F4/F5. Its immutable result records the resolved identity
@@ -873,3 +873,50 @@ resolved identity and ignored-file actor report, and missing-expression repair
 with discard. These build on the original metadata/profile/generation fixtures;
 they are not an original full UI/runtime oracle or GPU/hardware proof. All other
 remaining delivery-matrix requirements stay in scope.
+
+
+### Chart properties without pattern markers
+
+F7 or F1 > Chart properties opens a chart-wide draft even when there are no saved
+patterns or GA metadata. It exposes interpretation selection, whether to use a
+chart music offset, the stored chart offset and its effective value. Left/Right
+adjusts the numeric offset by 0.0001 seconds; Shift changes the step to 0.001.
+Holding the numeric arrows repeats adjustment, while boolean toggles ignore
+repeat events. Interpretation selection uses the existing background catalog
+through a single-row subpanel. Back/discard/loading cancellation retain the
+preceding property draft until it is explicitly applied or abandoned.
+
+`chart_properties::Draft` captures chart/session identity and revision. No-op
+application adds no metadata and preserves redo history. Expressed-profile
+selection validates kind/identity and captures custom-file byte guards. Music
+offset setters reject nonfinite values and use the original one-ULP DoubleEquals
+comparison, including signed-zero equality. The effective offset follows the
+original GetMusicOffset: chart value when enabled, song value otherwise.
+
+Applying changes retains unknown GA fields and markers and records one atomic
+property gesture without loading/copying note grids. For SSC, offset edits write
+the effective chart OFFSET alongside GA music-offset fields in the same gesture;
+changing interpretation alone does not rewrite existing OFFSET text. The song
+offset and other charts remain unchanged. The source version is retained; legacy
+SSC timing inheritance/version rules are not upgraded by this inspector. For SM,
+per-chart music offsets remain in the original GA editor metadata; gameplay still
+uses the song OFFSET. The native help explains the format distinction. This does
+not implement live edited-audio preview, waveform or Song Sync.
+
+Six new fixtures compile the unchanged original EditorChart.GetMusicOffset body
+with minimal property containers and compare positive/negative/zero song/chart
+values and both enable states. The original metadata fixtures were regenerated
+without changing their outputs; provenance includes the extracted method. These
+fixtures do not execute the original writer or audio runtime. Seven core workflows
+cover that comparison, no-marker SM/SSC property selection/save/reopen, no-op and
+unknown-field preservation, atomic offset/tag undo/redo, other charts/pending
+notes, one-ULP/nonfinite inputs, source identity/revision guards, custom-file
+changes and redo retention. Three additional native workflows cover F7 and menu
+entry, custom interpretation through save/reopen/F3, numeric/Shift/held-arrow
+controls, effective-offset actors, no-op/discard/subpanel-back/loading cancellation,
+retained drafts and the SM format distinction. Actor/input-adapter tests do not
+prove hardware input, GPU rendering or live audio alignment.
+
+The rest of the chart/song/pack property controls, per-request expression
+overrides, profile management, batch generation, audio/waveform tools and the
+remaining delivery matrix remain required for the complete port.

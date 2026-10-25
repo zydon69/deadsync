@@ -50,6 +50,10 @@ pub struct Catalog {
     dependencies: BTreeMap<(Kind, Guid), (PathBuf, Arc<[u8]>)>,
     issues: Vec<Issue>,
 }
+pub struct ExpressionSelection {
+    expressed: Guid,
+    dependencies: Vec<(PathBuf, Arc<[u8]>)>,
+}
 pub struct Selection {
     pattern: Guid,
     performed: Guid,
@@ -191,6 +195,37 @@ impl Catalog {
             dependencies,
         })
     }
+    pub fn select_expression(
+        &self,
+        session: &Session,
+        chart: usize,
+        expressed: &Guid,
+    ) -> Result<ExpressionSelection, Error> {
+        if !self.is_current(session, chart) {
+            return Err(invalid(
+                "Profile catalog belongs to another chart or revision",
+            ));
+        }
+        if !self
+            .entries(Kind::Expressed)
+            .iter()
+            .any(|entry| &entry.guid == expressed)
+        {
+            return Err(invalid(
+                "Selected interpretation profile is missing from the catalog",
+            ));
+        }
+        let dependencies = self
+            .dependencies
+            .get(&(Kind::Expressed, expressed.clone()))
+            .cloned()
+            .into_iter()
+            .collect();
+        Ok(ExpressionSelection {
+            expressed: expressed.clone(),
+            dependencies,
+        })
+    }
     pub fn select_generation(
         &self,
         session: &Session,
@@ -234,14 +269,28 @@ impl Selection {
                 "Profile identities changed after catalog selection",
             ));
         }
-        for (path, expected) in &self.dependencies {
-            if fs::read(path)?.as_slice() != expected.as_ref() {
-                return Err(Error::ExternalChange);
-            }
-        }
-        Ok(())
+        check_dependencies(&self.dependencies)
     }
 }
+impl ExpressionSelection {
+    pub(crate) fn check(&self, expressed: &Guid) -> Result<(), Error> {
+        if &self.expressed != expressed {
+            return Err(invalid(
+                "Interpretation profile changed after catalog selection",
+            ));
+        }
+        check_dependencies(&self.dependencies)
+    }
+}
+fn check_dependencies(dependencies: &[(PathBuf, Arc<[u8]>)]) -> Result<(), Error> {
+    for (path, expected) in dependencies {
+        if fs::read(path)?.as_slice() != expected.as_ref() {
+            return Err(Error::ExternalChange);
+        }
+    }
+    Ok(())
+}
+
 fn builtin_label(kind: Kind, id: &Guid) -> Option<BuiltinLabel> {
     use BuiltinLabel::*;
     let values: &[(&str, BuiltinLabel)] = match kind {

@@ -11,10 +11,19 @@ internal class EditorPatternEvent {
 }
 internal class EditorChart {
     // CUSTOM_DATA
+    public sealed class Song { public double MusicOffset; }
+    public Song EditorSong=new();
+    public double MusicOffset;
+    public bool UsesChartMusicOffset;
+    // MUSIC_OFFSET
     public static object Run(JsonElement request) {
         var options=new JsonSerializerOptions {IncludeFields=true,ReadCommentHandling=JsonCommentHandling.Skip};
         try {
             var data=JsonSerializer.Deserialize<CustomSaveDataV1>(request.GetProperty("Content").GetString()!,options);
+            if(request.TryGetProperty("SongOffset",out var song)) {
+                var chart=new EditorChart {EditorSong=new Song {MusicOffset=song.GetDouble()},MusicOffset=data!.MusicOffset,UsesChartMusicOffset=data.ShouldUseChartMusicOffset};
+                return new {Success=true,Data=JsonSerializer.SerializeToElement(data,options),EffectiveOffset=chart.GetMusicOffset()};
+            }
             return new {Success=true,Data=JsonSerializer.SerializeToElement(data,options)};
         } catch(JsonException) {return new {Success=false};}
     }

@@ -567,6 +567,18 @@ fn pattern_panel_has_explicit_english_and_french_translations() {
         "ProfileDynamic",
         "ProfileAggressiveBrackets",
         "ProfileNoBrackets",
+        "ChartProperties",
+        "ChartChooseExpression",
+        "ChartUseOffset",
+        "ChartMusicOffset",
+        "ChartEffectiveOffset",
+        "ChartApplyProperties",
+        "ChartExpressionStaged",
+        "ChartPropertiesApplied",
+        "ChartPropertiesHelpSsc",
+        "ChartPropertiesHelpSm",
+        "ChartExpressionPickerHelp",
+        "ChartStageExpression",
     ] {
         let english = en
             .fallback
@@ -1563,5 +1575,283 @@ fn missing_chart_expression_requires_replacement_and_discard_keeps_the_unknown_i
         Registry::builtin()
             .expressed
             .contains_key(&actual.expressed_chart_config)
+    );
+}
+
+fn apply_chart_properties(screen: &mut State) {
+    for _ in 0..4 {
+        press(screen, KeyCode::ArrowDown);
+    }
+    press(screen, KeyCode::Enter);
+}
+#[test]
+fn f7_properties_without_markers_stage_custom_expression_and_audio_offset_then_save_and_generate() {
+    use deadsync_editor::generation::{
+        job::{ChartOptions, ChartTask},
+        metadata::ChartData,
+        profiles::{Kind, Profile},
+    };
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let folder = dir.path().join("AutogenConfigs");
+    let config = ChartOptions::balanced("dance-single").expressed;
+    let custom=Profile::parse(Kind::Expressed,&serde_json::to_vec(&serde_json::json!({"Guid":"11111111-2222-3333-4444-555555555555","Name":"No-marker expression","Config":config})).unwrap()).unwrap();
+    custom.export_new(&folder).unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open_with_profiles(&path, 0, &folder).unwrap();
+    let grid = screen.workspace().grid().clone();
+    press(&mut screen, KeyCode::F7);
+    press(&mut screen, KeyCode::Enter);
+    finish_generation(&mut screen);
+    choose_visible_profile(&mut screen, "No-marker expression");
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::ArrowRight);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,z:8021,..} if content.as_ref()=="Effective music offset: 0.001100 s")));
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    let after = screen.workspace().file().session.serialize().unwrap();
+    let data = ChartData::read(screen.workspace().file().session.document(), 0)
+        .unwrap()
+        .unwrap();
+    assert!(data.patterns.is_none());
+    assert_eq!(data.expressed_chart_config, *custom.guid());
+    assert!(data.should_use_chart_music_offset);
+    assert_eq!(data.music_offset, 0.0011);
+    assert_eq!(screen.workspace().grid(), &grid);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "OFFSET")
+            .as_deref(),
+        Some("0.0011")
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    ctrl(&mut screen, KeyCode::KeyY);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        after
+    );
+    ctrl(&mut screen, KeyCode::KeyS);
+    let mut reopened = State::open_with_profiles(&path, 0, &folder).unwrap();
+    assert_eq!(
+        reopened
+            .workspace()
+            .chart_properties()
+            .unwrap()
+            .effective_music_offset(),
+        0.0011
+    );
+    let mut options = ChartOptions::balanced("dance-double");
+    options.expressed = match custom.config() {
+        deadsync_editor::generation::profiles::Config::Expressed(config) => config.clone(),
+        _ => panic!(),
+    };
+    let expected = ChartTask::capture(&reopened.workspace().file().session, 0, options)
+        .unwrap()
+        .run(&std::sync::atomic::AtomicBool::new(false), |_| {})
+        .unwrap();
+    start_generation(&mut reopened);
+    finish_generation(&mut reopened);
+    assert_eq!(
+        reopened.generation_expression_profile(),
+        Some(custom.guid())
+    );
+    press(&mut reopened, KeyCode::Enter);
+    assert_eq!(reopened.workspace().grid(), expected.grid());
+    assert_eq!(
+        fs::read(folder.join(custom.filename())).unwrap(),
+        custom.serialize().unwrap()
+    );
+}
+#[test]
+fn chart_property_menu_noop_discard_profile_back_and_loading_cancel_preserve_drafts() {
+    use deadsync_editor::generation::metadata::{ChartData, DYNAMIC};
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let folder = dir.path().join("absent");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open_with_profiles(&path, 0, &folder).unwrap();
+    press(&mut screen, KeyCode::F1);
+    for _ in 0..9 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(
+        |a| matches!(a,Actor::Text{content,z:8021,..} if content.as_ref()=="Apply chart properties")
+    ));
+    apply_chart_properties(&mut screen);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    assert!(!screen.workspace().file().session.is_dirty());
+    press(&mut screen, KeyCode::F7);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    // Holding a numeric arrow repeats offset adjustment; flags never repeat.
+    press(&mut screen, KeyCode::F7);
+    press(&mut screen, KeyCode::ArrowDown);
+    screen.raw_key(&RawKeyboardEvent {
+        code: KeyCode::ArrowRight,
+        pressed: true,
+        repeat: true,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|a| matches!(a, Actor::Text { content, z:8021, .. } if content.as_ref() == "Use chart music offset: No")));
+    press(&mut screen, KeyCode::ArrowDown);
+    key(&mut screen, KeyCode::ArrowRight, true);
+    screen.raw_key(&RawKeyboardEvent {
+        code: KeyCode::ArrowRight,
+        pressed: true,
+        repeat: true,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    key(&mut screen, KeyCode::ArrowRight, false);
+    actors.clear();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|a| matches!(a, Actor::Text { content, z:8021, .. } if content.as_ref() == "Chart music offset: 0.000200 s")));
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    // Loading cancellation returns to the prior property draft, retaining its offset.
+    press(&mut screen, KeyCode::F7);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowUp);
+    press(&mut screen, KeyCode::ArrowUp);
+    press(&mut screen, KeyCode::Enter);
+    press(&mut screen, KeyCode::Escape);
+    finish_generation(&mut screen);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    // Back out of a loaded selector without committing a different expression.
+    press(&mut screen, KeyCode::Enter);
+    finish_generation(&mut screen);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::Escape);
+    apply_chart_properties(&mut screen);
+    let data = ChartData::read(screen.workspace().file().session.document(), 0)
+        .unwrap()
+        .unwrap();
+    assert_eq!(data.music_offset, 0.0001);
+    assert!(data.should_use_chart_music_offset);
+    assert_eq!(data.expressed_chart_config, DYNAMIC.parse().unwrap());
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    assert!(!folder.exists());
+}
+#[test]
+fn sm_properties_explain_editor_only_offset_and_keep_song_offset_unchanged() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.sm");
+    let before=b"#TITLE:Test;#OFFSET:0.25;#BPMS:0=120;#NOTES:dance-single:source:Hard:9:0,0,0,0,0:1000\n0100\n0010\n0001;";
+    fs::write(&path, before).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F7);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,..} if content.contains("SM keeps chart offsets for the editor"))));
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "OFFSET")
+            .as_deref(),
+        Some("0.25")
+    );
+    assert!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "OFFSET")
+            .is_none()
+    );
+    assert_eq!(
+        screen
+            .workspace()
+            .chart_properties()
+            .unwrap()
+            .effective_music_offset(),
+        0.0001
+    );
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(
+        reopened
+            .workspace()
+            .chart_properties()
+            .unwrap()
+            .effective_music_offset(),
+        0.0001
     );
 }

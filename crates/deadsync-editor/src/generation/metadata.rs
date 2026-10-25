@@ -248,14 +248,7 @@ impl ChartData {
             };
             let song = number(None)?.unwrap_or(0.0);
             if let Some(offset) = number(Some(chart))? {
-                let a = offset.to_bits();
-                let b = song.to_bits();
-                let equal = if a >> 63 != b >> 63 {
-                    offset == song
-                } else {
-                    a.abs_diff(b) <= 1
-                };
-                if !equal {
+                if !music_offsets_equal(offset, song) {
                     data.music_offset = offset;
                     data.should_use_chart_music_offset = true;
                 }
@@ -265,16 +258,31 @@ impl ChartData {
     }
 
     pub fn save(&self, session: &mut Session, chart: usize) -> Result<bool, Error> {
+        self.save_with_offset(session, chart, None, "Change pattern markers")
+    }
+    pub(crate) fn save_with_offset(
+        &self,
+        session: &mut Session,
+        chart: usize,
+        chart_offset: Option<f64>,
+        label: &str,
+    ) -> Result<bool, Error> {
         self.validate()?;
-        // Refuse replacing a newer/malformed document with a guessed V1 body.
+        if chart_offset.is_some_and(|offset| !offset.is_finite()) {
+            return invalid("Music offset must be finite");
+        }
+        if chart_offset.is_some() && session.document().format != Format::Ssc {
+            return invalid("SM does not support a per-chart OFFSET tag");
+        }
         Self::read(session.document(), chart)?;
         let (scope, version, data) = tags(session.document(), chart)?;
         let json = serde_json::to_string(self).map_err(|e| Error::InvalidFormat(e.to_string()))?;
-        session.set_properties_atomic(
-            scope,
-            &[(&version, "1"), (&data, &json)],
-            "Change pattern markers",
-        )
+        let offset = chart_offset.map(|value| value.to_string());
+        let mut properties = vec![(version.as_str(), "1"), (data.as_str(), json.as_str())];
+        if let Some(offset) = &offset {
+            properties.push(("OFFSET", offset.as_str()));
+        }
+        session.set_properties_atomic(scope, &properties, label)
     }
     pub fn options(&self, row: u64, registry: &Registry) -> Result<Options, Error> {
         self.validate()?;
@@ -415,4 +423,13 @@ impl Registry {
 }
 fn invalid<T>(message: &str) -> Result<T, Error> {
     Err(Error::InvalidFormat(message.into()))
+}
+
+/// Original DoubleEquals music-offset comparison (one ULP, signed zero equal).
+pub(crate) fn music_offsets_equal(a: f64, b: f64) -> bool {
+    if a.to_bits() >> 63 != b.to_bits() >> 63 {
+        a == b
+    } else {
+        a.to_bits().abs_diff(b.to_bits()) <= 1
+    }
 }
