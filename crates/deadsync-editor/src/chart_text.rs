@@ -70,7 +70,7 @@ impl Text {
                 "SM does not persist this chart text field; use SSC".into(),
             ));
         }
-        if value.chars().any(char::is_control) {
+        if value != self.original[field.index()] && value.chars().any(char::is_control) {
             return Err(Error::InvalidEdit(
                 "Chart text must be a single line without control characters".into(),
             ));

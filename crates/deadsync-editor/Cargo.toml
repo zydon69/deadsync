@@ -6,6 +6,7 @@ license = "GPL-3.0"
 description = "Lossless chart editing and GrooveAuthor functionality for DeadSync"
 
 [dependencies]
+unicode-segmentation = "1.13.3"
 tempfile = "3.27.0"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = { version = "1.0.151", features = ["float_roundtrip", "raw_value"] }

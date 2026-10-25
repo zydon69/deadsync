@@ -248,7 +248,7 @@ fn french_chart_text_panel_labels_input_and_staging_remain_translated() {
     assert!(s.text_input("Été"));
     let labels = texts(&s);
     for expected in [
-        "Nom : Été",
+        "Nom : Été|",
         "Description : ",
         "Crédit : Auteur",
         "Style : ",

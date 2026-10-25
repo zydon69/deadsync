@@ -1,7 +1,10 @@
 use super::{Panel, State};
 use crate::i18n;
 use deadlib_platform::input::KeyCode;
-use deadsync_editor::chart_text::Field;
+use deadsync_editor::{
+    chart_text::Field,
+    text_buffer::{Buffer, Movement},
+};
 impl State {
     pub(super) fn open_chart_text(&mut self) {
         let first = if self
@@ -13,9 +16,9 @@ impl State {
         } else {
             1
         };
-        self.chart_text_fresh = true;
         self.label_preedit.clear();
         self.panel = Some(Panel::ChartText(first));
+        self.focus_chart_text();
         self.status = i18n::tr(
             "Edition",
             if first == 0 {
@@ -35,35 +38,58 @@ impl State {
             .supports_text(field)
             .then_some(field)
     }
-    pub(super) fn chart_text_input(&mut self, text: &str) -> bool {
+    fn focus_chart_text(&mut self) {
+        self.chart_text_buffer = self.chart_text_field().and_then(|field| {
+            self.chart_properties
+                .as_ref()
+                .map(|draft| Buffer::new(draft.text(field), true))
+        });
+        self.label_preedit.clear();
+    }
+    fn sync_chart_text(&mut self) -> bool {
         let Some(field) = self.chart_text_field() else {
-            return false;
+            return true;
         };
-        let Some(draft) = self.chart_properties.as_mut() else {
-            return false;
-        };
-        let mut value = if self.chart_text_fresh {
-            String::new()
-        } else {
-            draft.text(field).to_owned()
-        };
-        value.extend(text.chars().filter(|c| !c.is_control()));
-        if draft.set_text(field, &value).is_err() {
-            return false;
+        if let (Some(draft), Some(buffer)) = (&mut self.chart_properties, &self.chart_text_buffer) {
+            if buffer.value() != draft.text(field) && draft.set_text(field, buffer.value()).is_err()
+            {
+                self.status = i18n::tr("Edition", "ChartTextSingleLine");
+                return false;
+            }
         }
-        self.chart_text_fresh = false;
+        true
+    }
+    pub(super) fn chart_text_input(&mut self, text: &str) -> bool {
+        let Some(buffer) = self.chart_text_buffer.as_mut() else {
+            return false;
+        };
+        buffer.insert(text);
+        self.sync_chart_text();
         self.label_preedit.clear();
         true
     }
     pub(super) fn chart_text_key(&mut self, index: usize, code: KeyCode) {
         if matches!(code, KeyCode::Escape) || (index == 4 && code == KeyCode::Enter) {
+            let accepted = self.sync_chart_text();
             self.label_preedit.clear();
+            self.chart_text_buffer = None;
             self.panel = Some(Panel::ChartProperties(9));
-            self.status = i18n::tr("Edition", "ChartTextStaged");
+            self.status = i18n::tr(
+                "Edition",
+                if accepted {
+                    "ChartTextStaged"
+                } else {
+                    "ChartTextInvalidDiscarded"
+                },
+            );
             return;
         }
-        if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
-            let delta = if code == KeyCode::ArrowUp { 4 } else { 1 };
+        if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
+            if !self.sync_chart_text() {
+                return;
+            }
+            let backward = code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift);
+            let delta = if backward { 4 } else { 1 };
             let mut next = (index + delta) % 5;
             while next < 4
                 && self
@@ -74,21 +100,51 @@ impl State {
                 next = (next + delta) % 5;
             }
             self.panel = Some(Panel::ChartText(next));
-            self.chart_text_fresh = true;
-        } else if !self.control && matches!(code, KeyCode::Backspace | KeyCode::Delete) {
-            if let Some(field) = self.chart_text_field() {
-                if let Some(draft) = self.chart_properties.as_mut() {
-                    let mut value = draft.text(field).to_owned();
-                    if code == KeyCode::Delete {
-                        value.clear();
-                    } else {
-                        value.pop();
-                    }
-                    let _ = draft.set_text(field, &value);
-                    self.chart_text_fresh = false;
+            self.focus_chart_text();
+            return;
+        }
+        let Some(buffer) = self.chart_text_buffer.as_mut() else {
+            return;
+        };
+        match code {
+            KeyCode::ArrowLeft => buffer.move_cursor(
+                if self.control {
+                    Movement::WordLeft
+                } else {
+                    Movement::Left
+                },
+                self.shift,
+            ),
+            KeyCode::ArrowRight => buffer.move_cursor(
+                if self.control {
+                    Movement::WordRight
+                } else {
+                    Movement::Right
+                },
+                self.shift,
+            ),
+            KeyCode::Home => buffer.move_cursor(Movement::Start, self.shift),
+            KeyCode::End => buffer.move_cursor(Movement::End, self.shift),
+            KeyCode::KeyA if self.control => buffer.select_all(),
+            KeyCode::Backspace => {
+                buffer.backspace(self.control);
+            }
+            KeyCode::Delete => {
+                buffer.delete(self.control);
+            }
+            KeyCode::KeyZ if self.control => {
+                if self.shift {
+                    buffer.redo();
+                } else {
+                    buffer.undo();
                 }
             }
+            KeyCode::KeyY if self.control => {
+                buffer.redo();
+            }
+            _ => return,
         }
+        self.sync_chart_text();
     }
     pub(super) fn chart_text_label(&self, index: usize) -> std::sync::Arc<str> {
         let field = Field::ALL[index];
@@ -105,20 +161,16 @@ impl State {
                 if !d.supports_text(field) {
                     return i18n::tr("Edition", "ChartTextUnsupportedSm").to_string();
                 }
-                if matches!(self.panel,Some(Panel::ChartText(selected)) if selected==index)
-                    && !self.label_preedit.is_empty()
-                {
-                    format!(
-                        "{}{}",
-                        if self.chart_text_fresh {
-                            ""
-                        } else {
-                            d.text(field)
-                        },
-                        self.label_preedit
-                    )
+                if matches!(self.panel,Some(Panel::ChartText(selected)) if selected==index) {
+                    self.chart_text_buffer
+                        .as_ref()
+                        .map(|buffer| buffer.display(&self.label_preedit, 48))
+                        .unwrap_or_else(|| d.text(field).to_owned())
                 } else {
-                    d.text(field).to_owned()
+                    // Unfocused fields also need a bounded preview.
+                    let buffer = Buffer::new(d.text(field), false);
+                    let preview = buffer.display("", 48);
+                    preview.strip_suffix('|').unwrap_or(&preview).to_owned()
                 }
             })
             .unwrap_or_default();

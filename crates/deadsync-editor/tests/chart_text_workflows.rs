@@ -146,3 +146,18 @@ fn text_draft_rejects_controls_stale_foreign_and_wrong_chart_without_changing_re
     assert!(s.redo_label().is_some());
     assert_eq!(s.serialize().unwrap(), before);
 }
+
+#[test]
+fn restoring_legacy_control_text_is_a_lossless_noop_but_new_control_text_is_rejected() {
+    let bytes = b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#CHARTNAME:Line1\nLine2;#NOTES:1000;";
+    let mut session = Session::new(Document::parse(&bytes[..], Format::Ssc).unwrap());
+    let mut draft = Draft::capture(&session, 0).unwrap();
+    assert_eq!(draft.text(Field::Name), "Line1\nLine2");
+    draft.set_text(Field::Name, "Single line").unwrap();
+    assert!(draft.set_text(Field::Name, "New\ninvalid").is_err());
+    assert_eq!(draft.text(Field::Name), "Single line");
+    draft.set_text(Field::Name, "Line1\nLine2").unwrap();
+    assert!(!draft.has_changes());
+    assert!(!draft.apply(&mut session, 0).unwrap());
+    assert_eq!(session.serialize().unwrap(), bytes);
+}

@@ -174,3 +174,157 @@ fn sm_focus_skips_unavailable_fields_and_description_is_escaped_and_saved() {
     let reopened = State::open(&path, 0).unwrap();
     assert_eq!(text(&reopened, Field::Description), "Été : 日本語");
 }
+
+#[test]
+fn cursor_selection_ime_and_local_undo_edit_the_middle_without_touching_document_history() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SSC).unwrap();
+    let mut s = State::open(&path, 0).unwrap();
+    open(&mut s);
+    assert!(has(&s, "Name: [Old]|"));
+    press(&mut s, KeyCode::Home);
+    press(&mut s, KeyCode::ArrowRight);
+    s.text_preedit("日");
+    assert!(has(&s, "Name: O日|ld"));
+    press(&mut s, KeyCode::ArrowLeft);
+    assert!(s.text_input("日本"));
+    assert!(has(&s, "Name: O日本|ld"));
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert!(has(&s, "Name: O|ld"));
+    ctrl(&mut s, KeyCode::KeyY);
+    assert!(has(&s, "Name: O日本|ld"));
+    key(&mut s, KeyCode::ShiftLeft, true);
+    press(&mut s, KeyCode::Home);
+    key(&mut s, KeyCode::ShiftLeft, false);
+    assert!(has(&s, "Name: |[O日本]ld"));
+    assert!(s.text_input("É"));
+    assert!(has(&s, "Name: É|ld"));
+    press(&mut s, KeyCode::Delete);
+    assert!(has(&s, "Name: É|d"));
+    ctrl(&mut s, KeyCode::KeyA);
+    assert!(s.text_input("e\u{301}👩‍👩‍👧‍👦🇫🇷"));
+    press(&mut s, KeyCode::Home);
+    press(&mut s, KeyCode::Delete);
+    assert!(has(&s, "Name: |👩‍👩‍👧‍👦🇫🇷"));
+    press(&mut s, KeyCode::End);
+    press(&mut s, KeyCode::Backspace);
+    assert!(has(&s, "Name: 👩‍👩‍👧‍👦|"));
+    press(&mut s, KeyCode::Tab);
+    assert!(has(&s, "Description: [Desc]|"));
+    key(&mut s, KeyCode::ShiftLeft, true);
+    press(&mut s, KeyCode::Tab);
+    key(&mut s, KeyCode::ShiftLeft, false);
+    assert!(has(&s, "Name: [👩‍👩‍👧‍👦]|"));
+    assert_eq!(
+        s.workspace().file().session.serialize().unwrap(),
+        SSC.as_bytes()
+    );
+    apply(&mut s);
+    assert_eq!(text(&s, Field::Name), "👩‍👩‍👧‍👦");
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(
+        s.workspace().file().session.serialize().unwrap(),
+        SSC.as_bytes()
+    );
+}
+
+#[test]
+fn long_text_viewport_follows_repeated_cursor_and_preserves_unfocused_literal_pipes() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SSC).unwrap();
+    let mut s = State::open(&path, 0).unwrap();
+    open(&mut s);
+    let long = format!("Début{}Fin||", "日本語".repeat(40));
+    assert!(s.text_input(&long));
+    assert!(has(&s, "Name: ..."));
+    assert!(has(&s, "Fin|||"));
+    press(&mut s, KeyCode::Home);
+    assert!(has(&s, "Name: |Début"));
+    s.raw_key(&RawKeyboardEvent {
+        code: KeyCode::ArrowRight,
+        pressed: true,
+        repeat: true,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    key(&mut s, KeyCode::ArrowRight, false);
+    assert!(has(&s, "Name: D|ébut"));
+    press(&mut s, KeyCode::Tab);
+    assert!(has(&s, "Fin||"));
+    assert!(!has(&s, "Fin|||"));
+    apply(&mut s);
+    assert_eq!(text(&s, Field::Name), long);
+    ctrl(&mut s, KeyCode::KeyS);
+    let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(text(&reopened, Field::Name), long);
+}
+
+#[test]
+fn word_navigation_selection_and_field_redo_shortcuts_remain_modal() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SSC).unwrap();
+    let mut s = State::open(&path, 0).unwrap();
+    open(&mut s);
+    assert!(s.text_input("one two three"));
+    ctrl(&mut s, KeyCode::ArrowLeft);
+    assert!(has(&s, "Name: one two |three"));
+    ctrl(&mut s, KeyCode::Backspace);
+    assert!(has(&s, "Name: one |three"));
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert!(has(&s, "Name: one two |three"));
+    key(&mut s, KeyCode::SuperLeft, true);
+    key(&mut s, KeyCode::ShiftLeft, true);
+    press(&mut s, KeyCode::KeyZ);
+    key(&mut s, KeyCode::ShiftLeft, false);
+    key(&mut s, KeyCode::SuperLeft, false);
+    assert!(has(&s, "Name: one |three"));
+    let mut actors = Vec::new();
+    s.actors(&mut actors);
+    assert!(actors.iter().any(|a| matches!(a, Actor::Text {content,max_width:Some(width),..} if content.to_string().starts_with("Name:") && *width==490.0)));
+    press(&mut s, KeyCode::Escape);
+    press(&mut s, KeyCode::Escape);
+    assert_eq!(
+        s.workspace().file().session.serialize().unwrap(),
+        SSC.as_bytes()
+    );
+}
+
+#[test]
+fn legacy_multiline_field_rejects_partial_invalid_edits_without_losing_other_staged_fields() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let song = SSC.replace("#DESCRIPTION:Desc;", "#DESCRIPTION:Line1\nLine2;");
+    fs::write(&path, &song).unwrap();
+    let mut s = State::open(&path, 0).unwrap();
+    open(&mut s);
+    assert!(s.text_input("New name"));
+    press(&mut s, KeyCode::Tab);
+    press(&mut s, KeyCode::End);
+    assert!(s.text_input("invalid"));
+    assert!(has(&s, "This edit contains a line break"));
+    press(&mut s, KeyCode::Tab);
+    assert!(s.wants_text_input());
+    assert!(has(&s, "Description:"));
+    press(&mut s, KeyCode::Escape);
+    assert!(has(&s, "Invalid field edit discarded"));
+    for _ in 0..5 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    press(&mut s, KeyCode::Enter);
+    assert_eq!(text(&s, Field::Name), "New name");
+    assert_eq!(text(&s, Field::Description), "Line1\nLine2");
+    open(&mut s);
+    press(&mut s, KeyCode::Tab);
+    assert!(s.text_input("Single line"));
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert!(has(&s, "Description: [Line1\\nLine2]|"));
+    apply(&mut s);
+    assert_eq!(text(&s, Field::Description), "Line1\nLine2");
+}

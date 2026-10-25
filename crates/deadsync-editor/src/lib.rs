@@ -18,6 +18,7 @@ pub mod playback;
 pub mod runtime;
 pub mod song_properties;
 pub mod storage;
+pub mod text_buffer;
 pub mod timing_edit;
 pub mod transform;
 pub mod workspace;

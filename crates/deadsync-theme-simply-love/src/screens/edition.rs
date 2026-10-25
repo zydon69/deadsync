@@ -206,7 +206,7 @@ pub struct State {
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
     chart_rating_input: Option<String>,
-    chart_text_fresh: bool,
+    chart_text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
     song_properties: Option<deadsync_editor::song_properties::Draft>,
     timing: Option<timing::Settings>,
     timing_migration: Option<deadsync_editor::timing_edit::migration::Draft>,
@@ -320,7 +320,7 @@ impl State {
             marker: None,
             chart_properties: None,
             chart_rating_input: None,
-            chart_text_fresh: true,
+            chart_text_buffer: None,
             song_properties: None,
             timing: None,
             timing_migration: None,
@@ -1212,6 +1212,11 @@ impl State {
                     && matches!(self.panel, None | Some(Panel::Marker(_)))));
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
+        let repeating_text_cursor = matches!(self.panel, Some(Panel::ChartText(_)))
+            && matches!(
+                event.code,
+                KeyCode::ArrowLeft | KeyCode::ArrowRight | KeyCode::Home | KeyCode::End
+            );
         let repeating_analysis = matches!(self.panel, Some(Panel::Analysis))
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
@@ -1221,6 +1226,7 @@ impl State {
         if event.repeat
             && !repeating_offset
             && !repeating_label
+            && !repeating_text_cursor
             && !repeating_navigation
             && !repeating_analysis
             && !matches!(
@@ -2685,7 +2691,7 @@ impl State {
                 i18n::tr("Edition", key)
             };
             actors.push(act!(text: font("miso"): settext(label): align(0.5, 0.5): xy(panel_x, panel_y - panel_height * 0.5 + extra_height + 30.0 + (index - menu_start) as f32 * 32.0): zoom(0.8): diffuse(color[0], color[1], color[2], color[3]): z(8021)));
-            if side_panel {
+            if side_panel || matches!(panel, Panel::ChartText(_)) {
                 if let Some(Actor::Text { max_width, .. }) = actors.last_mut() {
                     *max_width = Some(panel_width - 30.0);
                 }

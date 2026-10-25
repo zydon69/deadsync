@@ -2371,3 +2371,59 @@ Validation for chart text: all 311 core tests and 127 native editor tests pass;
 `cargo check -p deadsync --locked` passes. The native suite was rerun against the
 final panel navigation. These results retain the prior limits concerning
 physical/GPU validation and the unrelated missing shell unit-test fixtures.
+
+
+### Unicode text cursor, selection and field history
+
+The optional chart text panel now has an editable cursor rather than append-only
+input. Left/Right moves by extended grapheme, Home/End goes to a boundary,
+Ctrl/Cmd+Left/Right moves by Unicode word, and Shift extends the selection.
+Ctrl/Cmd+A selects all; Backspace/Delete erase backward/forward (the selected
+range takes priority), with Ctrl/Cmd erasing by word. Tab/Shift+Tab navigates
+supported fields. Focus initially selects the whole field for easy replacement.
+Ctrl/Cmd+Z, Shift+Z and Y operate on the current field's local undo/redo history;
+focus changes reset that field history. These operations never enter document
+history before Apply, which still produces a single chart-properties gesture.
+
+`text_buffer::Buffer` owns UTF-8 byte positions constrained to grapheme
+boundaries, selection replacement, word movement, local snapshots (256 maximum)
+and a caret-following viewport. The editor reuses the already pinned
+unicode-segmentation version; no new remote library version was introduced.
+IME preedit replaces only the visible selected range and cannot mutate history
+or trigger navigation; committed text inserts at the selected cursor position.
+No-op edits retain redo. Long labels show at most 48 graphemes plus markers,
+with an actor width limit, while full values persist. Literal trailing pipes are
+preserved, including when switching field focus.
+
+The current compact renderer uses `|` for the cursor, brackets for selection,
+and `...` for hidden text. These are presentation markers and are never saved.
+They are provisional: native graphical caret/selection overlays, pointer text
+selection, system clipboard integration and pixel-based horizontal scrolling
+remain to be ported. The grapheme/word behavior is a specified Rust interaction
+contract tested against invariants, not a claim of exact ImGui cursor semantics.
+
+Legacy control characters are escaped in field previews. They remain untouched
+in source bytes; restoring the original field via local undo is allowed. A new
+partial edit that retains a forbidden control character is reported and blocks
+field switching. Escape can discard that invalid field buffer while preserving
+other staged fields. Selecting all and typing a valid single line resolves it.
+An invalid buffer is never silently presented as a committed draft value.
+
+Four buffer workflows cover grapheme boundaries (combining accents, family
+emoji, flags and Japanese), bidirectional selection, word erasure, mid-string
+insertion, history/no-op retention and bounded viewport/preedit. A separate core
+workflow verifies exact restoration of legacy control text. Four additional
+native workflows cover cursor/IME/local undo, long-field persistence, modifier/
+repeat dispatch, actor width limits and invalid legacy-buffer discard. Existing
+French labels are checked with the new cursor rendering. These synthetic tests
+do not prove physical keyboard, font shaping or GPU rendering behavior.
+
+Keyboard accessibility remains a delivery requirement: every editor operation
+must be reachable without a mouse. Pointer gestures may complement keyboard
+commands; they must not gate a feature. The current inspector, note selection,
+generation and timing flows are keyboard-driven. Future file/library, waveform,
+loop and graphical editing work must preserve that same access path.
+
+Validation for the text cursor: all 316 core tests and 131 native editor tests
+pass; `cargo check -p deadsync --locked` passes. Physical/GPU validation and the
+unrelated missing shell unit-test fixtures remain outside these results.
