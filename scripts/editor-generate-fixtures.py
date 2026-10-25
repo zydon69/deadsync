@@ -60,6 +60,17 @@ def prepare_timing_reference(editor):
     return hashlib.sha256("\n".join(original).encode()).hexdigest()
 
 
+def prepare_metadata_reference(editor):
+    def read(path):
+        return subprocess.check_output(["git", "show", f"{EDITOR_PIN}:StepManiaEditor/{path}"], cwd=editor).decode("utf-8-sig")
+    definition=extract_member(read("EditorEvents/EditorPatternEvent.cs"),r"\tpublic class Definition\s*")
+    custom=extract_member(read("EditorChart.cs"),r"\tprivate class CustomSaveDataV1\s*")
+    project=ROOT/"scripts/editor-oracle"
+    text=(project/"MetadataReference.cs.template").read_text().replace("// DEFINITION",definition).replace("// CUSTOM_DATA",custom)
+    (project/"obj/MetadataReference.cs").write_text(text)
+    return hashlib.sha256((definition+"\n"+custom).encode()).hexdigest()
+
+
 def prepare_context_reference(editor: Path):
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=editor, text=True).strip()
     if commit != EDITOR_PIN:
@@ -379,6 +390,10 @@ def requests(reference: Path):
         case["Inclusive"] = inclusive
         case["Projection"].update(Start=first, End=last, Region=region, NumSteps=(last-first)//12+1)
         cases["editor-timing-" + label] = case
+    metadata={"MusicOffset":-0.125,"ShouldUseChartMusicOffset":True,"ExpressedChartConfig":"A19D532E-B0CE-4759-AD1C-02ECBBDF2EFD","MaxPlayerIndex":1,
+        "Patterns":{"48":{"PatternConfigGuid":"03de57bd-4329-4de6-a722-a171c11fdd16","PerformedChartConfigGuid":"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1","Length":192,"RandomSeed":-2147483648,"StartPositionInclusive":True,"EndPositionInclusive":False,"IgnorePrecedingDistribution":True},"384":{"Length":0}}}
+    for label,content in {"defaults":"{}","complete":json.dumps(metadata),"null-patterns":'{"Patterns":null}',"comments":'/* original */ {"Patterns": {"0": {/* marker */ "Length":48}}}',"trailing-comma":'{"Patterns":{},}',"invalid-guid":'{"ExpressedChartConfig":"invalid"}',"braced-guid":'{"ExpressedChartConfig":"{a19d532e-b0ce-4759-ad1c-02ecbbdf2efd}"}'}.items():
+        cases["metadata-"+label]={"Operation":"Metadata","Content":content}
     return cases
 
 
@@ -396,6 +411,7 @@ def main():
     env = {**os.environ, "DOTNET_CLI_TELEMETRY_OPTOUT": "1", "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1"}
     context_hash = prepare_context_reference(args.editor_root.resolve())
     timing_hash = prepare_timing_reference(args.editor_root.resolve())
+    metadata_hash = prepare_metadata_reference(args.editor_root.resolve())
     project = ROOT / "scripts/editor-oracle/EditorOracle.csproj"
     build = subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if build.returncode:
@@ -418,7 +434,7 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
-        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash,
+        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
         "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],

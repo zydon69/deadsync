@@ -1,0 +1,21 @@
+// Development-only serialization oracle. Both data types below are extracted
+// unchanged from pinned GrooveAuthor sources, without the editor's UI/runtime.
+using System.Text.Json;
+using System.Text.Json.Serialization;
+namespace MetadataOracle;
+internal static class ExpressedChartConfigManager {
+    public static readonly Guid DefaultExpressedChartDynamicConfigGuid=new("a19d532e-b0ce-4759-ad1c-02ecbbdf2efd");
+}
+internal class EditorPatternEvent {
+    // DEFINITION
+}
+internal class EditorChart {
+    // CUSTOM_DATA
+    public static object Run(JsonElement request) {
+        var options=new JsonSerializerOptions {IncludeFields=true,ReadCommentHandling=JsonCommentHandling.Skip};
+        try {
+            var data=JsonSerializer.Deserialize<CustomSaveDataV1>(request.GetProperty("Content").GetString()!,options);
+            return new {Success=true,Data=JsonSerializer.SerializeToElement(data,options)};
+        } catch(JsonException) {return new {Success=false};}
+    }
+}

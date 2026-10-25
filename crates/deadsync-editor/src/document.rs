@@ -42,6 +42,7 @@ pub struct Document {
     charts: Vec<Chart>,
     replacements: BTreeMap<(usize, usize), Arc<[u8]>>,
     added: BTreeMap<(Option<usize>, String), Arc<[u8]>>,
+    added_spelling: BTreeMap<(Option<usize>, String), String>,
 }
 
 impl Document {
@@ -139,6 +140,7 @@ impl Document {
             charts,
             replacements: BTreeMap::new(),
             added: BTreeMap::new(),
+            added_spelling: BTreeMap::new(),
         })
     }
 
@@ -201,9 +203,15 @@ impl Document {
         }
         let key = (chart, name.to_ascii_uppercase());
         if let Some(value) = value {
+            // Custom extras are case-sensitive in Fumen/GrooveAuthor. Keep
+            // the spelling of the first insertion while lookups stay folded.
+            self.added_spelling
+                .entry(key.clone())
+                .or_insert_with(|| name.to_owned());
             self.added.insert(key, value);
         } else {
             self.added.remove(&key);
+            self.added_spelling.remove(&key);
         }
         Ok(())
     }
@@ -311,7 +319,13 @@ impl Document {
                 if *scope == Some(chart)
                     && !matches!(name.as_str(), "STEPSTYPE" | "NOTES" | "NOTES2" | "NOTEDATA")
                 {
-                    clone.set_added_property(Some(0), name, Some(Arc::clone(value)))?;
+                    clone.set_added_property(
+                        Some(0),
+                        self.added_spelling
+                            .get(&(*scope, name.clone()))
+                            .map_or(name.as_str(), String::as_str),
+                        Some(Arc::clone(value)),
+                    )?;
                 }
             }
         } else {
@@ -373,7 +387,12 @@ impl Document {
             let bytes = insertions.entry(at).or_default();
             bytes.push(b'\n');
             bytes.push(b'#');
-            bytes.extend_from_slice(name.as_bytes());
+            bytes.extend_from_slice(
+                self.added_spelling
+                    .get(&(*chart, name.clone()))
+                    .map_or(name.as_str(), String::as_str)
+                    .as_bytes(),
+            );
             bytes.push(b':');
             bytes.extend_from_slice(value);
             bytes.extend_from_slice(b";\n");

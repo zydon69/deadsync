@@ -1,0 +1,4 @@
+{
+  "Operation": "Metadata",
+  "Content": "{\"MusicOffset\": -0.125, \"ShouldUseChartMusicOffset\": true, \"ExpressedChartConfig\": \"A19D532E-B0CE-4759-AD1C-02ECBBDF2EFD\", \"MaxPlayerIndex\": 1, \"Patterns\": {\"48\": {\"PatternConfigGuid\": \"03de57bd-4329-4de6-a722-a171c11fdd16\", \"PerformedChartConfigGuid\": \"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1\", \"Length\": 192, \"RandomSeed\": -2147483648, \"StartPositionInclusive\": true, \"EndPositionInclusive\": false, \"IgnorePrecedingDistribution\": true}, \"384\": {\"Length\": 0}}}"
+}

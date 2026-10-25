@@ -1,0 +1,29 @@
+{
+  "Success": true,
+  "Data": {
+    "MusicOffset": -0.125,
+    "ShouldUseChartMusicOffset": true,
+    "ExpressedChartConfig": "a19d532e-b0ce-4759-ad1c-02ecbbdf2efd",
+    "Patterns": {
+      "48": {
+        "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+        "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+        "Length": 192,
+        "RandomSeed": -2147483648,
+        "StartPositionInclusive": true,
+        "EndPositionInclusive": false,
+        "IgnorePrecedingDistribution": true
+      },
+      "384": {
+        "PatternConfigGuid": "00000000-0000-0000-0000-000000000000",
+        "PerformedChartConfigGuid": "00000000-0000-0000-0000-000000000000",
+        "Length": 0,
+        "RandomSeed": 0,
+        "StartPositionInclusive": false,
+        "EndPositionInclusive": false,
+        "IgnorePrecedingDistribution": false
+      }
+    },
+    "MaxPlayerIndex": 1
+  }
+}

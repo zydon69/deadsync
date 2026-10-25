@@ -2,7 +2,7 @@
 //! loader. Preserve quoted strings and line positions for serde diagnostics.
 use crate::Error;
 
-pub fn normalize(input: &[u8]) -> Result<Vec<u8>, Error> {
+pub fn strip_comments(input: &[u8]) -> Result<Vec<u8>, Error> {
     let mut bytes = input.to_vec();
     let (mut i, mut quoted, mut escaped) = (0, false, false);
     while i < bytes.len() {
@@ -50,6 +50,11 @@ pub fn normalize(input: &[u8]) -> Result<Vec<u8>, Error> {
             i += 1;
         }
     }
+    Ok(bytes)
+}
+
+pub fn normalize(input: &[u8]) -> Result<Vec<u8>, Error> {
+    let mut bytes = strip_comments(input)?;
     let (mut quoted, mut escaped) = (false, false);
     for i in 0..bytes.len() {
         let byte = bytes[i];

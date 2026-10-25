@@ -22,6 +22,7 @@ struct DocumentState {
 
 #[derive(Debug)]
 enum Change {
+    PropertySet(Vec<Change>),
     DocumentSwap(Box<DocumentState>),
     Notes {
         chart: usize,
@@ -227,6 +228,39 @@ impl Session {
         Ok(true)
     }
 
+    /// Validate distinct tag edits on an isolated document, then record one
+    /// reversible property gesture without serializing or copying note data.
+    pub fn set_properties_atomic(
+        &mut self,
+        chart: Option<usize>,
+        properties: &[(&str, &str)],
+        label: impl Into<String>,
+    ) -> Result<bool, Error> {
+        if properties.is_empty() {
+            return Ok(false);
+        }
+        let mut names = std::collections::BTreeSet::new();
+        let mut temporary = Session::new(self.document.clone());
+        for (name, text) in properties {
+            if !names.insert(name.to_ascii_uppercase()) {
+                return Err(Error::InvalidEdit(
+                    "Atomic property edits must have distinct names".into(),
+                ));
+            }
+            temporary.set_text(chart, name, text)?;
+        }
+        let changes: Vec<_> = temporary
+            .undo
+            .into_iter()
+            .map(|entry| entry.change)
+            .collect();
+        if changes.is_empty() {
+            return Ok(false);
+        }
+        self.execute(label.into(), Change::PropertySet(changes))?;
+        Ok(true)
+    }
+
     pub fn undo(&mut self) -> Result<bool, Error> {
         let Some(mut entry) = self.undo.pop() else {
             return Ok(false);
@@ -332,6 +366,21 @@ impl Session {
 
     fn apply(&mut self, change: &mut Change, forward: bool) -> Result<(), Error> {
         match change {
+            Change::PropertySet(changes) => {
+                let length = changes.len();
+                let index = |offset| if forward { offset } else { length - 1 - offset };
+                for offset in 0..changes.len() {
+                    let at = index(offset);
+                    if let Err(error) = self.apply(&mut changes[at], forward) {
+                        for previous in (0..offset).rev() {
+                            let at = index(previous);
+                            self.apply(&mut changes[at], !forward)?;
+                        }
+                        return Err(error);
+                    }
+                }
+                Ok(())
+            }
             Change::DocumentSwap(state) => {
                 std::mem::swap(&mut self.document, &mut state.document);
                 std::mem::swap(&mut self.grids, &mut state.grids);

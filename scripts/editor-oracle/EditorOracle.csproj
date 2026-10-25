@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="obj/PatternContextReference.cs" />
     <Compile Include="obj/EditorTimingReference.cs" />
+    <Compile Include="obj/MetadataReference.cs" />
     <Reference Include="StepManiaLibrary">
       <HintPath>$(ReferenceRoot)/StepManiaLibrary/bin/Release/net10.0/StepManiaLibrary.dll</HintPath>
     </Reference>

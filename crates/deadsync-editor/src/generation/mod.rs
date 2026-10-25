@@ -12,6 +12,7 @@ pub mod interpretation_path;
 pub mod job;
 mod jsonc;
 pub mod mines;
+pub mod metadata;
 pub mod output;
 pub mod pattern;
 pub mod pattern_job;

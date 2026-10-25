@@ -4,6 +4,7 @@
   "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
   "editor_context_methods_sha256": "17ce9943d0cf378618b656422db8b4e6bd9d0dbf5b88b571c61842cb25cf9948",
   "editor_timing_methods_sha256": "6eb3cc6500b9901cbca95bf28df7ed6b6fecff5b9f4294976926c1bb59d0aea0",
+  "editor_metadata_types_sha256": "e065b3d46c85d533f25f1a3ddaf210e37bb10964538baf92547f079305a51215",
   "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
   "dotnet_sdk": "10.0.402",
   "dotnet_runtimes": [

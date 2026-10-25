@@ -540,3 +540,46 @@ multiplayer input, and explicit English/French strings. These tests execute the
 real raw-key adapter and actor construction, not GPU rendering or hardware input.
 The complete port, persistent pattern markers, multi-region generation and the
 other delivery-matrix requirements remain unfinished.
+
+### GrooveAuthor V1 pattern metadata storage
+
+`generation::metadata` reads and writes the original `GAChartDataVersion` and
+`GAChartData` fields. SSC scopes them to the chart; SM uses the original
+`CHART0000` suffix convention (four-digit indices). Definitions retain original
+GUIDs, lengths, signed seeds, endpoint flags and distribution flags, along with
+chart music-offset settings, expressed-profile identity and player-index data.
+Unknown chart/marker JSON fields survive edits. New custom tag names preserve
+their requested spelling because Fumen extras and GrooveAuthor custom lookups
+are case-sensitive; ordinary document lookups remain case-insensitive.
+
+A development-only .NET oracle compiles the unchanged original CustomSaveDataV1
+and EditorPatternEvent.Definition types. Seven fixtures compare their serialized
+values/defaults, null patterns, comments, strict GUID JSON parsing and rejection
+of trailing commas. This proves the JSON type contract, not the full editor
+loader or every legacy file variant. Provenance includes hashes of the extracted
+types. The Rust parser rejects invalid/overflowing rows and lengths instead of
+silently deleting markers. Unsupported versions/incomplete data remain opaque
+and cannot be overwritten through the V1 saver. Extra fields cannot shadow known
+fields when writing.
+
+The initial in-memory registry maps the original two pattern, seven performed
+and three expressed built-in GUIDs to the ported configurations. Custom maps may
+be supplied explicitly; an unresolved GUID is reported rather than silently
+substituted. Configuration-file import/export, persistent custom-profile storage
+and original missing-profile fallback/diagnostic behavior remain unfinished.
+
+`Session::set_properties_atomic` validates all tag edits on an isolated snapshot
+and records a single reversible property gesture without copying note data. Failed edits preserve redo and
+pending note changes. Seven workflow tests cover the original C# JSON fixtures,
+SM/SSC save/reopen, unknown fields and legacy source bytes, profile resolution,
+invalid inputs, atomic rollback, and custom-tag spelling through updates,
+undo/redo and chart cloning.
+
+This storage layer is not yet wired to automatic F4 persistence or regeneration
+of loaded markers. Original constructor inspection confirms that custom markers
+are added after SetUpEditorEvents, through typed rate queries, without refreshing
+surviving event times. Existing raw timing fixtures with a Region inserted before
+refresh model a different state. Loading multiple saved markers must preserve
+that distinction, and needs original-loader/action differential coverage before
+connecting persistent generation. Live timeline caching, batch/overlap actions,
+marker editing/deletion and the remaining editor delivery matrix stay in scope.
