@@ -1,0 +1,1455 @@
+{
+  "Initial": {
+    "Nodes": [],
+    "Queries": [
+      {
+        "Row": -48,
+        "Time": -0.5,
+        "Rate": 1
+      },
+      {
+        "Row": 0,
+        "Time": 0,
+        "Rate": 1
+      },
+      {
+        "Row": 24,
+        "Time": 0.25,
+        "Rate": 1
+      },
+      {
+        "Row": 48,
+        "Time": 0.5,
+        "Rate": 1
+      },
+      {
+        "Row": 60,
+        "Time": 0.625,
+        "Rate": 1
+      },
+      {
+        "Row": 72,
+        "Time": 0.75,
+        "Rate": 1
+      },
+      {
+        "Row": 96,
+        "Time": 1,
+        "Rate": 1
+      },
+      {
+        "Row": 120,
+        "Time": 1.25,
+        "Rate": 1
+      },
+      {
+        "Row": 144,
+        "Time": 1.5,
+        "Rate": 1
+      },
+      {
+        "Row": 192,
+        "Time": 2,
+        "Rate": 1
+      },
+      {
+        "Row": 240,
+        "Time": 2.5,
+        "Rate": 1
+      },
+      {
+        "Row": 384,
+        "Time": 4,
+        "Rate": 1
+      }
+    ]
+  },
+  "Stages": [
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 1
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 1
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 1
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 1
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 1
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 1
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1.25
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 2
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 2
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 2
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1.25
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 2
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 2
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 2
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1.25
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 0.5
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 0.5
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 0.5
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          },
+          {
+            "Row": 144,
+            "Rate": 2,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1.25
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 2
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 2
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          },
+          {
+            "Row": 144,
+            "Rate": 2,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1.25
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 2
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 2
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          },
+          {
+            "Row": 144,
+            "Rate": 2,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1.25
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 2
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 2
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          },
+          {
+            "Row": 144,
+            "Rate": 2,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1.25
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 2
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 2
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          },
+          {
+            "Row": 144,
+            "Rate": 2,
+            "Rows": 0,
+            "Seconds": 1,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1.25
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 0.5
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 1.25
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          },
+          {
+            "Row": 144,
+            "Rate": 2,
+            "Rows": 0,
+            "Seconds": 1,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1.25
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 0.5
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 1.25
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 0,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          },
+          {
+            "Row": 144,
+            "Rate": 2,
+            "Rows": 0,
+            "Seconds": 1,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1.25
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 0.5
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 1.25
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 12,
+            "Rate": 1,
+            "Rows": 0,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          },
+          {
+            "Row": 144,
+            "Rate": 2,
+            "Rows": 0,
+            "Seconds": 1,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 1
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 1
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 1
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 1.25
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 1.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 0.5
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 1.25
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 48,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          },
+          {
+            "Row": 144,
+            "Rate": 2,
+            "Rows": 0,
+            "Seconds": 1,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 2
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 2
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 2
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 2
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 2
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 2
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 0.5
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 1.25
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 72,
+            "Rate": 2,
+            "Rows": 48,
+            "Seconds": 0,
+            "Time": false
+          },
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          },
+          {
+            "Row": 144,
+            "Rate": 2,
+            "Rows": 0,
+            "Seconds": 1,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 2
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 2
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 2
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 2
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 2
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 2
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 2
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 0.5
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 1.25
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": {
+        "Nodes": [
+          {
+            "Row": 96,
+            "Rate": 0.5,
+            "Rows": 0,
+            "Seconds": 0.25,
+            "Time": true
+          },
+          {
+            "Row": 144,
+            "Rate": 2,
+            "Rows": 0,
+            "Seconds": 1,
+            "Time": true
+          }
+        ],
+        "Queries": [
+          {
+            "Row": -48,
+            "Time": -0.5,
+            "Rate": 0.5
+          },
+          {
+            "Row": 0,
+            "Time": 0,
+            "Rate": 0.5
+          },
+          {
+            "Row": 24,
+            "Time": 0.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 48,
+            "Time": 0.5,
+            "Rate": 0.5
+          },
+          {
+            "Row": 60,
+            "Time": 0.625,
+            "Rate": 0.5
+          },
+          {
+            "Row": 72,
+            "Time": 0.75,
+            "Rate": 0.5
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Rate": 0.5
+          },
+          {
+            "Row": 120,
+            "Time": 1.25,
+            "Rate": 0.5
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Rate": 0.5
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Rate": 1.25
+          },
+          {
+            "Row": 240,
+            "Time": 2.5,
+            "Rate": 2
+          },
+          {
+            "Row": 384,
+            "Time": 4,
+            "Rate": 2
+          }
+        ]
+      }
+    }
+  ]
+}

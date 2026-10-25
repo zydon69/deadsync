@@ -91,7 +91,7 @@ impl State {
             }
             return;
         }
-        if matches!(index, 1 | 2) && self.timing_number(index, code) {
+        if matches!(index, 1 | 2) && self.timing_input(index, code) {
             return;
         }
         if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
@@ -119,6 +119,34 @@ impl State {
                         Err(key) => self.status = i18n::tr("Edition", key),
                     }
                 } else if index == 2 {
+                    if settings.draft.kind() == EventKind::Speed {
+                        use deadsync_editor::timing_edit::speed::{Period, Speed};
+                        match Speed::parse(&settings.value) {
+                            Ok(mut value) => {
+                                if self.shift {
+                                    value.period = match value.period {
+                                        Period::Rows(rows) => Period::Rows(if forward {
+                                            rows.saturating_add(1)
+                                        } else {
+                                            rows.saturating_sub(1).max(0)
+                                        }),
+                                        Period::Seconds(seconds) => Period::Seconds(
+                                            (seconds + if forward { 0.001 } else { -0.001 })
+                                                .max(0.0),
+                                        ),
+                                    };
+                                } else {
+                                    value.rate =
+                                        (value.rate + if forward { 0.01 } else { -0.01 }).max(0.0);
+                                }
+                                settings.value = value.to_string();
+                                settings.pending = true;
+                                settings.fresh = true;
+                            }
+                            Err(_) => self.status = i18n::tr("Edition", "SpeedInvalid"),
+                        }
+                        return;
+                    }
                     if settings.draft.kind() == EventKind::Combo {
                         match deadsync_editor::timing_edit::combo::Multipliers::parse(
                             &settings.value,
@@ -198,7 +226,9 @@ impl State {
                                 EventKind::Delay => value.max(0.0),
                                 EventKind::Tick => value.round().clamp(0.0, i32::MAX as f64),
                                 EventKind::Stop | EventKind::Scroll => value,
-                                EventKind::Signature | EventKind::Combo => return,
+                                EventKind::Signature | EventKind::Combo | EventKind::Speed => {
+                                    return;
+                                }
                                 EventKind::Warp | EventKind::Fake => {
                                     (value * 48.0).round().max(1.0) / 48.0
                                 }
@@ -234,12 +264,16 @@ impl State {
             }
         }
     }
-    fn timing_number(&mut self, index: usize, code: KeyCode) -> bool {
+    fn timing_input(&mut self, index: usize, code: KeyCode) -> bool {
+        if self.control {
+            return false;
+        }
         let Some(settings) = &mut self.timing else {
             return false;
         };
         let signature = index == 2 && settings.draft.kind() == EventKind::Signature;
         let combo = index == 2 && settings.draft.kind() == EventKind::Combo;
+        let speed = index == 2 && settings.draft.kind() == EventKind::Speed;
         let field = if index == 1 {
             &mut settings.beat
         } else {
@@ -269,8 +303,13 @@ impl State {
             KeyCode::Digit7 | KeyCode::Numpad7 => '7',
             KeyCode::Digit8 | KeyCode::Numpad8 => '8',
             KeyCode::Digit9 | KeyCode::Numpad9 => '9',
-            KeyCode::Slash | KeyCode::NumpadDivide if signature || combo => '/',
-            KeyCode::KeyX | KeyCode::NumpadMultiply if combo => 'x',
+            KeyCode::Slash | KeyCode::NumpadDivide if signature || combo || speed => '/',
+            KeyCode::Period if self.shift && (signature || combo || speed) => '/',
+            KeyCode::KeyX | KeyCode::NumpadMultiply if combo || speed => 'x',
+            KeyCode::KeyR if speed => 'r',
+            KeyCode::KeyO if speed => 'o',
+            KeyCode::KeyW | KeyCode::KeyZ if speed => 'w',
+            KeyCode::KeyS if speed => 's',
             KeyCode::Period | KeyCode::Comma | KeyCode::NumpadDecimal if !signature && !combo => {
                 '.'
             }
@@ -292,8 +331,17 @@ impl State {
             field.clear();
             settings.fresh = false;
         }
-        if field.len() < 24
-            && (digit != '.' || !field.contains('.'))
+        let point_exists = if speed {
+            field
+                .rsplit('/')
+                .next()
+                .is_some_and(|part| part.contains('.'))
+        } else {
+            field.contains('.')
+        };
+        let limit = if speed { 1024 } else { 24 };
+        if field.len() < limit
+            && (digit != '.' || !point_exists)
             && (digit != '/' || !field.contains('/'))
         {
             field.push(digit);
@@ -324,7 +372,12 @@ impl State {
         let mut kind = settings.draft.kind().step(self.shift);
         if self.workspace.file().session.document().format == deadsync_editor::document::Format::Sm
         {
-            while kind.is_region() || matches!(kind, EventKind::Scroll | EventKind::Combo) {
+            while kind.is_region()
+                || matches!(
+                    kind,
+                    EventKind::Scroll | EventKind::Combo | EventKind::Speed
+                )
+            {
                 kind = kind.step(self.shift);
             }
         }
@@ -352,6 +405,8 @@ impl State {
                     "Edition",
                     if kind == EventKind::Signature {
                         "SignatureHelp"
+                    } else if kind == EventKind::Speed {
+                        "SpeedHelp"
                     } else if kind == EventKind::Combo {
                         "ComboHelp"
                     } else if kind == EventKind::Tick {
@@ -497,7 +552,7 @@ impl State {
             return;
         }
         if !settings.draft.valid_destination(from, to) {
-            self.status = i18n::tr("Edition", "RegionInvalidLength");
+            self.status = i18n::tr("Edition", settings.draft.key("TimingInvalidBpm"));
             return;
         }
         if !settings.draft.same_value(from, &settings.value) {

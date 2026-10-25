@@ -393,7 +393,7 @@ fn french_signature_panel_fraction_input_and_acceptance_are_translated() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..8 {
+    for _ in 0..9 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -447,7 +447,7 @@ fn french_scroll_controls_allow_reverse_and_zero_with_translated_labels() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..7 {
+    for _ in 0..8 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -511,7 +511,7 @@ fn french_hold_tick_panel_validates_integer_input_and_accepts_zero() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..6 {
+    for _ in 0..7 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -576,7 +576,7 @@ fn french_combo_pair_labels_validation_and_staged_acceptance_are_translated() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..5 {
+    for _ in 0..6 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -632,5 +632,125 @@ fn french_combo_pair_labels_validation_and_staged_acceptance_are_translated() {
             .text(Some(0), "COMBOS")
             .unwrap(),
         "0=2=0"
+    );
+}
+
+#[test]
+fn french_interpolated_speed_units_validation_and_acceptance_are_visible() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(
+        &path,
+        b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+    )
+    .unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    for _ in 0..5 {
+        press(&mut screen, KeyCode::Tab);
+    }
+    let labels = texts(&screen);
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Vitesses de défilement interpolées"))
+    );
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Vitesse / transition : 1x/0rows"))
+    );
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Appliquer les vitesses interpolées"))
+    );
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Delete);
+    for code in [
+        KeyCode::Digit2,
+        KeyCode::KeyX,
+        KeyCode::Slash,
+        KeyCode::Digit1,
+    ] {
+        press(&mut screen, code);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s.contains("Saisissez 2x/48rows"))
+    );
+    press(&mut screen, KeyCode::Delete);
+    for code in [KeyCode::Digit2, KeyCode::KeyX] {
+        press(&mut screen, code);
+    }
+    screen.raw_key(&RawKeyboardEvent {
+        code: KeyCode::ShiftLeft,
+        pressed: true,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    press(&mut screen, KeyCode::Period);
+    screen.raw_key(&RawKeyboardEvent {
+        code: KeyCode::ShiftLeft,
+        pressed: false,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    for code in [
+        KeyCode::Digit4,
+        KeyCode::Digit8,
+        KeyCode::KeyR,
+        KeyCode::KeyO,
+        KeyCode::KeyZ,
+        KeyCode::KeyS,
+    ] {
+        press(&mut screen, code);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s.contains("Vitesse / transition : 2x/48rows"))
+    );
+    press(&mut screen, KeyCode::Delete);
+    for code in [
+        KeyCode::Digit2,
+        KeyCode::KeyX,
+        KeyCode::Slash,
+        KeyCode::Digit0,
+        KeyCode::Period,
+        KeyCode::Digit5,
+        KeyCode::KeyS,
+    ] {
+        press(&mut screen, code);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s.contains("Vitesse interpolée préparée"))
+    );
+    for _ in 0..6 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "SPEEDS")
+            .unwrap(),
+        "0=2=0.5=1"
     );
 }

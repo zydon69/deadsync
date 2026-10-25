@@ -1854,3 +1854,55 @@ waveforms/loops, chart lifecycle and other delivery-matrix features remain pendi
 Validation for this checkpoint: 260 core tests, 89 native editor tests and
 `cargo check -p deadsync --locked` pass. French UI tests were rerun after the
 final wording adjustment to the combo help/validation messages.
+
+### Interpolated scroll speeds in F10
+
+F10 now edits SPEEDS independently of instant SCROLLS. Values use the original
+`2x/48rows` or `2x/0.5s` grammar: a target rate, a duration and an explicit unit.
+Zero duration changes instantly. Left/Right adjusts the target by 0.01x; Shift
+adjusts the duration by one row or 0.001 seconds. Initial events can move/delete.
+The inspector handles a decimal in both rate and duration, unit suffix keys,
+keypad multiply/divide, full precision text beyond the old 24-character limit,
+and physical-key aliases for W and shifted-period slash. Modifier shortcuts do
+not insert suffix letters into the input. French/English controls and validation
+are included. Text uses a round-trip f64 representation rather than truncating
+seconds to the original getter's G9 display precision.
+
+The SSC cycle is now BPM, Stop, Delay, Warp, Fake, Speed, Combo, Tick, Scroll,
+Signature. SM skips Speed as well as Warp/Fake/Combo/Scroll and retains its existing
+five supported types. The typed export guard also rejects SM. New values require
+unsigned decimals, integer row durations and supported finite float ranges;
+exponent notation is accepted by the file reader but not by the original editor's
+new-input grammar. Existing signed targets/periods remain movable and serializable
+unchanged. All nonzero source unit flags mean seconds; row-mode file durations
+are quantized from beats using the original Fumen conversion. Unsafe end-row
+addition and nonfinite data fail explicitly without changing document/history.
+
+`speed::Speeds` supplies logarithmic row selection and the unchanged clamped
+linear interpolation formula. The first event uses its own target as the prior
+rate. Each later event starts from the previous event's target, including when
+that earlier ramp was interrupted; it does not sample the old ramp's in-flight
+value. Row periods and second periods query their respective coordinates, and
+instant/legacy negative periods retain the original formula's behavior. The
+row-selected query accepts a caller-provided event timestamp for seconds-based
+events, so a future notefield integration must supply correctly ordered chart
+event times. Row-only queries do not perform a clock lookup. Full integration
+with preview spacing and time-based event-tree lookup remains pending.
+
+Five oracle fixtures run actual Fumen speed property parsing/loading and unchanged
+GrooveAuthor validator/setter and row/time interpolation methods. Every edit stage
+compares target, duration/unit and interpolated queries: empty maps, interrupted
+row ramps, second ramps, zero-length changes, signed source, fractional row
+quantization, malformed records, decimal grammar/newline rules and movement.
+Four core workflows also cover inherited timing, RSSP readback, undo/redo,
+foreign/stale/no-op guards, SM rejection, checked end limits and precise text
+round trips. Three English native workflows verify both units, two decimal
+components, adjustments, invalid input/endpoints, initial moves/deletes,
+no-op/cancel/type guards, modifier-key safety and Save/reopen. One French workflow
+checks labels, validation, suffix entry/aliases and acceptance. These tests do not
+prove hardware keyboard layouts, GPU output or complete visual speed simulation.
+Those and the remaining delivery-matrix features are still required.
+
+Validation for this checkpoint: 264 core tests, 93 native editor tests and
+`cargo check -p deadsync --locked` pass. This includes the original interpolation
+queries, both duration units, precise native fields and French input aliases.

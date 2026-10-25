@@ -26,6 +26,7 @@ if (operation == "Signature") { Console.WriteLine(JsonSerializer.Serialize(Signa
 if (operation == "Scroll") { Console.WriteLine(JsonSerializer.Serialize(ScrollOracle.Reference.Run(request), options)); return; }
 if (operation == "Tick") { Console.WriteLine(JsonSerializer.Serialize(TickOracle.Reference.Run(request), options)); return; }
 if (operation == "Combo") { Console.WriteLine(JsonSerializer.Serialize(ComboOracle.Reference.Run(request), options)); return; }
+if (operation == "Speed") { Console.WriteLine(JsonSerializer.Serialize(SpeedOracle.Reference.Run(request), options)); return; }
 if (operation == "Region") { Console.WriteLine(JsonSerializer.Serialize(RegionOracle.Reference.Run(request), options)); return; }
 if (operation == "Pause") { Console.WriteLine(JsonSerializer.Serialize(PauseOracle.Reference.Run(request), options)); return; }
 if (operation == "Tempo") { Console.WriteLine(JsonSerializer.Serialize(TempoOracle.Reference.Run(request), options)); return; }

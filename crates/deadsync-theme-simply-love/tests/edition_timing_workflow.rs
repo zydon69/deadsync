@@ -60,6 +60,10 @@ fn type_number(screen: &mut State, value: &str) {
                 '-' => KeyCode::Minus,
                 '/' => KeyCode::Slash,
                 'x' => KeyCode::KeyX,
+                'r' => KeyCode::KeyR,
+                'o' => KeyCode::KeyO,
+                'w' => KeyCode::KeyW,
+                's' => KeyCode::KeyS,
                 _ => panic!("number"),
             },
         );
@@ -513,7 +517,7 @@ fn pause_type_input_and_scope_guards_cancel_and_zero_delay_validation_preserve_h
     press(&mut screen, KeyCode::Escape);
     press(&mut screen, KeyCode::F10);
     key(&mut screen, KeyCode::ShiftLeft, true);
-    for _ in 0..7 {
+    for _ in 0..8 {
         press(&mut screen, KeyCode::Tab);
     }
     key(&mut screen, KeyCode::ShiftLeft, false);
@@ -1505,4 +1509,175 @@ fn signed_source_combo_moves_without_revalidation_and_sm_cycle_excludes_combos()
     }
     assert!(contains(&screen, "Hold tick counts"));
     assert_eq!(serialized(&screen), original);
+}
+
+fn open_speeds(screen: &mut State) {
+    press(screen, KeyCode::F10);
+    key(screen, KeyCode::ShiftLeft, true);
+    for _ in 0..5 {
+        press(screen, KeyCode::Tab);
+    }
+    key(screen, KeyCode::ShiftLeft, false);
+    assert!(contains(screen, "Interpolated scroll speeds"));
+}
+#[test]
+fn speeds_rows_seconds_two_decimal_fields_move_apply_undo_save_and_reopen() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_speeds(&mut screen);
+    assert!(contains(&screen, "Speed / transition: 1x/0rows"));
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "2x/48rows");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Interpolated speed staged"));
+    assert_eq!(serialized(&screen), SONG);
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Apply or discard before switching"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "1");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Speed moved"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "0");
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, ".5x/.25s");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "SPEEDS")
+            .unwrap(),
+        "0=0.5=0.25=1,1=2=1=0"
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), SONG);
+    ctrl(&mut screen, KeyCode::KeyY);
+    ctrl(&mut screen, KeyCode::KeyS);
+    assert_eq!(
+        State::open(&path, 0)
+            .unwrap()
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "SPEEDS")
+            .unwrap(),
+        "0=0.5=0.25=1,1=2=1=0"
+    );
+}
+#[test]
+fn speeds_invalid_lengths_endpoint_limits_controls_control_shortcuts_and_noop_are_safe() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_speeds(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "1");
+    for value in ["2x/1.5rows", "-1x/1s", "2x/2147483647rows"] {
+        choose(&mut screen, &mut index, 2);
+        type_number(&mut screen, value);
+        choose(&mut screen, &mut index, 8);
+        press(&mut screen, KeyCode::Enter);
+        assert!(contains(&screen, "Enter 2x/48rows"));
+        assert_eq!(serialized(&screen), SONG);
+    }
+    press(&mut screen, KeyCode::Escape);
+    open_speeds(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 2);
+    press(&mut screen, KeyCode::ArrowRight);
+    assert!(contains(&screen, "Speed / transition: 1.01x/0rows"));
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::ArrowRight);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "Speed / transition: 1.01x/1rows"));
+    ctrl(&mut screen, KeyCode::KeyS);
+    assert!(contains(&screen, "Speed / transition: 1.01x/1rows"));
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 4);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Speed removed"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(serialized(&screen), SONG);
+    assert!(!screen.workspace().file().session.is_dirty());
+    open_speeds(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, ".5x/.25s");
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::ArrowRight);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "Speed / transition: 0.5x/0.251s"));
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(serialized(&screen), SONG);
+}
+#[test]
+fn speeds_preserve_signed_source_moves_and_full_precision_seconds_in_native_fields() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source = String::from_utf8(SONG.to_vec())
+        .unwrap()
+        .replace("#STOPS:", "#SPEEDS:0=-1=-0.25=1,4=1=0=0;#STOPS:");
+    fs::write(&path, source).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_speeds(&mut screen);
+    assert!(contains(&screen, "Speed / transition: -1x/-0.25s"));
+    let mut index = 0;
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "2");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Speed moved"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let mut screen = State::open(&path, 0).unwrap();
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "SPEEDS")
+            .unwrap(),
+        "2=-1=-0.25=1,4=1=0=0"
+    );
+    open_speeds(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "1.123456789012345x/0.123456789012345s");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    let value = screen
+        .workspace()
+        .file()
+        .session
+        .document()
+        .text(Some(0), "SPEEDS")
+        .unwrap();
+    let parsed = deadsync_editor::timing_edit::speed::Speeds::parse(&value).unwrap();
+    assert_eq!(
+        parsed.values().get(&0).unwrap(),
+        &deadsync_editor::timing_edit::speed::Speed::parse("1.123456789012345x/0.123456789012345s")
+            .unwrap()
+    );
 }

@@ -125,6 +125,15 @@ def prepare_region_reference(editor):
     return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
 
 
+def prepare_speed_reference(editor):
+    source=subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/EditorEvents/EditorInterpolatedRateAlteringEvent.cs"],cwd=editor).decode("utf-8-sig")
+    pieces={"VALIDATOR":extract_member(source,r"\tpublic static \(bool, double, int, double, bool\) IsValidScrollRateInterpolationString\("),"SETTER":extract_member(source,r"\tpublic string StringValue\s*"),"ROW_INTERPOLATION":extract_member(source,r"\tpublic double GetInterpolatedScrollRateFromRow\("),"TIME_INTERPOLATION":extract_member(source,r"\tpublic double GetInterpolatedScrollRateFromTime\(")}
+    project=ROOT/"scripts/editor-oracle";text=(project/"SpeedReference.cs.template").read_text()
+    for name,body in pieces.items():text=text.replace("// "+name,body)
+    (project/"obj/SpeedReference.cs").write_text(text)
+    return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
+
+
 def prepare_combo_reference(editor):
     source=subprocess.check_output(["git","show",f"{EDITOR_PIN}:StepManiaEditor/EditorEvents/EditorMultipliersEvent.cs"],cwd=editor).decode("utf-8-sig")
     pieces={"VALIDATOR":extract_member(source,r"\tpublic static \(bool, int, int\) IsValidMultipliersString\("),"GETTER":extract_member(source,r"\tpublic string GetMultipliersString\("),"SETTER":extract_member(source,r"\tpublic string StringValue\s*")}
@@ -729,6 +738,9 @@ def requests(reference: Path):
         cases["tick-edit-"+label]={"Operation":"Tick", "Segments":segments,"Operations":[["set",0,0],["set",0,0],["set",24,8],["set",24,-1],["set",96,2147483647],["move",0,24],["move",0,12],["remove",12],["remove",12],["move",24,48],["remove",48]]}
     for label,source in {"empty":"","normal":"0=1=1,4=2=3,8=0=0","optional-and-malformed":"0=3,1=2.5,2=2147483648,3=4=,4=+2=+3,5=2=3=4","signed-collisions":"-1=2=3,0=-2=3,1.001=2=4,1.002=-1=-3,2=-2147483648=2147483647"}.items():
         cases["combo-edit-"+label]={"Operation":"Combo", "Source":source,"Operations":[["set",0,"0x/0x"],["set",0,"2x/3x"],["set",0,"2x/3x"],["set",24,"1x/4x"],["set",96,"2147483647x/2147483647x"],["set",48,"-1x/1x"],["set",48,"2x/3x\n"],["set",48,"2x/3x\r\n"],["set",48,"2X/3X"],["set",48," 2x/3x"],["set",48,"2/3"],["set",48,"+2x/3x"],["set",48,"2147483648x/1x"],["set",48,"002x/003x"],["move",0,24],["move",0,12],["remove",12],["remove",12],["move",24,72],["remove",72]]}
+    for label,source in {"empty":"","rows-and-interruption":"0=1=0=0,1=3=4=0,2=0.5=2=0","seconds":"0=1=0=1,1=4=0.5=1,3=2=0=1","signed-source":"1=-1=-1=0,4=2=-0.25=-3","fractional-and-malformed":"0=1=0=0,1.001=2=0.0001=0,1.002=3=0.75=2,2=bad=1=0,3=4=1"}.items():
+        cases["speed-edit-"+label]={"Operation":"Speed", "Source":source,"Queries":[[-48,-0.5],[0,0],[24,0.25],[48,0.5],[60,0.625],[72,0.75],[96,1],[120,1.25],[144,1.5],[192,2],[240,2.5],[384,4]],
+            "Operations":[["set",0,"1x/0rows"],["set",48,"2x/48rows"],["set",48,"2x/48rows"],["set",96,".5x/.25s"],["set",144,"2.x/0.s"],["set",144,"-1x/1s"],["set",144,"2x/1.5rows"],["set",144,"1e2x/1s"],["set",144,"2x/1s\n"],["set",144,"2x/1s\r\n"],["move",0,48],["move",0,12],["remove",12],["move",48,72],["remove",72]]}
     metadata={"MusicOffset":-0.125,"ShouldUseChartMusicOffset":True,"ExpressedChartConfig":"A19D532E-B0CE-4759-AD1C-02ECBBDF2EFD","MaxPlayerIndex":1,
         "Patterns":{"48":{"PatternConfigGuid":"03de57bd-4329-4de6-a722-a171c11fdd16","PerformedChartConfigGuid":"41a7f76e-596a-4fbe-bf6e-6a77a898e4a1","Length":192,"RandomSeed":-2147483648,"StartPositionInclusive":True,"EndPositionInclusive":False,"IgnorePrecedingDistribution":True},"384":{"Length":0}}}
     for label,content in {"defaults":"{}","complete":json.dumps(metadata),"null-patterns":'{"Patterns":null}',"comments":'/* original */ {"Patterns": {"0": {/* marker */ "Length":48}}}',"trailing-comma":'{"Patterns":{},}',"invalid-guid":'{"ExpressedChartConfig":"invalid"}',"braced-guid":'{"ExpressedChartConfig":"{a19d532e-b0ce-4759-ad1c-02ecbbdf2efd}"}'}.items():
@@ -794,6 +806,7 @@ def main():
     scroll_hash = prepare_scroll_reference(args.editor_root.resolve())
     tick_hash = prepare_tick_reference(args.editor_root.resolve())
     combo_hash = prepare_combo_reference(args.editor_root.resolve())
+    speed_hash = prepare_speed_reference(args.editor_root.resolve())
     project = ROOT / "scripts/editor-oracle/EditorOracle.csproj"
     build = subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if build.returncode:
@@ -818,7 +831,7 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
-        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash, "editor_source_timing_methods_sha256": source_timing_hash, "editor_signature_methods_sha256": signature_hash, "editor_scroll_methods_sha256": scroll_hash, "editor_tick_methods_sha256": tick_hash, "editor_combo_methods_sha256": combo_hash,
+        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash, "editor_source_timing_methods_sha256": source_timing_hash, "editor_signature_methods_sha256": signature_hash, "editor_scroll_methods_sha256": scroll_hash, "editor_tick_methods_sha256": tick_hash, "editor_combo_methods_sha256": combo_hash, "editor_speed_methods_sha256": speed_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
         "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],

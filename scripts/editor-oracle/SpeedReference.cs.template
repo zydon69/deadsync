@@ -1,0 +1,47 @@
+// Actual Fumen speeds parser/loader and unchanged editor interpolation methods.
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using Fumen;
+using Fumen.ChartDefinition;
+using Fumen.Converters;
+using static System.Diagnostics.Debug;
+namespace SpeedOracle;
+internal sealed class EditorChart:PauseOracle.EditorChart{public void OnInterpolatedRateAlteringEventModified(EditorInterpolatedRateAlteringEvent _) {}}
+internal sealed class EditorInterpolatedRateAlteringEvent(int row,ScrollRateInterpolation value,EditorChart owner):PauseOracle.EditorEvent(row){
+    private readonly ScrollRateInterpolation ScrollRateInterpolationEvent=value;private readonly EditorChart EditorChart=owner;private bool WidthDirty;
+    public double PreviousScrollRate;private double GetChartTime()=>Row/96.0;
+    public ScrollRateInterpolation Data=>ScrollRateInterpolationEvent;
+    // VALIDATOR
+    // SETTER
+    // ROW_INTERPOLATION
+    // TIME_INTERPOLATION
+}
+internal static class Reference{
+    public static object Run(JsonElement input){
+        System.Globalization.CultureInfo.CurrentCulture=System.Globalization.CultureInfo.InvariantCulture;
+        var source=new Dictionary<double,Tuple<double,double,int>>();new ScrollRateInterpolationPropertyParser("SPEEDS",source).Parse(new MSDFile.Value {Params=["SPEEDS",input.GetProperty("Source").GetString()!]});
+        var chart=new Chart{Layers=[new Layer()]};SMCommon.AddScrollRateInterpolationEvents(source,chart,new TempoOracle.SilentLogger(),false);var store=new EditorChart();var nodes=new SortedDictionary<int,EditorInterpolatedRateAlteringEvent>();
+        foreach(var e in chart.Layers[0].Events.OfType<ScrollRateInterpolation>())nodes[e.IntegerPosition]=new(e.IntegerPosition,e,store);
+        store.EditorEvents.AddRange(nodes.Values);
+        object Values(){
+            double previous=1;bool first=true;foreach(var node in nodes.Values){node.PreviousScrollRate=first?node.Data.Rate:previous;previous=node.Data.Rate;first=false;}
+            return new {Nodes=nodes.Select(pair=>new{Row=pair.Key,Rate=pair.Value.Data.Rate,Rows=pair.Value.Data.PeriodLengthIntegerPosition,Seconds=pair.Value.Data.PeriodTimeSeconds,Time=pair.Value.Data.PreferPeriodAsTime}).ToArray(),Queries=input.GetProperty("Queries").EnumerateArray().Select(query=>{var row=query[0].GetDouble();var time=query[1].GetDouble();var node=nodes.LastOrDefault(pair=>pair.Key<=row).Value??nodes.FirstOrDefault().Value;var rate=node==null?1:node.Data.PreferPeriodAsTime?node.GetInterpolatedScrollRateFromTime(time):node.GetInterpolatedScrollRateFromRow(row);return new {Row=row,Time=time,Rate=rate};}).ToArray()};
+        }
+        var initial=Values();var stages=new List<object>();
+        foreach(var op in input.GetProperty("Operations").EnumerateArray()){
+            var kind=op[0].GetString();var row=op[1].GetInt32();bool changed=false;string? error=null;
+            if(kind=="set"){
+                var text=op[2].GetString()!;var (valid,rate,rows,seconds,time)=EditorInterpolatedRateAlteringEvent.IsValidScrollRateInterpolationString(text);
+                if(!valid)error="invalid";
+                else if(nodes.TryGetValue(row,out var node)){var old=(node.Data.Rate,node.Data.PeriodLengthIntegerPosition,node.Data.PeriodTimeSeconds,node.Data.PreferPeriodAsTime);node.StringValue=text;changed=old!=(node.Data.Rate,node.Data.PeriodLengthIntegerPosition,node.Data.PeriodTimeSeconds,node.Data.PreferPeriodAsTime);}
+                else{nodes[row]=new(row,new(rate,rows,seconds,time),store);store.EditorEvents.Add(nodes[row]);changed=true;}
+            }else if(kind=="remove"){
+                if(nodes.Remove(row,out var node)){store.EditorEvents.Remove(node);changed=true;}
+            }else if(kind=="move"){
+                var target=op[2].GetInt32();if(!nodes.TryGetValue(row,out var node))error="missing";else if(row==target){}else if(!store.CanEventBeMovedToRow(node,target))error="collision";else{nodes.Remove(row);nodes[target]=node;node.Row=target;changed=true;}
+            }
+            stages.Add(new{Changed=changed,Error=error,Values=Values()});
+        }
+        return new{Initial=initial,Stages=stages};
+    }
+}

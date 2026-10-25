@@ -10,7 +10,7 @@ use deadsync_editor::{
         region::{self, Kind as RegionKind},
         scroll,
         signature::{self, Signature},
-        tick,
+        speed, tick,
     },
 };
 use std::collections::BTreeMap;
@@ -21,6 +21,7 @@ pub(super) enum EventKind {
     Delay,
     Warp,
     Fake,
+    Speed,
     Combo,
     Tick,
     Scroll,
@@ -38,6 +39,7 @@ impl EventKind {
             Self::Scroll => "TimingTypeScroll",
             Self::Tick => "TimingTypeTick",
             Self::Combo => "TimingTypeCombo",
+            Self::Speed => "TimingTypeSpeed",
         }
     }
     pub(super) fn step(self, backward: bool) -> Self {
@@ -47,6 +49,7 @@ impl EventKind {
             Self::Delay,
             Self::Warp,
             Self::Fake,
+            Self::Speed,
             Self::Combo,
             Self::Tick,
             Self::Scroll,
@@ -68,6 +71,7 @@ pub(super) enum Draft {
     Scrolls(scroll::Draft),
     Ticks(tick::Draft),
     Combos(combo::Draft),
+    Speeds(speed::Draft),
     Pauses {
         draft: pause::Draft,
         kind: PauseKind,
@@ -85,6 +89,10 @@ impl Draft {
     ) -> Result<Self, Error> {
         match kind {
             EventKind::Bpm => workspace.tempo_draft(scope).map(Self::Bpm),
+            EventKind::Speed => {
+                speed::Draft::capture(&workspace.file().session, workspace.chart(), scope)
+                    .map(Self::Speeds)
+            }
             EventKind::Combo => {
                 combo::Draft::capture(&workspace.file().session, workspace.chart(), scope)
                     .map(Self::Combos)
@@ -129,6 +137,7 @@ impl Draft {
             Self::Scrolls(_) => EventKind::Scroll,
             Self::Ticks(_) => EventKind::Tick,
             Self::Combos(_) => EventKind::Combo,
+            Self::Speeds(_) => EventKind::Speed,
             Self::Signatures(_) => EventKind::Signature,
             Self::Pauses {
                 kind: PauseKind::Stop,
@@ -167,6 +176,7 @@ impl Draft {
     pub(super) fn scope(&self) -> Scope {
         match self {
             Self::Bpm(d) => d.scope(),
+            Self::Speeds(d) => d.scope(),
             Self::Combos(d) => d.scope(),
             Self::Ticks(d) => d.scope(),
             Self::Scrolls(d) => d.scope(),
@@ -178,6 +188,7 @@ impl Draft {
     pub(super) fn inherited(&self) -> bool {
         match self {
             Self::Bpm(d) => d.inherited(),
+            Self::Speeds(d) => d.inherited(),
             Self::Combos(d) => d.inherited(),
             Self::Ticks(d) => d.inherited(),
             Self::Scrolls(d) => d.inherited(),
@@ -189,6 +200,7 @@ impl Draft {
     pub(super) fn affected_charts(&self) -> &[usize] {
         match self {
             Self::Bpm(d) => d.affected_charts(),
+            Self::Speeds(d) => d.affected_charts(),
             Self::Combos(d) => d.affected_charts(),
             Self::Ticks(d) => d.affected_charts(),
             Self::Scrolls(d) => d.affected_charts(),
@@ -200,6 +212,7 @@ impl Draft {
     pub(super) fn has_changes(&self) -> bool {
         match self {
             Self::Bpm(d) => d.has_changes(),
+            Self::Speeds(d) => d.has_changes(),
             Self::Combos(d) => d.has_changes(),
             Self::Ticks(d) => d.has_changes(),
             Self::Scrolls(d) => d.has_changes(),
@@ -211,6 +224,7 @@ impl Draft {
     pub(super) fn node(&self, row: u64) -> Option<String> {
         match self {
             Self::Signatures(d) => d.signatures().values().get(&row).map(ToString::to_string),
+            Self::Speeds(d) => d.speeds().values().get(&row).map(ToString::to_string),
             Self::Combos(d) => d.combos().values().get(&row).map(ToString::to_string),
             Self::Scrolls(d) => d.scrolls().values().get(&row).map(ToString::to_string),
             Self::Bpm(d) => d.tempos().values().get(&row).map(ToString::to_string),
@@ -230,6 +244,13 @@ impl Draft {
     pub(super) fn value(&self, row: u64) -> String {
         match self {
             Self::Bpm(d) => d.tempos().at(row).to_string(),
+            Self::Speeds(d) => d
+                .speeds()
+                .values()
+                .get(&row)
+                .copied()
+                .unwrap_or_default()
+                .to_string(),
             Self::Combos(d) => d
                 .combos()
                 .values()
@@ -255,6 +276,7 @@ impl Draft {
         let row = match self {
             Self::Signatures(d) => neighbor(d.signatures().values(), row, forward),
             Self::Bpm(d) => neighbor(d.tempos().values(), row, forward),
+            Self::Speeds(d) => neighbor(d.speeds().values(), row, forward),
             Self::Combos(d) => neighbor(d.combos().values(), row, forward),
             Self::Ticks(d) => neighbor(d.counts().values(), row, forward),
             Self::Scrolls(d) => neighbor(d.scrolls().values(), row, forward),
@@ -266,6 +288,7 @@ impl Draft {
     pub(super) fn count(&self) -> usize {
         match self {
             Self::Bpm(d) => d.tempos().values().len(),
+            Self::Speeds(d) => d.speeds().values().len(),
             Self::Combos(d) => d.combos().values().len(),
             Self::Ticks(d) => d.counts().values().len(),
             Self::Scrolls(d) => d.scrolls().values().len(),
@@ -288,6 +311,7 @@ impl Draft {
         match self {
             Self::Signatures(d) => d.set(row, Signature::parse(text)?),
             Self::Bpm(d) => d.set(row, number()?),
+            Self::Speeds(d) => d.set(row, speed::Speed::parse(text)?),
             Self::Combos(d) => d.set(row, Multipliers::parse(text)?),
             Self::Ticks(d) => d.set(
                 row,
@@ -307,6 +331,7 @@ impl Draft {
     pub(super) fn remove(&mut self, row: u64) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => d.remove(row),
+            Self::Speeds(d) => d.remove(row),
             Self::Combos(d) => d.remove(row),
             Self::Ticks(d) => d.remove(row),
             Self::Scrolls(d) => d.remove(row),
@@ -318,6 +343,7 @@ impl Draft {
     pub(super) fn move_node(&mut self, from: u64, to: u64) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => d.move_node(from, to),
+            Self::Speeds(d) => d.move_node(from, to),
             Self::Combos(d) => d.move_node(from, to),
             Self::Ticks(d) => d.move_node(from, to),
             Self::Scrolls(d) => d.move_node(from, to),
@@ -329,6 +355,7 @@ impl Draft {
     pub(super) fn apply(&self, workspace: &mut Workspace) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => workspace.apply_tempo(d),
+            Self::Speeds(d) => workspace.apply_speeds(d),
             Self::Combos(d) => workspace.apply_combos(d),
             Self::Ticks(d) => workspace.apply_ticks(d),
             Self::Scrolls(d) => workspace.apply_scrolls(d),
@@ -338,6 +365,9 @@ impl Draft {
         }
     }
     pub(super) fn valid_value_at(&self, row: u64, text: &str) -> bool {
+        if self.kind() == EventKind::Speed {
+            return speed::Speed::parse(text).is_ok_and(|value| value.fits_at(row));
+        }
         if self.kind() == EventKind::Combo {
             return Multipliers::parse(text).is_ok();
         }
@@ -362,6 +392,11 @@ impl Draft {
     }
     pub(super) fn valid_destination(&self, from: u64, to: u64) -> bool {
         match self {
+            Self::Speeds(d) => d
+                .speeds()
+                .values()
+                .get(&from)
+                .is_some_and(|value| value.fits_at(to)),
             Self::Regions { draft, kind } => draft
                 .regions(*kind)
                 .values()
@@ -371,6 +406,11 @@ impl Draft {
         }
     }
     pub(super) fn same_value(&self, row: u64, text: &str) -> bool {
+        if let Self::Speeds(d) = self {
+            return d.speeds().values().get(&row).is_some_and(|value| {
+                text == value.to_string() || speed::Speed::parse(text).ok() == Some(*value)
+            });
+        }
         if let Self::Combos(d) = self {
             return d.combos().values().get(&row).is_some_and(|value| {
                 text == value.to_string() || Multipliers::parse(text).ok() == Some(*value)
@@ -394,6 +434,26 @@ impl Draft {
     pub(super) fn key<'a>(&self, key: &'a str) -> &'a str {
         if self.kind() == EventKind::Bpm {
             return key;
+        }
+        if self.kind() == EventKind::Speed {
+            return match key {
+                "TimingBpm" => "SpeedValue",
+                "TimingInvalidBpm" => "SpeedInvalid",
+                "TimingSet" => "SpeedSet",
+                "TimingRemove" => "SpeedRemove",
+                "TimingMove" => "SpeedMove",
+                "TimingPrevious" => "SpeedPrevious",
+                "TimingNext" => "SpeedNext",
+                "TimingAccept" => "SpeedAccept",
+                "TimingStaged" => "SpeedStaged",
+                "TimingRemoved" => "SpeedRemoved",
+                "TimingMissing" => "SpeedMissing",
+                "TimingCollision" => "SpeedCollision",
+                "TimingMoveValue" => "SpeedMoveValue",
+                "TimingMoved" => "SpeedMoved",
+                "TimingInputPending" => "SpeedInputPending",
+                _ => key,
+            };
         }
         if self.kind() == EventKind::Combo {
             return match key {

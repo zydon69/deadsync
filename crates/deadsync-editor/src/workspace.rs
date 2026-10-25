@@ -384,6 +384,12 @@ impl Workspace {
         draft.apply(&mut self.file.session, self.chart)
     }
 
+    pub fn apply_speeds(
+        &mut self,
+        draft: &crate::timing_edit::speed::Draft,
+    ) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session, self.chart)
+    }
     pub fn apply_combos(
         &mut self,
         draft: &crate::timing_edit::combo::Draft,

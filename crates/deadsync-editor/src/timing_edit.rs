@@ -5,6 +5,7 @@ pub mod migration;
 pub mod pause;
 pub mod region;
 pub mod signature;
+pub mod speed;
 pub mod tick;
 pub mod scroll;
 pub mod tempo;
