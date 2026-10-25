@@ -247,3 +247,36 @@ fn sample_region_noops_and_invalid_values_do_not_create_history_or_erase_source(
     session.set_text(None, "SAMPLELENGTH", "invalid").unwrap();
     assert!(Draft::capture(&session).is_err());
 }
+
+#[test]
+fn sample_position_actions_use_draft_clock_without_audio_files_or_document_mutation() {
+    let session = song(Format::Ssc);
+    let original = session.serialize().unwrap();
+    let mut draft = Draft::capture(&session).unwrap();
+    draft.set_music_offset(0.25).unwrap();
+    draft.set_sync_offset(0.0).unwrap();
+    let clock = draft.clock(&session, 0).unwrap();
+    let seconds = clock.music_time(96).unwrap(); // beat 2 = one second at 120 BPM
+    assert_eq!(seconds, 0.75);
+    draft.set_sample_start_from_time(seconds).unwrap();
+    draft
+        .set_sample_end_from_time(clock.music_time(192).unwrap())
+        .unwrap();
+    assert_eq!(draft.sample_start(), 0.75);
+    assert_eq!(draft.sample_length(), 1.0);
+    assert_eq!(draft.sample_end().unwrap(), 1.75);
+    assert!((clock.position(draft.sample_start()).unwrap() - 96.0).abs() < 1e-10);
+    assert!((clock.position(draft.sample_end().unwrap()).unwrap() - 192.0).abs() < 1e-10);
+    assert_eq!(session.serialize().unwrap(), original);
+    draft.set_sample_end_from_time(-3.0).unwrap();
+    assert_eq!(draft.sample_length(), 0.0);
+    draft.set_sample_start_from_time(-3.0).unwrap();
+    assert_eq!(draft.sample_start(), 0.0);
+    assert!(draft.set_sample_start_from_time(f64::NAN).is_err());
+    assert!(draft.set_sample_end_from_time(f64::INFINITY).is_err());
+    draft.set_sample_start(f64::MAX).unwrap();
+    draft.set_sample_length(f64::MAX).unwrap();
+    assert!(draft.sample_end().is_err());
+    let foreign = song(Format::Ssc);
+    assert!(draft.clock(&foreign, 0).is_err());
+}

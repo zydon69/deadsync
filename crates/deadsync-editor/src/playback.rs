@@ -12,6 +12,11 @@ use std::{
 
 pub struct Preview {
     music: PathBuf,
+    clock: Clock,
+}
+
+/// Position conversion does not require a selected or decodable audio file.
+pub struct Clock {
     offset: f64,
     sync_offset: f64,
     timeline: EditorTimeline,
@@ -38,6 +43,30 @@ impl Preview {
                 music.display()
             )));
         }
+        Ok(Self {
+            music,
+            clock: Clock::capture(session, chart)?,
+        })
+    }
+    pub fn music(&self) -> &Path {
+        &self.music
+    }
+    pub fn music_time(&self, row: u64) -> Result<f64, Error> {
+        self.clock.music_time(row)
+    }
+    pub fn position(&self, seconds: f64) -> Result<f64, Error> {
+        self.clock.position(seconds)
+    }
+    pub fn chart_time_to_music(&self, seconds: f64) -> Result<f64, Error> {
+        self.clock.chart_time_to_music(seconds)
+    }
+    pub fn music_to_chart_time(&self, seconds: f64) -> Result<f64, Error> {
+        self.clock.music_to_chart_time(seconds)
+    }
+}
+impl Clock {
+    pub fn capture(session: &Session, chart: usize) -> Result<Self, Error> {
+        let document = session.document();
         let offset = chart_properties::Draft::capture(session, chart)?.effective_music_offset();
         let sync_offset = crate::song_properties::sync_offset(document)?;
         let timing = GenerationTiming::from_document(document, chart)?;
@@ -46,14 +75,15 @@ impl Preview {
         let timeline =
             EditorTimeline::build(&timing, &Grid::new(4, 1)?, None, &AtomicBool::new(false))?;
         Ok(Self {
-            music,
             offset,
             sync_offset,
             timeline,
         })
     }
-    pub fn music(&self) -> &Path {
-        &self.music
+    pub(crate) fn with_song_draft(mut self, offset: f64, sync_offset: f64) -> Self {
+        self.offset = offset;
+        self.sync_offset = sync_offset;
+        self
     }
     /// Audio-file seconds. Negative positions are valid silent lead-in.
     pub fn music_time(&self, row: u64) -> Result<f64, Error> {

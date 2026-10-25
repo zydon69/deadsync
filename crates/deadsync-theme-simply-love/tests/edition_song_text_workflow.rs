@@ -449,3 +449,35 @@ fn preview_sample_panel_stages_clamps_applies_undoes_and_saves_without_changing_
         );
     }
 }
+
+#[test]
+fn sample_boundary_actions_work_without_audio_and_preserve_pending_document_until_apply() {
+    let (dir, mut state, original) = setup(false, false);
+    fs::remove_file(dir.path().join("song.ogg")).unwrap();
+    for _ in 0..4 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
+    let end_row = state.workspace().row();
+    assert!(end_row > 0);
+    press(&mut state, KeyCode::F11);
+    press(&mut state, KeyCode::F6);
+    press(&mut state, KeyCode::Tab);
+    press(&mut state, KeyCode::F2); // end from current song time
+    assert!(has(&state, "Preview region staged"));
+    press(&mut state, KeyCode::ArrowUp);
+    press(&mut state, KeyCode::F3); // start is zero; negative row clamps to zero
+    assert_eq!(state.workspace().row(), 0);
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::F3);
+    assert!(state.workspace().row().abs_diff(end_row) <= 1);
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        original.as_bytes()
+    );
+    press(&mut state, KeyCode::Escape);
+    press(&mut state, KeyCode::Escape);
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        original.as_bytes()
+    );
+}

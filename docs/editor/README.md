@@ -2743,3 +2743,24 @@ new public-keyboard workflow stages start/length, checks the zero minimum and
 Shift fine adjustment, confirms unchanged source before Apply, then verifies
 SM/SSC tags, one-step undo, redo and disk save without adding OFFSET. This is
 an adapter/actor test, not a rendered or audible runtime validation.
+
+### Sample boundary position actions
+
+Playback now shares an audio-independent Clock with sample-region commands.
+Preview still validates its audio file before playback; position conversion
+alone requires no MUSIC path or decoder. A song draft can capture a clock bound
+to its session revision, using staged song offset/sync while retaining a chart
+offset override. F2 in the optional sample panel sets start/end from cursor
+song time; F3 jumps to the selected boundary. Core setters reproduce pinned
+UISongProperties.SetPreviewStartFromCurrentTime / SetPreviewEndFromCurrentTime:
+clamp current time at zero, and clamp resulting length at zero. End overflow
+is rejected. Start/end jumping uses the shared inverse clock.
+
+The native workspace still has a nonnegative integral row cursor, so boundary
+jumps floor fractional rows and clamp negative/out-of-range positions. Original
+GrooveAuthor has a richer continuous position model; this remains a fidelity
+gap, not full boundary-navigation parity. Visual region and audition are pending.
+All 14 targeted core playback/song-properties tests pass, including no-audio
+draft time conversion, boundaries, invalid values and revision ownership.
+
+All eight native song-text workflows also pass, including F2/F3 boundary navigation after deleting the fixture audio file, source unchanged before Apply, and discarding the parent draft. Runtime rendering/audio validation remains separate.

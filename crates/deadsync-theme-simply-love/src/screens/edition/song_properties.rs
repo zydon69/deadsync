@@ -100,6 +100,48 @@ impl State {
         }
     }
     pub(super) fn song_sample_key(&mut self, index: usize, code: KeyCode) {
+        if index < 2 && matches!(code, KeyCode::F2 | KeyCode::F3) {
+            let result = (|| -> Result<(), deadsync_editor::Error> {
+                let Some(draft) = self.song_properties.as_mut() else {
+                    return Ok(());
+                };
+                let clock = draft.clock(&self.workspace.file().session, self.workspace.chart())?;
+                if code == KeyCode::F2 {
+                    let seconds = clock.music_time(self.workspace.row())?;
+                    if index == 0 {
+                        draft.set_sample_start_from_time(seconds)?;
+                    } else {
+                        draft.set_sample_end_from_time(seconds)?;
+                    }
+                } else {
+                    let seconds = if index == 0 {
+                        draft.sample_start()
+                    } else {
+                        draft.sample_end()?
+                    };
+                    let row = clock
+                        .position(seconds)?
+                        .max(0.0)
+                        .min(i32::MAX as f64)
+                        .floor() as u64;
+                    self.workspace.execute(Command::Seek(row))?;
+                    self.refresh();
+                }
+                Ok(())
+            })();
+            self.status = match result {
+                Ok(()) => i18n::tr(
+                    "Edition",
+                    if code == KeyCode::F2 {
+                        "SongSampleStaged"
+                    } else {
+                        "SongSampleJumped"
+                    },
+                ),
+                Err(error) => i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]),
+            };
+            return;
+        }
         if code == KeyCode::Escape
             || (index == 2 && matches!(code, KeyCode::Enter | KeyCode::NumpadEnter))
         {

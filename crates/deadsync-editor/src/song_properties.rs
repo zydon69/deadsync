@@ -192,6 +192,38 @@ impl Draft {
                 .zip(self.original_sample)
                 .any(|(value, original)| !crate::number::reference_equal(*value, original))
     }
+    pub fn clock(&self, session: &Session, chart: usize) -> Result<crate::playback::Clock, Error> {
+        if !session.accepts_token(&self.token) {
+            return invalid("Song properties draft is stale or belongs to another document");
+        }
+        let chart_properties = crate::chart_properties::Draft::capture(session, chart)?;
+        let offset = if chart_properties.uses_chart_offset() {
+            chart_properties.music_offset()
+        } else {
+            self.music_offset
+        };
+        Ok(crate::playback::Clock::capture(session, chart)?.with_song_draft(offset, self.offset))
+    }
+    pub fn set_sample_start_from_time(&mut self, seconds: f64) -> Result<(), Error> {
+        if !seconds.is_finite() {
+            return invalid("Preview position must be finite");
+        }
+        self.set_sample_start(seconds.max(0.0))
+    }
+    pub fn set_sample_end_from_time(&mut self, seconds: f64) -> Result<(), Error> {
+        if !seconds.is_finite() {
+            return invalid("Preview position must be finite");
+        }
+        self.set_sample_length((seconds.max(0.0) - self.sample_start()).max(0.0))
+    }
+    pub fn sample_end(&self) -> Result<f64, Error> {
+        let end = self.sample_start() + self.sample_length();
+        if end.is_finite() {
+            Ok(end)
+        } else {
+            invalid("Preview end must be finite")
+        }
+    }
     pub fn sample_start(&self) -> f64 {
         self.sample[0]
     }
