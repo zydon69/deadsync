@@ -121,6 +121,13 @@ pub(crate) fn after_chart_deletion(
     ))
 }
 
+pub struct SampleAudio {
+    pub path: std::path::PathBuf,
+    pub start: f64,
+    /// None means the complete dedicated PREVIEW file.
+    pub length: Option<f64>,
+}
+
 pub struct Draft {
     token: RevisionToken,
     original: f64,
@@ -215,6 +222,50 @@ impl Draft {
             return invalid("Preview position must be finite");
         }
         self.set_sample_length((seconds.max(0.0) - self.sample_start()).max(0.0))
+    }
+    /// Resolve preview media and raw audio-file cut without applying chart offsets.
+    pub fn sample_audio(
+        &self,
+        session: &Session,
+        chart: usize,
+        simfile: &std::path::Path,
+    ) -> Result<SampleAudio, Error> {
+        if !session.accepts_token(&self.token) {
+            return invalid("Song properties draft is stale or belongs to another document");
+        }
+        let dedicated = (session.document().format == crate::document::Format::Ssc)
+            .then(|| session.document().text(None, "PREVIEW"))
+            .flatten()
+            .filter(|value| !value.is_empty());
+        let (name, start, length) = if let Some(name) = dedicated {
+            (name, 0.0, None)
+        } else {
+            if self.sample_length() <= 0.0 {
+                return invalid("Preview length must be positive");
+            }
+            self.sample_end()?;
+            let name = session
+                .document()
+                .text(Some(chart), "MUSIC")
+                .filter(|value| !value.is_empty())
+                .unwrap_or_else(|| self.text(crate::song_text::Field::Music).to_owned());
+            (name, self.sample_start(), Some(self.sample_length()))
+        };
+        if name.is_empty() {
+            return invalid("No preview music selected");
+        }
+        let path = simfile
+            .parent()
+            .unwrap_or(std::path::Path::new("."))
+            .join(name.replace('\\', "/"));
+        if !path.is_file() {
+            return invalid("Preview music file not found");
+        }
+        Ok(SampleAudio {
+            path,
+            start,
+            length,
+        })
     }
     /// Fractional chart positions of the preview region; no cursor quantization.
     pub fn sample_positions(&self, session: &Session, chart: usize) -> Result<[f64; 2], Error> {

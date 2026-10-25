@@ -5,7 +5,7 @@ use deadsync_gameplay::{GameplayAudioCommand, GameplayAudioSnapshot, GameplayMus
 use std::time::Instant;
 
 pub(super) struct Playing {
-    preview: Preview,
+    preview: Option<Preview>,
     requested: Instant,
     mapped: bool,
 }
@@ -48,11 +48,58 @@ impl State {
                     rate: 1.0,
                 });
                 self.playback = Some(Playing {
-                    preview,
+                    preview: Some(preview),
                     requested: Instant::now(),
                     mapped: false,
                 });
                 self.status = i18n::tr("Edition", "PlaybackPlaying");
+            }
+            Err(error) => {
+                self.status =
+                    i18n::tr_fmt("Edition", "PlaybackError", &[("error", &error.to_string())])
+            }
+        }
+    }
+    pub(super) fn toggle_sample_audio(&mut self) {
+        if self
+            .playback
+            .as_ref()
+            .is_some_and(|playing| playing.preview.is_none())
+        {
+            self.stop_audio();
+            return;
+        }
+        self.stop_audio();
+        let result = self
+            .song_properties
+            .as_ref()
+            .ok_or_else(|| deadsync_editor::Error::InvalidEdit("No song draft".into()))
+            .and_then(|draft| {
+                draft.sample_audio(
+                    &self.workspace.file().session,
+                    self.workspace.chart(),
+                    self.workspace.file().path(),
+                )
+            });
+        match result {
+            Ok(sample) => {
+                self.audio_commands.push(GameplayAudioCommand::PlayMusic {
+                    path: sample.path,
+                    cut: GameplayMusicCut {
+                        start_sec: sample.start,
+                        length_sec: sample.length.unwrap_or(f64::INFINITY),
+                        fade_in_sec: 0.0,
+                        fade_out_sec: 1.5,
+                    },
+                    looping: true,
+                    rate: 1.0,
+                });
+                self.playback = Some(Playing {
+                    preview: None,
+                    requested: Instant::now(),
+                    mapped: false,
+                });
+                self.status = i18n::tr("Edition", "SongSamplePlaying");
             }
             Err(error) => {
                 self.status =
@@ -66,6 +113,9 @@ impl State {
         let Some(playing) = self.playback.as_mut() else {
             return;
         };
+        let Some(preview) = playing.preview.as_ref() else {
+            return;
+        };
         let clock = snapshot.stream_clock;
         if clock.valid_at < playing.requested {
             return;
@@ -77,9 +127,7 @@ impl State {
             return;
         }
         playing.mapped = true;
-        let result = playing
-            .preview
-            .position(clock.music_nanos as f64 / 1_000_000_000.0);
+        let result = preview.position(clock.music_nanos as f64 / 1_000_000_000.0);
         match result {
             Ok(row) => {
                 // Notes use nonnegative integral rows; the transport clock

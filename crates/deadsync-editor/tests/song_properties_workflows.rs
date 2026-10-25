@@ -300,3 +300,31 @@ fn sample_region_positions_keep_fractional_boundaries_and_follow_tempo_changes()
     session.set_text(None, "TITLE", "New revision").unwrap();
     assert!(draft.sample_positions(&session, 0).is_err());
 }
+
+#[test]
+fn sample_audio_uses_raw_file_seconds_and_dedicated_preview_precedence() {
+    let session = song(Format::Ssc);
+    let dir = tempfile::tempdir().unwrap();
+    fs::write(dir.path().join("song.ogg"), b"transport fixture").unwrap();
+    let path = dir.path().join("song.ssc");
+    let mut draft = Draft::capture(&session).unwrap();
+    assert!(draft.sample_audio(&session, 0, &path).is_err());
+    draft.set_sample_start(12.5).unwrap();
+    draft.set_sample_length(15.0).unwrap();
+    draft.set_music_offset(0.75).unwrap();
+    draft.set_sync_offset(0.125).unwrap();
+    let sample = draft.sample_audio(&session, 0, &path).unwrap();
+    assert_eq!(sample.start, 12.5);
+    assert_eq!(sample.length, Some(15.0));
+    assert_eq!(sample.path, dir.path().join("song.ogg"));
+    let mut session = session;
+    session.set_text(None, "PREVIEW", "preview.wav").unwrap();
+    fs::write(dir.path().join("preview.wav"), b"dedicated fixture").unwrap();
+    let draft = Draft::capture(&session).unwrap();
+    let sample = draft.sample_audio(&session, 0, &path).unwrap();
+    assert_eq!(sample.start, 0.0);
+    assert_eq!(sample.length, None);
+    assert_eq!(sample.path, dir.path().join("preview.wav"));
+    fs::remove_file(dir.path().join("preview.wav")).unwrap();
+    assert!(draft.sample_audio(&session, 0, &path).is_err());
+}

@@ -103,6 +103,11 @@ impl State {
         self.refresh_sample_region();
     }
     pub(super) fn song_sample_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::F4 {
+            self.toggle_sample_audio();
+            return;
+        }
+        self.stop_audio();
         if index < 2 && matches!(code, KeyCode::F2 | KeyCode::F3) {
             let result = (|| -> Result<(), deadsync_editor::Error> {
                 let Some(draft) = self.song_properties.as_mut() else {

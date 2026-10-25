@@ -503,3 +503,55 @@ fn sample_region_actor_tracks_staged_length_and_disappears_after_discard() {
         original.as_bytes()
     );
 }
+
+#[test]
+fn sample_audition_sends_looped_cut_and_stops_on_toggle_or_property_edit() {
+    let (dir, mut state, original) = setup(false, false);
+    press(&mut state, KeyCode::F11);
+    press(&mut state, KeyCode::F6);
+    press(&mut state, KeyCode::Tab);
+    press(&mut state, KeyCode::ArrowRight);
+    let row = state.workspace().row();
+    press(&mut state, KeyCode::F4);
+    assert!(state.is_playing());
+    match state.take_audio_commands().as_slice() {
+        [
+            GameplayAudioCommand::PlayMusic {
+                path,
+                cut,
+                looping,
+                rate,
+            },
+        ] => {
+            assert_eq!(*path, dir.path().join("song.ogg").canonicalize().unwrap());
+            assert_eq!(cut.start_sec, 0.0);
+            assert_eq!(cut.length_sec, 0.001);
+            assert_eq!(cut.fade_out_sec, 1.5);
+            assert!(*looping);
+            assert_eq!(*rate, 1.0);
+        }
+        other => panic!("unexpected commands: {other:?}"),
+    }
+    assert_eq!(state.workspace().row(), row);
+    press(&mut state, KeyCode::F4);
+    assert!(!state.is_playing());
+    assert_eq!(
+        state.take_audio_commands(),
+        [GameplayAudioCommand::StopMusic]
+    );
+    press(&mut state, KeyCode::F4);
+    state.take_audio_commands();
+    press(&mut state, KeyCode::ArrowLeft);
+    assert!(!state.is_playing());
+    assert_eq!(
+        state.take_audio_commands(),
+        [GameplayAudioCommand::StopMusic]
+    );
+    press(&mut state, KeyCode::F4); // zero length cannot play
+    assert!(!state.is_playing());
+    assert!(state.take_audio_commands().is_empty());
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        original.as_bytes()
+    );
+}

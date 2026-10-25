@@ -2783,3 +2783,24 @@ pointer manipulation and audio audition remain outstanding. The rendered
 appearance has not yet been observed in the rebuilt app.
 
 All nine native song-text workflows pass, including staged region-label appearance and disappearance after parent discard with no source mutation. `cargo check -p deadsync --locked` passes. These actor checks do not validate GPU clipping or final text placement.
+
+### Sample audition command pipeline
+
+F4 in the optional sample panel toggles looped audition. A dedicated SSC PREVIEW
+file takes precedence and plays from zero for its full duration. Otherwise the
+current chart MUSIC override or staged song MUSIC is used with staged
+SAMPLESTART/SAMPLELENGTH in raw file seconds, independent of chart offset/sync.
+A nonpositive length or missing selected file rejects playback. The command uses
+the original default preview fades (0 s in, 1.5 s out), looping and rate 1.
+Reference: pinned MusicManager.StartPreviewPlayback, RenderPreview sample wrap
+and PreferencesAudio defaults. Fade preferences editing remains pending.
+
+Audition shares the existing audio command adapter, but does not advance the
+chart cursor. F4 stops it; another sample-panel action stops it before editing
+or leaving. This is a command integration, not evidence of actual decoded audio
+or audible loop/fade equivalence. Dedicated preview-file editing, decoder/error
+feedback, and rendered/audible QA remain required. Sixteen targeted core tests
+pass, including cut times unaffected by staged offsets and PREVIEW precedence
+even when no sample length is set.
+
+The selected native song-text and playback workflows pass, including looped-cut payload, toggle stop, edit stop, zero-length refusal and unchanged document. `cargo check -p deadsync --locked` passes. OS decoder/speaker output is not covered by these fixtures.
