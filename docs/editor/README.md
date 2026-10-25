@@ -92,9 +92,10 @@ seed. `ActionAutoGeneratePatterns` additionally constrains preceding/following
 footing and pattern configuration. The Rust port must preserve these contracts.
 A random lane picker or a basic difficulty filter would not meet the request.
 
-Next implementation work must connect automatic fallback selection from pad
-containment, generated chart file assembly, reversible previews and native
-asynchronous generation panels, using the conversion engine now ported below. Differential fixtures must extend the existing tech, bracket, crossover,
+Automatic fallback selection, generated-note assembly and reversible chart
+creation are implemented below. Next work must connect source preparation,
+preview identity and native asynchronous generation panels. Differential
+fixtures must extend the existing tech, bracket, crossover,
 hold, mine, layout and seed cases to that complete conversion pipeline.
 Generation results need preview and one reversible application gesture before
 being exposed as complete. The other advanced editor domains remain required
@@ -264,8 +265,8 @@ original-runtime cases compare both ordering and the next PRNG value, proving
 that root-tier ordering does not shift subsequent mine placement. Conversion
 cancellation, invalid roots and invalid mine associations return no partial
 performance. These cases use synthetic lane events with explicit timestamps.
-End-to-end SM/SSC conversion, including split timing and the source interpreter's
-first-event-of-row timestamp grouping, still needs separate adapter tests.
+The source adapter tests below cover split timing and the interpreter's
+first-event-of-row grouping; a wider full-conversion corpus remains needed.
 No native generation panel or generated-chart save workflow is claimed complete
 by these engine tests.
 
@@ -291,3 +292,34 @@ workflow reads source notes, timing and mines through FileSession before
 interpretation, conversion, assembly, append and save/reopen. This does not yet
 prove the full split-timing adapter behavior described above, and generation UI
 remains pending.
+
+### Immutable source preparation and interpretation clocks
+
+`source::prepare` reads a serialized editor snapshot so unsaved notes, effective
+chart timing and difficulty agree. It prepares movement frames, first-event-of-row
+times, individually timed mines and the original first/last-event span. Timing-only
+rows, keysounds and sustain tails contribute to that span. Miscellaneous timing
+events before delays and scroll/speed events after notes retain their ordering.
+The adapter does not invent a 60 BPM event when no BPM exists: Fumen leaves such
+charts at zero event time, including SSC charts whose only local timing is OFFSET.
+
+Five differential clock cases verify exact f64 timestamps for same-row tempo and
+delay events, ordinary/negative stops and overlapping warps with tempo changes.
+Seven real files are read by the unmodified Fumen SMReader/SSCReader, then passed
+to the original ExpressedChart engine. Rust compares event spans, frame and mine
+timestamps, complete interpreted movement links/instances and mine associations.
+They include song timing, chart timing, offset-only timing, metadata beyond the
+last note, and a final delay with/without a same-row scroll event. An integration
+test uses this adapter for conversion, append, save and RSSP reopen. Snapshot,
+invalid-request and cancellation checks cover unsaved edits as well.
+
+`serde_json` enables `float_roundtrip`: the default parser can shift reference
+values by one ULP, changing strict density/policy comparisons. Fixture numeric
+comparisons retain exact f64 equality; whole-valued doubles normalize only their
+JSON integer/float representation.
+
+This is not yet complete input parity. Attack timing and generation of multiple
+participants are explicitly rejected by source preparation. Fumen timing-entry
+validation, conflicting/rounded beat positions, unusual encodings and broader
+cross-format/legacy timing cases still require reader-level differential coverage.
+Native generation jobs and panels remain pending.

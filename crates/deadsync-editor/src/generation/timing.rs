@@ -10,6 +10,10 @@ pub enum EventKind {
     Delay(f64),
     Stop(f64),
     Warp(i64),
+    /// Time signatures, ticks, fakes, combos and labels precede delays.
+    LeadingMarker,
+    /// Scroll and speed events follow notes but precede ordinary stops.
+    TrailingMarker,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -21,8 +25,9 @@ pub struct Event {
 impl Event {
     fn order(self) -> u8 {
         match self.kind {
-            EventKind::Tempo(_) => 0,
+            EventKind::Tempo(_) | EventKind::LeadingMarker => 0,
             EventKind::Delay(_) => 1,
+            EventKind::TrailingMarker => 2,
             EventKind::Stop(length) if length >= 0.0 => 3,
             EventKind::Stop(_) => 4,
             EventKind::Warp(_) => 5,
@@ -138,8 +143,67 @@ impl GenerationTiming {
                 },
                 3,
             ),
+            (
+                if own {
+                    entry.chart_time_signatures.as_deref()
+                } else {
+                    parsed.time_signatures
+                },
+                4,
+            ),
+            (
+                if own {
+                    entry.chart_tickcounts.as_deref()
+                } else {
+                    parsed.tickcounts
+                },
+                4,
+            ),
+            (
+                if own {
+                    entry.chart_fakes.as_deref()
+                } else {
+                    parsed.fakes
+                },
+                4,
+            ),
+            (
+                if own {
+                    entry.chart_combos.as_deref()
+                } else {
+                    parsed.combos
+                },
+                4,
+            ),
+            (
+                if own {
+                    entry.chart_labels.as_deref()
+                } else {
+                    parsed.labels
+                },
+                4,
+            ),
+            (
+                if own {
+                    entry.chart_scrolls.as_deref()
+                } else {
+                    parsed.scrolls
+                },
+                5,
+            ),
+            (
+                if own {
+                    entry.chart_speeds.as_deref()
+                } else {
+                    parsed.speeds
+                },
+                5,
+            ),
         ];
-        let mut events = Vec::new();
+        let mut events = vec![Event {
+            row: 0,
+            kind: EventKind::LeadingMarker,
+        }];
         for (field, kind) in fields {
             let Some(field) = field else {
                 continue;
@@ -161,6 +225,17 @@ impl GenerationTiming {
                     .trim()
                     .parse::<f64>()
                     .map_err(|_| Error::InvalidFormat("Invalid timing beat".into()))?;
+                if kind >= 4 {
+                    events.push(Event {
+                        row: beat_to_row(beat)?,
+                        kind: if kind == 4 {
+                            EventKind::LeadingMarker
+                        } else {
+                            EventKind::TrailingMarker
+                        },
+                    });
+                    continue;
+                }
                 let value = value
                     .trim()
                     .parse::<f64>()
@@ -175,15 +250,6 @@ impl GenerationTiming {
                 events.push(Event { row, kind });
             }
         }
-        if !events
-            .iter()
-            .any(|event| matches!(event.kind, EventKind::Tempo(_)))
-        {
-            events.push(Event {
-                row: 0,
-                kind: EventKind::Tempo(60.0),
-            });
-        }
         Self::new(events)
     }
 
@@ -191,10 +257,69 @@ impl GenerationTiming {
         self.times_checked(rows, || Ok(()))
     }
 
+    /// Original first/last event times, including timing-only rows and note
+    /// rows that produce no movement (for example keysounds and mines).
+    pub fn event_span_checked(
+        &self,
+        note_rows: impl IntoIterator<Item = u64>,
+        mut checkpoint: impl FnMut() -> Result<(), Error>,
+    ) -> Result<[f64; 2], Error> {
+        let mut events = self.events.clone();
+        for row in note_rows {
+            checkpoint()?;
+            let row = i64::try_from(row)
+                .map_err(|_| Error::InvalidEdit("Generation row overflow".into()))?;
+            if row > i64::from(i32::MAX) {
+                return invalid("Generation row exceeds the reference range");
+            }
+            events.push(Event {
+                row,
+                kind: EventKind::TrailingMarker,
+            });
+        }
+        events.sort_by_key(|event| (event.row, event.order()));
+        let mut clock = Clock::default();
+        let mut first = None;
+        let mut last = 0.0;
+        for event in events {
+            checkpoint()?;
+            last = clock.event(event.row, Some(event.kind));
+            if !last.is_finite() {
+                return invalid("Generation timing produced a non-finite timestamp");
+            }
+            first.get_or_insert(last);
+        }
+        Ok([first.unwrap_or(0.0), last])
+    }
+
+    /// ExpressedChart.ParseNextEvents uses the time of the first event at each
+    /// row, before same-row tempo/delay events alter later note timestamps.
+    /// Mine events keep their own note timestamps and must use `times` instead.
+    pub fn grouped_times(&self, rows: impl IntoIterator<Item = u64>) -> Result<Vec<f64>, Error> {
+        self.query_times(rows, true, || Ok(()))
+    }
+
+    pub fn grouped_times_checked(
+        &self,
+        rows: impl IntoIterator<Item = u64>,
+        checkpoint: impl FnMut() -> Result<(), Error>,
+    ) -> Result<Vec<f64>, Error> {
+        self.query_times(rows, true, checkpoint)
+    }
+
     /// Check cancellation while preparing long ranges, including dense timing events.
     pub fn times_checked(
         &self,
         rows: impl IntoIterator<Item = u64>,
+        checkpoint: impl FnMut() -> Result<(), Error>,
+    ) -> Result<Vec<f64>, Error> {
+        self.query_times(rows, false, checkpoint)
+    }
+
+    fn query_times(
+        &self,
+        rows: impl IntoIterator<Item = u64>,
+        grouped: bool,
         mut checkpoint: impl FnMut() -> Result<(), Error>,
     ) -> Result<Vec<f64>, Error> {
         let mut clock = Clock::default();
@@ -208,11 +333,9 @@ impl GenerationTiming {
             if row > i64::from(i32::MAX) || previous_row.is_some_and(|previous| previous > row) {
                 return invalid("Generation rows must be ordered and within the reference range");
             }
-            while let Some(event) = self
-                .events
-                .get(cursor)
-                .filter(|event| event.row < row || (event.row == row && event.order() < 2))
-            {
+            while let Some(event) = self.events.get(cursor).filter(|event| {
+                event.row < row || (!grouped && event.row == row && event.order() < 2)
+            }) {
                 checkpoint()?;
                 clock.event(event.row, Some(event.kind));
                 cursor += 1;
@@ -277,7 +400,7 @@ impl Clock {
                     self.warp_start = Some(row);
                 }
             }
-            None => {}
+            None | Some(EventKind::LeadingMarker | EventKind::TrailingMarker) => {}
         }
         time
     }

@@ -8,6 +8,6 @@ description = "Lossless chart editing and GrooveAuthor functionality for DeadSyn
 [dependencies]
 tempfile = "3.27.0"
 serde = { version = "1.0.229", features = ["derive"] }
-serde_json = "1.0.151"
+serde_json = { version = "1.0.151", features = ["float_roundtrip"] }
 rssp = { git = "https://github.com/pnn64/rssp", branch = "main" }
 lzma-rs = "0.3.0"

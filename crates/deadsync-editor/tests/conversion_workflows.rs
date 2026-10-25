@@ -506,7 +506,7 @@ fn containment_preserves_relationships_and_handles_sparse_custom_coordinates() {
 fn actual_file_chart_generation_applies_once_saves_and_reopens_through_rssp() {
     use deadsync_editor::{
         analysis,
-        generation::{output, timing::GenerationTiming},
+        generation::{output, source},
         storage::FileSession,
     };
     let input = fixture("convert-dance-single-to-dance-double-42", "request");
@@ -530,30 +530,13 @@ fn actual_file_chart_generation_applies_once_saves_and_reopens_through_rssp() {
     fs::write(&path, &bytes).unwrap();
     let mut file = FileSession::open(&path).unwrap();
     let source_grid = file.session.grid(0).unwrap().clone();
-    let frames = expressed::frames(&source_grid, 0, &AtomicBool::new(false)).unwrap();
-    let timing =
-        GenerationTiming::from_simfile(&bytes, deadsync_editor::document::Format::Ssc, 0).unwrap();
-    let times = timing.times(frames.iter().map(|frame| frame.row)).unwrap();
-    let mut mine_positions = source_grid
-        .iter()
-        .filter(|(_, note)| note.kind == deadsync_editor::notes::Kind::Mine)
-        .map(|(position, _)| (position.row, position.lane))
-        .collect::<Vec<_>>();
-    mine_positions.sort_unstable();
-    let mine_times = timing
-        .times(mine_positions.iter().map(|(row, _)| *row))
-        .unwrap();
-    let source_mines = mine_positions
-        .into_iter()
-        .zip(mine_times)
-        .map(
-            |((row, lane), time)| deadsync_editor::generation::mines::SourceMine {
-                row,
-                lane,
-                time,
-            },
-        )
-        .collect::<Vec<_>>();
+    let prepared = source::prepare(
+        file.session.serialize().unwrap().into(),
+        deadsync_editor::document::Format::Ssc,
+        0,
+        &AtomicBool::new(false),
+    )
+    .unwrap();
     let source_graph = StepGraph::builtin("dance-single").unwrap();
     let config = ExpressedConfig {
         bracket_parsing_determination: BracketDetermination::UseDefaultMethod,
@@ -562,14 +545,9 @@ fn actual_file_chart_generation_applies_once_saves_and_reopens_through_rssp() {
     let interpreted = expressed::build_chart(
         &source_graph,
         deadsync_editor::pad::Pad::builtin("dance-single").unwrap(),
-        &expressed::PolicyRequest {
-            frames: &frames,
-            times: &times,
-            difficulty: 9.0,
-            event_span: [0.0, 1.3],
-        },
+        &prepared.request(),
         &config,
-        &source_mines,
+        &prepared.mines,
         &AtomicBool::new(false),
         |_, _, _| {},
     )

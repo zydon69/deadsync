@@ -21,6 +21,64 @@ var options = new JsonSerializerOptions
 };
 var request = JsonDocument.Parse(File.ReadAllBytes(args[1])).RootElement;
 var operation = request.GetProperty("Operation").GetString();
+if (operation == "FileClock")
+{
+    var extension = request.GetProperty("Format").GetString()!;
+    var temp = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + "." + extension);
+    try {
+        await File.WriteAllTextAsync(temp, request.GetProperty("Content").GetString()!);
+        Fumen.Converters.Reader reader = extension == "ssc" ? new Fumen.Converters.SSCReader(temp) : new Fumen.Converters.SMReader(temp);
+        var song = await reader.LoadAsync(CancellationToken.None);
+        var fileChart = song.Charts[request.GetProperty("Chart").GetInt32()];
+        var fileEvents = fileChart.Layers[0].Events;
+        var fileNotes = fileEvents.OfType<LaneNote>().ToArray();
+        var filePad = await PadData.LoadPadData("dance-single", Path.Combine(args[0], "StepManiaLibrary", "dance-single.json"));
+        var fileGraph = StepGraph.Load(Path.Combine(args[0], "StepManiaLibrary", "dance-single.fsg"), filePad);
+        var fileConfig = new StepManiaLibrary.ExpressedChart.Config {
+            BracketParsingDetermination = StepManiaLibrary.ExpressedChart.BracketParsingDetermination.UseDefaultMethod,
+            DefaultBracketParsingMethod = StepManiaLibrary.ExpressedChart.BracketParsingMethod.Balanced };
+        fileConfig.Init();
+        var fileExpressed = StepManiaLibrary.ExpressedChart.ExpressedChart.CreateFromSMEvents(fileEvents, fileGraph, fileConfig, 9.0, "Oracle");
+
+        Console.WriteLine(JsonSerializer.Serialize(new {
+            Success = fileExpressed != null,
+            Steps = fileExpressed?.StepEvents.Select(e => new { Row = e.Position, Time = e.Time,
+                Link = Enumerable.Range(0, 4).SelectMany(i => new int[] {
+                    e.LinkInstance.GraphLink.Links[i / 2, i % 2].Valid ? 1 : 0,
+                    (int)e.LinkInstance.GraphLink.Links[i / 2, i % 2].Step,
+                    (int)e.LinkInstance.GraphLink.Links[i / 2, i % 2].Action,
+                    (int)e.LinkInstance.InstanceTypes[i / 2, i % 2] }).ToArray() }).ToArray(),
+            Mines = fileExpressed?.MineEvents.Select(m => new { Row = m.Position, Time = m.Time, Lane = m.OriginalArrow,
+                Kind = (int)m.Type, Nth = m.ArrowIsNthClosest, Foot = m.FootAssociatedWithPairedNote }).ToArray(),
+            Span = new[] { fileEvents.First().TimeSeconds, fileEvents.Last().TimeSeconds },
+            Notes = fileNotes.Select(note => new { Row = note.IntegerPosition, Lane = note.Lane, Symbol = note.SourceType,
+                Time = note.TimeSeconds, GroupTime = fileEvents.First(e => e.IntegerPosition == note.IntegerPosition).TimeSeconds }).ToArray()
+        }, options));
+    } finally { File.Delete(temp); }
+    return;
+}
+if (operation == "Clock")
+{
+    var clockEvents = new List<Event>();
+    foreach (var tempo in request.GetProperty("Bpms").EnumerateArray())
+        clockEvents.Add(new Tempo(tempo[1].GetDouble()) { IntegerPosition = tempo[0].GetInt32() });
+    foreach (var timingName in new[] { "Stops", "Delays", "Warps" })
+        if (request.TryGetProperty(timingName, out var segments))
+            foreach (var segment in segments.EnumerateArray())
+                clockEvents.Add(timingName == "Warps"
+                    ? new Warp(segment[1].GetInt32()) { IntegerPosition = segment[0].GetInt32() }
+                    : new Stop(segment[1].GetDouble(), timingName == "Delays") { IntegerPosition = segment[0].GetInt32() });
+    var probes = request.GetProperty("Rows").EnumerateArray().Select(row =>
+        new LaneTapNote { IntegerPosition = row.GetInt32(), Lane = 0, SourceType = "1" }).ToList();
+    clockEvents.AddRange(probes);
+    clockEvents.Sort(new Fumen.Converters.SMCommon.SMEventComparer());
+    Fumen.Converters.SMCommon.SetEventTimeFromRows(clockEvents);
+    Console.WriteLine(JsonSerializer.Serialize(new {
+        Notes = probes.Select(note => note.TimeSeconds).ToArray(),
+        Groups = probes.Select(note => clockEvents.First(e => e.IntegerPosition == note.IntegerPosition).TimeSeconds).ToArray()
+    }, options));
+    return;
+}
 if (operation == "PadFit")
 {
     var fitNames = request.GetProperty("Layouts").Deserialize<string[]>()!;

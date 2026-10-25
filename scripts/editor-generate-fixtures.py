@@ -198,6 +198,35 @@ def requests(reference: Path):
     cases["convert-mines-simultaneous-no-arrow"] = {"Operation": "Convert", "SourceLayout": "dance-single", "Layout": "dance-double",
         "Notes": [[0, 0, "M"], [0, 1, "M"], [12, 2, "M"]], "Seed": 19, "FallbackMode": "default", "PerformedConfig": copy.deepcopy(performed)}
     cases["pad-containment"] = {"Operation": "PadFit", "Layouts": list(performed["ArrowWeights"]) + ["dance-routine", "pump-routine", "smx-team"]}
+    for label, values in {
+        "delay": {"Delays": [[48, 0.5], [96, 0.25]]},
+        "tempo-delay": {"Bpms": [[0, 120], [48, 180], [96, 240]], "Delays": [[48, 0.5], [96, 0.25]]},
+        "mixed": {"Bpms": [[0, 120], [48, 180], [96, 240]], "Delays": [[48, 0.5], [96, -0.25]], "Stops": [[48, 0.75], [72, -0.3]], "Warps": [[48, 72], [96, 96]]},
+        "negative-stops": {"Stops": [[0, -1.5], [48, 0.25], [72, -0.5]], "Delays": [[48, 0.5]]},
+        "overlap": {"Warps": [[24, 96], [48, 192]], "Bpms": [[0, 150], [72, 200]], "Stops": [[96, 0.2]], "Delays": [[120, 0.4]]},
+    }.items():
+        cases["clock-" + label] = {"Operation": "Clock", "Bpms": [[0, 120]],
+            "Rows": [0, 12, 24, 48, 48, 72, 96, 120, 192, 240, 384], **values}
+    note_rows = [["0"] * 4 for _ in range(192)]
+    for row, lane, symbol in [(0, 0, "2"), (48, 0, "3"), (48, 1, "1"), (48, 2, "M"), (72, 2, "M"), (96, 3, "4"), (144, 3, "3"), (180, 0, "F"), (180, 2, "L"), (191, 1, "K")]:
+        note_rows[row][lane] = symbol
+    body = "\n".join("".join(row) for row in note_rows)
+    base = "#TITLE:Timing fixture;#ARTIST:Oracle;#OFFSET:0.15;#BPMS:0=120,1=180,2=240;#DELAYS:1=0.5,2=0.25;#STOPS:1=0.3,1.5=-0.2;#WARPS:1=1.5,2=2;"
+    for label, extension, version, extra_song, extra_chart in [
+        ("sm", "sm", "", "", ""),
+        ("inherited", "ssc", "0.83", "", ""),
+        ("own", "ssc", "0.83", "", "#BPMS:0=150,2=200;#DELAYS:1=0.4,2=0.3;"),
+        ("offset-only", "ssc", "0.83", "", "#OFFSET:0.2;"),
+        ("metadata", "ssc", "0.83", "#TIMESIGNATURES:0=4=4,8=3=4;#LABELS:10=End;#TICKCOUNTS:6=8;#COMBOS:7=2=3;#FAKES:9=1;#SCROLLS:11=0.5;#SPEEDS:12=1=0=0;", ""),
+        ("ending-delay", "ssc", "0.83", "#DELAYS:6=0.4;#LABELS:6=End;", ""),
+        ("ending-scroll-delay", "ssc", "0.83", "#DELAYS:6=0.4;#SCROLLS:6=0.5;", ""),
+    ]:
+        content = (base.replace("#DELAYS:1=0.5,2=0.25;", "") if label.startswith("ending-") else base) + extra_song
+        if extension == "ssc":
+            content = "#VERSION:" + version + ";" + content + "#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;" + extra_chart + "#NOTES:\n" + body + "\n;"
+        else:
+            content += "#NOTES:dance-single:Oracle:Hard:9:0,0,0,0,0:\n" + body + "\n;"
+        cases["file-clock-" + label] = {"Operation": "FileClock", "Format": extension, "Chart": 0, "Content": content}
     return cases
 
 
@@ -205,6 +234,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reference-root", type=Path, required=True)
     parser.add_argument("--dotnet", type=Path, required=True)
+    parser.add_argument("--only", action="append", help="Regenerate only names starting with this prefix (repeatable)")
     args = parser.parse_args()
     reference = args.reference_root.resolve()
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference, text=True).strip()
@@ -220,6 +250,8 @@ def main():
     for seed in [0, 42, -7, -2147483648, 2147483647]:
         cases[f"random-{seed}"] = {"Operation": "Random", "Seed": seed, "Count": 64}
     for name, request in cases.items():
+        if args.only and not any(name.startswith(prefix) for prefix in args.only):
+            continue
         path = output / f"{name}.request.json"
         path.write_text(json.dumps(request, indent=2) + "\n")
         result = subprocess.check_output([str(args.dotnet), str(oracle), str(reference), str(path)], env=env, text=True)

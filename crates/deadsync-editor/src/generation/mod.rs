@@ -15,5 +15,6 @@ pub mod performed;
 pub mod random;
 pub mod reference_sort;
 pub mod search;
+pub mod source;
 pub mod step_data;
 pub mod timing;
