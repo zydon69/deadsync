@@ -2947,3 +2947,23 @@ in the application data directory independently of songs, reject invalid
 values, and prove load/edit/save/reopen plus audition-command application.
 Malformed/future preference files must not be silently overwritten. This is
 planned work, not an implemented preference feature at this checkpoint.
+
+### Audio preference storage foundation (not connected to native UI yet)
+
+Added audio_preferences::Audio with original fade defaults 0 / 1.5 seconds and
+finite nonnegative setters, matching the original UI's zero minimum. A separate
+versioned JSON File adapter loads defaults when absent, rejects malformed or
+unknown-version files, retains unknown root/audio fields, and leaves source bytes
+untouched on no-op. Explicit saves use a same-directory temporary file, sync,
+atomic replacement, advisory lock and exact expected-byte conflict detection.
+The adapter tracks post-replacement expected bytes before directory sync so a
+sync failure does not make a retry conflict with its own successful replacement.
+It does not write songs or mark preference changes saved before successful sync.
+
+All four audio_preferences_workflows pass: defaults without creating a file,
+edit/save/reopen independent of a song, unknown-field/no-op preservation,
+competing-session refusal, and invalid values/files unchanged. The application
+data path, shell loading, keyboard preference panel and use of these settings
+in audition are still pending. This module alone is not the complete preference
+feature; original full PreferencesAudio import/export and actual fade DSP
+equivalence remain outside these tests.

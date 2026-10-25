@@ -3,6 +3,7 @@
 //! Simfiles retain their original bytes. Edits replace explicit value spans,
 //! leaving unknown tags, comments, encodings, and unedited charts intact.
 pub mod analysis;
+pub mod audio_preferences;
 pub mod chart_properties;
 pub mod chart_identity;
 pub mod chart_text;
