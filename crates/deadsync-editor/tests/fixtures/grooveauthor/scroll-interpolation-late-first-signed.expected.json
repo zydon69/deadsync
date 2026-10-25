@@ -1,0 +1,105 @@
+{
+  "Origins": [
+    {
+      "Row": 96,
+      "Time": 1.05
+    },
+    {
+      "Row": 192,
+      "Time": 1.6500000000000001
+    }
+  ],
+  "Speeds": {
+    "Initial": {
+      "Nodes": [
+        {
+          "Row": 96,
+          "Rate": -1,
+          "Rows": 0,
+          "Seconds": 2,
+          "Time": true
+        },
+        {
+          "Row": 192,
+          "Rate": 2,
+          "Rows": 96,
+          "Seconds": 0,
+          "Time": false
+        }
+      ],
+      "Queries": [
+        {
+          "Row": -48,
+          "Time": -0.5,
+          "Rate": -1
+        },
+        {
+          "Row": 0,
+          "Time": 0,
+          "Rate": -1
+        },
+        {
+          "Row": 95.5,
+          "Time": 0.75,
+          "Rate": -1
+        },
+        {
+          "Row": 96,
+          "Time": 0.9,
+          "Rate": -1
+        },
+        {
+          "Row": 96,
+          "Time": 1,
+          "Rate": -1
+        },
+        {
+          "Row": 96,
+          "Time": 1.5,
+          "Rate": -1
+        },
+        {
+          "Row": 96,
+          "Time": 1.75,
+          "Rate": -1
+        },
+        {
+          "Row": 96,
+          "Time": 2,
+          "Rate": -1
+        },
+        {
+          "Row": 120,
+          "Time": 2.5,
+          "Rate": -1
+        },
+        {
+          "Row": 144,
+          "Time": 3,
+          "Rate": -1
+        },
+        {
+          "Row": 192,
+          "Time": 3.1,
+          "Rate": -1
+        },
+        {
+          "Row": 240,
+          "Time": 3.5,
+          "Rate": 0.5
+        },
+        {
+          "Row": 288,
+          "Time": 4,
+          "Rate": 2
+        },
+        {
+          "Row": 336,
+          "Time": 5,
+          "Rate": 2
+        }
+      ]
+    },
+    "Stages": []
+  }
+}

@@ -9,7 +9,7 @@ namespace SpeedOracle;
 internal sealed class EditorChart:PauseOracle.EditorChart{public void OnInterpolatedRateAlteringEventModified(EditorInterpolatedRateAlteringEvent _) {}}
 internal sealed class EditorInterpolatedRateAlteringEvent(int row,ScrollRateInterpolation value,EditorChart owner):PauseOracle.EditorEvent(row){
     private readonly ScrollRateInterpolation ScrollRateInterpolationEvent=value;private readonly EditorChart EditorChart=owner;private bool WidthDirty;
-    public double PreviousScrollRate;private double GetChartTime()=>Row/96.0;
+    public double PreviousScrollRate;public double? ChartTimeOverride;private double GetChartTime()=>ChartTimeOverride??Row/96.0;
     public ScrollRateInterpolation Data=>ScrollRateInterpolationEvent;
     // VALIDATOR
     // SETTER
@@ -23,6 +23,12 @@ internal static class Reference{
         var chart=new Chart{Layers=[new Layer()]};SMCommon.AddScrollRateInterpolationEvents(source,chart,new TempoOracle.SilentLogger(),false);var store=new EditorChart();var nodes=new SortedDictionary<int,EditorInterpolatedRateAlteringEvent>();
         foreach(var e in chart.Layers[0].Events.OfType<ScrollRateInterpolation>())nodes[e.IntegerPosition]=new(e.IntegerPosition,e,store);
         store.EditorEvents.AddRange(nodes.Values);
+        if(input.TryGetProperty("EventTimes",out var eventTimes)) {
+            foreach(var pair in eventTimes.EnumerateObject()) {
+                if(nodes.TryGetValue(int.Parse(pair.Name),out var node))node.ChartTimeOverride=pair.Value.GetDouble();
+            }
+        }
+
         object Values(){
             double previous=1;bool first=true;foreach(var node in nodes.Values){node.PreviousScrollRate=first?node.Data.Rate:previous;previous=node.Data.Rate;first=false;}
             return new {Nodes=nodes.Select(pair=>new{Row=pair.Key,Rate=pair.Value.Data.Rate,Rows=pair.Value.Data.PeriodLengthIntegerPosition,Seconds=pair.Value.Data.PeriodTimeSeconds,Time=pair.Value.Data.PreferPeriodAsTime}).ToArray(),Queries=input.GetProperty("Queries").EnumerateArray().Select(query=>{var row=query[0].GetDouble();var time=query[1].GetDouble();var node=nodes.LastOrDefault(pair=>pair.Key<=row).Value??nodes.FirstOrDefault().Value;var rate=node==null?1:node.Data.PreferPeriodAsTime?node.GetInterpolatedScrollRateFromTime(time):node.GetInterpolatedScrollRateFromRow(row);return new {Row=row,Time=time,Rate=rate};}).ToArray()};

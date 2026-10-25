@@ -665,6 +665,11 @@ impl EditorTimeline {
             SpacingSection { order, mapping, tempo: rate.tempo, scroll: rate.scroll }
         })
     }
+    /// A SPEEDS event follows delays/notes/SCROLLS and precedes ordinary stops
+    /// and warps at the same row. Plain position_time uses a different phase.
+    pub fn speed_event_time(&self, row: u64) -> Result<f64, Error> {
+        self.query(row, Some(Event { row: row as i64, kind: EventKind::TrailingMarker }.order()))
+    }
     pub fn position_time(&self, row: u64) -> Result<f64, Error> {
         self.query(row, None)
     }

@@ -1,0 +1,20 @@
+{
+  "GrooveAuthor": "48e18f71655d0f0d86144c63239331833501fda2",
+  "StepManiaLibrary": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "Fumen": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "TimingMethodsSHA256": "aa750e7bfaee572d9d4fbd0d66bf8d5cae74f9498a86a84b033b22bbc6225d5a",
+  "SpeedMethodsSHA256": "8b8633aee24017a22b0def838c524cbb7167ee2fc23b97c31e081051014c66f7",
+  "AdapterSHA256": {
+    "EditorTimingReference.cs.template": "1d32f1fbf5486fa1e35301b409f65205dc133a26e47d5c61813d0206db869bc7",
+    "SpeedReference.cs.template": "1d9205e8df8d9147d312bb5d90627cf8c84fb79d0eca33818626a4a6910914bf"
+  },
+  "Cases": [
+    "scroll-interpolation-baseline.request",
+    "scroll-interpolation-empty.request",
+    "scroll-interpolation-late-first-signed.request",
+    "scroll-interpolation-negative-stop-warp.request",
+    "scroll-interpolation-same-row-delay-stop-warp.request",
+    "scroll-interpolation-tempo-changes.request"
+  ],
+  "Scope": "Original event-timing pass supplies speed origins to unchanged interpolation methods; row selection adapters; not full native display"
+}

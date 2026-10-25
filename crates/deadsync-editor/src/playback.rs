@@ -88,6 +88,10 @@ impl Clock {
     pub fn spacing_sections(&self) -> impl Iterator<Item = crate::generation::editor_timing::SpacingSection> + '_ {
         self.timeline.spacing_sections()
     }
+    /// Chart time of a speed event at its original ordering phase, not audio-file time.
+    pub fn speed_event_time(&self, row: u64) -> Result<f64, Error> {
+        self.timeline.speed_event_time(row)
+    }
     pub(crate) fn with_song_draft(mut self, offset: f64, sync_offset: f64) -> Self {
         self.offset = offset;
         self.sync_offset = sync_offset;

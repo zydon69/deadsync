@@ -3648,3 +3648,45 @@ stop reference outputs still match. The separate spacing-helper generator also
 regenerated its original six traces after excluding the new section fixtures.
 `cargo check -p deadsync --jobs 2 --locked` passed. Native variable display and
 interpolated-speed traversal remain pending.
+
+### Interpolated scroll snapshot with actual speed-event phase
+
+`scroll_interpolation::Timeline` captures effective SPEEDS metadata and caches
+chart-time origins for seconds-based events. It delegates selection/interpolation
+to the existing original-compatible Speeds model, with O(log n) queries and no
+per-frame clock construction. Capture is immutable: callers rebuild after timing
+or speed edits. SSC chart/global ownership follows the reference reader; SM
+SPEEDS tags are ignored, matching unsupported-reader metadata semantics.
+
+The original SPEEDS phase follows delays/notes/SCROLLS and precedes ordinary stops
+and warps at the same row. New `speed_event_time` methods on EditorTimeline and
+Clock use that phase explicitly. A plain row-time lookup or audio-file timestamp
+is not interchangeable: at 120 BPM, a speed at row 96 with a same-row 0.5-second
+delay starts at chart time 1.5, before a subsequent same-row ordinary stop.
+Snapshot queries take chart time; audio and song sync offsets are not included.
+
+The visual snapshot is separate from ordinary audio Clock capture, so reading
+additional visual speed metadata introduces no new audio-capture failure path.
+Row-based/empty speed sets need no event-time clock. Captured speed values and
+origins are exposed read-only for subsequent spacing integration.
+
+Six composed reference cases first run the unchanged original editor timing
+pass to obtain speed-event timestamps, then supply those scalar timestamps to
+the unchanged original interpolation methods. They compare 16 event origins and
+84 speed queries across same-row delay/stop/warp, tempo changes, negative stops,
+late first events, signed/zero rates and empty metadata. No linear timestamp
+substitution is used in these new cases. Existing speed-edit fixtures retain
+their previous default scalar timestamp adapter and are checked for unchanged
+reference outputs. Reproduction/scope: scripts/editor-oracle/SCROLL-INTERPOLATION.md.
+
+Three Rust workflows verify the composed C# outputs, same-row phase, offset
+independence, immutable snapshots/rebuild after a tempo edit, split timing scope,
+SM ignored metadata and invalid queries. Actual native time/variable rendering,
+nonmonotonic visible-event traversal and waveform policy remain pending.
+
+Validation: all 383 editor core tests and all 186 native editor integration
+tests passed. The six composed C# traces regenerated successfully, including
+old speed-seconds, row-interruption and editor-timing baseline output checks.
+The initialized-section generator also regenerated its six traces with the
+extended timestamp adapter. `cargo check -p deadsync --jobs 2 --locked` passed.
+Native time/variable rendering remains pending.

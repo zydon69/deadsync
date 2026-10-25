@@ -290,6 +290,11 @@ internal static class Reference {
         }
         if(request.TryGetProperty("Region",out var region)) chart.EditorEvents.Add(new EditorPatternEvent(chart,region[0].GetInt32(),region[1].GetInt32()));
         chart.Refresh();
+        if (request.TryGetProperty("SpeedOrigins",out var speedOrigins) && speedOrigins.GetBoolean()) {
+            return chart.EditorEvents.Where(e=>e.GetEvent() is ScrollRateInterpolation)
+                .Select(e=>new {Row=e.GetRow(),Time=e.GetChartTime()}).ToArray();
+        }
+
         if (request.TryGetProperty("SpacingSections",out var spacingSections) && spacingSections.GetBoolean()) {
             return chart.RateAlteringEvents.Select(rate=>new {
                 Row=rate.GetRow(),Time=rate.GetChartTime(),Tempo=rate.GetTempo(),Scroll=rate.GetScrollRate(),
