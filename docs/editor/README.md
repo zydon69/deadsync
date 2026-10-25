@@ -94,8 +94,9 @@ A random lane picker or a basic difficulty filter would not meet the request.
 
 Automatic fallback selection, generated-note assembly and reversible chart
 creation, source preparation, session-bound previews and a native chart-generation
-panel are implemented below. Next work must add pattern-generation controls,
-surrounding-chart context, complete configurations and batch generation.
+panel are implemented below. The surrounding-footing and region primitives below are also implemented. Next
+work must connect a complete source-to-pattern task and native controls, complete
+configurations and batch generation.
 Differential fixtures must extend the existing tech, bracket, crossover,
 hold, mine, layout and seed cases to that complete conversion pipeline.
 Generation results need preview and one reversible application gesture before
@@ -111,7 +112,7 @@ StepManiaLibrary. The development oracle runs separately from the product:
 ```sh
 # Requires .NET 10 and the pinned recursive StepManiaLibrary checkout.
 dotnet build /path/to/StepManiaLibrary/StepManiaLibrary/StepManiaLibrary.csproj -c Release
-python3 scripts/editor-generate-fixtures.py --reference-root /path/to/StepManiaLibrary --dotnet /path/to/dotnet
+python3 scripts/editor-generate-fixtures.py --reference-root /path/to/StepManiaLibrary --editor-root /path/to/GrooveAuthor --dotnet /path/to/dotnet
 ```
 
 Ordinary Cargo tests require neither .NET nor network access. Fixture provenance
@@ -368,3 +369,53 @@ This first chart-conversion panel does not complete the generation feature set:
 full expressed/performed configuration editing, presets management, batch
 creation, advanced roots/fallback controls and native pattern generation remain
 required. The rest of the editor delivery matrix remains in scope.
+
+### Pattern-region footing and replacement
+
+`context::derive` ports the five static surrounding-footing helpers from
+GrooveAuthor ActionAutoGeneratePatterns. Following and preceding regions are
+interpreted independently, each with its original natural root. The port keeps
+same-arrow history, per-foot preceding times, following-foot parity, jump/time
+ambiguity, bracket heel/toe priority, root-lane collision correction, side
+transitions and the late-chart distribution guess. A transition at absolute step
+zero is discarded when building RootContext, like CreateWithPattern.
+
+The development oracle extracts these five method bodies unchanged with `git
+show` from the pinned GrooveAuthor commit. It compiles them with small editor
+event/pattern adapters and the original StepManiaLibrary. The adapters provide
+explicit event order and pattern bounds; they do not recreate the whole editor.
+The generated source lives under ignored obj/, and provenance records its method
+hash and editor commit. The fixture generator now needs the pinned editor checkout
+(`--editor-root`, defaulting to sibling grooveauthor). Cargo tests remain fully
+independent of .NET and reference checkouts.
+
+One hundred fifty-four committed differential cases cover all eleven official
+graph layouts: missing context, odd/even pattern lengths, preceding taps/jacks,
+jumps, brackets, holds/rolls, releases sharing a step row, mines/keysounds,
+fakes/lifts, equal-time events, late-chart context, real side transitions and
+unsorted overlapping-hold event order. They compare all derived footing/history
+values, then feed them into pattern generation and compare the final notes with
+the original CreateWithPattern. Of these cases, 152 produce matching patterns;
+one source interpretation and one generated pattern are rejected by both engines.
+Invalid/cancelled inputs produce no context.
+
+`pattern_region` implements the 32-step surrounding window (extended for minimum
+transition spacing), complete boundary rows, and original region extraction
+order. Holds overlapping the beginning are included as full head/tail pairs,
+ordered by lane before normal row-ordered editor events. Hold tails do not count
+as editor step heads. Window/extraction tests currently use explicit editor events;
+reader-level verification of every event category is still required.
+
+Pattern application now shares the original deletion rules: remove heads in the
+region, shorten crossing holds to one pattern spacing before its start, fall back
+to the immediately preceding row when needed, and remove a hold with no room to
+remain a sustain. One note gesture performs trimming, removal and generated-note
+insertion together. Tests preserve attributes and other participants, undo to the
+exact original bytes, redo, save and reopen the resulting grid. The selected-owner
+primitive is explicit; whole multiplayer generation remains unfinished.
+
+These primitives do not yet complete source-to-pattern preparation. Automatic
+region assembly from all editor/timing events, the original density estimate
+(including fake/warp handling), session-bound background pattern jobs and their
+native panel remain required. They are not replaced by fixed footing or a density
+estimate chosen merely to match the existing tests.

@@ -1,0 +1,34 @@
+// Development-only adapters. The five helper method bodies below are extracted
+// unchanged from pinned GrooveAuthor ActionAutoGeneratePatterns.cs (MIT).
+using Fumen;
+using StepManiaLibrary;
+using StepManiaLibrary.ExpressedChart;
+using static StepManiaLibrary.ExpressedChart.ExpressedChart;
+using PerformedConfig = StepManiaLibrary.PerformedChart.Config;
+
+internal record EditorEvent(int Row, int Lane, bool Step) {
+    public int GetRow() => Row;
+    public int GetLane() => Lane;
+    public bool IsStep() => Step;
+}
+internal class EditorPatternEvent(int first, int last, int count, PerformedConfig config) {
+    internal record Holder(PerformedConfig Config);
+    public int GetFirstStepRow() => first;
+    public int GetLastStepRow() => last;
+    public int GetNumSteps() => count;
+    public Holder GetPerformedChartConfig() => new(config);
+}
+internal record PatternContextValues(int PreviousFoot, double[] PreviousTimes, int[] PreviousFooting,
+    int FollowingFoot, int[] FollowingFooting, int[] SameCounts, int LastTransitionSteps, bool? LastTransitionLeft);
+internal static class PatternContextReference {
+    public static PatternContextValues Run(EditorPatternEvent pattern, StepGraph graph,
+        ExpressedChart preceding, ExpressedChart following, List<EditorEvent> precedingEvents,
+        List<EditorEvent> followingEvents, int total, bool startsAfterChart) {
+        GetFollowingFooting(pattern, graph, following, followingEvents, out var followingFoot, out var followingFooting);
+        GetPrecedingFootingAndTransitions(pattern, graph, preceding, precedingEvents, total, startsAfterChart,
+            followingFoot, out var previousFoot, out var times, out var footing, out var same,
+            out var transitionSteps, out var transitionLeft);
+        return new(previousFoot, times, footing, followingFoot, followingFooting, same, transitionSteps, transitionLeft);
+    }
+    // ORIGINAL_METHODS
+}

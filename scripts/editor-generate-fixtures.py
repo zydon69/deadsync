@@ -7,12 +7,40 @@ tests run without .NET, network access, or the source reference checkout.
 import argparse
 import copy
 import json
+import hashlib
+import re
 import os
 from pathlib import Path
 import subprocess
 
 PIN = "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8"
+EDITOR_PIN = "48e18f71655d0f0d86144c63239331833501fda2"
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def prepare_context_reference(editor: Path):
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=editor, text=True).strip()
+    if commit != EDITOR_PIN:
+        raise SystemExit(f"Editor reference must be pinned at {EDITOR_PIN}, found {commit}")
+    source = subprocess.check_output(["git", "show", f"{EDITOR_PIN}:StepManiaEditor/EditorActions/ActionAutoGeneratePatterns.cs"], cwd=editor).decode("utf-8-sig")
+    methods = []
+    for name in ["GetFollowingFooting", "GetPrecedingFootingAndTransitions", "GetPrecedingFooting", "CheckAndUpdateCurrentSteppedLanes", "CheckAndUpdateFooting"]:
+        match = re.search(r"\tprivate static void " + name + r"\(", source)
+        if match is None: raise SystemExit(f"Missing original context method {name}")
+        start = source.index("{", match.start())
+        level, end = 1, start + 1
+        while level:
+            if source[end] == "{": level += 1
+            elif source[end] == "}": level -= 1
+            end += 1
+        methods.append(source[match.start():end])
+    original = "\n\n".join(methods)
+    project = ROOT / "scripts/editor-oracle"
+    output = project / "obj/PatternContextReference.cs"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    template = (project / "PatternContextReference.cs.template").read_text()
+    output.write_text(template.replace("    // ORIGINAL_METHODS", original))
+    return hashlib.sha256(original.encode()).hexdigest()
 
 
 def configurations():
@@ -227,6 +255,35 @@ def requests(reference: Path):
         else:
             content += "#NOTES:dance-single:Oracle:Hard:9:0,0,0,0,0:\n" + body + "\n;"
         cases["file-clock-" + label] = {"Operation": "FileClock", "Format": extension, "Chart": 0, "Content": content, "TargetLayout": "dance-double", "PerformedConfig": copy.deepcopy(performed), "Seed": 42}
+    for layout in performed["ArrowWeights"]:
+        definition = json.loads((reference / "StepManiaLibrary" / f"{layout}.json").read_text())
+        left, right = definition["StartingPositions"][0][0]
+        for variant in ["empty", "following-even", "following-odd", "preceding", "jacks", "jump", "hold", "late", "bracket", "overlap-order", "equal-time", "mine-key", "release-same-row", "transitions"]:
+            before = [[0, left, "1"], [12, right, "1"], [24, left, "1"], [36, right, "1"]]
+            after = [[600, left, "1"], [612, right, "1"], [624, left, "1"], [636, right, "1"]]
+            count = 16 if variant == "following-even" else 17
+            if variant in ["empty", "following-even", "following-odd"]: before = []
+            if variant == "empty": after = []
+            if variant == "jacks": before = [[i * 12, left, "1"] for i in range(10)]
+            if variant == "jump": before = [[0, left, "1"], [0, right, "1"]]; after = [[600, left, "1"], [600, right, "1"]]
+            if variant in ["hold", "overlap-order"]: before = [[0, left, "2"], [12, right, "4"], [96, left, "3"], [108, right, "3"]]
+            if variant == "equal-time": before = [[0, left, "1"], [12, right, "1"]]
+            if variant == "mine-key": before = [[0, left, "M"], [12, right, "K"], [24, left, "1"], [36, right, "F"], [48, left, "L"]]
+            if variant == "release-same-row": before = [[0, left, "2"], [24, left, "3"], [24, right, "1"], [48, left, "1"]]
+            if variant == "transitions": before = [[i * 12, lane % len(performed["ArrowWeights"][layout]), "1"] for i, lane in enumerate([0, 1, 2, 3, 0, 1, 4, 5, 6, 7, 4, 5])]
+            if variant == "late": before = [[1200 + i * 12, left if i % 2 == 0 else right, "1"] for i in range(40)]
+            if variant == "bracket": before = [[0, left, "1"], [0, right, "1"], [0, next(lane for lane in range(len(performed["ArrowWeights"][layout])) if lane not in [left, right]), "1"]]
+            start = 1800 if variant == "late" else 192
+            if variant == "late": after = [[2400, left, "1"], [2412, right, "1"]]
+            pc = {"Operation": "PatternContext", "Layout": layout, "Start": start, "End": start + (count - 1) * 12,
+                "NumSteps": count, "Seed": 42, "BeforeNotes": before, "AfterNotes": after,
+                "RangeStartsAfterChart": variant == "late", "TotalSteps": 512 if variant == "late" else len([n for n in before if n[2] != "3"]),
+                "LaneCounts": [i + 1 for i in range(len(performed["ArrowWeights"][layout]))], "Nps": 8.0,
+                "PerformedConfig": copy.deepcopy(performed), "PatternConfig": copy.deepcopy(pattern)}
+            pc["PerformedConfig"]["Transitions"].update(Enabled=True, StepsPerTransitionMin=40, StepsPerTransitionMax=128)
+            if variant == "equal-time": pc["TimeScale"] = 0.0
+            if variant == "overlap-order": pc["BeforeEditorEvents"] = [[12, right, True], [0, left, True]]
+            cases[f"context-{layout}-{variant}"] = pc
     return cases
 
 
@@ -234,6 +291,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reference-root", type=Path, required=True)
     parser.add_argument("--dotnet", type=Path, required=True)
+    parser.add_argument("--editor-root", type=Path, default=ROOT.parent / "grooveauthor")
     parser.add_argument("--only", action="append", help="Regenerate only names starting with this prefix (repeatable)")
     args = parser.parse_args()
     reference = args.reference_root.resolve()
@@ -241,6 +299,7 @@ def main():
     if commit != PIN:
         raise SystemExit(f"Reference must be pinned at {PIN}, found {commit}")
     env = {**os.environ, "DOTNET_CLI_TELEMETRY_OPTOUT": "1", "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1"}
+    context_hash = prepare_context_reference(args.editor_root.resolve())
     project = ROOT / "scripts/editor-oracle/EditorOracle.csproj"
     subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, check=True, stdout=subprocess.DEVNULL)
     oracle = project.parent / "bin/Release/net10.0/EditorOracle.dll"
@@ -261,11 +320,12 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
+        "editor_commit": EDITOR_PIN, "editor_context_methods_sha256": context_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),
         "dotnet_runtimes": [line.split(" [", 1)[0] for line in subprocess.check_output([str(args.dotnet), "--list-runtimes"], env=env, text=True).splitlines()],
         "sort_source": "https://github.com/dotnet/runtime/blob/v10.0.13/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/ArraySortHelper.cs",
-        "notice": "Expected results are produced by the unmodified C# library, not by the Rust port.",
+        "notice": "Expected results come from pinned C# libraries and unchanged GrooveAuthor helper bodies, not from the Rust port. Editor adapters provide explicit input events; they do not run the full editor.",
     }, indent=2) + "\n")
 
 

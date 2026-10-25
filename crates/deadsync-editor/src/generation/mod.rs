@@ -1,6 +1,7 @@
 //! GrooveAuthor graph, interpretation, pattern and chart-performance engine.
 //! Snapshot-bound jobs expose previews to the native generation panel.
 pub mod config;
+pub mod context;
 pub mod expressed;
 pub mod fallbacks;
 pub mod geometry;
@@ -12,6 +13,7 @@ mod jsonc;
 pub mod mines;
 pub mod output;
 pub mod pattern;
+pub mod pattern_region;
 pub mod performed;
 pub mod random;
 pub mod reference_sort;

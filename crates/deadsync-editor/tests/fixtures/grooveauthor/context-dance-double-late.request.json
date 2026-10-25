@@ -1,0 +1,378 @@
+{
+  "Operation": "PatternContext",
+  "Layout": "dance-double",
+  "Start": 1800,
+  "End": 1992,
+  "NumSteps": 17,
+  "Seed": 42,
+  "BeforeNotes": [
+    [
+      1200,
+      3,
+      "1"
+    ],
+    [
+      1212,
+      4,
+      "1"
+    ],
+    [
+      1224,
+      3,
+      "1"
+    ],
+    [
+      1236,
+      4,
+      "1"
+    ],
+    [
+      1248,
+      3,
+      "1"
+    ],
+    [
+      1260,
+      4,
+      "1"
+    ],
+    [
+      1272,
+      3,
+      "1"
+    ],
+    [
+      1284,
+      4,
+      "1"
+    ],
+    [
+      1296,
+      3,
+      "1"
+    ],
+    [
+      1308,
+      4,
+      "1"
+    ],
+    [
+      1320,
+      3,
+      "1"
+    ],
+    [
+      1332,
+      4,
+      "1"
+    ],
+    [
+      1344,
+      3,
+      "1"
+    ],
+    [
+      1356,
+      4,
+      "1"
+    ],
+    [
+      1368,
+      3,
+      "1"
+    ],
+    [
+      1380,
+      4,
+      "1"
+    ],
+    [
+      1392,
+      3,
+      "1"
+    ],
+    [
+      1404,
+      4,
+      "1"
+    ],
+    [
+      1416,
+      3,
+      "1"
+    ],
+    [
+      1428,
+      4,
+      "1"
+    ],
+    [
+      1440,
+      3,
+      "1"
+    ],
+    [
+      1452,
+      4,
+      "1"
+    ],
+    [
+      1464,
+      3,
+      "1"
+    ],
+    [
+      1476,
+      4,
+      "1"
+    ],
+    [
+      1488,
+      3,
+      "1"
+    ],
+    [
+      1500,
+      4,
+      "1"
+    ],
+    [
+      1512,
+      3,
+      "1"
+    ],
+    [
+      1524,
+      4,
+      "1"
+    ],
+    [
+      1536,
+      3,
+      "1"
+    ],
+    [
+      1548,
+      4,
+      "1"
+    ],
+    [
+      1560,
+      3,
+      "1"
+    ],
+    [
+      1572,
+      4,
+      "1"
+    ],
+    [
+      1584,
+      3,
+      "1"
+    ],
+    [
+      1596,
+      4,
+      "1"
+    ],
+    [
+      1608,
+      3,
+      "1"
+    ],
+    [
+      1620,
+      4,
+      "1"
+    ],
+    [
+      1632,
+      3,
+      "1"
+    ],
+    [
+      1644,
+      4,
+      "1"
+    ],
+    [
+      1656,
+      3,
+      "1"
+    ],
+    [
+      1668,
+      4,
+      "1"
+    ]
+  ],
+  "AfterNotes": [
+    [
+      2400,
+      3,
+      "1"
+    ],
+    [
+      2412,
+      4,
+      "1"
+    ]
+  ],
+  "RangeStartsAfterChart": true,
+  "TotalSteps": 512,
+  "LaneCounts": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "Nps": 8.0,
+  "PerformedConfig": {
+    "Facing": {
+      "MaxInwardPercentage": 1.0,
+      "InwardPercentageCutoff": 0.34,
+      "MaxOutwardPercentage": 1.0,
+      "OutwardPercentageCutoff": 0.34
+    },
+    "StepTightening": {
+      "SpeedTighteningEnabled": true,
+      "SpeedMinTimeSeconds": 0.17647058823529413,
+      "SpeedMaxTimeSeconds": 0.24,
+      "SpeedTighteningMinDistance": 0,
+      "DistanceTighteningEnabled": true,
+      "DistanceMin": 1.4,
+      "DistanceMax": 2.333333,
+      "StretchTighteningEnabled": true,
+      "StretchDistanceMin": 2.333333,
+      "StretchDistanceMax": 3.333333,
+      "LateralMinPanelDistance": 0.166667,
+      "LongitudinalMinPanelDistance": -0.125
+    },
+    "LateralTightening": {
+      "Enabled": true,
+      "RelativeNPS": 1.65,
+      "AbsoluteNPS": 12,
+      "Speed": 3
+    },
+    "Transitions": {
+      "Enabled": true,
+      "StepsPerTransitionMin": 40,
+      "StepsPerTransitionMax": 128,
+      "MinimumPadWidth": 5,
+      "TransitionCutoffPercentage": 0.5
+    },
+    "ArrowWeights": {
+      "dance-single": [
+        25,
+        25,
+        25,
+        25
+      ],
+      "dance-double": [
+        6,
+        12,
+        10,
+        22,
+        22,
+        12,
+        10,
+        6
+      ],
+      "dance-solo": [
+        13,
+        12,
+        25,
+        25,
+        12,
+        13
+      ],
+      "dance-threepanel": [
+        25,
+        50,
+        25
+      ],
+      "pump-single": [
+        17,
+        16,
+        34,
+        16,
+        17
+      ],
+      "pump-halfdouble": [
+        25,
+        12,
+        13,
+        13,
+        12,
+        25
+      ],
+      "pump-double": [
+        4,
+        4,
+        17,
+        12,
+        13,
+        13,
+        12,
+        17,
+        4,
+        4
+      ],
+      "smx-beginner": [
+        25,
+        50,
+        25
+      ],
+      "smx-single": [
+        25,
+        21,
+        8,
+        21,
+        25
+      ],
+      "smx-dual": [
+        8,
+        17,
+        25,
+        25,
+        17,
+        8
+      ],
+      "smx-full": [
+        6,
+        8,
+        7,
+        8,
+        22,
+        22,
+        8,
+        7,
+        8,
+        6
+      ]
+    }
+  },
+  "PatternConfig": {
+    "BeatSubDivision": 4,
+    "StartingFootChoice": "automatic",
+    "StartingFootSpecified": 0,
+    "LeftFootStartChoice": "automaticSameOrNewLane",
+    "LeftFootStartLaneSpecified": 0,
+    "LeftFootEndChoice": "automaticSameOrNewLaneAsFollowing",
+    "LeftFootEndLaneSpecified": 0,
+    "RightFootStartChoice": "automaticSameOrNewLane",
+    "RightFootStartLaneSpecified": 0,
+    "RightFootEndChoice": "automaticSameOrNewLaneAsFollowing",
+    "RightFootEndLaneSpecified": 0,
+    "SameArrowStepWeight": 25,
+    "NewArrowStepWeight": 75,
+    "StepTypeCheckPeriod": 16,
+    "LimitSameArrowsInARowPerFoot": true,
+    "MaxSameArrowsInARowPerFoot": 3
+  }
+}

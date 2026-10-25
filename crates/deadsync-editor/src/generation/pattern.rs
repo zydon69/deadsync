@@ -55,6 +55,7 @@ pub struct PatternPreview {
     pub end: u64,
     pub steps: Vec<GeneratedStep>,
     pub warnings: Vec<EndWarning>,
+    step_spacing: u64,
 }
 
 impl PatternPreview {
@@ -88,11 +89,14 @@ impl PatternPreview {
                 "Generated pattern participant does not exist".into(),
             ));
         }
-        let mut edits: Vec<_> = grid
-            .iter()
-            .filter(|(pos, _)| pos.player == player && pos.row >= self.start && pos.row <= self.end)
-            .map(|(pos, _)| (pos, None))
-            .collect();
+        let (mut edits, _) = super::pattern_region::deletion_edits(
+            grid,
+            player,
+            self.start,
+            self.end,
+            self.step_spacing,
+            &AtomicBool::new(false),
+        )?;
         for step in &self.steps {
             for foot in 0..2 {
                 for portion in 0..2 {
@@ -287,6 +291,7 @@ pub fn generate(
         end: request.end,
         steps,
         warnings,
+        step_spacing: spacing,
     })
 }
 

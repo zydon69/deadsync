@@ -1,0 +1,26 @@
+{
+  "Success": true,
+  "Context": {
+    "PreviousFoot": 0,
+    "PreviousTimes": [
+      1.1,
+      1
+    ],
+    "PreviousFooting": [
+      2,
+      1
+    ],
+    "FollowingFoot": 0,
+    "FollowingFooting": [
+      0,
+      2
+    ],
+    "SameCounts": [
+      0,
+      1
+    ],
+    "LastTransitionSteps": 0,
+    "LastTransitionLeft": true
+  },
+  "Notes": null
+}

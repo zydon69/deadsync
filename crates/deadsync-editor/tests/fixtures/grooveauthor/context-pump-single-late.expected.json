@@ -1,0 +1,112 @@
+{
+  "Success": true,
+  "Context": {
+    "PreviousFoot": 1,
+    "PreviousTimes": [
+      13.8,
+      13.9
+    ],
+    "PreviousFooting": [
+      0,
+      2
+    ],
+    "FollowingFoot": 0,
+    "FollowingFooting": [
+      0,
+      2
+    ],
+    "SameCounts": [
+      20,
+      20
+    ],
+    "LastTransitionSteps": 472,
+    "LastTransitionLeft": true
+  },
+  "Notes": [
+    {
+      "Row": 1800,
+      "Lane": 1,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1812,
+      "Lane": 4,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1824,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1836,
+      "Lane": 4,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1848,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1860,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1872,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1884,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1896,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1908,
+      "Lane": 3,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1920,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1932,
+      "Lane": 3,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1944,
+      "Lane": 1,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1956,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1968,
+      "Lane": 1,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1980,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 1992,
+      "Lane": 1,
+      "Symbol": "1"
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "Success": true,
+  "Context": {
+    "PreviousFoot": 0,
+    "PreviousTimes": [
+      1.1,
+      1
+    ],
+    "PreviousFooting": [
+      2,
+      1
+    ],
+    "FollowingFoot": 0,
+    "FollowingFooting": [
+      0,
+      2
+    ],
+    "SameCounts": [
+      0,
+      1
+    ],
+    "LastTransitionSteps": 0,
+    "LastTransitionLeft": true
+  },
+  "Notes": [
+    {
+      "Row": 192,
+      "Lane": 1,
+      "Symbol": "1"
+    },
+    {
+      "Row": 204,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 216,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 228,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 240,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 252,
+      "Lane": 1,
+      "Symbol": "1"
+    },
+    {
+      "Row": 264,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 276,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 288,
+      "Lane": 1,
+      "Symbol": "1"
+    },
+    {
+      "Row": 300,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 312,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 324,
+      "Lane": 1,
+      "Symbol": "1"
+    },
+    {
+      "Row": 336,
+      "Lane": 2,
+      "Symbol": "1"
+    },
+    {
+      "Row": 348,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 360,
+      "Lane": 1,
+      "Symbol": "1"
+    },
+    {
+      "Row": 372,
+      "Lane": 0,
+      "Symbol": "1"
+    },
+    {
+      "Row": 384,
+      "Lane": 1,
+      "Symbol": "1"
+    }
+  ]
+}

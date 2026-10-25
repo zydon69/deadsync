@@ -203,13 +203,55 @@ if (operation == "Sort")
     Console.WriteLine(JsonSerializer.Serialize(sortedCases, options));
     return;
 }
-if (operation != "Pattern" && operation != "InterpretMatches" && operation != "InterpretPaths" && operation != "InterpretChart" && operation != "Convert")
+if (operation != "Pattern" && operation != "InterpretMatches" && operation != "InterpretPaths" && operation != "InterpretChart" && operation != "Convert" && operation != "PatternContext")
     throw new ArgumentException("Unknown oracle operation");
 
 var name = request.GetProperty("Layout").GetString()!;
 var pad = await PadData.LoadPadData(name, Path.Combine(args[0], "StepManiaLibrary", name + ".json"));
 var graph = StepGraph.Load(Path.Combine(args[0], "StepManiaLibrary", name + ".fsg"), pad);
 if (graph == null) throw new InvalidDataException("Could not load reference graph");
+if (operation == "PatternContext")
+{
+    List<Event> PcNotes(string field) {
+        var pcEvents = new List<Event>();
+        foreach (var pcItem in request.GetProperty(field).EnumerateArray()) {
+            var pcSymbol = pcItem[2].GetString()!;
+            LaneNote pcNote = pcSymbol switch { "2" or "4" => new LaneHoldStartNote(), "3" => new LaneHoldEndNote(), "M" or "K" => new LaneNote(), _ => new LaneTapNote() };
+            pcNote.SourceType = pcSymbol; pcNote.Lane = pcItem[1].GetInt32(); pcNote.IntegerPosition = pcItem[0].GetInt32();
+            pcNote.TimeSeconds = pcNote.IntegerPosition / 120.0 * (request.TryGetProperty("TimeScale", out var pcScale) ? pcScale.GetDouble() : 1.0);
+            pcEvents.Add(pcNote);
+        }
+        pcEvents.Sort(new Fumen.Converters.SMCommon.SMEventComparer()); return pcEvents;
+    }
+    List<EditorEvent> PcEditorEvents(string notesField, string eventsField) {
+        if (request.TryGetProperty(eventsField, out var pcRaw)) return pcRaw.EnumerateArray().Select(pcItem => new EditorEvent(pcItem[0].GetInt32(), pcItem[1].GetInt32(), pcItem[2].GetBoolean())).ToList();
+        return request.GetProperty(notesField).EnumerateArray().Where(pcItem => pcItem[2].GetString() != "3")
+            .Select(pcItem => new EditorEvent(pcItem[0].GetInt32(), pcItem[1].GetInt32(), pcItem[2].GetString() is "1" or "2" or "4" or "F" or "L"))
+            .OrderBy(pcItem => pcItem.Row).ThenBy(pcItem => pcItem.Lane).ToList();
+    }
+    var pcExpression = new StepManiaLibrary.ExpressedChart.Config {
+        BracketParsingDetermination = StepManiaLibrary.ExpressedChart.BracketParsingDetermination.UseDefaultMethod,
+        DefaultBracketParsingMethod = StepManiaLibrary.ExpressedChart.BracketParsingMethod.Balanced };
+    pcExpression.Init();
+    var pcBefore = StepManiaLibrary.ExpressedChart.ExpressedChart.CreateFromSMEvents(PcNotes("BeforeNotes"), graph, pcExpression, 12.0, "Oracle");
+    var pcAfter = StepManiaLibrary.ExpressedChart.ExpressedChart.CreateFromSMEvents(PcNotes("AfterNotes"), graph, pcExpression, 12.0, "Oracle");
+    if (pcBefore == null || pcAfter == null) { Console.WriteLine("{\"Success\":false}"); return; }
+    var pcPerformed = JsonSerializer.Deserialize<PerformedConfig>(request.GetProperty("PerformedConfig"), options)!; pcPerformed.Init();
+    var pcPattern = JsonSerializer.Deserialize<PatternConfig>(request.GetProperty("PatternConfig"), options)!; pcPattern.Init();
+    var pcStart = request.GetProperty("Start").GetInt32(); var pcEnd = request.GetProperty("End").GetInt32();
+    var pcTotal = request.GetProperty("TotalSteps").GetInt32();
+    var pcCount = request.GetProperty("NumSteps").GetInt32();
+    var pcValues = PatternContextReference.Run(new EditorPatternEvent(pcStart, pcEnd, pcCount, pcPerformed), graph, pcBefore, pcAfter,
+        PcEditorEvents("BeforeNotes", "BeforeEditorEvents"), PcEditorEvents("AfterNotes", "AfterEditorEvents"), pcTotal, request.GetProperty("RangeStartsAfterChart").GetBoolean());
+    var pcTiming = new List<Event> { new Tempo(150.0) { IntegerPosition = 0 } };
+    var pcGenerated = PerformedChart.CreateWithPattern(graph, pcPattern, pcPerformed, pcStart, pcEnd, request.GetProperty("Seed").GetInt32(),
+        pcValues.PreviousFoot, pcValues.PreviousTimes, pcValues.PreviousFooting, pcValues.FollowingFooting,
+        request.GetProperty("LaneCounts").Deserialize<int[]>()!, pcValues.SameCounts, pcTiming, pcTotal,
+        pcValues.LastTransitionSteps, pcValues.LastTransitionLeft, request.GetProperty("Nps").GetDouble(), "Oracle");
+    Console.WriteLine(JsonSerializer.Serialize(new { Success = true, Context = pcValues,
+        Notes = pcGenerated?.CreateSMChartEvents().OfType<LaneNote>().Select(pcNote => new { Row = pcNote.IntegerPosition, Lane = pcNote.Lane, Symbol = pcNote.SourceType }).ToArray() }, options));
+    return;
+}
 if (operation == "Convert")
 {
     StepManiaLibrary.ExpressedChart.ExpressedChart? expressed;
