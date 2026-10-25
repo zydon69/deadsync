@@ -264,3 +264,254 @@ fn unsupported_generation_reports_failure_without_modifying_multiplayer_chart() 
     assert_eq!(screen.workspace().file().session.revision(), 0);
     assert_eq!(fs::read(&path).unwrap(), SONG);
 }
+
+fn start_pattern(screen: &mut State) {
+    press(screen, KeyCode::F4);
+    for _ in 0..7 {
+        press(screen, KeyCode::ArrowDown);
+    }
+    press(screen, KeyCode::Enter);
+}
+#[test]
+fn pattern_shortcut_uses_selection_previews_applies_and_saves_one_undo_gesture() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Space);
+    press(&mut screen, KeyCode::ArrowDown);
+    assert_eq!(screen.workspace().selection(), Some((48, 96)));
+    start_pattern(&mut screen);
+    press(&mut screen, KeyCode::Digit1); // blocked during calculation
+    finish_generation(&mut screen);
+    let (report, nps) = screen
+        .pattern_report()
+        .expect("Pattern preview should be ready");
+    assert_eq!(report.removed, 2);
+    assert!(nps > 0.0);
+    assert!(screen.generation_report().is_none());
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,z:8021,..} if content.contains("5 steps") && content.contains("1.000 - 2.000") && !content.contains("{removed}"))));
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,z:8021,..} if content.as_ref()=="Apply this pattern to the selection")));
+    press(&mut screen, KeyCode::PageDown);
+    press(&mut screen, KeyCode::Home);
+    press(&mut screen, KeyCode::Enter);
+    assert!(screen.pattern_report().is_none());
+    assert_eq!(screen.workspace().chart(), 0);
+    assert_eq!(
+        screen.workspace().file().session.document().charts().len(),
+        1
+    );
+    assert_eq!(
+        screen.workspace().file().session.undo_label(),
+        Some("Generate pattern")
+    );
+    assert_eq!(screen.workspace().grid().iter().count(), 7);
+    assert_eq!(fs::read(&path).unwrap(), SINGLE);
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    ctrl(&mut screen, KeyCode::KeyY);
+    ctrl(&mut screen, KeyCode::KeyS);
+    assert_eq!(
+        State::open(&path, 0)
+            .unwrap()
+            .workspace()
+            .grid()
+            .iter()
+            .count(),
+        7
+    );
+}
+#[test]
+fn pattern_discard_cancel_and_unsupported_chart_preserve_source() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    start_pattern(&mut screen);
+    finish_generation(&mut screen);
+    assert!(screen.pattern_report().is_some());
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,z:8021,..} if content.contains("17 steps") && content.contains("0.000 - 4.000"))));
+
+    // A transient small viewport during resize must not panic in the fixed
+    // pattern-region highlight's clamp operation.
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        100.0, 100.0,
+    ));
+    actors.clear();
+    screen.actors(&mut actors);
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert!(screen.pattern_report().is_none());
+    start_pattern(&mut screen);
+    press(&mut screen, KeyCode::Enter); // cancels even if compute finished before next update
+    finish_generation(&mut screen);
+    assert!(screen.pattern_report().is_none());
+    assert_eq!(screen.workspace().file().session.revision(), 0);
+    assert_eq!(fs::read(&path).unwrap(), SINGLE);
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    start_pattern(&mut screen);
+    finish_generation(&mut screen);
+    assert!(screen.pattern_report().is_none());
+    assert_eq!(screen.workspace().file().session.serialize().unwrap(), SONG);
+}
+#[test]
+fn pattern_menu_settings_and_exclusive_endpoints_reach_the_generation_task() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::Space);
+    press(&mut screen, KeyCode::ArrowDown); // selection 0..48
+    press(&mut screen, KeyCode::F1);
+    for _ in 0..6 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    // Pattern rows: range, subdivision, profile, seed, start, end, distribution, generate.
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowLeft); // 1/12: 16 rows
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight); // no candles
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowLeft); // signed seed -1
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight); // exclude start
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight); // exclude end
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight); // ignore distribution
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    for expected in [
+        "Subdivision: 1/12",
+        "Random seed: -1",
+        "Include start: No",
+        "Include end: No",
+        "Ignore preceding lane distribution: Yes",
+    ] {
+        assert!(
+            actors
+                .iter()
+                .any(|a| matches!(a,Actor::Text{content,z:8021,..} if content.as_ref()==expected)),
+            "{expected}"
+        );
+    }
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    finish_generation(&mut screen);
+    assert_eq!(screen.pattern_report().unwrap().0.removed, 0);
+    press(&mut screen, KeyCode::Enter);
+    let grid = screen.workspace().grid();
+    for row in [0, 16, 32, 48, 96, 144] {
+        assert!(grid.iter().any(|(p, _)| p.row == row), "Missing row {row}");
+    }
+    assert_eq!(grid.iter().count(), 6);
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::{
+            config::{PatternConfig, PerformedConfig, PerformedPreset},
+            job::ChartOptions,
+            pattern_job::{Options, Span, Task},
+        },
+        history::Session,
+    };
+    let source =
+        Session::new(Document::parse(std::sync::Arc::<[u8]>::from(SINGLE), Format::Ssc).unwrap());
+    let expected = Task::capture(
+        &source,
+        0,
+        Options {
+            span: Span {
+                start: 0,
+                end: 48,
+                include_start: false,
+                include_end: false,
+            },
+            seed: -1,
+            expressed: ChartOptions::balanced("dance-single").expressed,
+            performed: PerformedConfig::preset(PerformedPreset::PatternNoCandles),
+            pattern: PatternConfig {
+                beat_sub_division: 3,
+                ..PatternConfig::sixteenths()
+            },
+            ignore_preceding_distribution: true,
+        },
+    )
+    .unwrap()
+    .run(&std::sync::atomic::AtomicBool::new(false), |_, _| {})
+    .unwrap();
+    assert_eq!(grid, expected.grid());
+}
+
+#[test]
+fn pattern_panel_has_explicit_english_and_french_translations() {
+    let en = deadsync_assets::language::load_for_tests("en");
+    let fr = deadsync_assets::language::load_for_tests("fr");
+    for key in [
+        "GeneratePattern",
+        "PatternRange",
+        "PatternSubdivision",
+        "PatternIncludeStart",
+        "PatternIncludeEnd",
+        "PatternIgnoreDistribution",
+        "PatternYes",
+        "PatternNo",
+        "PatternBalanced",
+        "PatternNoCandles",
+        "PatternNoInward",
+        "PatternNoTransitionLimit",
+        "PatternSummary",
+        "PatternNoWarnings",
+        "PatternRelaxed",
+        "PatternUnreachable",
+        "PatternApply",
+        "PatternApplied",
+        "PatternGenerating",
+    ] {
+        let english = en
+            .fallback
+            .get("Edition")
+            .unwrap()
+            .get(key)
+            .unwrap_or_else(|| panic!("Missing English {key}"));
+        let french = fr
+            .active
+            .get("Edition")
+            .unwrap()
+            .get(key)
+            .unwrap_or_else(|| panic!("Missing French {key}"));
+        assert!(!english.is_empty() && !french.is_empty());
+        assert_ne!(
+            english, french,
+            "French must not fall back to English for {key}"
+        );
+    }
+}

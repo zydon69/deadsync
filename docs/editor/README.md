@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; native pattern generation, full configurations and batch generation remain pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; full configurations and batch generation remain pending |
 | Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -367,8 +367,8 @@ These actor assertions still do not establish GPU rendering or physical input.
 
 This first chart-conversion panel does not complete the generation feature set:
 full expressed/performed configuration editing, presets management, batch
-creation, advanced roots/fallback controls and native pattern generation remain
-required. The rest of the editor delivery matrix remains in scope.
+creation and advanced roots/fallback controls remain required. Single-region
+native pattern generation is described below. The rest of the editor delivery matrix remains in scope.
 
 ### Pattern-region footing and replacement
 
@@ -415,8 +415,8 @@ exact original bytes, redo, save and reopen the resulting grid. The selected-own
 primitive is explicit; whole multiplayer generation remains unfinished.
 
 These primitives feed the single-region source-to-pattern task described below.
-Wider original-action differential coverage, persistent/batch pattern actions and
-the native panel remain required. Footing and density come from the source
+Wider original-action differential coverage and persistent/batch pattern actions
+remain required. Footing and density come from the source
 contexts rather than fixed values chosen to match the existing tests.
 
 ### Editor timing and pattern-density decisions
@@ -488,8 +488,8 @@ undo/redo and save/reopen, including the Workspace command path.
 
 Chart and pattern jobs share a generic bounded worker with a single progress
 slot and one completion result. Cancelling an already ready result discards it;
-dropping a worker never joins the compute thread. Pattern jobs are not yet
-connected to the native interface. An integrated differential test serializes 32
+dropping a worker never joins the compute thread. Pattern jobs are connected to
+the native interface through the optional F4 panel. An integrated differential test serializes 32
 cases as SSC and compares generated notes and exact average NPS with the original
 editor region/deletion/density/range/context helpers chained to the original
 StepManiaLibrary interpretation and pattern generation. The additional original
@@ -514,3 +514,29 @@ Reader normalization for invalid/conflicting timing entries, unsupported attack
 timing, existing persisted pattern metadata, previews/last-second hints and wider
 legacy input coverage remain unfinished. In particular the missing-tempo case
 above verifies these extracted methods, not the complete editor loader's defaults.
+
+### Native single-region pattern panel
+
+F4 or F1 > Generate pattern opens a panel over the central chart. It captures the
+current selection; without a selection it uses four beats starting at the cursor.
+The panel exposes all nine supported subdivisions, four original pattern
+performed profiles, signed seeds, inclusive/exclusive endpoints and ignoring
+preceding lane distribution. The range is displayed in beats; select a different
+range in the chart before reopening the panel. Other pattern/expression/performed
+configuration fields still require a future advanced inspector.
+
+Calculation shares the bounded, cancellable background worker and immutable
+preview flow with chart conversion. The preview shows the full resulting grid,
+fixed generated-region highlighting even while browsing, note deletions,
+shortened holds, average NPS and translated footing warnings. Apply replaces the
+region in one undoable gesture; it does not create a chart or save the song.
+Escape/Discard and cancellation retain the original document and history. The
+Practice update loop polls both job kinds and input handlers never poll jobs.
+
+The native workflow suite now covers F4 and menu entry, selected and default
+ranges, subdivision/profile/signed-seed/endpoints/distribution controls, preview
+actors, explicit application, undo/redo/save/reopen, discard/cancel, unsupported
+multiplayer input, and explicit English/French strings. These tests execute the
+real raw-key adapter and actor construction, not GPU rendering or hardware input.
+The complete port, persistent pattern markers, multi-region generation and the
+other delivery-matrix requirements remain unfinished.
