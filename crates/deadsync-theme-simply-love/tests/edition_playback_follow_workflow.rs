@@ -223,10 +223,10 @@ fn navigation_and_edits_discard_paused_position_before_next_play() {
         } else {
             press(&mut s, KeyCode::ArrowDown);
         }
-        assert_eq!(s.workspace().row(), if edit { 12 } else { 60 });
+        assert_eq!(s.workspace().row(), if edit { 12 } else { 48 });
         assert_eq!(s.workspace().file().session.is_dirty(), edit);
         press(&mut s, KeyCode::Enter);
-        assert_play_start(&mut s, if edit { 0.125 } else { 0.625 });
+        assert_play_start(&mut s, if edit { 0.125 } else { 0.5 });
     }
 }
 #[test]

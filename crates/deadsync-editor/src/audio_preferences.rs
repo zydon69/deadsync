@@ -58,6 +58,7 @@ struct Settings {
     audio: Audio,
     waveform: Waveform,
     zoom: crate::zoom_preferences::Preferences,
+    scroll: crate::scroll_preferences::Preferences,
 }
 
 pub struct File {
@@ -67,6 +68,7 @@ pub struct File {
     audio_fields: Map<String, Value>,
     waveform_fields: Map<String, Value>,
     zoom_fields: Map<String, Value>,
+    scroll_fields: Map<String, Value>,
     original: Settings,
     written: Settings,
     settings: Settings,
@@ -131,10 +133,20 @@ impl File {
                 ));
             }
         };
+        let scroll_fields = match root.get("Scroll") {
+            None => Map::new(),
+            Some(Value::Object(fields)) => fields.clone(),
+            Some(_) => {
+                return Err(Error::InvalidFormat(
+                    "Editor scroll preferences must be an object".into(),
+                ));
+            }
+        };
         let settings = Settings {
             audio,
             waveform: Waveform::read(&waveform_fields)?,
             zoom: crate::zoom_preferences::Preferences::read(&zoom_fields)?,
+            scroll: crate::scroll_preferences::Preferences::read(&scroll_fields)?,
         };
         Ok(Self {
             path: path.to_owned(),
@@ -143,6 +155,7 @@ impl File {
             audio_fields,
             waveform_fields,
             zoom_fields,
+            scroll_fields,
             original: settings,
             written: settings,
             settings,
@@ -165,6 +178,12 @@ impl File {
     }
     pub fn set_zoom(&mut self, zoom: crate::zoom_preferences::Preferences) {
         self.settings.zoom = zoom;
+    }
+    pub fn scroll(&self) -> crate::scroll_preferences::Preferences {
+        self.settings.scroll
+    }
+    pub fn set_scroll(&mut self, scroll: crate::scroll_preferences::Preferences) {
+        self.settings.scroll = scroll;
     }
     pub fn has_changes(&self) -> bool {
         self.settings != self.original || self.settings != self.written
@@ -205,7 +224,10 @@ impl File {
         self.settings.waveform.write(&mut waveform_fields);
         let mut zoom_fields = self.zoom_fields.clone();
         self.settings.zoom.write(&mut zoom_fields);
+        let mut scroll_fields = self.scroll_fields.clone();
+        self.settings.scroll.write(&mut scroll_fields);
         let mut root = self.root.clone();
+        root.insert("Scroll".into(), Value::Object(scroll_fields.clone()));
         root.insert("Zoom".into(), Value::Object(zoom_fields.clone()));
         root.insert("Waveform".into(), Value::Object(waveform_fields.clone()));
         root.insert("Audio".into(), Value::Object(fields.clone()));
@@ -232,6 +254,7 @@ impl File {
         self.audio_fields = fields;
         self.waveform_fields = waveform_fields;
         self.zoom_fields = zoom_fields;
+        self.scroll_fields = scroll_fields;
         crate::storage::sync_directory(parent)?;
         self.original = self.settings;
         Ok(true)

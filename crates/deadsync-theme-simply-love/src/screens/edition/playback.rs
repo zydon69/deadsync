@@ -38,6 +38,7 @@ impl State {
         zoom_preferences.apply(&mut self.zoom)?;
         self.zoom_preferences = zoom_preferences;
         self.audio_preferences = file.audio();
+        self.scroll_preferences = file.scroll();
         self.waveform_preferences = file.waveform();
         self.audio_preferences_file = Some(file);
         self.apply_waveform_preferences();
@@ -140,6 +141,65 @@ impl State {
                 self.status =
                     i18n::tr_fmt("Edition", "PlaybackError", &[("error", &error.to_string())])
             }
+        }
+    }
+    /// Keyboard navigation shares the original snapped-position and playback policy.
+    pub(super) fn navigate_snap(&mut self, later: bool) {
+        let current = self
+            .playback_position()
+            .map_or(self.workspace.row() as f64, |(_, row)| row);
+        let result = (|| -> Result<(), deadsync_editor::Error> {
+            let destination = deadsync_editor::scroll_preferences::snap_destination(
+                current,
+                deadsync_editor::workspace::SNAP_ROWS[self.workspace.snap()],
+                later,
+            )?
+            .max(0) as u64;
+            let continuing = self.is_playing() && !self.scroll_preferences.stop_playback();
+            // Resolve the new audio cut before changing transport or edit position.
+            let audio = if continuing {
+                let preview = Preview::capture(
+                    &self.workspace.file().session,
+                    self.workspace.chart(),
+                    self.workspace.file().path(),
+                )?;
+                let music_time = preview.music_time(destination)?;
+                let position = Position {
+                    chart_time: preview.music_to_chart_time(music_time)?,
+                    row: destination as f64,
+                    music_time,
+                };
+                Some((preview, position))
+            } else {
+                None
+            };
+            self.command(Command::Seek(destination));
+            if let Some((preview, position)) = audio {
+                self.paused_playback = None;
+                self.audio_commands.push(GameplayAudioCommand::PlayMusic {
+                    path: preview.music().to_path_buf(),
+                    cut: GameplayMusicCut {
+                        start_sec: position.music_time,
+                        ..Default::default()
+                    },
+                    looping: false,
+                    rate: 1.0,
+                });
+                self.playback = Some(Playing {
+                    preview: Some(preview),
+                    valid_after: Instant::now(),
+                    mapped: false,
+                    position: Some(position),
+                });
+                self.status = i18n::tr("Edition", "PlaybackPlaying");
+            } else {
+                self.stop_audio();
+            }
+            Ok(())
+        })();
+        if let Err(error) = result {
+            self.status =
+                i18n::tr_fmt("Edition", "PlaybackError", &[("error", &error.to_string())]);
         }
     }
     pub(super) fn toggle_sample_audio(&mut self) {

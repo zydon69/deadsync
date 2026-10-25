@@ -221,6 +221,7 @@ pub struct State {
     zoom_preferences_draft: Option<deadsync_editor::zoom_preferences::Preferences>,
     playback: Option<playback::Playing>,
     paused_playback: Option<playback::Paused>,
+    scroll_preferences: deadsync_editor::scroll_preferences::Preferences,
     audio_preferences: deadsync_editor::audio_preferences::Audio,
     audio_preferences_file: Option<deadsync_editor::audio_preferences::File>,
     audio_preferences_path: Option<std::path::PathBuf>,
@@ -340,6 +341,7 @@ impl State {
             zoom_epoch: std::time::Instant::now(),
             playback: None,
             paused_playback: None,
+            scroll_preferences: Default::default(),
             audio_preferences: Default::default(),
             audio_preferences_file: None,
             audio_preferences_path: None,
@@ -1375,6 +1377,10 @@ impl State {
             self.toggle_audio();
             return false;
         }
+        if !self.control && matches!(event.code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
+            self.navigate_snap((event.code == KeyCode::ArrowDown) != self.reverse_display);
+            return false;
+        }
         self.stop_audio();
         if self.control && self.shift && event.code == KeyCode::Backspace {
             self.open_chart_deletion();
@@ -1457,8 +1463,6 @@ impl State {
             }
         } else {
             match event.code {
-                KeyCode::ArrowUp => Some(Command::Move(-1)),
-                KeyCode::ArrowDown => Some(Command::Move(1)),
                 KeyCode::PageUp => Some(Command::PreviousMeasure),
                 KeyCode::PageDown => Some(Command::NextMeasure),
                 KeyCode::Home => Some(Command::Seek(0)),

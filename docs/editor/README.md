@@ -4162,3 +4162,47 @@ the assertion was updated to the new pause semantics and the complete suite was
 rerun successfully. There are no core changes in this addition. No new .app/GPU
 or audible-device review was performed. Scrub/loop controls, full decoder/EOF
 reporting and the remaining complete editor parity requirements stay open.
+
+### Snapped keyboard navigation and playing-audio repositioning
+
+Unmodified Up/Down now use original MoveEarlierInChart/MoveLaterInChart nonzero
+snap semantics: truncate fractional chart position to an integer, divide by snap
+with signed truncation, and select the preceding/following grid line. This is
+not adding/subtracting a snap from an off-grid edit row. Original Reverse swaps
+Up/Down's earlier/later directions. The duplicate native relative-row branches
+were removed; core Workspace.Move remains available as a separate relative action.
+
+The new Scroll preferences group reads/writes the original boolean
+StopPlaybackWhenScrolling (default false). It shares version-1 atomic preference
+persistence and unknown-field/no-op/conflict protections with Audio/Zoom/Waveform.
+The current setting is loaded by the native preference setup. There is not yet
+a native panel for this boolean; it is configurable in editor-preferences.json.
+With false, arrow navigation during playback emits a new PlayMusic command at
+the destination's music time, retaining playing state and immediately updating
+its precise displayed focal position. The current host audio command API does
+not expose an in-place seek command, so this is a reissued audio cut rather than
+a claim of seamless decoder seeking. With true, navigation stops transport.
+Paused/idle navigation remains stopped and resets the retained pause position.
+Missing audio on a requested continued seek leaves playback/cursor untouched and
+emits no partial command. Old pre-request snapshots cannot undo the new position.
+
+Core formula tests cover all nine native snaps, exact/fractional/negative positions
+and explicit nonfinite/range/overflow rejection. Original source casts positions
+to a 32-bit integer; the port rejects out-of-range/overflow rather than relying on
+unchecked conversion. The note-edit cursor still clamps negative destinations to
+zero; keyboard navigation into negative chart rows and zero-snap/measure mode
+remain parity gaps. Existing negative audio lead-in display remains supported.
+These literal tests were derived from inspected original methods; this addition
+does not execute a C# keyboard-navigation oracle.
+
+Native workflows exercise all three display modes, normal/Reverse, Up/Down and
+both stop policies, repeated keys, modal focus, missing-asset atomic refusal,
+command cuts and unchanged source/history. The earlier pause/navigation test now
+expects the next original grid line (row 48) instead of relative row 60 from an
+off-grid row 12. Full mouse/scroll-wheel controls, policy UI, continuous scrub,
+loop controls, decoder lifecycle and complete transport parity remain open.
+
+Validation: all 17 tests across four targeted core preference/navigation suites
+and all 214 tests across 30 native edition integration targets passed.
+`cargo check -p deadsync --jobs 2 --locked` passed. No new .app/GPU or audible
+seek-latency review was performed. Full editor parity remains incomplete.
