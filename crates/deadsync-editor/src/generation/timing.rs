@@ -60,6 +60,9 @@ pub struct GenerationTiming {
 }
 
 impl GenerationTiming {
+    pub(crate) fn new_chart_tempo(document: &Document) -> Result<f64, Error> {
+        load::starting_tempo(document, document.charts().len())
+    }
     pub fn new(mut events: Vec<Event>) -> Result<Self, Error> {
         for event in &events {
             if event.row < i64::from(i32::MIN) || event.row > i64::from(i32::MAX) {

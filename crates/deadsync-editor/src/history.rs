@@ -444,6 +444,78 @@ impl Session {
         Ok((start..start + additions.len()).collect())
     }
 
+    pub(crate) fn insert_empty_chart(
+        &mut self,
+        block: Vec<u8>,
+        grid: &Grid,
+        metadata: crate::generation::metadata::ChartData,
+    ) -> Result<usize, Error> {
+        let index = self.document.charts().len();
+        if self.document.format == crate::document::Format::Sm && index > 9999 {
+            return Err(Error::InvalidEdit(
+                "SM chart metadata exceeds its four-digit index limit".into(),
+            ));
+        }
+        let mut bytes = self.serialize()?;
+        bytes.extend_from_slice(b"\n\n");
+        bytes.extend_from_slice(&block);
+        let mut after = Document::parse(Arc::<[u8]>::from(bytes), self.document.format)?;
+        if after.charts().len() != index + 1 {
+            return Err(Error::InvalidEdit(
+                "New chart structure is ambiguous".into(),
+            ));
+        }
+        if index == 0
+            && self.document.format == crate::document::Format::Ssc
+            && crate::timing_edit::migration::needed(&after)
+        {
+            if let Some(tag) = after.tag(None, "VERSION") {
+                let range = tag.value.clone();
+                after.replace(range, Some(Arc::from(b"0.83".as_slice())))?;
+            } else {
+                after.set_added_property(None, "VERSION", Some(Arc::from(b"0.83".as_slice())))?;
+            }
+        }
+        let descriptor = &after.charts()[index];
+        if layout_columns(&descriptor.steps_type) != Some(grid.columns())
+            || Grid::parse(after.value(descriptor.notes.clone()), grid.columns())? != *grid
+        {
+            return Err(Error::InvalidEdit(
+                "Empty chart notes changed during insertion".into(),
+            ));
+        }
+        let (scope, suffix) = if self.document.format == crate::document::Format::Ssc {
+            (Some(index), String::new())
+        } else {
+            (None, format!("CHART{index:04}"))
+        };
+        for prefix in ["GAChartDataVersion", "GAChartData"] {
+            let name = format!("{prefix}{suffix}");
+            if after.raw_property(scope, &name).is_some() {
+                return Err(Error::InvalidEdit(
+                    "Existing metadata occupies the new chart index".into(),
+                ));
+            }
+            let value = if prefix == "GAChartDataVersion" {
+                b"1".to_vec()
+            } else {
+                escape_text(
+                    &serde_json::to_string(&metadata)
+                        .map_err(|e| Error::InvalidEdit(e.to_string()))?,
+                )
+            };
+            after.set_added_property(scope, &name, Some(value.into()))?;
+        }
+        self.execute(
+            "Create chart".into(),
+            Change::DocumentSwap(Box::new(DocumentState {
+                document: after,
+                grids: BTreeMap::new(),
+            })),
+        )?;
+        Ok(index)
+    }
+
     /// Duplicate the complete working chart in one structural history gesture.
     /// Reparse the serialized snapshot so pending notes/properties are included.
     pub fn duplicate_chart(

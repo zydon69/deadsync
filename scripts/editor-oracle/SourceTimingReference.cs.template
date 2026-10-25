@@ -11,14 +11,17 @@ using EditorTempoEvent=TempoOracle.EditorTempoEvent;
 namespace SourceTimingOracle;
 // DISPLAY_MODE
 // DISPLAY_TYPE
-internal sealed class EditorChart(double tempo) {
+internal sealed class EditorChart(double tempo,Fraction? signature=null) {
     // DEFAULT_TEMPO
+    // DEFAULT_SIGNATURE
     public double GetStartingTempo()=>tempo;
+    public Fraction GetStartingTimeSignature()=>signature??DefaultTimeSignature;
 }
 internal sealed class EditorSong(Song song) {
     private readonly Extras OriginalSongExtras=song.Extras;
     public Dictionary<string,List<EditorChart>> Charts=new();
     // STARTING_TEMPO
+    // STARTING_SIGNATURE
 }
 internal static class Reference {
     private const int MinLength=RegionOracle.EditorWarpEvent.MinLength;
@@ -48,6 +51,19 @@ internal static class Reference {
             await File.WriteAllTextAsync(path,request.GetProperty("Content").GetString()!);
             Fumen.Converters.Reader reader=extension=="sm"?new Fumen.Converters.SMReader(path):new Fumen.Converters.SSCReader(path);
             var song=await reader.LoadAsync(CancellationToken.None);var owner=new EditorSong(song);var results=new List<object>();
+            if(request.GetProperty("Operation").GetString()=="NewChartDefaults") {
+                foreach(var chart in song.Charts) {
+                    var events=chart.Layers[0].Events;
+                    var tempoEvent=events.OfType<Tempo>().FirstOrDefault(e=>e.IntegerPosition==0);
+                    var tempo=tempoEvent is null?owner.GetBestChartStartingTempo():ClampTempo(tempoEvent);
+                    var signature=events.OfType<TimeSignature>().FirstOrDefault(e=>e.IntegerPosition==0)?.Signature??owner.GetBestChartStartingTimeSignature();
+                    if(!owner.Charts.TryGetValue(chart.Type,out var charts)){charts=[];owner.Charts.Add(chart.Type,charts);}
+                    charts.Add(new(tempo,signature));
+                }
+                var newSignature=owner.GetBestChartStartingTimeSignature();
+                return new {Tempo=owner.GetBestChartStartingTempo(),Numerator=newSignature.Numerator,Denominator=newSignature.Denominator,
+                    Layouts=request.GetProperty("Layouts").EnumerateArray().Select(item=>{var name=item.GetString()!;var kind=Enum.Parse<ChartType>(name.Replace('-','_'));var properties=GetChartProperties(kind);return new {Name=name,Columns=properties.GetNumInputs(),Players=properties.GetNumPlayers()};}).ToArray()};
+            }
             foreach(var chart in song.Charts) {
                 var events=chart.Layers[0].Events;
                 var notes=events.OfType<LaneNote>().Select(note=>new{Row=note.IntegerPosition,Lane=note.Lane,Time=note.TimeSeconds,GroupTime=events.First(e=>e.IntegerPosition==note.IntegerPosition).TimeSeconds}).ToArray();

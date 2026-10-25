@@ -2369,3 +2369,174 @@ fn duplicate_menu_is_accessible_and_inspector_focus_blocks_the_shortcut() {
     );
     assert!(!screen.workspace().file().session.is_dirty());
 }
+
+#[test]
+fn new_chart_shortcut_creates_empty_routine_without_inheriting_saved_patterns() {
+    use deadsync_editor::generation::metadata::ChartData;
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let before = marker_song();
+    fs::write(&path, &before).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    ctrl(&mut screen, KeyCode::KeyN);
+    for _ in 0..3 {
+        press(&mut screen, KeyCode::ArrowRight);
+    }
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().chart(), 1);
+    assert_eq!(screen.workspace().row(), 0);
+    assert_eq!(screen.workspace().grid().players(), 2);
+    assert_eq!(screen.workspace().grid().iter().count(), 0);
+    assert!(
+        ChartData::read(screen.workspace().file().session.document(), 1)
+            .unwrap()
+            .unwrap()
+            .patterns
+            .is_none()
+    );
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(1), "STEPSTYPE")
+            .as_deref(),
+        Some("dance-routine")
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(screen.workspace().chart(), 0);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    ctrl(&mut screen, KeyCode::KeyY);
+    assert_eq!(screen.workspace().chart(), 1);
+    press(&mut screen, KeyCode::KeyP);
+    press(&mut screen, KeyCode::Digit5);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 1).unwrap();
+    assert!(
+        reopened
+            .workspace()
+            .grid()
+            .get(Position {
+                player: 1,
+                lane: 4,
+                row: 0
+            })
+            .is_some()
+    );
+    assert!(!reopened.workspace().file().session.is_dirty());
+}
+#[test]
+fn new_chart_cancel_and_other_inspector_focus_preserve_source_and_history() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SINGLE).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    ctrl(&mut screen, KeyCode::KeyN);
+    assert_eq!(
+        screen.workspace().file().session.document().charts().len(),
+        1
+    );
+    press(&mut screen, KeyCode::Escape);
+    ctrl(&mut screen, KeyCode::KeyN);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        SINGLE
+    );
+    assert_eq!(screen.workspace().file().session.undo_label(), None);
+    ctrl(&mut screen, KeyCode::KeyN);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert!(!screen.workspace().file().session.is_dirty());
+    assert_eq!(
+        screen.workspace().file().session.document().charts().len(),
+        1
+    );
+}
+#[test]
+fn new_sm_chart_explains_shared_timing_and_persists_an_empty_double() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.sm");
+    let before = b"#OFFSET:0.25;#BPMS:0=120,4=180;#NOTES:dance-single:Existing:Hard:9::1000;";
+    fs::write(&path, before).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    ctrl(&mut screen, KeyCode::KeyN);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(
+        |a| matches!(a,Actor::Text{content,..} if content.contains("SM uses shared song timing"))
+    ));
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().chart(), 1);
+    assert_eq!(screen.workspace().grid().columns(), 8);
+    assert_eq!(screen.workspace().grid().iter().count(), 0);
+    assert_eq!(fs::read(&path).unwrap(), before);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 1).unwrap();
+    assert_eq!(reopened.workspace().grid().columns(), 8);
+    assert_eq!(
+        reopened
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "BPMS")
+            .as_deref(),
+        Some("0=120,4=180")
+    );
+}
+#[test]
+fn new_chart_reviews_legacy_timing_before_creating_local_events() {
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let legacy = String::from_utf8(SINGLE.to_vec())
+        .unwrap()
+        .replace("0.83", "0.60");
+    fs::write(&path, &legacy).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    ctrl(&mut screen, KeyCode::KeyN);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "VERSION")
+            .as_deref(),
+        Some("0.60")
+    );
+    assert_eq!(
+        screen.workspace().file().session.document().charts().len(),
+        1
+    );
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "VERSION")
+            .as_deref(),
+        Some("0.70")
+    );
+    ctrl(&mut screen, KeyCode::KeyN);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().chart(), 1);
+    assert_eq!(screen.workspace().grid().iter().count(), 0);
+}

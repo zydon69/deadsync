@@ -66,3 +66,51 @@ fn french_duplicate_menu_and_status_are_resolved_without_writing_the_song() {
     );
     assert_eq!(fs::read_to_string(path).unwrap(), song);
 }
+
+#[test]
+fn french_empty_chart_layout_summary_cancel_and_create_labels_are_resolved() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let song = "#VERSION:0.83;#BPMS:0=137.5;#NOTEDATA:;#STEPSTYPE:dance-single;#TIMESIGNATURES:0=3=4;#NOTES:1000;";
+    fs::write(&path, song).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    for pressed in [true, false] {
+        state.raw_key(&RawKeyboardEvent {
+            code: KeyCode::SuperLeft,
+            pressed,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+        if pressed {
+            press(&mut state, KeyCode::KeyN);
+        }
+    }
+    let labels = texts(&state);
+    for expected in [
+        "Mode : dance-single",
+        "Créer une partition vide",
+        "Tempo initial : 137.5 BPM, signature : 3/4",
+        "Aucune note ni aucun motif",
+    ] {
+        assert!(
+            labels.iter().any(|text| text.contains(expected)),
+            "missing {expected}: {labels:?}"
+        );
+    }
+    assert!(!labels.iter().any(|text| text.contains('{')));
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::Enter);
+    assert_eq!(state.workspace().chart(), 1);
+    assert_eq!(state.workspace().grid().iter().count(), 0);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|text| text.contains("Partition vide créée."))
+    );
+    assert_eq!(fs::read_to_string(path).unwrap(), song);
+}

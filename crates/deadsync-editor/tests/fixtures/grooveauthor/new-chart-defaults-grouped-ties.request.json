@@ -1,0 +1,23 @@
+{
+  "Operation": "NewChartDefaults",
+  "Format": "ssc",
+  "Content": "#VERSION:0.83;#NOTEDATA:;#STEPSTYPE:dance-single;#BPMS:0=100;#TIMESIGNATURES:0=2=2;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-double;#BPMS:0=120;#TIMESIGNATURES:0=4=4;#NOTES:10000000;#NOTEDATA:;#STEPSTYPE:dance-single;#BPMS:0=140;#TIMESIGNATURES:0=7=8;#NOTES:1000;",
+  "Layouts": [
+    "dance-single",
+    "dance-double",
+    "dance-couple",
+    "dance-routine",
+    "dance-solo",
+    "dance-threepanel",
+    "pump-single",
+    "pump-halfdouble",
+    "pump-double",
+    "pump-couple",
+    "pump-routine",
+    "smx-beginner",
+    "smx-single",
+    "smx-dual",
+    "smx-full",
+    "smx-team"
+  ]
+}

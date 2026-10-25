@@ -199,6 +199,8 @@ def prepare_source_timing_reference(editor):
     pieces={"DISPLAY_MODE":extract_member(display,r"internal enum DisplayTempoMode\s*"),"DISPLAY_TYPE":extract_member(display,r"internal sealed class DisplayTempo\s*"),
         "DEFAULT_TEMPO":re.search(r"public const double DefaultTempo = [^;]+;",chart).group(),
         "STARTING_TEMPO":extract_member(read("EditorSong.cs"),r"\tpublic double GetBestChartStartingTempo\("),
+        "DEFAULT_SIGNATURE":re.search(r"public static readonly Fraction DefaultTimeSignature = [^;]+;",chart).group(),
+        "STARTING_SIGNATURE":extract_member(read("EditorSong.cs"),r"\tpublic Fraction GetBestChartStartingTimeSignature\("),
         "TEMPO_CLAMP":extract_member(chart,r"if \(t.TempoBPM < EditorTempoEvent.MinTempo\)"),
         "WARP_CLAMP":re.search(r"if \(WarpEvent.LengthIntegerPosition < MinLength\)\s*WarpEvent.LengthIntegerPosition = MinLength;",read("EditorEvents/EditorWarpEvent.cs")).group(),
         "FAKE_CLAMP":re.search(r"if \(FakeSegmentEvent.LengthIntegerPosition < MinFakeSegmentLength\)\s*FakeSegmentEvent.LengthIntegerPosition = MinFakeSegmentLength;",read("EditorEvents/EditorFakeSegmentEvent.cs")).group()}
@@ -749,6 +751,18 @@ def requests(reference: Path):
     cases["legacy-timing-fractional"]={"Operation":"NormalizedFile","Format":"ssc","Content":"#VERSION:0.60;"+tags(source_cases["tiny-regions"])+region_chart()+region_chart({"BPMS":"0=0.0000001,4=180","OFFSET":"0.25","WARPS":"1=0.00001"})}
     for label,content in {"defaults":"{}", "positive":'{"SyncOffset":0.009,"DefaultChartType":"dance_single","DefaultChartIndex":1}', "negative":'{"SyncOffset":-0.125}', "comments":'/* song */ {"SyncOffset":0.25}', "zero":'{"SyncOffset":0}'}.items():
         cases["song-sync-"+label]={"Operation":"SongSync", "Content":content, "MusicOffset":0.375, "Times":[-2,-0.5,0,0.009,1,25.5]}
+    def empty_chart(layout="dance-single",bpm=None,signature=None):
+        return "#NOTEDATA:;#STEPSTYPE:"+layout+";"+("#BPMS:"+bpm+";" if bpm is not None else "")+("#TIMESIGNATURES:"+signature+";" if signature is not None else "")+"#NOTES:1"+"0"*({"dance-double":8,"dance-solo":6}.get(layout,4)-1)+";"
+    for label,content in {
+        "empty":"#VERSION:0.83;#TITLE:New;",
+        "song-fallback":"#VERSION:0.83;#BPMS:0=137.5;#TIMESIGNATURES:0=3=4;",
+        "display-fallback":"#VERSION:0.83;#BPMS:4=190;#DISPLAYBPM:123:150;",
+        "majority":"#VERSION:0.83;"+empty_chart(bpm="0=150",signature="0=3=4")+empty_chart("dance-double","0=180","0=7=8")+empty_chart("dance-solo","0=150","0=3=4"),
+        "grouped-ties":"#VERSION:0.83;"+empty_chart(bpm="0=100",signature="0=2=2")+empty_chart("dance-double","0=120","0=4=4")+empty_chart(bpm="0=140",signature="0=7=8"),
+        "fraction-hash":"#VERSION:0.83;"+empty_chart(bpm="0=150",signature="0=1=4")+empty_chart("dance-double","0=160","0=2=8")+empty_chart("dance-solo","0=170","0=3=4"),
+        "missing-initial":"#VERSION:0.83;#BPMS:0=115;"+empty_chart(bpm="2=180",signature="2=3=4")+empty_chart("dance-double","0=170","0=5=8"),
+    }.items():
+        cases["new-chart-defaults-"+label]={"Operation":"NewChartDefaults","Format":"ssc","Content":content,"Layouts":["dance-single","dance-double","dance-couple","dance-routine","dance-solo","dance-threepanel","pump-single","pump-halfdouble","pump-double","pump-couple","pump-routine","smx-beginner","smx-single","smx-dual","smx-full","smx-team"]}
     for label,starts in {"empty":[],"singleton":[48],"normal":[0,48,96,288],"limits":[0,2147483647]}.items():
         cases["pattern-navigation-"+label]={"Operation":"PatternNavigation","Starts":starts,"Rows":[0,1,47,48,49,72,95,96,97,287,288,289,2147483647]}
     for label,segments in {

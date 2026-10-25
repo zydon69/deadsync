@@ -1,0 +1,87 @@
+{
+  "Tempo": 170,
+  "Numerator": 1,
+  "Denominator": 4,
+  "Layouts": [
+    {
+      "Name": "dance-single",
+      "Columns": 4,
+      "Players": 1
+    },
+    {
+      "Name": "dance-double",
+      "Columns": 8,
+      "Players": 1
+    },
+    {
+      "Name": "dance-couple",
+      "Columns": 8,
+      "Players": 2
+    },
+    {
+      "Name": "dance-routine",
+      "Columns": 8,
+      "Players": 2
+    },
+    {
+      "Name": "dance-solo",
+      "Columns": 6,
+      "Players": 1
+    },
+    {
+      "Name": "dance-threepanel",
+      "Columns": 3,
+      "Players": 1
+    },
+    {
+      "Name": "pump-single",
+      "Columns": 5,
+      "Players": 1
+    },
+    {
+      "Name": "pump-halfdouble",
+      "Columns": 6,
+      "Players": 1
+    },
+    {
+      "Name": "pump-double",
+      "Columns": 10,
+      "Players": 1
+    },
+    {
+      "Name": "pump-couple",
+      "Columns": 10,
+      "Players": 2
+    },
+    {
+      "Name": "pump-routine",
+      "Columns": 10,
+      "Players": 2
+    },
+    {
+      "Name": "smx-beginner",
+      "Columns": 3,
+      "Players": 1
+    },
+    {
+      "Name": "smx-single",
+      "Columns": 5,
+      "Players": 1
+    },
+    {
+      "Name": "smx-dual",
+      "Columns": 6,
+      "Players": 1
+    },
+    {
+      "Name": "smx-full",
+      "Columns": 10,
+      "Players": 1
+    },
+    {
+      "Name": "smx-team",
+      "Columns": 10,
+      "Players": 2
+    }
+  ]
+}

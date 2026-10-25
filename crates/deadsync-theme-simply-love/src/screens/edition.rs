@@ -2,6 +2,7 @@
 //! deadsync-editor; this module owns presentation, shortcuts, and exit prompts.
 mod analysis_panel;
 mod batch;
+mod chart_creation;
 mod pattern_set;
 mod playback;
 mod song_properties;
@@ -38,6 +39,7 @@ use std::{
 #[derive(Clone, Copy)]
 enum Panel {
     Analysis,
+    NewChart(usize),
     Menu(usize),
     Transforms(usize),
     Unsaved(usize),
@@ -211,6 +213,7 @@ pub struct State {
     analysis_job: Option<Job<deadsync_editor::analysis::task::Report>>,
     analysis_report: Option<deadsync_editor::analysis::task::Report>,
     analysis_bin: usize,
+    new_chart: Option<chart_creation::Settings>,
     profile_selection: Option<ProfileSettings>,
     preview: Option<GenerationPreview>,
     label_preedit: String,
@@ -316,6 +319,7 @@ impl State {
             analysis_job: None,
             analysis_report: None,
             analysis_bin: 0,
+            new_chart: None,
             profile_selection: None,
             preview: None,
             workspace,
@@ -1206,6 +1210,10 @@ impl State {
             return false;
         }
         self.stop_audio();
+        if self.control && event.code == KeyCode::KeyN {
+            self.open_new_chart();
+            return false;
+        }
         if event.code == KeyCode::F12 {
             self.open_analysis();
             return false;
@@ -1393,12 +1401,16 @@ impl State {
                 self.panel = Some(self.profile_return_panel());
                 return false;
             }
+            if matches!(panel, Panel::NewChart(_)) {
+                self.status = i18n::tr("Edition", "Ready");
+            }
             if matches!(panel, Panel::Timing(_)) {
                 self.status = i18n::tr("Edition", "TimingDiscarded");
             }
             if matches!(panel, Panel::TimingMigration(_)) {
                 self.status = i18n::tr("Edition", "LegacyTimingDiscarded");
             }
+            self.new_chart = None;
             self.timing_migration = None;
             self.timing = None;
             self.chart_properties = None;
@@ -1409,6 +1421,7 @@ impl State {
             return false;
         }
         match panel {
+            Panel::NewChart(index) => self.new_chart_key(index, code),
             Panel::ConversionProfiles(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ConversionProfiles(
@@ -2063,6 +2076,7 @@ impl State {
         }
         let keys: &[&str] = match panel {
             Panel::Analysis => &[],
+            Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
             Panel::Menu(_) => &[
                 "Resume",
                 "Save",
@@ -2188,7 +2202,8 @@ impl State {
             Panel::GenerationPreview(_) => &["GenerationApply", "GenerationDiscard"],
         };
         let selected = match panel {
-            Panel::Menu(i)
+            Panel::NewChart(i)
+            | Panel::Menu(i)
             | Panel::Transforms(i)
             | Panel::Unsaved(i)
             | Panel::Pattern(i)
@@ -2231,6 +2246,8 @@ impl State {
             220.0
         } else if previewing {
             128.0
+        } else if matches!(panel, Panel::NewChart(_)) {
+            85.0
         } else if matches!(panel, Panel::TimingMigration(_)) {
             125.0
         } else if matches!(panel, Panel::Timing(_)) {
@@ -2252,6 +2269,10 @@ impl State {
                 ("pages", &keys.len().div_ceil(8).to_string()),
             ]);
             actors.push(act!(text: font("miso"): settext(page): align(0.5,0.5): xy(panel_x,panel_y+panel_height*0.5-10.0): zoom(0.45): z(8021)));
+        }
+        if matches!(panel, Panel::NewChart(_)) {
+            let summary = self.new_chart_summary();
+            actors.push(act!(text: font("miso"): settext(summary): align(0.5,0.0): xy(panel_x,panel_y-panel_height*0.5+12.0): zoom(0.65): wrapwidthpixels((panel_width-30.0)/0.65): maxwidth(panel_width-30.0): maxheight(70.0): z(8021)));
         }
         if matches!(panel, Panel::TimingMigration(_)) {
             let summary = self.timing_migration_summary();
@@ -2356,7 +2377,9 @@ impl State {
             } else {
                 [0.8, 0.8, 0.85, 1.0]
             };
-            let label = if matches!(panel, Panel::ConversionProfiles(_)) && index < 2 {
+            let label = if matches!(panel, Panel::NewChart(_)) && index == 0 {
+                self.new_chart_label()
+            } else if matches!(panel, Panel::ConversionProfiles(_)) && index < 2 {
                 let value = self
                     .profile_selection
                     .as_ref()

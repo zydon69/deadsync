@@ -48,7 +48,7 @@ reviewable and tested.
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
 | Playback and audio | Enter starts/stops native audio preview using unsaved timing and chart/song offsets; F11 edits Song SyncOffset | Core clock and native event mapping tests; audible playback, decoder lifecycle/EOF, waveform, scrub, loop and audio analysis remain pending |
-| Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history; duplicate working chart with Ctrl/Cmd+D/F1 | Generated chart creation and exact source-chart duplication are available; generic empty-chart creation/deletion, no-active-chart state, multi-view comparison and library remain pending |
+| Multi-chart | Switch charts with Ctrl/Cmd+Tab; shared history; duplicate with Ctrl/Cmd+D/F1; create an empty chart with Ctrl/Cmd+N | Generated/empty creation and duplication are available; chart deletion, no-active-chart UI, original live chart ordering, complete properties, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
@@ -2167,3 +2167,62 @@ Validation for duplication: all 291 core tests and 110 native editor tests pass;
 `cargo check -p deadsync --locked` passes. The four duplication core workflows
 were additionally rerun after strengthening SM metadata reparse assertions.
 Missing shell unit-test fixtures documented above remain outside these claims.
+
+
+### Create an empty chart
+
+Ctrl/Cmd+N opens a compact layout/Create/Cancel inspector. Sixteen layouts are
+available: the original fourteen editing layouts plus Dance/Pump Couple.
+Creation adds a Beginner chart with meter 1, empty description and notes, dynamic
+expression config and no saved patterns. Default participant counts follow Fumen
+(including two for Couple/Routine/Team). The original chart's credit, music,
+labels, pauses, scroll maps, custom fields and pattern payload are not cloned.
+
+SSC receives its own initial tempo/signature, scroll/speed 1x, four hold ticks
+and hit/miss multipliers 1/1. Song audio offset is retained for playback/export;
+editor metadata starts with chart offset disabled and the correct max participant
+index. SM creation explains shared song timing, retains global timing maps and
+adds indexed metadata for the new chart. This reflects SM persistence limits;
+the original editor's transient per-chart SM timing state is not reproduced here.
+Existing orphan metadata at that index is rejected instead of overwritten.
+
+The defaults use the original most-common tempo/signature helpers with grouped
+chart-type enumeration, exact zero-beat/display/default-tempo fallbacks and the
+reference dictionary's last-tie behavior. The signature histogram preserves
+Fumen Fraction's written hash followed by rational equality (including equivalent
+fractions which share that hash), without changing the general typed-signature
+map's equality. The oracle executes unchanged GetBestChartStartingTempo and
+GetBestChartStartingTimeSignature bodies with actual Fumen file loading. Seven
+fixtures cover no charts, song/display fallbacks, majority, grouped ties,
+fraction hashing and missing initial timing. Each fixture also compares all
+sixteen Fumen layout column/player properties against actual created charts.
+These 112 creation cases run in one differential workflow.
+
+The oracle supplies chart groups in file-load order. It does not instantiate the
+full editor, apply its live ChartComparer sorting or assign original runtime
+GUIDs. Exact tied-default choices after live chart sorting therefore remain a
+parity gap; the port currently resolves those ties deterministically in grouped
+source order. Full live chart ordering/identity work must revisit this context.
+
+A creation draft binds defaults to session identity/revision. Apply prepares and
+validates notes, metadata and the new descriptor before one structural history
+swap. Undo restores the prior active chart; redo restores the created chart and
+its later independent edits. Existing source bytes and pending edits are kept.
+Legacy SSC charts must pass the existing timing migration review first. The core
+also supports bootstrapping a chartless SSC document, adding/updating VERSION to
+0.83; this does not yet expose a chartless native editor.
+
+Five core workflows cover original default/layout comparisons, current timing,
+non-inheritance, offset flags, empty-song bootstrap, SM reparse, invalid/stale/
+foreign/legacy/orphan guards, notes/participants, focus, history and Save/reopen.
+English/French native tests cover layout selection, create/cancel, modal focus,
+Routine participants, SM shared-timing wording, migration review and persistence.
+Physical input/rendering, full chart property editing, empty workspace UI and
+deletion (including the last chart with undo available) remain in scope.
+
+Validation for empty-chart creation: all 296 core tests and 115 native editor
+tests pass; `cargo check -p deadsync --locked` passes. The original generated-chart
+creation tests remain in their existing suite; empty-chart workflows live in a
+separate file. The original-method oracle adapters and remaining live-ordering,
+SM transient timing, empty-workspace and missing shell-fixture limits above are
+not included as claims of completed parity.

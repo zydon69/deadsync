@@ -322,7 +322,7 @@ fn initial(document: &Document, chart: usize) -> Result<Option<f64>, Error> {
         _ => replacement.max(MIN_BPM),
     }))
 }
-fn starting_tempo(document: &Document, chart: usize) -> Result<f64, Error> {
+pub(super) fn starting_tempo(document: &Document, chart: usize) -> Result<f64, Error> {
     let mut groups: Vec<(&str, Vec<f64>)> = Vec::new();
     let fallback = || {
         // The original song fallback uses an exact zero-beat dictionary key,
@@ -342,6 +342,11 @@ fn starting_tempo(document: &Document, chart: usize) -> Result<f64, Error> {
         )
     };
     for index in 0..=chart {
+        if chart == document.charts().len() && index < chart
+            && crate::notes::layout_columns(&document.charts()[index].steps_type).is_none()
+        {
+            continue;
+        }
         let mut histogram: Vec<(f64, usize)> = Vec::new();
         for value in groups.iter().flat_map(|(_, values)| values) {
             if let Some(entry) = histogram.iter_mut().find(|entry| entry.0 == *value) {
@@ -354,6 +359,12 @@ fn starting_tempo(document: &Document, chart: usize) -> Result<f64, Error> {
             .iter()
             .reduce(|left, right| if left.1 > right.1 { left } else { right })
             .map(|entry| entry.0);
+        if index == document.charts().len() {
+            return match common {
+                Some(value) => Ok(value),
+                None => fallback(),
+            };
+        }
         let value = match initial(document, index)? {
             Some(value) => value,
             None => match common {

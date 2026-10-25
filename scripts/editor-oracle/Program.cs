@@ -21,7 +21,7 @@ var options = new JsonSerializerOptions
 };
 var request = JsonDocument.Parse(File.ReadAllBytes(args[1])).RootElement;
 var operation = request.GetProperty("Operation").GetString();
-if (operation == "NormalizedFile") { Console.WriteLine(JsonSerializer.Serialize(await SourceTimingOracle.Reference.Run(request,args[0]), options)); return; }
+if (operation is "NormalizedFile" or "NewChartDefaults") { Console.WriteLine(JsonSerializer.Serialize(await SourceTimingOracle.Reference.Run(request,args[0]), options)); return; }
 if (operation == "Signature") { Console.WriteLine(JsonSerializer.Serialize(SignatureOracle.Reference.Run(request), options)); return; }
 if (operation == "Scroll") { Console.WriteLine(JsonSerializer.Serialize(ScrollOracle.Reference.Run(request), options)); return; }
 if (operation == "Tick") { Console.WriteLine(JsonSerializer.Serialize(TickOracle.Reference.Run(request), options)); return; }

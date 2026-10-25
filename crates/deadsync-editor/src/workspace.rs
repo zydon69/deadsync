@@ -683,6 +683,33 @@ impl Workspace {
         Ok(indices)
     }
 
+    pub fn new_chart_draft(&self) -> Result<crate::chart_creation::Draft, Error> {
+        crate::chart_creation::Draft::capture(&self.file.session)
+    }
+    pub fn create_chart(
+        &mut self,
+        draft: &crate::chart_creation::Draft,
+        layout: &str,
+    ) -> Result<usize, Error> {
+        let before_revision = self.file.session.revision();
+        let before_chart = self.chart;
+        let chart = draft.apply(&mut self.file.session, layout)?;
+        self.file.session.grid(chart)?;
+        self.structural_focus.insert(
+            self.file.session.revision(),
+            StructuralFocus {
+                before_revision,
+                before_chart,
+                after_chart: chart,
+            },
+        );
+        self.chart = chart;
+        self.row = 0;
+        self.player = 0;
+        self.anchor = None;
+        Ok(chart)
+    }
+
     pub fn duplicate_chart(&mut self) -> Result<usize, Error> {
         let before_revision = self.file.session.revision();
         let before_chart = self.chart;

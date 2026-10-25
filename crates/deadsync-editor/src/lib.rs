@@ -4,6 +4,7 @@
 //! leaving unknown tags, comments, encodings, and unedited charts intact.
 pub mod analysis;
 pub mod chart_properties;
+pub mod chart_creation;
 pub mod document;
 pub mod generation;
 pub mod history;
