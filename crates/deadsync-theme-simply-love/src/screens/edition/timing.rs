@@ -1,6 +1,7 @@
 //! Optional timing inspector. Drafts remain private until one explicit acceptance.
 use super::*;
 mod draft;
+mod migration;
 use deadsync_editor::timing_edit::Scope;
 use draft::{Draft, EventKind};
 
@@ -54,6 +55,10 @@ impl State {
             return;
         }
         let source = self.workspace.file().session.document();
+        if deadsync_editor::timing_edit::migration::needed(source) {
+            self.open_timing_migration();
+            return;
+        }
         let scope = if deadsync_editor::timing_edit::supports_chart_timing(source) {
             Scope::Chart
         } else {

@@ -81,6 +81,9 @@ impl State {
     }
 
     fn start_batch(&mut self) {
+        if !self.current_timing_for_generation() {
+            return;
+        }
         if self.is_generating() {
             return;
         }

@@ -27,7 +27,19 @@ fn song(format: Format) -> Vec<u8> {
         });
         bytes.extend_from_slice(b"1000\n0100\n0010\n0001;");
     }
-    bytes
+    if format == Format::Ssc {
+        // Pattern workflows start from the supported bytes produced by the
+        // native conversion review. Legacy conversion/history is tested apart.
+        let mut converted =
+            Session::new(Document::parse(Arc::<[u8]>::from(bytes), format).unwrap());
+        deadsync_editor::timing_edit::migration::Draft::capture(&converted)
+            .unwrap()
+            .apply(&mut converted)
+            .unwrap();
+        converted.serialize().unwrap()
+    } else {
+        bytes
+    }
 }
 fn session(format: Format) -> Session {
     Session::new(Document::parse(Arc::<[u8]>::from(song(format)), format).unwrap())

@@ -283,7 +283,7 @@ fn chart_properties_exposes_timing_and_prevents_losing_pending_offset() {
     assert!(contains(&screen, "Apply timing (2 BPM nodes)"));
 }
 #[test]
-fn sm_and_legacy_ssc_start_with_shared_timing_and_reject_local_scope() {
+fn sm_keeps_shared_timing_and_legacy_ssc_migrates_before_local_timing() {
     init();
     let dir = tempfile::tempdir().unwrap();
     for (name, bytes) in [
@@ -300,9 +300,16 @@ fn sm_and_legacy_ssc_start_with_shared_timing_and_reject_local_scope() {
         fs::write(&path, bytes).unwrap();
         let mut screen = State::open(&path, 0).unwrap();
         press(&mut screen, KeyCode::F10);
-        assert!(contains(&screen, "shared song"));
-        press(&mut screen, KeyCode::ArrowRight);
-        assert!(contains(&screen, "SSC 0.7 or newer"));
+        if name.ends_with("ssc") {
+            assert!(contains(&screen, "Convert timing and keep editing"));
+            press(&mut screen, KeyCode::Enter);
+            press(&mut screen, KeyCode::F10);
+            press(&mut screen, KeyCode::ArrowRight);
+        } else {
+            assert!(contains(&screen, "shared song"));
+            press(&mut screen, KeyCode::ArrowRight);
+            assert!(contains(&screen, "SSC 0.7 or newer"));
+        }
         let mut index = 0;
         choose(&mut screen, &mut index, 2);
         type_number(&mut screen, "160");
@@ -319,6 +326,9 @@ fn sm_and_legacy_ssc_start_with_shared_timing_and_reject_local_scope() {
             Some("0=160")
         );
         ctrl(&mut screen, KeyCode::KeyZ);
+        if name.ends_with("ssc") {
+            ctrl(&mut screen, KeyCode::KeyZ);
+        }
         assert_eq!(serialized(&screen), bytes);
     }
 }

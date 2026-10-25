@@ -274,6 +274,10 @@ impl ChartData {
         if chart_offset.is_some() && session.document().format != Format::Ssc {
             return invalid("SM does not support a per-chart OFFSET tag");
         }
+        if chart_offset.is_some() && !crate::timing_edit::supports_chart_timing(session.document())
+        {
+            return invalid("Convert legacy SSC timing in F10 before exporting a chart offset");
+        }
         Self::read(session.document(), chart)?;
         let (scope, version, data) = tags(session.document(), chart)?;
         let json = serde_json::to_string(self).map_err(|e| Error::InvalidFormat(e.to_string()))?;

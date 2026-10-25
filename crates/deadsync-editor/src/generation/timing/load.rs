@@ -82,7 +82,7 @@ pub(super) fn load(document: &Document, chart: usize) -> Result<GenerationTiming
             ));
         }
     }
-    let own = timing_edit::uses_chart_timing(document, chart);
+    let own = timing_edit::reference_uses_chart_timing(document, chart);
     let scope = own.then_some(chart);
     let mut file = Vec::new();
     for kind in FIELDS {
@@ -297,7 +297,7 @@ fn source_pairs(
 }
 
 fn initial(document: &Document, chart: usize) -> Result<Option<f64>, Error> {
-    let scope = timing_edit::uses_chart_timing(document, chart).then_some(chart);
+    let scope = timing_edit::reference_uses_chart_timing(document, chart).then_some(chart);
     let rows = records(document, scope, Field::Tempo)?;
     let replacement = rows
         .values()

@@ -290,12 +290,8 @@ fn legacy_and_offset_only_scopes_are_explicit_and_fallback_uses_preceding_chart_
     bytes[legacy..legacy + 4].copy_from_slice(b"0.60");
     let source = session(&bytes, Format::Ssc);
     assert!(TempoDraft::capture(&source, 0, Scope::Chart).is_err());
-    assert_eq!(
-        TempoDraft::capture(&source, 0, Scope::Song)
-            .unwrap()
-            .affected_charts(),
-        [0, 1, 2]
-    );
+    assert!(TempoDraft::capture(&source, 0, Scope::Song).is_err());
+    assert!(deadsync_editor::timing_edit::migration::has_legacy_chart_timing(source.document()));
     assert_eq!(source.serialize().unwrap(), bytes);
     let source=session(b"#VERSION:0.83;#BPMS:0=187.3;#STOPS:1=1;#NOTEDATA:;#STEPSTYPE:dance-single;#BPMS:0=150;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#OFFSET:0.25;#NOTES:1000;",Format::Ssc);
     let draft = TempoDraft::capture(&source, 1, Scope::Chart).unwrap();

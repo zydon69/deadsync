@@ -116,6 +116,10 @@ impl GenerationTiming {
         self.editor_events.as_deref().unwrap_or(&self.events)
     }
 
+    pub(crate) fn file_events(&self) -> &[Event] {
+        &self.events
+    }
+
     pub fn times(&self, rows: impl IntoIterator<Item = u64>) -> Result<Vec<f64>, Error> {
         self.times_checked(rows, || Ok(()))
     }

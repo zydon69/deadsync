@@ -124,6 +124,9 @@ impl State {
         }
     }
     fn start_pattern_set(&mut self) {
+        if !self.current_timing_for_generation() {
+            return;
+        }
         if self.is_generating() {
             return;
         }

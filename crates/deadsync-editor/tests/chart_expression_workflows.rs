@@ -139,6 +139,12 @@ fn chart_interpretation_is_one_gesture_for_all_markers_preserving_notes_offsets_
 #[test]
 fn f3_f4_f5_workers_resolve_the_same_custom_chart_expression_and_preserve_profile_files() {
     let mut source = source(Format::Ssc);
+    // The fixture has legacy OFFSET-only local timing and no VERSION. Match the
+    // native review flow before running timing-dependent generation workers.
+    deadsync_editor::timing_edit::migration::Draft::capture(&source)
+        .unwrap()
+        .apply(&mut source)
+        .unwrap();
     let dir = tempfile::tempdir().unwrap();
     let custom = profile(dir.path());
     let mut draft = Draft::at_cursor(&source, 0, 0).unwrap();

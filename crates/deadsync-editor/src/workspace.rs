@@ -338,6 +338,16 @@ impl Workspace {
         .map(|task| task.with_chart_expression())
     }
 
+    pub fn timing_migration(&self) -> Result<crate::timing_edit::migration::Draft, Error> {
+        crate::timing_edit::migration::Draft::capture(&self.file.session)
+    }
+    pub fn apply_timing_migration(
+        &mut self,
+        draft: &crate::timing_edit::migration::Draft,
+    ) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session)
+    }
+
     pub fn region_draft(
         &self,
         scope: crate::timing_edit::Scope,

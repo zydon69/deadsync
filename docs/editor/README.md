@@ -46,7 +46,7 @@ reviewable and tested.
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart expression and audio-offset properties | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
-| Timing/gimmicks | F10 scoped BPM/stop/delay/warp/fake editing; typed region core; shared revision/inheritance transaction | Original C# map, file-clock and editor dependency comparisons; broader legacy/escape normalization, other typed events, drawing and conversion remain pending |
+| Timing/gimmicks | F10 scoped BPM/stop/delay/warp/fake editing and reviewed legacy SSC activation; typed region core; shared revision/inheritance transaction | Original C# map, file-clock and editor dependency comparisons; broader legacy/escape normalization, other typed events, drawing and conversion remain pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Generated chart creation is available; generic creation/clone/delete, multi-view comparison and library pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
@@ -74,7 +74,7 @@ model and GrooveAuthor generation are not limited to RSSP's supported layouts.
 
 ```sh
 cargo test -p deadsync-editor --locked
-cargo test -p deadsync-theme-simply-love --test edition_workflow --test edition_batch_workflow --test edition_pattern_set_workflow --test edition_pattern_set_fr_workflow --test edition_timing_workflow --test edition_timing_fr_workflow --locked
+cargo test -p deadsync-theme-simply-love --test edition_workflow --test edition_batch_workflow --test edition_pattern_set_workflow --test edition_pattern_set_fr_workflow --test edition_timing_workflow --test edition_timing_fr_workflow --test edition_legacy_timing_workflow --locked
 CARGO_INCREMENTAL=0 cargo check -p deadsync --locked
 ```
 
@@ -1227,9 +1227,9 @@ The first local SSC timing tag switches the entire chart to its own timing set.
 including raw labels/comments/legacy bytes and OFFSET, before replacing the
 selected fields. An already-independent chart keeps its own timing without
 pulling unrelated song fields into it. Song edits affect inheriting charts only.
-SM has one shared timing set and rejects chart-local scope. SSC below 0.7 or with
-an absent/unrecognized split-timing version currently rejects chart-local edits;
-shared song edits remain available. Atomic legacy migration is still required.
+SM has one shared timing set and rejects chart-local scope. SSC below 0.7 or with an absent/unrecognized version requires the reviewed
+conversion described below before local editing. When legacy local tags exist,
+timing edits and generation wait for this conversion so gameplay can honor them.
 
 This revealed and fixed the same detachment issue in F7: adding an audio OFFSET
 to an inheriting chart now retains its BPMs, stops, delays, warps and other timing
@@ -1252,7 +1252,7 @@ no-op redo, rejected edits, missing/legacy/offset-only timing, fallback behavior
 and shared property-transaction validation. Ordinary tests need no .NET runtime.
 
 The adapters do not replay the complete original editor action/notification loop.
-Other typed timing/gimmick editors, legacy migration,
+Other typed timing/gimmick editors, cross-format migration,
 complete timing normalization, edited audio preview/cache invalidation and the
 remaining delivery matrix are still required for the full port.
 
@@ -1312,8 +1312,8 @@ delay map, labels with legacy bytes, BPMs, OFFSET and other properties retain
 their original bytes. Removing every local pause writes an explicitly empty tag
 so reloading cannot unexpectedly restore the song's pauses. Both event types
 apply in one history action. Invalid/stale/foreign/wrong-chart drafts and no-op
-acceptance preserve document bytes and redo. SM/legacy SSC use shared timing;
-modern SSC can edit either scope. The shared core and native F10 inspector both
+acceptance preserve document bytes and redo. SM uses shared timing; legacy SSC local timing requires conversion, and modern
+SSC can edit either scope. The shared core and native F10 inspector both
 expose these operations.
 
 Twenty-two new oracle fixtures use actual Fumen AddStops/AddDelays importers,
@@ -1371,8 +1371,8 @@ The Rust operations additionally reject endpoints outside the supported signed
 32-bit row range rather than reproducing unchecked C# GetEndRow overflow. Those
 bounds are validated before mutation. SM cannot directly represent these tags:
 region capture rejects SM export until explicit migration/conversion is
-implemented. Legacy SSC still permits song-shared region editing, while local
-scope requires split-timing support. These limitations do not claim full export
+implemented. Legacy SSC without local timing can still use shared region edits in the core;
+local timing requires conversion before editing. These limitations do not claim full export
 parity with the original application.
 
 BPM, pause and region drafts now share one private timing target implementation.
@@ -1409,7 +1409,7 @@ a previous region's effective coverage, overlapping warps, coincident stops or
 delays, shared/owned timing and removal of every local region. No Rust output is
 used to manufacture these C# expected results.
 
-Region drawing/selection, SM conversion and legacy migration, complete loader normalization, the remaining timing/gimmick types,
+Region drawing/selection, SM conversion and broader legacy normalization, the remaining timing/gimmick types,
 audio/cache integration and the full delivery matrix remain work for the port.
 
 
@@ -1505,8 +1505,7 @@ types and SM-only semantics. Normalization does not mutate document bytes,
 CP1252 metadata, pending note history or redo.
 
 This removes the earlier fractional generation-clock/editor-constructor mismatch
-for the compared modern source paths. Legacy split-timing version migration,
-broader malformed/escape/format corpora, typed UI handling of all remaining
+for the compared modern source paths. Broader legacy/malformed/escape/format corpora, typed UI handling of all remaining
 metadata, interval rendering, audio integration and scale/cancellation checks
 remain requirements for the full port. Gameplay/analysis continue to use the
 existing pinned RSSP implementation; its timing quantization is not replaced by
@@ -1522,10 +1521,10 @@ and undoes it. This covers the production generation path, in addition to the
 clock and fake-flag comparisons above.
 
 
-Remaining import boundaries are explicit: generation keeps the target's RSSP
-split-timing version gate, while the original Fumen reader can treat old SSC
-chart timing as independent regardless of version. Atomic legacy migration is
-still required to reconcile that case with gameplay. Some typed inspectors also
+The normalized reader now follows the original Fumen ownership rule for legacy
+SSC too. Working generation and timing edits require the reviewed conversion
+below when old versions would cause gameplay to ignore those local fields.
+Some typed inspectors also
 still reject malformed raw maps that the generation reader can skip; the shared
 record normalization must extend to those inspectors before full import/editor
 parity is claimed. The display-tempo range fallback is already shared by the BPM
@@ -1534,3 +1533,51 @@ The SM FREEZES alias may occur multiple times in the original reader and is
 merged in source order; this differs from duplicate ordinary timing tags, whose
 raw-extra dictionaries cause the original reader to throw. Both behaviors are
 included in the new source corpus.
+
+
+### Reviewed legacy SSC timing activation
+
+`timing_edit::migration::Draft` captures a file-wide immutable conversion plan.
+The reader interprets local SSC timing like the original Fumen reader, independent
+of VERSION. The conversion activates that timing for DeadSync/RSSP as well by
+writing a supported version and materializing required editor BPM maps. Existing
+local chart timing stays independent; missing/default/subminimum tempos use the
+already validated editor constructor/fallback path. A formerly inherited chart
+that needs its own default tempo copies the complete inherited raw timing set
+before its first local BPM. Other tags, legacy encoding and notes stay intact.
+
+Known old numeric versions upgrade to 0.70, the minimum split-timing version.
+This deliberately stays below the separate 0.74 description/chart-name boundary.
+Missing/unrecognized versions upgrade to 0.83, preserving their existing modern
+name interpretation. Already supported versions are unchanged and never
+downgraded. No-op, discarded, stale and foreign plans preserve source and redo.
+The version and all planned chart properties apply in a single history gesture,
+including when note edits are already pending. Disk writes still require Save.
+
+F10 and F7 open a translated review panel for an old SSC: source/target version,
+number of pre-existing local timing charts and number of BPM maps to write.
+Enter accepts; Escape/Keep Original discards the plan. Generation/regeneration/
+clear tools route legacy local timing to this review before starting a job.
+The shared core also refuses working generation/timing edits that would write
+ignored old local timing; offset export has the same guard. Read-only normalized
+clock queries remain available for comparison before conversion. Conversion can
+be undone independently of later BPM/property edits or new generated charts.
+
+Three new actual-reader/original-editor fixtures cover mixed inherited/local/
+offset-only charts, missing version with inherited tempo fallback, and fractional
+or subminimum chart timing. Seven functional core workflows compare editor
+head times/fake flags/step counts/end/query times before and after conversion,
+save/reopen, the real RSSP ownership change, metadata name boundaries, pending
+notes, CP1252/unknown tags, no-op history, invalid/stale/foreign plans and blocked
+ignored offset/timing writes. The mixed legacy fixture also runs the original
+chart-generation pipeline for all four charts; the Rust task outputs match its
+notes after conversion, then apply, save, reopen and undo all generated charts
+and the conversion. These tests do not imply equivalence for all historical
+format dialects or unsafe malformed values.
+
+Four native English workflows plus a French workflow cover review/accept/cancel,
+undo/redo, Save/reopen, missing-version defaults, translated labels and routing
+from generation and properties. Existing native editor workflows remain in the
+regression set. SM conversion, broader malformed/escape compatibility, interval
+rendering, remaining timing/property tools, audio preview/waveform integration
+and scale/runtime verification remain required for the full editor port.

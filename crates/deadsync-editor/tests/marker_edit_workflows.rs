@@ -45,6 +45,14 @@ fn session(format: Format) -> Session {
 fn marker_properties_move_save_reopen_regenerate_and_undo_without_touching_notes() {
     for format in [Format::Sm, Format::Ssc] {
         let mut source = session(format);
+        if format == Format::Ssc {
+            // Match the editor's conversion step for this unversioned fixture
+            // before invoking timing-dependent regeneration.
+            deadsync_editor::timing_edit::migration::Draft::capture(&source)
+                .unwrap()
+                .apply(&mut source)
+                .unwrap();
+        }
         source
             .edit_notes(
                 1,

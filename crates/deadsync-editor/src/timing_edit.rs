@@ -1,5 +1,6 @@
 //! Scoped, reversible timing edits. A first chart-local timing field detaches
 //! the entire SSC timing set, so inherited fields must be copied together.
+pub mod migration;
 pub mod pause;
 pub mod region;
 pub mod tempo;
@@ -45,6 +46,7 @@ impl Target {
         if chart >= document.charts().len() {
             return Err(invalid("Timing chart does not exist"));
         }
+        migration::require_compatible(document)?;
         if scope == Scope::Chart && !supports_chart_timing(document) {
             return Err(invalid(
                 "Chart timing requires SSC version 0.7 or newer; use shared timing until legacy migration is implemented",
@@ -195,12 +197,15 @@ pub(crate) fn inherited_fields_for_write(
         })
         .collect())
 }
-pub fn uses_chart_timing(document: &Document, chart: usize) -> bool {
+/// Ownership interpreted by the original Fumen reader, independent of version.
+pub fn reference_uses_chart_timing(document: &Document, chart: usize) -> bool {
     document.format == Format::Ssc
-        && supports_chart_timing(document)
         && TIMING_TAGS
             .iter()
             .any(|tag| document.raw_property(Some(chart), tag).is_some())
+}
+pub fn uses_chart_timing(document: &Document, chart: usize) -> bool {
+    supports_chart_timing(document) && reference_uses_chart_timing(document, chart)
 }
 /// Whether the file version supports a separate timing set per SSC chart.
 pub fn supports_chart_timing(document: &Document) -> bool {

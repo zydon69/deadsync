@@ -251,3 +251,69 @@ fn french_region_headings_lengths_validation_and_paired_acceptance_are_translate
     assert_eq!(document.text(Some(0), "WARPS").as_deref(), Some("0=1,1=1"));
     assert_eq!(document.text(Some(0), "FAKES").as_deref(), Some("0=0.5"));
 }
+
+#[test]
+fn french_legacy_review_cancel_and_acceptance_are_translated_and_do_not_save_implicitly() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let before =
+        b"#VERSION:0.60;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#OFFSET:0.25;#NOTES:1000;";
+    fs::write(&path, before).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    let labels = texts(&screen);
+    assert!(labels.iter().any(|text| text.contains("SSC 0.60 -> 0.70")));
+    assert!(
+        labels
+            .iter()
+            .any(|text| text.contains("timing local existant de 1 partitions"))
+    );
+    assert!(
+        labels
+            .iter()
+            .any(|text| text == "Convertir le timing et continuer")
+    );
+    for key in [
+        "LegacyTimingHelp",
+        "LegacyTimingSummary",
+        "LegacyTimingApply",
+        "LegacyTimingCancel",
+        "LegacyTimingApplied",
+        "LegacyTimingDiscarded",
+        "LegacyTimingMissingVersion",
+    ] {
+        assert_ne!(i18n::tr("Edition", key).as_ref(), key);
+    }
+    press(&mut screen, KeyCode::Escape);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|text| text.starts_with("Conversion du timing abandonnée"))
+    );
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    press(&mut screen, KeyCode::F10);
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|text| text.starts_with("Timing SSC converti"))
+    );
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "VERSION")
+            .as_deref(),
+        Some("0.70")
+    );
+    assert_eq!(fs::read(&path).unwrap(), before);
+}

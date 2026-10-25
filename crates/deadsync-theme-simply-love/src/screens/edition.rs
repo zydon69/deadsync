@@ -46,6 +46,7 @@ enum Panel {
     Profiles(usize),
     ChartProperties(usize),
     Timing(usize),
+    TimingMigration(usize),
     ChartExpression(usize),
     ConversionProfiles(usize),
     ConfirmMarkerDelete,
@@ -189,6 +190,7 @@ pub struct State {
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
     timing: Option<timing::Settings>,
+    timing_migration: Option<deadsync_editor::timing_edit::migration::Draft>,
     catalog_target: ProfileTarget,
     profile_directory: Option<PathBuf>,
     saved_regions: Vec<(u64, u64)>,
@@ -284,6 +286,7 @@ impl State {
             marker: None,
             chart_properties: None,
             timing: None,
+            timing_migration: None,
             catalog_target: ProfileTarget::Marker,
             profile_directory: deadsync_editor::runtime::configs_dir().map(Path::to_path_buf),
             saved_regions: Vec::new(),
@@ -358,6 +361,9 @@ impl State {
         self.status = i18n::tr("Edition", "GenerationOptionsHelp");
     }
     fn start_pattern(&mut self) {
+        if !self.current_timing_for_generation() {
+            return;
+        }
         if self.is_generating() {
             return;
         }
@@ -432,6 +438,11 @@ impl State {
     }
 
     fn open_chart_properties(&mut self) {
+        if deadsync_editor::timing_edit::migration::needed(self.workspace.file().session.document())
+        {
+            self.open_timing_migration();
+            return;
+        }
         match self.workspace.chart_properties() {
             Ok(draft) => {
                 self.status = i18n::tr(
@@ -757,6 +768,9 @@ impl State {
     }
 
     fn clear_marker_notes(&mut self) {
+        if !self.current_timing_for_generation() {
+            return;
+        }
         if self.is_generating() {
             return;
         }
@@ -806,6 +820,9 @@ impl State {
     }
 
     fn regenerate_saved_pattern(&mut self) {
+        if !self.current_timing_for_generation() {
+            return;
+        }
         if self.is_generating() {
             return;
         }
@@ -980,6 +997,9 @@ impl State {
     }
 
     fn start_generation(&mut self) {
+        if !self.current_timing_for_generation() {
+            return;
+        }
         if self.is_generating() {
             return;
         }
@@ -1294,6 +1314,10 @@ impl State {
             if matches!(panel, Panel::Timing(_)) {
                 self.status = i18n::tr("Edition", "TimingDiscarded");
             }
+            if matches!(panel, Panel::TimingMigration(_)) {
+                self.status = i18n::tr("Edition", "LegacyTimingDiscarded");
+            }
+            self.timing_migration = None;
             self.timing = None;
             self.chart_properties = None;
             self.marker = None;
@@ -1346,6 +1370,7 @@ impl State {
                 }
             }
             Panel::Timing(index) => self.timing_key(index, code),
+            Panel::TimingMigration(index) => self.timing_migration_key(index, code),
             Panel::ChartProperties(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ChartProperties(
@@ -1912,7 +1937,13 @@ impl State {
             }
         }
         actors.push(act!(quad: xy(field_center, cursor_y): zoomto(field_width, 2.0): diffuse(1.0, 0.85, 0.25, 1.0): z(8005)));
-        if self.help && self.preview.is_none() && !matches!(self.panel, Some(Panel::Timing(_))) {
+        if self.help
+            && self.preview.is_none()
+            && !matches!(
+                self.panel,
+                Some(Panel::Timing(_) | Panel::TimingMigration(_))
+            )
+        {
             self.help_actors(actors);
         }
         if let Some(panel) = self.panel {
@@ -2008,6 +2039,7 @@ impl State {
                 "ConversionProfileUse",
                 "ProfileBack",
             ],
+            Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
             Panel::Timing(_) => &[
                 "TimingScope",
                 "TimingBeat",
@@ -2053,6 +2085,7 @@ impl State {
             | Panel::Pattern(i)
             | Panel::Marker(i)
             | Panel::Profiles(i)
+            | Panel::TimingMigration(i)
             | Panel::Timing(i)
             | Panel::ChartProperties(i)
             | Panel::ChartExpression(i)
@@ -2082,6 +2115,8 @@ impl State {
             220.0
         } else if previewing {
             128.0
+        } else if matches!(panel, Panel::TimingMigration(_)) {
+            125.0
         } else if matches!(panel, Panel::Timing(_)) {
             36.0
         } else {
@@ -2094,6 +2129,10 @@ impl State {
             screen_height() * 0.5
         };
         actors.push(act!(quad: xy(panel_x, panel_y): setsize(panel_width, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
+        if matches!(panel, Panel::TimingMigration(_)) {
+            let summary = self.timing_migration_summary();
+            actors.push(act!(text: font("miso"): settext(summary): align(0.5,0.0): xy(panel_x,panel_y-panel_height*0.5+10.0): zoom(0.65): wrapwidthpixels((panel_width-30.0)/0.65): maxwidth(panel_width-30.0): maxheight(110.0): z(8021)));
+        }
         if matches!(panel, Panel::Timing(_)) {
             let heading = self.timing_heading();
             actors.push(act!(text: font("miso"): settext(heading): align(0.5,0.0): xy(panel_x,panel_y-panel_height*0.5+10.0): zoom(0.65): maxwidth(panel_width-30.0): z(8021)));

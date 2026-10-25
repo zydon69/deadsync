@@ -55,6 +55,7 @@ pub fn read(
     };
     checkpoint()?;
     let document = Document::parse(bytes.clone(), format)?;
+    crate::timing_edit::migration::require_compatible(&document)?;
     let entry = document
         .charts()
         .get(chart)
