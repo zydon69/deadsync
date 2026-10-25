@@ -95,8 +95,8 @@ A random lane picker or a basic difficulty filter would not meet the request.
 Automatic fallback selection, generated-note assembly and reversible chart
 creation, source preparation, session-bound previews and a native chart-generation
 panel are implemented below. The surrounding-footing and region primitives below are also implemented. Next
-work must connect a complete source-to-pattern task and native controls, complete
-configurations and batch generation.
+work must validate the integrated single-region source-to-pattern task against
+the original action, connect native controls, and complete configurations and batch generation.
 Differential fixtures must extend the existing tech, bracket, crossover,
 hold, mine, layout and seed cases to that complete conversion pipeline.
 Generation results need preview and one reversible application gesture before
@@ -414,11 +414,10 @@ insertion together. Tests preserve attributes and other participants, undo to th
 exact original bytes, redo, save and reopen the resulting grid. The selected-owner
 primitive is explicit; whole multiplayer generation remains unfinished.
 
-These primitives do not yet complete source-to-pattern preparation. Automatic
-region assembly from all editor/timing events, the remaining source-to-pattern density/region adapter, session-bound background
-pattern jobs and their
-native panel remain required. They are not replaced by fixed footing or a density
-estimate chosen merely to match the existing tests.
+These primitives feed the single-region source-to-pattern task described below.
+Full original-action differential coverage, persistent/batch pattern actions and
+the native panel remain required. Footing and density come from the source
+contexts rather than fixed values chosen to match the existing tests.
 
 ### Editor timing and pattern-density decisions
 
@@ -476,12 +475,28 @@ editor-assigned events. Loaded pattern markers and missing-tempo loader defaults
 are excluded from this test and remain separate unfinished contracts. This is
 not a claim of complete original file-loader fidelity, especially for keysounds.
 
-The remaining pattern adapter must connect these projections, bounds, density,
-separate preceding/following interpretations and context derivation to the
-pattern kernel. Native pattern jobs and their interface remain unfinished.
-Repeated live edits also need timeline cache semantics: rebuilding after each
-edit can change floating-point clamp history. These tests alone do not prove
-the full source-to-pattern workflow or the complete editor port.
+`pattern_job::Task` now connects this preparation for one region: marker-relative
+inclusive/exclusive endpoints, hold-aware deletion, projected timing and density,
+32-step bounds extended by transition settings, following then preceding
+interpretation, full preceding lane counts and context derivation. It invokes the
+pattern kernel and assembles an immutable final-grid preview through the same
+Session edit path as acceptance. A private Session identity/revision token and
+selected-chart check protect acceptance. The preview reports deletions, shortened
+holds, average NPS and kernel warnings. Seven workflow tests cover empty contexts,
+crossing holds, endpoint rules, cancellation, foreign/stale previews, one-gesture
+undo/redo and save/reopen, including the Workspace command path.
+
+Chart and pattern jobs share a generic bounded worker with a single progress
+slot and one completion result. Cancelling an already ready result discards it;
+dropping a worker never joins the compute thread. Pattern jobs are not yet
+connected to the native interface. Existing differential tests prove individual
+original timing, region, context and generation components; the new integrated
+single-region task still needs an end-to-end original-action differential oracle.
+
+Multiple overlapping pattern markers, persisted editable pattern metadata and
+batch regeneration remain unfinished. Repeated live edits also need timeline
+cache semantics: rebuilding after each edit can change floating-point clamp
+history. These tests do not prove the complete editor port.
 
 Reader normalization for invalid/conflicting timing entries, unsupported attack
 timing, existing persisted pattern metadata, previews/last-second hints and wider

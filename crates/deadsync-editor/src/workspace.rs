@@ -258,6 +258,23 @@ impl Workspace {
         crate::generation::job::ChartTask::capture(&self.file.session, self.chart, options)
     }
 
+    pub fn pattern_task(
+        &self,
+        options: crate::generation::pattern_job::Options,
+    ) -> Result<crate::generation::pattern_job::Task, Error> {
+        crate::generation::pattern_job::Task::capture(&self.file.session, self.chart, options)
+    }
+
+    pub fn apply_generated_pattern(
+        &mut self,
+        preview: &crate::generation::pattern_job::Preview,
+    ) -> Result<bool, Error> {
+        let changed = preview.apply(&mut self.file.session, self.chart)?;
+        self.file.session.grid(self.chart)?;
+        self.anchor = None;
+        Ok(changed)
+    }
+
     pub fn apply_generated(
         &mut self,
         preview: &crate::generation::job::ChartPreview,

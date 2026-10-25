@@ -14,6 +14,7 @@ mod jsonc;
 pub mod mines;
 pub mod output;
 pub mod pattern;
+pub mod pattern_job;
 pub mod pattern_region;
 pub mod performed;
 pub mod random;

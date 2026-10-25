@@ -221,28 +221,8 @@ impl ChartTask {
     }
 
     pub fn spawn(self) -> Result<Job, Error> {
-        let cancelled = Arc::new(AtomicBool::new(false));
-        let progress = Arc::new(Mutex::new(Progress::default()));
-        let (sender, receiver) = mpsc::sync_channel(1);
-        let worker_cancelled = cancelled.clone();
-        let worker_progress = progress.clone();
-        std::thread::Builder::new()
-            .name("editor-chart-generation".into())
-            .spawn(move || {
-                let result = catch_unwind(AssertUnwindSafe(|| {
-                    self.run(&worker_cancelled, |value| {
-                        *worker_progress
-                            .lock()
-                            .unwrap_or_else(|error| error.into_inner()) = value;
-                    })
-                }))
-                .unwrap_or_else(|_| Err(Error::InvalidEdit("Generation worker failed".into())));
-                let _ = sender.send(result);
-            })?;
-        Ok(Job {
-            cancelled,
-            progress,
-            receiver: Some(receiver),
+        Job::spawn_with("editor-chart-generation", move |cancelled, progress| {
+            self.run(cancelled, progress)
         })
     }
 }
@@ -290,12 +270,43 @@ impl ChartPreview {
     }
 }
 
-pub struct Job {
+pub struct Job<T = ChartPreview> {
     cancelled: Arc<AtomicBool>,
     progress: Arc<Mutex<Progress>>,
-    receiver: Option<Receiver<Result<ChartPreview, Error>>>,
+    receiver: Option<Receiver<Result<T, Error>>>,
 }
-impl Job {
+impl<T> Job<T> {
+    pub(crate) fn spawn_with(
+        name: &str,
+        run: impl FnOnce(&AtomicBool, &mut dyn FnMut(Progress)) -> Result<T, Error> + Send + 'static,
+    ) -> Result<Self, Error>
+    where
+        T: Send + 'static,
+    {
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let progress = Arc::new(Mutex::new(Progress::default()));
+        let (sender, receiver) = mpsc::sync_channel(1);
+        let worker_cancelled = cancelled.clone();
+        let worker_progress = progress.clone();
+        std::thread::Builder::new()
+            .name(name.into())
+            .spawn(move || {
+                let result = catch_unwind(AssertUnwindSafe(|| {
+                    run(&worker_cancelled, &mut |value| {
+                        *worker_progress
+                            .lock()
+                            .unwrap_or_else(|error| error.into_inner()) = value;
+                    })
+                }))
+                .unwrap_or_else(|_| Err(Error::InvalidEdit("Generation worker failed".into())));
+                let _ = sender.send(result);
+            })?;
+        Ok(Self {
+            cancelled,
+            progress,
+            receiver: Some(receiver),
+        })
+    }
     pub fn progress(&self) -> Progress {
         *self
             .progress
@@ -308,7 +319,7 @@ impl Job {
     pub fn is_cancelled(&self) -> bool {
         self.cancelled.load(Ordering::Relaxed)
     }
-    pub fn poll(&mut self) -> Option<Result<ChartPreview, Error>> {
+    pub fn poll(&mut self) -> Option<Result<T, Error>> {
         let receiver = self.receiver.as_ref()?;
         let result = match receiver.try_recv() {
             Ok(result) => result,
@@ -325,7 +336,7 @@ impl Job {
         })
     }
 }
-impl Drop for Job {
+impl<T> Drop for Job<T> {
     fn drop(&mut self) {
         self.cancel();
     }
