@@ -1257,7 +1257,7 @@ complete timing normalization, edited audio preview/cache invalidation and the
 remaining delivery matrix are still required for the full port.
 
 
-### Native BPM inspector (F10)
+### Native timing inspector (F10)
 
 F10 opens the optional timing panel; F7 chart properties also has an entry for
 it. Pending chart properties must be accepted or discarded first. A supported
@@ -1284,7 +1284,7 @@ numeric input, accepts all BPM edits as one undoable gesture, and closes the
 panel. Escape or Discard abandons the draft without clearing redo. No-op Apply
 also preserves redo and original bytes. Saving to disk stays explicit.
 
-Nine English native workflows and a separate French workflow exercise production
+Thirteen English native workflows and two separate French workflows exercise production
 RawKeyboardEvent dispatch and the generated actor tree: F10/F7 access, numeric
 controls and rounding, scope isolation, malformed local data, initial/collision
 validation, navigation, move/delete acceptance, pending input, help visibility,
@@ -1292,3 +1292,64 @@ undo/redo, unchanged files before Save, and save/reopen. Expected timing edits
 are compared with the shared core already checked against the original C#
 references. These tests do not claim GPU rendering, physical keyboard input,
 audio playback or complete GrooveAuthor runtime parity.
+
+
+### Scoped stops and delays
+
+`timing_edit::pause::{Draft, Pauses, Kind}` and the workspace pause APIs stage
+both STOPS and DELAYS together. Stop lengths can be positive or negative, but
+cannot be zero. Delays may be zero but cannot be negative. The importer uses the
+same Fumen beat-to-row rounding and conflict resolution as BPM import; it removes
+zero-equivalent stops and negative delays only after resolving same-row source
+conflicts. Node value changes retain the original one-ULP equality. Each type has
+its own position map: a stop and delay may coexist at one row. Both allow moving
+or deleting a row-zero node, unlike the immutable initial BPM. A destination
+already occupied by the same type is rejected.
+
+The scoped transaction preserves the complete raw inherited timing set before
+the first local SSC edit. Only the changed pause type is serialized; an untouched
+delay map, labels with legacy bytes, BPMs, OFFSET and other properties retain
+their original bytes. Removing every local pause writes an explicitly empty tag
+so reloading cannot unexpectedly restore the song's pauses. Both event types
+apply in one history action. Invalid/stale/foreign/wrong-chart drafts and no-op
+acceptance preserve document bytes and redo. SM/legacy SSC use shared timing;
+modern SSC can edit either scope. The shared core and native F10 inspector both
+expose these operations.
+
+Twenty-two new oracle fixtures use actual Fumen AddStops/AddDelays importers,
+unchanged GrooveAuthor stop/delay setters and original movement guards through
+explicit node/container adapters. They cover positive/negative/zero lengths,
+duplicate beats, row collisions, invalid later events masking earlier valid
+ones, half rows, negative source positions, fractional values, integer limits,
+subnormal delays, signed zero and ULP equality. The generator preserves the
+original C# JSON negative-zero token when committing expected data. The update
+adapters assign the referenced length field; they do not replay the original
+interval-tree notifications or editor action loop.
+
+Five additional fixtures run the real original SM/SSC reader before and after
+explicit expected exports. Eight Rust workflows compare imported maps, each
+edit stage, actual note times, inheritance, sign changes, coexisting stop/delay
+nodes, empty maps, save/reopen, pending notes, undo/redo and rejected operations.
+Lengths outside finite f32 gameplay bounds are refused; DeadSync's existing
+RSSP timing quantization remains unchanged. Full timing normalization,
+audio/cache updates, other timing/gimmicks and complete runtime
+parity are still required for the requested port.
+
+
+F10 now has an event-type heading. Tab cycles BPM → stop → delay, and Shift+Tab
+cycles in reverse. This adds no top-level menu rows. Stops and delays retain a
+single draft when switching between them, allowing one combined acceptance and
+undo. Unstaged input must be staged first. Switching between BPM and pause
+drafts requires applying or discarding changes; the panel refuses a switch that
+would lose work. Scope switches follow the same rule. Duration keys accept a
+minus sign (also numeric-keypad subtraction); negative delays and zero stops
+are rejected. Left/Right adjusts durations by 0.01 seconds (Shift: 0.001).
+Pause navigation uses only events of the selected type, and row-zero pauses can
+be moved/deleted. Applying reports the combined number of stop/delay nodes.
+
+The four added English native scenarios and one added French scenario cover
+combined stop/delay acceptance and one undo, save/reopen, type switches with
+pending input and staged edits, sign/zero validation, scope isolation, node
+movement/deletion and translated headings/controls/errors. Earlier BPM native
+workflows remain in the regression set. Actor and keyboard tests do not prove
+physical input, final GPU layout or audio preview behavior.

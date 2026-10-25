@@ -1,0 +1,212 @@
+{
+  "Initial": [
+    {
+      "Row": 0,
+      "Seconds": 0
+    },
+    {
+      "Row": 48,
+      "Seconds": -0.0
+    },
+    {
+      "Row": 96,
+      "Seconds": 5e-324
+    }
+  ],
+  "Stages": [
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Seconds": 0.5
+        },
+        {
+          "Row": 48,
+          "Seconds": -0.0
+        },
+        {
+          "Row": 96,
+          "Seconds": 5e-324
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Seconds": 0.5
+        },
+        {
+          "Row": 48,
+          "Seconds": -0.0
+        },
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Seconds": 0.5
+        },
+        {
+          "Row": 48,
+          "Seconds": -0.0
+        },
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": [
+        {
+          "Row": 0,
+          "Seconds": 0.5
+        },
+        {
+          "Row": 48,
+          "Seconds": -0.0
+        },
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": [
+        {
+          "Row": 0,
+          "Seconds": 0.5
+        },
+        {
+          "Row": 48,
+          "Seconds": -0.0
+        },
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Seconds": 0.5
+        },
+        {
+          "Row": 72,
+          "Seconds": -0.0
+        },
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 72,
+          "Seconds": -0.0
+        },
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "invalid",
+      "Values": [
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        },
+        {
+          "Row": 192,
+          "Seconds": 0
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        },
+        {
+          "Row": 192,
+          "Seconds": 0.75
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 96,
+          "Seconds": 1.25
+        },
+        {
+          "Row": 192,
+          "Seconds": 0.75
+        }
+      ]
+    }
+  ]
+}

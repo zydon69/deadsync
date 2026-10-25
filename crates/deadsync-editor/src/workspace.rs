@@ -338,6 +338,19 @@ impl Workspace {
         .map(|task| task.with_chart_expression())
     }
 
+    pub fn pause_draft(
+        &self,
+        scope: crate::timing_edit::Scope,
+    ) -> Result<crate::timing_edit::pause::Draft, Error> {
+        crate::timing_edit::pause::Draft::capture(&self.file.session, self.chart, scope)
+    }
+    pub fn apply_pauses(
+        &mut self,
+        draft: &crate::timing_edit::pause::Draft,
+    ) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session, self.chart)
+    }
+
     pub fn tempo_draft(
         &self,
         scope: crate::timing_edit::Scope,

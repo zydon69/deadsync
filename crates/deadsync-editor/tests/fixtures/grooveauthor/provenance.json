@@ -7,6 +7,7 @@
   "editor_metadata_types_sha256": "35a7591a09d91364fb42cb90cc3e6012a43c3dde3ddbf3963b384ce22af9d115",
   "editor_profile_setters_sha256": "1fcd1a43c84505b46e6bb1b73da439962480a687c20aab206c8baea963bd95e3",
   "editor_tempo_methods_sha256": "3cc494c80e02f3c51cfce20965cb69199090cb0f4ec74a40cb53e2fd6da6686f",
+  "editor_pause_methods_sha256": "ac3a685e236cd17e92faf610d344929a8244d09ab246d5f713aac15b662d38e5",
   "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
   "dotnet_sdk": "10.0.402",
   "dotnet_runtimes": [

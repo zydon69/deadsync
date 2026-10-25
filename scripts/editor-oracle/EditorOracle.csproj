@@ -11,6 +11,7 @@
     <Compile Include="obj/MetadataReference.cs" />
     <Compile Include="obj/ProfilesReference.cs" />
     <Compile Include="obj/TempoReference.cs" />
+    <Compile Include="obj/PauseReference.cs" />
     <Reference Include="StepManiaLibrary">
       <HintPath>$(ReferenceRoot)/StepManiaLibrary/bin/Release/net10.0/StepManiaLibrary.dll</HintPath>
     </Reference>

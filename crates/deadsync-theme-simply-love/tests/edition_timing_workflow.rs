@@ -57,6 +57,7 @@ fn type_number(screen: &mut State, value: &str) {
                 '9' => KeyCode::Digit9,
                 '.' => KeyCode::Period,
                 ',' => KeyCode::Comma,
+                '-' => KeyCode::Minus,
                 _ => panic!("number"),
             },
         );
@@ -423,4 +424,207 @@ fn numeric_controls_round_beats_adjust_bpm_and_preserve_help_preference() {
     press(&mut screen, KeyCode::Enter);
     assert_eq!(serialized(&screen), expected(Scope::Chart, 5, 130.5));
     assert!(help_visible(&screen));
+}
+
+#[test]
+fn stops_and_delays_share_one_draft_and_one_undo_without_changing_bpm() {
+    use deadsync_editor::timing_edit::pause::{Draft, Kind};
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Stops (after notes)"));
+    let mut index = 0;
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "1");
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "-0.5");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Pause staged"));
+    assert_eq!(serialized(&screen), SONG);
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Delays (before notes)"));
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0.25");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::Tab);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "Duration: -0.5 s"));
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::Tab);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "Apply or discard before switching"));
+    assert!(contains(&screen, "Stops (after notes)"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    let mut original = Session::new(Document::parse(Arc::<[u8]>::from(SONG), Format::Ssc).unwrap());
+    let mut draft = Draft::capture(&original, 0, Scope::Chart).unwrap();
+    draft.set(Kind::Stop, 48, -0.5).unwrap();
+    draft.set(Kind::Delay, 48, 0.25).unwrap();
+    draft.apply(&mut original, 0).unwrap();
+    let after = original.serialize().unwrap();
+    assert_eq!(serialized(&screen), after);
+    assert_eq!(fs::read(&path).unwrap(), SONG);
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), SONG);
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    ctrl(&mut screen, KeyCode::KeyZ);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    ctrl(&mut screen, KeyCode::KeyS);
+    assert_eq!(serialized(&State::open(&path, 0).unwrap()), after);
+}
+#[test]
+fn pause_type_input_and_scope_guards_cancel_and_zero_delay_validation_preserve_history() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    press(&mut screen, KeyCode::Tab);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0");
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Stage your input"));
+    assert!(contains(&screen, "Stops (after notes)"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "nonzero stop length"));
+    assert_eq!(serialized(&screen), SONG);
+    press(&mut screen, KeyCode::Escape);
+    press(&mut screen, KeyCode::F10);
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::Tab);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "-1");
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "nonnegative delay"));
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Pause staged"));
+    choose(&mut screen, &mut index, 0);
+    press(&mut screen, KeyCode::ArrowRight);
+    assert!(contains(&screen, "before switching scope"));
+    choose(&mut screen, &mut index, 9);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(serialized(&screen), SONG);
+}
+#[test]
+fn zero_row_stops_can_move_and_delete_with_occupied_target_validation() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    press(&mut screen, KeyCode::Tab);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "2");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "already occupies"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "3");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Pause move staged"));
+    choose(&mut screen, &mut index, 6);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(screen.workspace().row(), 96);
+    choose(&mut screen, &mut index, 4);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "STOPS")
+            .as_deref(),
+        Some("3=0.5")
+    );
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "DELAYS")
+            .as_deref(),
+        None
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), SONG);
+}
+#[test]
+fn shared_pause_scope_leaves_local_charts_alone_and_pending_bpm_blocks_type_change() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "130");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Apply or discard before switching"));
+    assert!(contains(&screen, "BPM changes"));
+    press(&mut screen, KeyCode::Escape);
+    press(&mut screen, KeyCode::F10);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::Tab);
+    index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0.5");
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "STOPS")
+            .as_deref(),
+        Some("0=0.5,2=0.5")
+    );
+    assert!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .raw_property(Some(0), "STOPS")
+            .is_none()
+    );
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(1), "BPMS")
+            .as_deref(),
+        Some("0=150")
+    );
 }

@@ -1,0 +1,223 @@
+{
+  "Before": [
+    {
+      "Offset": 0.25,
+      "Pauses": [
+        {
+          "Row": 96,
+          "Seconds": 0.25,
+          "Delay": false
+        },
+        {
+          "Row": 144,
+          "Seconds": 0.125,
+          "Delay": true
+        }
+      ],
+      "Notes": [
+        {
+          "Row": 0,
+          "Lane": 0,
+          "Time": 0
+        },
+        {
+          "Row": 48,
+          "Lane": 1,
+          "Time": 0.5
+        },
+        {
+          "Row": 96,
+          "Lane": 2,
+          "Time": 1
+        },
+        {
+          "Row": 144,
+          "Lane": 3,
+          "Time": 1.875
+        }
+      ]
+    },
+    {
+      "Offset": -0.125,
+      "Pauses": [
+        {
+          "Row": 48,
+          "Seconds": 0.1,
+          "Delay": false
+        }
+      ],
+      "Notes": [
+        {
+          "Row": 0,
+          "Lane": 0,
+          "Time": 0
+        },
+        {
+          "Row": 48,
+          "Lane": 1,
+          "Time": 0.4
+        },
+        {
+          "Row": 96,
+          "Lane": 2,
+          "Time": 0.9
+        },
+        {
+          "Row": 144,
+          "Lane": 3,
+          "Time": 1.3
+        }
+      ]
+    },
+    {
+      "Offset": 0.25,
+      "Pauses": [
+        {
+          "Row": 96,
+          "Seconds": 0.25,
+          "Delay": false
+        },
+        {
+          "Row": 144,
+          "Seconds": 0.125,
+          "Delay": true
+        }
+      ],
+      "Notes": [
+        {
+          "Row": 0,
+          "Lane": 0,
+          "Time": 0
+        },
+        {
+          "Row": 48,
+          "Lane": 1,
+          "Time": 0.5
+        },
+        {
+          "Row": 96,
+          "Lane": 2,
+          "Time": 1
+        },
+        {
+          "Row": 144,
+          "Lane": 3,
+          "Time": 1.875
+        }
+      ]
+    }
+  ],
+  "After": [
+    {
+      "Offset": 0.25,
+      "Pauses": [
+        {
+          "Row": 48,
+          "Seconds": 0.25,
+          "Delay": true
+        },
+        {
+          "Row": 48,
+          "Seconds": 0.5,
+          "Delay": false
+        },
+        {
+          "Row": 144,
+          "Seconds": 0.25,
+          "Delay": false
+        }
+      ],
+      "Notes": [
+        {
+          "Row": 0,
+          "Lane": 0,
+          "Time": 0
+        },
+        {
+          "Row": 48,
+          "Lane": 1,
+          "Time": 0.75
+        },
+        {
+          "Row": 96,
+          "Lane": 2,
+          "Time": 1.75
+        },
+        {
+          "Row": 144,
+          "Lane": 3,
+          "Time": 2.25
+        }
+      ]
+    },
+    {
+      "Offset": -0.125,
+      "Pauses": [
+        {
+          "Row": 48,
+          "Seconds": 0.1,
+          "Delay": false
+        }
+      ],
+      "Notes": [
+        {
+          "Row": 0,
+          "Lane": 0,
+          "Time": 0
+        },
+        {
+          "Row": 48,
+          "Lane": 1,
+          "Time": 0.4
+        },
+        {
+          "Row": 96,
+          "Lane": 2,
+          "Time": 0.9
+        },
+        {
+          "Row": 144,
+          "Lane": 3,
+          "Time": 1.3
+        }
+      ]
+    },
+    {
+      "Offset": 0.25,
+      "Pauses": [
+        {
+          "Row": 96,
+          "Seconds": 0.25,
+          "Delay": false
+        },
+        {
+          "Row": 144,
+          "Seconds": 0.125,
+          "Delay": true
+        }
+      ],
+      "Notes": [
+        {
+          "Row": 0,
+          "Lane": 0,
+          "Time": 0
+        },
+        {
+          "Row": 48,
+          "Lane": 1,
+          "Time": 0.5
+        },
+        {
+          "Row": 96,
+          "Lane": 2,
+          "Time": 1
+        },
+        {
+          "Row": 144,
+          "Lane": 3,
+          "Time": 1.875
+        }
+      ]
+    }
+  ]
+}

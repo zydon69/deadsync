@@ -1,0 +1,65 @@
+// Original setters and movement guards are extracted unchanged. Ref-field update
+// adapters replace timing tree/notification plumbing; no full editor loop claim.
+using System.Text.Json;
+using Fumen;
+using Fumen.ChartDefinition;
+using static Fumen.FumenExtensions;
+using static System.Diagnostics.Debug;
+namespace PauseOracle;
+internal interface IPause {double DoubleValue{get;set;}}
+internal class EditorEvent(int row) {
+    public int Row=row;public int GetRow()=>Row;public int GetLane()=>-1;public bool IsLaneNote()=>false;
+}
+internal class EditorPatternEvent(int row):EditorEvent(row){}
+internal class EditorHoldNoteEvent(int row):EditorEvent(row){}
+internal class Events:List<EditorEvent>{public IEnumerable<EditorEvent> FindEventsAtRow(int row)=>this.Where(e=>e.Row==row);}
+internal class EditorChart {
+    private const int InvalidArrowIndex=-1;private int NumInputs=4;
+    public Events EditorEvents=new();public bool CanBeEdited()=>true;public bool IsMultiPlayer()=>false;
+    public List<EditorHoldNoteEvent> GetHoldsOverlappingPosition(int row)=>[];
+    public void UpdateStopTime(EditorStopEvent _,double value,ref double field){field=value;}
+    public void UpdateDelayTime(EditorDelayEvent _,double value,ref double field){field=value;}
+    // MOVEMENT
+}
+internal sealed class EditorStopEvent(int row,Stop value,EditorChart owner):EditorEvent(row),IPause {
+    private readonly Stop StopEvent=value;private readonly EditorChart EditorChart=owner;private bool WidthDirty;
+    // VALIDATION
+    // STOP_SETTER
+}
+internal sealed class EditorDelayEvent(int row,Stop value,EditorChart owner):EditorEvent(row),IPause {
+    private readonly Stop StopEvent=value;private readonly EditorChart EditorChart=owner;private bool WidthDirty;
+    // DELAY_SETTER
+}
+internal static class Reference {
+    public static object Run(JsonElement input) {
+        bool delay=input.GetProperty("Kind").GetString()=="Delay";
+        var source=new Dictionary<double,double>();foreach(var pair in input.GetProperty("Segments").EnumerateArray())source[pair[0].GetDouble()]=pair[1].GetDouble();
+        var chart=new Chart{Layers=[new Layer()]};var logger=new TempoOracle.SilentLogger();
+        if(delay)Fumen.Converters.SMCommon.AddDelays(source,chart,logger,false);else Fumen.Converters.SMCommon.AddStops(source,chart,logger,false);
+        var store=new EditorChart();var nodes=new SortedDictionary<int,EditorEvent>();
+        EditorEvent New(int row,double value)=>delay?new EditorDelayEvent(row,new Stop(value,true),store):new EditorStopEvent(row,new Stop(value),store);
+        foreach(var stop in chart.Layers[0].Events.OfType<Stop>())nodes[stop.IntegerPosition]=New(stop.IntegerPosition,stop.LengthSeconds);
+        store.EditorEvents.AddRange(nodes.Values);
+        object Values()=>nodes.Select(pair=>new{Row=pair.Key,Seconds=((IPause)pair.Value).DoubleValue}).ToArray();
+        var initial=Values();var stages=new List<object>();
+        foreach(var operation in input.GetProperty("Operations").EnumerateArray()){
+            var kind=operation[0].GetString();var row=operation[1].GetInt32();bool changed=false;string? error=null;
+            if(kind=="set"){
+                var value=operation[2].GetDouble();
+                if(delay?value<0:!EditorStopEvent.IsStopLengthValid(value))error="invalid";
+                else if(nodes.TryGetValue(row,out var node)){var before=((IPause)node).DoubleValue;((IPause)node).DoubleValue=value;changed=before!=((IPause)node).DoubleValue;}
+                else{nodes[row]=New(row,value);store.EditorEvents.Add(nodes[row]);changed=true;}
+            }else if(kind=="remove"){
+                if(nodes.TryGetValue(row,out var node))store.EditorEvents.Remove(node);changed=nodes.Remove(row);
+            }else if(kind=="move"){
+                var target=operation[2].GetInt32();
+                if(!nodes.TryGetValue(row,out var node))error="missing";
+                else if(row==target){}
+                else if(!store.CanEventBeMovedToRow(node,target))error="collision";
+                else{nodes.Remove(row);nodes[target]=node;node.Row=target;changed=true;}
+            }else throw new ArgumentException("Unknown pause operation");
+            stages.Add(new{Changed=changed,Error=error,Values=Values()});
+        }
+        return new{Initial=initial,Stages=stages};
+    }
+}

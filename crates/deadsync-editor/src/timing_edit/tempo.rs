@@ -136,7 +136,7 @@ pub(crate) fn parse_pairs(text: &str) -> Result<Vec<(f64, f64)>, Error> {
 }
 /// Original nearest subdivision selection, including its negative-fraction and
 /// half-row behavior. Keep its two stages and operation order for f64 parity.
-fn beat_row(beat: f64) -> Result<i64, Error> {
+pub(super) fn beat_row(beat: f64) -> Result<i64, Error> {
     let whole = beat.trunc();
     if !whole.is_finite()
         || whole < (i32::MIN as f64 / 48.0) - 1.0

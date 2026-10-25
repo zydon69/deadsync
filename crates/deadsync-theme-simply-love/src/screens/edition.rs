@@ -2082,6 +2082,8 @@ impl State {
             220.0
         } else if previewing {
             128.0
+        } else if matches!(panel, Panel::Timing(_)) {
+            36.0
         } else {
             0.0
         };
@@ -2092,6 +2094,10 @@ impl State {
             screen_height() * 0.5
         };
         actors.push(act!(quad: xy(panel_x, panel_y): setsize(panel_width, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
+        if matches!(panel, Panel::Timing(_)) {
+            let heading = self.timing_heading();
+            actors.push(act!(text: font("miso"): settext(heading): align(0.5,0.0): xy(panel_x,panel_y-panel_height*0.5+10.0): zoom(0.65): maxwidth(panel_width-30.0): z(8021)));
+        }
         if let Some(preview) = self.preview.as_ref().filter(|_| previewing) {
             if let GenerationPreview::PatternSet { preview, entry } = preview {
                 let summary = self.pattern_set_summary(preview, *entry);

@@ -107,3 +107,73 @@ fn french_timing_labels_validation_and_acceptance_are_resolved() {
         Some("0=150")
     );
 }
+
+#[test]
+fn french_pause_types_durations_errors_and_combined_acceptance_are_translated() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(
+        &path,
+        b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+    )
+    .unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    press(&mut screen, KeyCode::Tab);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|text| text.starts_with("Arrêts (après les notes)"))
+    );
+    for key in [
+        "PauseSeconds",
+        "PauseSet",
+        "PauseRemove",
+        "PauseMove",
+        "PausePrevious",
+        "PauseNext",
+        "PauseAccept",
+        "PauseStaged",
+        "PauseInvalidStop",
+        "PauseInvalidDelay",
+    ] {
+        assert_ne!(i18n::tr("Edition", key).as_ref(), key);
+    }
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Digit0);
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|text| text.starts_with("Saisir une durée d'arrêt finie et non nulle"))
+    );
+    press(&mut screen, KeyCode::Digit1);
+    press(&mut screen, KeyCode::Enter);
+    press(&mut screen, KeyCode::Tab);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|text| text.starts_with("Délais (avant les notes)"))
+    );
+    press(&mut screen, KeyCode::Digit0);
+    press(&mut screen, KeyCode::Comma);
+    press(&mut screen, KeyCode::Digit5);
+    press(&mut screen, KeyCode::Enter);
+    for _ in 0..6 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|text| text.starts_with("Timing accepté"))
+    );
+    let document = screen.workspace().file().session.document();
+    assert_eq!(document.text(Some(0), "STOPS").as_deref(), Some("0=1"));
+    assert_eq!(document.text(Some(0), "DELAYS").as_deref(), Some("0=0.5"));
+}
