@@ -11,6 +11,7 @@ mod music_file;
 mod pattern_set;
 mod playback;
 mod song_properties;
+mod sample_region;
 mod timing;
 mod text_entry;
 
@@ -215,6 +216,7 @@ pub struct State {
     music_picker_request: Option<music_file::Request>,
     text_edit_serial: u64,
     song_properties: Option<deadsync_editor::song_properties::Draft>,
+    sample_region: Option<sample_region::Cache>,
     timing: Option<timing::Settings>,
     timing_migration: Option<deadsync_editor::timing_edit::migration::Draft>,
     catalog_target: ProfileTarget,
@@ -334,6 +336,7 @@ impl State {
             music_picker_request: None,
             text_edit_serial: 0,
             song_properties: None,
+            sample_region: None,
             timing: None,
             timing_migration: None,
             catalog_target: ProfileTarget::Marker,
@@ -1101,6 +1104,7 @@ impl State {
     }
 
     fn refresh(&mut self) {
+        self.refresh_sample_region();
         if !self.workspace.has_chart() {
             self.saved_regions.clear(); self.labels=None; self.signatures=None; self.marker_cache=None;
             self.chart_label=i18n::tr("Edition", "NoActiveChart");
@@ -1511,6 +1515,7 @@ impl State {
             self.chart_properties = None;
             self.chart_rating_input = None;
             self.song_properties = None;
+            self.refresh_sample_region();
             self.marker = None;
             self.preview = None;
             self.panel = None;
@@ -2069,6 +2074,7 @@ impl State {
         let row = self.workspace.row();
         let start = row.saturating_sub(55);
         let end = row.saturating_add((bottom - cursor_y).max(0.0) as u64);
+        self.sample_region_actors(actors, field_center, field_width, top, bottom, cursor_y);
         for lane in 0..=grid.columns() {
             actors.push(act!(quad: xy(left + f32::from(lane) * lane_width, (top + bottom) * 0.5): zoomto(1.0, bottom - top): diffuse(0.12, 0.16, 0.22, 1.0): z(8001)));
         }

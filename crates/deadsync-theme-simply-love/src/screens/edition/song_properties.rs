@@ -68,6 +68,7 @@ impl State {
                         }
                     };
                 }
+                self.refresh_sample_region();
                 return;
             }
             if index == 3 {
@@ -77,6 +78,7 @@ impl State {
             if index == 2 {
                 self.song_properties = None;
                 self.panel = None;
+                self.refresh_sample_region();
                 return;
             }
             if index != 1 {
@@ -98,6 +100,7 @@ impl State {
                 }
             }
         }
+        self.refresh_sample_region();
     }
     pub(super) fn song_sample_key(&mut self, index: usize, code: KeyCode) {
         if index < 2 && matches!(code, KeyCode::F2 | KeyCode::F3) {
@@ -140,6 +143,7 @@ impl State {
                 ),
                 Err(error) => i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]),
             };
+            self.refresh_sample_region();
             return;
         }
         if code == KeyCode::Escape
@@ -185,5 +189,6 @@ impl State {
                 }
             }
         }
+        self.refresh_sample_region();
     }
 }

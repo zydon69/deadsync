@@ -280,3 +280,23 @@ fn sample_position_actions_use_draft_clock_without_audio_files_or_document_mutat
     let foreign = song(Format::Ssc);
     assert!(draft.clock(&foreign, 0).is_err());
 }
+
+#[test]
+fn sample_region_positions_keep_fractional_boundaries_and_follow_tempo_changes() {
+    let mut session = song(Format::Ssc);
+    session.set_text(None, "BPMS", "0=120,2=60").unwrap();
+    let original = session.serialize().unwrap();
+    let mut draft = Draft::capture(&session).unwrap();
+    draft.set_music_offset(0.0).unwrap();
+    draft.set_sync_offset(0.0).unwrap();
+    draft.set_sample_start(0.125).unwrap();
+    draft.set_sample_length(1.625).unwrap();
+    assert_eq!(draft.sample_positions(&session, 0).unwrap(), [12.0, 132.0]);
+    draft.set_sample_start(0.126).unwrap();
+    let positions = draft.sample_positions(&session, 0).unwrap();
+    assert!((positions[0] - 12.096).abs() < 1e-10);
+    assert!((positions[1] - 132.048).abs() < 1e-10);
+    assert_eq!(session.serialize().unwrap(), original);
+    session.set_text(None, "TITLE", "New revision").unwrap();
+    assert!(draft.sample_positions(&session, 0).is_err());
+}

@@ -2764,3 +2764,22 @@ All 14 targeted core playback/song-properties tests pass, including no-audio
 draft time conversion, boundaries, invalid values and revision ownership.
 
 All eight native song-text workflows also pass, including F2/F3 boundary navigation after deleting the fixture audio file, source unchanged before Apply, and discarding the parent draft. Runtime rendering/audio validation remains separate.
+
+### Preview region positions and native actors
+
+Song drafts expose fractional sample_positions using the shared clock, matching
+the inspected EditorPreviewRegionEvent start/end time relationship. Ten targeted
+core song-property tests pass, including a region across a tempo change,
+fractional rows, unchanged pending document and stale-draft rejection. No new
+C# differential fixture was generated for this region.
+
+The native chart adds a tinted sample region and boundary lines, clipped to
+the visible chart area, with English/French label. A cache keys source identity,
+revision, chart and staged sample/offset/sync values; navigation/redraw does not
+rebuild the clock. Nonpositive sample lengths hide the region. Parent Apply,
+discard and draft edits refresh it. This is a positional region for the current
+editor row scroll model; original visual-speed/scroll-gimmick parity, direct
+pointer manipulation and audio audition remain outstanding. The rendered
+appearance has not yet been observed in the rebuilt app.
+
+All nine native song-text workflows pass, including staged region-label appearance and disappearance after parent discard with no source mutation. `cargo check -p deadsync --locked` passes. These actor checks do not validate GPU clipping or final text placement.

@@ -481,3 +481,25 @@ fn sample_boundary_actions_work_without_audio_and_preserve_pending_document_unti
         original.as_bytes()
     );
 }
+
+#[test]
+fn sample_region_actor_tracks_staged_length_and_disappears_after_discard() {
+    let (_dir, mut state, original) = setup(false, false);
+    assert!(!has(&state, "Music preview"));
+    press(&mut state, KeyCode::F11);
+    press(&mut state, KeyCode::F6);
+    press(&mut state, KeyCode::Tab);
+    press(&mut state, KeyCode::ArrowRight);
+    assert!(has(&state, "Music preview"));
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        original.as_bytes()
+    );
+    press(&mut state, KeyCode::Escape);
+    press(&mut state, KeyCode::Escape);
+    assert!(!has(&state, "Music preview"));
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        original.as_bytes()
+    );
+}

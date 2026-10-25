@@ -216,6 +216,14 @@ impl Draft {
         }
         self.set_sample_length((seconds.max(0.0) - self.sample_start()).max(0.0))
     }
+    /// Fractional chart positions of the preview region; no cursor quantization.
+    pub fn sample_positions(&self, session: &Session, chart: usize) -> Result<[f64; 2], Error> {
+        let clock = self.clock(session, chart)?;
+        Ok([
+            clock.position(self.sample_start())?,
+            clock.position(self.sample_end()?)?,
+        ])
+    }
     pub fn sample_end(&self) -> Result<f64, Error> {
         let end = self.sample_start() + self.sample_length();
         if end.is_finite() {
