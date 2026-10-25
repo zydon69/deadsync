@@ -371,6 +371,17 @@ impl State {
         Ok(state)
     }
 
+    /// Focus loss cancels transient input state while retaining the editing draft.
+    pub fn release_input(&mut self) {
+        self.control = false;
+        self.control_keys = 0;
+        self.shift = false;
+        self.shift_keys = 0;
+        self.label_preedit.clear();
+        self.text_clipboard_request = None;
+        self.music_picker_request = None;
+    }
+
     pub fn workspace(&self) -> &Workspace {
         &self.workspace
     }

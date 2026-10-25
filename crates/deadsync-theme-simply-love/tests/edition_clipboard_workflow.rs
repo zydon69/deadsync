@@ -272,3 +272,37 @@ fn releasing_left_shift_does_not_cancel_selection_while_right_shift_is_held() {
     assert!(state.process_text_clipboard(&mut board));
     assert_eq!(board.value, "É");
 }
+
+#[test]
+fn focus_loss_releases_all_editor_modifiers_and_pending_io_without_discarding_text() {
+    let (_dir, mut state) = setup();
+    let original = state.workspace().file().session.serialize().unwrap();
+    let mut board = Board {
+        value: "Unexpected paste".into(),
+        ..Board::default()
+    };
+    key(&mut state, KeyCode::SuperLeft, true);
+    key(&mut state, KeyCode::ShiftRight, true);
+    press(&mut state, KeyCode::KeyV);
+    state.release_input();
+    assert!(!state.process_text_clipboard(&mut board));
+    assert_eq!(board.reads, 0);
+    press(&mut state, KeyCode::KeyV);
+    assert!(!state.process_text_clipboard(&mut board));
+    assert!(state.text_input("Draft retained"));
+    assert!(has(&state, "Draft retained"));
+    assert!(!has(&state, "Unexpected paste"));
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        original
+    );
+    state.text_preedit("composition");
+    state.release_input();
+    assert!(state.text_input("!"));
+    assert!(has(&state, "Draft retained!"));
+    press(&mut state, KeyCode::Home);
+    press(&mut state, KeyCode::ArrowRight);
+    ctrl(&mut state, KeyCode::KeyC);
+    assert!(!state.process_text_clipboard(&mut board)); // no Shift selection survives
+    assert_eq!(board.writes, 0);
+}

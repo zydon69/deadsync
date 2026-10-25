@@ -2804,3 +2804,17 @@ pass, including cut times unaffected by staged offsets and PREVIEW precedence
 even when no sample length is set.
 
 The selected native song-text and playback workflows pass, including looped-cut payload, toggle stop, edit stop, zero-length refusal and unchanged document. `cargo check -p deadsync --locked` passes. OS decoder/speaker output is not covered by these fixtures.
+
+### Editor focus input cleanup
+
+The shell's existing focus-clear path now forwards release_editor_input through
+Practice to the editor. This clears every tracked Control/Super/Shift key, IME
+preedit, and pending clipboard/picker request without changing draft text,
+selection history, saved document or audio policy. Previously shell controls
+were reset but the editor's separate held-key state could remain active after
+missing release events. The native workflow covers held Command/Shift, queued
+paste cancellation without IO, subsequent ordinary text, composition cleanup,
+and no leftover Shift selection. Physical OS focus transitions still require
+a runtime observation.
+
+All six edition_clipboard_workflow tests pass after focus cleanup integration.

@@ -650,6 +650,9 @@ pub fn process_editor_clipboard(
 ) -> bool {
     state.edition.as_mut().is_some_and(|editor| editor.process_text_clipboard(clipboard))
 }
+pub fn release_editor_input(state: &mut State) {
+    if let Some(editor) = state.edition.as_mut() { editor.release_input(); }
+}
 pub fn handle_editor_preedit(state: &mut State, text: &str) {
     if let Some(editor)=state.edition.as_mut(){editor.text_preedit(text);}
 }

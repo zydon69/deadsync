@@ -3141,6 +3141,9 @@ impl App {
             focused, self.state.screens.current_screen
         );
         if plan.clear_live_input {
+            if let Some(state) = self.state.screens.practice_state.as_mut() {
+                screens::practice::release_editor_input(state);
+            }
             self.state.shell.interaction.controls_mut().clear();
             self.input.clear();
             self.lights.clear_button_pressed();
