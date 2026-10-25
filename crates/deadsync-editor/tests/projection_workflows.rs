@@ -122,3 +122,35 @@ fn time_axis_keeps_pause_intervals_and_inverts_at_all_zoom_levels() {
         assert!(TimeProjection::new(time, cursor, scale, top, bottom, false).is_err());
     }
 }
+
+#[test]
+fn reversed_rows_mirror_all_geometry_and_retain_large_anchor_precision() {
+    for scale in [0.000001, 0.02, 0.5, 1.0, 1.2, 16.0, 1000000.0] {
+        let normal = RowProjection::new(192, 160.0, scale, 105.0, 395.0).unwrap();
+        let reverse = RowProjection::new(192, 340.0, scale, 105.0, 395.0)
+            .unwrap()
+            .with_reverse(true);
+        assert_eq!(normal.visible_rows(), reverse.visible_rows());
+        for row in [0, 48, 191, 192, 193, 384, 100000] {
+            let y = reverse.y(row);
+            assert!((normal.y(row) + y - 500.0).abs() < 0.00001);
+            assert!((reverse.row_at(y) - row as f64).abs() < 0.00001);
+            assert!((normal.clipped_y(row) + reverse.clipped_y(row) - 500.0).abs() < 0.00001);
+        }
+        assert!((normal.fractional_y(192.5) + reverse.fractional_y(192.5) - 500.0).abs() < 0.00001);
+        let restored = reverse.with_reverse(false);
+        assert!((restored.y(193) - 340.0 - scale).abs() < 0.00001);
+    }
+    let reverse = RowProjection::new(u64::MAX - 1, 340.0, 2.0, 105.0, 395.0)
+        .unwrap()
+        .with_reverse(true);
+    assert_eq!(reverse.y(u64::MAX), 338.0);
+    assert_eq!(reverse.y(u64::MAX - 2), 342.0);
+    assert_eq!(reverse.visible_rows(), (u64::MAX - 29, u64::MAX));
+    let reverse = RowProjection::new(0, 340.0, 1.0, 105.0, 395.0)
+        .unwrap()
+        .with_reverse(true);
+    assert_eq!(reverse.visible_rows(), (0, 235));
+    assert_eq!(reverse.row_at(395.0), -55.0);
+    assert_eq!(reverse.clipped_fractional_y(-1000.0), 395.0);
+}

@@ -7,6 +7,7 @@ pub struct RowProjection {
     anchor: u64,
     cursor: f64,
     scale: f64,
+    reverse: bool,
     top: f64,
     bottom: f64,
 }
@@ -31,9 +32,18 @@ impl RowProjection {
             anchor,
             cursor,
             scale: pixels_per_row,
+            reverse: false,
             top,
             bottom,
         })
+    }
+    /// Change direction without changing the positive spacing magnitude.
+    pub fn with_reverse(mut self, reverse: bool) -> Self {
+        self.reverse = reverse;
+        self
+    }
+    fn signed_scale(self) -> f64 {
+        self.scale * if self.reverse { -1.0 } else { 1.0 }
     }
     /// Subtract integers before conversion to retain nearby-row precision even
     /// when the anchor is too large to be represented exactly by a double.
@@ -43,13 +53,13 @@ impl RowProjection {
         } else {
             -((self.anchor - row) as f64)
         };
-        self.cursor + delta * self.scale
+        self.cursor + delta * self.signed_scale()
     }
     pub fn fractional_y(self, row: f64) -> f64 {
-        self.cursor + (row - self.anchor as f64) * self.scale
+        self.cursor + (row - self.anchor as f64) * self.signed_scale()
     }
     pub fn row_at(self, y: f64) -> f64 {
-        self.anchor as f64 + (y - self.cursor) / self.scale
+        self.anchor as f64 + (y - self.cursor) / self.signed_scale()
     }
     pub fn clipped_y(self, row: u64) -> f64 {
         self.y(row).clamp(self.top, self.bottom)
@@ -60,11 +70,16 @@ impl RowProjection {
     /// Include partially visible rows at both edges. Float-to-integer casts
     /// saturate at zero/u64::MAX; negative lead-in remains available via row_at.
     pub fn visible_rows(self) -> (u64, u64) {
+        let (before, after) = if self.reverse {
+            (self.bottom - self.cursor, self.cursor - self.top)
+        } else {
+            (self.cursor - self.top, self.bottom - self.cursor)
+        };
         (
             self.anchor
-                .saturating_sub(((self.cursor - self.top) / self.scale).ceil() as u64),
+                .saturating_sub((before / self.scale).ceil() as u64),
             self.anchor
-                .saturating_add(((self.bottom - self.cursor) / self.scale).ceil() as u64),
+                .saturating_add((after / self.scale).ceil() as u64),
         )
     }
 }

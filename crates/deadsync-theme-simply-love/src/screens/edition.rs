@@ -213,6 +213,7 @@ impl GenerationPreview {
 
 pub struct State {
     time_spacing: bool,
+    reverse_display: bool,
     time_view: Option<spacing_view::Cache>,
     zoom: deadsync_editor::zoom::Manager,
     zoom_epoch: std::time::Instant,
@@ -330,6 +331,7 @@ impl State {
             .unwrap_or(0);
         let mut state = Self {
             time_spacing: false,
+            reverse_display: false,
             time_view: None,
             zoom: Default::default(),
             zoom_preferences: Default::default(),
@@ -1357,6 +1359,7 @@ impl State {
             return self.no_chart_key(event.code);
         }
         if self.shift && !self.control && event.code == KeyCode::KeyZ { self.open_zoom_settings(); return false; }
+        if self.shift && !self.control && event.code == KeyCode::KeyV { self.toggle_reverse_display(); return false; }
         if self.control && event.code == KeyCode::KeyT { self.toggle_spacing_mode(); return false; }
         if self.zoom_key(event) { return false; }
         if event.code == KeyCode::KeyW && !self.control {
@@ -2168,7 +2171,7 @@ impl State {
         let left = field_center - field_width * 0.5;
         let top = 105.0;
         let bottom = (height - 85.0).max(top);
-        let cursor_y = (top + 55.0).min(bottom);
+        let cursor_y = if self.reverse_display { (bottom - 55.0).max(top) } else { (top + 55.0).min(bottom) };
         let projection = match self.display_projection(top, bottom, cursor_y) {
             Ok(projection) => projection,
             Err(error) => {
@@ -2284,7 +2287,7 @@ impl State {
                     continue;
                 };
                 let (y1, y2) = (y1 as f32, y2 as f32);
-                actors.push(act!(quad: xy(left-9.0,(y1+y2)*0.5): zoomto(4.0,(y2-y1).max(2.0)): diffuse(0.7,0.4,1.0,0.8): z(8002)));
+                actors.push(act!(quad: xy(left-9.0,(y1+y2)*0.5): zoomto(4.0,(y2-y1).abs().max(2.0)): diffuse(0.7,0.4,1.0,0.8): z(8002)));
                 if a >= start {
                     text(
                         actors,
@@ -2337,12 +2340,12 @@ impl State {
                 let y = y as f32;
                 let color = player_color(position.player);
                 if let Some(tail) = note.end {
-                    let a = y.max(top);
+                    let a = y.clamp(top, bottom);
                     let Some(tail_y) = projection.note_y(tail) else {
                         continue;
                     };
-                    let b = (tail_y as f32).min(bottom);
-                    actors.push(act!(quad: xy(x, (a + b) * 0.5): zoomto(lane_width * 0.3 * size_zoom, (b - a).max(0.0)): diffuse(color[0], color[1], color[2], 0.65): z(8003)));
+                    let b = (tail_y as f32).clamp(top, bottom);
+                    actors.push(act!(quad: xy(x, (a + b) * 0.5): zoomto(lane_width * 0.3 * size_zoom, (b - a).abs()): diffuse(color[0], color[1], color[2], 0.65): z(8003)));
                 }
                 if y < top || y > bottom {
                     continue;
@@ -2408,7 +2411,7 @@ impl State {
     fn row_projection(&self, top: f32, bottom: f32, cursor_y: f32) -> deadsync_editor::projection::RowProjection {
         deadsync_editor::projection::RowProjection::new(
             self.workspace.row(), f64::from(cursor_y), self.zoom.spacing_zoom(), f64::from(top), f64::from(bottom),
-        ).expect("finite editor viewport with cursor inside bounds")
+        ).expect("finite editor viewport with cursor inside bounds").with_reverse(self.reverse_display)
     }
 
     fn help_actors(&self, actors: &mut Vec<Actor>) {

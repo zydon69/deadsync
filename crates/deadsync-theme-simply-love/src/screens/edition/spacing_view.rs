@@ -48,8 +48,10 @@ impl Projection<'_> {
     pub(super) fn music_interval(&self, y: f64, next_y: f64, clock: &Clock) -> Option<(f64, f64)> {
         match self {
             Self::Rows(p) => {
-                let first = p.row_at(y);
-                let last = p.row_at(next_y);
+                let a = p.row_at(y);
+                let b = p.row_at(next_y);
+                let first = a.min(b);
+                let last = a.max(b);
                 if last <= 0.0 {
                     return None;
                 }
@@ -58,10 +60,14 @@ impl Projection<'_> {
                     clock.music_time(last.ceil() as u64).ok()?,
                 ))
             }
-            Self::Time { axis, .. } => Some((
-                clock.chart_time_to_music(axis.time_at(y).ok()?).ok()?,
-                clock.chart_time_to_music(axis.time_at(next_y).ok()?).ok()?,
-            )),
+            Self::Time { axis, .. } => {
+                let a = axis.time_at(y).ok()?;
+                let b = axis.time_at(next_y).ok()?;
+                Some((
+                    clock.chart_time_to_music(a.min(b)).ok()?,
+                    clock.chart_time_to_music(a.max(b)).ok()?,
+                ))
+            }
         }
     }
     pub(super) fn visible_ranges(
@@ -90,6 +96,20 @@ impl Projection<'_> {
     }
 }
 impl State {
+    pub fn display_reversed(&self) -> bool {
+        self.reverse_display
+    }
+    pub(super) fn toggle_reverse_display(&mut self) {
+        self.reverse_display = !self.reverse_display;
+        self.status = i18n::tr(
+            "Edition",
+            if self.reverse_display {
+                "DisplayReverse"
+            } else {
+                "DisplayForward"
+            },
+        );
+    }
     pub fn spacing_mode(&self) -> SpacingMode {
         if self.time_spacing {
             SpacingMode::ConstantTime
@@ -171,7 +191,7 @@ impl State {
         };
         let settings = Settings {
             mode: SpacingMode::ConstantTime,
-            reverse: false,
+            reverse: self.reverse_display,
             speeds: Speeds::default(),
             interpolated_scroll: 1.0,
             zoom: self.zoom.spacing_zoom(),
@@ -182,7 +202,7 @@ impl State {
             settings.speeds.time * settings.zoom,
             f64::from(top),
             f64::from(bottom),
-            false,
+            self.reverse_display,
         )?;
         let cursor = Cursor::begin(index, focal, settings)?.ok_or_else(|| {
             deadsync_editor::Error::InvalidEdit("Missing chart timing sections".into())

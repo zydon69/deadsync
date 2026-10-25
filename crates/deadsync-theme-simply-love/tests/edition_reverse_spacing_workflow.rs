@@ -1,0 +1,242 @@
+use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
+use deadlib_present::{
+    actors::{Actor, SizeSpec},
+    space::{Metrics, set_current_metrics},
+};
+use deadsync_theme_simply_love::{i18n, screens::edition::State};
+use std::{
+    fs,
+    path::Path,
+    thread,
+    time::{Duration, Instant},
+};
+
+fn key(state: &mut State, code: KeyCode, pressed: bool) {
+    state.raw_key(&RawKeyboardEvent {
+        code,
+        pressed,
+        timestamp: Instant::now(),
+        repeat: false,
+        host_nanos: 0,
+    });
+}
+fn press(state: &mut State, code: KeyCode) {
+    key(state, code, true);
+    key(state, code, false);
+}
+fn shortcut(state: &mut State, modifier: KeyCode, code: KeyCode) {
+    key(state, modifier, true);
+    press(state, code);
+    key(state, modifier, false);
+}
+fn reverse(state: &mut State) {
+    shortcut(state, KeyCode::ShiftLeft, KeyCode::KeyV);
+}
+fn actors(state: &State) -> Vec<Actor> {
+    let mut a = Vec::new();
+    state.actors(&mut a);
+    a
+}
+fn arrows(state: &State) -> Vec<f32> {
+    actors(state)
+        .into_iter()
+        .filter_map(|a| match a {
+            Actor::Sprite {
+                z: 8004, offset, ..
+            } => Some(offset[1]),
+            _ => None,
+        })
+        .collect()
+}
+fn rects(state: &State, tint: [f32; 4]) -> Vec<(f32, f32)> {
+    actors(state)
+        .into_iter()
+        .filter_map(|a| match a {
+            Actor::Sprite {
+                tint: t,
+                offset,
+                size: [_, SizeSpec::Px(h)],
+                scale,
+                ..
+            } if t == tint => Some((offset[1], if h == 0.0 { scale[1] } else { h * scale[1] })),
+            _ => None,
+        })
+        .collect()
+}
+fn peak_positions(state: &State) -> Vec<f32> {
+    let p = state.waveform_preferences().palette();
+    actors(state)
+        .into_iter()
+        .filter_map(|a| match a {
+            Actor::Sprite {
+                tint,
+                offset,
+                size: [SizeSpec::Px(w), _],
+                scale,
+                ..
+            } if tint == p.resolved_sparse().rgba() || tint == p.dense().rgba() => {
+                let w = if w == 0.0 { scale[0] } else { w * scale[0] };
+                (w > 10.0).then_some(offset[1])
+            }
+            _ => None,
+        })
+        .collect()
+}
+fn close(a: f64, b: f64) {
+    assert!((a - b).abs() < 0.001, "{a} != {b}");
+}
+fn wav(path: &Path) {
+    let pcm: Vec<i16> = (0..48000)
+        .map(|i| {
+            if (26304..26496).contains(&i) {
+                30000
+            } else {
+                0
+            }
+        })
+        .collect();
+    let data = pcm.len() as u32 * 2;
+    let mut b = Vec::new();
+    b.extend(b"RIFF");
+    b.extend((36 + data).to_le_bytes());
+    b.extend(b"WAVEfmt ");
+    b.extend(16u32.to_le_bytes());
+    b.extend(1u16.to_le_bytes());
+    b.extend(1u16.to_le_bytes());
+    b.extend(48000u32.to_le_bytes());
+    b.extend(96000u32.to_le_bytes());
+    b.extend(2u16.to_le_bytes());
+    b.extend(16u16.to_le_bytes());
+    b.extend(b"data");
+    b.extend(data.to_le_bytes());
+    for v in pcm {
+        b.extend(v.to_le_bytes());
+    }
+    fs::write(path, b).unwrap();
+}
+fn mirror_rects(a: &[(f32, f32)], b: &[(f32, f32)]) {
+    assert!(!a.is_empty());
+    assert_eq!(a.len(), b.len());
+    for (a, b) in a.iter().zip(b) {
+        close(f64::from(a.0 + b.0), 500.0);
+        close(f64::from(a.1), f64::from(b.1));
+        assert!(b.1 > 0.0);
+    }
+}
+
+#[test]
+fn reverse_mirrors_notes_sustains_selection_sample_labels_and_waveform_in_both_modes() {
+    i18n::init_for_tests();
+    set_current_metrics(Metrics::centered(854.0, 480.0));
+    for time_mode in [false, true] {
+        let dir = tempfile::tempdir().unwrap();
+        let audio = dir.path().join("pulse.wav");
+        wav(&audio);
+        let audio_before = fs::read(&audio).unwrap();
+        let source = "#VERSION:0.83;#BPMS:0=240,1=480;#DELAYS:1=0.125;#STOPS:2=0.125;#OFFSET:0;#MUSIC:pulse.wav;#SAMPLESTART:0.5;#SAMPLELENGTH:0.1;#LABELS:1=repere;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:2000\n0100\n0010\n3001;";
+        use deadsync_editor::{
+            document::{Document, Format},
+            generation::metadata::{ChartData, Definition, PATTERN_BALANCED, SIXTEENTHS},
+            history::Session,
+        };
+        use std::{collections::BTreeMap, sync::Arc};
+        let mut session = Session::new(
+            Document::parse(Arc::<[u8]>::from(source.as_bytes()), Format::Ssc).unwrap(),
+        );
+        ChartData {
+            patterns: Some(BTreeMap::from([(
+                48,
+                Definition {
+                    pattern_config_guid: SIXTEENTHS.parse().unwrap(),
+                    performed_chart_config_guid: PATTERN_BALANCED.parse().unwrap(),
+                    length: 96,
+                    random_seed: 0,
+                    start_position_inclusive: true,
+                    end_position_inclusive: true,
+                    ignore_preceding_distribution: true,
+                    extra: BTreeMap::new(),
+                },
+            )])),
+            ..ChartData::default()
+        }
+        .save(&mut session, 0)
+        .unwrap();
+        let source = session.serialize().unwrap();
+        let path = dir.path().join("reverse.ssc");
+        fs::write(&path, &source).unwrap();
+        let mut state = State::open(&path, 0).unwrap();
+        if time_mode {
+            shortcut(&mut state, KeyCode::SuperLeft, KeyCode::KeyT);
+        }
+        press(&mut state, KeyCode::Space);
+        press(&mut state, KeyCode::ArrowDown);
+        assert_eq!(state.workspace().selection(), Some((0, 48)));
+        press(&mut state, KeyCode::KeyW);
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while !state.waveform_ready() {
+            state.update();
+            assert!(Instant::now() < deadline);
+            thread::sleep(Duration::from_millis(1));
+        }
+        let heads = arrows(&state);
+        let holds = rects(&state, [0.2, 0.65, 1.0, 0.65]);
+        let selection = rects(&state, [0.2, 0.6, 0.9, 0.2]);
+        let sample = rects(&state, [0.2, 0.85, 0.65, 0.14]);
+        let patterns = rects(&state, [0.7, 0.4, 1.0, 0.8]);
+        let peaks = peak_positions(&state);
+        assert!(!peaks.is_empty());
+        let label = |state: &State| {
+            actors(state)
+                .into_iter()
+                .find_map(|a| match a {
+                    Actor::Text {
+                        content, offset, ..
+                    } if content.to_string() == "repere" => Some(offset[1]),
+                    _ => None,
+                })
+                .expect("label visible")
+        };
+        let label_y = label(&state);
+        let original = state.workspace().file().session.serialize().unwrap();
+        press(&mut state, KeyCode::Enter);
+        assert!(state.is_playing());
+        reverse(&mut state);
+        assert!(state.display_reversed());
+        assert!(state.is_playing());
+        let reversed_heads = arrows(&state);
+        assert_eq!(heads.len(), reversed_heads.len());
+        for (a, b) in heads.iter().zip(&reversed_heads) {
+            close(f64::from(a + b), 500.0);
+        }
+        mirror_rects(&holds, &rects(&state, [0.2, 0.65, 1.0, 0.65]));
+        mirror_rects(&selection, &rects(&state, [0.2, 0.6, 0.9, 0.2]));
+        mirror_rects(&sample, &rects(&state, [0.2, 0.85, 0.65, 0.14]));
+        mirror_rects(&patterns, &rects(&state, [0.7, 0.4, 1.0, 0.8]));
+        close(f64::from(label_y + label(&state)), 500.0);
+        let reversed_peaks = peak_positions(&state);
+        assert!(!reversed_peaks.is_empty());
+        let mean = |v: &[f32]| v.iter().map(|x| f64::from(*x)).sum::<f64>() / v.len() as f64;
+        assert!((mean(&peaks) + mean(&reversed_peaks) - 500.0).abs() <= 1.0);
+        // Mode switches retain Reverse, modal shortcuts retain focus.
+        shortcut(&mut state, KeyCode::SuperLeft, KeyCode::KeyT);
+        assert!(state.display_reversed());
+        shortcut(&mut state, KeyCode::SuperLeft, KeyCode::KeyT);
+        assert_eq!(arrows(&state), reversed_heads);
+        press(&mut state, KeyCode::F1);
+        reverse(&mut state);
+        assert!(state.display_reversed());
+        press(&mut state, KeyCode::Escape);
+        reverse(&mut state);
+        assert!(!state.display_reversed());
+        assert_eq!(arrows(&state), heads);
+        assert_eq!(state.workspace().row(), 48);
+        assert_eq!(state.workspace().selection(), Some((0, 48)));
+        assert_eq!(
+            state.workspace().file().session.serialize().unwrap(),
+            original
+        );
+        assert!(!state.workspace().file().session.is_dirty());
+        assert_eq!(fs::read(&path).unwrap(), source);
+        assert_eq!(fs::read(&audio).unwrap(), audio_before);
+    }
+}

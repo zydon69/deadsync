@@ -94,8 +94,8 @@ impl State {
         let Some(end) = projection.sample_y(positions[1], times[1]) else {
             return;
         };
-        let a = start.clamp(f64::from(top), f64::from(bottom)) as f32;
-        let b = end.clamp(f64::from(top), f64::from(bottom)) as f32;
+        let a = start.min(end).clamp(f64::from(top), f64::from(bottom)) as f32;
+        let b = start.max(end).clamp(f64::from(top), f64::from(bottom)) as f32;
         if b <= a {
             return;
         }

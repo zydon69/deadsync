@@ -3897,3 +3897,43 @@ playback and song-property core targets. The native time workflow includes stage
 music-offset movement and discard restoration for both sample and decoded pulse,
 plus animated time zoom/reset. `cargo check -p deadsync --jobs 2 --locked` passed.
 The complete core suite and unrelated theme unit suites were not rerun here.
+
+### Native Reverse display
+
+Shift+V switches display direction in the row and time modes after modal input
+routing, with English/French help and status. The focal point mirrors to 55
+pixels above the bottom edge. Native settings pass Reverse to both the time axis
+and section cursor. RowProjection::with_reverse retains the positive spacing
+magnitude and integer-difference precision, while applying the direction to Y,
+fractional positions, inverse positions and inclusive visible bounds.
+
+Holds clip both endpoints and draw a positive body height in either direction.
+Selection and pattern-region rectangles also retain positive height. Sample
+regions normalize projected screen bounds, preserving the actual start/end
+boundary markers. Waveform pixel bands normalize their chart-row/time intervals
+before querying audio envelopes; Reverse therefore samples the matching audio
+interval for each mirrored screen band. View changes preserve document history,
+cursor, selection, and ongoing playback. Switching row/time retains direction.
+
+A native workflow loads a real generated WAV and saved pattern metadata. In both
+spacing modes it compares normal/reversed arrow coordinates, crossing holds,
+selection, pattern rectangles, sample rectangles, labels and decoded pulse bands.
+It also checks panel focus, row/time switching, playback retention and unchanged
+simfile/audio bytes. Core projection tests cover inverse/clipped/fractional row
+geometry across zooms and precision near u64::MAX. Variable display and remaining
+waveform policies/hold-cap visuals remain separate pending work.
+
+Validation: all 192 tests across the 26 native edition integration targets and
+44 targeted core tests passed. `cargo check -p deadsync --jobs 2 --locked`, a real
+`cargo build -p deadsync --jobs 2 --locked`, and macOS app packaging succeeded.
+The complete core suite and unrelated theme unit suites were not rerun here.
+
+An isolated portable EditorQA-Reverse.app was run on macOS with a generated
+12-second stereo WAV/SSC, French UI, muted output and no personal song folders.
+Keyboard navigation opened the native editor. Normal and reversed row/time
+screens were inspected: sustain bodies, note placement, sample bounds, waveform
+bands, labels and direction/help glyphs displayed correctly. Four captures are
+saved as /tmp/deadsync-reverse-{row,time}[-normal].png; runtime review and file
+hashes are in /tmp/deadsync-reverse-runtime-review.json. The simfile and WAV hashes
+were unchanged after the session. The isolated app was closed after review.
+This scoped visual check does not prove audible DSP or full-editor runtime parity.
