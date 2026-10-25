@@ -100,3 +100,14 @@ fn sm_and_multiplayer_charts_can_preview_without_generation_layout_restrictions(
         assert_eq!(preview.position(1.0).unwrap(), 96.0);
     }
 }
+
+#[test]
+fn captured_preview_exposes_chart_time_without_offset_round_trip_or_file_reopen() {
+    let dir = tempfile::tempdir().unwrap(); let path = audio(dir.path());
+    let local = session("#OFFSET:10000000000000000;");
+    let preview = Preview::capture(&local,0,&path).unwrap();
+    fs::remove_file(dir.path().join("song.ogg")).unwrap();
+    assert_eq!(preview.chart_time(48).unwrap(),0.5);
+    assert_ne!(preview.music_to_chart_time(preview.music_time(48).unwrap()).unwrap(),0.5);
+    assert!(!local.is_dirty());
+}

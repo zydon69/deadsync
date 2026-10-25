@@ -166,6 +166,8 @@ fn stretched_worker_preserves_cuts_fades_channels_and_timing() {
     drop(wav);
 
     live_and_looped_playback();
+    retained_seek_playback();
+    negative_loop_lead_in();
 }
 
 fn live_and_looped_playback() {
@@ -302,4 +304,195 @@ fn live_and_looped_playback() {
     );
     assert!(output.iter().all(|&sample| sample == 0));
     drop(runtime);
+}
+
+fn retained_seek_playback() {
+    use deadlib_audio::stream::{MusicStreamRuntime, StreamCommand};
+    use deadlib_audio_core::{
+        bump_music_map_generation, music_total_frames, music_track_start_frame,
+    };
+    use std::time::{Duration, Instant};
+    let samples: Vec<i16> = (0..48_000)
+        .map(|i| ((i / 4_800 + 1) * 1_000) as i16)
+        .collect();
+    let mut wav = Wav::new(&samples, 48_000);
+    reset_music_stream_clock_state();
+    reset_music_target_gain();
+    let (mut stream, render) = music_transport(48_000, 2);
+    let mut runtime = MusicStreamRuntime::new(
+        stream.writer,
+        OutputFormat {
+            sample_rate_hz: 48_000,
+            channels: 2,
+        },
+    );
+    let mut generation = music_map_generation();
+    runtime.handle(StreamCommand::PlayMusic {
+        decode_options: Default::default(),
+        path: wav.0.clone(),
+        cut: Cut::default(),
+        looping: false,
+        rate: 1.0,
+        preserve_pitch: false,
+        generation,
+    });
+    let mut renderer = RenderState::new(render, Arc::new(MixControls::new()), 2);
+    let mut output = [0; 256 * 2];
+    let mut collect = |generation: u64, frames: usize| {
+        let mut pcm = Vec::new();
+        let mut timing = Vec::new();
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while pcm.len() < frames * 2 {
+            assert!(
+                Instant::now() < deadline,
+                "seek generation {generation} stalled after {} samples",
+                pcm.len()
+            );
+            let start = music_total_frames();
+            renderer.render(
+                OutputBufferMut::I16(&mut output),
+                CallbackInfo {
+                    anchor_nanos: 1_000_000_000 + start * 1_000_000_000 / 48_000,
+                    clock: CallbackClockSource::Instant,
+                },
+                std::iter::empty(),
+            );
+            while let Some((tag, segment)) = stream.played_map.pop() {
+                if tag != generation {
+                    assert!(timing.is_empty(), "stale audio resumed after seek");
+                    continue;
+                }
+                let callback_frame = start.saturating_sub(music_track_start_frame());
+                let first = (segment.stream_frame_start as u64 - callback_frame) as usize * 2;
+                let end = first + segment.frames as usize * 2;
+                pcm.extend_from_slice(&output[first..end]);
+                timing.push(segment);
+            }
+            std::thread::yield_now();
+        }
+        (pcm, timing)
+    };
+    // Consume through EOF before the first seek: the runtime must retain its reader.
+    let (pcm, _) = collect(generation, 48_000);
+    assert_eq!(pcm.len(), 96_000);
+    assert!(
+        pcm.as_chunks::<2>()
+            .0
+            .iter()
+            .zip(&samples)
+            .all(|(pair, sample)| pair == &[*sample, *sample])
+    );
+    // Remove the original pathname. Any silent worker restart/reopen now fails.
+    let held = wav.0.with_extension("open-decoder.wav");
+    std::fs::rename(&wav.0, &held).unwrap();
+    wav.0 = held;
+    for (seconds, expected) in [(0.25, 3_000), (0.75, 8_000), (0.0, 1_000)] {
+        reset_music_stream_clock_state();
+        activate_music_track();
+        generation = bump_music_map_generation();
+        runtime.handle(StreamCommand::SeekMusic {
+            seconds,
+            generation,
+        });
+        let (pcm, timing) = collect(generation, 128);
+        assert_eq!(timing[0].music_start_sec, seconds);
+        assert!(
+            pcm.iter().all(|v| *v == expected),
+            "wrong retained-reader samples at {seconds}"
+        );
+    }
+    reset_music_stream_clock_state();
+    activate_music_track();
+    generation = bump_music_map_generation();
+    runtime.handle(StreamCommand::SeekMusic {
+        seconds: -0.02,
+        generation,
+    });
+    let (pcm, timing) = collect(generation, 1_100);
+    assert_eq!(timing[0].music_start_sec, -0.02);
+    assert!(pcm[..960 * 2].iter().all(|v| *v == 0));
+    assert!(pcm[960 * 2..].iter().all(|v| *v == 1_000));
+    reset_music_stream_clock_state();
+    activate_music_track();
+    generation = bump_music_map_generation();
+    runtime.handle(StreamCommand::SeekMusic {
+        seconds: 0.7,
+        generation,
+    });
+    reset_music_stream_clock_state();
+    activate_music_track();
+    generation = bump_music_map_generation();
+    runtime.handle(StreamCommand::SeekMusic {
+        seconds: 0.3,
+        generation,
+    });
+    let (pcm, timing) = collect(generation, 128);
+    assert_eq!(timing[0].music_start_sec, 0.3);
+    assert!(pcm.iter().all(|v| *v == 4_000));
+    bump_music_map_generation();
+    runtime.handle(StreamCommand::StopMusic);
+}
+
+fn negative_loop_lead_in() {
+    use deadlib_audio::stream::{MusicStreamRuntime, StreamCommand};
+    use deadlib_audio_core::{
+        bump_music_map_generation, music_total_frames, music_track_start_frame,
+    };
+    use std::time::{Duration, Instant};
+    let wav = Wav::new(&vec![1_000; 4_800], 48_000);
+    reset_music_stream_clock_state();
+    reset_music_target_gain();
+    let (mut stream, render) = music_transport(48_000, 2);
+    let mut runtime = MusicStreamRuntime::new(
+        stream.writer,
+        OutputFormat {
+            sample_rate_hz: 48_000,
+            channels: 2,
+        },
+    );
+    let generation = music_map_generation();
+    runtime.handle(StreamCommand::PlayMusic {
+        decode_options: Default::default(),
+        path: wav.0.clone(),
+        cut: Cut {
+            start_sec: -0.01,
+            length_sec: 0.01,
+            ..Cut::default()
+        },
+        looping: true,
+        rate: 1.0,
+        preserve_pitch: false,
+        generation,
+    });
+    let mut renderer = RenderState::new(render, Arc::new(MixControls::new()), 2);
+    let mut out = [0; 512];
+    let mut pcm = Vec::new();
+    let deadline = Instant::now() + Duration::from_secs(5);
+    while pcm.len() < 480 * 4 * 2 {
+        assert!(Instant::now() < deadline, "looped negative lead-in stalled");
+        let start = music_total_frames();
+        renderer.render(
+            OutputBufferMut::I16(&mut out),
+            CallbackInfo {
+                anchor_nanos: 1_000_000_000 + start * 1_000_000_000 / 48_000,
+                clock: CallbackClockSource::Instant,
+            },
+            std::iter::empty(),
+        );
+        while let Some((tag, segment)) = stream.played_map.pop() {
+            assert_eq!(tag, generation);
+            let first = (segment.stream_frame_start as u64
+                - start.saturating_sub(music_track_start_frame())) as usize
+                * 2;
+            pcm.extend_from_slice(&out[first..first + segment.frames as usize * 2]);
+        }
+        std::thread::yield_now();
+    }
+    assert!(pcm[..480 * 2].iter().all(|v| *v == 0));
+    assert!(
+        pcm[480 * 2..].iter().all(|v| *v == 1_000),
+        "ordinary loop repeated its initial silence"
+    );
+    bump_music_map_generation();
+    runtime.handle(StreamCommand::StopMusic);
 }

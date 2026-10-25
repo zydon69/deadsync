@@ -22,9 +22,9 @@ use log::{debug, error, warn};
 use rubato::audioadapter_buffers::direct::SequentialSliceOfVecs;
 use rubato::{Async, FixedAsync, Indexing, ResampleError, Resampler, ResamplerConstructionError};
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
@@ -144,12 +144,20 @@ pub struct MusicStream {
     control: Arc<MusicControl>,
 }
 
+#[derive(Clone, Copy)]
+struct SeekRequest {
+    seconds: f64,
+    generation: u64,
+}
+
 struct MusicControl {
     stop_signal: AtomicBool,
     rate_bits: AtomicU32,
     preserve_pitch: AtomicBool,
     generation: AtomicU64,
     wake: DecoderWake,
+    seek: Mutex<Option<SeekRequest>>,
+    seek_serial: AtomicU64,
 }
 
 struct DecoderWake {
@@ -405,6 +413,7 @@ fn push_silence(
     music_sec_per_frame: f64,
     control: &MusicControl,
     backpressure: &mut MusicBackpressure,
+    seek_serial: u64,
 ) -> Result<f64, Box<dyn std::error::Error + Send + Sync>> {
     if silence_frames == 0 || out_channels == 0 {
         return Ok(music_start_sec);
@@ -416,6 +425,11 @@ fn push_silence(
         let chunk_frames = frames_left.min(SILENCE_CHUNK_FRAMES);
         let chunk_samples = chunk_frames * out_channels;
         let generation = control.generation.load(Ordering::Acquire);
+        if control.stop_signal.load(Ordering::Acquire)
+            || control.seek_serial.load(Ordering::Acquire) != seek_serial
+        {
+            break;
+        }
         next_music_sec = push_music_block(
             writer,
             &silence_chunk[..chunk_samples],
@@ -455,12 +469,37 @@ pub fn spawn_music_decoder_thread(
     writer: MusicBlockWriter,
     context: MusicDecodeContext,
 ) -> MusicStream {
+    spawn_music_decoder_thread_with_retention(
+        path,
+        cut,
+        looping,
+        rate,
+        preserve_pitch,
+        writer,
+        context,
+        false,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn spawn_music_decoder_thread_with_retention(
+    path: PathBuf,
+    cut: Cut,
+    looping: bool,
+    rate: f32,
+    preserve_pitch: bool,
+    writer: MusicBlockWriter,
+    context: MusicDecodeContext,
+    retain_decoder: bool,
+) -> MusicStream {
     let control = Arc::new(MusicControl {
         stop_signal: AtomicBool::new(false),
         rate_bits: AtomicU32::new(rate.to_bits()),
         preserve_pitch: AtomicBool::new(preserve_pitch),
         generation: AtomicU64::new(context.generation),
         wake: DecoderWake::new(),
+        seek: Mutex::new(None),
+        seek_serial: AtomicU64::new(0),
     });
     let decoder_control = Arc::clone(&control);
 
@@ -472,7 +511,15 @@ pub fn spawn_music_decoder_thread(
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             #[cfg(windows)]
             let _thread_policy = boost_current_thread(ThreadRole::AudioDecode);
-            music_decoder_thread_loop(path, cut, looping, &decoder_control, &mut writer, context)
+            music_decoder_thread_loop(
+                path,
+                cut,
+                looping,
+                &decoder_control,
+                &mut writer,
+                context,
+                retain_decoder,
+            )
         }));
         match result {
             Ok(Ok(())) => {}
@@ -541,6 +588,7 @@ fn music_decoder_thread_loop(
     control: &MusicControl,
     writer: &mut MusicBlockWriter,
     context: MusicDecodeContext,
+    retain_decoder: bool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let MusicControl {
         stop_signal: stop,
@@ -548,6 +596,8 @@ fn music_decoder_thread_loop(
         preserve_pitch,
         generation,
         wake: _,
+        seek: _,
+        seek_serial: _,
     } = control;
     let opened = decode::open_file(&path, context.decode_options)?;
     let mut reader = opened.reader;
@@ -571,33 +621,38 @@ fn music_decoder_thread_loop(
         preserve_pitch.load(Ordering::Relaxed),
     );
 
-    if cut.start_sec < 0.0 {
-        let rate = f32::from_bits(rate_bits.load(Ordering::Relaxed));
-        let (silence_frames, music_sec_per_frame) =
-            lead_in_silence_timing(cut.start_sec, rate, out_hz);
-        if silence_frames > 0 {
-            let _ = push_silence(
-                writer,
-                silence_frames,
-                out_ch,
-                cut.start_sec,
-                music_sec_per_frame,
-                control,
-                &mut backpressure,
-            )?;
-        }
-    }
-
     let mut stages = MusicStages::new(in_ch, in_hz, out_hz);
     let mut out_tmp = Vec::with_capacity(OUT_FRAMES_PER_CALL * out_ch);
     let mut pkt_buf = Vec::new();
 
+    let mut cut = cut;
+    let mut applied_seek = 0;
+    let mut lead_pending = true;
     let mut output_generation;
     'main_loop: loop {
+        if stop.load(Ordering::Acquire) {
+            break;
+        }
+        let request = control
+            .seek
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .take();
+        let repositioned = if let Some(request) = request {
+            cut.start_sec = request.seconds;
+            applied_seek = request.generation;
+            lead_pending = true;
+            true
+        } else {
+            false
+        };
         // Load the generation before the settings it tags. Observing a newly
         // published generation therefore also observes the preceding setting
         // stores; new settings paired with an old generation are discarded.
         output_generation = generation.load(Ordering::Acquire);
+        if control.seek_serial.load(Ordering::Acquire) != applied_seek {
+            continue 'main_loop;
+        }
         let mut current_rate_f32 = f32::from_bits(rate_bits.load(Ordering::Acquire));
         if !current_rate_f32.is_finite() || current_rate_f32 <= 0.0 {
             current_rate_f32 = 1.0;
@@ -605,6 +660,27 @@ fn music_decoder_thread_loop(
             current_rate_f32 = current_rate_f32.clamp(MIN_MUSIC_RATE, MAX_MUSIC_RATE);
         }
         let mut current_pp = preserve_pitch.load(Ordering::Acquire);
+        if lead_pending && cut.start_sec < 0.0 {
+            let rate = f32::from_bits(rate_bits.load(Ordering::Relaxed));
+            let (silence_frames, music_sec_per_frame) =
+                lead_in_silence_timing(cut.start_sec, rate, out_hz);
+            if silence_frames > 0 {
+                let _ = push_silence(
+                    writer,
+                    silence_frames,
+                    out_ch,
+                    cut.start_sec,
+                    music_sec_per_frame,
+                    control,
+                    &mut backpressure,
+                    applied_seek,
+                )?;
+            }
+        }
+
+        // A normal loop repeats source audio, not the initial silent lead-in.
+        // An explicit new seek re-arms that lead-in above.
+        lead_pending = false;
         stages.set_rate(current_rate_f32, current_pp)?;
         stages.reset();
         // SOLA emits its initial window at source spacing, so seek preroll
@@ -623,6 +699,14 @@ fn music_decoder_thread_loop(
         // Decoding and dropping <1s from the start is cheap and avoids those
         // false preview failures.
         let bypass_seek = is_ogg_stream && start_floor < u64::from(in_hz);
+        if repositioned && (start_floor == 0 || bypass_seek) {
+            // The reader is retained; rewind even when the requested seek would
+            // normally use linear decoding from a freshly opened reader.
+            if let Err(error) = reader.seek_frame(0) {
+                warn!("Music rewind failed for {path:?}; reopening: {error}");
+                reader = decode::open_file(&path, context.decode_options)?.reader;
+            }
+        }
         let mut seek_ok = false;
         let mut seek_start_frame = 0u64;
         if start_floor > 0 && !bypass_seek {
@@ -711,6 +795,9 @@ fn music_decoder_thread_loop(
             if stop.load(Ordering::Acquire) {
                 break 'main_loop;
             }
+            if control.seek_serial.load(Ordering::Acquire) != applied_seek {
+                continue 'main_loop;
+            }
             let eof = !reader.read_dec_packet_into(&mut pkt_buf)?;
             if eof {
                 pkt_buf.clear();
@@ -732,6 +819,11 @@ fn music_decoder_thread_loop(
             if !eof {
                 // Load the generation before the settings it tags — see note above.
                 output_generation = generation.load(Ordering::Acquire);
+                // A seek publishes its serial before its generation. Observing
+                // that generation can never relabel old PCM as the new position.
+                if control.seek_serial.load(Ordering::Acquire) != applied_seek {
+                    continue 'main_loop;
+                }
                 let desired_rate = f32::from_bits(rate_bits.load(Ordering::Acquire));
                 let mut desired_rate = if desired_rate.is_finite() && desired_rate > 0.0 {
                     desired_rate
@@ -867,8 +959,31 @@ fn music_decoder_thread_loop(
             }
         }
 
-        if !looping || stop.load(Ordering::Acquire) {
+        if stop.load(Ordering::Acquire) {
             break 'main_loop;
+        }
+        if control.seek_serial.load(Ordering::Acquire) != applied_seek {
+            continue 'main_loop;
+        }
+        if !looping {
+            backpressure.finish_generation(writer, output_generation);
+            if !retain_decoder {
+                break 'main_loop;
+            }
+            // EOF is not cancellation: keep the open decoder available for a
+            // later seek, without polling or retaining unrecycled audio blocks.
+            loop {
+                let sequence = control.wake.sequence.load(Ordering::Acquire);
+                if stop.load(Ordering::Acquire) {
+                    break 'main_loop;
+                }
+                if control.seek_serial.load(Ordering::Acquire) != applied_seek {
+                    continue 'main_loop;
+                }
+                if control.wake.sequence.load(Ordering::Acquire) == sequence {
+                    thread::park();
+                }
+            }
         }
         match decode::open_file(&path, context.decode_options) {
             Ok(reopened) => {
@@ -1004,8 +1119,8 @@ mod tests {
         sfx_output_capacity,
     };
     use deadlib_audio_core::{MusicBlockTiming, music_transport};
-    use std::sync::Arc;
     use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
+    use std::sync::{Arc, Mutex};
     use std::time::{Duration, Instant};
 
     const SAMPLE_RATE: u32 = 48_000;
@@ -1017,6 +1132,8 @@ mod tests {
             preserve_pitch: AtomicBool::new(false),
             generation: AtomicU64::new(generation),
             wake: DecoderWake::new(),
+            seek: Mutex::new(None),
+            seek_serial: AtomicU64::new(0),
         }
     }
 

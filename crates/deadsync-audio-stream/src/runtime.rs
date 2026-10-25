@@ -5,13 +5,14 @@ use deadlib_audio_core::{
     OutputDeviceInfo, OutputTimingSnapshot, SfxPan, StutterDiagAudioEvent, normalized_music_rate,
 };
 use deadsync_audio_replaygain as replaygain;
+use std::cell::Cell;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::Sender;
 
 use crate::mix::{
-    EFFECT_BUS, MINE_BUS, SCREEN_BUS, assist_tick_generation, init_controls,
-    stop_assist_tick_bus, stop_mine_bus, stop_screen_bus,
+    EFFECT_BUS, MINE_BUS, SCREEN_BUS, assist_tick_generation, init_controls, stop_assist_tick_bus,
+    stop_mine_bus, stop_screen_bus,
 };
 use crate::music_map::clear_music_pos_map;
 use crate::sfx_cache::SfxCache;
@@ -28,6 +29,7 @@ static PRESERVE_PITCH_ENABLED: AtomicBool = AtomicBool::new(false);
 /// non-`Clone`: `App` is the only producer for the callback's bounded ring.
 pub struct AudioControl {
     engine: Option<AudioEngine>,
+    music_request: Cell<Option<f32>>,
 }
 
 struct AudioEngine {
@@ -80,6 +82,7 @@ pub fn init(
     let music_clock = MusicClock::new(played_map, ready.device_sample_rate);
     Ok((
         AudioControl {
+            music_request: Cell::new(None),
             engine: Some(AudioEngine {
                 command_sender,
                 sfx_cache: SfxCache::new(controls, sfx_sender),
@@ -126,7 +129,10 @@ pub fn preserve_pitch_enabled() -> bool {
 impl AudioControl {
     #[must_use]
     pub const fn without_audio() -> Self {
-        Self { engine: None }
+        Self {
+            engine: None,
+            music_request: Cell::new(None),
+        }
     }
 
     #[inline(always)]
@@ -159,7 +165,11 @@ impl AudioControl {
     pub fn play_mine_sfx(&mut self, sound: &SfxId, player: u8, two_players: bool) {
         if let Some(engine) = self.engine.as_mut() {
             let pan = if two_players {
-                if player == 0 { SfxPan::Left } else { SfxPan::Right }
+                if player == 0 {
+                    SfxPan::Left
+                } else {
+                    SfxPan::Right
+                }
             } else {
                 SfxPan::Center
             };
@@ -201,27 +211,47 @@ impl AudioControl {
     }
 
     pub fn stop_actor_sfx(&mut self, owner: u64) {
-        if let Some(engine) = self.engine.as_mut() { engine.sfx_cache.stop_owned(owner); }
+        if let Some(engine) = self.engine.as_mut() {
+            engine.sfx_cache.stop_owned(owner);
+        }
     }
 
     pub fn pause_actor_sfx(&self, owner: u64, paused: bool) {
-        if let Some(engine) = &self.engine { engine.sfx_cache.pause_owned(owner, paused); }
+        if let Some(engine) = &self.engine {
+            engine.sfx_cache.pause_owned(owner, paused);
+        }
     }
 
     pub fn stop_screen_sfx(&mut self) {
-        if let Some(engine) = self.engine.as_mut() { engine.sfx_cache.stop_owned_voices(); }
+        if let Some(engine) = self.engine.as_mut() {
+            engine.sfx_cache.stop_owned_voices();
+        }
         stop_screen_bus();
     }
 
     pub fn play_music(&self, path: PathBuf, cut: Cut, looping: bool, rate: f32) {
+        self.music_request
+            .set(self.engine.as_ref().map(|_| normalized_music_rate(rate)));
         play_music(self.engine.as_ref(), path, cut, looping, rate);
     }
 
+    /// Seek the current decoder. The manager serializes this with pending Play/Stop.
+    /// Invalid input and a disabled audio engine do not alter the shared clock.
+    pub fn seek_music(&self, seconds: f64) {
+        if let (Some(engine), Some(rate)) = (self.engine.as_ref(), self.music_request.get()) {
+            seek_music(&engine.command_sender, seconds, rate);
+        }
+    }
+
     pub fn stop_music(&self) {
+        self.music_request.set(None);
         stop_music(self.engine.as_ref());
     }
 
     pub fn set_music_rate(&self, rate: f32) {
+        if self.music_request.get().is_some() {
+            self.music_request.set(Some(normalized_music_rate(rate)));
+        }
         set_music_rate(self.engine.as_ref(), rate);
     }
 
@@ -250,6 +280,19 @@ fn reset_music_stream_clock() -> u64 {
     // absolute target frames no longer correspond to the music position.
     stop_assist_tick_bus();
     clear_music_pos_map()
+}
+
+fn seek_music(sender: &Sender<StreamCommand>, seconds: f64, rate: f32) {
+    if !seconds.is_finite() {
+        return;
+    }
+    let generation = reset_music_stream_clock();
+    deadlib_audio_core::activate_music_track();
+    deadlib_audio_core::seed_music_stream_clock(seconds, rate);
+    let _ = sender.send(StreamCommand::SeekMusic {
+        seconds,
+        generation,
+    });
 }
 
 fn play_music(engine: Option<&AudioEngine>, path: PathBuf, cut: Cut, looping: bool, rate: f32) {
@@ -323,4 +366,113 @@ pub fn assist_sfx_generation() -> u64 {
 #[must_use]
 pub fn get_output_timing_snapshot() -> OutputTimingSnapshot {
     deadlib_audio_core::get_output_timing_snapshot()
+}
+
+#[cfg(test)]
+mod seek_tests {
+    use super::*;
+    #[test]
+    fn seek_keeps_rate_gain_and_track_identity_and_rejects_invalid_or_disabled_requests() {
+        let _guard = crate::CLOCK_TEST_LOCK.lock().unwrap();
+        use deadlib_audio_core::*;
+        let (tx, rx) = std::sync::mpsc::channel();
+        for rate in [0.8, 1.2] {
+            for seconds in [-0.125, 0.0, 0.123456789] {
+                seed_music_stream_clock(9.0, rate);
+                activate_music_track();
+                let track = next_music_track_id();
+                set_music_target_gain(0.5);
+                let gain_generation = music_gain_snap_generation();
+                let previous = music_map_generation();
+                seek_music(&tx, seconds, rate);
+                match rx.try_recv().unwrap() {
+                    StreamCommand::SeekMusic {
+                        seconds: actual,
+                        generation,
+                    } => {
+                        assert_eq!(actual, seconds);
+                        assert_ne!(generation, previous);
+                        assert_eq!(generation, music_map_generation());
+                    }
+                    other => panic!("unexpected {other:?}"),
+                }
+                assert_eq!(
+                    seeded_music_position(0.0),
+                    if seconds == 0.0 {
+                        None
+                    } else {
+                        Some((seconds, rate))
+                    }
+                );
+                assert_eq!(active_music_track_id(), track);
+                assert_eq!(music_target_gain(), 0.5);
+                assert_eq!(music_gain_snap_generation(), gain_generation);
+                assert!(music_track_active());
+            }
+        }
+        let generation = music_map_generation();
+        let seed = seeded_music_position(0.0);
+        for seconds in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            seek_music(&tx, seconds, 1.2);
+        }
+        AudioControl::without_audio().seek_music(1.0);
+        assert_eq!(music_map_generation(), generation);
+        assert_eq!(seeded_music_position(0.0), seed);
+        assert!(rx.try_recv().is_err());
+        let (sfx_sender, _sfx_receiver) = deadlib_audio_core::sfx_transport(8);
+        let audio = AudioControl {
+            engine: Some(AudioEngine {
+                command_sender: tx,
+                sfx_cache: SfxCache::new(std::sync::Arc::new(MixControls::new()), sfx_sender),
+                output: OutputFormat {
+                    sample_rate_hz: 48_000,
+                    channels: 2,
+                },
+                startup_output_devices: Vec::new(),
+            }),
+            music_request: Cell::new(None),
+        };
+        audio.seek_music(1.0);
+        assert_eq!(music_map_generation(), generation);
+        assert!(rx.try_recv().is_err());
+        audio.play_music(
+            PathBuf::from("command-only.wav"),
+            Cut::default(),
+            false,
+            0.8,
+        );
+        assert!(matches!(
+            rx.try_recv().unwrap(),
+            StreamCommand::PlayMusic { rate: 0.8, .. }
+        ));
+        audio.seek_music(-0.125);
+        assert!(matches!(
+            rx.try_recv().unwrap(),
+            StreamCommand::SeekMusic {
+                seconds: -0.125,
+                ..
+            }
+        ));
+        assert_eq!(seeded_music_position(0.0), Some((-0.125, 0.8)));
+        audio.set_music_rate(1.2);
+        assert!(matches!(
+            rx.try_recv().unwrap(),
+            StreamCommand::SetMusicRate { rate: 1.2, .. }
+        ));
+        audio.seek_music(0.25);
+        assert!(matches!(
+            rx.try_recv().unwrap(),
+            StreamCommand::SeekMusic { seconds: 0.25, .. }
+        ));
+        assert_eq!(seeded_music_position(0.0), Some((0.25, 1.2)));
+        audio.stop_music();
+        assert!(matches!(rx.try_recv().unwrap(), StreamCommand::StopMusic));
+        let stopped = music_map_generation();
+        audio.seek_music(1.0);
+        assert_eq!(music_map_generation(), stopped);
+        assert!(rx.try_recv().is_err());
+        stop_music_track();
+        reset_music_stream_clock_state();
+        reset_music_target_gain();
+    }
 }

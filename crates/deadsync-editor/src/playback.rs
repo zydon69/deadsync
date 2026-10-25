@@ -54,6 +54,9 @@ impl Preview {
     pub fn music_time(&self, row: u64) -> Result<f64, Error> {
         self.clock.music_time(row)
     }
+    pub fn chart_time(&self, row: u64) -> Result<f64, Error> {
+        self.clock.chart_time(row)
+    }
     pub fn position(&self, seconds: f64) -> Result<f64, Error> {
         self.clock.position(seconds)
     }

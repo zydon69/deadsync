@@ -557,6 +557,7 @@ pub(crate) fn drain_core(
             GameplayAudioCommand::SetMusicRate(rate) => {
                 audio.set_music_rate(rate);
             }
+            GameplayAudioCommand::SeekMusic(seconds) => audio.seek_music(seconds),
             GameplayAudioCommand::PlayMusic {
                 path,
                 cut,

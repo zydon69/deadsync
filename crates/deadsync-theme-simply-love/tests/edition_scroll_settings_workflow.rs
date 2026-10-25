@@ -119,7 +119,7 @@ fn french_panel_saves_reloads_and_drives_actual_playback_policy_without_song_edi
     assert!(r.is_playing());
     assert!(matches!(
         r.take_audio_commands().as_slice(),
-        [GameplayAudioCommand::PlayMusic { .. }]
+        [GameplayAudioCommand::SeekMusic(_)]
     ));
     assert!(!s.workspace().file().session.is_dirty());
     assert!(!r.workspace().file().session.is_dirty());

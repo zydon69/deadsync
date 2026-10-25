@@ -4178,14 +4178,12 @@ persistence and unknown-field/no-op/conflict protections with Audio/Zoom/Wavefor
 The current setting is loaded by the native preference setup. The initial addition exposed
 this boolean through editor-preferences.json; the native panel below now
 provides its keyboard control.
-With false, arrow navigation during playback emits a new PlayMusic command at
-the destination's music time, retaining playing state and immediately updating
-its precise displayed focal position. The current host audio command API does
-not expose an in-place seek command, so this is a reissued audio cut rather than
-a claim of seamless decoder seeking. With true, navigation stops transport.
+The initial implementation used a reissued PlayMusic cut with false; the
+retained-decoder section below supersedes that implementation with SeekMusic.
+With true, navigation stops transport.
 Paused/idle navigation remains stopped and resets the retained pause position.
-Missing audio on a requested continued seek leaves playback/cursor untouched and
-emits no partial command. Old pre-request snapshots cannot undo the new position.
+The initial reissued-cut implementation refused a missing pathname; retained
+decoder navigation below no longer depends on reopening that pathname. Old pre-request snapshots cannot undo the new position.
 
 Core formula tests cover all nine native snaps, exact/fractional/negative positions
 and explicit nonfinite/range/overflow rejection. Original source casts positions
@@ -4245,3 +4243,54 @@ Screenshots are local QA artifacts at /tmp/deadsync-scroll-settings-panel.png an
 scoped OpenGL/UI/persistence review, not audible seek-latency or whole-editor
 parity evidence. Continuous scrub, loops, decoder lifecycle and the remaining
 editor domains are still incomplete.
+
+### Retained-decoder seek for editor navigation
+
+GameplayAudioCommand.SeekMusic now crosses the shell adapter and AudioControl to
+StreamCommand.SeekMusic. The editor retains its captured Preview/clock rather
+than re-parsing timing or checking/reopening a path on every arrow movement. It
+updates the requested focal position, rejects older snapshots and emits a seek
+command with the destination audio-file time. Preview.chart_time exposes direct
+chart time so large music offsets cannot corrupt the focal time through a round
+trip. Navigation still honors the existing stop-on-scroll preference.
+
+AudioControl tracks whether music was requested, including a pending Play, and
+its requested rate. An idle, stopped or disabled engine cannot fabricate a seek
+clock. Valid seeks invalidate stale maps/assist ticks and seed the new position
+without changing track identity, ReplayGain target or gain-snap generation. Rate
+is preserved even when the previous cut began at zero (zero intentionally has no
+fallback position seed). Decoder/pitch settings remain on the current worker.
+
+Nonlooping runtime workers retain their open reader, DSP buffers and recyclable
+writer at EOF, sleeping until seek/stop instead of reopening a file or polling. The public
+one-shot decoder helper retains its completion/join contract. Seek publication
+uses a manager/decoder mutex outside the render callback, a serial and the shared
+timeline generation. The serial is published before the generation, so old PCM
+cannot be relabeled with a seek's new generation. New requests replace the pending
+request; generation changes interrupt backpressure and silence. A seek restarts
+DSP/preroll and rewinds the retained reader when required; a codec rewind/seek
+failure retains the existing reopen fallback. Stop wakes and joins the worker.
+No lock, file operation or decoder work is added to the render callback.
+
+The memory-rendered WAV scenario consumes through EOF, renames the source so its
+original path no longer exists, and seeks forward/backward/to-zero with literal
+PCM and timestamp assertions. It also covers negative lead-in, rapid replacement
+requests and cancellation. Native actor tests now assert SeekMusic, including
+continued navigation after pathname removal. AudioControl queue/clock tests
+assert preserved rate/gain/identity, invalid/idle/disabled refusal, pending Play,
+rate changes and Stop. Clock and seek unit cases share a test lock for the
+process-global transport state. The direct preview clock test uses a large offset
+to demonstrate that the new accessor avoids a lossy inverse conversion.
+
+Validation: 40 deadlib-audio unit tests and its single memory-render integration
+scenario passed (two pre-existing performance tests remain ignored). All five
+deadsync-audio-stream unit cases, six core playback integration cases and all
+219 native editor integration tests across 31 targets passed. The final memory
+scenario includes the same clock reset/activation boundary used by AudioControl;
+it also confirms that an ordinary negative-cut loop emits its initial silence
+once, while explicit seek re-arms silence. `cargo check -p deadsync --jobs 2
+--locked` passed. No new .app/GPU or audible-device/seek-latency review was run.
+WAV retained seeking is demonstrated; retained seeking across every codec/rate/
+pitch configuration and full decoder error/EOF UI handling are not established
+by these tests. Continuous scrub controls, loop UI and complete editor parity
+remain open.

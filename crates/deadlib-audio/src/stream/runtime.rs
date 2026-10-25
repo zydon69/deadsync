@@ -23,6 +23,12 @@ pub enum StreamCommand {
     },
     /// Stops the worker after the caller invalidates the shared timeline generation.
     StopMusic,
+    /// Reposition the retained decoder; rate, pitch policy and track identity remain active.
+    /// The caller supplies a fresh invalidated timeline generation, as for PlayMusic.
+    SeekMusic {
+        seconds: f64,
+        generation: u64,
+    },
     SetMusicRate {
         rate: f32,
         generation: u64,
@@ -69,6 +75,10 @@ impl MusicStreamRuntime {
                 decode_options,
             ),
             StreamCommand::StopMusic => self.stop(),
+            StreamCommand::SeekMusic {
+                seconds,
+                generation,
+            } => self.seek(seconds, generation),
             StreamCommand::SetMusicRate { rate, generation } => self.set_rate(rate, generation),
             StreamCommand::SetPreservePitch {
                 enabled,
@@ -96,7 +106,7 @@ impl MusicStreamRuntime {
             stop_music_track();
             return;
         };
-        self.music_stream = Some(super::spawn_music_decoder_thread(
+        self.music_stream = Some(super::spawn_music_decoder_thread_with_retention(
             path,
             cut,
             looping,
@@ -108,12 +118,31 @@ impl MusicStreamRuntime {
                 output: self.output,
                 generation,
             },
+            true,
         ));
     }
 
     fn stop(&mut self) {
         self.stop_decoder();
         stop_music_track();
+    }
+
+    fn seek(&self, seconds: f64, generation: u64) {
+        if !seconds.is_finite() {
+            return;
+        }
+        if let Some(stream) = &self.music_stream {
+            let control = &stream.control;
+            let mut pending = control.seek.lock().unwrap_or_else(|e| e.into_inner());
+            *pending = Some(super::SeekRequest {
+                seconds,
+                generation,
+            });
+            control.seek_serial.store(generation, Ordering::Release);
+            control.generation.store(generation, Ordering::Release);
+            drop(pending);
+            control.wake.notify();
+        }
     }
 
     fn set_rate(&self, rate: f32, generation: u64) {

@@ -108,16 +108,10 @@ fn arrows_snap_in_screen_direction_and_seek_playing_audio_with_original_default_
                     if stop {
                         assert_eq!(commands, vec![GameplayAudioCommand::StopMusic]);
                     } else {
-                        match commands.as_slice() {
-                            [
-                                GameplayAudioCommand::PlayMusic {
-                                    cut,
-                                    looping: false,
-                                    ..
-                                },
-                            ] => assert_eq!(cut.start_sec, row as f64 / 96.0),
-                            other => panic!("unexpected navigation commands: {other:?}"),
-                        }
+                        assert_eq!(
+                            commands,
+                            vec![GameplayAudioCommand::SeekMusic(row as f64 / 96.0)]
+                        );
                         let before = arrow(&s);
                         s.update_audio(stale);
                         close(arrow(&s), before);
@@ -158,17 +152,18 @@ fn repeated_keys_continue_from_snapped_destination_and_modal_panels_keep_arrow_f
     assert_eq!(s.workspace().row(), 96);
 }
 #[test]
-fn failed_audio_reseek_retains_playing_position_and_emits_no_partial_command() {
+fn navigation_keeps_open_track_after_its_pathname_is_removed() {
     let (d, mut s) = setup(false);
     press(&mut s, KeyCode::Enter);
     s.take_audio_commands();
     s.update_audio(snapshot(0.126));
-    let y = arrow(&s);
     fs::remove_file(d.path().join("music.ogg")).unwrap();
     press(&mut s, KeyCode::ArrowDown);
     assert!(s.is_playing());
-    assert_eq!(s.workspace().row(), 12);
-    close(arrow(&s), y);
-    assert!(s.take_audio_commands().is_empty());
+    assert_eq!(s.workspace().row(), 48);
+    assert_eq!(
+        s.take_audio_commands(),
+        vec![deadsync_gameplay::GameplayAudioCommand::SeekMusic(0.5)]
+    );
     assert!(!s.workspace().file().session.is_dirty());
 }

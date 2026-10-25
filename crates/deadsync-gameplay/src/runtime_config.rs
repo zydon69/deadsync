@@ -979,6 +979,8 @@ impl Default for GameplayMusicCut {
 pub enum GameplayAudioCommand {
     StopMusic,
     SetMusicRate(f32),
+    /// Reposition the active track without changing its rate, gain or decoder.
+    SeekMusic(f64),
     PlayMusic {
         path: PathBuf,
         cut: GameplayMusicCut,

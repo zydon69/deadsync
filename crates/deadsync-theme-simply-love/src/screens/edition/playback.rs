@@ -156,41 +156,33 @@ impl State {
             )?
             .max(0) as u64;
             let continuing = self.is_playing() && !self.scroll_preferences.stop_playback();
-            // Resolve the new audio cut before changing transport or edit position.
+            // The captured clock and open decoder remain valid after pathname
+            // changes; navigation must not re-open or re-parse the track.
             let audio = if continuing {
-                let preview = Preview::capture(
-                    &self.workspace.file().session,
-                    self.workspace.chart(),
-                    self.workspace.file().path(),
-                )?;
-                let music_time = preview.music_time(destination)?;
-                let position = Position {
-                    chart_time: preview.music_to_chart_time(music_time)?,
+                let preview = self
+                    .playback
+                    .as_ref()
+                    .and_then(|playing| playing.preview.as_ref())
+                    .ok_or_else(|| {
+                        deadsync_editor::Error::InvalidEdit("No chart playback clock".into())
+                    })?;
+                Some(Position {
+                    chart_time: preview.chart_time(destination)?,
                     row: destination as f64,
-                    music_time,
-                };
-                Some((preview, position))
+                    music_time: preview.music_time(destination)?,
+                })
             } else {
                 None
             };
             self.command(Command::Seek(destination));
-            if let Some((preview, position)) = audio {
+            if let Some(position) = audio {
                 self.paused_playback = None;
-                self.audio_commands.push(GameplayAudioCommand::PlayMusic {
-                    path: preview.music().to_path_buf(),
-                    cut: GameplayMusicCut {
-                        start_sec: position.music_time,
-                        ..Default::default()
-                    },
-                    looping: false,
-                    rate: 1.0,
-                });
-                self.playback = Some(Playing {
-                    preview: Some(preview),
-                    valid_after: Instant::now(),
-                    mapped: false,
-                    position: Some(position),
-                });
+                let playing = self.playback.as_mut().expect("continued chart transport");
+                playing.valid_after = Instant::now();
+                playing.mapped = false;
+                playing.position = Some(position);
+                self.audio_commands
+                    .push(GameplayAudioCommand::SeekMusic(position.music_time));
                 self.status = i18n::tr("Edition", "PlaybackPlaying");
             } else {
                 self.stop_audio();

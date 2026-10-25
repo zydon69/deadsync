@@ -23,3 +23,6 @@ pub use sfx_cache::SfxId;
 // Keep this source timeline for music, previews and effects alike.
 const DECODE_OPTIONS: deadlib_audio_decode::DecodeOptions =
     deadlib_audio_decode::DecodeOptions::STEP_MANIA_TIMELINE;
+
+#[cfg(test)]
+static CLOCK_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
