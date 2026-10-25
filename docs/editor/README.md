@@ -4390,3 +4390,26 @@ was performed for this test-only change. The prior MP3 compatibility
 gate failure is superseded by the passing executing-source comparison; the old
 capture's unexplained hash values remain archived. Full editor parity is still
 incomplete and the original goal remains open.
+
+### Display tempo property model and atomic persistence
+
+`display_tempo::Value` ports the Actual/Random/Specified state used by
+GrooveAuthor `StepManiaEditor/DisplayTempo.cs`: fixed six-decimal serialization,
+colon-separated ranges, one-ULP range collapse, and a separate UI flag for maximum
+editing. Switching into Specified accepts the chart's actual tempo range; turning
+off separate maximum editing collapses the range. New numeric edits reject
+nonfinite values; imported values remain untouched until a semantic change.
+
+Chart-property drafts now capture DISPLAYBPM, including SSC song inheritance and
+explicit empty local overrides. Applying writes a local SSC property or the SM
+song property in the same undo transaction as other chart properties. Raw MSD
+range separators are retained, and unrelated edits do not rewrite malformed or
+inherited DISPLAYBPM source. A pure UI flag change does not write the simfile.
+
+Three `display_tempo_workflows` tests pass, covering state transitions, numeric
+range formatting, SM/SSC scope, inheritance, empty override reads, malformed
+source preservation, atomic undo/redo and stale-draft refusal. Seven existing
+`chart_properties_workflows` tests also pass (`--jobs 2 --locked`). These checks
+are Rust workflow tests informed by the original source, not an executable C#
+differential oracle or complete numeric-parser compatibility proof. Native menu
+controls, actual-range capture and rendered validation remain to be connected.

@@ -23,6 +23,8 @@ pub struct Draft {
     format: Format,
     identity: crate::chart_identity::Identity,
     text: crate::chart_text::Text,
+    original_display_tempo: crate::display_tempo::Value,
+    display_tempo: crate::display_tempo::Value,
 }
 impl Draft {
     pub fn capture(session: &Session, chart: usize) -> Result<Self, Error> {
@@ -39,7 +41,19 @@ impl Draft {
             })
             .transpose()?
             .unwrap_or(0.0);
+        let display_tempo = crate::display_tempo::Value::parse(
+            &session
+                .document()
+                .text(
+                    (session.document().format == Format::Ssc).then_some(chart),
+                    "DISPLAYBPM",
+                )
+                .or_else(|| session.document().text(None, "DISPLAYBPM"))
+                .unwrap_or_default(),
+        );
         Ok(Self {
+            original_display_tempo: display_tempo.clone(),
+            display_tempo,
             token: session.revision_token(),
             chart,
             original_expression: data.expressed_chart_config.clone(),
@@ -54,6 +68,17 @@ impl Draft {
             identity: crate::chart_identity::Identity::read(session.document(), chart)?,
             text: crate::chart_text::Text::read(session.document(), chart)?,
         })
+    }
+    pub fn display_tempo(&self) -> &crate::display_tempo::Value {
+        &self.display_tempo
+    }
+    pub fn set_display_tempo(&mut self, value: crate::display_tempo::Value) {
+        self.display_tempo = value;
+    }
+    fn display_tempo_changed(&self) -> bool {
+        !self
+            .display_tempo
+            .same_serialized_value(&self.original_display_tempo)
     }
     pub fn text(&self, field: crate::chart_text::Field) -> &str {
         self.text.get(field)
@@ -113,6 +138,7 @@ impl Draft {
     }
     pub fn has_changes(&self) -> bool {
         self.offset_changed()
+            || self.display_tempo_changed()
             || self.expression != self.original_expression
             || self.identity.has_changes()
             || self.text.has_changes()
@@ -171,6 +197,13 @@ impl Draft {
             }
             self.identity.apply(staged, chart)?;
             self.text.apply(staged, chart)?;
+            if self.display_tempo_changed() {
+                staged.set_property_bytes(
+                    (self.format == Format::Ssc).then_some(chart),
+                    "DISPLAYBPM",
+                    std::sync::Arc::from(self.display_tempo.serialize().into_bytes()),
+                )?;
+            }
             Ok(())
         })
     }
