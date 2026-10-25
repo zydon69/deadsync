@@ -2675,3 +2675,21 @@ left Shift is released. These checks exercise the public native editor adapter;
 they do not prove physical OS delivery. The later native copy/cut follow-up could
 not proceed because the QA process had exited before input; no new clipboard
 claim is made from that attempt.
+
+### Song music offset draft (core; native controls pending)
+
+The song draft now captures/validates the global `OFFSET` (missing means zero),
+exposes a finite music-offset setter with the reference one-ULP equality, and
+includes changed OFFSET in the existing atomic song-properties transaction.
+Changing only music offset does not inject GASongData.
+`apply_itg_offset` follows pinned UISongProperties.ApplyItgSongOffset: add 0.009
+to MusicOffset and set SyncOffset to 0.009 in the same draft. It is deliberately
+non-idempotent, as described by the original tooltip. The native F11 panel has
+not yet exposed these new controls.
+
+All six `song_properties_workflows` tests pass. New cases exercise SM and SSC
+apply/undo/redo/reopen, source-tag preservation, unsaved preview time conversion,
+repeated ITG migration, one-ULP no-op, invalid-number rejection and malformed
+OFFSET rejection. No audio decoder or audible playback is exercised. These are
+workflow checks against inspected original methods, not newly generated C#
+differential fixtures for the ITG action.

@@ -125,16 +125,33 @@ pub struct Draft {
     token: RevisionToken,
     original: f64,
     offset: f64,
+    original_music_offset: f64,
+    music_offset: f64,
     fields: Map<String, Value>,
     text: crate::song_text::Text,
 }
 impl Draft {
     pub fn capture(session: &Session) -> Result<Self, Error> {
         let (fields, offset) = read(session.document())?;
+        let music_offset = session
+            .document()
+            .text(None, "OFFSET")
+            .map(|value| {
+                value
+                    .trim()
+                    .parse::<f64>()
+                    .ok()
+                    .filter(|value| value.is_finite())
+                    .ok_or_else(|| Error::InvalidEdit("Invalid song music offset".into()))
+            })
+            .transpose()?
+            .unwrap_or(0.0);
         Ok(Self {
             token: session.revision_token(),
             original: offset,
             offset,
+            original_music_offset: music_offset,
+            music_offset,
             fields,
             text: crate::song_text::Text::read(session.document()),
         })
@@ -146,7 +163,26 @@ impl Draft {
         self.text.set(field, value)
     }
     pub fn has_changes(&self) -> bool {
-        self.text.has_changes() || !crate::number::reference_equal(self.original, self.offset)
+        self.text.has_changes()
+            || !crate::number::reference_equal(self.original, self.offset)
+            || !crate::number::reference_equal(self.original_music_offset, self.music_offset)
+    }
+    pub fn music_offset(&self) -> f64 {
+        self.music_offset
+    }
+    pub fn set_music_offset(&mut self, value: f64) -> Result<(), Error> {
+        if !value.is_finite() {
+            return invalid("Music offset must be finite");
+        }
+        if !crate::number::reference_equal(self.music_offset, value) {
+            self.music_offset = value;
+        }
+        Ok(())
+    }
+    /// GrooveAuthor's explicit, non-idempotent ITG migration action.
+    pub fn apply_itg_offset(&mut self) -> Result<(), Error> {
+        self.set_music_offset(self.music_offset + DEFAULT_SYNC_OFFSET)?;
+        self.set_sync_offset(DEFAULT_SYNC_OFFSET)
     }
     pub fn sync_offset(&self) -> f64 {
         self.offset
@@ -176,6 +212,15 @@ impl Draft {
                 )
             })
             .collect::<Vec<_>>();
+        let music_changed =
+            !crate::number::reference_equal(self.original_music_offset, self.music_offset);
+        if music_changed {
+            properties.push((
+                None,
+                "OFFSET".to_owned(),
+                std::sync::Arc::from(self.music_offset.to_string().into_bytes()),
+            ));
+        }
         if !crate::number::reference_equal(self.original, self.offset) {
             let mut fields = self.fields.clone();
             fields.insert("SyncOffset".into(), Value::from(self.offset));
@@ -212,7 +257,7 @@ impl Draft {
         }
         session.set_property_bytes_atomic(
             &properties,
-            if text_changes.is_empty() {
+            if text_changes.is_empty() && !music_changed {
                 "Change editor sync offset"
             } else {
                 "Change song properties"

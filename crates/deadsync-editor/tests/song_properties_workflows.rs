@@ -129,3 +129,62 @@ fn future_incomplete_malformed_or_nonfinite_song_data_is_never_overwritten() {
     session.set_text(None, "GASongDataVersion", "1").unwrap();
     assert!(Draft::capture(&session).is_err());
 }
+
+#[test]
+fn song_music_offset_and_itg_migration_are_atomic_preserve_source_and_drive_preview() {
+    for format in [Format::Sm, Format::Ssc] {
+        let mut session = song(format);
+        let original = session.serialize().unwrap();
+        let dir = tempfile::tempdir().unwrap();
+        fs::write(dir.path().join("song.ogg"), b"transport fixture").unwrap();
+        let mut draft = Draft::capture(&session).unwrap();
+        assert_eq!(draft.music_offset(), 0.375);
+        draft.set_sync_offset(0.0).unwrap();
+        draft.apply_itg_offset().unwrap();
+        assert_eq!(draft.music_offset(), 0.384);
+        assert_eq!(draft.sync_offset(), 0.009);
+        assert!(draft.apply(&mut session).unwrap());
+        let changed = session.serialize().unwrap();
+        assert_eq!(
+            session.document().text(None, "OFFSET").as_deref(),
+            Some("0.384")
+        );
+        assert_eq!(
+            session.document().text(None, "UNKNOWN").as_deref(),
+            Some("preserve")
+        );
+        let preview = Preview::capture(&session, 0, &dir.path().join("song.ssc")).unwrap();
+        assert!((preview.chart_time_to_music(1.0).unwrap() - 0.625).abs() < 1e-12);
+        assert!(session.undo().unwrap());
+        assert_eq!(session.serialize().unwrap(), original);
+        assert!(session.redo().unwrap());
+        assert_eq!(session.serialize().unwrap(), changed);
+        let reopened = Session::new(Document::parse(changed, format).unwrap());
+        assert_eq!(Draft::capture(&reopened).unwrap().music_offset(), 0.384);
+        let mut second = Draft::capture(&reopened).unwrap();
+        second.apply_itg_offset().unwrap();
+        assert_eq!(second.music_offset(), 0.393);
+    }
+}
+
+#[test]
+fn song_music_offset_validation_and_noop_preserve_history_and_metadata_bytes() {
+    let mut session = song(Format::Ssc);
+    let before = session.serialize().unwrap();
+    let mut draft = Draft::capture(&session).unwrap();
+    for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+        assert!(draft.set_music_offset(value).is_err());
+    }
+    draft
+        .set_music_offset(f64::from_bits(0.375f64.to_bits() + 1))
+        .unwrap();
+    assert!(!draft.has_changes());
+    assert!(!draft.apply(&mut session).unwrap());
+    assert_eq!(session.serialize().unwrap(), before);
+    draft.set_music_offset(-0.25).unwrap();
+    assert!(draft.apply(&mut session).unwrap());
+    assert!(session.document().text(None, "GASongData").is_none());
+    assert!(session.document().text(None, "GASongDataVersion").is_none());
+    session.set_text(None, "OFFSET", "invalid").unwrap();
+    assert!(Draft::capture(&session).is_err());
+}
