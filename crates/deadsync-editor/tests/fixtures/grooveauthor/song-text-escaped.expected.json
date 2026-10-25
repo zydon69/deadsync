@@ -9,8 +9,11 @@
     "GENRE": "",
     "CREDIT": "Old",
     "ORIGIN": "",
-    "MUSIC": "audio/\u00c9t\u00e9%20.ogg"
+    "MUSIC": "audio/\u00c9t\u00e9%20.ogg",
+    "PREVIEW": ""
   },
+  "SampleStart": 0,
+  "SampleLength": 0,
   "ChartCredits": [
     "Old",
     "Local"

@@ -2877,3 +2877,23 @@ Apply, saves the SSC tag and verifies SM cannot open that picker. The picker
 fixture uses the canonical macOS path, as the native chooser does, to avoid
 asserting a lexical alias spelling as a distinct media file. Existing Fumen path
 semantics are unchanged. Actual OS picker/decoder output is not proven here.
+
+### Actual Fumen preview/sample reader comparisons
+
+Extended the C# SongText oracle projection with Song.PreviewMusicFile,
+PreviewSampleStart and PreviewSampleLength. Regenerated all six song-text
+fixtures with pinned Fumen/StepManiaLibrary and the .NET 10 development runtime.
+The two new SSC/SM inputs contain an escaped Unicode PREVIEW path, a negative
+sample start and a fractional length. Expected values are emitted by the actual
+original readers, not calculated from Rust. The Rust workflow now compares all
+eleven fields and both sample numbers, retains chart-author checks and verifies
+that a no-op draft leaves each source byte-identical.
+
+This exposed that SM text projection displayed an ignored PREVIEW tag. Rust now
+projects it as empty, matching Fumen SMReader, while retaining its opaque source
+bytes and refusing unsupported edits. SSC continues to decode it. All four
+song_text_workflows pass against the six updated original-reader cases. This
+supersedes the earlier note excluding PREVIEW/sample fields from those fixtures;
+it still does not prove the entire original editor UI or audio implementation.
+The broader core suite was launched before fixture regeneration; its result
+must not be reported as a clean current-state full-suite run without a rerun.

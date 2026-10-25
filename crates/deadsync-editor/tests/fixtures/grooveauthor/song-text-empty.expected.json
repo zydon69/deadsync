@@ -9,8 +9,11 @@
     "GENRE": "",
     "CREDIT": "",
     "ORIGIN": "",
-    "MUSIC": ""
+    "MUSIC": "",
+    "PREVIEW": ""
   },
+  "SampleStart": 0,
+  "SampleLength": 0,
   "ChartCredits": [
     "",
     "Local"

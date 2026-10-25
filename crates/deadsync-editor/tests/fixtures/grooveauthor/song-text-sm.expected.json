@@ -9,8 +9,11 @@
     "GENRE": "Dance",
     "CREDIT": "File author",
     "ORIGIN": "Arcade",
-    "MUSIC": "song.ogg"
+    "MUSIC": "song.ogg",
+    "PREVIEW": ""
   },
+  "SampleStart": 0,
+  "SampleLength": 0,
   "ChartCredits": [
     "File author"
   ]

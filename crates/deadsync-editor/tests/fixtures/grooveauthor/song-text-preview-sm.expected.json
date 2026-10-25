@@ -1,0 +1,20 @@
+{
+  "Fields": {
+    "TITLE": "Preview",
+    "SUBTITLE": "",
+    "ARTIST": "",
+    "TITLETRANSLIT": "",
+    "SUBTITLETRANSLIT": "",
+    "ARTISTTRANSLIT": "",
+    "GENRE": "",
+    "CREDIT": "",
+    "ORIGIN": "",
+    "MUSIC": "song.ogg",
+    "PREVIEW": ""
+  },
+  "SampleStart": -0.125,
+  "SampleLength": 15.75,
+  "ChartCredits": [
+    ""
+  ]
+}

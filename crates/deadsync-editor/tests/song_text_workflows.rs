@@ -34,8 +34,7 @@ fn actual_fumen_song_fields_and_initial_chart_authors_match_without_rewriting_fi
         let source = request["Content"].as_str().unwrap().as_bytes();
         let mut session = Session::new(Document::parse(source, format).unwrap());
         let fields = Text::read(session.document());
-        // These existing oracle fixtures predate the dedicated PREVIEW field.
-        for field in Field::ALL.into_iter().filter(|f| *f != Field::PreviewMusic) {
+        for field in Field::ALL {
             assert_eq!(
                 fields.get(field),
                 expected["Fields"][field.tag()].as_str().unwrap(),
@@ -43,6 +42,15 @@ fn actual_fumen_song_fields_and_initial_chart_authors_match_without_rewriting_fi
                 field.tag()
             );
         }
+        let draft = Draft::capture(&session).unwrap();
+        assert_eq!(
+            draft.sample_start(),
+            expected["SampleStart"].as_f64().unwrap()
+        );
+        assert_eq!(
+            draft.sample_length(),
+            expected["SampleLength"].as_f64().unwrap()
+        );
         for (index, credit) in expected["ChartCredits"]
             .as_array()
             .unwrap()
@@ -64,7 +72,7 @@ fn actual_fumen_song_fields_and_initial_chart_authors_match_without_rewriting_fi
         );
         assert_eq!(session.serialize().unwrap(), source);
     }
-    assert_eq!(count, 4);
+    assert_eq!(count, 6);
 }
 #[test]
 fn all_song_fields_and_sync_commit_once_preserve_chart_authors_pending_notes_and_unknown_json() {

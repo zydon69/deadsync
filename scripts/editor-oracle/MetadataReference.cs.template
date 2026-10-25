@@ -35,8 +35,8 @@ internal class EditorChart {
                 return new {Fields=new Dictionary<string,string> {
                     ["TITLE"]=song.Title??"",["SUBTITLE"]=song.SubTitle??"",["ARTIST"]=song.Artist??"",
                     ["TITLETRANSLIT"]=song.TitleTransliteration??"",["SUBTITLETRANSLIT"]=song.SubTitleTransliteration??"",["ARTISTTRANSLIT"]=song.ArtistTransliteration??"",
-                    ["GENRE"]=song.Genre??"",["CREDIT"]=credit??"",["ORIGIN"]=origin??"",["MUSIC"]=music??""
-                },ChartCredits=song.Charts.Select(chart=>chart.Author??"").ToArray()};
+                    ["GENRE"]=song.Genre??"",["CREDIT"]=credit??"",["ORIGIN"]=origin??"",["MUSIC"]=music??"",["PREVIEW"]=song.PreviewMusicFile??""
+                },SampleStart=song.PreviewSampleStart,SampleLength=song.PreviewSampleLength,ChartCredits=song.Charts.Select(chart=>chart.Author??"").ToArray()};
             }
             if(request.GetProperty("Operation").GetString()=="ChartText") {
                 return song.Charts.Select(chart=> {

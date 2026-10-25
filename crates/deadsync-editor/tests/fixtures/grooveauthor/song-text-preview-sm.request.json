@@ -1,0 +1,5 @@
+{
+  "Operation": "SongText",
+  "Format": "sm",
+  "Content": "#VERSION:0.83;#TITLE:Preview;#BPMS:0=120;#MUSIC:song.ogg;#PREVIEW:audio/\u00c9t\u00e9\\;mix.wav;#SAMPLESTART:-0.125;#SAMPLELENGTH:15.75;#NOTES:dance-single::Hard:9::1000;"
+}

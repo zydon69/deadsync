@@ -54,7 +54,13 @@ pub struct Text {
 }
 impl Text {
     pub fn read(document: &Document) -> Self {
-        let values = Field::ALL.map(|f| document.text(None, f.tag()).unwrap_or_default());
+        let values = Field::ALL.map(|f| {
+            if f == Field::PreviewMusic && document.format == crate::document::Format::Sm {
+                String::new()
+            } else {
+                document.text(None, f.tag()).unwrap_or_default()
+            }
+        });
         Self {
             format: document.format,
             original: values.clone(),
