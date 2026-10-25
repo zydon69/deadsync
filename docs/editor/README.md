@@ -1725,3 +1725,44 @@ and the other features in the delivery matrix remain outstanding.
 Validation for this checkpoint: 248 core tests, 78 native editor tests and
 `cargo check -p deadsync --locked` pass. These include a final rerun of signature
 controls, French UI and signed-zero source conflict handling.
+
+### Instant scroll events in F10
+
+F10's Tab order is now BPM, Stop, Delay, Warp, Fake, Scroll, Signature. The shared
+inspector stages scroll multipliers, navigates/moves/deletes their nodes, switches
+song/chart scope, applies one undo gesture and saves explicitly. Zero and negative
+rates are valid. A node at row zero can move/delete, unlike an initial BPM or time
+signature. Left/Right changes the rate by 0.01x; Shift uses 0.001x. English/French
+labels, help, validation and statuses describe these rules.
+
+`timing_edit::scroll` loads Fumen-compatible rounded row conflicts, keeps f64
+values and uses the original one-ULP setter equality. Editor value lookup propagates
+the first rate backward before its row, as GrooveAuthor's rate-dependency pass
+does; a file without scroll events has an effective editor rate of 1. This lookup
+does not insert an event into the document. New input and source values must fit
+the finite gameplay f32 range; unsupported values return errors. The typed parser
+currently shares the existing numeric-pair parser's strict malformed-input rules;
+broader lexical compatibility with the lenient file reader remains pending.
+
+The existing scoped timing transaction copies all inherited SSC timing on first
+local edit. No-op/cancel retain exact bytes and redo. Other chart timing and unknown
+properties survive apply/save/reopen. SM export is explicitly rejected until file
+conversion is available, since SM does not implement these scroll events. These
+controls edit the events used by saved gameplay/generation; preview spacing modes
+and scroll-aware visual simulation in the central editor remain unfinished.
+
+Four oracle cases run actual Fumen scroll loading and the unchanged GrooveAuthor
+setter with the existing movement adapter: empty maps, zero/reverse, late first
+rates, fractional-row collisions, identical/one-ULP input and move/delete sequences.
+Four core workflows compare all node values/stages, round-trip serialization,
+inherited timing, undo/redo/reparse, RSSP's actual gameplay scroll segments,
+stale/foreign/no-op history guards, SM rejection and invalid row/rate limits.
+Two English native workflows cover stage/type guards, zero/reverse, initial move/
+delete, cancel/no-op, fine-control input, apply/undo/save/reopen and SM rejection.
+A French workflow checks visible labels/status and negative/zero numeric
+input. Broader runtime/device verification and the rest of the delivery matrix
+remain required for the full editor port.
+
+Validation for this checkpoint: 252 core tests, 81 native editor tests and
+`cargo check -p deadsync --locked` pass, including the regenerated one-ULP scroll
+setter fixtures and a final rerun of coarse/fine scroll controls and French UI.

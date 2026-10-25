@@ -393,7 +393,7 @@ fn french_signature_panel_fraction_input_and_acceptance_are_translated() {
     .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..5 {
+    for _ in 0..6 {
         press(&mut screen, KeyCode::Tab);
     }
     let labels = texts(&screen);
@@ -429,5 +429,69 @@ fn french_signature_panel_fraction_input_and_acceptance_are_translated() {
             .text(Some(0), "TIMESIGNATURES")
             .unwrap(),
         "0=2=2"
+    );
+}
+
+#[test]
+fn french_scroll_controls_allow_reverse_and_zero_with_translated_labels() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(
+        &path,
+        b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+    )
+    .unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    for _ in 0..5 {
+        press(&mut screen, KeyCode::Tab);
+    }
+    let labels = texts(&screen);
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Vitesses de défilement instantanées"))
+    );
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Vitesse de défilement : 1x"))
+    );
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Appliquer les vitesses de défilement"))
+    );
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Delete);
+    press(&mut screen, KeyCode::Minus);
+    press(&mut screen, KeyCode::Digit1);
+    press(&mut screen, KeyCode::Enter);
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s.contains("Défilement préparé"))
+    );
+    press(&mut screen, KeyCode::Delete);
+    press(&mut screen, KeyCode::Digit0);
+    press(&mut screen, KeyCode::Enter);
+    for _ in 0..6 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "SCROLLS")
+            .unwrap(),
+        "0=0"
     );
 }

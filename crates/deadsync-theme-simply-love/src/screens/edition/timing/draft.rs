@@ -7,6 +7,7 @@ use deadsync_editor::{
         Scope, TempoDraft,
         pause::{self, Kind as PauseKind},
         region::{self, Kind as RegionKind},
+        scroll,
         signature::{self, Signature},
     },
 };
@@ -18,6 +19,7 @@ pub(super) enum EventKind {
     Delay,
     Warp,
     Fake,
+    Scroll,
     Signature,
 }
 impl EventKind {
@@ -29,6 +31,7 @@ impl EventKind {
             Self::Warp => "TimingTypeWarp",
             Self::Fake => "TimingTypeFake",
             Self::Signature => "TimingTypeSignature",
+            Self::Scroll => "TimingTypeScroll",
         }
     }
     pub(super) fn step(self, backward: bool) -> Self {
@@ -38,6 +41,7 @@ impl EventKind {
             Self::Delay,
             Self::Warp,
             Self::Fake,
+            Self::Scroll,
             Self::Signature,
         ];
         let index = kinds
@@ -53,6 +57,7 @@ impl EventKind {
 pub(super) enum Draft {
     Bpm(TempoDraft),
     Signatures(signature::Draft),
+    Scrolls(scroll::Draft),
     Pauses {
         draft: pause::Draft,
         kind: PauseKind,
@@ -70,6 +75,10 @@ impl Draft {
     ) -> Result<Self, Error> {
         match kind {
             EventKind::Bpm => workspace.tempo_draft(scope).map(Self::Bpm),
+            EventKind::Scroll => {
+                scroll::Draft::capture(&workspace.file().session, workspace.chart(), scope)
+                    .map(Self::Scrolls)
+            }
             EventKind::Signature => {
                 signature::Draft::capture(&workspace.file().session, workspace.chart(), scope)
                     .map(Self::Signatures)
@@ -99,6 +108,7 @@ impl Draft {
     pub(super) fn kind(&self) -> EventKind {
         match self {
             Self::Bpm(_) => EventKind::Bpm,
+            Self::Scrolls(_) => EventKind::Scroll,
             Self::Signatures(_) => EventKind::Signature,
             Self::Pauses {
                 kind: PauseKind::Stop,
@@ -137,6 +147,7 @@ impl Draft {
     pub(super) fn scope(&self) -> Scope {
         match self {
             Self::Bpm(d) => d.scope(),
+            Self::Scrolls(d) => d.scope(),
             Self::Signatures(d) => d.scope(),
             Self::Pauses { draft, .. } => draft.scope(),
             Self::Regions { draft, .. } => draft.scope(),
@@ -145,6 +156,7 @@ impl Draft {
     pub(super) fn inherited(&self) -> bool {
         match self {
             Self::Bpm(d) => d.inherited(),
+            Self::Scrolls(d) => d.inherited(),
             Self::Signatures(d) => d.inherited(),
             Self::Pauses { draft, .. } => draft.inherited(),
             Self::Regions { draft, .. } => draft.inherited(),
@@ -153,6 +165,7 @@ impl Draft {
     pub(super) fn affected_charts(&self) -> &[usize] {
         match self {
             Self::Bpm(d) => d.affected_charts(),
+            Self::Scrolls(d) => d.affected_charts(),
             Self::Signatures(d) => d.affected_charts(),
             Self::Pauses { draft, .. } => draft.affected_charts(),
             Self::Regions { draft, .. } => draft.affected_charts(),
@@ -161,6 +174,7 @@ impl Draft {
     pub(super) fn has_changes(&self) -> bool {
         match self {
             Self::Bpm(d) => d.has_changes(),
+            Self::Scrolls(d) => d.has_changes(),
             Self::Signatures(d) => d.has_changes(),
             Self::Pauses { draft, .. } => draft.has_changes(),
             Self::Regions { draft, .. } => draft.has_changes(),
@@ -169,6 +183,7 @@ impl Draft {
     pub(super) fn node(&self, row: u64) -> Option<String> {
         match self {
             Self::Signatures(d) => d.signatures().values().get(&row).map(ToString::to_string),
+            Self::Scrolls(d) => d.scrolls().values().get(&row).map(ToString::to_string),
             Self::Bpm(d) => d.tempos().values().get(&row).map(ToString::to_string),
             Self::Pauses { draft, kind } => draft
                 .pauses(*kind)
@@ -185,6 +200,7 @@ impl Draft {
     pub(super) fn value(&self, row: u64) -> String {
         match self {
             Self::Bpm(d) => d.tempos().at(row).to_string(),
+            Self::Scrolls(d) => d.scrolls().at(row).to_string(),
             Self::Signatures(d) => d.signatures().at(row).to_string(),
             _ => self
                 .node(row)
@@ -195,6 +211,7 @@ impl Draft {
         let row = match self {
             Self::Signatures(d) => neighbor(d.signatures().values(), row, forward),
             Self::Bpm(d) => neighbor(d.tempos().values(), row, forward),
+            Self::Scrolls(d) => neighbor(d.scrolls().values(), row, forward),
             Self::Pauses { draft, kind } => neighbor(draft.pauses(*kind).values(), row, forward),
             Self::Regions { draft, kind } => neighbor(draft.regions(*kind).values(), row, forward),
         }?;
@@ -203,6 +220,7 @@ impl Draft {
     pub(super) fn count(&self) -> usize {
         match self {
             Self::Bpm(d) => d.tempos().values().len(),
+            Self::Scrolls(d) => d.scrolls().values().len(),
             Self::Signatures(d) => d.signatures().values().len(),
             Self::Pauses { draft, .. } => {
                 draft.pauses(PauseKind::Stop).values().len()
@@ -222,6 +240,7 @@ impl Draft {
         match self {
             Self::Signatures(d) => d.set(row, Signature::parse(text)?),
             Self::Bpm(d) => d.set(row, number()?),
+            Self::Scrolls(d) => d.set(row, number()?),
             Self::Pauses { draft, kind } => draft.set(*kind, row, number()?),
             Self::Regions { draft, kind } => draft.set(
                 *kind,
@@ -234,6 +253,7 @@ impl Draft {
     pub(super) fn remove(&mut self, row: u64) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => d.remove(row),
+            Self::Scrolls(d) => d.remove(row),
             Self::Signatures(d) => d.remove(row),
             Self::Pauses { draft, kind } => draft.remove(*kind, row),
             Self::Regions { draft, kind } => draft.remove(*kind, row),
@@ -242,6 +262,7 @@ impl Draft {
     pub(super) fn move_node(&mut self, from: u64, to: u64) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => d.move_node(from, to),
+            Self::Scrolls(d) => d.move_node(from, to),
             Self::Signatures(d) => d.move_node(from, to),
             Self::Pauses { draft, kind } => draft.move_node(*kind, from, to),
             Self::Regions { draft, kind } => draft.move_node(*kind, from, to),
@@ -250,6 +271,7 @@ impl Draft {
     pub(super) fn apply(&self, workspace: &mut Workspace) -> Result<bool, Error> {
         match self {
             Self::Bpm(d) => workspace.apply_tempo(d),
+            Self::Scrolls(d) => workspace.apply_scrolls(d),
             Self::Signatures(d) => workspace.apply_signatures(d),
             Self::Pauses { draft, .. } => workspace.apply_pauses(draft),
             Self::Regions { draft, .. } => workspace.apply_regions(draft),
@@ -267,6 +289,7 @@ impl Draft {
             && match self.kind() {
                 EventKind::Bpm => value >= deadsync_editor::timing_edit::tempo::MIN_BPM,
                 EventKind::Stop => value != 0.0,
+                EventKind::Scroll => true,
                 EventKind::Delay => value >= 0.0,
                 _ => region_length(value).is_some_and(|length| fits(row, length)),
             }
@@ -300,6 +323,26 @@ impl Draft {
     pub(super) fn key<'a>(&self, key: &'a str) -> &'a str {
         if self.kind() == EventKind::Bpm {
             return key;
+        }
+        if self.kind() == EventKind::Scroll {
+            return match key {
+                "TimingBpm" => "ScrollRate",
+                "TimingInvalidBpm" => "ScrollInvalid",
+                "TimingSet" => "ScrollSet",
+                "TimingRemove" => "ScrollRemove",
+                "TimingMove" => "ScrollMove",
+                "TimingPrevious" => "ScrollPrevious",
+                "TimingNext" => "ScrollNext",
+                "TimingAccept" => "ScrollAccept",
+                "TimingStaged" => "ScrollStaged",
+                "TimingRemoved" => "ScrollRemoved",
+                "TimingMissing" => "ScrollMissing",
+                "TimingCollision" => "ScrollCollision",
+                "TimingMoveValue" => "ScrollMoveValue",
+                "TimingMoved" => "ScrollMoved",
+                "TimingInputPending" => "ScrollInputPending",
+                _ => key,
+            };
         }
         if self.kind() == EventKind::Signature {
             return match key {

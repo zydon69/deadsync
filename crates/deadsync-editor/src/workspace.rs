@@ -384,6 +384,12 @@ impl Workspace {
         draft.apply(&mut self.file.session, self.chart)
     }
 
+    pub fn apply_scrolls(
+        &mut self,
+        draft: &crate::timing_edit::scroll::Draft,
+    ) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session, self.chart)
+    }
     pub fn apply_signatures(
         &mut self,
         draft: &crate::timing_edit::signature::Draft,

@@ -14,6 +14,7 @@
     <Compile Include="obj/PauseReference.cs" />
     <Compile Include="obj/RegionReference.cs" />
     <Compile Include="obj/SignatureReference.cs" />
+    <Compile Include="obj/ScrollReference.cs" />
     <Compile Include="obj/SourceTimingReference.cs" />
     <Reference Include="StepManiaLibrary">
       <HintPath>$(ReferenceRoot)/StepManiaLibrary/bin/Release/net10.0/StepManiaLibrary.dll</HintPath>

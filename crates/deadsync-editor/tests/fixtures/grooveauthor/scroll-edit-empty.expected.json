@@ -1,0 +1,140 @@
+{
+  "Initial": [],
+  "Stages": [
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Rate": 0
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Rate": -1
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Rate": -1
+        },
+        {
+          "Row": 24,
+          "Rate": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Rate": -1
+        },
+        {
+          "Row": 24,
+          "Rate": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 0,
+          "Rate": -1
+        },
+        {
+          "Row": 24,
+          "Rate": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": "collision",
+      "Values": [
+        {
+          "Row": 0,
+          "Rate": -1
+        },
+        {
+          "Row": 24,
+          "Rate": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 12,
+          "Rate": -1
+        },
+        {
+          "Row": 24,
+          "Rate": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 24,
+          "Rate": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": false,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 24,
+          "Rate": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 48,
+          "Rate": 1.25
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": [
+        {
+          "Row": 48,
+          "Rate": -2.75
+        }
+      ]
+    },
+    {
+      "Changed": true,
+      "Error": null,
+      "Values": []
+    }
+  ]
+}

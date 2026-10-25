@@ -4,6 +4,7 @@ pub mod migration;
 pub mod pause;
 pub mod region;
 pub mod signature;
+pub mod scroll;
 pub mod tempo;
 use crate::{
     Error,

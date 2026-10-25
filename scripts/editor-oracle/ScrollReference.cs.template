@@ -1,0 +1,40 @@
+// Original scroll setter with explicit node/movement notification adapters.
+using System.Text.Json;
+using Fumen.ChartDefinition;
+using static System.Diagnostics.Debug;
+using static Fumen.FumenExtensions;
+namespace ScrollOracle;
+internal sealed class EditorChart:PauseOracle.EditorChart{public void OnScrollRateModified(EditorScrollRateEvent _) {}}
+internal sealed class EditorScrollRateEvent(int row,ScrollRate value,EditorChart owner):PauseOracle.EditorEvent(row){
+    private readonly ScrollRate ScrollRateEvent=value;private readonly EditorChart EditorChart=owner;private bool WidthDirty;
+    // SETTER
+}
+internal static class Reference{
+    public static object Run(JsonElement input){
+        var source=new Dictionary<double,double>();foreach(var pair in input.GetProperty("Segments").EnumerateArray())source[pair[0].GetDouble()]=pair[1].GetDouble();
+        var chart=new Chart{Layers=[new Layer()]};Fumen.Converters.SMCommon.AddScrollRateEvents(source,chart,new TempoOracle.SilentLogger(),false);
+        var store=new EditorChart();var nodes=new SortedDictionary<int,EditorScrollRateEvent>();
+        foreach(var e in chart.Layers[0].Events.OfType<ScrollRate>())nodes[e.IntegerPosition]=new(e.IntegerPosition,e,store);
+        store.EditorEvents.AddRange(nodes.Values);
+        object Values()=>nodes.Select(pair=>new{Row=pair.Key,Rate=pair.Value.DoubleValue}).ToArray();
+        var initial=Values();var stages=new List<object>();
+        foreach(var op in input.GetProperty("Operations").EnumerateArray()){
+            var kind=op[0].GetString();var row=op[1].GetInt32();bool changed=false;string? error=null;
+            if(kind=="set"){
+                var rate=op[2].GetDouble();
+                if(nodes.TryGetValue(row,out var node)){var before=node.DoubleValue;node.DoubleValue=rate;changed=before!=node.DoubleValue;}
+                else{nodes[row]=new(row,new(rate),store);store.EditorEvents.Add(nodes[row]);changed=true;}
+            }else if(kind=="remove"){
+                if(nodes.Remove(row,out var node)){store.EditorEvents.Remove(node);changed=true;}
+            }else if(kind=="move"){
+                var target=op[2].GetInt32();
+                if(!nodes.TryGetValue(row,out var node))error="missing";
+                else if(row==target){}
+                else if(!store.CanEventBeMovedToRow(node,target))error="collision";
+                else{nodes.Remove(row);nodes[target]=node;node.Row=target;changed=true;}
+            }
+            stages.Add(new{Changed=changed,Error=error,Values=Values()});
+        }
+        return new{Initial=initial,Stages=stages};
+    }
+}

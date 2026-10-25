@@ -171,7 +171,7 @@ impl State {
                                     value.max(deadsync_editor::timing_edit::tempo::MIN_BPM)
                                 }
                                 EventKind::Delay => value.max(0.0),
-                                EventKind::Stop => value,
+                                EventKind::Stop | EventKind::Scroll => value,
                                 EventKind::Signature => return,
                                 EventKind::Warp | EventKind::Fake => {
                                     (value * 48.0).round().max(1.0) / 48.0
@@ -316,6 +316,8 @@ impl State {
                     "Edition",
                     if kind == EventKind::Signature {
                         "SignatureHelp"
+                    } else if kind == EventKind::Scroll {
+                        "ScrollHelp"
                     } else {
                         "TimingHelp"
                     },
@@ -327,6 +329,13 @@ impl State {
                         == deadsync_editor::document::Format::Sm =>
             {
                 self.status = i18n::tr("Edition", "RegionSscRequired")
+            }
+            Err(_)
+                if kind == EventKind::Scroll
+                    && self.workspace.file().session.document().format
+                        == deadsync_editor::document::Format::Sm =>
+            {
+                self.status = i18n::tr("Edition", "ScrollSscRequired")
             }
             Err(error) => self.timing_error(error),
         }

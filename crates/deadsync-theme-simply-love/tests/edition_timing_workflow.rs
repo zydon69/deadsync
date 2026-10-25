@@ -512,7 +512,7 @@ fn pause_type_input_and_scope_guards_cancel_and_zero_delay_validation_preserve_h
     press(&mut screen, KeyCode::Escape);
     press(&mut screen, KeyCode::F10);
     key(&mut screen, KeyCode::ShiftLeft, true);
-    for _ in 0..4 {
+    for _ in 0..5 {
         press(&mut screen, KeyCode::Tab);
     }
     key(&mut screen, KeyCode::ShiftLeft, false);
@@ -893,13 +893,11 @@ fn region_shared_scope_rounding_fine_controls_and_sm_rejection_follow_format_rul
     fs::write(&sm, bytes).unwrap();
     let mut screen = State::open(&sm, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    key(&mut screen, KeyCode::ShiftLeft, true);
-    press(&mut screen, KeyCode::Tab);
-    assert!(contains(&screen, "Time signatures"));
-    press(&mut screen, KeyCode::Tab);
-    key(&mut screen, KeyCode::ShiftLeft, false);
+    for _ in 0..3 {
+        press(&mut screen, KeyCode::Tab);
+    }
     assert!(contains(&screen, "requires SSC"));
-    assert!(contains(&screen, "Time signatures"));
+    assert!(contains(&screen, "Delays (before notes)"));
     assert_eq!(serialized(&screen), bytes);
 }
 
@@ -1081,4 +1079,118 @@ fn file_reader_signature_denominators_can_move_without_being_revalidated_as_new_
             .unwrap(),
         "0=4=4,2=5=6"
     );
+}
+
+fn open_scroll(screen: &mut State) {
+    press(screen, KeyCode::F10);
+    key(screen, KeyCode::ShiftLeft, true);
+    press(screen, KeyCode::Tab);
+    press(screen, KeyCode::Tab);
+    key(screen, KeyCode::ShiftLeft, false);
+    assert!(contains(screen, "Instant scroll rates"));
+}
+#[test]
+fn native_scroll_zero_reverse_move_type_guard_apply_undo_save_and_reopen() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_scroll(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "-1");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Scroll staged"));
+    assert_eq!(serialized(&screen), SONG);
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Apply or discard before switching"));
+    assert!(contains(&screen, "Instant scroll rates"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "1");
+    choose(&mut screen, &mut index, 5);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Scroll moved"));
+    choose(&mut screen, &mut index, 1);
+    type_number(&mut screen, "0");
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "SCROLLS")
+            .unwrap(),
+        "0=0,1=-1"
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), SONG);
+    ctrl(&mut screen, KeyCode::KeyY);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(
+        reopened
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(Some(0), "SCROLLS")
+            .unwrap(),
+        "0=0,1=-1"
+    );
+}
+#[test]
+fn scroll_empty_noop_cancel_and_sm_format_rejection_preserve_file() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, SONG).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    open_scroll(&mut screen);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(serialized(&screen), SONG);
+    open_scroll(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "0");
+    choose(&mut screen, &mut index, 3);
+    press(&mut screen, KeyCode::Enter);
+    choose(&mut screen, &mut index, 4);
+    press(&mut screen, KeyCode::Enter);
+    assert!(contains(&screen, "Scroll removed"));
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(serialized(&screen), SONG);
+    assert!(!screen.workspace().file().session.is_dirty());
+    open_scroll(&mut screen);
+    index = 0;
+    choose(&mut screen, &mut index, 2);
+    press(&mut screen, KeyCode::ArrowLeft);
+    assert!(contains(&screen, "Scroll rate: 0.99x"));
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::ArrowRight);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "Scroll rate: 0.991x"));
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(serialized(&screen), SONG);
+    let sm = dir.path().join("song.sm");
+    let bytes = b"#BPMS:0=120;#NOTES:dance-single::Hard:9::1000;";
+    fs::write(&sm, bytes).unwrap();
+    let mut screen = State::open(&sm, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    key(&mut screen, KeyCode::ShiftLeft, true);
+    press(&mut screen, KeyCode::Tab);
+    press(&mut screen, KeyCode::Tab);
+    key(&mut screen, KeyCode::ShiftLeft, false);
+    assert!(contains(&screen, "Scroll editing requires SSC"));
+    assert_eq!(serialized(&screen), bytes);
 }
