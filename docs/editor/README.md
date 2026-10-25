@@ -799,8 +799,8 @@ No profile files or directories are created by catalog loading or selection.
 
 The catalog includes the original two pattern, seven performed and three
 expressed built-ins and successfully loaded custom files. The native marker
-selector exposes pattern/performed profiles; chart-level expressed-profile
-selection remains pending. Built-in labels are translated, custom display names
+selector exposes pattern/performed profiles and the chart-level expressed profile
+as described below. Built-in labels are translated, custom display names
 have whitespace collapsed and are shortened for the panel without changing their
 file contents. Missing referenced identities are shown explicitly and must be
 replaced deliberately; opening the selector never substitutes a default. Invalid
@@ -828,6 +828,48 @@ physical input or GPU rendering. They compose the previously compared original
 profile codec and generation contracts; no complete original UI oracle is claimed.
 
 Editing/cloning/creating/deleting profiles through the native library, all
-advanced configuration controls, chart expression selection, batch generation,
+advanced configuration controls, chart properties without a marker, per-request
+expression overrides, batch generation,
 waveform/audio editing and the remaining delivery matrix are still required for
 the complete port.
+
+
+### Chart-wide interpretation profile
+
+The saved-marker profile selector now has a third row: Interpretation (whole
+chart). This is the chart's ExpressedChartConfig, not another per-marker setting.
+Original UIChartProperties and EditorChart inspection confirms that it is shared
+by pattern and chart generation. Selecting all three rows stages them atomically;
+an invalid or missing expressed identity cannot leave only the pattern/performed
+choices staged. Applying marker settings writes the chart expression and marker
+fields together in one undoable gesture. Other markers and notes remain unchanged.
+The existing unknown fields and split music-offset settings are retained.
+
+The expressed profile participates in custom-file byte guards and draft change
+detection. Pending expression-only changes therefore block clear/navigation just
+like pending marker edits. Deleting a marker continues to discard pending edits
+and preserves the chart's currently committed expression. Missing referenced
+expression profiles require an explicit replacement; unsupported identities are
+not silently converted to Dynamic. The inspector currently requires a saved
+marker. Choosing chart properties with no marker and per-request expression
+overrides in the conversion panel remain unfinished.
+
+Native F3 now resolves the saved chart expression on its worker, using the same
+AutogenConfigs root as F4/F5. Its immutable result records the resolved identity
+and reports unrelated ignored profile files in the preview. Explicit core chart
+tasks still accept caller-supplied expression configurations without this builder.
+SourceChart now exposes its editor preparation directly so conversion reads the
+snapshot once, resolves the profile, and prepares the retained editor clock from
+the same parsed source. The existing source::prepare_editor wrapper delegates to
+that method; standalone Fumen preparation is unchanged.
+
+Four expression workflows cover SM/SSC shared scope, unchanged other markers,
+notes/other charts, unknown metadata and offsets, undo/redo/save/reopen, custom
+expressed profiles reaching F3/F4/F5, explicit-configuration output equality,
+missing/stale selections, ignored files and changed custom-expression bytes.
+Two additional native workflows exercise the chart-wide row, explicit staging,
+undo/redo/save/reopen, both F5 and F3 output against configured core previews, the
+resolved identity and ignored-file actor report, and missing-expression repair
+with discard. These build on the original metadata/profile/generation fixtures;
+they are not an original full UI/runtime oracle or GPU/hardware proof. All other
+remaining delivery-matrix requirements stay in scope.

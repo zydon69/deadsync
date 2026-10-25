@@ -553,6 +553,7 @@ fn pattern_panel_has_explicit_english_and_french_translations() {
         "ProfileLoading",
         "ProfilePattern",
         "ProfilePerformed",
+        "ProfileExpression",
         "ProfileStage",
         "ProfileBack",
         "ProfilePickerHelp",
@@ -1165,7 +1166,8 @@ fn stage_profile_pair(screen: &mut State, pattern: &str, performed: &str) {
     choose_visible_profile(screen, pattern);
     press(screen, KeyCode::ArrowDown);
     choose_visible_profile(screen, performed);
-    press(screen, KeyCode::ArrowDown);
+    press(screen, KeyCode::ArrowDown); // chart expression remains unchanged
+    press(screen, KeyCode::ArrowDown); // stage all three profile rows
     press(screen, KeyCode::Enter);
 }
 fn apply_marker_from_profiles(screen: &mut State) {
@@ -1294,6 +1296,7 @@ fn profile_subpanel_back_discard_and_loading_cancel_preserve_prior_draft_and_sou
     press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::ArrowRight);
     press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::Enter);
     press(&mut screen, KeyCode::Escape);
     assert_eq!(
@@ -1355,6 +1358,7 @@ fn missing_profile_references_are_not_substituted_until_the_user_selects_replace
     assert_eq!(actors.iter().filter(|a|matches!(a,Actor::Text{content,z:8021,..} if content.contains("Missing profile"))).count(),2);
     press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::Enter);
     assert_eq!(
         screen.workspace().file().session.serialize().unwrap(),
@@ -1362,9 +1366,11 @@ fn missing_profile_references_are_not_substituted_until_the_user_selects_replace
     );
     press(&mut screen, KeyCode::ArrowUp);
     press(&mut screen, KeyCode::ArrowUp);
+    press(&mut screen, KeyCode::ArrowUp);
     press(&mut screen, KeyCode::ArrowRight);
     press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::Enter);
     apply_marker_from_profiles(&mut screen);
@@ -1374,5 +1380,188 @@ fn missing_profile_references_are_not_substituted_until_the_user_selects_replace
             .unwrap()
             .options(0, &Registry::builtin())
             .is_ok()
+    );
+}
+
+#[test]
+fn chart_expression_selector_is_chart_wide_and_f3_f5_use_the_saved_custom_profile() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::{
+            config::{BracketDetermination, BracketMethod, ExpressedConfig},
+            job::{ChartOptions, ChartTask},
+            metadata::ChartData,
+            pattern_job::Task,
+            profiles::{Kind, Loaded, Profile},
+        },
+        history::Session,
+    };
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let folder = dir.path().join("AutogenConfigs");
+    let config = ExpressedConfig {
+        bracket_parsing_determination: BracketDetermination::UseDefaultMethod,
+        default_bracket_parsing_method: BracketMethod::NoBrackets,
+        ..ExpressedConfig::default()
+    };
+    let custom=Profile::parse(Kind::Expressed,&serde_json::to_vec(&serde_json::json!({"Guid":"11111111-2222-3333-4444-555555555555","Name":"Custom interpretation","Config":config})).unwrap()).unwrap();
+    custom.export_new(&folder).unwrap();
+    fs::write(folder.join("ecc-broken.json"), b"invalid").unwrap();
+    let mut source = Session::new(
+        Document::parse(std::sync::Arc::<[u8]>::from(marker_song()), Format::Ssc).unwrap(),
+    );
+    let mut data = ChartData::read(source.document(), 0).unwrap().unwrap();
+    let definition = data.patterns.as_ref().unwrap()[&0].clone();
+    data.patterns.as_mut().unwrap().insert(192, definition);
+    data.save(&mut source, 0).unwrap();
+    let before = source.serialize().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, &before).unwrap();
+    let mut screen = State::open_with_profiles(&path, 0, &folder).unwrap();
+    let grid = screen.workspace().grid().clone();
+    inspector_action(&mut screen, 12);
+    finish_generation(&mut screen);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,z:8021,..} if content.contains("Interpretation (whole chart):"))));
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    choose_visible_profile(&mut screen, "Custom interpretation");
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    apply_marker_from_profiles(&mut screen);
+    let after = screen.workspace().file().session.serialize().unwrap();
+    let actual = ChartData::read(screen.workspace().file().session.document(), 0)
+        .unwrap()
+        .unwrap();
+    assert_eq!(actual.expressed_chart_config, *custom.guid());
+    assert_eq!(actual.patterns, data.patterns);
+    assert_eq!(screen.workspace().grid(), &grid);
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    ctrl(&mut screen, KeyCode::KeyY);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        after
+    );
+    ctrl(&mut screen, KeyCode::KeyS);
+    let mut reopened = State::open_with_profiles(&path, 0, &folder).unwrap();
+    let registry = Loaded::directory(&folder).unwrap().registry;
+    let expected = Task::capture_saved(&reopened.workspace().file().session, 0, 0, &registry)
+        .unwrap()
+        .run(&std::sync::atomic::AtomicBool::new(false), |_, _| {})
+        .unwrap();
+    press(&mut reopened, KeyCode::F5);
+    finish_generation(&mut reopened);
+    press(&mut reopened, KeyCode::Enter);
+    assert_eq!(reopened.workspace().grid(), expected.grid());
+    let before_f3 = reopened.workspace().file().session.serialize().unwrap();
+    let mut options = ChartOptions::balanced("dance-double");
+    options.expressed = registry.expressed[custom.guid()].clone();
+    let expected = ChartTask::capture(&reopened.workspace().file().session, 0, options)
+        .unwrap()
+        .run(&std::sync::atomic::AtomicBool::new(false), |_| {})
+        .unwrap();
+    start_generation(&mut reopened);
+    finish_generation(&mut reopened);
+    assert_eq!(
+        reopened.generation_expression_profile(),
+        Some(custom.guid())
+    );
+    actors.clear();
+    reopened.actors(&mut actors);
+    assert!(actors.iter().any(|a|matches!(a,Actor::Text{content,z:8021,..} if content.contains("Profile files ignored: 1"))));
+    press(&mut reopened, KeyCode::Enter);
+    assert_eq!(reopened.workspace().grid(), expected.grid());
+    ctrl(&mut reopened, KeyCode::KeyZ);
+    assert_eq!(
+        reopened.workspace().file().session.serialize().unwrap(),
+        before_f3
+    );
+    assert_eq!(
+        fs::read(folder.join(custom.filename())).unwrap(),
+        custom.serialize().unwrap()
+    );
+    assert_eq!(
+        fs::read(folder.join("ecc-broken.json")).unwrap(),
+        b"invalid"
+    );
+}
+#[test]
+fn missing_chart_expression_requires_replacement_and_discard_keeps_the_unknown_identity() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::metadata::{ChartData, Registry},
+        history::Session,
+    };
+    deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let mut source = Session::new(
+        Document::parse(std::sync::Arc::<[u8]>::from(marker_song()), Format::Ssc).unwrap(),
+    );
+    let mut data = ChartData::read(source.document(), 0).unwrap().unwrap();
+    data.expressed_chart_config = Default::default();
+    data.save(&mut source, 0).unwrap();
+    let before = source.serialize().unwrap();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    fs::write(&path, &before).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    start_generation(&mut screen);
+    finish_generation(&mut screen);
+    assert!(screen.generation_report().is_none());
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    inspector_action(&mut screen, 12);
+    finish_generation(&mut screen);
+    let mut actors = Vec::new();
+    screen.actors(&mut actors);
+    assert_eq!(actors.iter().filter(|a|matches!(a,Actor::Text{content,z:8021,..} if content.contains("Missing profile"))).count(),1);
+    for _ in 0..3 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    press(&mut screen, KeyCode::ArrowUp);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    inspector_action(&mut screen, 12);
+    finish_generation(&mut screen);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight);
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::Enter);
+    apply_marker_from_profiles(&mut screen);
+    let actual = ChartData::read(screen.workspace().file().session.document(), 0)
+        .unwrap()
+        .unwrap();
+    assert!(
+        Registry::builtin()
+            .expressed
+            .contains_key(&actual.expressed_chart_config)
     );
 }

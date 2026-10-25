@@ -62,6 +62,7 @@ struct ProfileSettings {
     catalog: profile_catalog::Catalog,
     pattern: Option<usize>,
     performed: Option<usize>,
+    expressed: Option<usize>,
 }
 
 enum GenerationJob {
@@ -254,6 +255,15 @@ impl State {
         })
     }
 
+    pub fn generation_expression_profile(
+        &self,
+    ) -> Option<&deadsync_editor::generation::metadata::Guid> {
+        self.preview.as_ref().and_then(|preview| match preview {
+            GenerationPreview::Chart(preview) => preview.expression_profile(),
+            _ => None,
+        })
+    }
+
     pub fn pattern_report(
         &self,
     ) -> Option<(deadsync_editor::generation::pattern_region::Deletions, f64)> {
@@ -380,15 +390,20 @@ impl State {
         let performed = settings
             .performed
             .and_then(|index| settings.catalog.entries(ProfileKind::Performed).get(index));
-        let (Some(pattern), Some(performed)) = (pattern, performed) else {
+        let expressed = settings
+            .expressed
+            .and_then(|index| settings.catalog.entries(ProfileKind::Expressed).get(index));
+        let (Some(pattern), Some(performed), Some(expressed)) = (pattern, performed, expressed)
+        else {
             self.status = i18n::tr("Edition", "ProfileChooseMissing");
             return;
         };
-        match self.workspace.select_marker_profiles(
+        match self.workspace.select_marker_generation_profiles(
             draft,
             &settings.catalog,
             &pattern.guid,
             &performed.guid,
+            &expressed.guid,
         ) {
             Ok(()) => {
                 self.profile_selection = None;
@@ -424,6 +439,10 @@ impl State {
                     .entries(ProfileKind::Performed)
                     .iter()
                     .position(|entry| entry.guid == draft.definition.performed_chart_config_guid);
+                let expressed = catalog
+                    .entries(ProfileKind::Expressed)
+                    .iter()
+                    .position(|entry| entry.guid == draft.expressed_chart_config);
                 self.status = i18n::tr_fmt(
                     "Edition",
                     "ProfilePickerHelp",
@@ -433,6 +452,7 @@ impl State {
                     catalog,
                     pattern,
                     performed,
+                    expressed,
                 });
                 self.panel = Some(Panel::Profiles(0));
             }
@@ -588,7 +608,7 @@ impl State {
         });
         match self
             .workspace
-            .generation_task(options)
+            .generation_task_using_chart_expression(options, self.profile_directory.as_deref())
             .and_then(|task| task.spawn())
         {
             Ok(job) => {
@@ -868,13 +888,14 @@ impl State {
             Panel::Profiles(index) => {
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::Profiles(
-                        (index + if code == KeyCode::ArrowUp { 3 } else { 1 }) % 4,
+                        (index + if code == KeyCode::ArrowUp { 4 } else { 1 }) % 5,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(settings) = &mut self.profile_selection {
                         let (selected, kind) = match index {
                             0 => (&mut settings.pattern, ProfileKind::Pattern),
                             1 => (&mut settings.performed, ProfileKind::Performed),
+                            2 => (&mut settings.expressed, ProfileKind::Expressed),
                             _ => return false,
                         };
                         let count = settings.catalog.entries(kind).len();
@@ -901,8 +922,8 @@ impl State {
                     }
                 } else if code == KeyCode::Enter {
                     match index {
-                        2 => self.stage_marker_profiles(),
-                        3 => {
+                        3 => self.stage_marker_profiles(),
+                        4 => {
                             self.profile_selection = None;
                             self.panel = Some(Panel::Marker(12));
                         }
@@ -1371,6 +1392,7 @@ impl State {
             Panel::Profiles(_) => &[
                 "ProfilePattern",
                 "ProfilePerformed",
+                "ProfileExpression",
                 "ProfileStage",
                 "ProfileBack",
             ],
@@ -1430,6 +1452,14 @@ impl State {
                     ],
                 );
                 actors.push(act!(text: font("miso"): settext(summary): align(0.5, 0.0): xy(screen_width() * 0.5, panel_y - panel_height * 0.5 + 10.0): zoom(0.6): z(8021)));
+                if !preview.profile_issues().is_empty() {
+                    let issues = i18n::tr_fmt(
+                        "Edition",
+                        "PatternProfileIssues",
+                        &[("count", &preview.profile_issues().len().to_string())],
+                    );
+                    actors.push(act!(text: font("miso"): settext(issues): align(0.5, 0.0): xy(screen_width()*0.5,panel_y-panel_height*0.5+86.0): zoom(0.6): z(8021)));
+                }
                 if report.empty {
                     actors.push(act!(text: font("miso"): settext(i18n::tr("Edition", "GenerationEmpty")): align(0.5, 0.5): xy(screen_width() * 0.5, panel_y - panel_height * 0.5 + 108.0): zoom(0.6): diffuse(1.0, 0.65, 0.3, 1.0): z(8021)));
                 }
@@ -1479,15 +1509,15 @@ impl State {
             } else {
                 [0.8, 0.8, 0.85, 1.0]
             };
-            let label = if matches!(panel, Panel::Profiles(_)) && index < 2 {
+            let label = if matches!(panel, Panel::Profiles(_)) && index < 3 {
                 let value = self
                     .profile_selection
                     .as_ref()
                     .and_then(|settings| {
-                        let (selected, kind) = if index == 0 {
-                            (settings.pattern, ProfileKind::Pattern)
-                        } else {
-                            (settings.performed, ProfileKind::Performed)
+                        let (selected, kind) = match index {
+                            0 => (settings.pattern, ProfileKind::Pattern),
+                            1 => (settings.performed, ProfileKind::Performed),
+                            _ => (settings.expressed, ProfileKind::Expressed),
                         };
                         let entries = settings.catalog.entries(kind);
                         selected.and_then(|selected| {

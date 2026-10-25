@@ -140,48 +140,52 @@ pub fn prepare_editor(
     cancelled: &AtomicBool,
 ) -> Result<PreparedChart, Error> {
     let source = read(bytes, format, chart, cancelled)?;
-    let regions = source.pattern_regions(cancelled)?;
-    let timeline =
-        super::editor_timing::EditorTimeline::build(&source.timing, &source.grid, None, cancelled)?
-            .with_markers(&regions, cancelled)?;
-    let region = timeline.prepare_region(&source.grid, Some((0, i32::MAX as u64)), cancelled)?;
-    let mut mines = timeline
-        .heads()
-        .iter()
-        .filter(|head| head.kind == Kind::Mine)
-        .map(|head| SourceMine {
-            row: head.position.row,
-            lane: head.position.lane,
-            time: head.time,
-        })
-        .collect::<Vec<_>>();
-    mines.sort_by_key(|mine| (mine.row, mine.lane));
-    if cancelled.load(Ordering::Relaxed) {
-        return Err(Error::InvalidEdit(
-            "Generation preparation cancelled".into(),
-        ));
-    }
-    Ok(PreparedChart {
-        layout: source.layout,
-        frames: region.frames,
-        times: region.times,
-        event_span: region.event_span,
-        difficulty: source.difficulty,
-        mines,
-        source_notes: source
-            .grid
-            .iter()
-            .filter(|(_, note)| !matches!(note.kind, Kind::Mine | Kind::Keysound))
-            .count(),
-        ignored_keysounds: source
-            .grid
-            .iter()
-            .filter(|(_, note)| note.kind == Kind::Keysound)
-            .count(),
-    })
+    source.prepare_editor(cancelled)
 }
 
 impl SourceChart {
+    pub fn prepare_editor(&self, cancelled: &AtomicBool) -> Result<PreparedChart, Error> {
+        let regions = self.pattern_regions(cancelled)?;
+        let timeline =
+            super::editor_timing::EditorTimeline::build(&self.timing, &self.grid, None, cancelled)?
+                .with_markers(&regions, cancelled)?;
+        let region = timeline.prepare_region(&self.grid, Some((0, i32::MAX as u64)), cancelled)?;
+        let mut mines = timeline
+            .heads()
+            .iter()
+            .filter(|head| head.kind == Kind::Mine)
+            .map(|head| SourceMine {
+                row: head.position.row,
+                lane: head.position.lane,
+                time: head.time,
+            })
+            .collect::<Vec<_>>();
+        mines.sort_by_key(|mine| (mine.row, mine.lane));
+        if cancelled.load(Ordering::Relaxed) {
+            return Err(Error::InvalidEdit(
+                "Generation preparation cancelled".into(),
+            ));
+        }
+        Ok(PreparedChart {
+            layout: self.layout.clone(),
+            frames: region.frames,
+            times: region.times,
+            event_span: region.event_span,
+            difficulty: self.difficulty,
+            mines,
+            source_notes: self
+                .grid
+                .iter()
+                .filter(|(_, note)| !matches!(note.kind, Kind::Mine | Kind::Keysound))
+                .count(),
+            ignored_keysounds: self
+                .grid
+                .iter()
+                .filter(|(_, note)| note.kind == Kind::Keysound)
+                .count(),
+        })
+    }
+
     pub fn initial_editor_metadata(&self) -> Result<super::metadata::ChartData, Error> {
         super::metadata::ChartData::existing_or_initial(&self.document, self.chart)
     }

@@ -258,6 +258,15 @@ impl Workspace {
         crate::generation::job::ChartTask::capture(&self.file.session, self.chart, options)
     }
 
+    pub fn generation_task_using_chart_expression(
+        &self,
+        options: crate::generation::job::ChartOptions,
+        directory: Option<&Path>,
+    ) -> Result<crate::generation::job::ChartTask, Error> {
+        self.generation_task(options)?
+            .with_chart_expression(directory)
+    }
+
     pub fn pattern_task(
         &self,
         options: crate::generation::pattern_job::Options,
@@ -310,6 +319,24 @@ impl Workspace {
         performed: &crate::generation::metadata::Guid,
     ) -> Result<(), Error> {
         draft.select_profiles(&self.file.session, self.chart, catalog, pattern, performed)
+    }
+
+    pub fn select_marker_generation_profiles(
+        &self,
+        draft: &mut crate::generation::marker_edit::Draft,
+        catalog: &crate::generation::profile_catalog::Catalog,
+        pattern: &crate::generation::metadata::Guid,
+        performed: &crate::generation::metadata::Guid,
+        expressed: &crate::generation::metadata::Guid,
+    ) -> Result<(), Error> {
+        draft.select_generation_profiles(
+            &self.file.session,
+            self.chart,
+            catalog,
+            pattern,
+            performed,
+            expressed,
+        )
     }
 
     pub fn clear_pattern_task(

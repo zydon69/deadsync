@@ -95,6 +95,10 @@ pub struct ChartTask {
     token: RevisionToken,
     source_chart: usize,
     options: ChartOptions,
+    saved_expression: Option<ExpressionRequest>,
+}
+struct ExpressionRequest {
+    directory: Option<std::path::PathBuf>,
 }
 impl ChartTask {
     pub fn capture(
@@ -123,18 +127,62 @@ impl ChartTask {
             token: session.revision_token(),
             source_chart,
             options,
+            saved_expression: None,
         })
     }
 
+    /// Native conversion follows the source chart's persisted interpretation profile.
+    /// Profile file reads and resolution happen on the worker.
+    pub fn with_chart_expression(
+        mut self,
+        directory: Option<&std::path::Path>,
+    ) -> Result<Self, Error> {
+        let directory = directory
+            .map(|path| {
+                if path.is_absolute() {
+                    Ok(path.to_owned())
+                } else {
+                    std::env::current_dir().map(|cwd| cwd.join(path))
+                }
+            })
+            .transpose()?;
+        self.saved_expression = Some(ExpressionRequest { directory });
+        Ok(self)
+    }
+
     pub fn run(
-        self,
+        mut self,
         cancelled: &AtomicBool,
         mut progress: impl FnMut(Progress),
     ) -> Result<ChartPreview, Error> {
         check(cancelled)?;
         progress(Progress::default());
-        let prepared =
-            source::prepare_editor(self.bytes, self.format, self.source_chart, cancelled)?;
+        let source = source::read(self.bytes, self.format, self.source_chart, cancelled)?;
+        let mut expression_profile = None;
+        let mut profile_issues = Vec::new();
+        if let Some(request) = self.saved_expression {
+            let data = source.initial_editor_metadata()?;
+            let (registry, issues) = if let Some(directory) = request.directory {
+                let loaded = super::profiles::Loaded::directory_checked(&directory, cancelled)?;
+                (loaded.registry, loaded.issues)
+            } else {
+                (super::metadata::Registry::builtin(), Vec::new())
+            };
+            self.options.expressed = registry
+                .expressed
+                .get(&data.expressed_chart_config)
+                .cloned()
+                .ok_or_else(|| {
+                    Error::Unsupported(format!(
+                        "Missing expressed generation profile {}",
+                        data.expressed_chart_config
+                    ))
+                })?;
+            expression_profile = Some(data.expressed_chart_config);
+            profile_issues = issues;
+        }
+        let prepared = source.prepare_editor(cancelled)?;
+        drop(source);
         check(cancelled)?;
         let source_graph = StepGraph::builtin(&prepared.layout)?;
         let interpreted = expressed::build_chart(
@@ -217,6 +265,8 @@ impl ChartTask {
             seed: self.options.seed,
             grid: assembled.grid,
             report,
+            expression_profile,
+            profile_issues,
         })
     }
 
@@ -234,8 +284,16 @@ pub struct ChartPreview {
     seed: i32,
     grid: Grid,
     report: Report,
+    expression_profile: Option<super::metadata::Guid>,
+    profile_issues: Vec<super::profiles::Issue>,
 }
 impl ChartPreview {
+    pub fn expression_profile(&self) -> Option<&super::metadata::Guid> {
+        self.expression_profile.as_ref()
+    }
+    pub fn profile_issues(&self) -> &[super::profiles::Issue] {
+        &self.profile_issues
+    }
     pub fn grid(&self) -> &Grid {
         &self.grid
     }

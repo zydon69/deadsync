@@ -53,6 +53,7 @@ pub struct Catalog {
 pub struct Selection {
     pattern: Guid,
     performed: Guid,
+    expressed: Option<Guid>,
     dependencies: Vec<(PathBuf, Arc<[u8]>)>,
 }
 impl Task {
@@ -186,13 +187,49 @@ impl Catalog {
         Ok(Selection {
             pattern: pattern.clone(),
             performed: performed.clone(),
+            expressed: None,
             dependencies,
         })
     }
+    pub fn select_generation(
+        &self,
+        session: &Session,
+        chart: usize,
+        pattern: &Guid,
+        performed: &Guid,
+        expressed: &Guid,
+    ) -> Result<Selection, Error> {
+        let mut selection = self.select(session, chart, pattern, performed)?;
+        if !self
+            .entries(Kind::Expressed)
+            .iter()
+            .any(|entry| &entry.guid == expressed)
+        {
+            return Err(invalid(
+                "Selected interpretation profile is missing from the catalog",
+            ));
+        }
+        if let Some(dependency) = self.dependencies.get(&(Kind::Expressed, expressed.clone())) {
+            selection.dependencies.push(dependency.clone());
+        }
+        selection.expressed = Some(expressed.clone());
+        Ok(selection)
+    }
 }
 impl Selection {
-    pub(crate) fn check(&self, pattern: &Guid, performed: &Guid) -> Result<(), Error> {
-        if &self.pattern != pattern || &self.performed != performed {
+    pub(crate) fn check(
+        &self,
+        pattern: &Guid,
+        performed: &Guid,
+        expressed: &Guid,
+    ) -> Result<(), Error> {
+        if &self.pattern != pattern
+            || &self.performed != performed
+            || self
+                .expressed
+                .as_ref()
+                .is_some_and(|expected| expected != expressed)
+        {
             return Err(invalid(
                 "Profile identities changed after catalog selection",
             ));

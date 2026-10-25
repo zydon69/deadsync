@@ -10,6 +10,8 @@ pub struct Draft {
     chart: usize,
     original_start: u64,
     original: Definition,
+    original_expression: super::metadata::Guid,
+    pub expressed_chart_config: super::metadata::Guid,
     profiles: Option<super::profile_catalog::Selection>,
     pub start: u64,
     pub definition: Definition,
@@ -27,6 +29,8 @@ impl Draft {
             chart,
             original_start: start,
             original: definition.clone(),
+            original_expression: data.expressed_chart_config.clone(),
+            expressed_chart_config: data.expressed_chart_config.clone(),
             profiles: None,
             start,
             definition: definition.clone(),
@@ -42,7 +46,9 @@ impl Draft {
             .ok_or_else(|| invalid("Saved pattern metadata is missing"))
     }
     pub fn has_changes(&self) -> bool {
-        self.start != self.original_start || self.definition != self.original
+        self.start != self.original_start
+            || self.definition != self.original
+            || self.expressed_chart_config != self.original_expression
     }
     pub fn clear_task(
         &self,
@@ -84,6 +90,25 @@ impl Draft {
         Ok(())
     }
 
+    /// The expressed profile belongs to the chart, including every saved marker.
+    pub fn select_generation_profiles(
+        &mut self,
+        session: &Session,
+        chart: usize,
+        catalog: &super::profile_catalog::Catalog,
+        pattern: &super::metadata::Guid,
+        performed: &super::metadata::Guid,
+        expressed: &super::metadata::Guid,
+    ) -> Result<(), Error> {
+        self.data(session, chart)?;
+        let selection = catalog.select_generation(session, chart, pattern, performed, expressed)?;
+        self.definition.pattern_config_guid = pattern.clone();
+        self.definition.performed_chart_config_guid = performed.clone();
+        self.expressed_chart_config = expressed.clone();
+        self.profiles = Some(selection);
+        Ok(())
+    }
+
     pub fn apply(&self, session: &mut Session, chart: usize) -> Result<bool, Error> {
         let mut data = self.data(session, chart)?;
         if !self.has_changes() {
@@ -98,11 +123,13 @@ impl Draft {
         }
         patterns.remove(&self.original_start);
         patterns.insert(self.start, self.definition.clone());
+        data.expressed_chart_config = self.expressed_chart_config.clone();
         data.validate()?;
         if let Some(selection) = &self.profiles {
             selection.check(
                 &self.definition.pattern_config_guid,
                 &self.definition.performed_chart_config_guid,
+                &self.expressed_chart_config,
             )?;
         }
         data.save(session, chart)
