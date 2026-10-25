@@ -124,6 +124,32 @@ def requests(reference: Path):
         for method in ["Balanced", "Aggressive", "NoBrackets"]:
             cases["chart-" + layout + "-" + method.lower()] = {
                 "Operation": "InterpretChart", "Layout": layout, "Method": method, "Notes": notes}
+    default_expression = {
+        "DefaultBracketParsingMethod": "balanced", "BracketParsingDetermination": "chooseMethodDynamically",
+        "MinLevelForBrackets": 9, "UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets": False,
+        "BalancedBracketsPerMinuteForAggressiveBrackets": 10000.0, "BalancedBracketsPerMinuteForNoBrackets": 0.0,
+    }
+    for variant, changes in {
+        "balanced": {}, "difficulty": {}, "forced": {"UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets": True},
+        "rate-aggressive": {"BalancedBracketsPerMinuteForAggressiveBrackets": 0.01},
+        "rate-no-brackets": {"BalancedBracketsPerMinuteForAggressiveBrackets": 1000000.0, "BalancedBracketsPerMinuteForNoBrackets": 100000.0},
+        "specified": {"BracketParsingDetermination": "useDefaultMethod", "DefaultBracketParsingMethod": "noBrackets"},
+        "zero-duration": {"BalancedBracketsPerMinuteForAggressiveBrackets": 0.01}, "empty": {}, "only-mines": {},
+        "no-brackets": {"BalancedBracketsPerMinuteForAggressiveBrackets": 1000000.0, "BalancedBracketsPerMinuteForNoBrackets": 100000.0},
+    }.items():
+        request = copy.deepcopy(cases["chart-dance-single-balanced"])
+        request["ExpressedConfig"] = {**default_expression, **changes}
+        request["Difficulty"] = 5.0 if variant == "difficulty" else 12.0
+        if variant == "zero-duration": request["TimeScale"] = 0.0
+        if variant == "empty": request["Notes"] = []
+        if variant == "only-mines": request["Notes"] = [[0, 0, "M"], [12, 1, "M"]]
+        if variant == "no-brackets": request["Notes"] = [[0, 0, "1"], [12, 3, "1"], [24, 0, "1"], [36, 3, "1"]]
+        cases["policy-" + variant] = request
+    cases["mine-association"] = {
+        "Operation": "InterpretChart", "Layout": "dance-single", "Method": "Balanced",
+        "Notes": [[0, 0, "M"], [0, 2, "M"], [12, 0, "1"], [24, 0, "M"], [24, 2, "M"],
+                  [36, 0, "1"], [36, 3, "1"], [48, 0, "M"], [48, 3, "M"], [60, 1, "1"],
+                  [72, 0, "M"], [84, 3, "M"], [96, 0, "1"], [108, 1, "M"]]}
     return cases
 
 

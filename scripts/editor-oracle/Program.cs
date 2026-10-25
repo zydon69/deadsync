@@ -78,7 +78,7 @@ if (operation == "InterpretChart")
         note.SourceType = symbol;
         note.Lane = item[1].GetInt32();
         note.IntegerPosition = item[0].GetInt32();
-        note.TimeSeconds = note.IntegerPosition / 120.0;
+        note.TimeSeconds = note.IntegerPosition / 120.0 * (request.TryGetProperty("TimeScale", out var scale) ? scale.GetDouble() : 1.0);
         noteEvents.Add(note);
     }
     noteEvents.Sort(new Fumen.Converters.SMCommon.SMEventComparer());
@@ -86,11 +86,29 @@ if (operation == "InterpretChart")
         null, new object[] { noteEvents, "Oracle", graph }, null)!;
     var field = expressedType.GetField("BracketParsingMethod", BindingFlags.Instance | BindingFlags.NonPublic)!;
     field.SetValue(interpreter, Enum.Parse(field.FieldType, request.GetProperty("Method").GetString()!));
-    var success = (bool)expressedType.GetMethod("Search", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(interpreter, null)!;
+    bool success;
+    if (request.TryGetProperty("ExpressedConfig", out var expressionConfig))
+    {
+        var config = JsonSerializer.Deserialize<StepManiaLibrary.ExpressedChart.Config>(expressionConfig, options)!;
+        config.Init();
+        if (!config.Validate()) throw new InvalidDataException("Invalid expressed configuration");
+        var complete = StepManiaLibrary.ExpressedChart.ExpressedChart.CreateFromSMEvents(noteEvents, graph, config,
+            request.GetProperty("Difficulty").GetDouble(), "Oracle");
+        success = complete != null;
+        if (success) interpreter = complete!;
+    }
+    else
+    {
+        success = (bool)expressedType.GetMethod("Search", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(interpreter, null)!;
+        if (success) expressedType.GetMethod("AddMines", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(interpreter, null);
+    }
+    var interpreted = (StepManiaLibrary.ExpressedChart.ExpressedChart)interpreter;
+    var trace = new List<ExpressedNode>();
     var result = new List<object>();
-    var node = ((StepManiaLibrary.ExpressedChart.ExpressedChart)interpreter).GetRootSearchNode();
+    var node = success ? interpreted.GetRootSearchNode() : null;
     while (node != null)
     {
+        trace.Add(node);
         result.Add(new { Row = node.Position, Time = node.TimeSeconds, Cost = node.Cost, TotalCost = node.TotalCost,
             OrientationCost = node.TotalOrientationCost, LastFoot = node.LastFootUsedToStepOnArrow,
             Orientation = (int)node.GraphNode.Orientation,
@@ -103,7 +121,14 @@ if (operation == "InterpretChart")
             }).ToArray()).ToArray() });
         node = node.GetNextNode();
     }
-    Console.WriteLine(JsonSerializer.Serialize(new { Success = success, Nodes = result }, options));
+    var actions = MineUtils.GetReleasesAndSteps(trace, pad.NumArrows);
+    Console.WriteLine(JsonSerializer.Serialize(new { Success = success, Nodes = result,
+        Method = interpreted.GetBracketParsingMethod().ToString(),
+        Releases = actions.Item1.Select(a => new { Row = a.Position, Lane = a.Arrow, Foot = a.Foot }).ToArray(),
+        Steps = actions.Item2.Select(a => new { Row = a.Position, Lane = a.Arrow, Foot = a.Foot }).ToArray(),
+        Mines = interpreted.MineEvents.Select(m => new { Row = m.Position, Time = m.Time, Lane = m.OriginalArrow,
+            Kind = (int)m.Type, Nth = m.ArrowIsNthClosest, Foot = m.FootAssociatedWithPairedNote }).ToArray()
+    }, options));
     return;
 }
 if (operation == "InterpretPaths")

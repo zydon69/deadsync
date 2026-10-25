@@ -363,3 +363,148 @@ pub fn search(
         .cloned()
         .ok_or_else(|| Error::InvalidEdit("No chart interpretation".into()))
 }
+
+pub struct PolicyRequest<'a> {
+    pub frames: &'a [Frame],
+    pub times: &'a [f64],
+    pub difficulty: f64,
+    /// Times of the first and last original events, including timing events and
+    /// notes that do not generate movement frames (mines and keysounds).
+    pub event_span: [f64; 2],
+}
+pub struct StepInterpretation {
+    pub method: super::config::BracketMethod,
+    pub last: std::sync::Arc<super::interpretation_path::PathNode>,
+}
+
+/// Source CreateFromSMEvents bracket-policy selection. A balanced first pass
+/// may be retained or repeated with aggressive/no-bracket costs.
+pub fn interpret(
+    graph: &StepGraph,
+    pad: &crate::pad::Pad,
+    request: &PolicyRequest<'_>,
+    config: &super::config::ExpressedConfig,
+    cancelled: &AtomicBool,
+    mut progress: impl FnMut(super::config::BracketMethod, usize, usize),
+) -> Result<StepInterpretation, Error> {
+    use super::config::{BracketDetermination, BracketMethod};
+    config.validate()?;
+    if !request.difficulty.is_finite()
+        || request.event_span.iter().any(|t| !t.is_finite())
+        || request.event_span[1] < request.event_span[0]
+    {
+        return Err(Error::InvalidEdit(
+            "Invalid chart difficulty or event time span".into(),
+        ));
+    }
+    let mut run = |method| {
+        search(
+            graph,
+            pad,
+            request.frames,
+            request.times,
+            method,
+            cancelled,
+            |done, total| progress(method, done, total),
+        )
+    };
+    let mut method = BracketMethod::Balanced;
+    if config.bracket_parsing_determination == BracketDetermination::UseDefaultMethod {
+        method = config.default_bracket_parsing_method;
+    } else if request.difficulty < f64::from(config.min_level_for_brackets) {
+        method = BracketMethod::NoBrackets;
+    } else if config.aggressive_when_uncoverable
+        && request.frames.iter().any(|frame| {
+            frame
+                .state
+                .iter()
+                .filter(|state| **state != SearchState::Empty)
+                .count()
+                > 2
+        })
+    {
+        method = BracketMethod::Aggressive;
+    } else if config.balanced_bpm_for_aggressive > 0.0 {
+        let balanced = run(BracketMethod::Balanced)?;
+        let mut count = 0;
+        let mut current = Some(balanced.as_ref());
+        while let Some(node) = current {
+            if cancelled.load(Ordering::Relaxed) {
+                return Err(Error::InvalidEdit("Interpretation cancelled".into()));
+            }
+            if node.instance.is_some_and(|i| i.link.involves_bracket(true)) {
+                count += 1;
+            }
+            current = node.previous.as_deref();
+        }
+        if count > 0 {
+            let rate = f64::from(count) / ((request.event_span[1] - request.event_span[0]) / 60.0);
+            if rate >= config.balanced_bpm_for_aggressive {
+                method = BracketMethod::Aggressive;
+            } else if rate <= config.balanced_bpm_for_no_brackets {
+                method = BracketMethod::NoBrackets;
+            }
+        }
+        if method == BracketMethod::Balanced {
+            return Ok(StepInterpretation {
+                method,
+                last: balanced,
+            });
+        }
+    }
+    Ok(StepInterpretation {
+        method,
+        last: run(method)?,
+    })
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct StepEvent {
+    pub row: u64,
+    pub time: f64,
+    pub instance: LinkInstance,
+}
+pub struct ChartInterpretation {
+    pub method: super::config::BracketMethod,
+    pub last: std::sync::Arc<super::interpretation_path::PathNode>,
+    pub events: Vec<StepEvent>,
+    pub mines: Vec<super::mines::ExpressedMine>,
+}
+
+/// Build the expressed input required by performed-chart conversion. Releases
+/// remain events; the natural starting stance is excluded, like AddSteps.
+pub fn build_chart(
+    graph: &StepGraph,
+    pad: &crate::pad::Pad,
+    request: &PolicyRequest<'_>,
+    config: &super::config::ExpressedConfig,
+    mines: &[super::mines::SourceMine],
+    cancelled: &AtomicBool,
+    progress: impl FnMut(super::config::BracketMethod, usize, usize),
+) -> Result<ChartInterpretation, Error> {
+    let interpretation = interpret(graph, pad, request, config, cancelled, progress)?;
+    let mines = super::mines::express(graph, &interpretation.last, mines, cancelled)?;
+    let mut events = Vec::new();
+    let mut current = Some(interpretation.last.as_ref());
+    while let Some(node) = current.filter(|node| node.previous.is_some()) {
+        if cancelled.load(Ordering::Relaxed) {
+            return Err(Error::InvalidEdit("Interpretation cancelled".into()));
+        }
+        let instance = node
+            .instance
+            .ok_or_else(|| Error::InvalidEdit("Interpreted step has no movement".into()))?;
+        events.push(StepEvent {
+            row: node.row,
+            time: node.time,
+            instance,
+        });
+        current = node.previous.as_deref();
+    }
+    events.reverse();
+    Ok(ChartInterpretation {
+        method: interpretation.method,
+        last: interpretation.last,
+        events,
+        mines,
+    })
+}

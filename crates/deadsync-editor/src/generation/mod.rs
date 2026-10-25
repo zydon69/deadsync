@@ -5,6 +5,7 @@ pub mod config;
 pub mod expressed;
 pub mod geometry;
 pub mod graph;
+pub mod mines;
 pub mod interpretation_path;
 pub mod interpretation_cost;
 pub mod pattern;

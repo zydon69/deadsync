@@ -690,5 +690,166 @@
         ]
       ]
     }
+  ],
+  "Method": "Aggressive",
+  "Releases": [
+    {
+      "Row": 36,
+      "Lane": 0,
+      "Foot": 0
+    },
+    {
+      "Row": 36,
+      "Lane": 1,
+      "Foot": 0
+    },
+    {
+      "Row": 48,
+      "Lane": 4,
+      "Foot": 1
+    },
+    {
+      "Row": 60,
+      "Lane": 4,
+      "Foot": 1
+    },
+    {
+      "Row": 72,
+      "Lane": 0,
+      "Foot": 0
+    },
+    {
+      "Row": 72,
+      "Lane": 1,
+      "Foot": 0
+    },
+    {
+      "Row": 84,
+      "Lane": 4,
+      "Foot": 1
+    },
+    {
+      "Row": 96,
+      "Lane": 1,
+      "Foot": 0
+    },
+    {
+      "Row": 120,
+      "Lane": 0,
+      "Foot": 1
+    },
+    {
+      "Row": 132,
+      "Lane": 4,
+      "Foot": 0
+    },
+    {
+      "Row": 144,
+      "Lane": 0,
+      "Foot": 0
+    },
+    {
+      "Row": 144,
+      "Lane": 1,
+      "Foot": 0
+    },
+    {
+      "Row": 144,
+      "Lane": 4,
+      "Foot": 1
+    }
+  ],
+  "Steps": [
+    {
+      "Row": 0,
+      "Lane": 0,
+      "Foot": 0
+    },
+    {
+      "Row": 12,
+      "Lane": 4,
+      "Foot": 1
+    },
+    {
+      "Row": 36,
+      "Lane": 1,
+      "Foot": 0
+    },
+    {
+      "Row": 60,
+      "Lane": 4,
+      "Foot": 1
+    },
+    {
+      "Row": 72,
+      "Lane": 0,
+      "Foot": 0
+    },
+    {
+      "Row": 72,
+      "Lane": 1,
+      "Foot": 0
+    },
+    {
+      "Row": 84,
+      "Lane": 4,
+      "Foot": 1
+    },
+    {
+      "Row": 96,
+      "Lane": 1,
+      "Foot": 0
+    },
+    {
+      "Row": 120,
+      "Lane": 0,
+      "Foot": 1
+    },
+    {
+      "Row": 132,
+      "Lane": 4,
+      "Foot": 0
+    },
+    {
+      "Row": 144,
+      "Lane": 0,
+      "Foot": 0
+    },
+    {
+      "Row": 144,
+      "Lane": 1,
+      "Foot": 0
+    },
+    {
+      "Row": 144,
+      "Lane": 4,
+      "Foot": 1
+    }
+  ],
+  "Mines": [
+    {
+      "Row": 24,
+      "Time": 0.2,
+      "Lane": 1,
+      "Kind": 1,
+      "Nth": 0,
+      "Foot": 0
+    },
+    {
+      "Row": 48,
+      "Time": 0.4,
+      "Lane": 0,
+      "Kind": 0,
+      "Nth": 0,
+      "Foot": 0
+    },
+    {
+      "Row": 108,
+      "Time": 0.9,
+      "Lane": 1,
+      "Kind": 0,
+      "Nth": 0,
+      "Foot": 0
+    }
   ]
 }

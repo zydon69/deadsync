@@ -1,0 +1,78 @@
+{
+  "Success": true,
+  "Nodes": [
+    {
+      "Row": 0,
+      "Time": 0,
+      "Cost": 0,
+      "TotalCost": 0,
+      "OrientationCost": 0,
+      "LastFoot": [
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "Orientation": 0,
+      "Feet": [
+        [
+          {
+            "Lane": 0,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ],
+        [
+          {
+            "Lane": 3,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          },
+          {
+            "Lane": -1,
+            "State": 0,
+            "Valid": false,
+            "Step": 0,
+            "Action": 0,
+            "Instance": 0
+          }
+        ]
+      ]
+    }
+  ],
+  "Method": "Balanced",
+  "Releases": [],
+  "Steps": [],
+  "Mines": [
+    {
+      "Row": 0,
+      "Time": 0,
+      "Lane": 0,
+      "Kind": 2,
+      "Nth": -1,
+      "Foot": -1
+    },
+    {
+      "Row": 12,
+      "Time": 0.1,
+      "Lane": 1,
+      "Kind": 2,
+      "Nth": -1,
+      "Foot": -1
+    }
+  ]
+}

@@ -519,6 +519,7 @@ fn complete_rust_cost_search_matches_original_chart_search_on_all_layouts() {
             }
             successful += 1;
             let last = result.unwrap_or_else(|error| panic!("{name}: {error}"));
+            compare_mines(&input, &expected, &graph, &last);
             let mut path = Vec::new();
             let mut current = Some(last.as_ref());
             while let Some(node) = current {
@@ -614,5 +615,320 @@ fn full_search_cancellation_keeps_the_grid_and_returns_no_partial_path() {
         },
     );
     assert!(result.is_err());
+    assert_eq!(grid, before);
+}
+
+fn compare_mines(
+    input: &Value,
+    expected: &Value,
+    graph: &StepGraph,
+    last: &deadsync_editor::generation::interpretation_path::PathNode,
+) {
+    use deadsync_editor::generation::mines::{self, SourceMine};
+    let cancel = AtomicBool::new(false);
+    let nodes = mines::path_nodes(graph, last, &cancel).unwrap();
+    let (releases, steps) = mines::actions(&nodes, graph.columns(), &cancel).unwrap();
+    let events_json = |events: Vec<mines::ActionEvent>| {
+        json!(
+            events
+                .iter()
+                .map(|event| json!({"Row": event.row, "Lane": event.lane, "Foot": event.foot}))
+                .collect::<Vec<_>>()
+        )
+    };
+    assert_eq!(events_json(releases), expected["Releases"]);
+    assert_eq!(events_json(steps), expected["Steps"]);
+    let sources: Vec<_> = input["Notes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|note| note[2] == "M")
+        .map(|note| SourceMine {
+            row: note[0].as_u64().unwrap(),
+            lane: note[1].as_u64().unwrap() as u16,
+            time: note[0].as_f64().unwrap() / 120.0 * input["TimeScale"].as_f64().unwrap_or(1.0),
+        })
+        .collect();
+    let expressed = mines::express(graph, last, &sources, &cancel).unwrap();
+    let actual = json!(expressed.iter().map(|mine| json!({"Row": mine.source.row, "Time": mine.source.time,
+        "Lane": mine.source.lane, "Kind": mine.kind as u8, "Nth": mine.nth.map(|n| n as i32).unwrap_or(-1),
+        "Foot": mine.foot.map(|f| f as i32).unwrap_or(-1)})).collect::<Vec<_>>());
+    let actual = actual.as_array().unwrap();
+    let expected = expected["Mines"].as_array().unwrap();
+    assert_eq!(actual.len(), expected.len());
+    for (actual, expected) in actual.iter().zip(expected) {
+        assert_eq!(actual["Time"].as_f64(), expected["Time"].as_f64());
+        let mut actual = actual.as_object().unwrap().clone();
+        let mut expected = expected.as_object().unwrap().clone();
+        actual.remove("Time");
+        expected.remove("Time");
+        assert_eq!(actual, expected);
+    }
+}
+
+#[test]
+fn automatic_bracket_policy_and_mines_match_complete_original_interpretation() {
+    use deadsync_editor::generation::config::{BracketMethod, ExpressedConfig};
+    let graph = StepGraph::builtin("dance-single").unwrap();
+    let pad = deadsync_editor::pad::Pad::builtin("dance-single").unwrap();
+    for variant in [
+        "balanced",
+        "difficulty",
+        "forced",
+        "rate-aggressive",
+        "rate-no-brackets",
+        "specified",
+        "zero-duration",
+        "empty",
+        "only-mines",
+        "no-brackets",
+    ] {
+        let name = format!("policy-{variant}");
+        let input = fixture(&name, "request");
+        let expected = fixture(&name, "expected");
+        assert_eq!(expected["Success"], true, "{name}");
+        let grid = chart_grid(&input);
+        let before = grid.clone();
+        let cancel = AtomicBool::new(false);
+        let frames = expressed::frames(&grid, 0, &cancel).unwrap();
+        let scale = input["TimeScale"].as_f64().unwrap_or(1.0);
+        let times: Vec<_> = frames
+            .iter()
+            .map(|frame| frame.row as f64 / 120.0 * scale)
+            .collect();
+        let notes = input["Notes"].as_array().unwrap();
+        let event_span = [
+            notes
+                .first()
+                .map_or(0.0, |note| note[0].as_f64().unwrap() / 120.0 * scale),
+            notes
+                .last()
+                .map_or(0.0, |note| note[0].as_f64().unwrap() / 120.0 * scale),
+        ];
+        let config: ExpressedConfig =
+            serde_json::from_value(input["ExpressedConfig"].clone()).unwrap();
+        let source_mines: Vec<_> = notes
+            .iter()
+            .filter(|note| note[2] == "M")
+            .map(|note| deadsync_editor::generation::mines::SourceMine {
+                row: note[0].as_u64().unwrap(),
+                lane: note[1].as_u64().unwrap() as u16,
+                time: note[0].as_f64().unwrap() / 120.0 * scale,
+            })
+            .collect();
+        let result = expressed::build_chart(
+            &graph,
+            pad,
+            &expressed::PolicyRequest {
+                frames: &frames,
+                times: &times,
+                difficulty: input["Difficulty"].as_f64().unwrap(),
+                event_span,
+            },
+            &config,
+            &source_mines,
+            &cancel,
+            |_, _, _| {},
+        )
+        .unwrap();
+        let method: BracketMethod = serde_json::from_value(expected["Method"].clone()).unwrap();
+        assert_eq!(result.method, method, "{name}");
+        let original = expected["Nodes"].as_array().unwrap();
+        let mut current = Some(result.last.as_ref());
+        for node in original.iter().rev() {
+            let actual = current.expect("Original path cannot have extra nodes");
+            assert_eq!(actual.row, node["Row"].as_u64().unwrap(), "{name}");
+            assert_eq!(
+                i64::from(actual.cost),
+                node["Cost"].as_i64().unwrap(),
+                "{name}"
+            );
+            assert_eq!(
+                i64::from(actual.total_cost),
+                node["TotalCost"].as_i64().unwrap(),
+                "{name}"
+            );
+            assert_eq!(
+                node_json(graph.nodes[actual.node].state)["Orientation"],
+                node["Orientation"],
+                "{name}"
+            );
+            for foot in 0..2 {
+                for portion in 0..2 {
+                    let state = graph.nodes[actual.node].state.feet[foot][portion];
+                    assert_eq!(
+                        state.lane.map(i32::from).unwrap_or(-1),
+                        node["Feet"][foot][portion]["Lane"].as_i64().unwrap() as i32,
+                        "{name}"
+                    );
+                    let step = actual
+                        .instance
+                        .map_or(0, |instance| instance.link.feet[foot][portion].step as u8);
+                    assert_eq!(
+                        u64::from(step),
+                        node["Feet"][foot][portion]["Step"].as_u64().unwrap(),
+                        "{name}"
+                    );
+                }
+            }
+            current = actual.previous.as_deref();
+        }
+        assert!(current.is_none());
+        assert_eq!(result.events.len() + 1, original.len(), "{name}");
+        for (event, node) in result.events.iter().zip(original.iter().skip(1)) {
+            assert_eq!(event.row, node["Row"].as_u64().unwrap(), "{name}");
+            assert_eq!(event.time, node["Time"].as_f64().unwrap(), "{name}");
+            for foot in 0..2 {
+                for portion in 0..2 {
+                    let action = event.instance.link.feet[foot][portion];
+                    let reference = &node["Feet"][foot][portion];
+                    assert_eq!(action.valid, reference["Valid"].as_bool().unwrap());
+                    assert_eq!(action.step as u64, reference["Step"].as_u64().unwrap());
+                    assert_eq!(action.action as u64, reference["Action"].as_u64().unwrap());
+                    assert_eq!(
+                        event.instance.types[foot][portion] as u64,
+                        reference["Instance"].as_u64().unwrap()
+                    );
+                }
+            }
+        }
+        assert_eq!(
+            result.mines.len(),
+            expected["Mines"].as_array().unwrap().len()
+        );
+        for (mine, reference) in result
+            .mines
+            .iter()
+            .zip(expected["Mines"].as_array().unwrap())
+        {
+            assert_eq!(mine.source.row, reference["Row"].as_u64().unwrap());
+            assert_eq!(mine.source.time, reference["Time"].as_f64().unwrap());
+            assert_eq!(
+                u64::from(mine.source.lane),
+                reference["Lane"].as_u64().unwrap()
+            );
+            assert_eq!(mine.kind as u64, reference["Kind"].as_u64().unwrap());
+            assert_eq!(
+                mine.nth.map(|n| n as i64).unwrap_or(-1),
+                reference["Nth"].as_i64().unwrap()
+            );
+            assert_eq!(
+                mine.foot.map(|f| f as i64).unwrap_or(-1),
+                reference["Foot"].as_i64().unwrap()
+            );
+        }
+        compare_mines(&input, &expected, &graph, &result.last);
+        assert_eq!(grid, before);
+    }
+}
+
+#[test]
+fn mines_before_after_and_without_neighbor_match_original() {
+    use deadsync_editor::generation::config::BracketMethod;
+    let input = fixture("mine-association", "request");
+    let expected = fixture("mine-association", "expected");
+    let grid = chart_grid(&input);
+    let cancel = AtomicBool::new(false);
+    let graph = StepGraph::builtin("dance-single").unwrap();
+    let pad = deadsync_editor::pad::Pad::builtin("dance-single").unwrap();
+    let frames = expressed::frames(&grid, 0, &cancel).unwrap();
+    let times: Vec<_> = frames
+        .iter()
+        .map(|frame| frame.row as f64 / 120.0)
+        .collect();
+    let last = expressed::search(
+        &graph,
+        pad,
+        &frames,
+        &times,
+        BracketMethod::Balanced,
+        &cancel,
+        |_, _| {},
+    )
+    .unwrap();
+    compare_mines(&input, &expected, &graph, &last);
+    let kinds: Vec<_> = expected["Mines"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|mine| mine["Kind"].as_u64().unwrap())
+        .collect();
+    for kind in 0..=2 {
+        assert!(
+            kinds.contains(&kind),
+            "Reference must cover every association type"
+        );
+    }
+}
+
+#[test]
+fn policy_and_mine_errors_return_no_partial_result_or_document_changes() {
+    use deadsync_editor::generation::{
+        config::ExpressedConfig,
+        mines::{self, SourceMine},
+    };
+    let input = fixture("policy-rate-aggressive", "request");
+    let grid = chart_grid(&input);
+    let before = grid.clone();
+    let cancelled = AtomicBool::new(false);
+    let frames = expressed::frames(&grid, 0, &cancelled).unwrap();
+    let times: Vec<_> = frames
+        .iter()
+        .map(|frame| frame.row as f64 / 120.0)
+        .collect();
+    let graph = StepGraph::builtin("dance-single").unwrap();
+    let pad = deadsync_editor::pad::Pad::builtin("dance-single").unwrap();
+    let config: ExpressedConfig = serde_json::from_value(input["ExpressedConfig"].clone()).unwrap();
+    let request = expressed::PolicyRequest {
+        frames: &frames,
+        times: &times,
+        difficulty: 12.0,
+        event_span: [0.0, 1.3],
+    };
+    assert!(
+        expressed::interpret(&graph, pad, &request, &config, &cancelled, |_, done, _| {
+            if done == 4 {
+                cancelled.store(true, std::sync::atomic::Ordering::Relaxed);
+            }
+        })
+        .is_err()
+    );
+    let root = deadsync_editor::generation::interpretation_path::PathNode::root(&graph, 0).unwrap();
+    assert!(mines::express(&graph, &root, &[], &cancelled).is_err());
+    assert!(mines::actions(&[], 4, &cancelled).is_err());
+    cancelled.store(false, std::sync::atomic::Ordering::Relaxed);
+    let mines = [
+        SourceMine {
+            row: 48,
+            time: 0.4,
+            lane: 0,
+        },
+        SourceMine {
+            row: 24,
+            time: 0.2,
+            lane: 1,
+        },
+    ];
+    assert!(mines::express(&graph, &root, &mines, &cancelled).is_err());
+    assert!(
+        mines::express(
+            &graph,
+            &root,
+            &[SourceMine {
+                row: 0,
+                time: 0.0,
+                lane: 9
+            }],
+            &cancelled
+        )
+        .is_err()
+    );
+    let invalid = expressed::PolicyRequest {
+        event_span: [1.0, 0.0],
+        ..request
+    };
+    assert!(
+        expressed::interpret(&graph, pad, &invalid, &config, &cancelled, |_, _, _| {}).is_err()
+    );
     assert_eq!(grid, before);
 }

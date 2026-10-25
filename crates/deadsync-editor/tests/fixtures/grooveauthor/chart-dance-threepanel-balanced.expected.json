@@ -1,4 +1,8 @@
 {
   "Success": false,
-  "Nodes": []
+  "Nodes": [],
+  "Method": "Balanced",
+  "Releases": [],
+  "Steps": [],
+  "Mines": []
 }

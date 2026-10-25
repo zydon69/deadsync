@@ -1,0 +1,36 @@
+{
+  "Operation": "InterpretChart",
+  "Layout": "dance-single",
+  "Method": "Balanced",
+  "Notes": [
+    [
+      0,
+      0,
+      "1"
+    ],
+    [
+      12,
+      3,
+      "1"
+    ],
+    [
+      24,
+      0,
+      "1"
+    ],
+    [
+      36,
+      3,
+      "1"
+    ]
+  ],
+  "ExpressedConfig": {
+    "DefaultBracketParsingMethod": "balanced",
+    "BracketParsingDetermination": "chooseMethodDynamically",
+    "MinLevelForBrackets": 9,
+    "UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets": false,
+    "BalancedBracketsPerMinuteForAggressiveBrackets": 1000000.0,
+    "BalancedBracketsPerMinuteForNoBrackets": 100000.0
+  },
+  "Difficulty": 12.0
+}

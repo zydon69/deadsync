@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Multi-view comparison, chart creation/clone/delete and library pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs and fixed-policy full step search match original chart searches; automatic bracket policy selection, whole-chart generation, fallback rules, mine expression and native asynchronous generation panels pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; performed-chart conversion, fallback rules, destination mine placement and native asynchronous generation panels pending |
 | Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -92,9 +92,8 @@ seed. `ActionAutoGeneratePatterns` additionally constrains preceding/following
 footing and pattern configuration. The Rust port must preserve these contracts.
 A random lane picker or a basic difficulty filter would not meet the request.
 
-Next implementation work must finish automatic bracket policy selection and
-mine expression, then performed-chart conversion with the original fallback
-rules. Differential fixtures must extend the existing tech, bracket, crossover,
+Next implementation work must finish performed-chart conversion with the
+original fallback rules and mine placement. Differential fixtures must extend the existing tech, bracket, crossover,
 hold, mine, layout and seed cases to that complete conversion pipeline.
 Generation results need preview and one reversible application gesture before
 being exposed as complete. The other advanced editor domains remain required
@@ -143,8 +142,7 @@ step types, actions and roll/fake/lift instance assignments with the original
 private `GetLinkInstanceIfStateMatches` through the development oracle. Fixtures
 cover all eleven original layouts. Grid workflows additionally cover participant
 isolation and simultaneous releases, mines and heads. This verifies candidate
-matching, not the final interpretation: automatic bracket selection and mine expression still require porting and
-differential tests.
+matching, not the final interpretation: performed-chart fallback conversion and mine placement remain separate work.
 
 ### Interpretation path selection
 
@@ -181,6 +179,31 @@ three fail, and Rust matches both outcomes. Keysounds are ignored as movement
 instructions like the reference's generic LaneNote; unsupported attack notes are
 explicitly refused rather than converted into steps.
 
-These checks establish fixed-policy step interpretation, not complete chart
-conversion. Dynamic bracket policy selection, mine expression, performed-chart
-fallback search and native generation panels remain pending.
+These checks establish fixed-policy step interpretation. The automatic policy
+and mine-expression checks below extend this stage; performed-chart fallback
+search and native generation panels remain pending.
+
+### Complete expressed-chart assembly
+
+`expressed::interpret` ports automatic bracket-method selection: configured
+method, difficulty threshold, simultaneous notes requiring brackets, and a
+balanced pass optionally repeated according to bracket frequency. The original
+event time span is explicit, since timing events, mines and keysounds may extend
+beyond movement frames. Zero-duration spans retain the source division behavior.
+
+`mines` derives release and step actions from foot states, preserving the source
+ordering and its treatment of simultaneous actions. It associates mines with
+preceding releases first, otherwise following steps, otherwise no neighboring
+arrow. Relative recency groups simultaneous events and tracks the associated
+foot. Mine events are sorted by the source semantic keys. `build_chart` combines
+the chosen path, step events (including releases) and mine expressions as the
+input for performed-chart conversion, without changing a source document.
+
+The C# oracle now invokes the original public `CreateFromSMEvents` for ten
+policy cases, including zero brackets, zero duration, empty charts and mine-only
+charts. Step paths, policies, release/step lists and mine associations are checked
+against Rust. The existing thirty valid fixed-policy charts also compare their
+mine results. A dedicated case covers AfterArrow, BeforeArrow and NoArrow,
+recency ties and foot association. Cancellation and invalid-input checks return
+no partial interpretation. Mine placement on the destination graph still needs
+porting along with fallback conversion.
