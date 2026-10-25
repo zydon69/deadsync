@@ -2632,3 +2632,21 @@ Therefore OS clipboard and Command modifier behavior are NOT validated.
 Investigate window fallback modifier events / automation routing and reproduce
 with a single running QA instance before claiming clipboard parity or a crash.
 No property was applied and no fixture song was saved during this observation.
+
+### Focused-window modifier reconciliation
+
+The shell now handles `WindowEvent::ModifiersChanged` when native raw keyboard
+input is unavailable and the window accepts live input. It reconciles Shift,
+Control, Alt and Super against held shell controls and routes only changes
+through the existing raw shortcut adapter, without synthesizing pad presses.
+The bundled winit 0.30.13 macOS `view.rs::update_modifiers` explicitly documents
+that some flag-change events have no usable physical key code; only the modifier
+snapshot is reliable in that case. Raw-backend mode remains gated out.
+
+`cargo test -p deadsync-shell --test window_modifier_fallback --locked` passes
+three tests: missing Command press/release recovery, duplicate suppression and
+mixed modifier reconciliation, and a public editor workflow that routes the
+Command snapshot into chart-text paste and observes accented text in actors.
+The workflow uses an in-memory clipboard, so it does not validate macOS pasteboard
+IO or establish the cause of the earlier automation/process-lifetime failure.
+A rebuilt native runtime observation remains required.

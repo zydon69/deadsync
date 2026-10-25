@@ -11061,6 +11061,24 @@ impl ApplicationHandler<UserEvent> for App {
                     _ => {}
                 }
             }
+            #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "macos"))]
+            WindowEvent::ModifiersChanged(modifiers) => {
+                if self.accepts_live_input()
+                    && !deadlib_input_native::unix_raw_keyboard_backend_active()
+                {
+                    let held = self.state.shell.interaction.controls();
+                    let changes = crate::window_modifier_fallback::changes(
+                        [held.shift(), held.ctrl(), held.alt(), held.logo()],
+                        modifiers.state(),
+                    );
+                    for (code, pressed) in changes {
+                        self.handle_raw_key_event(event_loop, RawKeyboardEvent {
+                            code, pressed, repeat: false,
+                            timestamp: Instant::now(), host_nanos: host_time::now_nanos(),
+                        });
+                    }
+                }
+            }
             WindowEvent::KeyboardInput {
                 event: key_event, ..
             } => {

@@ -11,6 +11,7 @@ mod course;
 mod diagnostics;
 mod dynamic_media;
 mod editor_clipboard;
+mod window_modifier_fallback;
 mod editor_music_picker;
 mod frame_pacing_trace;
 mod frame_stats;
