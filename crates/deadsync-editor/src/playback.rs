@@ -92,6 +92,10 @@ impl Clock {
     pub fn speed_event_time(&self, row: u64) -> Result<f64, Error> {
         self.timeline.speed_event_time(row)
     }
+    /// Chart-time note position, including a delay at the note's row.
+    pub fn note_time(&self, row: u64) -> Result<f64, Error> {
+        self.timeline.note_time(row)
+    }
     pub(crate) fn with_song_draft(mut self, offset: f64, sync_offset: f64) -> Self {
         self.offset = offset;
         self.sync_offset = sync_offset;

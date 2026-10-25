@@ -25,6 +25,7 @@ python3 scripts/editor-generate-spacing-fixtures.py \
 cargo test -p deadsync-editor --test spacing_search_workflows --jobs 2 --locked
 ```
 
-The generator now runs six scalar helper traces and eighteen search traces.
-Native view wiring, automatic active-event selection and complete visibility
-queries over folded geometry remain separate work.
+The generator runs six scalar helper, eighteen search and eighteen geometry
+traces. See README.md for geometry adapter scope. Automatic active-event lookup
+is validated separately by editor-spacing-index-oracle. Native view wiring and
+complete visibility queries over folded geometry remain separate work.

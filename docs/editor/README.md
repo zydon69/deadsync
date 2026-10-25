@@ -3774,3 +3774,31 @@ boundary checks. The original Fumen-tree runner regenerated seven cases/1113
 queries, and the scalar/search generator still regenerated its separate 24
 traces after narrowing its fixture prefixes. `cargo check -p deadsync --jobs 2
 --locked` passed. Native display-mode wiring remains pending.
+
+### Incremental forward section geometry
+
+`spacing_geometry::Cursor` traverses initialized rate sections without query-time
+allocation. Forward transitions locate the next boundary before updating the
+spacing coefficients; backward transitions update coefficients before locating
+the previous boundary. Traversal and event projection commit state only after
+all calculations succeed. Zero interpolation supports forward projection.
+
+Event geometry selects the preceding row/order phase, distinct from strict
+focal-point lookup. `Clock::note_time` exposes the note-domain time after the
+same-row delay and before scroll/speed/stop/warp events; cursor chart time retains
+its pre-event semantics. This prevents notes being drawn at cursor time during
+a delay. Heads and tails share this timing domain because no rate event occurs
+between their original phases.
+
+Eighteen development reference traces exercise 396 steps over all three modes,
+Reverse, signed/zero interpolation, repeated traversals and same-row phases.
+The oracle executes unchanged original helper/conversion members with an adapter
+driver following reviewed renderer transition order. It does not execute the
+complete original renderer. Three Rust workflows also cover note-vs-cursor
+delay timing, empty indexes and atomic failures. Source and adapter hashes are
+recorded in spacing-reference.json; reproduction/scope is documented in
+scripts/editor-spacing-oracle/README.md. The generator produces 42 traces total.
+
+Native time/variable display wiring, folded-section viewport visibility and
+piecewise hold geometry remain pending; this module alone does not establish
+visual parity.

@@ -13,6 +13,24 @@
     "spacing-constantrow.request",
     "spacing-constanttime-reverse.request",
     "spacing-constanttime.request",
+    "spacing-geometry-constantrow-negative-reverse.request",
+    "spacing-geometry-constantrow-negative.request",
+    "spacing-geometry-constantrow-normal-reverse.request",
+    "spacing-geometry-constantrow-normal.request",
+    "spacing-geometry-constantrow-zero-reverse.request",
+    "spacing-geometry-constantrow-zero.request",
+    "spacing-geometry-constanttime-negative-reverse.request",
+    "spacing-geometry-constanttime-negative.request",
+    "spacing-geometry-constanttime-normal-reverse.request",
+    "spacing-geometry-constanttime-normal.request",
+    "spacing-geometry-constanttime-zero-reverse.request",
+    "spacing-geometry-constanttime-zero.request",
+    "spacing-geometry-variable-negative-reverse.request",
+    "spacing-geometry-variable-negative.request",
+    "spacing-geometry-variable-normal-reverse.request",
+    "spacing-geometry-variable-normal.request",
+    "spacing-geometry-variable-zero-reverse.request",
+    "spacing-geometry-variable-zero.request",
     "spacing-search-constantrow-negative-reverse.request",
     "spacing-search-constantrow-negative.request",
     "spacing-search-constantrow-normal-reverse.request",
@@ -34,5 +52,10 @@
     "spacing-variable-reverse.request",
     "spacing-variable.request"
   ],
+  "AdapterSHA256": {
+    "Adapters.cs": "bc14d50f4ebacfff7d88a66bfc1cd143ffaff5d6104e74c3392de03a2713ad4b",
+    "SearchAdapter.cs": "8b23f005234736f86fdd7899f11d46fdf17398a2052b46ed36f70e2297852c46",
+    "Program.cs": "86b2dab7308987f400867a201e29e76f72bb61a01cf1be9287df970424d1a0d6"
+  },
   "AdapterScope": "Scalar preferences and event/region accessors only; spacing helper and extracted rate conversion members unchanged; original active-chart search member unchanged; active index supplied by fixture rather than original tree selection"
 }

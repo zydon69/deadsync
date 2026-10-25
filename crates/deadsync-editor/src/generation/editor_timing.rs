@@ -670,6 +670,11 @@ impl EditorTimeline {
     pub fn speed_event_time(&self, row: u64) -> Result<f64, Error> {
         self.query(row, Some(Event { row: row as i64, kind: EventKind::TrailingMarker }.order()))
     }
+    /// Note heads and hold tails follow same-row delays, before scroll/speed,
+    /// ordinary stops and warps. All note phases share this rate-event boundary.
+    pub fn note_time(&self, row: u64) -> Result<f64, Error> {
+        self.query(row, Some(8))
+    }
     pub fn position_time(&self, row: u64) -> Result<f64, Error> {
         self.query(row, None)
     }

@@ -15,8 +15,8 @@ and the direction flag. The two rate conversion members are extracted unchanged
 from the pinned `EditorRateAlteringEvent.cs` into an ignored partial class. The
 source and extracted-member hashes are recorded in the fixture manifest. These
 are the original stop/warp/negative-lead-in formulas, not linear replacements.
-The runner does not emulate EditorChart event selection, traversal or complete
-native rendering across rate boundaries. No Fumen or GUI assemblies are needed.
+The scalar helper runner does not reproduce the complete native renderer.
+No Fumen or GUI assemblies are needed.
 
 Six scalar helper fixtures cover all three modes in both directions, with six successive
 rates and four query sets per rate (144 query sets), including positive/negative
@@ -33,3 +33,24 @@ cargo test -p deadsync-editor --test spacing_workflows --jobs 2 --locked
 
 The same generator also runs eighteen original active-chart search fixtures;
 see SEARCH.md for their event-selection scope and reproduction.
+
+
+## Forward geometry sequences
+
+The generator also runs eighteen Geometry traces (42 traces overall). Geometry
+uses the unchanged original spacing helper and rate conversion members. Its
+small driver reproduces the reviewed ActiveEditorChart transition sequence:
+forward boundary Y before updating coefficients; backward coefficients before
+boundary Y. The driver and row/order event selection are adapters, not an
+unchanged copy of the complete renderer. Their hashes are recorded separately.
+
+The 396 steps cover three spacing modes, both directions, positive/negative/zero
+interpolation, repeated section traversals, and same-row event phases. Rust
+selects its initial section automatically through Index; the oracle receives
+that section explicitly. Separate index fixtures validate original tree lookup.
+These traces prove helper arithmetic and the scoped transition sequence, not
+viewport visibility, hold segmentation, or native display-mode integration.
+
+```sh
+cargo test -p deadsync-editor --test spacing_geometry_workflows --jobs 2 --locked
+```

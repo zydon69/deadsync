@@ -63,6 +63,13 @@ impl Index {
         };
         Ok(Some(index.unwrap_or(0)))
     }
+    /// Active coefficients immediately before a concrete event's phase.
+    pub fn event_active(&self, row: f64, order: u8) -> Result<Option<usize>, Error> {
+        if !row.is_finite() { return Err(Error::InvalidEdit("Nonfinite event position".into())); }
+        if self.sections.is_empty() { return Ok(None); }
+        let index = self.sections.partition_point(|section| (section.mapping.row(), section.order) < (row, order));
+        Ok(Some(index.saturating_sub(1)))
+    }
     pub fn find_location(
         &self,
         focal: Anchor,

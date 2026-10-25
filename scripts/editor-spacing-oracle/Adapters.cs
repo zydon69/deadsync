@@ -30,6 +30,7 @@ internal sealed partial class EditorRateAlteringEvent : EditorEvent {
  public double GetRowsPerSecond()=>RowsPerSecond;
  public double GetScrollRate()=>Scroll;
  public double WarpRowsRemaining,StopTimeRemaining;
+ public int Order;
 }
 internal interface IChartRegion {
  double GetChartTime();double GetChartPosition();double GetChartTimeDurationForRegion();double GetChartPositionDurationForRegion();bool IsRegionSelection();double GetRegionY();
