@@ -97,6 +97,11 @@ fn geometry_cursor_matches_original_helper_sequences_across_signed_sections() {
                                 .y_in_section(n(step, "Time"), n(step, "Row"))
                                 .unwrap(),
                         ),
+                        "HoldEnd" => Some(
+                            cursor
+                                .hold_end_y(n(step, "Row"), n(step, "CapHeight"))
+                                .unwrap(),
+                        ),
                         "Event" => Some(
                             cursor
                                 .event_y(
@@ -198,7 +203,54 @@ fn empty_geometry_and_failed_traversals_preserve_cursor_state() {
     assert!(cursor.event_y(1.0, 100.0, 8).is_err());
     assert_eq!(cursor.section(), 0);
     assert_eq!(cursor.rate_anchor().y, before);
+    for (row, cap) in [(100.0, 0.0), (0.0, -1.0), (0.0, f64::NAN), (f64::NAN, 0.0)] {
+        assert!(cursor.hold_end_y(row, cap).is_err());
+        assert_eq!(cursor.section(), 0);
+        assert_eq!(cursor.rate_anchor().y, before);
+    }
     assert!(cursor.move_to(99).is_err());
     assert!(cursor.event_y(f64::NAN, 0.0, 8).is_err());
     assert_eq!(cursor.rate_anchor().y, before);
+}
+
+#[test]
+fn hold_tail_at_delay_uses_note_phase_and_cap_follows_reverse() {
+    let source = b"#VERSION:0.83;#BPMS:0=120;#DELAYS:2=0.5;#STOPS:2=0.75;#SCROLLS:0=-1;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    let session =
+        Session::new(Document::parse(Arc::<[u8]>::from(source.as_slice()), Format::Ssc).unwrap());
+    let clock = Clock::capture(&session, 0).unwrap();
+    let index = Index::new(clock.spacing_sections().collect()).unwrap();
+    for reverse in [false, true] {
+        for (mode, delta) in [
+            (SpacingMode::ConstantTime, 150.0),
+            (SpacingMode::ConstantRow, 0.0),
+            (SpacingMode::Variable, 0.0),
+        ] {
+            let settings = Settings {
+                mode,
+                reverse,
+                speeds: Speeds::default(),
+                interpolated_scroll: 1.0,
+                zoom: 1.0,
+            };
+            let focal = Anchor {
+                y: 160.0,
+                time: clock.chart_time(96).unwrap(),
+                row: 96.0,
+            };
+            let mut cursor = Cursor::begin(&index, focal, settings).unwrap().unwrap();
+            let direction = if reverse { -1.0 } else { 1.0 };
+            close(
+                cursor.hold_end_y(96.0, 7.5).unwrap(),
+                160.0 + (delta + 7.5) * direction,
+            );
+            let note = cursor
+                .event_y(clock.note_time(96).unwrap(), 96.0, 11)
+                .unwrap();
+            close(
+                cursor.hold_end_y(96.0, 7.5).unwrap(),
+                note + 7.5 * direction,
+            );
+        }
+    }
 }

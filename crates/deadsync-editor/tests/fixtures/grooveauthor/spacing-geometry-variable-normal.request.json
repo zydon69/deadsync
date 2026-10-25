@@ -246,6 +246,56 @@
       "Row": 240,
       "Order": 15,
       "Time": 0.4
+    },
+    {
+      "Kind": "HoldEnd",
+      "Row": 0,
+      "CapHeight": 0
+    },
+    {
+      "Kind": "HoldEnd",
+      "Row": 0,
+      "CapHeight": 7.5
+    },
+    {
+      "Kind": "HoldEnd",
+      "Row": 96,
+      "CapHeight": 0
+    },
+    {
+      "Kind": "HoldEnd",
+      "Row": 96,
+      "CapHeight": 7.5
+    },
+    {
+      "Kind": "HoldEnd",
+      "Row": 120,
+      "CapHeight": 0
+    },
+    {
+      "Kind": "HoldEnd",
+      "Row": 120,
+      "CapHeight": 7.5
+    },
+    {
+      "Kind": "HoldEnd",
+      "Row": 240,
+      "CapHeight": 0
+    },
+    {
+      "Kind": "HoldEnd",
+      "Row": 240,
+      "CapHeight": 7.5
+    },
+    {
+      "Kind": "HoldEnd",
+      "Row": 288,
+      "CapHeight": 0
+    },
+    {
+      "Kind": "HoldEnd",
+      "Row": 288,
+      "CapHeight": 7.5
     }
   ]
 }

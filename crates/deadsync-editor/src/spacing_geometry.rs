@@ -107,6 +107,30 @@ impl<'a> Cursor<'a> {
         }
         Ok(())
     }
+    /// Original CheckForCompletingHold endpoint: the tail's phase is 11,
+    /// and the cap follows Reverse, independently of a negative scroll rate.
+    /// Cap height is already scaled by the caller's note-size zoom.
+    pub fn hold_end_y(&mut self, row: f64, cap_height: f64) -> Result<f64, Error> {
+        if !cap_height.is_finite() || cap_height < 0.0 {
+            return Err(Error::InvalidEdit("Invalid hold cap height".into()));
+        }
+        let mut next = *self;
+        let section = next
+            .index
+            .event_active(row, 11)?
+            .ok_or_else(|| Error::InvalidEdit("Missing geometry section".into()))?;
+        next.walk_to(section)?;
+        let mapping = next.index.sections()[section].mapping;
+        let y = next
+            .helper
+            .row_y(row, next.anchor.y, |row| mapping.time_at(row))?
+            + cap_height * if next.settings.reverse { -1.0 } else { 1.0 };
+        if !y.is_finite() {
+            return Err(Error::InvalidEdit("Nonfinite hold endpoint".into()));
+        }
+        *self = next;
+        Ok(y)
+    }
     pub fn y_in_section(&self, time: f64, row: f64) -> Result<f64, Error> {
         self.helper.y(time, row, self.anchor)
     }

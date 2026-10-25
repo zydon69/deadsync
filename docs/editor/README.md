@@ -3802,3 +3802,22 @@ scripts/editor-spacing-oracle/README.md. The generator produces 42 traces total.
 Native time/variable display wiring, folded-section viewport visibility and
 piecewise hold geometry remain pending; this module alone does not establish
 visual parity.
+
+
+### Hold endpoint geometry
+
+`spacing_geometry::Cursor::hold_end_y` ports the endpoint calculation reviewed
+in original ActiveEditorChart.CheckForCompletingHold: select the section before
+tail phase 11, project using GetYForRow semantics, and add the already-scaled cap
+height in the Reverse direction. Negative scroll does not reverse the cap offset.
+Invalid cap metadata or failed section traversal leaves cursor state unchanged.
+This retains the original endpoint model; it does not introduce a separately
+invented piecewise hold-rendering policy.
+
+Geometry reference traces now contain 576 steps, including 180 hold endpoint
+queries with zero/nonzero cap heights. The driver invokes unchanged original
+GetYForRow and applies the reviewed completion formula; it does not compile the
+whole completion method. Four targeted workflows passed, including actual SSC
+same-row delay/stop timing and negative-scroll cap-direction checks. The prior
+full editor suite completed with 391 passing tests before this endpoint addition.
+Native hold rendering remains to be connected to the new geometry.

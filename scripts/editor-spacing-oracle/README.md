@@ -44,8 +44,8 @@ forward boundary Y before updating coefficients; backward coefficients before
 boundary Y. The driver and row/order event selection are adapters, not an
 unchanged copy of the complete renderer. Their hashes are recorded separately.
 
-The 396 steps cover three spacing modes, both directions, positive/negative/zero
-interpolation, repeated section traversals, and same-row event phases. Rust
+The 576 steps cover three spacing modes, both directions, positive/negative/zero
+interpolation, repeated section traversals, and same-row event phases, including hold tails and cap offsets. Rust
 selects its initial section automatically through Index; the oracle receives
 that section explicitly. Separate index fixtures validate original tree lookup.
 These traces prove helper arithmetic and the scoped transition sequence, not
@@ -54,3 +54,9 @@ viewport visibility, hold segmentation, or native display-mode integration.
 ```sh
 cargo test -p deadsync-editor --test spacing_geometry_workflows --jobs 2 --locked
 ```
+
+HoldEnd operations select the tail phase (11), call unchanged GetYForRow, then
+apply the CheckForCompletingHold cap-offset formula. The completion method as a
+whole is not compiled by this adapter. Reverse controls cap direction even when
+constant/interpolated scroll is negative. Cap texture dimensions and clipping
+remain native-renderer responsibilities.

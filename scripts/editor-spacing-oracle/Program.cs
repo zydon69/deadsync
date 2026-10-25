@@ -20,6 +20,10 @@ if(request.TryGetProperty("Operation",out var geometryOperation) && geometryOper
  foreach(var step in request.GetProperty("Steps").EnumerateArray()) {
   var kind=step.GetProperty("Kind").GetString();double? eventY=null;
   if(kind=="Move")Move(step.GetProperty("Section").GetInt32());
+  else if(kind=="HoldEnd"){
+   var row=N(step,"Row");var selected=Enumerable.Range(0,rates.Length).Where(i=>rates[i].Row<row || rates[i].Row==row && rates[i].Order<11).DefaultIfEmpty(0).Last();Move(selected);
+   eventY=helperGeometry.GetYForRow(row,y)+N(step,"CapHeight")*(Editor.Reverse ? -1.0 : 1.0);
+  }
   else if(kind=="Event"){
    var row=N(step,"Row");var order=step.GetProperty("Order").GetInt32();var selected=Enumerable.Range(0,rates.Length).Where(i=>rates[i].Row<row || rates[i].Row==row && rates[i].Order<order).DefaultIfEmpty(0).Last();Move(selected);
    eventY=helperGeometry.GetY(N(step,"Time"),row,y,rates[index].Time,rates[index].Row);

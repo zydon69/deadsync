@@ -55,7 +55,7 @@
   "AdapterSHA256": {
     "Adapters.cs": "bc14d50f4ebacfff7d88a66bfc1cd143ffaff5d6104e74c3392de03a2713ad4b",
     "SearchAdapter.cs": "8b23f005234736f86fdd7899f11d46fdf17398a2052b46ed36f70e2297852c46",
-    "Program.cs": "86b2dab7308987f400867a201e29e76f72bb61a01cf1be9287df970424d1a0d6"
+    "Program.cs": "b0de6f2f9289eeb6f0f7c59584a337bb2db42efbf7526075f7a07e5285f275eb"
   },
   "AdapterScope": "Scalar preferences and event/region accessors only; spacing helper and extracted rate conversion members unchanged; original active-chart search member unchanged; active index supplied by fixture rather than original tree selection"
 }
