@@ -105,6 +105,13 @@ def requests(reference: Path):
                 (state(), True), (state((right, 3)), False),
                 (state((left, 1), (right, 1)), False),
             ]]}
+    for method in ["Balanced", "Aggressive", "NoBrackets"]:
+        request = copy.deepcopy(cases["interpret-single-sustains"])
+        request.update(Operation="InterpretPaths", Method=method)
+        for values in [[1, 1, 0, 0], [0, 0, 1, 0], [0, 1, 0, 1], [1, 0, 0, 0],
+                       [0, 0, 1, 1], [0, 1, 0, 0], [1, 0, 1, 0], [0, 0, 0, 1]] * 2:
+            request["Frames"].append({"State": values, "Release": False})
+        cases["interpret-paths-" + method.lower()] = request
     return cases
 
 

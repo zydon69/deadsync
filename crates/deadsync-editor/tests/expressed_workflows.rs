@@ -209,3 +209,184 @@ fn simultaneous_release_mine_and_head_keep_the_reference_phase_order() {
     assert_eq!(step.last_mines[3], 24);
     assert_eq!(step.last_releases[0], 24);
 }
+
+#[test]
+fn branch_pruning_and_foot_history_match_original_for_all_bracket_policies() {
+    use deadsync_editor::generation::interpretation_path::{self, PathNode};
+    use std::{collections::HashMap, sync::Arc};
+    let graph = StepGraph::builtin("dance-single").unwrap();
+    for method in ["balanced", "aggressive", "nobrackets"] {
+        let name = format!("interpret-paths-{method}");
+        let input = fixture(&name, "request");
+        let expected = fixture(&name, "expected");
+        let root_index = graph
+            .nodes
+            .iter()
+            .position(|node| node_json(node.state) == expected["Root"])
+            .unwrap();
+        let root = PathNode::root(&graph, root_index).unwrap();
+        let mut ids = HashMap::from([(Arc::as_ptr(&root) as usize, 0u64)]);
+        let mut current = vec![root];
+        let original_frames = expected["Frames"].as_array().unwrap();
+        assert_eq!(
+            original_frames.len(),
+            input["Frames"].as_array().unwrap().len()
+        );
+        let mut branches = 0;
+        for (frame, expected) in input["Frames"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .zip(original_frames)
+        {
+            let states: Vec<_> = frame["State"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(state)
+                .collect();
+            let mut originals = expected["Matches"].as_array().unwrap().iter();
+            let mut children = Vec::new();
+            for parent in &current {
+                let candidates = expressed::candidates(
+                    &graph,
+                    parent.node,
+                    &states,
+                    frame["Release"].as_bool().unwrap(),
+                    &AtomicBool::new(false),
+                )
+                .unwrap();
+                for candidate in candidates {
+                    let original = originals.next().expect("Rust must not add a candidate");
+                    assert_eq!(
+                        ids[&(Arc::as_ptr(parent) as usize)],
+                        original["Parent"].as_u64().unwrap()
+                    );
+                    assert_eq!(
+                        node_json(graph.nodes[candidate.node].state),
+                        original["Node"]
+                    );
+                    // Domain move costs deliberately come from the original here.
+                    // This test proves history and path selection, not the cost port.
+                    let child = PathNode::child(
+                        &graph,
+                        parent,
+                        candidate.node,
+                        expected["Row"].as_u64().unwrap(),
+                        expected["Row"].as_f64().unwrap() / 120.0,
+                        candidate.instance,
+                        original["Cost"].as_i64().unwrap() as i32,
+                        original["OrientationCost"].as_i64().unwrap() as i32,
+                    )
+                    .unwrap();
+                    assert_eq!(
+                        i64::from(child.total_cost),
+                        original["TotalCost"].as_i64().unwrap()
+                    );
+                    assert_eq!(
+                        i64::from(child.total_orientation_cost),
+                        original["TotalOrientationCost"].as_i64().unwrap()
+                    );
+                    let feet: Vec<_> = child
+                        .last_foot
+                        .iter()
+                        .map(|foot| foot.map(|f| f as i32).unwrap_or(-1))
+                        .collect();
+                    assert_eq!(json!(feet), original["LastFoot"]);
+                    let previous: Vec<_> = [1, 2]
+                        .into_iter()
+                        .map(|nth| {
+                            child
+                                .previous_step_node(nth)
+                                .map(|node| ids[&(node as *const PathNode as usize)] as i64)
+                                .unwrap_or(-1)
+                        })
+                        .collect();
+                    assert_eq!(json!(previous), original["PreviousSteps"]);
+                    ids.insert(
+                        Arc::as_ptr(&child) as usize,
+                        original["Id"].as_u64().unwrap(),
+                    );
+                    children.push(child);
+                }
+            }
+            assert!(
+                originals.next().is_none(),
+                "Rust must not drop a matching candidate"
+            );
+            branches += children.len();
+            current = interpretation_path::prune(children);
+            let retained: Vec<_> = current
+                .iter()
+                .map(|node| ids[&(Arc::as_ptr(node) as usize)])
+                .collect();
+            assert_eq!(
+                json!(retained),
+                expected["Retained"],
+                "{method}: prune at {}",
+                expected["Row"]
+            );
+            let best = interpretation_path::best(&current)
+                .map(|node| ids[&(Arc::as_ptr(node) as usize)] as i64)
+                .unwrap_or(-1);
+            assert_eq!(best, expected["Best"].as_i64().unwrap(), "{method}");
+        }
+        assert!(
+            branches > 100,
+            "Exercise branching, not just one linear path"
+        );
+    }
+}
+
+#[test]
+fn equal_total_cost_prefers_the_earlier_easier_move_and_long_history_drops_iteratively() {
+    use deadsync_editor::generation::{
+        expressed::{InstanceType, LinkInstance},
+        graph::{FootAction, GraphLink, PortionAction},
+        interpretation_path::PathNode,
+        search::BLANK_ACTION,
+        step_data::StepType,
+    };
+    use std::{cmp::Ordering, sync::Arc};
+    let graph = StepGraph::builtin("dance-single").unwrap();
+    let root = PathNode::root(&graph, 0).unwrap();
+    let link = LinkInstance {
+        link: GraphLink {
+            feet: [
+                [
+                    PortionAction {
+                        valid: true,
+                        step: StepType::SameArrow,
+                        action: FootAction::Tap,
+                    },
+                    BLANK_ACTION,
+                ],
+                [BLANK_ACTION; 2],
+            ],
+        },
+        types: [[InstanceType::Default; 2]; 2],
+    };
+    let easy = PathNode::child(&graph, &root, 0, 12, 0.1, link, 1, 0).unwrap();
+    let easy_then_hard = PathNode::child(&graph, &easy, 0, 24, 0.2, link, 2, 0).unwrap();
+    let hard = PathNode::child(&graph, &root, 0, 12, 0.1, link, 2, 0).unwrap();
+    let hard_then_easy = PathNode::child(&graph, &hard, 0, 24, 0.2, link, 1, 0).unwrap();
+    assert_eq!(easy_then_hard.compare(&hard_then_easy), Ordering::Less);
+    assert_eq!(hard_then_easy.compare(&easy_then_hard), Ordering::Greater);
+    assert_eq!(easy_then_hard.compare(&easy_then_hard), Ordering::Equal);
+    assert!(PathNode::child(&graph, &easy, 0, 0, 0.0, link, 0, 0).is_err());
+    assert!(PathNode::child(&graph, &root, 0, 12, f64::NAN, link, 0, 0).is_err());
+    std::thread::Builder::new()
+        .stack_size(64 * 1024)
+        .spawn(move || {
+            let mut last = Arc::clone(&root);
+            for row in 1..=100_000 {
+                last =
+                    PathNode::child(&graph, &last, 0, row, row as f64 / 120.0, link, 1, 0).unwrap();
+            }
+            assert_eq!(last.total_cost, 100_000);
+            drop(last);
+        })
+        .unwrap()
+        .join()
+        .unwrap();
+}

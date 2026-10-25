@@ -8,6 +8,7 @@ using Fumen.ChartDefinition;
 using StepManiaLibrary;
 using StepManiaLibrary.PerformedChart;
 using PerformedConfig = StepManiaLibrary.PerformedChart.Config;
+using ExpressedNode = StepManiaLibrary.ExpressedChart.ExpressedChart.ChartSearchNode;
 
 if (args.Length != 2)
     throw new ArgumentException("Usage: EditorOracle <StepManiaLibrary checkout> <request.json>");
@@ -56,13 +57,84 @@ if (operation == "Configurations")
     Console.WriteLine(JsonSerializer.Serialize(results, options));
     return;
 }
-if (operation != "Pattern" && operation != "InterpretMatches")
+if (operation != "Pattern" && operation != "InterpretMatches" && operation != "InterpretPaths")
     throw new ArgumentException("Unknown oracle operation");
 
 var name = request.GetProperty("Layout").GetString()!;
 var pad = await PadData.LoadPadData(name, Path.Combine(args[0], "StepManiaLibrary", name + ".json"));
 var graph = StepGraph.Load(Path.Combine(args[0], "StepManiaLibrary", name + ".fsg"), pad);
 if (graph == null) throw new InvalidDataException("Could not load reference graph");
+if (operation == "InterpretPaths")
+{
+    var expressedType = typeof(StepManiaLibrary.ExpressedChart.ExpressedChart);
+    var stateType = expressedType.GetNestedType("SearchState", BindingFlags.NonPublic)!;
+    var match = expressedType.GetMethod("GetLinkInstanceIfStateMatches", BindingFlags.Static | BindingFlags.NonPublic)!;
+    var getCost = expressedType.GetMethod("GetCost", BindingFlags.Instance | BindingFlags.NonPublic)!;
+    var getOrientation = expressedType.GetMethod("GetOrientationCost", BindingFlags.Instance | BindingFlags.NonPublic)!;
+    var prune = expressedType.GetMethod("Prune", BindingFlags.Static | BindingFlags.NonPublic,
+        null, new[] { typeof(HashSet<ExpressedNode>) }, null)!;
+    var interpreter = Activator.CreateInstance(expressedType, BindingFlags.Instance | BindingFlags.NonPublic,
+        null, new object[] { new List<Event>(), "Oracle", graph }, null)!;
+    var method = request.GetProperty("Method").GetString()!;
+    var field = expressedType.GetField("BracketParsingMethod", BindingFlags.Instance | BindingFlags.NonPublic)!;
+    field.SetValue(interpreter, Enum.Parse(field.FieldType, method));
+    var root = new StepManiaLibrary.ExpressedChart.ExpressedChart.ChartSearchNode(graph.GetRoot(), 0, 0, null, null, new InstanceStepType[pad.NumArrows]);
+    var interpretCurrent = new List<StepManiaLibrary.ExpressedChart.ExpressedChart.ChartSearchNode> { root };
+    var ids = new Dictionary<StepManiaLibrary.ExpressedChart.ExpressedChart.ChartSearchNode, int> { [root] = 0 };
+    var output = new List<object>();
+    object nodeState(GraphNode node) => new {
+        Orientation = (int)node.Orientation,
+        Feet = Enumerable.Range(0, 2).Select(f => Enumerable.Range(0, 2).Select(p =>
+            new { Lane = node.State[f, p].Arrow, State = (int)node.State[f, p].State }).ToArray()).ToArray()
+    };
+    var position = 0;
+    foreach (var frame in request.GetProperty("Frames").EnumerateArray())
+    {
+        position += 12;
+        var state = Array.CreateInstance(stateType, pad.NumArrows);
+        var buffer = Array.CreateInstance(stateType, pad.NumArrows);
+        var values = frame.GetProperty("State").Deserialize<int[]>()!;
+        var instanceTypes = values.Select(v => v is 6 or 7 ? InstanceStepType.Roll : v == 2 ? InstanceStepType.Fake : v == 3 ? InstanceStepType.Lift : InstanceStepType.Default).ToArray();
+        for (var a = 0; a < values.Length; a++) state.SetValue(Enum.ToObject(stateType, values[a]), a);
+        var interpretNodes = new List<StepManiaLibrary.ExpressedChart.ExpressedChart.ChartSearchNode>();
+        var matches = new List<object>();
+        var multiple = values.Count(v => v is 1 or 2 or 3 or 4 or 6) > 1;
+        foreach (var parent in interpretCurrent)
+        foreach (var edge in parent.GraphNode.Links)
+        {
+            if ((!multiple && (edge.Key.IsJump() || edge.Key.InvolvesBracket()))
+                || (frame.GetProperty("Release").GetBoolean() && !edge.Key.IsRelease())) continue;
+            foreach (var target in edge.Value)
+            {
+                var instance = (GraphLinkInstance?)match.Invoke(null, new object[] { state, buffer, target, edge.Key });
+                if (instance == null) continue;
+                var child = new StepManiaLibrary.ExpressedChart.ExpressedChart.ChartSearchNode(target, position, position / 120.0, parent, instance, instanceTypes);
+                var cost = (int)getCost.Invoke(interpreter, new object[] { child, state, new int[pad.NumArrows], new int[pad.NumArrows], pad })!;
+                var orientation = (int)getOrientation.Invoke(interpreter, new object[] { child })!;
+                child.SetCost(cost, orientation);
+                ids[child] = ids.Count;
+                interpretNodes.Add(child);
+                if (!parent.NextNodes.TryGetValue(edge.Key, out var siblings)) parent.NextNodes[edge.Key] = siblings = new();
+                siblings.Add(child);
+                matches.Add(new { Id = ids[child], Parent = ids[parent], Node = nodeState(target), Cost = cost, OrientationCost = orientation,
+                    TotalCost = child.TotalCost, TotalOrientationCost = child.TotalOrientationCost, LastFoot = child.LastFootUsedToStepOnArrow,
+                    PreviousSteps = new[] { child.GetPreviousStepSearchNode(), child.GetPreviousStepSearchNode(2) }.Select(n => n == null ? -1 : ids[n]).ToArray(),
+                    Feet = Enumerable.Range(0, 2).Select(f => Enumerable.Range(0, 2).Select(p => new {
+                        Valid = edge.Key.Links[f, p].Valid, Step = (int)edge.Key.Links[f, p].Step,
+                        Action = (int)edge.Key.Links[f, p].Action, Instance = (int)instance.InstanceTypes[f, p]
+                    }).ToArray()).ToArray() });
+            }
+        }
+        var kept = (HashSet<ExpressedNode>)prune.Invoke(null, new object[] { interpretNodes.ToHashSet() })!;
+        interpretCurrent = kept.ToList();
+        var best = interpretCurrent.FirstOrDefault();
+        foreach (var child in interpretCurrent) if (best == null || child.CompareTo(best) < 0) best = child;
+        output.Add(new { Row = position, Matches = matches, Retained = interpretCurrent.Select(n => ids[n]).ToArray(), Best = best == null ? -1 : ids[best] });
+        if (interpretCurrent.Count == 0) break;
+    }
+    Console.WriteLine(JsonSerializer.Serialize(new { Root = nodeState(root.GraphNode), Frames = output }, options));
+    return;
+}
 if (operation == "InterpretMatches")
 {
     var expressedType = typeof(StepManiaLibrary.ExpressedChart.ExpressedChart);

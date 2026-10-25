@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | Original tags preserved | Typed editing, inheritance, conversion and timing tools pending |
 | Playback and audio | Existing DeadSync Practice audio retained outside the editing workspace | Edited chart preview, waveform, scrub, loop, Song Sync and audio analysis pending |
 | Multi-chart | Switch existing charts with Ctrl/Cmd+Tab; shared history | Multi-view comparison, chart creation/clone/delete and library pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs/pruning, whole-chart generation, fallback rules, mine expression and native asynchronous generation panels pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation domain costs and complete search, whole-chart generation, fallback rules, mine expression and native asynchronous generation panels pending |
 | Analysis | Existing Practice density graph outside the editing workspace | Editor density/NPS/streams/minimap and navigation pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -142,5 +142,20 @@ step types, actions and roll/fake/lift instance assignments with the original
 private `GetLinkInstanceIfStateMatches` through the development oracle. Fixtures
 cover all eleven original layouts. Grid workflows additionally cover participant
 isolation and simultaneous releases, mines and heads. This verifies candidate
-matching, not the final interpretation: costs, deterministic path comparisons,
-pruning and dynamic bracket parsing still require porting and differential tests.
+matching, not the final interpretation: domain move costs, complete search and dynamic bracket parsing still require
+porting and differential tests.
+
+### Interpretation path selection
+
+`interpretation_path` ports `ChartSearchNode` history, cumulative costs, last-foot
+tracking, release-skipping history queries, deterministic path comparison and
+best-path pruning per destination. It preserves insertion order and the source
+strict comparison on equal paths. Long unique histories are dropped iteratively.
+
+The development oracle executes the original `GetCost`, `GetOrientationCost`,
+`ChartSearchNode.CompareTo` and private `Prune` on branching graph interpretations
+under Balanced, Aggressive and NoBrackets policies. Rust tests replay those
+original move costs and verify retained paths, final choices, cumulative costs,
+last-foot ownership and preceding-step identities. These tests establish the
+history/comparison/pruning port; they deliberately do not claim that move costs
+are already calculated in Rust. A small-stack test drops 100,000 history nodes.
