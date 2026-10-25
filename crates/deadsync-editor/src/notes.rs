@@ -156,6 +156,46 @@ impl Grid {
             })
     }
 
+    /// Bounded overview query for far-zoomed-out rendering. For each occupied
+    /// track/bin, retain the first and last head. The last head also preserves
+    /// the sustain crossing the next bin (same-track sustains cannot overlap).
+    /// An initial sustain crossing the viewport is included separately.
+    /// This is presentation sampling only: the document is never modified.
+    /// At one bin per row the result is identical to `visible`.
+    pub fn visible_overview(
+        &self,
+        start: u64,
+        end: u64,
+        bins: usize,
+    ) -> Result<Vec<(Position, &Note)>, Error> {
+        if start > end || !(1..=4096).contains(&bins) {
+            return Err(Error::InvalidEdit("Invalid chart overview bounds or bin count".into()));
+        }
+        // u128 includes the complete inclusive u64 domain without overflow.
+        let span = u128::from(end) - u128::from(start) + 1;
+        let count = (bins as u128).min(span);
+        let mut result = Vec::new();
+        for (&(player, lane), track) in &self.tracks {
+            if let Some((&row, note)) = track.range(..start).next_back()
+                .filter(|(_, note)| note.end.is_some_and(|tail| tail >= start))
+            {
+                result.push((Position { player, lane, row }, note));
+            }
+            for index in 0..count {
+                let a = (u128::from(start) + span * index / count) as u64;
+                let b = (u128::from(start) + span * (index + 1) / count - 1) as u64;
+                let mut range = track.range(a..=b);
+                if let Some((&row, note)) = range.next() {
+                    result.push((Position { player, lane, row }, note));
+                    if let Some((&row, note)) = range.next_back() {
+                        result.push((Position { player, lane, row }, note));
+                    }
+                }
+            }
+        }
+        Ok(result)
+    }
+
     pub fn set(&mut self, pos: Position, note: Option<Note>) -> Result<Option<Note>, Error> {
         if pos.lane >= self.columns || pos.player >= self.players {
             return Err(Error::InvalidEdit(

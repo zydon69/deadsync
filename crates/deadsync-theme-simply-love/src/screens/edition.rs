@@ -2198,7 +2198,10 @@ impl State {
             let y2 = projection.clipped_y(b) as f32;
             actors.push(act!(quad: xy(field_center, (y1 + y2) * 0.5): zoomto(field_width, (y2 - y1).abs().max(2.0)): diffuse(0.2, 0.6, 0.9, 0.2): z(8002)));
         }
-        for (position, note) in grid.visible(start, end) {
+        let note_bins = ((bottom - top).ceil() as usize).clamp(1, 4096);
+        let visible_notes = grid.visible_overview(start, end, note_bins)
+            .expect("ordered viewport bounds and bounded overview bins");
+        for (position, note) in visible_notes {
             let x = left + (f32::from(position.lane) + 0.5) * lane_width;
             let y = projection.y(position.row) as f32;
             let color = player_color(position.player);

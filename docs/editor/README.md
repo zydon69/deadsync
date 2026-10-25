@@ -3367,3 +3367,25 @@ Validation: all 180 native `edition_*` integration tests passed after the shared
 projection refactor, alongside the three projection workflow tests.
 `cargo check -p deadsync --jobs 2 --locked` passed. No interactive zoom behavior
 is claimed by these checks; native input and bounded rendering remain pending.
+
+### Bounded note overview queries for zoom integration
+
+The native renderer now queries `Grid::visible_overview` with at most one bin
+per screen pixel (hard maximum 4096). Each existing participant/lane track uses
+two BTreeMap endpoint lookups per bin instead of walking every note in the visible
+row range. The output contains at most two heads per bin/track plus one sustain
+crossing the viewport's start. Nonoverlapping same-track sustains ensure the last
+head in a bin retains any sustain extending into later bins. Interior heads may
+be omitted in a coarse overview; this is visual sampling, not a chart edit or
+an exact density/type histogram. At one bin per row no notes are omitted.
+
+Inclusive range arithmetic uses u128, including a full 0..=u64::MAX query.
+Tests compare detailed results to the existing visible query, cover participant
+and lane separation with 40,000 notes, assert output bounds and endpoints, test
+sustain continuity, and exercise full-domain/invalid bounds. The current native
+scale remains one pixel per row; keyboard zoom and bounded beat/measure/label
+rendering still need integration before the full zoom range can be activated.
+
+Validation: the complete editor core suite passed 361 tests; all 180 native
+`edition_*` integration tests passed. The four overview workflow tests also
+passed separately, and `cargo check -p deadsync --jobs 2 --locked` passed.
