@@ -2617,3 +2617,18 @@ and height at 854x480. This addresses the observed single-line overflow in code;
 rendering the rebuilt application is still required to assess final readability.
 
 Footer validation: `cargo test -p deadsync-theme-simply-love --test edition_song_text_workflow --locked` passes all five tests, including the bounded-footer actor contract. The contract checks layout properties, not glyph readability or GPU output.
+
+Rendered follow-up: the rebuilt `org.deadsync.editorqa.footer` portable app was
+opened at 1280x720 using only the synthetic song. The French SongText help and
+SSC ChartText help both render fully on two lines, above the bottom margin,
+with the shortcut line separate. This confirms the observed overflow is fixed
+for these two panels at this resolution; other viewport/language combinations
+remain unobserved.
+
+A subsequent native automation paste of `Édition clavier QA` displayed only `v`
+in the empty chart name. The next Command shortcut could not reach the app;
+its process was no longer present and the game log contains no failure report.
+Therefore OS clipboard and Command modifier behavior are NOT validated.
+Investigate window fallback modifier events / automation routing and reproduce
+with a single running QA instance before claiming clipboard parity or a crash.
+No property was applied and no fixture song was saved during this observation.
