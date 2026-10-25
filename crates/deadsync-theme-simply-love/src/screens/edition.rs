@@ -4,6 +4,7 @@ mod analysis_panel;
 mod zoom_view;
 mod spacing_view;
 mod zoom_settings;
+mod scroll_settings;
 mod audio_settings;
 mod batch;
 mod chart_creation;
@@ -73,6 +74,7 @@ enum Panel {
     SongSample(usize),
     AudioSettings(usize),
     ZoomSettings(usize),
+    ScrollSettings(usize),
     WaveformSettings(usize),
     WaveformColors(usize),
     Timing(usize),
@@ -222,6 +224,7 @@ pub struct State {
     playback: Option<playback::Playing>,
     paused_playback: Option<playback::Paused>,
     scroll_preferences: deadsync_editor::scroll_preferences::Preferences,
+    scroll_preferences_draft: Option<deadsync_editor::scroll_preferences::Preferences>,
     audio_preferences: deadsync_editor::audio_preferences::Audio,
     audio_preferences_file: Option<deadsync_editor::audio_preferences::File>,
     audio_preferences_path: Option<std::path::PathBuf>,
@@ -342,6 +345,7 @@ impl State {
             playback: None,
             paused_playback: None,
             scroll_preferences: Default::default(),
+            scroll_preferences_draft: None,
             audio_preferences: Default::default(),
             audio_preferences_file: None,
             audio_preferences_path: None,
@@ -1358,6 +1362,9 @@ impl State {
         if self.panel.is_some() {
             return self.panel_key(event.code);
         }
+        if self.shift && !self.control && event.code == KeyCode::KeyS {
+            self.open_scroll_settings(); return false;
+        }
         if !self.workspace.has_chart() {
             self.stop_audio();
             return self.no_chart_key(event.code);
@@ -1534,6 +1541,7 @@ impl State {
             self.waveform_settings_key(index, code);
             return false;
         }
+        if let Panel::ScrollSettings(index) = panel { self.scroll_settings_key(index, code); return false; }
         if let Panel::ZoomSettings(index) = panel { self.zoom_settings_key(index, code); return false; }
         if let Panel::AudioSettings(index) = panel {
             self.audio_settings_key(index, code);
@@ -1671,6 +1679,7 @@ impl State {
             Panel::SongSample(_) => unreachable!("sample input dispatched above"),
             Panel::WaveformColors(_) => unreachable!("waveform colours dispatched above"),
             Panel::WaveformSettings(_) => unreachable!("waveform settings dispatched above"),
+            Panel::ScrollSettings(_) => unreachable!("scroll settings dispatched above"),
             Panel::ZoomSettings(_) => unreachable!("zoom settings dispatched above"),
             Panel::AudioSettings(_) => unreachable!("audio settings dispatched above"),
             Panel::TimingMigration(index) => self.timing_migration_key(index, code),
@@ -2134,21 +2143,9 @@ impl State {
             0.55,
             [0.65, 0.7, 0.8, 1.0],
         );
-        text(
-            actors,
-            &i18n::tr(
-                "Edition",
-                if self.workspace.has_chart() {
-                    "Shortcuts"
-                } else {
-                    "NoChartShortcuts"
-                },
-            ),
-            18.0,
-            height - 70.0,
-            0.5,
-            [0.65, 0.7, 0.8, 1.0],
-        );
+        let shortcuts = i18n::tr("Edition", if self.workspace.has_chart() { "Shortcuts" } else { "NoChartShortcuts" });
+        let shortcut_width = (width - 36.0).max(1.0);
+        actors.push(act!(text: font("miso"): settext(shortcuts): align(0.0,0.0): xy(18.0,height-70.0): zoom(0.5): wrapwidthpixels(shortcut_width/0.5): maxwidth(shortcut_width): maxheight(20.0): diffuse(0.65,0.7,0.8,1.0): z(8006)));
         // Reserve a bounded multiline footer for localized help and errors.
         let status_width = (width - 36.0).max(1.0);
         actors.push(act!(text: font("miso"): settext(self.status.clone()): align(0.0,0.0): xy(18.0,height-50.0): zoom(0.5): wrapwidthpixels(status_width/0.5): maxwidth(status_width): maxheight(42.0): diffuse(0.9,0.9,0.9,1.0): z(8006)));
@@ -2409,6 +2406,7 @@ impl State {
                         | Panel::TimingMigration(_)
                         | Panel::SongProperties(_)
                         | Panel::SongSample(_)
+                        | Panel::ScrollSettings(_)
                         | Panel::ZoomSettings(_)
                         | Panel::AudioSettings(_)
                         | Panel::WaveformSettings(_)
@@ -2534,6 +2532,7 @@ impl State {
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
             Panel::WaveformColors(_) => &["WaveformColorMode","WaveformColorDarken","WaveformDenseRed","WaveformDenseGreen","WaveformDenseBlue","WaveformDenseAlpha","WaveformSparseRed","WaveformSparseGreen","WaveformSparseBlue","WaveformSparseAlpha","WaveformBackgroundRed","WaveformBackgroundGreen","WaveformBackgroundBlue","WaveformBackgroundAlpha","WaveformColorsBack"],
             Panel::WaveformSettings(_) => &["WaveformSettingShow", "WaveformSettingEnabled", "WaveformSettingWidth", "WaveformSettingDense", "WaveformSettingScroll", "WaveformSettingsDefaults", "WaveformSettingsSave", "WaveformSettingsCancel"],
+            Panel::ScrollSettings(_) => &["ScrollStopPlayback", "ScrollSettingsDefaults", "ScrollSettingsSave", "ScrollSettingsCancel"],
             Panel::ZoomSettings(_) => &["ZoomDuration", "ZoomMultiplier", "ZoomSizeCap", "ZoomLimited", "ZoomSettingsDefaults", "ZoomSettingsSave", "ZoomSettingsCancel"],
             Panel::AudioSettings(_) => &["AudioFadeIn", "AudioFadeOut", "AudioSettingsDefaults", "AudioSettingsApply", "AudioSettingsCancel"],
             Panel::SongSample(_) => &["SongSampleStart", "SongSampleLength", "SongLastSecondHint", "SongSampleBack"],
@@ -2606,6 +2605,7 @@ impl State {
             | Panel::SongText(i)
             | Panel::SongProperties(i)
             | Panel::SongSample(i)
+            | Panel::ScrollSettings(i)
             | Panel::ZoomSettings(i)
             | Panel::AudioSettings(i)
             | Panel::WaveformSettings(i)
@@ -2985,6 +2985,8 @@ impl State {
                 self.waveform_colors_label(index,key)
             } else if matches!(panel, Panel::WaveformSettings(_)) && index < 5 {
                 self.waveform_settings_label(index, key)
+            } else if matches!(panel, Panel::ScrollSettings(_)) && index == 0 {
+                self.scroll_settings_label(key)
             } else if matches!(panel, Panel::ZoomSettings(_)) && index < 4 {
                 self.zoom_settings_label(index, key)
             } else if matches!(panel, Panel::AudioSettings(_)) && index < 2 {

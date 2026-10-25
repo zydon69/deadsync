@@ -4175,8 +4175,9 @@ were removed; core Workspace.Move remains available as a separate relative actio
 The new Scroll preferences group reads/writes the original boolean
 StopPlaybackWhenScrolling (default false). It shares version-1 atomic preference
 persistence and unknown-field/no-op/conflict protections with Audio/Zoom/Waveform.
-The current setting is loaded by the native preference setup. There is not yet
-a native panel for this boolean; it is configurable in editor-preferences.json.
+The current setting is loaded by the native preference setup. The initial addition exposed
+this boolean through editor-preferences.json; the native panel below now
+provides its keyboard control.
 With false, arrow navigation during playback emits a new PlayMusic command at
 the destination's music time, retaining playing state and immediately updating
 its precise displayed focal position. The current host audio command API does
@@ -4199,10 +4200,48 @@ Native workflows exercise all three display modes, normal/Reverse, Up/Down and
 both stop policies, repeated keys, modal focus, missing-asset atomic refusal,
 command cuts and unchanged source/history. The earlier pause/navigation test now
 expects the next original grid line (row 48) instead of relative row 60 from an
-off-grid row 12. Full mouse/scroll-wheel controls, policy UI, continuous scrub,
+off-grid row 12. Full mouse/scroll-wheel controls, continuous scrub,
 loop controls, decoder lifecycle and complete transport parity remain open.
 
 Validation: all 17 tests across four targeted core preference/navigation suites
 and all 214 tests across 30 native edition integration targets passed.
 `cargo check -p deadsync --jobs 2 --locked` passed. No new .app/GPU or audible
 seek-latency review was performed. Full editor parity remains incomplete.
+
+### Keyboard navigation preference panel
+
+Shift+S opens a four-row advanced panel: Stop playback with arrows, Defaults,
+Save and Discard. Left/Right/Enter toggles the draft boolean; Home/0 restores
+original false. Up/Down/Tab navigate, with Shift+Tab backwards. Key repeat does
+not repeatedly flip the boolean. Escape/Discard restores active settings, and
+Save applies only after the shared conflict-safe preference write succeeds.
+The panel stops current audio before changing settings and is available even in
+a workspace with no active chart. Existing modal/text input keeps the shortcut;
+Ctrl/Cmd+S and Ctrl/Cmd+Shift+S retain their save/recovery meaning.
+
+English/French labels, status, help and shortcut hints describe the setting.
+The main shortcut footer now wraps within its own bounded 20-pixel region,
+separate from the 42-pixel status/help footer, rather than extending beyond the
+window after new shortcuts are added. Existing shortcuts remain present.
+
+New native workflows cover French labels, draft-only state, apply/reload and
+actual stop/continue audio commands, default restoration, Home/0, ignored toggle
+repeats, reverse tab navigation, Escape/Discard, missing/future preference paths,
+external write conflicts and retention of unknown fields and unrelated Audio
+settings. They also cover chartless persistence, unchanged song bytes/history,
+and explicit footer bounds. The panel is application configuration and creates
+no song edits or editor undo steps.
+
+Validation: all 219 tests across 31 native edition integration suites passed;
+`cargo check -p deadsync --jobs 2 --locked` and `cargo build -p deadsync --jobs 2
+--locked` passed. The packaged debug macOS app was run with isolated portable
+French preferences, muted audio and the generated SSC/WAV fixture. Physical
+keyboard interaction opened Shift+S, selected true, saved and reopened the panel;
+the JSON contains Scroll.StopPlaybackWhenScrolling=true. All four labels fit the
+panel. The shortcut hint wraps on a second line without extending beyond the
+window or overlapping status. Fixture SSC/WAV SHA-256 hashes remain unchanged.
+Screenshots are local QA artifacts at /tmp/deadsync-scroll-settings-panel.png and
+/tmp/deadsync-scroll-settings-footer.png. The QA window was closed. This is a
+scoped OpenGL/UI/persistence review, not audible seek-latency or whole-editor
+parity evidence. Continuous scrub, loops, decoder lifecycle and the remaining
+editor domains are still incomplete.
