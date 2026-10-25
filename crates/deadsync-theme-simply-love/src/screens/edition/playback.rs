@@ -19,7 +19,9 @@ impl State {
         self.audio_preferences_file = None;
         let file = deadsync_editor::audio_preferences::File::open(path)?;
         self.audio_preferences = file.audio();
+        self.waveform_preferences = file.waveform();
         self.audio_preferences_file = Some(file);
+        self.apply_waveform_preferences();
         Ok(())
     }
     pub fn audio_preferences(&self) -> deadsync_editor::audio_preferences::Audio {

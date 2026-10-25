@@ -1,5 +1,5 @@
 //! Editor audio preferences, stored independently of simfiles.
-use crate::Error;
+use crate::{Error, waveform_preferences::Preferences as Waveform};
 use serde_json::{Map, Value};
 use std::{
     fs,
@@ -52,14 +52,21 @@ fn read_bytes(path: &Path) -> Result<Option<Vec<u8>>, Error> {
         Err(error) => Err(error.into()),
     }
 }
+#[derive(Clone, Copy, PartialEq)]
+struct Settings {
+    audio: Audio,
+    waveform: Waveform,
+}
+
 pub struct File {
     path: PathBuf,
     expected: Option<Vec<u8>>,
     root: Map<String, Value>,
     audio_fields: Map<String, Value>,
-    original: Audio,
-    written: Audio,
-    audio: Audio,
+    waveform_fields: Map<String, Value>,
+    original: Settings,
+    written: Settings,
+    settings: Settings,
 }
 impl File {
     pub fn open(path: &Path) -> Result<Self, Error> {
@@ -103,24 +110,44 @@ impl File {
                 )?;
             }
         }
+        let waveform_fields = match root.get("Waveform") {
+            None => Map::new(),
+            Some(Value::Object(fields)) => fields.clone(),
+            Some(_) => {
+                return Err(Error::InvalidFormat(
+                    "Editor waveform preferences must be an object".into(),
+                ));
+            }
+        };
+        let settings = Settings {
+            audio,
+            waveform: Waveform::read(&waveform_fields)?,
+        };
         Ok(Self {
             path: path.to_owned(),
             expected,
             root,
             audio_fields,
-            original: audio,
-            written: audio,
-            audio,
+            waveform_fields,
+            original: settings,
+            written: settings,
+            settings,
         })
     }
     pub fn audio(&self) -> Audio {
-        self.audio
+        self.settings.audio
     }
     pub fn set_audio(&mut self, audio: Audio) {
-        self.audio = audio;
+        self.settings.audio = audio;
+    }
+    pub fn waveform(&self) -> Waveform {
+        self.settings.waveform
+    }
+    pub fn set_waveform(&mut self, waveform: Waveform) {
+        self.settings.waveform = waveform;
     }
     pub fn has_changes(&self) -> bool {
-        self.audio != self.original || self.audio != self.written
+        self.settings != self.original || self.settings != self.written
     }
     pub fn save(&mut self) -> Result<bool, Error> {
         if !self.has_changes() {
@@ -146,12 +173,18 @@ impl File {
             return Err(Error::ExternalChange);
         }
         let mut fields = self.audio_fields.clone();
-        fields.insert("PreviewFadeInTime".into(), Value::from(self.audio.fade_in));
+        fields.insert(
+            "PreviewFadeInTime".into(),
+            Value::from(self.settings.audio.fade_in),
+        );
         fields.insert(
             "PreviewFadeOutTime".into(),
-            Value::from(self.audio.fade_out),
+            Value::from(self.settings.audio.fade_out),
         );
+        let mut waveform_fields = self.waveform_fields.clone();
+        self.settings.waveform.write(&mut waveform_fields);
         let mut root = self.root.clone();
+        root.insert("Waveform".into(), Value::Object(waveform_fields.clone()));
         root.insert("Audio".into(), Value::Object(fields.clone()));
         let mut bytes = serde_json::to_vec_pretty(&root)
             .map_err(|error| Error::InvalidFormat(error.to_string()))?;
@@ -171,11 +204,12 @@ impl File {
             .persist(&self.path)
             .map_err(|error| Error::Io(error.error))?;
         self.expected = Some(bytes);
-        self.written = self.audio;
+        self.written = self.settings;
         self.root = root;
         self.audio_fields = fields;
+        self.waveform_fields = waveform_fields;
         crate::storage::sync_directory(parent)?;
-        self.original = self.audio;
+        self.original = self.settings;
         Ok(true)
     }
 }

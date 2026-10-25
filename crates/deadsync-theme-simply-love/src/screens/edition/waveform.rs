@@ -51,7 +51,23 @@ impl State {
     pub fn waveform_frames(&self) -> Option<usize> {
         self.waveform.data.as_ref().map(Waveform::frames)
     }
+    pub fn waveform_preferences(&self) -> deadsync_editor::waveform_preferences::Preferences {
+        self.waveform_preferences
+    }
+    pub(super) fn apply_waveform_preferences(&mut self) {
+        self.waveform.enabled =
+            self.waveform_preferences.enabled() && self.waveform_preferences.show();
+        if self.waveform.enabled {
+            self.refresh_waveform();
+        } else {
+            self.waveform.clear();
+        }
+    }
     pub(super) fn toggle_waveform(&mut self) {
+        if !self.waveform_preferences.enabled() {
+            self.status = i18n::tr("Edition", "WaveformDisabled");
+            return;
+        }
         self.waveform.enabled = !self.waveform.enabled;
         if self.waveform.enabled {
             self.refresh_waveform();
@@ -198,7 +214,7 @@ impl State {
         bottom: f32,
         cursor_y: f32,
     ) {
-        if !self.waveform.enabled {
+        if !self.waveform.enabled || self.waveform_preferences.channel_width() == 0.0 {
             return;
         }
         let (Some(data), Some(clock)) = (&self.waveform.data, &self.waveform.clock) else {
@@ -210,6 +226,8 @@ impl State {
         }
         let step = (bottom - top) / rows as f32;
         let channel_width = width / data.channels() as f32;
+        let scale = self.waveform_preferences.channel_width() as f32;
+        let margin = (1.0 - scale) * 0.5;
         for pixel in 0..rows {
             let y = top + pixel as f32 * step;
             let first = self.workspace.row() as f64 + f64::from(y - cursor_y);
@@ -235,12 +253,15 @@ impl State {
                     continue;
                 };
                 let left = x - width * 0.5 + channel as f32 * channel_width;
-                let a = left + channel_width * (0.05 + 0.9 * f32::from(envelope.min) / 511.0);
-                let b = left + channel_width * (0.05 + 0.9 * f32::from(envelope.max) / 511.0);
+                let a = left + channel_width * (margin + scale * f32::from(envelope.min) / 511.0);
+                let b = left + channel_width * (margin + scale * f32::from(envelope.max) / 511.0);
                 let mid = (a + b) * 0.5;
                 actors.push(act!(quad: xy(mid,y+step*0.5): zoomto((b-a).max(0.5),step): diffuse(0.0,0.35,0.164,0.35): z(8001)));
                 if end.saturating_sub(start) > 1 {
-                    let dense = (envelope.mean_distance / 511.0 * 6.0).min(1.0) as f32 * (b - a);
+                    let dense = (envelope.mean_distance / 511.0
+                        * self.waveform_preferences.dense_scale())
+                    .min(1.0) as f32
+                        * (b - a);
                     if dense > 0.0 {
                         actors.push(act!(quad: xy(mid,y+step*0.5): zoomto(dense,step): diffuse(0.0,0.389,0.183,0.5): z(8001)));
                     }

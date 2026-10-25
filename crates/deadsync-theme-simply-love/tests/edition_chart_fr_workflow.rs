@@ -501,3 +501,56 @@ fn french_end_hint_explains_song_end_and_marks_sm_unavailable() {
         })));
     }
 }
+
+#[test]
+fn french_waveform_preferences_show_translated_controls_and_missing_path_without_song_edits() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source = "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path, source).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    state.raw_key(&RawKeyboardEvent {
+        code: KeyCode::ShiftLeft,
+        pressed: true,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    press(&mut state, KeyCode::KeyW);
+    state.raw_key(&RawKeyboardEvent {
+        code: KeyCode::ShiftLeft,
+        pressed: false,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    let labels = texts(&state).join("\n");
+    for expected in [
+        "Afficher à l’ouverture de l’éditeur : Oui",
+        "Activer le décodage",
+        "Largeur des canaux : 90.0",
+        "Intensité de la zone dense : 6.00",
+        "Enregistrer les préférences de forme d’onde",
+        "Abandonner et revenir",
+    ] {
+        assert!(labels.contains(expected), "{expected}: {labels}");
+    }
+    for _ in 0..5 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
+    press(&mut state, KeyCode::Enter);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|line| line.contains("Emplacement des préférences indisponible"))
+    );
+    press(&mut state, KeyCode::Escape);
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        source.as_bytes()
+    );
+}

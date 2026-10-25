@@ -27,6 +27,7 @@ pub mod timing_edit;
 pub mod transform;
 pub mod workspace;
 pub mod waveform;
+pub mod waveform_preferences;
 
 use std::fmt;
 

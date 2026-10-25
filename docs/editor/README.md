@@ -3163,3 +3163,70 @@ save/reopen on that isolated run. It does not establish audible fade equivalence
 Vulkan rendering, every resolution/layout, long-file performance, configurable
 waveform preferences or full GrooveAuthor parity. Earlier sections describe the
 historical state before this runtime review.
+
+
+### Persisted waveform visibility, decoding, width and density
+
+Waveform preferences now live alongside Audio in editor-preferences.json through
+one validated settings snapshot and one atomic/conflict-aware File adapter.
+The Waveform object recognizes ShowWaveForm, EnableWaveForm,
+WaveFormMaxXPercentagePerChannel and DenseScale; original defaults are true,
+true, 0.9 and 6.0. Width accepts [0,1], density [0,10], matching original sliders.
+Invalid types/nonfinite/out-of-range values refuse loading without rewriting the
+source. Unknown root and per-section fields survive saves. The post-replacement
+and fully synced snapshots now track both sections, including failed-save retry
+semantics. Existing audio getters/setters remain compatible.
+
+When application preferences are configured, the editor applies their waveform
+visibility automatically on open (including the original visible/enabled defaults
+for a missing file). Standalone State construction without an installed
+application preference path retains opt-in behavior. W is a temporary visibility
+toggle and does not rewrite application preferences. A disabled decoder refuses
+that toggle with translated guidance to open settings.
+
+Shift+W opens a seven-row keyboard panel: default visibility, decoder enable,
+channel width, dense scale, defaults, Save, Discard. Tab/Shift+Tab or Up/Down
+navigate. Enter/Left/Right toggle booleans; arrows adjust width by 1% or density
+by 0.1, Shift gives 0.1% / 0.01. Home restores a field default; 0 clears it.
+Draft changes do not affect the view or disk until Save. Escape discards them.
+Save failure retains a reviewable draft and the last active settings. Successful
+save applies geometry/visibility without editing song history or audio fades.
+Zero width removes waveform geometry while retaining decoded data; zero density
+removes only the dense overlay. Disabling clears data and cancels pending work.
+Re-enabling resumes through the existing cancellation/worker permit lifecycle.
+
+Four core workflows cover source defaults/ranges, no-op bytes, joint audio and
+waveform persistence with unknown fields, cancellation/conflicts, and invalid
+source values unchanged. The four existing audio preference workflows also pass.
+Four native settings workflows cover staged fine edits, rendered zero width and
+density, save/reload, defaults/cancel, temporary W behavior, disable/re-enable,
+and external/future file refusal. A French workflow checks labels and missing
+application-path guidance. All 177 native edition integration tests pass across
+21 targets; cargo check for the application passes. These automated checks do
+not by themselves establish visual GPU layout of the new settings panel.
+
+Remaining waveform preference scope includes colours/sparse-colour mode,
+anti-alias controls, zoom/width-to-chart policies, draw location for multiple
+chart views, loading parallelism and import/export of original preferences.
+This four-control panel is an implemented part of the full port, not a claim of
+complete PreferencesWaveForm parity.
+
+
+Native review of the new four-control settings panel also succeeded in a fresh
+`EditorQA-WaveformPrefs.app` (`org.deadsync.editorqa.waveformprefs`) built with
+`cargo build -p deadsync --jobs 2 --locked` and the normal macOS packaging script.
+The isolated portable bundle uses the same generated stereo fixture, French,
+1280 × 720 OpenGL, sound muted. The waveform appears automatically when the editor
+opens. Shift+W shows all seven translated rows without clipping. Setting channel
+width to zero and Save removes only waveform geometry, retaining notes and the
+sample region; the on-disk Waveform width is independently verified as 0.0.
+Closing/reopening the editor with F2 then Shift+W visibly reloads 0.0%. Restoring
+defaults and Save restores the waveform; disk settings are independently checked
+as true / true / 0.9 / 6.0. Audio fades remain 0 / 1.5, source audio/SSC hashes
+are unchanged and no ERROR lines appear in this run's log. No input permissions
+were changed. The isolated test application remains open with defaults restored.
+Screenshots: `/tmp/deadsync-waveform-settings-french.png`,
+`/tmp/deadsync-waveform-settings-zero-width.png` and
+`/tmp/deadsync-waveform-settings-reloaded.png`. This adds basic OpenGL runtime
+layout and width/persistence observations; the remaining preference scope above
+is still incomplete.

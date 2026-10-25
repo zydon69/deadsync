@@ -14,6 +14,7 @@ mod playback;
 mod song_properties;
 mod sample_region;
 mod waveform;
+mod waveform_settings;
 mod timing;
 mod text_entry;
 
@@ -67,6 +68,7 @@ enum Panel {
     SongProperties(usize),
     SongSample(usize),
     AudioSettings(usize),
+    WaveformSettings(usize),
     Timing(usize),
     TimingMigration(usize),
     ChartExpression(usize),
@@ -225,6 +227,8 @@ pub struct State {
     song_properties: Option<deadsync_editor::song_properties::Draft>,
     sample_region: Option<sample_region::Cache>,
     waveform: waveform::View,
+    waveform_preferences: deadsync_editor::waveform_preferences::Preferences,
+    waveform_preferences_draft: Option<deadsync_editor::waveform_preferences::Preferences>,
     timing: Option<timing::Settings>,
     timing_migration: Option<deadsync_editor::timing_edit::migration::Draft>,
     catalog_target: ProfileTarget,
@@ -350,6 +354,8 @@ impl State {
             song_properties: None,
             sample_region: None,
             waveform: waveform::View::default(),
+            waveform_preferences: Default::default(),
+            waveform_preferences_draft: None,
             timing: None,
             timing_migration: None,
             catalog_target: ProfileTarget::Marker,
@@ -1290,7 +1296,7 @@ impl State {
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
-            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0 | 1))
+            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0 | 1) | Panel::WaveformSettings(2 | 3))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !repeating_offset
@@ -1320,7 +1326,7 @@ impl State {
             return self.no_chart_key(event.code);
         }
         if event.code == KeyCode::KeyW && !self.control {
-            self.toggle_waveform();
+            if self.shift { self.open_waveform_settings(); } else { self.toggle_waveform(); }
             return false;
         }
         if matches!(event.code, KeyCode::Enter | KeyCode::NumpadEnter)
@@ -1477,6 +1483,10 @@ impl State {
             self.text_field_key(index, code);
             return false;
         }
+        if let Panel::WaveformSettings(index) = panel {
+            self.waveform_settings_key(index, code);
+            return false;
+        }
         if let Panel::AudioSettings(index) = panel {
             self.audio_settings_key(index, code);
             return false;
@@ -1611,6 +1621,7 @@ impl State {
             Panel::Timing(index) => self.timing_key(index, code),
             Panel::SongProperties(index) => self.song_properties_key(index, code),
             Panel::SongSample(_) => unreachable!("sample input dispatched above"),
+            Panel::WaveformSettings(_) => unreachable!("waveform settings dispatched above"),
             Panel::AudioSettings(_) => unreachable!("audio settings dispatched above"),
             Panel::TimingMigration(index) => self.timing_migration_key(index, code),
             Panel::ChartProperties(index) => {
@@ -2226,7 +2237,7 @@ impl State {
                 self.panel,
                 Some(
                     Panel::Timing(_) | Panel::TimingMigration(_)
-                        | Panel::SongProperties(_) | Panel::SongSample(_) | Panel::AudioSettings(_) | Panel::SongText(_)
+                        | Panel::SongProperties(_) | Panel::SongSample(_) | Panel::AudioSettings(_) | Panel::WaveformSettings(_) | Panel::SongText(_)
                 )
             )
         {
@@ -2336,6 +2347,7 @@ impl State {
                 "ProfileBack",
             ],
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
+            Panel::WaveformSettings(_) => &["WaveformSettingShow", "WaveformSettingEnabled", "WaveformSettingWidth", "WaveformSettingDense", "WaveformSettingsDefaults", "WaveformSettingsSave", "WaveformSettingsCancel"],
             Panel::AudioSettings(_) => &["AudioFadeIn", "AudioFadeOut", "AudioSettingsDefaults", "AudioSettingsApply", "AudioSettingsCancel"],
             Panel::SongSample(_) => &["SongSampleStart", "SongSampleLength", "SongLastSecondHint", "SongSampleBack"],
             Panel::SongProperties(_) => &[
@@ -2408,6 +2420,7 @@ impl State {
             | Panel::SongProperties(i)
             | Panel::SongSample(i)
             | Panel::AudioSettings(i)
+            | Panel::WaveformSettings(i)
             | Panel::ChartExpression(i)
             | Panel::ConversionProfiles(i)
             | Panel::Generation(i)
@@ -2779,6 +2792,8 @@ impl State {
                 i18n::tr("Edition", "PatternSetApply")
             } else if matches!(panel, Panel::Timing(_)) {
                 self.timing_label(index, key)
+            } else if matches!(panel, Panel::WaveformSettings(_)) && index < 4 {
+                self.waveform_settings_label(index, key)
             } else if matches!(panel, Panel::AudioSettings(_)) && index < 2 {
                 self.audio_settings_label(index, key)
             } else if matches!(panel, Panel::SongSample(_)) && index < 3 {
