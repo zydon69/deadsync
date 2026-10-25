@@ -1,0 +1,139 @@
+{
+  "Initial": {
+    "SpacingZoom": 1,
+    "SizeZoom": 1,
+    "SizeCap": 1,
+    "Time": 300,
+    "Row": 2,
+    "Variable": 300,
+    "Captured": null
+  },
+  "Stages": [
+    {
+      "SpacingZoom": 0.5,
+      "SizeZoom": 0.5,
+      "SizeCap": 1,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 0.5,
+      "SizeZoom": 0.5,
+      "SizeCap": 1,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": true
+    },
+    {
+      "SpacingZoom": 0.5,
+      "SizeZoom": 0.5,
+      "SizeCap": 0.55,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 0.5,
+      "SizeZoom": 0.5,
+      "SizeCap": 0.55,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 0.55,
+      "SizeZoom": 0.55,
+      "SizeCap": 0.55,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 0.55,
+      "SizeZoom": 0.55,
+      "SizeCap": 0.55,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 0.6,
+      "SizeZoom": 0.55,
+      "SizeCap": 0.55,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 2,
+      "SizeZoom": 0.55,
+      "SizeCap": 0.55,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 2,
+      "SizeZoom": 0.55,
+      "SizeCap": 0.55,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": true
+    },
+    {
+      "SpacingZoom": 2,
+      "SizeZoom": 0.25,
+      "SizeCap": 0.25,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 0.25,
+      "SizeZoom": 0.25,
+      "SizeCap": 0.25,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 0.25,
+      "SizeZoom": 0.25,
+      "SizeCap": 0.25,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 0.25,
+      "SizeZoom": 0.25,
+      "SizeCap": 0.25,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 0.25,
+      "SizeZoom": 0.25,
+      "SizeCap": 0.25,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": null
+    }
+  ]
+}

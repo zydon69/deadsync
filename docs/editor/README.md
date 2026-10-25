@@ -3300,3 +3300,48 @@ Local screenshots: `/tmp/deadsync-palette-page-one.png`,
 `/tmp/deadsync-palette-reloaded.png`. This is a qualitative OpenGL layout,
 application and persistence review, not pixel-by-pixel comparison to the original
 shader, an FXAA validation or audible audio verification.
+
+
+### Original numerical zoom controller (native display wiring pending)
+
+zoom::Manager ports the numerical behavior of GrooveAuthor ZoomManager at the
+pinned editor commit. It retains independent animated zoom and constant-time,
+constant-row and variable spacing values, original bounds (zoom 1e-6–1e6,
+size cap 1e-6–1, time/variable 10–100000 and row spacing 0.1–10000), default
+multiplier 1.2 and interpolation duration 0.1 seconds. Object size is capped
+independently of spacing. Explicit input flags preserve zoom precedence over
+spacing adjustment; fractional deltas, reciprocal zoom-out, input dead zone,
+queued target accumulation and interrupted interpolation follow the original.
+External spacing notifications replace both current and desired values.
+
+The original bounds behavior is also retained: updating bounds only resets a
+pending desired value if the current value lies outside the new bounds. This
+matters when a size limit is applied during an animation and removed afterward.
+Fumen's one-ULP double equality and clamped linear interpolation are used,
+including zero-duration and clock-resolution cases. The Rust interface rejects
+nonfinite clock/input/preference values before mutation; duration and multiplier
+respect the original UI ranges [0,1] and [1,4].
+
+A dedicated development-only .NET runner compiles the entire unchanged original
+ZoomManager Git object and links the pinned Fumen assembly. Explicit preference
+notification and held-input adapters replace only the singleton/UI plumbing.
+Nine committed request/expected traces cover 78 original operations; Rust tests
+compare each numerical snapshot within two ULP and compare input capture flags
+exactly. Extra tests check invalid input atomicity and independent size/spacing
+behavior. Source, library/submodule pins and assembly hashes are recorded in
+zoom-reference.json; reproduction is documented in scripts/editor-zoom-oracle.
+The runtime game has no .NET dependency.
+
+This controller is not yet connected to native editor keys, preference storage
+or projection. The current view remains one pixel per row. Native integration
+must apply the same projection to notes, sustains, selections, pattern regions,
+labels, sample regions and waveform sampling, and bound rendering work when
+zooming far out. Constant-time/variable visual spacing, scroll/speed semantics,
+interpolated native motion and native zoom QA remain required. These numerical
+traces are not evidence that keyboard or mouse zoom already works in the game.
+
+Validation of the numerical controller: the complete `deadsync-editor` suite
+passed 354 tests. After adding the float-dead-zone and large-clock reference
+cases, the three zoom workflow tests passed again against all nine traces.
+The reference runner regenerated all nine expected traces successfully.
+`cargo check -p deadsync --jobs 2 --locked` also passed.

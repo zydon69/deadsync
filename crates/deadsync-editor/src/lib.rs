@@ -26,6 +26,7 @@ pub mod text_buffer;
 pub mod timing_edit;
 pub mod transform;
 pub mod workspace;
+pub mod zoom;
 pub mod waveform;
 pub mod waveform_preferences;
 pub mod waveform_palette;

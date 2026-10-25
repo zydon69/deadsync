@@ -1,0 +1,85 @@
+{
+  "Initial": {
+    "SpacingZoom": 1,
+    "SizeZoom": 1,
+    "SizeCap": 1,
+    "Time": 300,
+    "Row": 2,
+    "Variable": 300,
+    "Captured": null
+  },
+  "Stages": [
+    {
+      "SpacingZoom": 1,
+      "SizeZoom": 1,
+      "SizeCap": 1,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": true
+    },
+    {
+      "SpacingZoom": 1,
+      "SizeZoom": 1,
+      "SizeCap": 1,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": true
+    },
+    {
+      "SpacingZoom": 1,
+      "SizeZoom": 1,
+      "SizeCap": 1,
+      "Time": 300,
+      "Row": 2,
+      "Variable": 300,
+      "Captured": true
+    },
+    {
+      "SpacingZoom": 1,
+      "SizeZoom": 1,
+      "SizeCap": 1,
+      "Time": 330,
+      "Row": 2.2,
+      "Variable": 275,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 1,
+      "SizeZoom": 1,
+      "SizeCap": 1,
+      "Time": 360,
+      "Row": 2.4,
+      "Variable": 250,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 1,
+      "SizeZoom": 1,
+      "SizeCap": 1,
+      "Time": 10,
+      "Row": 2.4,
+      "Variable": 250,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 1,
+      "SizeZoom": 1,
+      "SizeCap": 1,
+      "Time": 10,
+      "Row": 10000,
+      "Variable": 250,
+      "Captured": null
+    },
+    {
+      "SpacingZoom": 1,
+      "SizeZoom": 1,
+      "SizeCap": 1,
+      "Time": 10,
+      "Row": 10000,
+      "Variable": 100000,
+      "Captured": null
+    }
+  ]
+}

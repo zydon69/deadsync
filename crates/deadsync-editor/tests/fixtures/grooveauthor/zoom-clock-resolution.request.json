@@ -1,0 +1,28 @@
+{
+  "Operations": [
+    [
+      "scroll",
+      1e+16,
+      1,
+      true,
+      false,
+      "time"
+    ],
+    [
+      "update",
+      1e+16
+    ],
+    [
+      "scroll",
+      1.0000000000000002e+16,
+      -1,
+      true,
+      false,
+      "time"
+    ],
+    [
+      "update",
+      1.0000000000000002e+16
+    ]
+  ]
+}

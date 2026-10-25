@@ -1,0 +1,37 @@
+{
+  "Operations": [
+    [
+      "scroll",
+      0,
+      1,
+      false,
+      true,
+      "row"
+    ],
+    [
+      "update",
+      0.04
+    ],
+    [
+      "spacing",
+      "row",
+      5
+    ],
+    [
+      "update",
+      0.08
+    ],
+    [
+      "scroll",
+      0.1,
+      -1,
+      false,
+      true,
+      "row"
+    ],
+    [
+      "update",
+      0.2
+    ]
+  ]
+}
