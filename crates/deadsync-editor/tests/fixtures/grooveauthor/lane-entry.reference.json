@@ -1,0 +1,345 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_bytes_verified_against_git": true,
+  "source_sha256": {
+    "StepManiaEditor/ActiveEditorChart.cs": "60bde1681bba77f08a7c4d772c247c0b6725901fd8b0e2225f3e02e5d728ac3a",
+    "StepManiaEditor/EditorPosition.cs": "67cb938ce0b597bb46d4b1c3c94c735a2a22a6befbfafa8b39d7e8deb2c5f0b3",
+    "StepManiaEditor/Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709"
+  },
+  "method_sha256": {
+    "down": "1d5d787c874e647e8354f68e5b7967bd6fcec6a7c38d1bbc535e77ed082cac07",
+    "set": "0556370b14329df3554c77779246eb87f6526efa4c6a5fb862a40b78daae92dc",
+    "move": "26f5c878b10e0f605966e78e2fff0b2144d4de57a272756b4543daf19fce0ca8",
+    "cancel": "6449a0405b33e26dcac0e372eb0a9ac09e589c9740e28bfae86213604a3352b7",
+    "nearest": "85d8011ff640464a9be5fcc94767483aa4a9bb68f7de9e8581b45777f10f9a65",
+    "advance": "6e710a44801c6f9f398efd9f3898d06d5873a6abd02bd1e1e872e33f445c41ac"
+  },
+  "scope": "Original OnLaneInputDown, SetLaneInputDownNote, UpdateLaneEditStatesFromPosition, CancelLaneInput, GetNearestRow and MoveLaterInChart. Adapted LaneEditState event/action storage and release recorder: does not execute original undo actions, overlap resolution, timing or full chart tree.",
+  "cases": [
+    {
+      "name": "tap-hold-backward-return-and-cancel",
+      "initial": null,
+      "steps": [
+        {
+          "kind": "down",
+          "row": 48,
+          "player": 0,
+          "snap": 0,
+          "playing": false,
+          "advance": false
+        },
+        {
+          "kind": "move",
+          "row": 96,
+          "player": 1
+        },
+        {
+          "kind": "move",
+          "row": 0,
+          "player": 1
+        },
+        {
+          "kind": "move",
+          "row": 48,
+          "player": 1
+        },
+        {
+          "kind": "cancel"
+        }
+      ],
+      "expected": [
+        {
+          "active": true,
+          "draft": {
+            "row": 48,
+            "player": 0,
+            "end": null,
+            "kind": "Tap"
+          },
+          "commits": 0,
+          "position": 48
+        },
+        {
+          "active": true,
+          "draft": {
+            "row": 48,
+            "player": 0,
+            "end": 96,
+            "kind": "Hold"
+          },
+          "commits": 0,
+          "position": 96
+        },
+        {
+          "active": true,
+          "draft": {
+            "row": 0,
+            "player": 0,
+            "end": 48,
+            "kind": "Hold"
+          },
+          "commits": 0,
+          "position": 0
+        },
+        {
+          "active": true,
+          "draft": {
+            "row": 48,
+            "player": 0,
+            "end": null,
+            "kind": "Tap"
+          },
+          "commits": 0,
+          "position": 48
+        },
+        {
+          "active": false,
+          "draft": null,
+          "commits": 0,
+          "position": 48
+        }
+      ]
+    },
+    {
+      "name": "initial-delete-to-hold-and-back",
+      "initial": 48,
+      "steps": [
+        {
+          "kind": "down",
+          "row": 48,
+          "player": 0,
+          "snap": 0,
+          "playing": false,
+          "advance": false
+        },
+        {
+          "kind": "move",
+          "row": 96,
+          "player": 1
+        },
+        {
+          "kind": "move",
+          "row": 48,
+          "player": 1
+        },
+        {
+          "kind": "up"
+        }
+      ],
+      "expected": [
+        {
+          "active": true,
+          "draft": null,
+          "commits": 0,
+          "position": 48
+        },
+        {
+          "active": true,
+          "draft": {
+            "row": 48,
+            "player": 1,
+            "end": 96,
+            "kind": "Hold"
+          },
+          "commits": 0,
+          "position": 96
+        },
+        {
+          "active": true,
+          "draft": {
+            "row": 48,
+            "player": 1,
+            "end": null,
+            "kind": "Tap"
+          },
+          "commits": 0,
+          "position": 48
+        },
+        {
+          "active": false,
+          "draft": null,
+          "commits": 1,
+          "position": 48
+        }
+      ]
+    },
+    {
+      "name": "nearest-half-then-snap-half",
+      "initial": null,
+      "steps": [
+        {
+          "kind": "down",
+          "row": 12.5,
+          "player": 0,
+          "snap": 24,
+          "playing": false,
+          "advance": false
+        },
+        {
+          "kind": "move",
+          "row": 25.5,
+          "player": 0
+        },
+        {
+          "kind": "up"
+        }
+      ],
+      "expected": [
+        {
+          "active": true,
+          "draft": {
+            "row": 24,
+            "player": 0,
+            "end": null,
+            "kind": "Tap"
+          },
+          "commits": 0,
+          "position": 12.5
+        },
+        {
+          "active": true,
+          "draft": {
+            "row": 24,
+            "player": 0,
+            "end": 25,
+            "kind": "Hold"
+          },
+          "commits": 0,
+          "position": 25.5
+        },
+        {
+          "active": false,
+          "draft": null,
+          "commits": 1,
+          "position": 25.5
+        }
+      ]
+    },
+    {
+      "name": "playing-commits-immediately",
+      "initial": null,
+      "steps": [
+        {
+          "kind": "down",
+          "row": 24,
+          "player": 0,
+          "snap": 48,
+          "playing": true,
+          "advance": true
+        },
+        {
+          "kind": "move",
+          "row": 96,
+          "player": 1
+        },
+        {
+          "kind": "up"
+        }
+      ],
+      "expected": [
+        {
+          "active": false,
+          "draft": null,
+          "commits": 1,
+          "position": 24
+        },
+        {
+          "active": false,
+          "draft": null,
+          "commits": 1,
+          "position": 96
+        },
+        {
+          "active": false,
+          "draft": null,
+          "commits": 1,
+          "position": 96
+        }
+      ]
+    },
+    {
+      "name": "advance-by-snap",
+      "initial": null,
+      "steps": [
+        {
+          "kind": "down",
+          "row": 12.5,
+          "player": 0,
+          "snap": 24,
+          "playing": false,
+          "advance": true
+        }
+      ],
+      "expected": [
+        {
+          "active": false,
+          "draft": null,
+          "commits": 1,
+          "position": 24
+        }
+      ]
+    },
+    {
+      "name": "initial-deletion-does-not-advance",
+      "initial": 48,
+      "steps": [
+        {
+          "kind": "down",
+          "row": 48,
+          "player": 0,
+          "snap": 48,
+          "playing": false,
+          "advance": true
+        },
+        {
+          "kind": "up"
+        }
+      ],
+      "expected": [
+        {
+          "active": true,
+          "draft": null,
+          "commits": 0,
+          "position": 48
+        },
+        {
+          "active": false,
+          "draft": null,
+          "commits": 1,
+          "position": 48
+        }
+      ]
+    },
+    {
+      "name": "negative-leadin-does-not-create",
+      "initial": null,
+      "steps": [
+        {
+          "kind": "down",
+          "row": -0.5,
+          "player": 0,
+          "snap": 48,
+          "playing": false,
+          "advance": false
+        },
+        {
+          "kind": "up"
+        }
+      ],
+      "expected": [
+        {
+          "active": false,
+          "draft": null,
+          "commits": 0,
+          "position": -0.5
+        },
+        {
+          "active": false,
+          "draft": null,
+          "commits": 0,
+          "position": -0.5
+        }
+      ]
+    }
+  ]
+}

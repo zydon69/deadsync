@@ -99,3 +99,5 @@ impl From<std::io::Error> for Error {
 
 pub mod minimap_navigation;
 pub mod minimap_projection;
+
+pub mod lane_entry;
