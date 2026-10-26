@@ -26,6 +26,7 @@ pub mod pattern_schedule;
 pub mod performed;
 pub mod profile_catalog;
 pub mod profile_controls;
+pub mod profile_references;
 pub mod profiles;
 pub mod random;
 pub mod reference_sort;

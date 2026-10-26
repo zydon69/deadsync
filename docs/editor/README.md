@@ -4861,3 +4861,30 @@ workflow then passed with the existing French save test (2 tests) in
 `/tmp/deadsync-profile-history-fr.log`, bringing distinct native coverage to 253
 cases. The theme compilation check passed in
 `/tmp/deadsync-profile-history-native-check.log` (`--jobs 2 --locked`).
+
+### Profile-deletion reference repair foundation
+
+`generation::profile_references::Reset` prepares the song-reference portion of
+GrooveAuthor profile deletion across every chart, not only the selected chart.
+It follows original ActionDeletePatternConfig / ActionDeletePerformedChartConfig /
+ActionDeleteExpressedChartConfig: matching pattern references use Sixteenths,
+matching movement references use the general Balanced profile
+`6276c906-ea8f-43b3-9500-0ddeac7bdc22` (not PatternBalanced), and matching chart
+interpretation references use Dynamic. Built-in profile deletion is refused.
+
+Capture validates all existing metadata before publishing a plan and reports
+numbers of affected charts and references. Apply requires the captured live
+session identity/revision and publishes all changed metadata in one history
+entry. Unrelated references, unknown metadata, note data, and charts without
+metadata remain untouched. Undo restores exact pre-edit bytes; redo restores the
+repair. No-match plans do not create a history entry. This does not yet delete a
+profile file: disk removal/restoration, native confirmation, selected-profile
+fallback and combined file/song history routing remain to be connected.
+
+Validation: three new profile-reference tests exercise all three families in SM
+and SSC, multiple affected charts, untouched metadata/notes, exact undo/redo,
+no-op repairs, stale revision/session rejection, protected presets, and malformed
+later-chart rejection before mutation. Eleven existing metadata tests also pass.
+Evidence: `/tmp/deadsync-profile-reference-core.log` (`--jobs 2 --locked`).
+The native theme compilation check passed in
+`/tmp/deadsync-profile-reference-check.log` (`--jobs 2 --locked`).

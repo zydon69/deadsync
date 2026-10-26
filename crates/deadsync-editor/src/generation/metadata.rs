@@ -357,7 +357,7 @@ impl ChartData {
         Ok(options)
     }
 }
-fn tags(document: &Document, chart: usize) -> Result<(Option<usize>, String, String), Error> {
+pub(crate) fn tags(document: &Document, chart: usize) -> Result<(Option<usize>, String, String), Error> {
     if chart >= document.charts().len() {
         return invalid("Pattern chart does not exist");
     }
