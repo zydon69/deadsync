@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
 | Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; library undo/deletion, absent-layout dictionary editing and broader runtime parity remain pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; layout weight addition/inheritance are connected; library undo/deletion and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -4779,3 +4779,42 @@ and existing profile workflows (9) passed. Final
 `/tmp/deadsync-profile-defaults-all-native.log`,
 `/tmp/deadsync-profile-defaults-core.log`, and
 `/tmp/deadsync-profile-defaults-check.log`.
+
+### Add missing weight layouts or return them to inheritance
+
+Movement-profile inspectors now offer Panel-weight layouts (F6). The small panel
+chooses among the original eleven supported layouts, reports explicit/inherited
+state, stages missing default weights, or removes one explicit layout override.
+Adding an existing layout is a no-op, retaining customized values. Removal lets
+the generation preset supply that layout through the existing override merge.
+Returning keeps these changes in the profile draft; saving copy/original remains
+explicit. Discarding the parent draft discards them without touching a file.
+
+The control editor rebuilds field descriptors directly from the staged JSON when
+a dictionary entry changes. It does not deserialize/validate unrelated ranges or
+reinitialize other staged settings just to add/remove a layout. Unsupported
+layouts and non-movement profile requests are refused before mutation. Returning
+to the inspector selects the current save row after its field count changes.
+
+Original ImGuiArrowWeightsWidget numeric/slider edits clamp panel weights to
+0..100. A new test reproduced missing clamping in the shared editor; numeric and
+arrow edits now apply those bounds specifically to ArrowWeights leaves. Other
+integer fields keep their existing behavior. Imported out-of-range values are not
+silently normalized by opening the inspector or adding an already explicit layout.
+The pre-fix log is `/tmp/deadsync-profile-weight-bounds-red.log`.
+
+Core tests cover all eleven layouts, repeated no-ops, preservation of customized
+weights and unrelated/invalid staged values, field-count rebuilding, inherited
+preset weights, unsupported requests, and widget bounds. Native English/French
+workflows cover add/remove, preserved other settings, copy and original save,
+discarding the draft, and numeric/arrow bounds with unchanged song bytes. This
+adds dictionary presence management; full library undo/deletion and the broader
+editor backlog remain open. No physical app/GPU review or new executable C# oracle
+is claimed for this panel.
+
+Validation: all 47 native editor integration targets passed (251 tests), as
+ did the three selected core profile targets (14 tests). The theme cargo check
+ passed with `--jobs 2 --locked`. Evidence:
+`/tmp/deadsync-profile-weights-all-native.log`,
+`/tmp/deadsync-profile-weights-core.log`, and
+`/tmp/deadsync-profile-weights-check.log`.

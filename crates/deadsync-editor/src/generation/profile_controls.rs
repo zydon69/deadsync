@@ -55,11 +55,13 @@ fn choices(name: &str) -> Option<&'static [&'static str]> {
 }
 impl Editor {
     pub fn new(config: &Config) -> Result<Self, Error> {
-        let value = config.json()?;
+        Self::from_value(config.kind(), config.json()?)
+    }
+    fn from_value(kind: Kind, value: Value) -> Result<Self, Error> {
         let mut fields = Vec::new();
         collect(&value, &mut Vec::new(), &mut fields)?;
         // Preserve the established compact interpretation panel's field order.
-        if config.kind() == Kind::Expressed {
+        if kind == Kind::Expressed {
             let order = [
                 "DefaultBracketParsingMethod",
                 "BracketParsingDetermination",
@@ -75,7 +77,7 @@ impl Editor {
                     .unwrap_or(usize::MAX)
             });
         }
-        if config.kind() == Kind::Pattern {
+        if kind == Kind::Pattern {
             let order = [
                 "BeatSubDivision",
                 "StartingFootChoice",
@@ -101,7 +103,7 @@ impl Editor {
                     .unwrap_or(usize::MAX)
             });
         }
-        if config.kind() == Kind::Performed {
+        if kind == Kind::Performed {
             let groups = [
                 "Facing",
                 "LateralTightening",
@@ -117,10 +119,55 @@ impl Editor {
             });
         }
         Ok(Self {
-            kind: config.kind(),
+            kind,
             value,
             fields,
         })
+    }
+    pub fn has_arrow_weights(&self, layout: &str) -> Result<bool, Error> {
+        if self.kind != Kind::Performed {
+            return Err(invalid("Only movement profiles have arrow weights"));
+        }
+        if !super::job::TARGET_LAYOUTS.contains(&layout) {
+            return Err(invalid("Unsupported arrow-weight layout"));
+        }
+        Ok(self
+            .value
+            .get("ArrowWeights")
+            .and_then(Value::as_object)
+            .is_some_and(|weights| weights.contains_key(layout)))
+    }
+    /// Add missing default weights or remove an explicit override. Rebuild only
+    /// field descriptors; other staged values (even invalid ranges) stay intact.
+    pub fn set_arrow_weights_presence(
+        &mut self,
+        layout: &str,
+        present: bool,
+    ) -> Result<bool, Error> {
+        if self.has_arrow_weights(layout)? == present {
+            return Ok(false);
+        }
+        let mut value = self.value.clone();
+        let weights = value
+            .get_mut("ArrowWeights")
+            .and_then(Value::as_object_mut)
+            .ok_or_else(|| invalid("Missing arrow-weight configuration"))?;
+        if present {
+            let defaults = super::config::PerformedConfig::balanced();
+            let defaults = defaults
+                .arrow_weights
+                .get(layout)
+                .ok_or_else(|| invalid("Missing default arrow weights"))?;
+            weights.insert(
+                layout.into(),
+                serde_json::to_value(defaults).map_err(|e| invalid(&e.to_string()))?,
+            );
+        } else {
+            weights.remove(layout);
+        }
+        let candidate = Self::from_value(self.kind, value)?;
+        *self = candidate;
+        Ok(true)
     }
     pub fn fields(&self) -> &[Field] {
         &self.fields
@@ -136,7 +183,8 @@ impl Editor {
             .get(index)
             .ok_or_else(|| invalid("Unknown profile field"))?;
         let value = match field.control {
-            Control::Integer => Value::from(
+            Control::Integer => integer_value(
+                field,
                 text.trim()
                     .parse::<i32>()
                     .map_err(|_| invalid("Enter a 32-bit integer"))?,
@@ -166,7 +214,8 @@ impl Editor {
             .pointer(&field.pointer)
             .ok_or_else(|| invalid("Missing profile field"))?;
         let next = match field.control {
-            Control::Integer => Value::from(
+            Control::Integer => integer_value(
+                field,
                 (value
                     .as_i64()
                     .ok_or_else(|| invalid("Invalid integer profile field"))?
@@ -328,4 +377,18 @@ fn collect(value: &Value, path: &mut Vec<String>, fields: &mut Vec<Field>) -> Re
 }
 fn invalid(message: &str) -> Error {
     Error::InvalidEdit(message.into())
+}
+
+fn integer_value(field: &Field, value: i32) -> Value {
+    Value::from(
+        if field
+            .path
+            .first()
+            .is_some_and(|name| name == "ArrowWeights")
+        {
+            value.clamp(0, 100)
+        } else {
+            value
+        },
+    )
 }

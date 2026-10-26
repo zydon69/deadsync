@@ -48,10 +48,11 @@ pub(super) struct Draft {
     travel_input: Option<(usize, String)>,
     reset_return: usize,
     reset_defaults: bool,
+    weight_layout: usize,
 }
 impl Draft {
     pub(super) fn action_count(&self) -> usize {
-        if self.supports_travel_speed() { 7 } else { 6 }
+        if self.supports_travel_speed() { 8 } else { 6 }
     }
     pub(super) fn supports_travel_speed(&self) -> bool {
         self.kind == Kind::Performed
@@ -110,6 +111,7 @@ impl State {
                 travel_input: None,
                 reset_return: 0,
                 reset_defaults: false,
+                weight_layout: 0,
             })
         })();
         match result {
@@ -156,6 +158,17 @@ impl State {
             }
             self.panel = Some(Panel::ProfileDefaults(0));
             self.status = i18n::tr("Edition", "ProfileDefaultsHelp");
+            return;
+        }
+        if draft.supports_travel_speed()
+            && ((index == count + 6 && code == KeyCode::Enter)
+                || (code == KeyCode::F6 && !self.control))
+        {
+            if !self.stage_profile_input() {
+                return;
+            }
+            self.panel = Some(Panel::ProfileWeights(0));
+            self.status = i18n::tr("Edition", "ProfileWeightsHelp");
             return;
         }
         if code == KeyCode::Escape || (index == count + 1 && code == KeyCode::Enter) {
@@ -904,5 +917,91 @@ impl State {
                 self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
             }
         }
+    }
+}
+
+impl State {
+    pub(super) fn profile_weights_key(&mut self, index: usize, code: KeyCode) {
+        use deadsync_editor::generation::job::TARGET_LAYOUTS;
+        if code == KeyCode::Escape || (index == 4 && code == KeyCode::Enter) {
+            if let Some(draft) = &self.profile_edit {
+                self.panel = Some(Panel::ProfileEdit(draft.editor.fields().len()));
+            }
+            self.status = i18n::tr("Edition", "ProfileWeightsBack");
+            return;
+        }
+        if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
+            self.panel = Some(Panel::ProfileWeights(
+                (index
+                    + if code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift) {
+                        4
+                    } else {
+                        1
+                    })
+                    % 5,
+            ));
+            return;
+        }
+        let Some(draft) = self.profile_edit.as_mut() else {
+            return;
+        };
+        if index == 0
+            && matches!(
+                code,
+                KeyCode::ArrowLeft | KeyCode::ArrowRight | KeyCode::Enter
+            )
+        {
+            draft.weight_layout = (draft.weight_layout
+                + if code == KeyCode::ArrowLeft {
+                    TARGET_LAYOUTS.len() - 1
+                } else {
+                    1
+                })
+                % TARGET_LAYOUTS.len();
+        }
+        if matches!(index, 2 | 3) && code == KeyCode::Enter {
+            match draft
+                .editor
+                .set_arrow_weights_presence(TARGET_LAYOUTS[draft.weight_layout], index == 2)
+            {
+                Ok(changed) => {
+                    self.status = i18n::tr(
+                        "Edition",
+                        if !changed {
+                            "ProfileWeightsNoChange"
+                        } else if index == 2 {
+                            "ProfileWeightsAdded"
+                        } else {
+                            "ProfileWeightsRemoved"
+                        },
+                    )
+                }
+                Err(error) => {
+                    self.status =
+                        i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+                }
+            }
+        }
+    }
+    pub(super) fn profile_weights_label(&self, index: usize, key: &str) -> std::sync::Arc<str> {
+        use deadsync_editor::generation::job::TARGET_LAYOUTS;
+        let Some(draft) = &self.profile_edit else {
+            return i18n::tr("Edition", key);
+        };
+        let layout = TARGET_LAYOUTS[draft.weight_layout];
+        let value = match index {
+            0 => layout.to_owned(),
+            1 => i18n::tr(
+                "Edition",
+                if draft.editor.has_arrow_weights(layout).unwrap_or(false) {
+                    "ProfileWeightsExplicit"
+                } else {
+                    "ProfileEditInherit"
+                },
+            )
+            .to_string(),
+            _ => return i18n::tr("Edition", key),
+        };
+        i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
 }

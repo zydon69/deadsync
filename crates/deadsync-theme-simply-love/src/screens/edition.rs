@@ -75,6 +75,7 @@ enum Panel {
     ProfileText,
     ProfileSpeed(usize),
     ProfileDefaults(usize),
+    ProfileWeights(usize),
     ChartText(usize),
     SongText(usize),
     SongProperties(usize),
@@ -1560,6 +1561,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if let Panel::ProfileWeights(index) = panel { self.profile_weights_key(index, code); return false; }
         if let Panel::ProfileDefaults(index) = panel { self.profile_defaults_key(index, code); return false; }
         if let Panel::ProfileSpeed(index) = panel { self.profile_speed_key(index, code); return false; }
         if matches!(panel, Panel::ProfileText) { self.profile_text_key(code); return false; }
@@ -1663,6 +1665,7 @@ impl State {
             return false;
         }
         match panel {
+            Panel::ProfileWeights(_) => unreachable!("profile weights dispatched above"),
             Panel::ProfileDefaults(_) => unreachable!("profile defaults dispatched above"),
             Panel::ProfileSpeed(_) => unreachable!("profile speed dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
@@ -2497,7 +2500,7 @@ impl State {
         let profile_keys: Vec<&str> = self.profile_edit.as_ref().map(|draft| {
             let mut keys = vec!["ProfileEditField"; draft.editor.fields().len()];
             keys.extend(["ExpressionEditSaveCopy", "ExpressionEditCancel", "ProfileEditName", "ProfileEditSaveOriginal", "ProfileEditDescription"]);
-            if draft.supports_travel_speed() { keys.push("ProfileSpeedOpen"); }
+            if draft.supports_travel_speed() { keys.extend(["ProfileSpeedOpen", "ProfileWeightsOpen"]); }
             keys.push("ProfileRestoreDefaults");
             keys
         }).unwrap_or_default();
@@ -2621,6 +2624,7 @@ impl State {
             ],
             Panel::ProfileEdit(_) => &profile_keys,
             Panel::ProfileText => self.profile_text_keys(),
+            Panel::ProfileWeights(_) => &["ProfileWeightsLayout", "ProfileWeightsState", "ProfileWeightsAdd", "ProfileWeightsRemove", "ProfileWeightsReturn"],
             Panel::ProfileDefaults(_) => &["ProfileDefaultsApply", "ProfileDefaultsCancel"],
             Panel::ProfileSpeed(_) => &["ProfileSpeedSubdivision", "ProfileSpeedMin", "ProfileSpeedMax", "ProfileSpeedMinSeconds", "ProfileSpeedMaxSeconds", "ProfileSpeedStage", "ProfileSpeedCancel"],
             Panel::DisplayTempo(_) => &["DisplayTempoMode", "DisplayTempoMin", "DisplayTempoRange", "DisplayTempoMax", "DisplayTempoStage", "DisplayTempoCancel"],
@@ -2667,6 +2671,7 @@ impl State {
             | Panel::Profiles(i)
             | Panel::TimingMigration(i)
             | Panel::Timing(i)
+            | Panel::ProfileWeights(i)
             | Panel::ProfileDefaults(i)
             | Panel::ProfileSpeed(i)
             | Panel::ProfileEdit(i)
@@ -2861,6 +2866,8 @@ impl State {
                 self.text_field_label(index)
             } else if matches!(panel, Panel::ProfileText) && index == 0 {
                 self.profile_text_label()
+            } else if matches!(panel, Panel::ProfileWeights(_)) {
+                self.profile_weights_label(index, key)
             } else if matches!(panel, Panel::ProfileSpeed(_)) {
                 self.profile_speed_label(index, key)
             } else if matches!(panel, Panel::ProfileEdit(_)) {
