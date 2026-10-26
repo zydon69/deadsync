@@ -5175,3 +5175,34 @@ Validation: all 53 native editor integration targets passed (274 tests) in
 ForceAdd paste and selection suites passed 15 tests in
 `/tmp/deadsync-row-shift-core.log`. Theme compilation check passed in
 `/tmp/deadsync-row-shift-check.log`. Commands used `--jobs 2 --locked`.
+
+### Symmetry destination conflicts and combined symmetry
+
+Mirror, Flip and MirrorAndFlip now share the staged ForceAdd transformation path
+with row/column shifts. This follows the original ActionMirrorSelection,
+ActionFlipSelection, ActionMirrorAndFlipSelection and ActionTransformSelectionLanes
+base: exclude lanes without a valid correspondence before removing selected events,
+map remaining lanes, then force-add transformed notes with reversible destination
+side effects. Unsupported source lanes remain unchanged. Combined symmetry applies
+the imported mirror map first, then the imported flip map, as in the source.
+
+The native Transformations menu now exposes Mirror and flip as its ninth command,
+with English/French labels. No extra permanent toolbar is introduced. The previous
+strict symmetry overwrite path is removed; only unrelated conversion/participant
+operations retain their existing validation path.
+
+Core workflows exercise every lane for all three mappings across the sixteen
+reference layouts/aliases. They check unchanged unmapped/identity lanes, mapped
+sustain duration, conflicts with unselected holds, exact undo/redo, and Routine
+participant preservation with other-owner destination side effects. English/French
+native workflows mirror into an unselected hold, undo, invoke the combined mapping
+on both horizontal and vertical source lanes, undo/redo, save and reopen. These
+verify Rust workflows against inspected original rules and pad data; no new
+executable C# oracle or physical app/GPU review is claimed. Broader note conversion,
+participant inspectors and miscellaneous-event transformations remain outstanding.
+
+Validation: all 53 native editor integration targets passed (276 tests) in
+`/tmp/deadsync-symmetry-all-native.log`; four selected core symmetry/selection and
+row/column shift suites passed 13 tests in `/tmp/deadsync-symmetry-core.log`.
+Theme compilation check passed in `/tmp/deadsync-symmetry-check.log`.
+Commands used `--jobs 2 --locked`.

@@ -39,14 +39,35 @@ pub fn apply(
     }
     if matches!(
         transform,
-        Transform::ShiftLanes { .. } | Transform::ShiftRows(_)
+        Transform::ShiftLanes { .. }
+            | Transform::ShiftRows(_)
+            | Transform::Mirror
+            | Transform::Flip
+            | Transform::MirrorAndFlip
     ) {
+        let pad = if matches!(
+            transform,
+            Transform::Mirror | Transform::Flip | Transform::MirrorAndFlip
+        ) {
+            let layout = &session
+                .document()
+                .charts()
+                .get(chart)
+                .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?
+                .steps_type;
+            Some(Pad::builtin(layout)?)
+        } else {
+            None
+        };
         let original = session.grid(chart)?;
         let mut staged = original.clone();
         let mut selected: Vec<_> = original
             .iter()
             .filter(|(pos, _)| {
-                pos.row >= start && pos.row <= end && player.is_none_or(|p| pos.player == p)
+                pos.row >= start
+                    && pos.row <= end
+                    && player.is_none_or(|p| pos.player == p)
+                    && pad.is_none_or(|pad| symmetry_lane(pad, pos.lane, transform).is_some())
             })
             .map(|(pos, note)| (pos, note.clone()))
             .collect();
@@ -56,6 +77,9 @@ pub fn apply(
         }
         for (mut pos, mut note) in selected {
             match transform {
+                Transform::Mirror | Transform::Flip | Transform::MirrorAndFlip => {
+                    pos.lane = symmetry_lane(pad.unwrap(), pos.lane, transform).unwrap();
+                }
                 Transform::ShiftLanes { right, wrap } => {
                     let lane = if right {
                         pos.lane
@@ -89,18 +113,13 @@ pub fn apply(
         }
         let label = if matches!(transform, Transform::ShiftRows(_)) {
             "Shift note rows"
-        } else {
+        } else if matches!(transform, Transform::ShiftLanes { .. }) {
             "Shift note columns"
+        } else {
+            "Transform note lanes"
         };
         return session.apply_grid_delta(chart, &staged, label);
     }
-    let layout = session
-        .document()
-        .charts()
-        .get(chart)
-        .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?
-        .steps_type
-        .clone();
     let grid = session.grid(chart)?;
     let selected: Vec<_> = grid
         .iter()
@@ -113,28 +132,10 @@ pub fn apply(
     let mut edits: BTreeMap<Position, Option<Note>> =
         sources.iter().map(|&pos| (pos, None)).collect();
     let mut targets = BTreeSet::new();
-    let pad = if matches!(
-        transform,
-        Transform::Mirror | Transform::Flip | Transform::MirrorAndFlip
-    ) {
-        Some(Pad::builtin(&layout)?)
-    } else {
-        None
-    };
     for (mut pos, mut note) in selected {
         match transform {
             Transform::Mirror | Transform::Flip | Transform::MirrorAndFlip => {
-                let pad = pad.unwrap();
-                if matches!(transform, Transform::Mirror | Transform::MirrorAndFlip) {
-                    pos.lane = pad.mirror[usize::from(pos.lane)].ok_or_else(|| {
-                        Error::Unsupported("This lane has no mirrored counterpart".into())
-                    })?;
-                }
-                if matches!(transform, Transform::Flip | Transform::MirrorAndFlip) {
-                    pos.lane = pad.flip[usize::from(pos.lane)].ok_or_else(|| {
-                        Error::Unsupported("This lane has no flipped counterpart".into())
-                    })?;
-                }
+                unreachable!("symmetry handled above")
             }
             Transform::ShiftLanes { .. } => unreachable!("lane shift handled above"),
             Transform::ShiftRows(_) => unreachable!("row shift handled above"),
@@ -173,6 +174,19 @@ pub fn apply(
         edits.insert(pos, Some(note));
     }
     session.edit_notes(chart, format!("{transform:?}"), edits)
+}
+
+fn symmetry_lane(pad: &Pad, lane: u16, transform: Transform) -> Option<u16> {
+    let lane = if matches!(transform, Transform::Mirror | Transform::MirrorAndFlip) {
+        pad.mirror[usize::from(lane)]?
+    } else {
+        lane
+    };
+    if matches!(transform, Transform::Flip | Transform::MirrorAndFlip) {
+        pad.flip[usize::from(lane)]
+    } else {
+        Some(lane)
+    }
 }
 
 fn shift(row: u64, delta: i64) -> Result<u64, Error> {

@@ -80,3 +80,52 @@ fn keyboard_column_shift_drops_or_wraps_edges_and_supports_undo_save_and_reopen(
     );
     assert!(reopened.workspace().grid().get(pos(1)).is_some());
 }
+
+#[test]
+fn symmetry_conflicts_and_combined_symmetry_are_undoable_and_survive_save_reopen() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source=b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:0002\n2100\n0003\n3000;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    let p = |row, lane| Position {
+        row,
+        lane,
+        player: 0,
+    };
+    press(&mut s, KeyCode::ArrowDown);
+    assert_eq!(s.workspace().row(), 48);
+    open_transform(&mut s, 0);
+    press(&mut s, KeyCode::Enter);
+    assert_eq!(s.workspace().grid().get(p(0, 3)).unwrap().end, Some(36));
+    assert_eq!(s.workspace().grid().get(p(48, 3)).unwrap().end, Some(144));
+    assert!(s.workspace().grid().get(p(48, 1)).is_some());
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    open_transform(&mut s, 8);
+    let mut actors = Vec::new();
+    s.actors(&mut actors);
+    assert!(actors.iter().any(|actor|matches!(actor,deadlib_present::actors::Actor::Text {content,..} if content.contains("Double symétrie"))));
+    press(&mut s, KeyCode::Enter);
+    assert_eq!(s.workspace().grid().get(p(48, 3)).unwrap().end, Some(144));
+    assert!(s.workspace().grid().get(p(48, 2)).is_some());
+    assert!(s.workspace().grid().get(p(48, 1)).is_none());
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    ctrl(&mut s, KeyCode::KeyY);
+    ctrl(&mut s, KeyCode::KeyS);
+    let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    assert_eq!(
+        reopened.workspace().grid().get(p(0, 3)).unwrap().end,
+        Some(36)
+    );
+    assert_eq!(
+        reopened.workspace().grid().get(p(48, 3)).unwrap().end,
+        Some(144)
+    );
+    assert!(reopened.workspace().grid().get(p(48, 2)).is_some());
+}

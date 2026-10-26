@@ -2113,7 +2113,7 @@ impl State {
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
                     Panel::Menu(_) => 16,
-                    Panel::Transforms(_) => 8,
+                    Panel::Transforms(_) => 9,
                     _ => 3,
                 };
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
@@ -2139,6 +2139,7 @@ impl State {
                             2 => Transform::ShiftRows(-(SNAP_ROWS[self.workspace.snap()] as i64)),
                             3 => Transform::ShiftRows(SNAP_ROWS[self.workspace.snap()] as i64),
                             4..=7 => Transform::ShiftLanes { right: index % 2 == 1, wrap: index >= 6 },
+                            8 => Transform::MirrorAndFlip,
                             _ => unreachable!("bounded transform menu"),
                         };
                         self.command(Command::Transform(transform));
@@ -2547,7 +2548,7 @@ impl State {
                 "AnalysisTitle",
                 "DuplicateChart",
             ],
-            Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight"],
+            Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
             Panel::ConfirmDiscard => &["ConfirmDiscard"],
             Panel::Regeneration(_) => &["RegeneratePattern", "RegeneratePatternSet", "KeepEditing"],
