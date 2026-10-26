@@ -46,6 +46,33 @@ fn task(session: &Session) -> Task {
 fn preview(session: &Session) -> Preview {
     task(session).run(&AtomicBool::new(false), |_| {}).unwrap()
 }
+
+#[test]
+fn scheduled_attacks_survive_atomic_batch_conversion_in_song_scoped_formats() {
+    use deadsync_editor::attacks::placement::Timeline;
+    for format in [Format::Sm, Format::Ssc] {
+        let input = String::from_utf8(bytes(format)).unwrap().replace(
+            "#VENDOR:keep;",
+            "#VENDOR:keep;#ATTACKS:TIME=1:LEN=2:MODS=drunk;",
+        );
+        let mut source = Session::new(Document::parse(input.as_bytes(), format).unwrap());
+        let before = source.serialize().unwrap();
+        let result = preview(&source);
+        assert_eq!(result.report().generated, 2);
+        result.apply(&mut source).unwrap();
+        let saved = source.serialize().unwrap();
+        let reopened = Session::new(Document::parse(saved.clone(), format).unwrap());
+        for chart in 0..5 {
+            let attacks = Timeline::capture(&reopened, chart).unwrap();
+            assert_eq!(attacks.markers().len(), 1);
+            assert_eq!(attacks.markers()[0].row, 96);
+        }
+        source.undo().unwrap();
+        assert_eq!(source.serialize().unwrap(), before);
+        source.redo().unwrap();
+        assert_eq!(source.serialize().unwrap(), saved);
+    }
+}
 #[test]
 fn batch_matches_individual_conversions_and_round_trips_as_one_action() {
     for format in [Format::Sm, Format::Ssc] {

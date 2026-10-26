@@ -74,24 +74,25 @@ pub fn read(
             "Generation requires a chart with one participant".into(),
         ));
     }
-    let parsed = rssp::parse::extract_sections(&bytes, format.extension())?;
-    let parsed_chart = parsed
-        .notes_list
-        .get(chart)
-        .ok_or_else(|| Error::InvalidFormat("RSSP did not parse the selected chart".into()))?;
-    if [
-        parsed.attacks.as_deref(),
-        parsed_chart.chart_attacks.as_deref(),
-    ]
-    .into_iter()
-    .flatten()
-    .any(|value| !rssp::parse::decode_unescape(value).trim().is_empty())
-    {
-        return Err(Error::Unsupported(
-            "Attack event timing is not ported for generation yet".into(),
-        ));
-    }
     let timing = GenerationTiming::from_document(&document, chart)?;
+    let session = crate::history::Session::new(Document::parse(bytes, format)?);
+    let attack_rows = crate::attacks::placement::Timeline::capture(&session, chart)?
+        .markers()
+        .iter()
+        .map(|marker| marker.row)
+        .collect();
+    let scope = if crate::timing_edit::supports_chart_timing(&document) {
+        crate::timing_edit::Scope::Chart
+    } else {
+        crate::timing_edit::Scope::Song
+    };
+    let file_attacks =
+        crate::attacks::placement::Timeline::capture_file_scope(&session, chart, scope)?
+            .markers()
+            .iter()
+            .map(|marker| (marker.row, marker.loaded_time))
+            .collect();
+    checkpoint()?;
     let difficulty = entry
         .meter
         .parse::<f64>()
@@ -108,6 +109,8 @@ pub fn read(
         difficulty,
         document,
         chart,
+        attack_rows,
+        file_attacks,
     })
 }
 
@@ -120,6 +123,8 @@ pub struct SourceChart {
     pub difficulty: f64,
     document: Document,
     chart: usize,
+    attack_rows: Vec<u64>,
+    file_attacks: Vec<(u64, f64)>,
 }
 
 pub fn prepare(
@@ -145,11 +150,23 @@ pub fn prepare_editor(
 }
 
 impl SourceChart {
+    pub(crate) fn editor_timeline(
+        &self,
+        cancelled: &AtomicBool,
+    ) -> Result<super::editor_timing::EditorTimeline, Error> {
+        super::editor_timing::EditorTimeline::build_with_attacks(
+            &self.timing,
+            &self.grid,
+            None,
+            &self.attack_rows,
+            cancelled,
+        )
+    }
     pub fn prepare_editor(&self, cancelled: &AtomicBool) -> Result<PreparedChart, Error> {
         let regions = self.pattern_regions(cancelled)?;
-        let timeline =
-            super::editor_timing::EditorTimeline::build(&self.timing, &self.grid, None, cancelled)?
-                .with_markers(&regions, cancelled)?;
+        let timeline = self
+            .editor_timeline(cancelled)?
+            .with_markers(&regions, cancelled)?;
         let region = timeline.prepare_region(&self.grid, Some((0, i32::MAX as u64)), cancelled)?;
         let mut mines = timeline
             .heads()
@@ -234,7 +251,7 @@ impl SourceChart {
                 "Interpretation grid does not match its source layout".into(),
             ));
         }
-        let timing = &self.timing;
+        let timing = self.timing.clone().with_file_attacks(&self.file_attacks)?;
         let frames = expressed::frames(grid, 0, cancelled)?;
         let times =
             timing.grouped_times_checked(frames.iter().map(|frame| frame.row), checkpoint)?;

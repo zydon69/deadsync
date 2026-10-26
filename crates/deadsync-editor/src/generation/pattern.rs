@@ -121,7 +121,7 @@ impl PatternPreview {
         for position in self.tap_positions(&AtomicBool::new(false))? {
             edits.push((Position { player, ..position }, Some(Note::tap())));
         }
-        session.edit_notes(chart, "Generate pattern", edits)
+        session.edit_generated_notes(chart, "Generate pattern", edits)
     }
 }
 

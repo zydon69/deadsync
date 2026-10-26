@@ -2,6 +2,48 @@ use deadsync_editor::generation::timing::{Event, EventKind, GenerationTiming};
 use serde_json::Value;
 use std::{fs, path::PathBuf};
 
+#[test]
+fn scheduled_attacks_extend_source_span_without_changing_movement_frames() {
+    use deadsync_editor::{document::Format, generation::source};
+    use std::sync::{Arc, atomic::AtomicBool};
+    let input: Arc<[u8]> = Arc::from(b"#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=8:LEN=2:MODS=drunk;#NOTEDATA:;#STEPSTYPE:dance-single;#METER:9;#NOTES:1000\n0100\n0010\n0001;".as_slice());
+    let cancelled = AtomicBool::new(false);
+    for prepared in [
+        source::prepare(input.clone(), Format::Ssc, 0, &cancelled).unwrap(),
+        source::prepare_editor(input.clone(), Format::Ssc, 0, &cancelled).unwrap(),
+    ] {
+        assert_eq!(prepared.event_span, [0.0, 8.0]);
+        assert_eq!(prepared.frames.len(), 4);
+        assert_eq!(prepared.times, vec![0.0, 0.5, 1.0, 1.5]);
+        assert_eq!(prepared.source_notes, 4);
+    }
+}
+
+#[test]
+fn scheduled_attack_events_keep_their_phase_before_same_row_delays() {
+    let timing = GenerationTiming::new(vec![
+        Event {
+            row: 0,
+            kind: EventKind::Tempo(120.0),
+        },
+        Event {
+            row: 96,
+            kind: EventKind::Delay(0.75),
+        },
+        Event {
+            row: 96,
+            kind: EventKind::Attack,
+        },
+    ])
+    .unwrap();
+    assert_eq!(timing.grouped_times([96]).unwrap(), vec![1.0]);
+    assert_eq!(timing.times([96]).unwrap(), vec![1.75]);
+    assert_eq!(
+        timing.event_span_checked([], || Ok(())).unwrap(),
+        [0.0, 1.0]
+    );
+}
+
 // C# emits whole double values as JSON integers; compare their numeric f64
 // representation without changing their value or allowing a tolerance.
 fn event_times(mut events: Value) -> Value {
@@ -103,6 +145,9 @@ fn real_sm_ssc_preparation_matches_original_reader_timestamps_and_event_span() {
         "metadata",
         "ending-delay",
         "ending-scroll-delay",
+        "attacks-sm",
+        "attacks-inherited",
+        "attacks-own",
     ] {
         let input: Value = serde_json::from_slice(
             &fs::read(root.join(format!("file-clock-{name}.request.json"))).unwrap(),
@@ -275,6 +320,7 @@ fn preparation_uses_one_unsaved_snapshot_and_rejects_cancelled_or_invalid_reques
         .is_err()
     );
     session.set_text(Some(0), "METER", "12").unwrap();
+    // Generic text escaping produces an invalid structured attack property.
     session
         .set_text(Some(0), "ATTACKS", "TIME=1:LEN=1:MODS=drunk")
         .unwrap();

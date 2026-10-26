@@ -2,7 +2,6 @@
 //! Delete all selected regions first, estimate density once, then generate in
 //! row order with shared preceding counters and typed insertion times.
 use super::{
-    editor_timing::EditorTimeline,
     graph::StepGraph,
     job::{Job, Phase, Progress},
     metadata::{ChartData, Registry},
@@ -196,7 +195,7 @@ impl Task {
         let pad = Pad::builtin(&source.layout)?;
         let original = source.grid.clone();
         let mut grid = original.clone();
-        let timeline = EditorTimeline::build(&source.timing, &grid, None, cancelled)?
+        let timeline = source.editor_timeline(cancelled)?
             .with_markers(&source.pattern_regions(cancelled)?, cancelled)?;
         let mut report = Report {
             total: schedule.entries().len(),
@@ -363,7 +362,7 @@ impl Preview {
                 "Pattern-set preview belongs to another chart or revision",
             ));
         }
-        session.edit_notes(chart, "Regenerate pattern set", self.edits.clone())
+        session.edit_generated_notes(chart, "Regenerate pattern set", self.edits.clone())
     }
 }
 fn check(cancelled: &AtomicBool) -> Result<(), Error> {

@@ -219,6 +219,21 @@ impl Session {
         Ok(true)
     }
 
+    pub(crate) fn edit_generated_notes(
+        &mut self,
+        chart: usize,
+        label: &str,
+        edits: impl IntoIterator<Item = (Position, Option<Note>)>,
+    ) -> Result<bool, Error> {
+        let before = Session::new(Document::parse(self.serialize()?, self.document.format)?);
+        self.edit_chart_atomic(chart, label, |temporary| {
+            if temporary.edit_notes(chart, label, edits)? {
+                crate::attacks::anchoring::preserve(&before, temporary)?;
+            }
+            Ok(())
+        })
+    }
+
     /// Text values are escaped centrally; callers cannot inject another tag.
     pub fn set_text(
         &mut self,
@@ -593,6 +608,12 @@ impl Session {
                 ));
             }
         }
+        let snapshot = Session::new(Document::parse(self.serialize()?, self.document.format)?);
+        let mut staged = Session::new(after);
+        let copies: Vec<_> = additions.iter().enumerate()
+            .map(|(index, addition)| (addition.source_chart, start + index)).collect();
+        crate::attacks::anchoring::preserve_generated(&snapshot, &mut staged, &copies)?;
+        let after = Document::parse(staged.serialize()?, self.document.format)?;
         self.execute(
             label.into(),
             Change::DocumentSwap(Box::new(DocumentState {

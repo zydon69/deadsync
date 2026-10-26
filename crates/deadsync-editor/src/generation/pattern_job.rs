@@ -227,7 +227,7 @@ impl Task {
         {
             return invalid("Existing marker bounds differ; edit the marker before regeneration");
         }
-        let timeline = EditorTimeline::build(&source.timing, &source.grid, None, cancelled)?
+        let timeline = source.editor_timeline(cancelled)?
             .with_markers(&regions, cancelled)?;
         let (edits, deletions) =
             pattern_region::deletion_edits(&source.grid, 0, start, end, spacing, cancelled)?;

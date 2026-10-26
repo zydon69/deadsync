@@ -28,6 +28,47 @@ fn options() -> Options {
         ignore_preceding_distribution: false,
     }
 }
+
+#[test]
+fn pattern_generation_preserves_scheduled_attacks_and_peer_charts() {
+    use deadsync_editor::attacks::placement::Timeline;
+    let input = String::from_utf8(SONG.to_vec()).unwrap().replace(
+        "#VENDOR:keep;",
+        "#VENDOR:keep;#ATTACKS:TIME=0.5:LEN=2:MODS=drunk:TIME=8:LEN=1:MODS=dizzy;",
+    );
+    let mut source = Session::new(Document::parse(input.as_bytes(), Format::Ssc).unwrap());
+    let before = source.serialize().unwrap();
+    let expected: Vec<Vec<_>> = (0..2)
+        .map(|chart| {
+            Timeline::capture(&source, chart)
+                .unwrap()
+                .markers()
+                .iter()
+                .map(|m| (m.row, m.modifiers.clone()))
+                .collect()
+        })
+        .collect();
+    let generated = Task::capture(&source, 0, options())
+        .unwrap()
+        .run(&AtomicBool::new(false), |_, _| {})
+        .unwrap();
+    assert!(generated.apply(&mut source, 0).unwrap());
+    let saved = source.serialize().unwrap();
+    let reopened = Session::new(Document::parse(saved.clone(), Format::Ssc).unwrap());
+    for chart in 0..2 {
+        let actual: Vec<_> = Timeline::capture(&reopened, chart)
+            .unwrap()
+            .markers()
+            .iter()
+            .map(|m| (m.row, m.modifiers.clone()))
+            .collect();
+        assert_eq!(actual, expected[chart]);
+    }
+    source.undo().unwrap();
+    assert_eq!(source.serialize().unwrap(), before);
+    source.redo().unwrap();
+    assert_eq!(source.serialize().unwrap(), saved);
+}
 #[test]
 fn preview_applies_once_undoes_and_saves_through_real_session() {
     let mut source = session();

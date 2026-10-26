@@ -1,0 +1,133 @@
+{
+  "Operation": "FileClock",
+  "Format": "ssc",
+  "Chart": 0,
+  "Content": "#VERSION:0.83;#TITLE:Timing fixture;#ARTIST:Oracle;#OFFSET:0.15;#BPMS:0=120,1=180,2=240;#DELAYS:1=0.5,2=0.25;#STOPS:1=0.3,1.5=-0.2;#WARPS:1=1.5,2=2;#ATTACKS:TIME=8:LEN=1:MODS=dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#BPMS:0=150,2=200;#OFFSET:0.2;#ATTACKS:TIME=0.7:LEN=2:MODS=drunk:TIME=6:LEN=1:MODS=wave;#NOTES:\n2000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n31M0\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n00M0\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0004\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0003\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\nF0L0\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0000\n0K00\n;",
+  "TargetLayout": "dance-double",
+  "PerformedConfig": {
+    "Facing": {
+      "MaxInwardPercentage": 1.0,
+      "InwardPercentageCutoff": 0.34,
+      "MaxOutwardPercentage": 1.0,
+      "OutwardPercentageCutoff": 0.34
+    },
+    "StepTightening": {
+      "SpeedTighteningEnabled": true,
+      "SpeedMinTimeSeconds": 0.17647058823529413,
+      "SpeedMaxTimeSeconds": 0.24,
+      "SpeedTighteningMinDistance": 0,
+      "DistanceTighteningEnabled": true,
+      "DistanceMin": 1.4,
+      "DistanceMax": 2.333333,
+      "StretchTighteningEnabled": true,
+      "StretchDistanceMin": 2.333333,
+      "StretchDistanceMax": 3.333333,
+      "LateralMinPanelDistance": 0.166667,
+      "LongitudinalMinPanelDistance": -0.125
+    },
+    "LateralTightening": {
+      "Enabled": true,
+      "RelativeNPS": 1.65,
+      "AbsoluteNPS": 12,
+      "Speed": 3
+    },
+    "Transitions": {
+      "Enabled": false,
+      "StepsPerTransitionMin": 0,
+      "StepsPerTransitionMax": 1024,
+      "MinimumPadWidth": 5,
+      "TransitionCutoffPercentage": 0.5
+    },
+    "ArrowWeights": {
+      "dance-single": [
+        25,
+        25,
+        25,
+        25
+      ],
+      "dance-double": [
+        6,
+        12,
+        10,
+        22,
+        22,
+        12,
+        10,
+        6
+      ],
+      "dance-solo": [
+        13,
+        12,
+        25,
+        25,
+        12,
+        13
+      ],
+      "dance-threepanel": [
+        25,
+        50,
+        25
+      ],
+      "pump-single": [
+        17,
+        16,
+        34,
+        16,
+        17
+      ],
+      "pump-halfdouble": [
+        25,
+        12,
+        13,
+        13,
+        12,
+        25
+      ],
+      "pump-double": [
+        4,
+        4,
+        17,
+        12,
+        13,
+        13,
+        12,
+        17,
+        4,
+        4
+      ],
+      "smx-beginner": [
+        25,
+        50,
+        25
+      ],
+      "smx-single": [
+        25,
+        21,
+        8,
+        21,
+        25
+      ],
+      "smx-dual": [
+        8,
+        17,
+        25,
+        25,
+        17,
+        8
+      ],
+      "smx-full": [
+        6,
+        8,
+        7,
+        8,
+        22,
+        22,
+        8,
+        7,
+        8,
+        6
+      ]
+    }
+  },
+  "Seed": 42
+}

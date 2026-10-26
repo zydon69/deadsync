@@ -21,6 +21,7 @@ pub enum EventKind {
     TickCount,
     Combo,
     Label,
+    Attack,
     Scroll(f64),
     /// Time signatures, ticks, fakes, combos and labels precede delays.
     LeadingMarker,
@@ -44,6 +45,7 @@ impl Event {
             EventKind::Fake(_) => 3,
             EventKind::Combo => 4,
             EventKind::Label => 5,
+            EventKind::Attack => 6,
             EventKind::Delay(_) => 7,
             EventKind::Scroll(_) => 13,
             EventKind::TrailingMarker => 14,
@@ -58,6 +60,7 @@ impl Event {
 pub struct GenerationTiming {
     events: Vec<Event>,
     editor_events: Option<Vec<Event>>,
+    file_attacks: std::collections::BTreeMap<i64, f64>,
 }
 
 impl GenerationTiming {
@@ -101,6 +104,7 @@ impl GenerationTiming {
         Ok(Self {
             events,
             editor_events: None,
+            file_attacks: Default::default(),
         })
     }
 
@@ -124,6 +128,18 @@ impl GenerationTiming {
         &self.events
     }
 
+    /// Readers place attacks after assigning other event times. Their snapped
+    /// times must remain separate and must not advance the rate clock.
+    pub(crate) fn with_file_attacks(mut self, attacks: &[(u64, f64)]) -> Result<Self, Error> {
+        for &(row, time) in attacks {
+            if row > i32::MAX as u64 || !time.is_finite() {
+                return invalid("Invalid loaded attack time or row");
+            }
+            self.file_attacks.insert(row as i64, time);
+        }
+        Ok(self)
+    }
+
     pub fn times(&self, rows: impl IntoIterator<Item = u64>) -> Result<Vec<f64>, Error> {
         self.times_checked(rows, || Ok(()))
     }
@@ -135,7 +151,21 @@ impl GenerationTiming {
         note_rows: impl IntoIterator<Item = u64>,
         mut checkpoint: impl FnMut() -> Result<(), Error>,
     ) -> Result<[f64; 2], Error> {
-        let mut events = self.events.clone();
+        let mut events: Vec<_> = self
+            .events
+            .iter()
+            .copied()
+            .map(|event| (event, None))
+            .collect();
+        events.extend(self.file_attacks.iter().map(|(&row, &time)| {
+            (
+                Event {
+                    row,
+                    kind: EventKind::Attack,
+                },
+                Some(time),
+            )
+        }));
         for row in note_rows {
             checkpoint()?;
             let row = i64::try_from(row)
@@ -143,18 +173,21 @@ impl GenerationTiming {
             if row > i64::from(i32::MAX) {
                 return invalid("Generation row exceeds the reference range");
             }
-            events.push(Event {
-                row,
-                kind: EventKind::TrailingMarker,
-            });
+            events.push((
+                Event {
+                    row,
+                    kind: EventKind::TrailingMarker,
+                },
+                None,
+            ));
         }
-        events.sort_by_key(|event| (event.row, event.order()));
+        events.sort_by_key(|(event, _)| (event.row, event.order()));
         let mut clock = Clock::default();
         let mut first = None;
         let mut last = 0.0;
-        for event in events {
+        for (event, loaded_time) in events {
             checkpoint()?;
-            last = clock.event(event.row, Some(event.kind));
+            last = loaded_time.unwrap_or_else(|| clock.event(event.row, Some(event.kind)));
             if !last.is_finite() {
                 return invalid("Generation timing produced a non-finite timestamp");
             }
@@ -211,7 +244,17 @@ impl GenerationTiming {
                 clock.event(event.row, Some(event.kind));
                 cursor += 1;
             }
-            let time = clock.event(row, None);
+            let mut time = clock.event(row, None);
+            if grouped {
+                let first = self
+                    .events
+                    .get(self.events.partition_point(|event| event.row < row));
+                if first.is_none_or(|event| event.row != row || event.order() > 6) {
+                    if let Some(&loaded) = self.file_attacks.get(&row) {
+                        time = loaded;
+                    }
+                }
+            }
             if !time.is_finite() {
                 return invalid("Generation timing produced a non-finite timestamp");
             }
@@ -299,6 +342,7 @@ impl Clock {
                 | EventKind::TickCount
                 | EventKind::Combo
                 | EventKind::Label
+                | EventKind::Attack
                 | EventKind::Fake(_)
                 | EventKind::Scroll(_),
             ) => {}

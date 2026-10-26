@@ -1,9 +1,38 @@
 //! Keep resident attack rows stable across timing/property transactions.
 use super::{placement::Timeline, resident};
-use crate::{Error, document::Format, history::Session, timing_edit::Scope};
+use crate::{Error, history::Session, timing_edit::Scope};
+
+/// Bind copied non-performance attacks to their source editor rows. Generated
+/// notes can change the file reader's inverse clock, even with identical timing.
+pub(crate) fn preserve_generated(
+    before: &Session,
+    after: &mut Session,
+    copies: &[(usize, usize)],
+) -> Result<(), Error> {
+    for &(source, target) in copies {
+        let events = resident::events(&Timeline::capture(before, source)?);
+        if events.is_empty() {
+            continue;
+        }
+        let scope = if crate::timing_edit::supports_chart_timing(after.document()) {
+            let bytes = resident::encode(after, target, &events, &Default::default())?;
+            after.set_property_bytes(Some(target), "ATTACKS", bytes.into())?;
+            Scope::Chart
+        } else {
+            Scope::Song
+        };
+        resident::reconcile(after, target, scope, &events)?;
+        if !resident::same(&Timeline::capture(after, target)?, &events) {
+            return Err(Error::InvalidEdit(
+                "Generated chart changed attack positions".into(),
+            ));
+        }
+    }
+    Ok(())
+}
 
 pub(crate) fn preserve(before: &Session, after: &mut Session) -> Result<(), Error> {
-    let scope = if after.document().format == Format::Ssc {
+    let scope = if crate::timing_edit::supports_chart_timing(after.document()) {
         Scope::Chart
     } else {
         Scope::Song
@@ -43,7 +72,7 @@ pub(crate) fn preserve(before: &Session, after: &mut Session) -> Result<(), Erro
         };
         charts.push((chart, events, bytes));
     }
-    if after.document().format == Format::Ssc {
+    if scope == Scope::Chart {
         for (chart, events, bytes) in &charts {
             if let Some(bytes) = bytes {
                 after.set_property_bytes(Some(*chart), "ATTACKS", bytes.clone().into())?;
@@ -60,7 +89,7 @@ pub(crate) fn preserve(before: &Session, after: &mut Session) -> Result<(), Erro
             };
             let mut candidate = Session::new(crate::document::Document::parse(
                 after.serialize()?,
-                Format::Sm,
+                after.document().format,
             )?);
             candidate.set_property_bytes(None, "ATTACKS", bytes.clone().into())?;
             let score = charts

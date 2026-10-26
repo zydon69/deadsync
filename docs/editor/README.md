@@ -50,7 +50,7 @@ reviewable and tested.
 | Attack events | F10 optional keyboard inspector, widgets/duration overview, song/chart scope, multiple modifiers, temporal shortcuts and history; exact row model survives timing edits and ambiguous warp/negative-stop export through bound editor metadata | Pinned original parser/clock/UI comparisons, save/recovery/structural/undo tests and native EN/FR workflows; miscellaneous-event clipboard, cross-chart shared-event identity, runtime widget/transport verification, permissive normalization and broader file corpus remain pending |
 | Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, scrub, loop and audio analysis remain pending; persisted waveform visibility, width, density, palette and scroll policies are implemented below |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; layout weight addition/inheritance are connected; profile copy/import/export, deletion/reference repair and global undo are implemented below; attack-event timing, multiple-participant source generation and broader runtime parity remain pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; layout weight addition/inheritance are connected; profile copy/import/export, deletion/reference repair and global undo are implemented below; scheduled-attack source timing and preservation through chart/pattern generation are connected with pinned file-reader comparisons; multiple-participant source generation and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
 | Customization | Native keyboard panels for zoom, navigation, scroll/receptor presentation and waveform preferences, including palette and scroll policies | Shortcut rebinding, broader presets/theme customization and command palette pending; physical-input/runtime review remains required |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -6043,3 +6043,42 @@ Verification: all 12 tests in `editor_timing_workflows` passed on this increment
 including the two new scheduled-attack tests and existing original-reference
 timing, pattern context, and native conversion cases. This is a focused suite,
 not a full editor regression or an end-to-end attacked-chart generation proof.
+
+### Scheduled attacks: source, conversion and pattern integration
+
+The following increment removes the scheduled-attack rejection in source
+preparation. Native chart conversion and both pattern workers use the source's
+resident/editor attack rows; standalone preparation uses file-loader rows and
+the explicit attack phase before delays. Attack notes and multiple-participant
+generation retain their separate existing guards.
+
+Appending generated charts now stages attack copying before publishing the
+single document-history action. SSC destinations get local encoded attacks and
+row reconciliation; formats with song-scoped attacks retain the shared property
+and bind destination rows where needed. Pattern acceptance stages its note edits
+with attack anchoring, including peer charts, as one undoable gesture.
+
+Three `file-clock-attacks-*` fixtures were generated by the pinned C# Fumen
+readers and StepManiaLibrary interpreter/converter. They cover SM song attacks,
+SSC inheritance, and SSC chart attacks overriding song attacks with local timing
+and offset. `file-clock-attacks.reference.json` records this generation's scope
+and hashes independently of older fixture provenance. These references exercise
+the original library pipeline, not the complete GrooveAuthor application.
+
+Standalone file preparation retains the loader's snapped attack times separately
+from the rate-event clock. In particular, an inherited attack after warps in the
+new reference ends at `8.152083333333334`, whereas recomputing its integer row
+would yield `8.146875000000001`. Loaded attacks participate in first-event row
+selection and span endpoints without altering other events' clock state. The
+editor path deliberately recomputes its own assigned times from resident rows.
+
+Focused verification: 49 unique tests passed across `generation_timing_workflows`
+(6), `generation_job_workflows` (10), `batch_generation_workflows` (10),
+`pattern_job_workflows` (8), `pattern_batch_workflows` (7), and
+`persistent_pattern_workflows` (8). New cases cover attack source spans, phase
+ordering, inherited/local SM/SSC conversion, exact resident rows inside a warp,
+song-scoped batch conversion, pattern acceptance with peer charts, serialized
+reopening and exact undo/redo. The new file-clock cases also compare interpreted
+steps/mines, event spans and converted notes with the actual pinned C# pipeline.
+No complete-editor regression, physical input, rendered GPU or audible playback
+claim is made by these focused checks.

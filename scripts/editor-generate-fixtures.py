@@ -469,6 +469,9 @@ def requests(reference: Path):
         ("metadata", "ssc", "0.83", "#TIMESIGNATURES:0=4=4,8=3=4;#LABELS:10=End;#TICKCOUNTS:6=8;#COMBOS:7=2=3;#FAKES:9=1;#SCROLLS:11=0.5;#SPEEDS:12=1=0=0;", ""),
         ("ending-delay", "ssc", "0.83", "#DELAYS:6=0.4;#LABELS:6=End;", ""),
         ("ending-scroll-delay", "ssc", "0.83", "#DELAYS:6=0.4;#SCROLLS:6=0.5;", ""),
+        ("attacks-sm", "sm", "", "#ATTACKS:TIME=0.65:LEN=2:MODS=drunk:TIME=8:LEN=1:MODS=dizzy;", ""),
+        ("attacks-inherited", "ssc", "0.83", "#ATTACKS:TIME=0.65:LEN=2:MODS=drunk:TIME=8:LEN=1:MODS=dizzy;", ""),
+        ("attacks-own", "ssc", "0.83", "#ATTACKS:TIME=8:LEN=1:MODS=dizzy;", "#BPMS:0=150,2=200;#OFFSET:0.2;#ATTACKS:TIME=0.7:LEN=2:MODS=drunk:TIME=6:LEN=1:MODS=wave;"),
     ]:
         content = (base.replace("#DELAYS:1=0.5,2=0.25;", "") if label.startswith("ending-") else base) + extra_song
         if extension == "ssc":

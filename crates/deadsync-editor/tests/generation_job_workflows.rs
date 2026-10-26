@@ -24,6 +24,84 @@ fn preview(session: &Session) -> deadsync_editor::generation::job::ChartPreview 
         .run(&AtomicBool::new(false), |_| {})
         .unwrap()
 }
+
+#[test]
+fn generated_charts_preserve_scheduled_attacks_in_sm_and_ssc_history() {
+    use deadsync_editor::attacks::placement::Timeline;
+    let inputs = [
+        (
+            Format::Sm,
+            "#BPMS:0=120;#ATTACKS:TIME=1:LEN=2:MODS=drunk:TIME=8:LEN=1:MODS=dizzy;#NOTES:dance-single:Source:Hard:9:0,0,0,0,0:1000\n0100\n0010\n0001;",
+        ),
+        (
+            Format::Ssc,
+            "#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=1:LEN=2:MODS=drunk:TIME=8:LEN=1:MODS=dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#METER:9;#NOTES:1000\n0100\n0010\n0001;",
+        ),
+        (
+            Format::Ssc,
+            "#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=2:LEN=1:MODS=dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#METER:9;#ATTACKS:TIME=1:LEN=2:MODS=drunk;#NOTES:1000\n0100\n0010\n0001;",
+        ),
+    ];
+    for (format, input) in inputs {
+        let mut session =
+            Session::new(Document::parse(Arc::<[u8]>::from(input.as_bytes()), format).unwrap());
+        let original = session.serialize().unwrap();
+        let expected: Vec<_> = Timeline::capture(&session, 0)
+            .unwrap()
+            .markers()
+            .iter()
+            .map(|marker| (marker.row, marker.modifiers.clone()))
+            .collect();
+        assert!(!expected.is_empty());
+        let generated = preview(&session);
+        assert_eq!(session.serialize().unwrap(), original);
+        assert_eq!(generated.apply(&mut session).unwrap(), 1);
+        let saved = session.serialize().unwrap();
+        let reopened =
+            Session::new(Document::parse(Arc::<[u8]>::from(saved.clone()), format).unwrap());
+        for chart in [0, 1] {
+            let actual: Vec<_> = Timeline::capture(&reopened, chart)
+                .unwrap()
+                .markers()
+                .iter()
+                .map(|marker| (marker.row, marker.modifiers.clone()))
+                .collect();
+            assert_eq!(actual, expected, "{format:?} chart {chart}");
+        }
+        session.undo().unwrap();
+        assert_eq!(session.serialize().unwrap(), original);
+        session.redo().unwrap();
+        assert_eq!(session.serialize().unwrap(), saved);
+    }
+}
+
+#[test]
+fn generated_chart_keeps_an_editor_attack_inside_a_warp() {
+    use deadsync_editor::{
+        attacks::{inspector::Draft, placement::Timeline},
+        timing_edit::Scope,
+    };
+    let input = String::from_utf8(SONG.to_vec()).unwrap().replace(
+        "#VENDOR:keep;",
+        "#VENDOR:keep;#WARPS:1=1;#ATTACKS:TIME=1:LEN=1:MODS=drunk;",
+    );
+    let mut source = Session::new(Document::parse(input.as_bytes(), Format::Ssc).unwrap());
+    let mut attack = Draft::capture(&source, 0, Scope::Chart).unwrap();
+    attack.move_to_row(0, 72).unwrap();
+    attack.apply(&mut source, 0).unwrap();
+    assert_eq!(Timeline::capture(&source, 0).unwrap().markers()[0].row, 72);
+    let before = source.serialize().unwrap();
+    let generated = preview(&source);
+    generated.apply(&mut source).unwrap();
+    let saved = source.serialize().unwrap();
+    let reopened = Session::new(Document::parse(saved, Format::Ssc).unwrap());
+    assert_eq!(
+        Timeline::capture(&reopened, 1).unwrap().markers()[0].row,
+        72
+    );
+    source.undo().unwrap();
+    assert_eq!(source.serialize().unwrap(), before);
+}
 fn finish(
     job: &mut Job,
 ) -> Result<deadsync_editor::generation::job::ChartPreview, deadsync_editor::Error> {
@@ -200,6 +278,9 @@ fn snapshot_pipeline_matches_original_file_reader_interpretation_and_generated_n
         "metadata",
         "ending-delay",
         "ending-scroll-delay",
+        "attacks-sm",
+        "attacks-inherited",
+        "attacks-own",
     ] {
         let input: Value = serde_json::from_slice(
             &fs::read(root.join(format!("file-clock-{name}.request.json"))).unwrap(),
