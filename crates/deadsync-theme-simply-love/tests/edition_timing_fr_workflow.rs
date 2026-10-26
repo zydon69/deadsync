@@ -81,7 +81,7 @@ fn french_timing_labels_validation_and_acceptance_are_resolved() {
             .iter()
             .any(|text| text.starts_with("Saisir un BPM fini"))
     );
-    for _ in 0..4 {
+    for _ in 0..5 {
         press(&mut screen, KeyCode::ArrowDown);
     }
     press(&mut screen, KeyCode::Digit1);

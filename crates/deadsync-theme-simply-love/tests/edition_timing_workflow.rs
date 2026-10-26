@@ -36,7 +36,7 @@ fn ctrl(screen: &mut State, code: KeyCode) {
 fn choose(screen: &mut State, index: &mut usize, target: usize) {
     while *index != target {
         press(screen, KeyCode::ArrowDown);
-        *index = (*index + 1) % 10;
+        *index = (*index + 1) % 11;
     }
 }
 fn type_number(screen: &mut State, value: &str) {

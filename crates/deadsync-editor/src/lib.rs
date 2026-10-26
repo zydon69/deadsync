@@ -4,6 +4,7 @@
 //! leaving unknown tags, comments, encodings, and unedited charts intact.
 pub mod scroll_preferences;
 pub mod analysis;
+pub mod attacks;
 pub mod audio_preferences;
 pub mod chart_properties;
 pub mod chart_identity;

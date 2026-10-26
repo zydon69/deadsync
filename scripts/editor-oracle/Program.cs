@@ -21,6 +21,21 @@ var options = new JsonSerializerOptions
 };
 var request = JsonDocument.Parse(File.ReadAllBytes(args[1])).RootElement;
 var operation = request.GetProperty("Operation").GetString();
+// Execute the pinned Fumen attack parser directly; no reimplementation in this adapter.
+if (operation == "Attacks") {
+    System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+    var cases = new List<object>();
+    foreach (var item in request.GetProperty("Cases").EnumerateArray()) {
+        var source = item.GetString()!;
+        var values = new List<Attack>();
+        new Fumen.Converters.AttackPropertyParser("ATTACKS", values).Parse(
+            new Fumen.Converters.MSDFile.Value { Params = new List<string> { "ATTACKS" }.Concat(source.Split(':')).ToList() });
+        cases.Add(new { Source = source, Events = values.OrderBy(e => e.TimeSeconds).Select(e => new {
+            Time = e.TimeSeconds, Modifiers = e.Modifiers.Select(m => new { m.Name, m.Level, m.Speed, Length = m.LengthSeconds }).ToArray()
+        }).ToArray() });
+    }
+    Console.WriteLine(JsonSerializer.Serialize(cases, options)); return;
+}
 if (operation is "NormalizedFile" or "NewChartDefaults") { Console.WriteLine(JsonSerializer.Serialize(await SourceTimingOracle.Reference.Run(request,args[0]), options)); return; }
 if (operation == "Signature") { Console.WriteLine(JsonSerializer.Serialize(SignatureOracle.Reference.Run(request), options)); return; }
 if (operation == "Scroll") { Console.WriteLine(JsonSerializer.Serialize(ScrollOracle.Reference.Run(request), options)); return; }

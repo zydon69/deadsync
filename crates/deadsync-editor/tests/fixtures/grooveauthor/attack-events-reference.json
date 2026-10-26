@@ -1,0 +1,9 @@
+{
+  "StepManiaLibrary": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "Fumen": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "ParserSourceSHA256": "64a042d72dd1dfe66a6f13237eb769c0ec219ca745de8af3caaf13050c2bef1e",
+  "AdapterSHA256": "1905b953514ba2be90eb86398ef9eb914bc210d2fe7fba7bf8edb95d27d1dd40",
+  "RequestSHA256": "b211c44e68b25148d83200230ea8e7935180049991b37fe4526c1159f8af2130",
+  "Cases": 5,
+  "Scope": "Unmodified Fumen AttackPropertyParser with MSD parameter adapter; no native gameplay or row/time conversion claim"
+}

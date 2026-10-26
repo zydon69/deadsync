@@ -1,0 +1,122 @@
+[
+  {
+    "Source": "TIME=0:LEN=2:MODS=Dizzy",
+    "Events": [
+      {
+        "Time": 0,
+        "Modifiers": [
+          {
+            "Name": "Dizzy",
+            "Level": 1,
+            "Speed": 1,
+            "Length": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Source": "TIME=3:LEN=4:MODS=*2 -25% Confusion,no Reverse:TIME=3:LEN=8:MODS=50% Drunk",
+    "Events": [
+      {
+        "Time": 3,
+        "Modifiers": [
+          {
+            "Name": "Confusion",
+            "Level": -25,
+            "Speed": 2,
+            "Length": 4
+          },
+          {
+            "Name": "Reverse",
+            "Level": 0,
+            "Speed": 1,
+            "Length": 4
+          },
+          {
+            "Name": "Drunk",
+            "Level": 50,
+            "Speed": 1,
+            "Length": 8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Source": "TIME=-1:LEN=99:END=5:MODS=*0.5 150% Boost:TIME=8:LEN=0.25:MODS=100% Dizzy",
+    "Events": [
+      {
+        "Time": -1,
+        "Modifiers": [
+          {
+            "Name": "Boost",
+            "Level": 150,
+            "Speed": 0.5,
+            "Length": 6
+          }
+        ]
+      },
+      {
+        "Time": 8,
+        "Modifiers": [
+          {
+            "Name": "Dizzy",
+            "Level": 100,
+            "Speed": 1,
+            "Length": 0.25
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Source": "TIME=5:END=9:MODS=50ms Mini:TIME=2:LEN=1:MODS=no Drunk",
+    "Events": [
+      {
+        "Time": 2,
+        "Modifiers": [
+          {
+            "Name": "Drunk",
+            "Level": 0,
+            "Speed": 1,
+            "Length": 1
+          }
+        ]
+      },
+      {
+        "Time": 5,
+        "Modifiers": [
+          {
+            "Name": "Mini",
+            "Level": 0.05,
+            "Speed": 1,
+            "Length": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Source": "TIME=10:MODS=*0 -50% Dizzy, *-2 125% Reverse",
+    "Events": [
+      {
+        "Time": 10,
+        "Modifiers": [
+          {
+            "Name": "Dizzy",
+            "Level": -50,
+            "Speed": 0,
+            "Length": 0
+          },
+          {
+            "Name": "Reverse",
+            "Level": 125,
+            "Speed": -2,
+            "Length": 0
+          }
+        ]
+      }
+    ]
+  }
+]

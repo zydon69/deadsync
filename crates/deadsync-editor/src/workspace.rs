@@ -498,6 +498,12 @@ impl Workspace {
     pub fn chart_properties(&self) -> Result<crate::chart_properties::Draft, Error> {
         crate::chart_properties::Draft::capture(&self.file.session, self.chart)
     }
+    pub fn attacks(&self, scope: crate::timing_edit::Scope) -> Result<crate::attacks::Draft, Error> {
+        crate::attacks::Draft::capture(&self.file.session, self.chart(), scope)
+    }
+    pub fn apply_attacks(&mut self, draft: &crate::attacks::Draft) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session, self.chart)
+    }
     pub fn note_attributes(&self, lane: u16) -> Result<crate::note_attributes::Draft, Error> {
         let position = crate::notes::Position {
             row: self.row(), lane, player: self.player(),

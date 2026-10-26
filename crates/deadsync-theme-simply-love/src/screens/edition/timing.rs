@@ -82,14 +82,26 @@ impl State {
     fn timing_error(&mut self, error: deadsync_editor::Error) {
         self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
     }
+    fn timing_attacks(&mut self) {
+        if self.timing.as_ref().is_some_and(|settings| settings.pending || settings.draft.has_changes()) {
+            self.status = i18n::tr("Edition", "AttacksTimingPending");
+            return;
+        }
+        let scope = self.timing.as_ref().map_or(Scope::Song, |settings| settings.draft.scope());
+        self.open_attacks(scope);
+    }
     pub(super) fn timing_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::F6 {
+            self.timing_attacks();
+            return;
+        }
         if code == KeyCode::Tab {
             self.timing_type();
             return;
         }
         if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
             self.panel = Some(Panel::Timing(
-                (index + if code == KeyCode::ArrowUp { 9 } else { 1 }) % 10,
+                (index + if code == KeyCode::ArrowUp { 10 } else { 1 }) % 11,
             ));
             if let Some(settings) = &mut self.timing {
                 settings.fresh = true;
@@ -266,6 +278,7 @@ impl State {
                 6 => self.timing_navigate(false),
                 7 => self.timing_navigate(true),
                 8 => self.timing_apply(),
+                10 => self.timing_attacks(),
                 9 => {
                     self.timing = None;
                     self.panel = None;

@@ -13,6 +13,7 @@ pub(super) enum Target {
     Chart(ChartField),
     Song(SongField),
     Note(NoteField),
+    Attack(usize),
 }
 impl Target {
     pub(super) fn is_music(self) -> bool {
@@ -29,6 +30,7 @@ impl Target {
     }
     fn key(self) -> &'static str {
         match self {
+            Self::Attack(index) => super::attacks::FIELD_KEYS[index],
             Self::Note(NoteField::Head) => "NoteAttributesHead",
             Self::Note(NoteField::Tail) => "NoteAttributesTail",
             Self::Chart(field) => match field {
@@ -57,6 +59,7 @@ impl Target {
 impl State {
     fn field_at(&self, index: usize) -> Option<Target> {
         match self.panel {
+            Some(Panel::Attacks(_)) if (3..8).contains(&index) => Some(Target::Attack(index - 3)),
             Some(Panel::NoteAttributes(_)) => match index {
                 1 => Some(Target::Note(NoteField::Head)),
                 2 => Some(Target::Note(NoteField::Tail)),
@@ -69,6 +72,7 @@ impl State {
     }
     fn field_value(&self, target: Target) -> Option<&str> {
         match target {
+            Target::Attack(index) => self.attacks.as_ref().map(|d| d.fields[index].as_str()),
             Target::Note(f) => self.note_attributes.as_ref().map(|d| d.text(f)),
             Target::Chart(f) => self.chart_properties.as_ref().map(|d| d.text(f)),
             Target::Song(f) => self.song_properties.as_ref().map(|d| d.text(f)),
@@ -76,6 +80,7 @@ impl State {
     }
     fn field_supported(&self, target: Target) -> bool {
         match target {
+            Target::Attack(_) => self.attacks.as_ref().is_some_and(|d| d.editable()),
             Target::Note(f) => self.note_attributes.as_ref()
                 .is_some_and(|d| f == NoteField::Head || d.note().end.is_some()),
             Target::Chart(f) => self
@@ -95,6 +100,11 @@ impl State {
     ) -> Result<(), deadsync_editor::Error> {
         let missing = || deadsync_editor::Error::InvalidEdit("No property draft is active".into());
         match target {
+            Target::Attack(index) => {
+                if value.chars().any(char::is_control) { return Err(deadsync_editor::Error::InvalidEdit("Attack fields must occupy one line".into())); }
+                self.attacks.as_mut().ok_or_else(missing)?.fields[index] = value.into();
+                Ok(())
+            }
             Target::Note(f) => self.note_attributes.as_mut().ok_or_else(missing)?.set_text(f, value),
             Target::Chart(f) => self
                 .chart_properties
@@ -110,7 +120,7 @@ impl State {
     }
     pub(super) fn text_target(&self) -> Option<Target> {
         let index = match self.panel {
-            Some(Panel::ChartText(i) | Panel::SongText(i) | Panel::NoteAttributes(i)) => i,
+            Some(Panel::ChartText(i) | Panel::SongText(i) | Panel::NoteAttributes(i) | Panel::Attacks(i)) => i,
             _ => return None,
         };
         self.field_at(index)

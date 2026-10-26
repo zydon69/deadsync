@@ -14,6 +14,7 @@ mod display_tempo;
 mod profile_edit;
 mod note_conversion;
 mod note_attributes;
+mod attacks;
 mod note_owners;
 mod text_fields;
 mod clipboard;
@@ -65,6 +66,7 @@ enum Panel {
     Transforms(usize),
     NoteConversion(usize),
     NoteAttributes(usize),
+    Attacks(usize),
     NoteOwners(usize),
     Unsaved(usize),
     ConfirmDiscard,
@@ -259,6 +261,7 @@ pub struct State {
     note_conversion: note_conversion::Settings,
     note_attributes: Option<deadsync_editor::note_attributes::Draft>,
     note_attribute_lane: u16,
+    attacks: Option<attacks::Settings>,
     note_owners: note_owners::Settings,
     profile_saved_choices: Option<profile_edit::Choices>,
     profile_preference_history: std::collections::BTreeMap<u64, profile_edit::PreferenceChange>,
@@ -410,6 +413,7 @@ impl State {
             note_conversion: Default::default(),
             note_attributes: None,
             note_attribute_lane: 0,
+            attacks: None,
             note_owners: Default::default(),
             profile_preference_history: Default::default(),
             profile_creations: Default::default(),
@@ -1402,7 +1406,7 @@ impl State {
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
         let repeating_text_cursor = matches!(
-            self.panel, Some(Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::ProfileText)
+            self.panel, Some(Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::Attacks(_) | Panel::ProfileText)
         )
             && matches!(
                 event.code,
@@ -1604,6 +1608,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if let Panel::Attacks(index) = panel { self.attacks_key(index, code); return false; }
         if let Panel::NoteAttributes(index) = panel { self.note_attributes_key(index, code); return false; }
         if let Panel::NoteOwners(index) = panel { self.note_owners_key(index, code); return false; }
         if let Panel::NoteConversion(index) = panel { self.note_conversion_key(index, code); return false; }
@@ -1717,6 +1722,7 @@ impl State {
             Panel::ProfileDefaults(_) => unreachable!("profile defaults dispatched above"),
             Panel::ProfileSpeed(_) => unreachable!("profile speed dispatched above"),
             Panel::NoteOwners(_) => unreachable!("note owners dispatched above"),
+            Panel::Attacks(_) => unreachable!("attacks dispatched above"),
             Panel::NoteAttributes(_) => unreachable!("note inspector dispatched above"),
             Panel::NoteConversion(_) => unreachable!("note conversion dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
@@ -2658,6 +2664,7 @@ impl State {
                 "MarkerProfiles",
             ],
             Panel::NoteOwners(_) => &["NoteOwnersMode", "NoteOwnersA", "NoteOwnersB", "NoteOwnersCount", "NoteOwnersApply", "KeepEditing"],
+            Panel::Attacks(_) => &["AttackScope", "AttackEvent", "AttackModifier", "AttackTime", "AttackName", "AttackLevel", "AttackSpeed", "AttackLength", "AttackAddModifier", "AttackDeleteModifier", "AttackAddEvent", "AttackDeleteEvent", "AttacksApply", "AttacksCancel"],
             Panel::NoteAttributes(_) => &["NoteAttributesLane", "NoteAttributesHead", "NoteAttributesTail", "NoteAttributesApply", "NoteAttributesCancel"],
             Panel::NoteConversion(_) => &["NoteConversionFrom", "NoteConversionTo", "NoteConversionDuration", "NoteConversionApply", "KeepEditing"],
             Panel::ConversionProfiles(_) => &[
@@ -2688,6 +2695,7 @@ impl State {
                 "TimingNext",
                 "TimingAccept",
                 "TimingCancel",
+                "AttacksOpen",
             ],
             Panel::SongText(_) => &[
                 "SongTitle", "SongSubtitle", "SongArtist", "SongCredit", "SongGenre", "SongOrigin",
@@ -2741,6 +2749,7 @@ impl State {
             | Panel::NewChart(i)
             | Panel::Menu(i)
             | Panel::NoteOwners(i)
+            | Panel::Attacks(i)
             | Panel::NoteAttributes(i)
             | Panel::NoteConversion(i)
             | Panel::Transforms(i)
@@ -2775,10 +2784,10 @@ impl State {
             | Panel::GenerationPreview(i) => i,
             _ => 0,
         };
-        let menu_start = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
+        let menu_start = if matches!(panel, Panel::Menu(_) | Panel::Attacks(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
             selected / 8 * 8
         } else { 0 };
-        let visible_keys = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
+        let visible_keys = if matches!(panel, Panel::Menu(_) | Panel::Attacks(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
             keys.len().saturating_sub(menu_start).min(8)
         } else {
             keys.len()
@@ -2810,7 +2819,7 @@ impl State {
         } else {
             0.0
         };
-        let menu_footer = if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
+        let menu_footer = if matches!(panel, Panel::Menu(_) | Panel::Attacks(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
             24.0
         } else { 0.0 };
         let row_height = if matches!(panel, Panel::ChartProperties(_)) { 26.0 } else { 32.0 };
@@ -2821,7 +2830,7 @@ impl State {
             screen_height() * 0.5
         };
         actors.push(act!(quad: xy(panel_x, panel_y): setsize(panel_width, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
-        if matches!(panel, Panel::Menu(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
+        if matches!(panel, Panel::Menu(_) | Panel::Attacks(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
             let page = i18n::tr_fmt("Edition",
                 if matches!(panel, Panel::WaveformColors(_)) { "WaveformColorsPage" } else if matches!(panel, Panel::SongText(_)) { "TextFieldsPage" } else { "MenuPage" }, &[
                 ("page", &(selected / 8 + 1).to_string()),
@@ -2952,6 +2961,8 @@ impl State {
                 self.profile_speed_label(index, key)
             } else if matches!(panel, Panel::NoteOwners(_)) {
                 self.note_owners_label(index, key)
+            } else if matches!(panel, Panel::Attacks(_)) {
+                self.attack_label(index, key)
             } else if matches!(panel, Panel::NoteAttributes(_)) {
                 self.note_attributes_label(index, key)
             } else if matches!(panel, Panel::NoteConversion(_)) {
@@ -3184,7 +3195,7 @@ impl State {
                 let y=panel_y-panel_height*0.5+extra_height+30.0+(index-menu_start) as f32*32.0;
                 actors.push(act!(quad: xy(panel_x+panel_width*0.5-20.0,y): zoomto(16.0,16.0): diffuse(rgba[0],rgba[1],rgba[2],rgba[3]): z(8022)));
             }
-            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::ProfileEdit(_) | Panel::ProfileText) {
+            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::Attacks(_) | Panel::ProfileEdit(_) | Panel::ProfileText) {
                 if let Some(Actor::Text { max_width, .. }) = actors.last_mut() {
                     *max_width = Some(panel_width - 30.0);
                 }

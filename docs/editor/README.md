@@ -39,7 +39,7 @@ reviewable and tested.
 | Domain | Rust implementation | Evidence / remaining work |
 | --- | --- | --- |
 | SM/SSC source preservation | Byte spans and explicit replacements; unknown tags, unchanged chart note data, and legacy metadata bytes preserved | `editing_workflows`, `property_workflows`; broader format corpus still required |
-| Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; Routine/Team participant changes with atomic metadata/history; attribute inspector and StepF2 conventions pending |
+| Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; Routine/Team participant changes with atomic metadata/history; raw head/tail attribute inspector shipped; typed note-specific suffix forms and StepF2 conventions pending |
 | Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste now uses GrooveAuthor ForceAdd conflict rules; miscellaneous-event clipboard parity remains pending |
 | Layouts | Reference pad coordinates, starting tiers, ten relationship matrices, mirror/flip mappings | All imported layout definitions validated; original compressed graphs decoded and traversed |
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/row shifts and column shifts with optional wrapping; broader GrooveAuthor transformations pending |
@@ -47,6 +47,7 @@ reviewable and tested.
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
+| Attack events | F10 optional keyboard inspector: song/chart scope, multiple modifiers per instant, name/level/speed/duration, insertion/deletion, move time, cursor/end navigation, transactional history | Executed pinned Fumen parser fixtures plus core/native EN/FR workflows; chart widgets, permissive malformed-input normalization and broader file corpus remain pending |
 | Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; layout weight addition/inheritance are connected; library undo/deletion and broader runtime parity remain pending |
@@ -5392,3 +5393,75 @@ targets (`/tmp/deadsync-note-attributes-all-native.log`). Final targeted regress
 logs: `/tmp/deadsync-note-attributes-core.log` and
 `/tmp/deadsync-note-attributes-native.log`; compilation diagnostics:
 `/tmp/deadsync-note-attributes-check.log`.
+
+
+### Scoped attack-event inspector (2026-10-26)
+
+GrooveAuthor's `UIAttackEvent` edits `#ATTACKS` timing events, independently of
+attached note suffixes and deprecated `A` note symbols. The Rust editor now exposes
+an optional panel through `F10 → Attack events`, or `F6` inside timing. Opening it
+refuses a pending/staged timing edit, so switching tools cannot lose that work.
+The attack inspector follows the scope already selected in timing (chart scope by
+default in modern SSC). The main F1 menu remains two pages. The inspector itself has two pages of eight
+rows maximum: scope/event/modifier selection and editable fields, then explicit
+add/remove/apply/cancel actions.
+
+Name, level (percent units), speed and per-modifier duration are editable for every
+modifier in an attack. Moving the attack's file time keeps its modifiers together;
+colliding attack times are refused. Adding a modifier keeps the first modifier's
+duration, matching the source inspector; adding an attack uses the cursor time and
+one measure at the active tempo, matching `UIEditEvents.CreateAttackEvent`. `F2` places the start at the cursor, `F3` sets duration to
+the cursor, and `F4/F5` go to the modifier end / attack start without requiring an
+audio file. Those conversions use the existing chart clock, effective music
+offset and pre-zero attack clamping; editor audio-sync offset is excluded.
+
+Scope is independent of SSC split timing. Chart attacks inherit song attacks when
+the local list is empty. Editing an inherited list creates only `ATTACKS` for that
+chart; it never detaches/copies BPM or other timing tags. Clearing a chart list
+when shared attacks exist is refused because the reader would restore the shared
+list. Remove those attacks in song scope instead. SM uses song scope. The domain also supports legacy SSC shared events; native
+legacy timing review still precedes this panel. An untouched draft preserves exact source bytes, and applying creates one
+global undo gesture; stale/foreign/wrong-chart snapshots are refused. Text fields
+reuse Unicode/IME buffers, field-local undo/redo and revision-guarded clipboard
+requests. Modifier names are escaped once; structural colons are retained when
+writing the attack property.
+
+The domain parser follows the inspected Fumen `AttackPropertyParser`: LEN/END,
+negative file times, same-time grouping, `no`, speed prefixes, signed percentages
+and millisecond level suffixes. Fumen defaults absent levels to 1, while the editor
+creates new modifiers at 100. Serialization writes explicit level/speed to avoid
+changing that distinction. Malformed numbers, nonfinite values and unknown field
+names are refused instead of being silently discarded during an edit. This is
+not full malformed-input/legacy-reader parity. Note-suffix Attack/Keysound creation,
+StepF2 forms, timeline attack widgets, gameplay effect preview and complete editor
+parity remain unfinished.
+
+Evidence: `attack_event_workflows` adds eight tests, including five traces produced
+by actually executing the pinned Fumen parser, SM/SSC round-trip/history, independent
+inheritance, escaping/injection, invalid edits, deletion/movement and offset-aware
+cursor conversions. Each native language target adds five keyboard workflows:
+multiple modifiers, save/reopen, cancellation/history, failure correction, scope
+protection, empty-list creation, guarded clipboard, cursor shortcuts, and timing
+draft preservation. These test the real screen adapter and generated actors;
+no physical GPU/app or audible modifier-preview review is claimed.
+
+Reproduce the C# expectations after preparing the existing editor oracle:
+
+```sh
+python3 scripts/editor-generate-attack-fixtures.py \
+  --reference-root /tmp/deadsync-grooveauthor-step-library \
+  --dotnet /tmp/deadsync-dotnet10/dotnet
+```
+
+The committed request/expected/manifest files are
+`tests/fixtures/grooveauthor/attack-events*` under `crates/deadsync-editor`.
+The generator verifies StepManiaLibrary/Fumen pins and C# source cleanliness and
+records source/adapter/request hashes. Ordinary Rust tests need no .NET install.
+Validation logs: `/tmp/deadsync-attacks-oracle-regenerate.log`,
+`/tmp/deadsync-attacks-core.log`, `/tmp/deadsync-attacks-all-native.log`, and
+`/tmp/deadsync-attacks-check.log`.
+
+Final validation for this increment: 300 native edition integration tests across
+61 targets, 32 core tests across four targeted suites, and theme compilation check
+passed. Existing timing navigation helpers now account for the added eleventh
+menu row; their assertions and timing behavior coverage are retained.
