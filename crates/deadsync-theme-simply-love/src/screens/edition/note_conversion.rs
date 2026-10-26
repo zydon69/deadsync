@@ -58,8 +58,20 @@ impl State {
                     to: TARGETS[settings.to],
                     sustain_rows: SNAP_ROWS[settings.duration],
                 };
-                self.panel = None;
-                self.command(Command::Transform(transform));
+                let revision = self.workspace.file().session.revision();
+                match self.workspace.execute(Command::Transform(transform)) {
+                    Ok(()) if self.workspace.file().session.revision() == revision => {
+                        self.status = i18n::tr("Edition", "NoteConversionNoChange");
+                    }
+                    Ok(()) => {
+                        self.panel = None;
+                        self.status = i18n::tr("Edition", "NoteConversionApplied");
+                    }
+                    Err(_) => {
+                        self.status = i18n::tr("Edition", "NoteConversionFailed");
+                    }
+                }
+                self.refresh();
             }
             KeyCode::Enter => self.panel = Some(Panel::Transforms(9)),
             _ => {}

@@ -5258,3 +5258,25 @@ Validation: all 55 native editor integration targets passed (278 tests) in
 conversion, chart conversion, selection and symmetry suites passed 19 tests in
 `/tmp/deadsync-note-conversion-core.log`. Theme compilation check passed in
 `/tmp/deadsync-note-conversion-check.log`. Commands used `--jobs 2 --locked`.
+
+### Keep failed/no-op note conversions reviewable
+
+A new native regression reproduced the conversion panel closing after an overlap
+failure. Apply now keeps its controls open on failure and reports a localized
+message with unchanged notes. The user can shorten the duration and retry in the
+same panel. A successful conversion closes the panel with a localized success
+message. A no-op remains open with a distinct message; it creates no history entry
+and preserves the existing redo branch. The underlying Workspace operation is
+still the same atomic conversion command.
+
+English/French workflows create a tap followed 24 rows later by another tap,
+reject a 48-row hold conversion without changing source/history, repair it to
+16 rows, undo exactly, then attempt a source-kind mismatch and verify the prior
+redo entry survives. Pre-fix evidence is
+`/tmp/deadsync-note-conversion-repair-red.log`. No physical app/GPU review is claimed.
+
+Validation: two targeted native suites passed 4 tests in
+`/tmp/deadsync-note-conversion-repair-native.log`; two core suites passed 8 tests in
+`/tmp/deadsync-note-conversion-repair-core.log`. Theme compilation check passed in
+`/tmp/deadsync-note-conversion-repair-check.log` (`--jobs 2 --locked`).
+This targeted repair did not rerun the complete native integration suite.

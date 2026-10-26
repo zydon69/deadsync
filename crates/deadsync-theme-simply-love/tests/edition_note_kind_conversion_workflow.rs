@@ -117,3 +117,65 @@ fn keyboard_note_conversion_cancels_applies_preserves_existing_lengths_and_saves
         Some(144)
     );
 }
+
+#[test]
+fn failed_conversion_keeps_the_panel_editable_and_can_be_repaired_without_touching_source() {
+    i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source=b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000\n1000\n0000\n0000\n0000\n0000\n0000\n0000;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    open_conversion(&mut s);
+    for _ in 0..3 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    press(&mut s, KeyCode::Enter);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    assert!(!s.workspace().file().session.is_dirty());
+    assert!(s.workspace().file().session.undo_label().is_none());
+    let mut actors = Vec::new();
+    s.actors(&mut actors);
+    assert!(actors.iter().any(|actor|matches!(actor,deadlib_present::actors::Actor::Text {content,..} if content.contains("Source type:"))));
+    press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::ArrowRight);
+    press(&mut s, KeyCode::ArrowRight);
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::Enter);
+    let p = Position {
+        row: 0,
+        lane: 0,
+        player: 0,
+    };
+    assert_eq!(s.workspace().grid().get(p).unwrap().end, Some(16));
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    let redo = s
+        .workspace()
+        .file()
+        .session
+        .redo_label()
+        .unwrap()
+        .to_owned();
+    open_conversion(&mut s);
+    for _ in 0..3 {
+        press(&mut s, KeyCode::ArrowRight);
+    }
+    for _ in 0..3 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    press(&mut s, KeyCode::Enter);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    assert_eq!(
+        s.workspace().file().session.redo_label(),
+        Some(redo.as_str())
+    );
+    let mut actors = Vec::new();
+    s.actors(&mut actors);
+    let message = i18n::tr("Edition", "NoteConversionNoChange");
+    assert!(actors.iter().any(|actor| matches!(actor, deadlib_present::actors::Actor::Text { content, .. } if content.as_ref() == message.as_ref())));
+    assert_eq!(fs::read(path).unwrap(), source);
+}
