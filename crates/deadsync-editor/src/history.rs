@@ -123,6 +123,15 @@ impl Session {
         }
     }
 
+    pub(crate) fn after_profile_creation(&self, token: &RevisionToken) -> Result<RevisionToken, Error> {
+        let valid = Arc::ptr_eq(&self.identity, &token.identity)
+            && self.undo.last().is_some_and(|entry|
+                entry.before_revision == token.revision && entry.after_revision == self.revision
+                && matches!(entry.change, Change::ProfileCreation { .. }));
+        if !valid { return Err(Error::InvalidEdit("Draft cannot follow this profile-library change".into())); }
+        Ok(self.revision_token())
+    }
+
     pub(crate) fn accepts_token(&self, token: &RevisionToken) -> bool {
         Arc::ptr_eq(&self.identity, &token.identity) && self.revision == token.revision
     }

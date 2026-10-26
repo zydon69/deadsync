@@ -5044,3 +5044,36 @@ undo workflow is claimed yet.
 Validation: three selected core integration suites passed all 17 tests in
 `/tmp/deadsync-profile-create-core.log`; the theme compilation check passed in
 `/tmp/deadsync-profile-create-check.log`. Commands used `--jobs 2 --locked`.
+
+### Save copy participates in native global history
+
+Native Save copy now uses `Workspace::create_profile`, so Ctrl/Cmd+Z/Y removes and
+restores the new profile through the same global queue as notes and chart edits.
+The copied profile is still selected after catalog reload. Creating a copy changes
+history revision without changing song content: chart-property and pattern-marker
+drafts can explicitly follow only that immediate creation entry, retaining pending
+values and previously validated profile dependencies. This narrow rebinding refuses
+another session, a real document edit, or an unrelated history operation; it is
+not a general stale-draft bypass.
+
+Creation entries also participate in temporary conversion-selection history. Undo
+clears an active override that points to the removed copy; redo restores its GUID
+and display name unless the user explicitly selected something else meanwhile.
+An external file edit that blocks undo leaves both the file and current selection
+intact. Recovery clears creation-selection records along with deletion-selection
+records. The shared preference history is named for both operations.
+
+Core tests prove pending chart offset/rating and marker-seed preservation after
+copy creation, application of both drafts, and rejection of unrelated edits/session
+identities. English/French native workflows create/name/save a copy, select it for
+conversion, undo/redo file and selection, reject an external undo conflict, retry,
+and preserve a later explicit choice, with unchanged source-song bytes and clean
+song dirty state. Existing native pattern-profile workflows also cover staged
+marker choices across copy creation and catalog reload. No physical app/GPU review
+is claimed for these changes.
+
+Validation: all 47 native editor integration targets passed (268 tests) in
+`/tmp/deadsync-profile-copy-all-native.log`; the two targeted core creation/deletion
+suites passed 16 tests in `/tmp/deadsync-profile-copy-core.log`. The theme compilation
+check passed in `/tmp/deadsync-profile-copy-check.log`. Commands used
+`--jobs 2 --locked`.

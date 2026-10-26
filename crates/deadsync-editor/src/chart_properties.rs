@@ -27,6 +27,12 @@ pub struct Draft {
     display_tempo: crate::display_tempo::Value,
 }
 impl Draft {
+    /// Preserve pending values across the immediately following disk-only copy creation.
+    pub fn after_profile_creation(&mut self, session: &Session) -> Result<(), Error> {
+        self.token = session.after_profile_creation(&self.token)?;
+        Ok(())
+    }
+
     pub fn capture(session: &Session, chart: usize) -> Result<Self, Error> {
         let data = ChartData::existing_or_initial(session.document(), chart)?;
         let song_offset = session

@@ -146,3 +146,72 @@ fn a_failed_creation_keeps_redo_and_discarding_the_creation_branch_keeps_the_fil
     assert!(s.redo_label().is_none());
     assert!(!path.exists());
 }
+
+#[test]
+fn chart_and_marker_drafts_keep_pending_values_only_across_the_next_copy_creation() {
+    use deadsync_editor::{
+        chart_properties,
+        generation::{
+            marker_edit,
+            metadata::{Definition, PATTERN_BALANCED, SIXTEENTHS},
+        },
+    };
+    use std::collections::BTreeMap;
+    let dir = tempfile::tempdir().unwrap();
+    let mut s = session();
+    let data = ChartData {
+        patterns: Some(BTreeMap::from([(
+            0,
+            Definition {
+                pattern_config_guid: SIXTEENTHS.parse().unwrap(),
+                performed_chart_config_guid: PATTERN_BALANCED.parse().unwrap(),
+                length: 48,
+                start_position_inclusive: true,
+                end_position_inclusive: true,
+                ..Default::default()
+            },
+        )])),
+        ..Default::default()
+    };
+    data.save(&mut s, 0).unwrap();
+    let mut chart = chart_properties::Draft::capture(&s, 0).unwrap();
+    chart.set_music_offset(1.0).unwrap();
+    chart.set_use_chart_offset(true);
+    chart.set_rating(13).unwrap();
+    let mut marker = marker_edit::Draft::at_cursor(&s, 0, 0).unwrap();
+    marker.definition.random_seed = 123;
+    assert!(chart.after_profile_creation(&s).is_err());
+    s.create_profile(dir.path(), &profile(Kind::Expressed))
+        .unwrap();
+    chart.after_profile_creation(&s).unwrap();
+    marker.after_profile_creation(&s).unwrap();
+    assert!(chart.has_changes());
+    assert!(marker.has_changes());
+    chart.apply(&mut s, 0).unwrap();
+    assert_eq!(
+        ChartData::read(s.document(), 0)
+            .unwrap()
+            .unwrap()
+            .music_offset,
+        1.0
+    );
+    assert_eq!(s.document().text(Some(0), "METER").as_deref(), Some("13"));
+    s.undo().unwrap();
+    marker.apply(&mut s, 0).unwrap();
+    assert_eq!(
+        ChartData::read(s.document(), 0)
+            .unwrap()
+            .unwrap()
+            .patterns
+            .unwrap()[&0]
+            .random_seed,
+        123
+    );
+    let mut stale = chart_properties::Draft::capture(&s, 0).unwrap();
+    let mut changed = ChartData::read(s.document(), 0).unwrap().unwrap();
+    changed.music_offset = 3.0;
+    changed.save(&mut s, 0).unwrap();
+    assert!(stale.after_profile_creation(&s).is_err());
+    let other = session();
+    assert!(stale.after_profile_creation(&other).is_err());
+}

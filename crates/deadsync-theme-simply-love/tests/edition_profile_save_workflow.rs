@@ -658,3 +658,73 @@ fn failed_import_keeps_path_editable_and_leaves_the_existing_draft_intact() {
     assert_eq!(fs::read(broken).unwrap(), b"{broken");
     assert_eq!(fs::read(path).unwrap(), source);
 }
+
+#[test]
+fn save_copy_uses_global_undo_and_restores_conversion_selection_without_overwriting_later_choices()
+{
+    use deadsync_editor::generation::profiles::Loaded;
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let profiles = dir.path().join("profiles");
+    let (mut s, original, source) = custom(&path, &profiles);
+    open(&mut s);
+    press(&mut s, KeyCode::F2);
+    assert!(s.text_input("Undoable"));
+    press(&mut s, KeyCode::Enter);
+    press(&mut s, KeyCode::End);
+    press(&mut s, KeyCode::Enter);
+    finish(&mut s);
+    let loaded = Loaded::directory(&profiles).unwrap();
+    assert_eq!(loaded.profiles.len(), 2);
+    let copy = loaded
+        .profiles
+        .values()
+        .find(|f| f.profile().name() == Some("Undoable"))
+        .unwrap()
+        .path()
+        .to_owned();
+    let bytes = fs::read(&copy).unwrap();
+    press(&mut s, KeyCode::Escape);
+    press(&mut s, KeyCode::Escape);
+    press(&mut s, KeyCode::F3);
+    for _ in 0..5 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    press(&mut s, KeyCode::Enter);
+    finish(&mut s);
+    press(&mut s, KeyCode::ArrowDown);
+    for _ in 0..20 {
+        if has(&s, "Undoable") {
+            break;
+        }
+        press(&mut s, KeyCode::ArrowRight);
+    }
+    assert!(has(&s, "Undoable"));
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::Enter);
+    press(&mut s, KeyCode::Escape);
+    assert!(expression_summary(&mut s).contains("Undoable"));
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert!(!copy.exists());
+    assert!(original.exists());
+    assert!(!s.workspace().file().session.is_dirty());
+    assert!(!expression_summary(&mut s).contains("Undoable"));
+    ctrl(&mut s, KeyCode::KeyY);
+    assert_eq!(fs::read(&copy).unwrap(), bytes);
+    assert!(expression_summary(&mut s).contains("Undoable"));
+    fs::write(&copy, b"external change").unwrap();
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(fs::read(&copy).unwrap(), b"external change");
+    assert!(expression_summary(&mut s).contains("Undoable"));
+    fs::write(&copy, &bytes).unwrap();
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert!(!copy.exists());
+    conversion_selection(&mut s, false);
+    let chosen = expression_summary(&mut s);
+    ctrl(&mut s, KeyCode::KeyY);
+    assert_eq!(fs::read(&copy).unwrap(), bytes);
+    assert_eq!(expression_summary(&mut s), chosen);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    assert_eq!(fs::read(path).unwrap(), source);
+}

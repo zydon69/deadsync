@@ -251,7 +251,8 @@ pub struct State {
     display_tempo_input: Option<(usize, String)>,
     profile_edit: Option<profile_edit::Draft>,
     profile_saved_choices: Option<profile_edit::Choices>,
-    profile_deletion_preferences: std::collections::BTreeMap<u64, profile_edit::PreferenceChange>,
+    profile_preference_history: std::collections::BTreeMap<u64, profile_edit::PreferenceChange>,
+    profile_creations: std::collections::BTreeMap<u64, (ProfileKind, deadsync_editor::generation::metadata::Guid)>,
     profile_preference_revision: u64,
     profile_preference_serial: u64,
     profile_history: std::collections::BTreeMap<PathBuf, deadsync_editor::generation::profiles::ProfileFile>,
@@ -396,7 +397,8 @@ impl State {
             display_tempo_draft: None,
             display_tempo_input: None,
             profile_edit: None,
-            profile_deletion_preferences: Default::default(),
+            profile_preference_history: Default::default(),
+            profile_creations: Default::default(),
             profile_preference_revision: 0,
             profile_preference_serial: 0,
             profile_history: Default::default(),
@@ -1307,7 +1309,7 @@ impl State {
         let before_revision = self.workspace.file().session.revision();
         match self.workspace.execute(command) {
             Ok(()) => {
-                if matches!(command, Command::Recover) { self.profile_deletion_preferences.clear(); }
+                if matches!(command, Command::Recover) { self.profile_preference_history.clear(); self.profile_creations.clear(); }
                 self.restore_profile_preferences(command, before_revision);
                 self.status = match command {
                     Command::Save => i18n::tr("Edition", "Saved"),

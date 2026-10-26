@@ -17,6 +17,12 @@ pub struct Draft {
     pub definition: Definition,
 }
 impl Draft {
+    /// Preserve pending values across the immediately following disk-only copy creation.
+    pub fn after_profile_creation(&mut self, session: &Session) -> Result<(), Error> {
+        self.token = session.after_profile_creation(&self.token)?;
+        Ok(())
+    }
+
     /// Overlapping markers use the same latest-start selection as F5.
     pub fn at_cursor(session: &Session, chart: usize, cursor: u64) -> Result<Self, Error> {
         let data = ChartData::read(session.document(), chart)?

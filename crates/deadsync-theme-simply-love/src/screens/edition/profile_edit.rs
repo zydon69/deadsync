@@ -186,13 +186,39 @@ impl State {
         if revision == before_revision {
             return;
         }
+        if matches!(command, super::Command::Undo) {
+            if let Some((kind, guid)) = self.profile_creations.get(&before_revision).cloned() {
+                let after = self.profile_preference_snapshot();
+                if kind == Kind::Performed
+                    && self.generation.profiles.performed.as_ref() == Some(&guid)
+                {
+                    self.generation.profiles.performed = None;
+                    self.generation.performed_name = None;
+                }
+                if kind == Kind::Expressed
+                    && self.generation.profiles.expressed.as_ref() == Some(&guid)
+                {
+                    self.generation.profiles.expressed = None;
+                    self.generation.expressed_name = None;
+                }
+                if self.generation.profiles != after.profiles {
+                    self.profile_preferences_changed();
+                    let before = self.profile_preference_snapshot();
+                    self.profile_preference_history
+                        .insert(before_revision, PreferenceChange { before, after });
+                } else {
+                    self.profile_preference_history.remove(&before_revision);
+                }
+                return;
+            }
+        }
         let change = match command {
             super::Command::Undo => self
-                .profile_deletion_preferences
+                .profile_preference_history
                 .get(&before_revision)
                 .map(|change| (&change.after, &change.before)),
             super::Command::Redo => self
-                .profile_deletion_preferences
+                .profile_preference_history
                 .get(&revision)
                 .map(|change| (&change.before, &change.after)),
             _ => None,
@@ -299,7 +325,7 @@ impl State {
                     if self.generation.profiles != before.profiles {
                         self.profile_preferences_changed();
                         let after = self.profile_preference_snapshot();
-                        self.profile_deletion_preferences.insert(
+                        self.profile_preference_history.insert(
                             self.workspace.file().session.revision(),
                             PreferenceChange { before, after },
                         );
@@ -609,7 +635,31 @@ impl State {
                     .as_deref()
                     .ok_or_else(|| i18n::tr("Edition", "ExpressionEditUnavailable").to_string())?;
                 let profile = draft.prepared_copy(config)?;
-                profile.export_new(directory).map_err(profile_error)?;
+                self.workspace
+                    .create_profile(directory, &profile)
+                    .map_err(profile_error)?;
+                self.profile_creations.insert(
+                    self.workspace.file().session.revision(),
+                    (draft.kind, profile.guid().clone()),
+                );
+                match self.catalog_target {
+                    ProfileTarget::Chart => {
+                        if let Some(parent) = self.chart_properties.as_mut() {
+                            parent
+                                .after_profile_creation(&self.workspace.file().session)
+                                .map_err(profile_error)?;
+                        }
+                    }
+                    ProfileTarget::Marker => {
+                        if let Some(parent) = self.marker.as_mut() {
+                            parent
+                                .after_profile_creation(&self.workspace.file().session)
+                                .map_err(profile_error)?;
+                        }
+                    }
+                    _ => {}
+                }
+
                 profile.guid().clone()
             } else {
                 if !draft.custom_source {
