@@ -10,7 +10,15 @@
     "CREDIT": "",
     "ORIGIN": "",
     "MUSIC": "song.ogg",
-    "PREVIEW": "audio/\u00c9t\u00e9;mix.wav"
+    "PREVIEW": "audio/\u00c9t\u00e9;mix.wav",
+    "BANNER": "",
+    "BACKGROUND": "",
+    "CDTITLE": "",
+    "JACKET": "",
+    "CDIMAGE": "",
+    "DISCIMAGE": "",
+    "PREVIEWVID": "",
+    "LYRICSPATH": ""
   },
   "SampleStart": -0.125,
   "SampleLength": 15.75,

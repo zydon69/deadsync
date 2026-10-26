@@ -219,7 +219,7 @@ fn global_music_picker_clear_and_undo_drive_inherited_audio_in_sm_ssc_and_preser
         assert_eq!(play(&mut s), original);
         music(&mut s);
         assert!(has(&s, "Song music: [song.ogg]|"));
-        assert!(has(&s, "Fields 2/2"));
+        assert!(has(&s, "Fields 2/3"));
         assert!(!s.is_playing());
         let mut picker = Choose {
             path: base.join("new.wav"),
@@ -610,7 +610,7 @@ fn sample_region_geometry_is_clipped_and_disappears_when_scrolled_out_of_view() 
 }
 
 #[test]
-fn dedicated_preview_picker_stages_audio_and_saves_while_sm_refuses_unsupported_field() {
+fn dedicated_preview_picker_stages_audio_saves_and_sm_navigation_skips_unsupported_field() {
     let (dir, mut state, _) = setup(false, false);
     music(&mut state);
     press(&mut state, KeyCode::Tab);
@@ -653,9 +653,13 @@ fn dedicated_preview_picker_stages_audio_and_saves_while_sm_refuses_unsupported_
     let (_dir, mut state, original) = setup(true, false);
     music(&mut state);
     press(&mut state, KeyCode::Tab);
-    assert!(!state.wants_text_input());
-    press(&mut state, KeyCode::F2);
-    assert!(!state.process_music_picker(&mut picker));
+    assert!(state.wants_text_input());
+    assert!(has(&state, "Banner: |"));
+    assert!(has(&state, "Dedicated preview file: Unavailable in SM"));
+    key(&mut state, KeyCode::ShiftLeft, true);
+    press(&mut state, KeyCode::Tab);
+    key(&mut state, KeyCode::ShiftLeft, false);
+    assert!(has(&state, "Song music: [song.ogg]|"));
     assert_eq!(picker.calls, 1);
     assert_eq!(
         state.workspace().file().session.serialize().unwrap(),

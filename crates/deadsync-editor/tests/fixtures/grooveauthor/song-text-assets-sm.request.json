@@ -1,0 +1,5 @@
+{
+  "Operation": "SongText",
+  "Format": "sm",
+  "Content": "#VERSION:0.83;#BPMS:0=120;#BANNER:art/\u00c9t\u00e9\\;banner.png;#BACKGROUND:video/\u80cc\u666f.mp4;#CDTITLE:../author/logo.png;#JACKET:art/jacket.png;#CDIMAGE:art/cd.png;#DISCIMAGE:art/disc.png;#PREVIEWVID:video/preview.webm;#LYRICSPATH:lyrics/\u00e9t\u00e9.lrc;#NOTES:dance-single::Hard:9::1000;"
+}

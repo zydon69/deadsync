@@ -16,6 +16,16 @@ pub(super) enum Target {
     Attack(usize),
 }
 impl Target {
+    pub(super) fn file_kind(self) -> Option<deadsync_editor::music_file::Kind> {
+        match self {
+            Self::Chart(ChartField::Music) => Some(deadsync_editor::music_file::Kind::Audio),
+            Self::Song(field) => field.file_kind(),
+            _ => None,
+        }
+    }
+    pub(super) fn is_file(self) -> bool {
+        self.file_kind().is_some()
+    }
     pub(super) fn is_music(self) -> bool {
         matches!(
             self,
@@ -52,6 +62,14 @@ impl Target {
                 SongField::ArtistTransliteration => "SongArtistTranslit",
                 SongField::Music => "SongMusic",
                 SongField::PreviewMusic => "SongPreviewMusic",
+                SongField::Banner => "SongBanner",
+                SongField::Background => "SongBackground",
+                SongField::CdTitle => "SongCdTitle",
+                SongField::Jacket => "SongJacket",
+                SongField::CdImage => "SongCdImage",
+                SongField::DiscImage => "SongDiscImage",
+                SongField::PreviewVideo => "SongPreviewVideo",
+                SongField::Lyrics => "SongLyrics",
             },
         }
     }
@@ -196,7 +214,7 @@ impl State {
         } else {
             ChartField::ALL.len()
         };
-        if self.text_target().is_some_and(Target::is_music) {
+        if self.text_target().is_some_and(Target::is_file) {
             if code == KeyCode::F2 {
                 if self.sync_text() {
                     self.queue_music_picker();
@@ -205,6 +223,9 @@ impl State {
             }
             if code == KeyCode::F3 {
                 self.clear_music();
+                return;
+            }
+            if code == KeyCode::F4 && self.find_song_media() {
                 return;
             }
         }
@@ -316,10 +337,22 @@ impl State {
             return std::sync::Arc::from("");
         };
         if !self.field_supported(target) {
+            let unsupported = i18n::tr("Edition", "ChartTextUnsupportedSm");
+            let existing = self.field_value(target).unwrap_or_default();
+            let value = if existing.is_empty() {
+                unsupported.to_string()
+            } else {
+                let display = Buffer::new(existing, false).display("", 28);
+                format!(
+                    "{} [{}]",
+                    display.strip_suffix('|').unwrap_or(&display),
+                    unsupported
+                )
+            };
             return i18n::tr_fmt(
                 "Edition",
                 target.key(),
-                &[("value", &i18n::tr("Edition", "ChartTextUnsupportedSm"))],
+                &[("value", &value)],
             );
         }
         let mut value = if self.text_target() == Some(target) {

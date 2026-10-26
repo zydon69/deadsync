@@ -1,3 +1,4 @@
+include!("support/chart_order_transport.rs");
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadsync_editor::{attacks::Draft, timing_edit::Scope};
 use deadsync_theme_simply_love::{i18n, screens::edition::State};
@@ -29,6 +30,7 @@ fn ctrl(s: &mut State, code: KeyCode) {
         timestamp: Instant::now(),
         host_nanos: 0,
     });
+    if code == KeyCode::Tab { complete_chart_navigation(s); }
 }
 use deadlib_present::actors::{Actor, SizeSpec};
 fn key(s: &mut State, code: KeyCode, pressed: bool) {

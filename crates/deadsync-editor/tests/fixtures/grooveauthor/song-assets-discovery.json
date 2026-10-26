@@ -1,0 +1,7501 @@
+{
+  "Reference": "48e18f71655d0f0d86144c63239331833501fda2",
+  "SourceSha256": "573be36d261fcfbec601bac2b7c7e40be817edb9130ddbba0311b61c072d2e2a",
+  "AdapterSha256": "ca3449b4d4ce4d62ba7196015f11869fbfd7ccb6731fadae4cbccae29abe135a",
+  "Scope": "Unchanged EditorSongImageUtils selection and classification; injected codec dimensions; lexical .NET same-root paths. No real Skia decoding, filesystem enumeration order, native UI or file writes proven.",
+  "Cases": [
+    {
+      "Files": [],
+      "Expected": {
+        "Images": {},
+        "Lyrics": null,
+        "Types": []
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "background-banner.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "é.lrc",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "two.lrc",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background-banner.png",
+          "Banner": "background-banner.png"
+        },
+        "Lyrics": "é.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "background.PNG",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "banner.JPG",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x.LRC",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {},
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "first.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "second.png",
+          "Width": 640,
+          "Height": 480
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "second.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "small.png",
+          "Width": 32,
+          "Height": 24
+        },
+        {
+          "Name": "big.png",
+          "Width": 1280,
+          "Height": 960
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "small.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "movie.mp4",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "wide.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "bigger.png",
+          "Width": 2000,
+          "Height": 1200
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "bigger.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "tiny.png",
+          "Width": 639,
+          "Height": 400
+        },
+        {
+          "Name": "clip.webm",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "clip.webm"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "first.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "tie.png",
+          "Width": 1200,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "first.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ratio.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "exact.png",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Banner": "exact.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "movie.mp4",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "movie.mp4"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "background.mp4",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "banner.mp4",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "title.avi",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.mp4"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "jk_cover.png",
+          "Width": 500,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "song disc.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "cdtitle.gif",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "x bn.jpg",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Banner": "x bn.jpg",
+          "CDTitle": "cdtitle.gif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "song disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Jacket",
+          "CDImage",
+          "DiscImage",
+          "CDTitle",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "jacket.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "jacket2.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "unknown.png",
+          "Width": 500,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "jacket.png",
+          "Banner": "jacket2.png",
+          "Jacket": "jacket.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "zero.png",
+          "Width": 0,
+          "Height": 480
+        },
+        {
+          "Name": "negative.png",
+          "Width": -640,
+          "Height": 480
+        }
+      ],
+      "Expected": {
+        "Images": {},
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "clip.mp4",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "banner.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x title.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 209,
+          "Height": 82
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "CDTitle",
+          "Background",
+          "Banner",
+          "Background",
+          "Banner",
+          "Banner",
+          "Banner",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "Background",
+          "Banner",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "jk_cover.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "x bn.gif",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "CDTitle",
+          "Background",
+          "Background",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "words.lrc",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "video.avi",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "banner.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "cdtitle.tif",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Banner",
+          "Background",
+          "Banner",
+          "Jacket",
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "banner.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Banner",
+          "Background",
+          "DiscImage",
+          "Jacket",
+          "Banner",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ignored.LRC",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "video.avi",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "CDImage": "x-cd.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Banner",
+          "CDImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "cdtitle.tif",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 480
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "x-cd.png",
+          "Banner": "cdtitle.tif",
+          "CDTitle": "cdtitle.tif",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "CDImage",
+          "DiscImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x-cd.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x title.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "a.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "banner.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "video.avi",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "CDImage",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "banner.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "video.avi",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "DiscImage",
+          "Jacket",
+          "Banner",
+          "Background",
+          "Banner",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "a.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x title.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "background.png",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "cdtitle.tif",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "background.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "jk_cover.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp"
+        },
+        "Lyrics": null,
+        "Types": [
+          "CDTitle",
+          "Background",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "background.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x title.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "banner.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 480
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Jacket",
+          "Banner",
+          "Background",
+          "Background",
+          "CDTitle",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "banner.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "a.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "background.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "words.lrc",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "x title.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 1200,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Banner",
+          "Banner",
+          "DiscImage",
+          "Banner",
+          "CDImage",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Jacket",
+          "Background",
+          "Jacket"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x title.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "clip.mp4",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "DiscImage",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ignored.PNG",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 320,
+          "Height": 240
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "clip.mp4",
+          "CDImage": "x-cd.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "CDImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "a.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x title.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "video.avi",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "x title.png",
+          "Banner": "jk_cover.png",
+          "Jacket": "jk_cover.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ignored.LRC",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "banner.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "video.avi",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x title.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x disc.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 1200,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "CDTitle",
+          "Background",
+          "Banner",
+          "Background",
+          "CDImage",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x disc.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 0,
+          "Height": 0
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "x-cd.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "DiscImage",
+          "CDImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "words.lrc",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "banner.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "background.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x title.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "a.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "video.avi",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 480
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "Banner",
+          "Banner",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Jacket",
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "a.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "video.avi",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x title.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "background.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 209,
+          "Height": 82
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Jacket": "jk_cover.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "DiscImage",
+          "Jacket",
+          "Background",
+          "DiscImage",
+          "Jacket",
+          "Banner",
+          "Background",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "a.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "banner.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x title.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 480
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "CDImage",
+          "Banner",
+          "DiscImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x bn.gif",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x title.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "clip.mp4",
+          "Banner": "x bn.gif",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "DiscImage",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "a.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "video.avi",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "background.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "Jacket": "jk_cover.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Banner",
+          "Jacket",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "video.avi",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "background.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "words.lrc",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "a.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 480
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "Jacket": "jk_cover.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Jacket",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "video.avi",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "a.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x title.png",
+          "Width": 320,
+          "Height": 240
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ignored.PNG",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "banner.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "banner.png",
+          "Banner": "banner.png",
+          "Jacket": "albumart.bmp",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "a.png",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {},
+        "Lyrics": null,
+        "Types": [
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ignored.PNG",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {},
+        "Lyrics": null,
+        "Types": [
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ignored.LRC",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x title.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "background.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "video.avi",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "banner.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Banner",
+          "Background",
+          "Banner",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "Background",
+          "Jacket",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "video.avi",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "banner.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x title.png",
+          "Width": 0,
+          "Height": 0
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Jacket",
+          "Background",
+          "Background",
+          "CDImage",
+          "DiscImage",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x-cd.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "video.avi",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 480
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "b.jpg",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "CDImage",
+          "Background",
+          "Banner",
+          "Background",
+          "Jacket",
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "xbg.webp",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "background.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "video.avi",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Jacket",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "CDTitle",
+          "CDImage",
+          "DiscImage"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "xbg.webp",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x bn.gif",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "video.avi",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "CDTitle",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x bn.gif",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "video.avi",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "a.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "x bn.gif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "Background",
+          "CDImage",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "banner.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x title.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "background.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "a.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "video.avi",
+          "Width": 256,
+          "Height": 256
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "CDImage",
+          "CDTitle",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "words.lrc",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "a.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "video.avi",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "banner.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x title.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Banner",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "Banner",
+          "DiscImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x title.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "a.png",
+          "Banner": "x title.png",
+          "Jacket": "jk_cover.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Banner",
+          "Banner",
+          "Jacket"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "banner.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 256,
+          "Height": 256
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "x-cd.png",
+          "Banner": "banner.png",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "Jacket",
+          "Background",
+          "Banner",
+          "Jacket",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "albumart.bmp",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x title.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "x title.png",
+          "Banner": "albumart.bmp",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Jacket"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "albumart.bmp",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "a.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x title.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "banner.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 320,
+          "Height": 240
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Jacket",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Jacket",
+          "DiscImage",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "banner.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "a.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x title.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "background.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "video.avi",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "Background",
+          "DiscImage",
+          "Banner",
+          "Background",
+          "CDImage",
+          "Banner",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Jacket"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "b.jpg",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x title.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "a.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "background.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "banner.png",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Banner",
+          "Background",
+          "DiscImage",
+          "Banner",
+          "Background",
+          "Jacket",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "CDImage",
+          "Jacket",
+          "Background",
+          "Background",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "clip.mp4",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "banner.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "video.avi",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "x bn.gif",
+          "Banner": "x bn.gif",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "xbg.webp",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "video.avi",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "a.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "background.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "banner.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 1200,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "Jacket": "albumart.bmp"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Jacket",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "banner.png",
+          "Width": 640,
+          "Height": 480
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "banner.png",
+          "Banner": "banner.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x title.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "a.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "banner.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "background.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "video.avi",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "DiscImage",
+          "Background",
+          "Background",
+          "Jacket",
+          "CDImage",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "Background",
+          "Jacket",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "banner.png",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "CDImage",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "banner.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "words.lrc",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "background.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x title.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "a.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Banner",
+          "Background",
+          "CDImage",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "DiscImage",
+          "Banner",
+          "DiscImage",
+          "Banner",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "banner.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x title.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "DiscImage",
+          "Background",
+          "Background",
+          "CDImage",
+          "Jacket",
+          "Background",
+          "CDTitle"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "background.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x title.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "a.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "DiscImage",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Banner",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "a.png",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Banner": "a.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "video.avi",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "background.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Jacket",
+          "Background",
+          "Jacket",
+          "CDTitle"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x disc.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "background.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "banner.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x title.png",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "Background",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "video.avi",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "background.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x title.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "a.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "banner.png",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "Background",
+          "Banner",
+          "DiscImage",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ignored.PNG",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "words.lrc",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "albumart.bmp",
+          "Jacket": "albumart.bmp"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x-cd.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x title.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "video.avi",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 2000000000,
+          "Height": 2000000000
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "video.avi",
+          "Banner": "x-cd.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "Background",
+          "Banner",
+          "Jacket",
+          "Banner",
+          "CDTitle"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "clip.mp4",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "a.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "banner.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "CDTitle",
+          "Background",
+          "Background",
+          "Background",
+          "Jacket",
+          "Background",
+          "CDImage",
+          "Banner",
+          "Jacket",
+          "DiscImage",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "clip.mp4",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "banner.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x title.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "a.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 0,
+          "Height": 0
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Jacket",
+          "Banner",
+          "Banner",
+          "Jacket",
+          "DiscImage",
+          "Background",
+          "Banner",
+          "Background",
+          "DiscImage",
+          "Banner",
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "background.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "banner.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "a.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 1200,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "Jacket": "jk_cover.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Jacket"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ignored.LRC",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "video.avi",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "a.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x title.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 0,
+          "Height": 0
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "video.avi",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Banner",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "CDTitle",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x disc.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "banner.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x title.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "a.png",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "DiscImage",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "DiscImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ignored.PNG",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "background.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "x title.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "a.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "video.avi",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "CDTitle",
+          "Jacket",
+          "Banner",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "xbg.webp",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "xbg.webp"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "clip.mp4",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x title.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "video.avi",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "banner.png",
+          "Width": 209,
+          "Height": 82
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "DiscImage",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "CDImage",
+          "Background",
+          "Banner",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x title.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "video.avi",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "xbg.webp",
+          "CDTitle": "cdtitle.tif",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "DiscImage",
+          "CDTitle",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x disc.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x title.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "video.avi",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "banner.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "DiscImage",
+          "Banner",
+          "Jacket",
+          "DiscImage",
+          "CDTitle",
+          "Banner",
+          "Background",
+          "CDImage",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "b.jpg",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "background.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "banner.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "DiscImage",
+          "CDImage"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "cdtitle.tif",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "banner.png",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "banner.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif"
+        },
+        "Lyrics": null,
+        "Types": [
+          "CDTitle",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "banner.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "video.avi",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "x title.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "background.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 1200,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "CDTitle",
+          "Background",
+          "DiscImage",
+          "Jacket",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "video.avi",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x title.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "a.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "banner.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x disc.png",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "DiscImage",
+          "Background",
+          "Jacket",
+          "Background",
+          "CDImage",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "DiscImage"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "background.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x title.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "banner.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "Background",
+          "Background",
+          "Jacket",
+          "Background",
+          "Background",
+          "DiscImage",
+          "CDImage",
+          "Background",
+          "Banner",
+          "Jacket",
+          "CDTitle"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "banner.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x title.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Banner",
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "a.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "banner.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "background.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 209,
+          "Height": 82
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "banner.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "words.lrc",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x title.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "a.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 0,
+          "Height": 0
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Banner",
+          "Banner",
+          "Background",
+          "Background",
+          "CDTitle",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Banner",
+          "DiscImage",
+          "Background",
+          "DiscImage"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x title.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "a.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "background.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "video.avi",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "banner.png",
+          "Width": 256,
+          "Height": 256
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Banner",
+          "CDTitle",
+          "CDImage",
+          "Background",
+          "DiscImage",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "a.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "banner.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "background.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 209,
+          "Height": 82
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Jacket",
+          "Banner",
+          "CDImage",
+          "Background",
+          "Background",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "xbg.webp",
+          "Width": 1200,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "video.avi",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x title.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "banner.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "background.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 1200,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Jacket",
+          "Background",
+          "Background",
+          "DiscImage",
+          "Banner",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "a.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "banner.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "video.avi",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 209,
+          "Height": 82
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "albumart.bmp",
+          "Banner": "x bn.gif",
+          "Jacket": "albumart.bmp"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "Banner",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "jk_cover.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "banner.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "banner.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Jacket",
+          "Background",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "words.lrc",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "banner.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x title.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "a.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "video.avi",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 0,
+          "Height": 0
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Jacket",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x title.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "banner.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "background.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "DiscImage",
+          "Banner",
+          "Banner",
+          "Background",
+          "DiscImage",
+          "Jacket",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Jacket"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "ignored.PNG",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "b.jpg"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "words.lrc",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x title.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "a.png",
+          "Width": 1200,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "video.avi",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 480
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Jacket",
+          "Jacket",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "video.avi",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x title.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "background.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "banner.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "Jacket": "jk_cover.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Jacket",
+          "DiscImage",
+          "Jacket"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "video.avi",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "a.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x title.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "banner.png",
+          "Width": 320,
+          "Height": 240
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "x bn.gif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Banner",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "a.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "background.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "banner.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x title.png",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Jacket",
+          "Background",
+          "Banner",
+          "Jacket",
+          "Banner",
+          "DiscImage",
+          "Background",
+          "Background",
+          "CDImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 320,
+          "Height": 240
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "x-cd.png",
+          "Banner": "albumart.bmp",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Banner",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x title.png",
+          "Width": null,
+          "Height": null
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "DiscImage"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "clip.mp4",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "x title.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "video.avi",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "a.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "background.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Banner",
+          "Jacket",
+          "Banner",
+          "Jacket",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "banner.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "x bn.gif",
+          "Banner": "x bn.gif",
+          "CDImage": "x-cd.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Banner",
+          "Background",
+          "CDImage",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "words.lrc",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "background.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "a.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "x title.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "banner.png",
+          "Width": 256,
+          "Height": 256
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Banner",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x title.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "background.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "banner.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "video.avi",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 480
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "Background",
+          "Jacket",
+          "DiscImage",
+          "Banner",
+          "Background",
+          "Background",
+          "Banner",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "DiscImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "clip.mp4",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "background.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "video.avi",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "x title.png",
+          "Width": 418,
+          "Height": 164
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Banner",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Banner",
+          "Background",
+          "Jacket",
+          "CDTitle",
+          "Background",
+          "Banner"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "words.lrc",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "banner.png",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "background.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "x title.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "a.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 640,
+          "Height": 481
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "banner.png",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "Background",
+          "CDImage",
+          "Background",
+          "Banner",
+          "Banner",
+          "CDTitle",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Jacket",
+          "Banner",
+          "DiscImage",
+          "Background"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x bn.gif",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "b.jpg",
+          "Width": null,
+          "Height": null
+        },
+        {
+          "Name": "ignored.PNG",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "background.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 256,
+          "Height": 256
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "a.png",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x title.png",
+          "Width": 1200,
+          "Height": 500
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "background.png",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "CDImage",
+          "Background",
+          "Banner",
+          "Background",
+          "Jacket",
+          "Banner",
+          "Background",
+          "DiscImage"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x bn.gif",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 418,
+          "Height": 164
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "jk_cover.png",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "video.avi",
+          "Width": 640,
+          "Height": 481
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "cdtitle.tif",
+          "Width": 0,
+          "Height": 0
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "banner.png",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 1000,
+          "Height": 600
+        },
+        {
+          "Name": "x title.png",
+          "Width": 256,
+          "Height": 256
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "x bn.gif",
+          "CDTitle": "cdtitle.tif",
+          "Jacket": "jk_cover.png",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x disc.png"
+        },
+        "Lyrics": null,
+        "Types": [
+          "Background",
+          "Background",
+          "Banner",
+          "Background",
+          "Background",
+          "Background",
+          "Jacket",
+          "Background",
+          "CDTitle",
+          "Background",
+          "Banner",
+          "Background",
+          "DiscImage"
+        ]
+      }
+    },
+    {
+      "Files": [
+        {
+          "Name": "x title.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "x disc.png",
+          "Width": 1200,
+          "Height": 500
+        },
+        {
+          "Name": "b.jpg",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "x-cd.png",
+          "Width": 640,
+          "Height": 480
+        },
+        {
+          "Name": "clip.mp4",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "xbg.webp",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "ignored.LRC",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "albumart.bmp",
+          "Width": 320,
+          "Height": 240
+        },
+        {
+          "Name": "words.lrc",
+          "Width": 2000000000,
+          "Height": 2000000000
+        },
+        {
+          "Name": "a.png",
+          "Width": 640,
+          "Height": 500
+        },
+        {
+          "Name": "banner.png",
+          "Width": 209,
+          "Height": 82
+        },
+        {
+          "Name": "x bn.gif",
+          "Width": 1000,
+          "Height": 600
+        }
+      ],
+      "Expected": {
+        "Images": {
+          "Background": "xbg.webp",
+          "Banner": "banner.png",
+          "Jacket": "albumart.bmp",
+          "CDImage": "x-cd.png",
+          "DiscImage": "x title.png"
+        },
+        "Lyrics": "words.lrc",
+        "Types": [
+          "DiscImage",
+          "DiscImage",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Background",
+          "Banner",
+          "Banner"
+        ]
+      }
+    }
+  ]
+}

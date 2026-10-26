@@ -1,3 +1,4 @@
+include!("support/chart_order_transport.rs");
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
     actors::{Actor, SizeSpec},
@@ -33,6 +34,7 @@ fn shortcut(state: &mut State, code: KeyCode) {
     key(state, KeyCode::SuperLeft, true);
     press(state, code);
     key(state, KeyCode::SuperLeft, false);
+    if code == KeyCode::Tab { complete_chart_navigation(state); }
 }
 fn actors(state: &State) -> Vec<Actor> {
     let mut a = Vec::new();

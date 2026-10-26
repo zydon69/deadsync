@@ -10,7 +10,15 @@
     "CREDIT": "File author",
     "ORIGIN": "Arcade",
     "MUSIC": "song.ogg",
-    "PREVIEW": ""
+    "PREVIEW": "",
+    "BANNER": "",
+    "BACKGROUND": "",
+    "CDTITLE": "",
+    "JACKET": "",
+    "CDIMAGE": "",
+    "DISCIMAGE": "",
+    "PREVIEWVID": "",
+    "LYRICSPATH": ""
   },
   "SampleStart": 0,
   "SampleLength": 0,

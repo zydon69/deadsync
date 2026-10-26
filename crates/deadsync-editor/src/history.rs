@@ -18,6 +18,7 @@ struct NoteChange {
 struct DocumentState {
     document: Document,
     grids: BTreeMap<usize, Grid>,
+    chart_ids: Vec<crate::generation::metadata::Guid>,
 }
 
 #[derive(Debug)]
@@ -89,6 +90,7 @@ pub struct Session {
     allows_external_edits: bool,
     document: Document,
     grids: BTreeMap<usize, Grid>,
+    chart_ids: Vec<crate::generation::metadata::Guid>,
     undo: Vec<Entry>,
     redo: Vec<Entry>,
     revision: u64,
@@ -99,12 +101,16 @@ pub struct Session {
 
 impl Session {
     pub fn new(document: Document) -> Self {
+        let chart_ids = (0..document.charts().len())
+            .map(|_| crate::generation::metadata::Guid::random())
+            .collect();
         Self {
             audio_preferences_update: None,
             identity: Arc::new(()),
             allows_external_edits: true,
             document,
             grids: BTreeMap::new(),
+            chart_ids,
             undo: Vec::new(),
             redo: Vec::new(),
             revision: 0,
@@ -160,6 +166,11 @@ impl Session {
     pub fn document(&self) -> &Document {
         &self.document
     }
+    /// Resident chart identities for presentation tie breaks. These are never
+    /// written to the simfile and travel with structural undo/redo snapshots.
+    pub fn chart_ids(&self) -> &[crate::generation::metadata::Guid] {
+        &self.chart_ids
+    }
     pub fn is_dirty(&self) -> bool {
         self.content_revision != self.saved_revision
     }
@@ -190,13 +201,7 @@ impl Session {
                 .charts()
                 .get(chart)
                 .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?;
-            let columns = layout_columns(&descriptor.steps_type).ok_or_else(|| {
-                Error::Unsupported(format!(
-                    "Layout {} cannot yet be edited",
-                    descriptor.steps_type
-                ))
-            })?;
-            let mut grid = Grid::parse(self.document.value(descriptor.notes.clone()), columns)?;
+            let mut grid = Grid::parse_layout(self.document.value(descriptor.notes.clone()), &descriptor.steps_type)?;
             if crate::notes::supports_variable_players(&descriptor.steps_type) {
                 if let Ok(Some(metadata)) = crate::generation::metadata::ChartData::read(&self.document, chart) {
                     grid.set_players(grid.players().max(metadata.max_player_index + 1))?;
@@ -215,6 +220,11 @@ impl Session {
     ) -> Result<bool, Error> {
         let edits: BTreeMap<_, _> = edits.into_iter().collect();
         let grid = self.grid(chart)?;
+        if !grid.uses_stepf2() {
+            for note in edits.values().flatten() {
+                crate::stepf2::require_standard(note)?;
+            }
+        }
         if edits
             .keys()
             .any(|position| position.lane >= grid.columns() || position.player >= grid.players())
@@ -617,7 +627,7 @@ impl Session {
                 ));
             }
             let notes: Arc<[u8]> = addition.grid.serialize()?.into();
-            if Grid::parse(&notes, columns)? != *addition.grid {
+            if Grid::parse_layout(&notes, addition.layout)? != *addition.grid {
                 return Err(Error::InvalidEdit(
                     "Generated notes do not round-trip".into(),
                 ));
@@ -643,9 +653,9 @@ impl Session {
         for (index, addition) in additions.iter().enumerate() {
             let descriptor = &after.charts()[start + index];
             if descriptor.steps_type != addition.layout
-                || Grid::parse(
+                || Grid::parse_layout(
                     after.value(descriptor.notes.clone()),
-                    addition.grid.columns(),
+                    &descriptor.steps_type,
                 )? != *addition.grid
             {
                 return Err(Error::InvalidEdit(
@@ -659,11 +669,14 @@ impl Session {
             .map(|(index, addition)| (addition.source_chart, start + index)).collect();
         crate::attacks::anchoring::preserve_generated(&snapshot, &mut staged, &copies)?;
         let after = Document::parse(staged.serialize()?, self.document.format)?;
+        let mut chart_ids = self.chart_ids.clone();
+        chart_ids.extend((0..additions.len()).map(|_| crate::generation::metadata::Guid::random()));
         self.execute(
             label.into(),
             Change::DocumentSwap(Box::new(DocumentState {
                 document: after,
                 grids: BTreeMap::new(),
+                chart_ids,
             })),
         )?;
         Ok((start..start + additions.len()).collect())
@@ -678,11 +691,14 @@ impl Session {
                 "Deleted chart structure is ambiguous".into(),
             ));
         }
+        let mut chart_ids = self.chart_ids.clone();
+        chart_ids.remove(chart);
         self.execute(
             "Delete chart".into(),
             Change::DocumentSwap(Box::new(DocumentState {
                 document: after,
                 grids: BTreeMap::new(),
+                chart_ids,
             })),
         )
     }
@@ -721,7 +737,7 @@ impl Session {
         }
         let descriptor = &after.charts()[index];
         if layout_columns(&descriptor.steps_type) != Some(grid.columns())
-            || Grid::parse(after.value(descriptor.notes.clone()), grid.columns())? != *grid
+            || Grid::parse_layout(after.value(descriptor.notes.clone()), &descriptor.steps_type)? != *grid
         {
             return Err(Error::InvalidEdit(
                 "Empty chart notes changed during insertion".into(),
@@ -754,11 +770,14 @@ impl Session {
             };
             after.set_added_property(scope, &name, Some(value.into()))?;
         }
+        let mut chart_ids = self.chart_ids.clone();
+        chart_ids.push(crate::generation::metadata::Guid::random());
         self.execute(
             "Create chart".into(),
             Change::DocumentSwap(Box::new(DocumentState {
                 document: after,
                 grids: BTreeMap::new(),
+                chart_ids,
             })),
         )?;
         Ok(index)
@@ -814,18 +833,21 @@ impl Session {
                 Error::Unsupported("Duplicated chart has an unknown layout".into())
             })?;
             if columns != grid.columns()
-                || Grid::parse(after.value(descriptor.notes.clone()), columns)? != *grid
+                || Grid::parse_layout(after.value(descriptor.notes.clone()), &descriptor.steps_type)? != *grid
             {
                 return Err(Error::InvalidEdit(
                     "Duplicated chart notes do not match the working grid".into(),
                 ));
             }
         }
+        let mut chart_ids = self.chart_ids.clone();
+        chart_ids.push(crate::generation::metadata::Guid::random());
         self.execute(
             "Duplicate chart".into(),
             Change::DocumentSwap(Box::new(DocumentState {
                 document: after,
                 grids: BTreeMap::new(),
+                chart_ids,
             })),
         )?;
         Ok(index)
@@ -914,6 +936,7 @@ impl Session {
             Change::DocumentSwap(state) => {
                 std::mem::swap(&mut self.document, &mut state.document);
                 std::mem::swap(&mut self.grids, &mut state.grids);
+                std::mem::swap(&mut self.chart_ids, &mut state.chart_ids);
                 Ok(())
             }
             Change::AddedProperty {
@@ -1003,7 +1026,7 @@ impl Session {
         for chart in changed {
             let descriptor = &document.charts()[chart];
             let grid = &self.grids[&chart];
-            let original = Grid::parse(document.value(descriptor.notes.clone()), grid.columns())?;
+            let original = Grid::parse_layout(document.value(descriptor.notes.clone()), &descriptor.steps_type)?;
             if grid != &original {
                 document.replace(descriptor.notes.clone(), Some(grid.serialize()?.into()))?;
             }

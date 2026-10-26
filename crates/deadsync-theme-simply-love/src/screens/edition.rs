@@ -21,6 +21,7 @@ mod note_owners;
 mod text_fields;
 mod clipboard;
 mod music_file;
+mod chart_order;
 mod pattern_set;
 mod playback;
 mod song_properties;
@@ -278,6 +279,7 @@ pub struct State {
     text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
     text_clipboard_request: Option<clipboard::Request>,
     music_picker_request: Option<music_file::Request>,
+    chart_order_request: Option<chart_order::Request>,
     text_edit_serial: u64,
     song_properties: Option<deadsync_editor::song_properties::Draft>,
     sample_region: Option<sample_region::Cache>,
@@ -433,6 +435,7 @@ impl State {
             text_buffer: None,
             text_clipboard_request: None,
             music_picker_request: None,
+            chart_order_request: None,
             text_edit_serial: 0,
             song_properties: None,
             sample_region: None,
@@ -488,6 +491,7 @@ impl State {
         self.label_preedit.clear();
         self.text_clipboard_request = None;
         self.music_picker_request = None;
+        self.chart_order_request = None;
     }
 
     pub fn workspace(&self) -> &Workspace {
@@ -1583,11 +1587,8 @@ impl State {
                 KeyCode::KeyL if self.shift => Some(Command::PreviousLabel),
                 KeyCode::KeyL => Some(Command::NextLabel),
                 KeyCode::Tab => {
-                    let count = self.workspace.file().session.document().charts().len();
-                    let delta = if self.shift { count - 1 } else { 1 };
-                    Some(Command::SelectChart(
-                        (self.workspace.chart() + delta) % count,
-                    ))
+                    self.queue_chart_order(self.shift);
+                    None
                 }
                 _ => None,
             }
@@ -2753,7 +2754,8 @@ impl State {
             ],
             Panel::SongText(_) => &[
                 "SongTitle", "SongSubtitle", "SongArtist", "SongCredit", "SongGenre", "SongOrigin",
-                "SongTitleTranslit", "SongSubtitleTranslit", "SongArtistTranslit", "SongMusic", "SongPreviewMusic", "SongTextBack",
+                "SongTitleTranslit", "SongSubtitleTranslit", "SongArtistTranslit", "SongMusic", "SongPreviewMusic",
+                "SongBanner", "SongBackground", "SongCdTitle", "SongJacket", "SongCdImage", "SongDiscImage", "SongPreviewVideo", "SongLyrics", "SongTextBack",
             ],
             Panel::ChartText(_) => &[
                 "ChartName", "ChartDescription", "ChartCredit", "ChartStyle",

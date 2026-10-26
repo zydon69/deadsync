@@ -32,10 +32,14 @@ internal class EditorChart {
                 song.Extras.TryGetExtra(TagCredit,out string credit,true);
                 song.Extras.TryGetExtra(TagOrigin,out string origin,true);
                 song.Extras.TryGetExtra(TagMusic,out string music,true);
+                string Asset(string key) { song.Extras.TryGetExtra(key,out string value,true); return value??""; }
                 return new {Fields=new Dictionary<string,string> {
                     ["TITLE"]=song.Title??"",["SUBTITLE"]=song.SubTitle??"",["ARTIST"]=song.Artist??"",
                     ["TITLETRANSLIT"]=song.TitleTransliteration??"",["SUBTITLETRANSLIT"]=song.SubTitleTransliteration??"",["ARTISTTRANSLIT"]=song.ArtistTransliteration??"",
-                    ["GENRE"]=song.Genre??"",["CREDIT"]=credit??"",["ORIGIN"]=origin??"",["MUSIC"]=music??"",["PREVIEW"]=song.PreviewMusicFile??""
+                    ["GENRE"]=song.Genre??"",["CREDIT"]=credit??"",["ORIGIN"]=origin??"",["MUSIC"]=music??"",["PREVIEW"]=song.PreviewMusicFile??"",
+                    ["BANNER"]=song.SongSelectImage??"",["BACKGROUND"]=Asset(TagBackground),["CDTITLE"]=Asset(TagCDTitle),
+                    ["JACKET"]=Asset(TagJacket),["CDIMAGE"]=Asset(TagCDImage),["DISCIMAGE"]=Asset(TagDiscImage),
+                    ["PREVIEWVID"]=Asset(TagPreviewVid),["LYRICSPATH"]=Asset(TagLyricsPath)
                 },SampleStart=song.PreviewSampleStart,SampleLength=song.PreviewSampleLength,ChartCredits=song.Charts.Select(chart=>chart.Author??"").ToArray()};
             }
             if(request.GetProperty("Operation").GetString()=="ChartText") {

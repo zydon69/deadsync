@@ -1,0 +1,2506 @@
+[
+  {
+    "Name": "sm-pump-routine-four-owners-and-holds",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 1,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 4,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 5,
+            "Player": 2,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 6,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 7,
+            "Player": 3,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 1,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 4,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 5,
+            "Player": 2,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 6,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 7,
+            "Player": 3,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "sm-pump-routine-compound-fakes-and-visibility",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": true,
+            "Sudden": true,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": true,
+            "Sudden": false,
+            "Vanish": true,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": true,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "sm-pump-routine-standalone-visibility",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": true,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": true,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": true
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "sm-pump-routine-late-marker-reinterprets-player-four",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 48,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 48,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "sm-pump-routine-standard-pump-alphabet",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "sm-pump-routine-plain-fake-and-mine",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "mine",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": true,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "mine",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "sm-pump-double-four-owners-and-holds",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 1,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 4,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 5,
+            "Player": 2,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 6,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 7,
+            "Player": 3,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 1,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 4,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 5,
+            "Player": 2,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 6,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 7,
+            "Player": 3,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "sm-pump-double-compound-fakes-and-visibility",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": true,
+            "Sudden": true,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": true,
+            "Sudden": false,
+            "Vanish": true,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": true,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "sm-pump-double-standalone-visibility",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 1,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": true,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": true,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": true
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "sm-pump-double-late-marker-reinterprets-player-four",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 48,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 48,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "sm-pump-double-standard-pump-alphabet",
+    "Read": [
+      {
+        "Layout": "pump-double",
+        "Players": 1,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-double",
+        "Players": 1,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "sm-pump-double-plain-fake-and-mine",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 1,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "mine",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "mine",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-routine-four-owners-and-holds",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 1,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 4,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 5,
+            "Player": 2,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 6,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 7,
+            "Player": 3,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 1,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 4,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 5,
+            "Player": 2,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 6,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 7,
+            "Player": 3,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-routine-compound-fakes-and-visibility",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": true,
+            "Sudden": true,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": true,
+            "Sudden": false,
+            "Vanish": true,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": true,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-routine-standalone-visibility",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": true,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": true,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": true
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-routine-late-marker-reinterprets-player-four",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 48,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 48,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-routine-standard-pump-alphabet",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-routine-plain-fake-and-mine",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "mine",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": true,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "mine",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-double-four-owners-and-holds",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 1,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 4,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 5,
+            "Player": 2,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 6,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 7,
+            "Player": 3,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 1,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 4,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 5,
+            "Player": 2,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 6,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 7,
+            "Player": 3,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-double-compound-fakes-and-visibility",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": true,
+            "Sudden": true,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": true,
+            "Sudden": false,
+            "Vanish": true,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": true,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 1,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 2,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-double-standalone-visibility",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 1,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": true,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": true,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": true
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 3,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-double-late-marker-reinterprets-player-four",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 48,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 4,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 3,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 48,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-double-standard-pump-alphabet",
+    "Read": [
+      {
+        "Layout": "pump-double",
+        "Players": 1,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-double",
+        "Players": 1,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "hold",
+            "End": 48,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "ssc-pump-double-plain-fake-and-mine",
+    "Read": [
+      {
+        "Layout": "pump-routine",
+        "Players": 1,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "mine",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ],
+    "Saved": true,
+    "Reloaded": [
+      {
+        "Layout": "pump-routine",
+        "Players": 2,
+        "Notes": [
+          {
+            "Row": 0,
+            "Lane": 0,
+            "Player": 0,
+            "Kind": "tap",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 1,
+            "Player": 0,
+            "Kind": "fake",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          },
+          {
+            "Row": 0,
+            "Lane": 2,
+            "Player": 0,
+            "Kind": "mine",
+            "End": null,
+            "FakeFlag": false,
+            "Sudden": false,
+            "Vanish": false,
+            "Hidden": false
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -784,6 +784,10 @@ def requests(reference: Path):
     for format in ["ssc", "sm"]:
         chart = "#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;" if format == "ssc" else "#NOTES:dance-single::Hard:9::1000;"
         cases["song-text-preview-"+format] = {"Operation":"SongText", "Format":format, "Content":r"#VERSION:0.83;#TITLE:Preview;#BPMS:0=120;#MUSIC:song.ogg;#PREVIEW:audio/Été\;mix.wav;#SAMPLESTART:-0.125;#SAMPLELENGTH:15.75;"+chart}
+    for format in ["sm", "ssc"]:
+        chart = "#NOTES:dance-single::Hard:9::1000;" if format == "sm" else "#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;"
+        properties = r"#BANNER:art/Été\;banner.png;#BACKGROUND:video/背景.mp4;#CDTITLE:../author/logo.png;#JACKET:art/jacket.png;#CDIMAGE:art/cd.png;#DISCIMAGE:art/disc.png;#PREVIEWVID:video/preview.webm;#LYRICSPATH:lyrics/été.lrc;"
+        cases["song-text-assets-"+format] = {"Operation":"SongText", "Format":format, "Content":"#VERSION:0.83;#BPMS:0=120;"+properties+chart}
     def empty_chart(layout="dance-single",bpm=None,signature=None):
         return "#NOTEDATA:;#STEPSTYPE:"+layout+";"+("#BPMS:"+bpm+";" if bpm is not None else "")+("#TIMESIGNATURES:"+signature+";" if signature is not None else "")+"#NOTES:1"+"0"*({"dance-double":8,"dance-solo":6}.get(layout,4)-1)+";"
     for label,content in {

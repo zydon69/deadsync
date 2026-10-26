@@ -1894,6 +1894,7 @@ dependencies = [
  "deadsync-updater",
  "hashbrown 0.17.1",
  "image",
+ "libloading 0.9.0",
  "log",
  "null-or-die",
  "objc2 0.6.5",

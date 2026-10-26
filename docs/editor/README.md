@@ -39,17 +39,17 @@ reviewable and tested.
 | Domain | Rust implementation | Evidence / remaining work |
 | --- | --- | --- |
 | SM/SSC source preservation | Byte spans and explicit replacements; unknown tags, unchanged chart note data, and legacy metadata bytes preserved | `editing_workflows`, `property_workflows`; broader format corpus still required |
-| Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; Routine/Team participant changes with atomic metadata/history; raw head/tail attribute inspector shipped; typed note-specific suffix forms and StepF2 conventions pending |
+| Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; Routine/Team participant changes with atomic metadata/history; raw head/tail attribute inspector shipped; StepF2 co-op codec and typed domain attributes are implemented (see `stepf2.md`); typed native controls and remaining StepF2 normalization/conversion pending |
 | Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste uses GrooveAuthor ForceAdd conflict rules; attack inspector has an event clipboard; mixed row-range copy/cut/paste includes typed timing and attacks; individual note/timing/attack choices are available in the keyboard picker; pattern and other editor-only event clipboard parity remain pending |
 | Layouts | Reference pad coordinates, starting tiers, ten relationship matrices, mirror/flip mappings | All imported layout definitions validated; original compressed graphs decoded and traversed |
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/row shifts and column shifts with optional wrapping; miscellaneous-event transformations and broader original workflow coverage pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; periodic background recovery drafts with guarded replacement and native EN/FR conflict notices; full conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
-| Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
+| Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, scoped media paths and automatic image/lyrics discovery, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; native constant-time, Reverse and variable displays now share the original rate geometry; physical scroll/speed rendering verification, broader legacy normalization and conversion remain pending |
 | Attack events | F10 optional keyboard inspector, widgets/duration overview, song/chart scope, multiple modifiers, temporal shortcuts and history; exact row model survives timing edits and ambiguous warp/negative-stop export through bound editor metadata | Pinned original parser/clock/UI comparisons, save/recovery/structural/undo tests and native EN/FR workflows; miscellaneous-event clipboard, cross-chart shared-event identity, runtime widget/transport verification, permissive normalization and broader file corpus remain pending |
 | Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; persistent 0.25x–4x music rate, Shift+Left/Right shortcuts, live rate commands and global audio-preference undo/redo; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, scrub, loop and audio analysis remain pending; persisted waveform visibility, width, density, palette and scroll policies are implemented below |
-| Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
+| Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; reference chart comparator, resident identities, Workspace ordering and native cultural navigation are implemented (see `chart_order.md`); complete properties, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; layout weight addition/inheritance are connected; profile copy/import/export, deletion/reference repair and global undo are implemented below; scheduled-attack source timing and preservation through chart/pattern generation are connected with pinned file-reader comparisons; multiple-participant source generation and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
 | Customization | Native keyboard panels for zoom, navigation, scroll/receptor presentation and waveform preferences, including palette and scroll policies | Shortcut rebinding, broader presets/theme customization and command palette pending; physical-input/runtime review remains required |
@@ -6169,3 +6169,74 @@ its cut/fade/channel/map checks to 0.25x and 4x at both 48 kHz and 44.1 kHz, in
 addition to its existing live/loop/seek scenarios. This proves the exercised PCM
 and timing contracts without a hardware audio device; listening and complete
 runtime/large-file review remain pending. No full-editor regression is claimed.
+
+### Song media property paths and typed file selection
+
+The paginated song text panel now includes BANNER, BACKGROUND, CDTITLE, JACKET,
+CDIMAGE, DISCIMAGE, PREVIEWVID and LYRICSPATH. They use the existing staged song
+property gesture, with escaped tag values, exact undo/redo and byte-preserving
+unknown properties/peer notes. The ordinary image/background/logo/lyrics tags
+are editable in SM and SSC; SSC-only output tags remain protected in SM.
+Existing unconventional SM media tags are still read and preserved, and their
+values are shown with the unsupported-format notice rather than discarded.
+
+F2 opens the existing native file selector with the target's original image,
+image-or-video, video or LRC extension category. F3 clears a supported field in
+the draft. Selection uses the original lexical relative-path policy, including
+outside-song paths, without copying or modifying the chosen media. Picker
+requests use the existing focus/serial guard; cancellation and stale requests
+do not change the document. Field names, notices and dialog filters have EN/FR
+translations. Song text remains paginated with eight rows per page.
+
+Eight song-text reader fixtures were regenerated with the actual pinned C#
+SM/SSC readers, including two new media-tag cases. They demonstrate that source
+extras can retain unconventional SM tags despite the original SM writer not
+emitting them. `song-assets.reference.json` records the new adapter and fixture
+hashes; older unrelated fixture provenance remains unchanged.
+
+Automatic discovery now follows the pinned EditorSongImageUtils rules: file
+names before dimensions, exact dimensions before first matching aspect ratio,
+then the largest qualifying background and finally a background video. File
+order and extension case sensitivity follow the original. F4 in an image/lyrics
+field stages its candidate; absent candidates preserve the current path. F4 in
+song properties stages missing image/lyrics paths in bulk; Shift+F4 also replaces
+existing matching paths. Both use the same reversible property transaction and
+protect unsupported SM fields.
+
+A dedicated oracle executes the complete pinned C# image utility with injected
+codec dimensions. Its 114 cases cover selection and classification; they do not
+validate Skia decoding. The native adapter uses image::image_dimensions. Original
+image preview thumbnails remain required. No image, video or lyrics rendering
+is claimed by this increment.
+
+Focused domain verification: 93 tests passed across song media/text/properties
+and lexical paths (31), StepF2/reference/attribute inspector (22), chart ordering
+and resident identity workflows (9), and existing chart creation/deletion and
+editing/storage workflows (31). StepF2 corrections were checked again against
+the 24 real C# reader/writer cases. This is focused coverage, not complete-editor
+regression or proof of full GrooveAuthor parity.
+
+All 88 focused native tests passed: media selection/discovery (7 EN + 7 FR),
+chart-order navigation (6 EN + 6 FR), the existing song-text/sample panel (17),
+and affected attack-event/widget and time-spacing workflows (45). They cover
+real image-dimension probing, video-path fallback, IME suppression, typed picker
+categories, bulk missing/replacement policy, and exact save/reopen/history.
+Synthetic screen input and generated actors do not establish GPU rendering or
+physical-input behavior. All five actual shell adapter contract tests passed
+(ICU 3, music/media picker 1, lazy clipboard 1). ICU checks execute the host
+library, including all 363 reference text comparisons. No operating-system file
+dialog was opened and no host clipboard was read.
+
+The broader shell lib-test harness requires the pinned `tests/fixtures` submodule.
+Without it, unrelated Lua fixtures fail at compilation; initialize the official
+submodule before running that harness. The focused adapter contracts compile
+the real source files directly, without substituting their implementations.
+
+
+Focused shell adapter checks:
+
+```sh
+cargo test -p deadsync-shell --locked --jobs 2 --test editor_collation_contract --test editor_music_picker_contract --test editor_clipboard_lifetime
+# Required by the broader shell gameplay harness:
+git submodule update --init --depth 1 -- tests/fixtures
+```

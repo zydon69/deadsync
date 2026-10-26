@@ -644,6 +644,12 @@ pub fn process_editor_music_picker(
 ) -> bool {
     state.edition.as_mut().is_some_and(|editor| editor.process_music_picker(picker))
 }
+pub fn process_editor_chart_order(
+    state: &mut State,
+    orderer: &mut impl deadsync_editor::chart_order::Orderer,
+) -> bool {
+    state.edition.as_mut().is_some_and(|editor| editor.process_chart_order(orderer))
+}
 pub fn process_editor_clipboard(
     state: &mut State,
     clipboard: &mut impl deadsync_editor::clipboard::TextClipboard,

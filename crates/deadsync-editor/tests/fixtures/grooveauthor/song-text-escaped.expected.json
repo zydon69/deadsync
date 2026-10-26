@@ -10,7 +10,15 @@
     "CREDIT": "Old",
     "ORIGIN": "",
     "MUSIC": "audio/\u00c9t\u00e9%20.ogg",
-    "PREVIEW": ""
+    "PREVIEW": "",
+    "BANNER": "",
+    "BACKGROUND": "",
+    "CDTITLE": "",
+    "JACKET": "",
+    "CDIMAGE": "",
+    "DISCIMAGE": "",
+    "PREVIEWVID": "",
+    "LYRICSPATH": ""
   },
   "SampleStart": 0,
   "SampleLength": 0,

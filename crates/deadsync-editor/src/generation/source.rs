@@ -60,9 +60,7 @@ pub fn read(
         .charts()
         .get(chart)
         .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?;
-    let columns = layout_columns(&entry.steps_type)
-        .ok_or_else(|| Error::Unsupported("Unknown generation layout".into()))?;
-    let grid = Grid::parse(document.value(entry.notes.clone()), columns)?;
+    let grid = Grid::parse_layout(document.value(entry.notes.clone()), &entry.steps_type)?;
     checkpoint()?;
     if grid.iter().any(|(_, note)| note.kind == Kind::Attack) {
         return Err(Error::Unsupported(

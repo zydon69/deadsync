@@ -1,3 +1,4 @@
+include!("support/chart_order_transport.rs");
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadsync_editor::{
     attacks::Draft,
@@ -34,6 +35,7 @@ fn ctrl(s: &mut State, code: KeyCode) {
         timestamp: Instant::now(),
         host_nanos: 0,
     });
+    if code == KeyCode::Tab { complete_chart_navigation(s); }
 }
 fn open(s: &mut State) {
     press(s, KeyCode::F10);

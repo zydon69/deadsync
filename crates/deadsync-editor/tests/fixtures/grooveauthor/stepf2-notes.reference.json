@@ -1,0 +1,25 @@
+{
+  "Scope": "Actual pinned Fumen SM/SSC readers, StepF2-enabled writers, and readers of writer output. Projection reports lane owners, types, sustain tails and reader flags; no GrooveAuthor GUI or gameplay claim. Standard pump-routine minimum participant count is not matched by existing DeadSync raw grid contract and is not asserted for baseline non-coop cases.",
+  "StepManiaLibraryCommit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "Command": [
+    "/tmp/deadsync-dotnet10/dotnet",
+    "scripts/editor-stepf2-oracle/bin/Release/net10.0/StepF2Oracle.dll",
+    "crates/deadsync-editor/tests/fixtures/grooveauthor/stepf2-notes.request.json"
+  ],
+  "CaseCount": 24,
+  "Files": {
+    "scripts/editor-stepf2-oracle/Program.cs": "a1d689ceb40d705303a77677ac3fe2944e1399eb8fa7f2051bd725ae37827b49",
+    "scripts/editor-stepf2-oracle/StepF2Oracle.csproj": "a4c0e344d75f12fbe2b9d31c8786707745b4787cf9af85c8babfd669be5f63b2",
+    "crates/deadsync-editor/tests/fixtures/grooveauthor/stepf2-notes.request.json": "ddd8836628be0824b3b029a71f29d3b90144e5806bcc81df15c1106d3efc3c89",
+    "crates/deadsync-editor/tests/fixtures/grooveauthor/stepf2-notes.expected.json": "1dfe8e52f73e2c1461d5e6b549955c2ba319f0a22f41f98242d3c3592519283d"
+  },
+  "ReferenceSources": {
+    "SMCommon.cs": "8517ace018aeb788808be9e584f289620c00f59e94ac114ffec130952f65160a",
+    "SMPropertyParsers.cs": "64a042d72dd1dfe66a6f13237eb769c0ec219ca745de8af3caaf13050c2bef1e",
+    "SMWriterBase.cs": "6f71f40e60c0c0b213281fc54c9520fefcc2387c40783aa46b1069562119eb30",
+    "SMReader.cs": "22e6b561094fbe26642251cee146ca090f3d56ed970b306ae85103c39640bfe0",
+    "SSCReader.cs": "7d8fc98ede83f65079270989eb4edcf88ea10dd275f0206eb68e35aa6ffc88e2"
+  },
+  "ReferenceAssemblySha256": "904e93e98908befc28f14a70dc03992b5cd836b0f548918939af4dfdd9c256d1"
+}

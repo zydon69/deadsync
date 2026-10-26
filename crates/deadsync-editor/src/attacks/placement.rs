@@ -5,7 +5,7 @@ use crate::{
     Error,
     generation::timing::{EventKind, GenerationTiming},
     history::Session,
-    notes::{Grid, Kind, layout_columns},
+    notes::{Grid, Kind},
     playback::Clock,
     timing_edit::Scope,
 };
@@ -261,13 +261,11 @@ fn error(message: &str) -> Error {
 fn file_inputs(session: &Session, chart: usize) -> Result<Vec<Input>, Error> {
     let document = session.document();
     let descriptor = &document.charts()[chart];
-    let columns = layout_columns(&descriptor.steps_type)
-        .ok_or_else(|| Error::Unsupported("Unknown attack chart layout".into()))?;
     let parsed;
     let grid = if let Some(grid) = session.loaded_grid(chart) {
         grid
     } else {
-        parsed = Grid::parse(document.value(descriptor.notes.clone()), columns)?;
+        parsed = Grid::parse_layout(document.value(descriptor.notes.clone()), &descriptor.steps_type)?;
         &parsed
     };
     let timing = GenerationTiming::from_document(document, chart)?;

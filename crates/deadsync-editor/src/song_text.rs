@@ -13,9 +13,17 @@ pub enum Field {
     ArtistTransliteration,
     Music,
     PreviewMusic,
+    Banner,
+    Background,
+    CdTitle,
+    Jacket,
+    CdImage,
+    DiscImage,
+    PreviewVideo,
+    Lyrics,
 }
 impl Field {
-    pub const ALL: [Self; 11] = [
+    pub const ALL: [Self; 19] = [
         Self::Title,
         Self::Subtitle,
         Self::Artist,
@@ -27,6 +35,14 @@ impl Field {
         Self::ArtistTransliteration,
         Self::Music,
         Self::PreviewMusic,
+        Self::Banner,
+        Self::Background,
+        Self::CdTitle,
+        Self::Jacket,
+        Self::CdImage,
+        Self::DiscImage,
+        Self::PreviewVideo,
+        Self::Lyrics,
     ];
     pub fn tag(self) -> &'static str {
         match self {
@@ -41,6 +57,37 @@ impl Field {
             Self::ArtistTransliteration => "ARTISTTRANSLIT",
             Self::Music => "MUSIC",
             Self::PreviewMusic => "PREVIEW",
+            Self::Banner => "BANNER",
+            Self::Background => "BACKGROUND",
+            Self::CdTitle => "CDTITLE",
+            Self::Jacket => "JACKET",
+            Self::CdImage => "CDIMAGE",
+            Self::DiscImage => "DISCIMAGE",
+            Self::PreviewVideo => "PREVIEWVID",
+            Self::Lyrics => "LYRICSPATH",
+        }
+    }
+    pub fn requires_ssc(self) -> bool {
+        matches!(
+            self,
+            Self::PreviewMusic
+                | Self::Jacket
+                | Self::CdImage
+                | Self::DiscImage
+                | Self::PreviewVideo
+        )
+    }
+    pub fn file_kind(self) -> Option<crate::music_file::Kind> {
+        use crate::music_file::Kind;
+        match self {
+            Self::Music | Self::PreviewMusic => Some(Kind::Audio),
+            Self::Banner | Self::CdTitle | Self::Jacket | Self::CdImage | Self::DiscImage => {
+                Some(Kind::Image)
+            }
+            Self::Background => Some(Kind::ImageOrVideo),
+            Self::PreviewVideo => Some(Kind::Video),
+            Self::Lyrics => Some(Kind::Lyrics),
+            _ => None,
         }
     }
     fn index(self) -> usize {
@@ -49,8 +96,8 @@ impl Field {
 }
 pub struct Text {
     format: crate::document::Format,
-    original: [String; 11],
-    values: [String; 11],
+    original: [String; Field::ALL.len()],
+    values: [String; Field::ALL.len()],
 }
 impl Text {
     pub fn read(document: &Document) -> Self {
@@ -74,13 +121,11 @@ impl Text {
         &self.original[field.index()]
     }
     pub fn supports(&self, field: Field) -> bool {
-        field != Field::PreviewMusic || self.format == crate::document::Format::Ssc
+        !field.requires_ssc() || self.format == crate::document::Format::Ssc
     }
     pub fn set(&mut self, field: Field, value: &str) -> Result<(), Error> {
         if !self.supports(field) && value != self.original[field.index()] {
-            return Err(Error::Unsupported(
-                "Dedicated preview music requires SSC".into(),
-            ));
+            return Err(Error::Unsupported(format!("{} requires SSC", field.tag())));
         }
         if value != self.original[field.index()] && value.chars().any(char::is_control) {
             return Err(Error::InvalidEdit(

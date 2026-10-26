@@ -1,0 +1,124 @@
+{
+  "Cases": [
+    {
+      "Name": "sm-pump-routine-four-owners-and-holds",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-routine::Hard:9:0,0,0,0,0:XxYyZz1200\n0303030300\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "sm-pump-routine-compound-fakes-and-visibility",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-routine::Hard:9:0,0,0,0,0:{X|s|1|0}{y|v|1|0}Z1000000\n0{3|h|0|0}00000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "sm-pump-routine-standalone-visibility",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-routine::Hard:9:0,0,0,0,0:XSVH000000;"
+    },
+    {
+      "Name": "sm-pump-routine-late-marker-reinterprets-player-four",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-routine::Hard:9:0,0,0,0,0:1000000000\n0X00000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "sm-pump-routine-standard-pump-alphabet",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-routine::Hard:9:0,0,0,0,0:1200000000\n0300000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "sm-pump-routine-plain-fake-and-mine",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-routine::Hard:9:0,0,0,0,0:XFM0000000;"
+    },
+    {
+      "Name": "sm-pump-double-four-owners-and-holds",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-double::Hard:9:0,0,0,0,0:XxYyZz1200\n0303030300\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "sm-pump-double-compound-fakes-and-visibility",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-double::Hard:9:0,0,0,0,0:{X|s|1|0}{y|v|1|0}Z1000000\n0{3|h|0|0}00000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "sm-pump-double-standalone-visibility",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-double::Hard:9:0,0,0,0,0:XSVH000000;"
+    },
+    {
+      "Name": "sm-pump-double-late-marker-reinterprets-player-four",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-double::Hard:9:0,0,0,0,0:1000000000\n0X00000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "sm-pump-double-standard-pump-alphabet",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-double::Hard:9:0,0,0,0,0:1200000000\n0300000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "sm-pump-double-plain-fake-and-mine",
+      "Format": "sm",
+      "Content": "#TITLE:StepF2 oracle;#BPMS:0=120;#NOTES:pump-double::Hard:9:0,0,0,0,0:XFM0000000;"
+    },
+    {
+      "Name": "ssc-pump-routine-four-owners-and-holds",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-routine;#DIFFICULTY:Hard;#METER:9;#NOTES:XxYyZz1200\n0303030300\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "ssc-pump-routine-compound-fakes-and-visibility",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-routine;#DIFFICULTY:Hard;#METER:9;#NOTES:{X|s|1|0}{y|v|1|0}Z1000000\n0{3|h|0|0}00000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "ssc-pump-routine-standalone-visibility",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-routine;#DIFFICULTY:Hard;#METER:9;#NOTES:XSVH000000;"
+    },
+    {
+      "Name": "ssc-pump-routine-late-marker-reinterprets-player-four",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-routine;#DIFFICULTY:Hard;#METER:9;#NOTES:1000000000\n0X00000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "ssc-pump-routine-standard-pump-alphabet",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-routine;#DIFFICULTY:Hard;#METER:9;#NOTES:1200000000\n0300000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "ssc-pump-routine-plain-fake-and-mine",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-routine;#DIFFICULTY:Hard;#METER:9;#NOTES:XFM0000000;"
+    },
+    {
+      "Name": "ssc-pump-double-four-owners-and-holds",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-double;#DIFFICULTY:Hard;#METER:9;#NOTES:XxYyZz1200\n0303030300\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "ssc-pump-double-compound-fakes-and-visibility",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-double;#DIFFICULTY:Hard;#METER:9;#NOTES:{X|s|1|0}{y|v|1|0}Z1000000\n0{3|h|0|0}00000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "ssc-pump-double-standalone-visibility",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-double;#DIFFICULTY:Hard;#METER:9;#NOTES:XSVH000000;"
+    },
+    {
+      "Name": "ssc-pump-double-late-marker-reinterprets-player-four",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-double;#DIFFICULTY:Hard;#METER:9;#NOTES:1000000000\n0X00000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "ssc-pump-double-standard-pump-alphabet",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-double;#DIFFICULTY:Hard;#METER:9;#NOTES:1200000000\n0300000000\n0000000000\n0000000000;"
+    },
+    {
+      "Name": "ssc-pump-double-plain-fake-and-mine",
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#TITLE:StepF2 oracle;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:pump-double;#DIFFICULTY:Hard;#METER:9;#NOTES:XFM0000000;"
+    }
+  ]
+}

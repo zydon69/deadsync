@@ -105,6 +105,8 @@ pub struct Grid {
     columns: u16,
     players: u32,
     tracks: BTreeMap<(u32, u16), BTreeMap<u64, Note>>,
+    /// Source notation is retained when editing a StepF2 co-op chart.
+    pub(crate) stepf2: bool,
 }
 
 impl Grid {
@@ -118,6 +120,7 @@ impl Grid {
             columns,
             players,
             tracks: BTreeMap::new(),
+            stepf2: false,
         })
     }
 
@@ -302,6 +305,16 @@ impl Grid {
         }
     }
 
+    /// Read note symbols according to the chart layout, including StepF2's
+    /// otherwise ambiguous Pump co-op alphabet.
+    pub fn parse_layout(bytes: &[u8], layout: &str) -> Result<Self, Error> {
+        if crate::stepf2::is_coop(bytes, layout) { return crate::stepf2::parse_for_layout(bytes, layout); }
+        let columns = layout_columns(layout).ok_or_else(|| Error::Unsupported(format!("Unknown chart layout {layout}")))?;
+        Self::parse(bytes, columns)
+    }
+
+    pub fn uses_stepf2(&self) -> bool { self.stepf2 }
+
     pub fn parse(bytes: &[u8], columns: u16) -> Result<Self, Error> {
         let text = std::str::from_utf8(bytes).map_err(|_| {
             Error::Unsupported(
@@ -408,6 +421,13 @@ impl Grid {
     }
 
     pub fn serialize(&self) -> Result<Vec<u8>, Error> {
+        if self.stepf2 {
+            return crate::stepf2::serialize(self);
+        }
+        self.serialize_standard()
+    }
+
+    pub(crate) fn serialize_standard(&self) -> Result<Vec<u8>, Error> {
         let mut output = String::from("\n");
         for player in 0..self.players {
             if player > 0 {
@@ -418,6 +438,7 @@ impl Grid {
                 .flat_map(|(&(owner, lane), track)| track.iter().map(move |(&row, note)|
                     (Position { player: owner, lane, row }, note)));
             for (pos, note) in notes {
+                crate::stepf2::require_standard(note)?;
                 rows.entry(pos.row)
                     .or_default()
                     .insert(pos.lane, format!("{}{}", note.symbol(), note.attributes));

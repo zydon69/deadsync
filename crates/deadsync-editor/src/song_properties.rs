@@ -203,6 +203,13 @@ impl Draft {
             text: crate::song_text::Text::read(session.document()),
         })
     }
+    pub fn stage_assets(
+        &mut self,
+        assets: &crate::song_assets::Assets,
+        only_unset: bool,
+    ) -> Result<usize, Error> {
+        assets.stage(&mut self.text, only_unset)
+    }
     pub fn text(&self, field: crate::song_text::Field) -> &str {
         self.text.get(field)
     }

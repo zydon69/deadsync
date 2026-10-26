@@ -97,9 +97,7 @@ impl Clock {
         let grid = if let Some(grid) = session.loaded_grid(chart) {
             grid
         } else {
-            let columns = crate::notes::layout_columns(&descriptor.steps_type)
-                .ok_or_else(|| Error::Unsupported("Unknown attack layout".into()))?;
-            parsed = Grid::parse(document.value(descriptor.notes.clone()), columns)?;
+            parsed = Grid::parse_layout(document.value(descriptor.notes.clone()), &descriptor.steps_type)?;
             &parsed
         };
         let offset = chart_properties::Draft::capture(session, chart)?.effective_music_offset();

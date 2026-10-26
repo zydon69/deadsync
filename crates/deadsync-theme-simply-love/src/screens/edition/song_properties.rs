@@ -13,6 +13,10 @@ impl State {
         }
     }
     pub(super) fn song_properties_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::F4 {
+            self.find_all_song_media(!self.shift);
+            return;
+        }
         if code == KeyCode::F6 {
             self.panel = Some(Panel::SongSample(0));
             self.status = i18n::tr("Edition", "SongSampleHelp");

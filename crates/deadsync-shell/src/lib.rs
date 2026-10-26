@@ -13,6 +13,7 @@ mod dynamic_media;
 mod editor_clipboard;
 mod window_modifier_fallback;
 mod editor_music_picker;
+mod editor_collation;
 mod frame_pacing_trace;
 mod frame_stats;
 mod frame_stutter;

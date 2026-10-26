@@ -8818,6 +8818,10 @@ impl App {
                         state,
                         &mut crate::editor_music_picker::NativeMusicPicker,
                     );
+                    screens::practice::process_editor_chart_order(
+                        state,
+                        &mut crate::editor_collation::NativeChartOrder,
+                    );
                 }
                 let has_effect = !self.theme_effect_scratch.is_empty();
                 if let Err(e) = self.drain_theme_effects(event_loop) {

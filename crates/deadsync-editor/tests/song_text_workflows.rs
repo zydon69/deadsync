@@ -10,6 +10,133 @@ use deadsync_editor::{
 };
 use serde_json::Value;
 use std::{fs, path::PathBuf};
+
+#[test]
+fn media_fields_commit_clear_save_reopen_and_undo_without_losing_peer_notes_or_legacy_tags() {
+    for format in [Format::Sm, Format::Ssc] {
+        let dir = tempfile::tempdir().unwrap();
+        let source = match format {
+            Format::Sm => {
+                "#TITLE:Original;#BPMS:0=120;#VENDOR:keep;#JACKET:legacy.png;#NOTES:dance-single::Hard:9:0,0,0,0,0:1000;#NOTES:dance-single::Hard:9:0,0,0,0,0:0100;"
+            }
+            Format::Ssc => {
+                "#VERSION:0.83;#TITLE:Original;#BPMS:0=120;#VENDOR:keep;#NOTEDATA:;#STEPSTYPE:dance-single;#METER:9;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#METER:9;#NOTES:0100;"
+            }
+        };
+        let path = dir.path().join(if format == Format::Sm {
+            "song.sm"
+        } else {
+            "song.ssc"
+        });
+        fs::write(&path, source).unwrap();
+        let mut file = FileSession::open(&path).unwrap();
+        file.session
+            .edit_notes(
+                1,
+                "Pending peer",
+                [(
+                    Position {
+                        row: 48,
+                        lane: 2,
+                        player: 0,
+                    },
+                    Some(Note::tap()),
+                )],
+            )
+            .unwrap();
+        let pending = file.session.serialize().unwrap();
+        let peer = file.session.grid(1).unwrap().clone();
+        let mut draft = Draft::capture(&file.session).unwrap();
+        let media: Vec<_> = Field::ALL
+            .into_iter()
+            .filter(|f| f.file_kind().is_some() && !matches!(f, Field::Music | Field::PreviewMusic))
+            .collect();
+        assert_eq!(media.len(), 8);
+        for &field in &media {
+            let value = format!("art/Été; 日本語 # {}.png", field.tag());
+            if draft.supports_text(field) {
+                draft.set_text(field, &value).unwrap();
+            } else {
+                assert!(draft.set_text(field, &value).is_err());
+            }
+        }
+        assert!(draft.apply(&mut file.session).unwrap());
+        let after = file.session.serialize().unwrap();
+        assert_eq!(file.session.grid(1).unwrap(), &peer);
+        assert!(String::from_utf8_lossy(&after).contains("#VENDOR:keep;"));
+        if format == Format::Sm {
+            assert!(String::from_utf8_lossy(&after).contains("#JACKET:legacy.png;"));
+        }
+        file.session.undo().unwrap();
+        assert_eq!(file.session.serialize().unwrap(), pending);
+        file.session.redo().unwrap();
+        assert_eq!(file.session.serialize().unwrap(), after);
+        file.save().unwrap();
+        let mut reopened = FileSession::open(&path).unwrap();
+        let text = Text::read(reopened.session.document());
+        for &field in &media {
+            if text.supports(field) {
+                assert_eq!(
+                    text.get(field),
+                    format!("art/Été; 日本語 # {}.png", field.tag())
+                );
+            } else {
+                assert_eq!(
+                    text.get(field),
+                    if field == Field::Jacket {
+                        "legacy.png"
+                    } else {
+                        ""
+                    }
+                );
+            }
+        }
+        let mut clear = Draft::capture(&reopened.session).unwrap();
+        for &field in &media {
+            if clear.supports_text(field) {
+                clear.set_text(field, "").unwrap();
+            }
+        }
+        assert!(clear.apply(&mut reopened.session).unwrap());
+        for &field in &media {
+            let text = Text::read(reopened.session.document());
+            if text.supports(field) {
+                assert!(text.get(field).is_empty());
+            } else {
+                assert_eq!(
+                    text.get(field),
+                    if field == Field::Jacket {
+                        "legacy.png"
+                    } else {
+                        ""
+                    }
+                );
+            }
+        }
+        reopened.session.undo().unwrap();
+        assert_eq!(reopened.session.serialize().unwrap(), after);
+    }
+}
+
+#[test]
+fn media_picker_kinds_match_original_supported_extensions_and_format_scope() {
+    use deadsync_editor::music_file::Kind;
+    assert_eq!(Field::Background.file_kind(), Some(Kind::ImageOrVideo));
+    assert_eq!(Field::PreviewVideo.file_kind(), Some(Kind::Video));
+    assert_eq!(Field::Lyrics.file_kind(), Some(Kind::Lyrics));
+    assert_eq!(
+        Kind::Image.extensions(),
+        ["bmp", "gif", "jpeg", "jpg", "png", "tif", "tiff", "webp"]
+    );
+    assert_eq!(
+        Kind::Video.extensions(),
+        [
+            "avi", "f4v", "flv", "mkv", "mp4", "mpeg", "mpg", "mov", "ogv", "webm", "wmv"
+        ]
+    );
+    assert_eq!(Kind::Lyrics.extensions(), ["lrc"]);
+    assert_eq!(Kind::ImageOrVideo.extensions().len(), 19);
+}
 #[test]
 fn actual_fumen_song_fields_and_initial_chart_authors_match_without_rewriting_files() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/grooveauthor");
@@ -72,7 +199,7 @@ fn actual_fumen_song_fields_and_initial_chart_authors_match_without_rewriting_fi
         );
         assert_eq!(session.serialize().unwrap(), source);
     }
-    assert_eq!(count, 6);
+    assert_eq!(count, 8);
 }
 #[test]
 fn all_song_fields_and_sync_commit_once_preserve_chart_authors_pending_notes_and_unknown_json() {

@@ -73,6 +73,19 @@ pub struct Workspace {
 }
 
 impl Workspace {
+    /// Live presentation order as source chart indices. The caller supplies
+    /// culture-aware collation; no source sections or active focus are moved.
+    pub fn ordered_charts(
+        &mut self,
+        collate: impl FnMut(&str, &str) -> std::cmp::Ordering,
+    ) -> Result<Vec<usize>, Error> {
+        crate::chart_order::Snapshot::resident(&mut self.file.session)?.indices_with(collate)
+    }
+    /// Immutable live inputs for a native collator that precomputes sort keys.
+    pub fn chart_order_snapshot(&mut self) -> Result<crate::chart_order::Snapshot, Error> {
+        crate::chart_order::Snapshot::resident(&mut self.file.session)
+    }
+
     pub fn open(path: &Path, chart: usize) -> Result<Self, Error> {
         Self::from_file(FileSession::open(path)?, chart)
     }
