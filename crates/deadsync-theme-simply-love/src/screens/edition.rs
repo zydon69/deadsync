@@ -2517,7 +2517,7 @@ impl State {
             let mut keys = vec!["ProfileEditField"; draft.editor.fields().len()];
             keys.extend(["ExpressionEditSaveCopy", "ExpressionEditCancel", "ProfileEditName", "ProfileEditSaveOriginal", "ProfileEditDescription"]);
             if draft.supports_travel_speed() { keys.extend(["ProfileSpeedOpen", "ProfileWeightsOpen"]); }
-            keys.extend(["ProfileRestoreDefaults", "ProfileUndoSave", "ProfileRedoSave", "ProfileDeleteOpen"]);
+            keys.extend(["ProfileRestoreDefaults", "ProfileUndoSave", "ProfileRedoSave", "ProfileDeleteOpen", "ProfileImportOpen", "ProfileExportOpen"]);
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {

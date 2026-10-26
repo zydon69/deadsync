@@ -529,8 +529,26 @@ impl Profile {
             return invalid("Built-in editor profiles cannot be overwritten");
         }
         fs::create_dir_all(directory)?;
-        let directory = directory.canonicalize()?;
-        let path = directory.join(self.filename());
+        self.export_to(&directory.join(self.filename()))
+    }
+    /// Publish a shared profile to an explicit filename without replacing it.
+    pub fn export_to(&self, path: &Path) -> Result<ProfileFile, Error> {
+        if builtin(self.config.kind(), &self.guid) {
+            return invalid("Built-in editor profiles cannot be overwritten");
+        }
+        if Kind::from_path(path) != Some(self.config.kind()) {
+            return invalid(
+                "Profile filename must use the matching type prefix and .json extension",
+            );
+        }
+        let directory = path
+            .parent()
+            .ok_or_else(|| invalid_error("Profile has no parent directory"))?
+            .canonicalize()?;
+        let path = directory.join(
+            path.file_name()
+                .ok_or_else(|| invalid_error("Missing profile filename"))?,
+        );
         let bytes = self.serialize()?;
         let mut pending = tempfile::NamedTempFile::new_in(&directory)?;
         pending.write_all(&bytes)?;

@@ -4986,3 +4986,37 @@ Validation: four selected native profile suites passed all 18 tests in
 restoration and later-choice protection. The theme compilation check passed in
 `/tmp/deadsync-profile-preference-check.log`. Commands used `--jobs 2 --locked`.
 This turn reran these targeted suites, not the entire native integration suite.
+
+### Keyboard profile sharing
+
+Profile inspectors now expose Import a profile copy (F10) and Export a profile
+copy (F11). Both reuse the existing Unicode text buffer, IME gate, local text
+undo/redo and serial-guarded clipboard routing. The user enters an absolute JSON
+path whose pc-/pcc-/ecc- prefix matches the inspected profile family. Errors keep
+the path editable; Escape leaves the profile draft intact. Import help explicitly
+states that acceptance replaces the draft.
+
+Import parses and validates the shared file before replacing the staged profile,
+assigns a new GUID, preserves metadata/unknown fields, and disables original-file
+save for this imported draft. Save copy explicitly adds it to the managed library;
+parent cancellation discards it. Neither the imported source nor the previously
+selected library profile is modified. Export materializes the same configured
+copy as Save copy (including staged numeric, name, description, defaults and
+travel-speed changes), then publishes it at the chosen filename without clobbering
+an existing file. It does not change the managed library or song. `Profile::export_to`
+shares atomic no-clobber publication with `export_new`, preserving matching profile
+prefix requirements and built-in protection. This is JSON sharing compatible with
+the original ConfigManager's individual-file storage, not a new bundle format.
+
+Tests cover all three profile families' explicit export/reopen, configuration and
+unknown-field preservation, wrong filenames/missing directories, no-clobber,
+English/French keyboard export of pending numeric changes, Unicode paths, staged
+import with a fresh identity, discard/reimport/save-copy, wrong-kind/malformed
+imports and unchanged source/library/song bytes. Physical app/GPU validation and
+undo of committed library-copy creation remain outstanding.
+
+Validation: all 47 native editor integration targets passed (266 tests) in
+`/tmp/deadsync-profile-transfer-all-native.log`; the two selected core export/edit
+suites passed 8 tests in `/tmp/deadsync-profile-transfer-core.log`. The theme
+compilation check passed in `/tmp/deadsync-profile-transfer-check.log`. Commands
+used `--jobs 2 --locked`.

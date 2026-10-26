@@ -27,18 +27,29 @@ pub(super) struct Choices {
 pub(super) enum TextField {
     Name,
     Description,
+    ImportPath,
+    ExportPath,
 }
 impl TextField {
-    fn key(self, name: &'static str, description: &'static str) -> &'static str {
+    fn key(
+        self,
+        name: &'static str,
+        description: &'static str,
+        import: &'static str,
+        export: &'static str,
+    ) -> &'static str {
         match self {
             Self::Name => name,
             Self::Description => description,
+            Self::ImportPath => import,
+            Self::ExportPath => export,
         }
     }
     fn row(self) -> usize {
         match self {
             Self::Name => 2,
             Self::Description => 4,
+            Self::ImportPath | Self::ExportPath => 0,
         }
     }
 }
@@ -62,8 +73,28 @@ pub(super) struct Draft {
     weight_layout: usize,
 }
 impl Draft {
+    fn prepared_copy(&self, config: Config) -> Result<Profile, String> {
+        let draft = self;
+        let mut profile = draft.profile.clone();
+        if draft.reset_defaults {
+            profile.restore_defaults().map_err(profile_error)?;
+        }
+        if let Some(speed) = draft.travel_speed {
+            profile.set_travel_speed(speed).map_err(profile_error)?;
+        }
+        profile.set_config(config).map_err(profile_error)?;
+        if let Some(name) = &draft.name {
+            profile.rename(name).map_err(profile_error)?;
+        }
+        if let Some(description) = &draft.description {
+            profile
+                .set_description(Some(description))
+                .map_err(profile_error)?;
+        }
+        Ok(profile)
+    }
     pub(super) fn action_count(&self) -> usize {
-        if self.supports_travel_speed() { 11 } else { 9 }
+        if self.supports_travel_speed() { 13 } else { 11 }
     }
     pub(super) fn supports_travel_speed(&self) -> bool {
         self.kind == Kind::Performed
@@ -382,21 +413,37 @@ impl State {
         };
         let count = draft.editor.fields().len();
         let actions = draft.action_count();
-        if code == KeyCode::F9 && !self.control
+        if code == KeyCode::F10 && !self.control
+            || index == count + actions - 2 && code == KeyCode::Enter
+        {
+            if self.stage_profile_input() {
+                self.open_profile_text(TextField::ImportPath);
+            }
+            return;
+        }
+        if code == KeyCode::F11 && !self.control
             || index == count + actions - 1 && code == KeyCode::Enter
+        {
+            if self.stage_profile_input() {
+                self.open_profile_text(TextField::ExportPath);
+            }
+            return;
+        }
+        if code == KeyCode::F9 && !self.control
+            || index == count + actions - 3 && code == KeyCode::Enter
         {
             self.open_profile_delete();
             return;
         }
         let undo = code == KeyCode::F7 && !self.control
-            || index == count + actions - 3 && code == KeyCode::Enter;
+            || index == count + actions - 5 && code == KeyCode::Enter;
         let redo = code == KeyCode::F8 && !self.control
-            || index == count + actions - 2 && code == KeyCode::Enter;
+            || index == count + actions - 4 && code == KeyCode::Enter;
         if undo || redo {
             self.profile_saved_history(redo);
             return;
         }
-        if (index == count + actions - 4 && code == KeyCode::Enter)
+        if (index == count + actions - 6 && code == KeyCode::Enter)
             || (code == KeyCode::F5 && !self.control)
         {
             if let Some(draft) = self.profile_edit.as_mut() {
@@ -561,22 +608,7 @@ impl State {
                     .profile_directory
                     .as_deref()
                     .ok_or_else(|| i18n::tr("Edition", "ExpressionEditUnavailable").to_string())?;
-                let mut profile = draft.profile.clone();
-                if draft.reset_defaults {
-                    profile.restore_defaults().map_err(profile_error)?;
-                }
-                if let Some(speed) = draft.travel_speed {
-                    profile.set_travel_speed(speed).map_err(profile_error)?;
-                }
-                profile.set_config(config).map_err(profile_error)?;
-                if let Some(name) = &draft.name {
-                    profile.rename(name).map_err(profile_error)?;
-                }
-                if let Some(description) = &draft.description {
-                    profile
-                        .set_description(Some(description))
-                        .map_err(profile_error)?;
-                }
+                let profile = draft.prepared_copy(config)?;
                 profile.export_new(directory).map_err(profile_error)?;
                 profile.guid().clone()
             } else {
@@ -772,6 +804,53 @@ impl State {
 }
 
 impl State {
+    fn finish_profile_transfer(&mut self, field: TextField, text: &str) {
+        let result: Result<(), String> = (|| {
+            let draft = self
+                .profile_edit
+                .as_mut()
+                .ok_or_else(|| "Missing draft".to_string())?;
+            let path = std::path::Path::new(text);
+            if !path.is_absolute()
+                || deadsync_editor::generation::profiles::Kind::from_path(path) != Some(draft.kind)
+            {
+                return Err(i18n::tr("Edition", "ProfileTransferInvalidPath").to_string());
+            }
+            if field == TextField::ExportPath {
+                let profile = draft.prepared_copy(draft.editor.finish().map_err(profile_error)?)?;
+                profile.export_to(path).map_err(profile_error)?;
+            } else {
+                let bytes = std::fs::read(path).map_err(|e| e.to_string())?;
+                let source = Profile::parse(draft.kind, &bytes).map_err(profile_error)?;
+                let profile = source
+                    .duplicate(source.name().unwrap_or("Imported"))
+                    .map_err(profile_error)?;
+                let editor = Editor::new(profile.config()).map_err(profile_error)?;
+                draft.profile = profile;
+                draft.editor = editor;
+                draft.custom_source = false;
+                draft.input = None;
+                draft.name = None;
+                draft.description = None;
+                draft.travel_speed = None;
+                draft.reset_defaults = false;
+            }
+            draft.text_buffer = None;
+            self.panel = Some(Panel::ProfileEdit(draft.editor.fields().len()));
+            Ok(())
+        })();
+        self.status = match result {
+            Ok(()) => i18n::tr(
+                "Edition",
+                if field == TextField::ImportPath {
+                    "ProfileImported"
+                } else {
+                    "ProfileExported"
+                },
+            ),
+            Err(error) => i18n::tr_fmt("Edition", "Error", &[("message", &error)]),
+        };
+    }
     fn open_profile_text(&mut self, field: TextField) {
         let Some(draft) = self.profile_edit.as_mut() else {
             return;
@@ -783,6 +862,7 @@ impl State {
                 .description
                 .as_deref()
                 .or_else(|| draft.profile.description()),
+            TextField::ImportPath | TextField::ExportPath => Some(""),
         }
         .unwrap_or_default();
         draft.text_buffer = Some(deadsync_editor::text_buffer::Buffer::new(text, true));
@@ -791,7 +871,12 @@ impl State {
         self.panel = Some(Panel::ProfileText);
         self.status = i18n::tr(
             "Edition",
-            field.key("ProfileNameHelp", "ProfileDescriptionHelp"),
+            field.key(
+                "ProfileNameHelp",
+                "ProfileDescriptionHelp",
+                "ProfileImportHelp",
+                "ProfileExportHelp",
+            ),
         );
     }
     pub(super) fn profile_text_input(&mut self, text: &str) -> bool {
@@ -805,6 +890,29 @@ impl State {
         changed
     }
     pub(super) fn profile_text_key(&mut self, code: KeyCode) {
+        if code == KeyCode::Enter && self.label_preedit.is_empty() {
+            let transfer = self.profile_edit.as_ref().and_then(|draft| {
+                matches!(
+                    draft.text_field,
+                    TextField::ImportPath | TextField::ExportPath
+                )
+                .then(|| {
+                    (
+                        draft.text_field,
+                        draft
+                            .text_buffer
+                            .as_ref()
+                            .map(|b| b.value().to_owned())
+                            .unwrap_or_default(),
+                    )
+                })
+            });
+            if let Some((field, path)) = transfer {
+                self.finish_profile_transfer(field, &path);
+                return;
+            }
+        }
+
         self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
         if self.control && matches!(code, KeyCode::KeyC | KeyCode::KeyX | KeyCode::KeyV) {
             self.queue_text_clipboard(code);
@@ -825,9 +933,12 @@ impl State {
             ));
             self.status = i18n::tr(
                 "Edition",
-                draft
-                    .text_field
-                    .key("ProfileNameDiscarded", "ProfileDescriptionDiscarded"),
+                draft.text_field.key(
+                    "ProfileNameDiscarded",
+                    "ProfileDescriptionDiscarded",
+                    "ProfileTransferCancelled",
+                    "ProfileTransferCancelled",
+                ),
             );
             return;
         }
@@ -836,6 +947,9 @@ impl State {
                 return;
             }
             match draft.text_field {
+                TextField::ImportPath | TextField::ExportPath => {
+                    unreachable!("transfer handled above")
+                }
                 TextField::Name => draft.name = Some(buffer.value().to_owned()),
                 TextField::Description => {
                     draft.description = (buffer.value()
@@ -847,9 +961,12 @@ impl State {
             self.panel = Some(Panel::ProfileEdit(draft.editor.fields().len()));
             self.status = i18n::tr(
                 "Edition",
-                draft
-                    .text_field
-                    .key("ProfileNameStaged", "ProfileDescriptionStaged"),
+                draft.text_field.key(
+                    "ProfileNameStaged",
+                    "ProfileDescriptionStaged",
+                    "ProfileImported",
+                    "ProfileExported",
+                ),
             );
             return;
         }
@@ -898,6 +1015,16 @@ impl State {
     }
     pub(super) fn profile_text_keys(&self) -> &'static [&'static str] {
         match self.profile_edit.as_ref().map(|draft| draft.text_field) {
+            Some(TextField::ImportPath) => &[
+                "ProfileImportInput",
+                "ProfileImportAccept",
+                "ProfileTransferCancel",
+            ],
+            Some(TextField::ExportPath) => &[
+                "ProfileExportInput",
+                "ProfileExportAccept",
+                "ProfileTransferCancel",
+            ],
             Some(TextField::Description) => &[
                 "ProfileDescriptionInput",
                 "ProfileDescriptionAccept",
@@ -917,9 +1044,12 @@ impl State {
             .profile_edit
             .as_ref()
             .map(|draft| {
-                draft
-                    .text_field
-                    .key("ProfileNameInput", "ProfileDescriptionInput")
+                draft.text_field.key(
+                    "ProfileNameInput",
+                    "ProfileDescriptionInput",
+                    "ProfileImportInput",
+                    "ProfileExportInput",
+                )
             })
             .unwrap_or("ProfileNameInput");
         i18n::tr_fmt("Edition", key, &[("value", &value)])
