@@ -157,24 +157,52 @@ impl Draft {
         time: f64,
         value: Modifier,
     ) -> Result<usize, Error> {
+        value.validate()?;
+        if modifier >= self.entry(event)?.modifiers.len() {
+            return Err(invalid("Attack modifier does not exist"));
+        }
+        let row = self.row_for_time(event, time)?;
+        self.set_at_row(event, modifier, row, value)
+    }
+    fn row_for_time(&self, event: usize, time: f64) -> Result<u64, Error> {
         if !time.is_finite() {
             return Err(invalid("Attack time must be finite"));
         }
-        value.validate()?;
         let original = self.entry(event)?;
-        if modifier >= original.modifiers.len() {
-            return Err(invalid("Attack modifier does not exist"));
+        if original.time == time {
+            return Ok(original.row);
         }
-        let row = if original.time == time {
-            original.row
-        } else {
-            let time = time + self.offset;
-            if !time.is_finite() {
-                return Err(invalid("Attack time overflow"));
+        let time = time + self.offset;
+        if !time.is_finite() {
+            return Err(invalid("Attack time overflow"));
+        }
+        self.row_at(time.max(0.0))
+    }
+    /// Move an event independently of whether it has any modifiers.
+    pub fn set_time(&mut self, event: usize, time: f64) -> Result<usize, Error> {
+        let row = self.row_for_time(event, time)?;
+        self.move_to_row(event, row)
+    }
+    pub fn move_to_row(&mut self, event: usize, row: u64) -> Result<usize, Error> {
+        let old = self.entry(event)?.row;
+        if old == row {
+            return Ok(event);
+        }
+        let mut events = self.current.events.clone();
+        events[event].row = row;
+        self.replace(events)?;
+        Ok(self.moved(old, row))
+    }
+    fn moved(&mut self, old: u64, row: u64) -> usize {
+        for source in self.sources.values_mut() {
+            if *source == old {
+                *source = row;
             }
-            self.row_at(time.max(0.0))?
-        };
-        self.set_at_row(event, modifier, row, value)
+        }
+        self.current
+            .events
+            .binary_search_by_key(&row, |event| event.row)
+            .expect("Moved attack is present")
     }
     pub fn set_at_row(
         &mut self,
@@ -196,17 +224,9 @@ impl Draft {
         events[event].row = row;
         events[event].modifiers[modifier] = value;
         self.replace(events)?;
-        for source in self.sources.values_mut() {
-            if *source == old {
-                *source = row;
-            }
-        }
-        Ok(self
-            .current
-            .events
-            .binary_search_by_key(&row, |event| event.row)
-            .expect("Moved attack is present"))
+        Ok(self.moved(old, row))
     }
+
     pub fn add(&mut self, row: u64, value: Modifier) -> Result<usize, Error> {
         value.validate()?;
         if self.current.events.iter().any(|event| event.row == row) {
@@ -237,9 +257,6 @@ impl Draft {
         let entry = self.entry(event)?;
         if modifier >= entry.modifiers.len() {
             return Err(invalid("Attack modifier does not exist"));
-        }
-        if entry.modifiers.len() == 1 {
-            return self.remove(event);
         }
         self.current.events[event].modifiers.remove(modifier);
         Ok(())
@@ -279,7 +296,7 @@ impl Draft {
             .last()
             .map(|(_, rate)| rate)
             .ok_or_else(|| invalid("No tempo available for an attack duration"))?;
-        let length = rate.seconds_per_row() * crate::notes::ROWS_PER_MEASURE as f64;
+        let length = rate.seconds_per_row() * crate::notes::ROWS_PER_BEAT as f64;
         if !length.is_finite() {
             return Err(invalid("Attack duration overflow"));
         }

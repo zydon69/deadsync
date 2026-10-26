@@ -80,7 +80,8 @@ impl State {
     }
     fn field_supported(&self, target: Target) -> bool {
         match target {
-            Target::Attack(_) => self.attacks.as_ref().is_some_and(|d| d.editable()),
+            Target::Attack(index) => self.attacks.as_ref()
+                .is_some_and(|d| d.can_edit_field(index)),
             Target::Note(f) => self.note_attributes.as_ref()
                 .is_some_and(|d| f == NoteField::Head || d.note().end.is_some()),
             Target::Chart(f) => self

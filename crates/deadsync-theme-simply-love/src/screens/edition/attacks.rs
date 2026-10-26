@@ -38,6 +38,7 @@ impl Settings {
         };
         let Some(modifier) = event.modifiers.get(self.modifier) else {
             self.fields = Default::default();
+            self.fields[0] = event.time.to_string();
             return;
         };
         self.fields = [
@@ -55,23 +56,56 @@ impl Settings {
             .get(self.event)
             .is_some_and(|e| self.modifier < e.modifiers.len())
     }
-    fn commit(&mut self) -> Result<(), Error> {
-        if !self.editable() {
+    pub fn has_event(&self) -> bool {
+        self.event < self.draft.attacks().events().len()
+    }
+    pub fn can_edit_field(&self, index: usize) -> bool {
+        if index >= self.fields.len() {
+            return false;
+        }
+        if index == 0 {
+            self.has_event()
+        } else {
+            self.editable()
+        }
+    }
+    fn commit_time(&mut self) -> Result<(), Error> {
+        if !self.has_event() {
             return Ok(());
         }
-        let number = |i: usize| {
-            self.fields[i]
+        let time = self.fields[0]
+            .parse::<f64>()
+            .map_err(|_| Error::InvalidEdit("Invalid attack number".into()))?;
+        self.event = self.draft.set_time(self.event, time)?;
+        self.fields[0] = self.draft.attacks().events()[self.event].time.to_string();
+        Ok(())
+    }
+    fn modifier_value(&self) -> Result<Modifier, Error> {
+        let number = |index: usize| {
+            self.fields[index]
                 .parse::<f64>()
                 .map_err(|_| Error::InvalidEdit("Invalid attack number".into()))
         };
-        let time = number(0)?;
-        let value = Modifier {
+        Ok(Modifier {
             name: self.fields[1].clone(),
             level: number(2)?,
             speed: number(3)?,
             length: number(4)?,
-        };
-        self.event = self.draft.set(self.event, self.modifier, time, value)?;
+        })
+    }
+    fn commit(&mut self) -> Result<(), Error> {
+        if !self.has_event() {
+            return Ok(());
+        }
+        if !self.editable() {
+            return self.commit_time();
+        }
+        let time = self.fields[0]
+            .parse::<f64>()
+            .map_err(|_| Error::InvalidEdit("Invalid attack number".into()))?;
+        self.event = self
+            .draft
+            .set(self.event, self.modifier, time, self.modifier_value()?)?;
         self.fields[0] = self.draft.attacks().events()[self.event].time.to_string();
         Ok(())
     }
@@ -124,20 +158,28 @@ impl State {
                 return;
             };
             let result = (|| -> Result<(), Error> {
-                if !settings.editable() {
+                if !settings.has_event() {
                     return Err(Error::InvalidEdit("No attack selected".into()));
                 }
-                settings.commit()?;
+                if matches!(code, KeyCode::F3 | KeyCode::F4) && !settings.editable() {
+                    return Err(Error::InvalidEdit("No modifier selected".into()));
+                }
+                if code != KeyCode::F2 {
+                    settings.commit()?;
+                }
                 if code == KeyCode::F2 {
-                    let modifier = settings.draft.attacks().events()[settings.event].modifiers
-                        [settings.modifier]
-                        .clone();
-                    settings.event = settings.draft.set_at_row(
-                        settings.event,
-                        settings.modifier,
-                        self.workspace.row(),
-                        modifier,
-                    )?;
+                    settings.event = if settings.editable() {
+                        settings.draft.set_at_row(
+                            settings.event,
+                            settings.modifier,
+                            self.workspace.row(),
+                            settings.modifier_value()?,
+                        )?
+                    } else {
+                        settings
+                            .draft
+                            .move_to_row(settings.event, self.workspace.row())?
+                    };
                     settings.load();
                 } else if code == KeyCode::F3 {
                     settings.fields[4] = settings
@@ -228,8 +270,14 @@ impl State {
                 settings = Settings::new(self.workspace.attack_inspector(scope)?);
                 return Ok(());
             }
-            // Delete actions deliberately discard the selected object's pending fields.
-            if index != 9 && index != 11 {
+            // Deleting a modifier discards its fields, but keeps pending event time.
+            // Deleting the whole event discards all of that event's pending fields.
+            if index == 9 {
+                if !settings.editable() {
+                    return Err(Error::InvalidEdit("No modifier selected".into()));
+                }
+                settings.commit_time()?;
+            } else if index != 11 {
                 settings.commit()?;
             }
             match index {
@@ -330,7 +378,7 @@ impl State {
             return i18n::tr("Edition", key);
         };
         if (3..8).contains(&index) {
-            return if settings.editable() {
+            return if settings.can_edit_field(index - 3) {
                 self.text_field_label(index)
             } else {
                 i18n::tr("Edition", "AttacksEmpty")

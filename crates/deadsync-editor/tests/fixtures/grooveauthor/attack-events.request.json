@@ -5,6 +5,8 @@
     "TIME=3:LEN=4:MODS=*2 -25% Confusion,no Reverse:TIME=3:LEN=8:MODS=50% Drunk",
     "TIME=-1:LEN=99:END=5:MODS=*0.5 150% Boost:TIME=8:LEN=0.25:MODS=100% Dizzy",
     "TIME=5:END=9:MODS=50ms Mini:TIME=2:LEN=1:MODS=no Drunk",
-    "TIME=10:MODS=*0 -50% Dizzy, *-2 125% Reverse"
+    "TIME=10:MODS=*0 -50% Dizzy, *-2 125% Reverse",
+    "TIME=1:LEN=0:MODS=",
+    "TIME=1:LEN=0:MODS=:TIME=2:LEN=3:MODS=100% Dizzy"
   ]
 }

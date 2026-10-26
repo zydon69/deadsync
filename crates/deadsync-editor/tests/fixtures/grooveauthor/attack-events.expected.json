@@ -118,5 +118,34 @@
         ]
       }
     ]
+  },
+  {
+    "Source": "TIME=1:LEN=0:MODS=",
+    "Events": [
+      {
+        "Time": 1,
+        "Modifiers": []
+      }
+    ]
+  },
+  {
+    "Source": "TIME=1:LEN=0:MODS=:TIME=2:LEN=3:MODS=100% Dizzy",
+    "Events": [
+      {
+        "Time": 1,
+        "Modifiers": []
+      },
+      {
+        "Time": 2,
+        "Modifiers": [
+          {
+            "Name": "Dizzy",
+            "Level": 100,
+            "Speed": 1,
+            "Length": 3
+          }
+        ]
+      }
+    ]
   }
 ]

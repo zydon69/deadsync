@@ -42,17 +42,17 @@ reviewable and tested.
 | Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; Routine/Team participant changes with atomic metadata/history; raw head/tail attribute inspector shipped; typed note-specific suffix forms and StepF2 conventions pending |
 | Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste now uses GrooveAuthor ForceAdd conflict rules; miscellaneous-event clipboard parity remains pending |
 | Layouts | Reference pad coordinates, starting tiers, ten relationship matrices, mirror/flip mappings | All imported layout definitions validated; original compressed graphs decoded and traversed |
-| Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/row shifts and column shifts with optional wrapping; broader GrooveAuthor transformations pending |
+| Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/row shifts and column shifts with optional wrapping; miscellaneous-event transformations and broader original workflow coverage pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
-| Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
-| Attack events | F10 optional keyboard inspector, widgets/duration overview, song/chart scope, multiple modifiers, temporal shortcuts and history; exact row model survives timing edits and ambiguous warp/negative-stop export through bound editor metadata | Pinned original parser/clock/UI comparisons, save/recovery/structural/undo tests and native EN/FR workflows; miscellaneous-event clipboard, default-duration/empty-event lifecycle, cross-chart shared-event identity, runtime widget/transport verification, permissive normalization and broader file corpus remain pending |
-| Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
+| Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; native constant-time, Reverse and variable displays now share the original rate geometry; physical scroll/speed rendering verification, broader legacy normalization and conversion remain pending |
+| Attack events | F10 optional keyboard inspector, widgets/duration overview, song/chart scope, multiple modifiers, temporal shortcuts and history; exact row model survives timing edits and ambiguous warp/negative-stop export through bound editor metadata | Pinned original parser/clock/UI comparisons, save/recovery/structural/undo tests and native EN/FR workflows; miscellaneous-event clipboard, cross-chart shared-event identity, runtime widget/transport verification, permissive normalization and broader file corpus remain pending |
+| Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, scrub, loop and audio analysis remain pending; persisted waveform visibility, width, density, palette and scroll policies are implemented below |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; layout weight addition/inheritance are connected; library undo/deletion and broader runtime parity remain pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; layout weight addition/inheritance are connected; profile copy/import/export, deletion/reference repair and global undo are implemented below; attack-event timing, multiple-participant source generation and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
-| Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
+| Customization | Native keyboard panels for zoom, navigation, scroll/receptor presentation and waveform preferences, including palette and scroll policies | Shortcut rebinding, broader presets/theme customization and command palette pending; physical-input/runtime review remains required |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
 
 ### RSSP reuse
@@ -5410,7 +5410,7 @@ Name, level (percent units), speed and per-modifier duration are editable for ev
 modifier in an attack. Moving the attack's file time keeps its modifiers together;
 colliding attack times are refused. Adding a modifier keeps the first modifier's
 duration, matching the source inspector; adding an attack uses the cursor time and
-one measure at the active tempo, matching `UIEditEvents.CreateAttackEvent`. `F2` places the start at the cursor, `F3` sets duration to
+one beat at the active tempo, matching `UIEditEvents.CreateAttackEvent`. `F2` places the start at the cursor, `F3` sets duration to
 the cursor, and `F4/F5` go to the modifier end / attack start without requiring an
 audio file. Those conversions use the existing chart clock, effective music
 offset and pre-zero attack clamping; editor audio-sync offset is excluded.
@@ -5698,13 +5698,10 @@ a GrooveAuthor parity requirement. Earlier notes naming â€œfull effect previewâ€
 are superseded by the concrete widget/transport runtime-verification requirement.
 This clarification does not certify unexamined reference paths or editor parity.
 
-Two existing attack-inspector semantics still need reference alignment:
-`UIEditEvents.CreateAttackEvent` uses one beat (`MaxValidDenominator`, 48 rows)
-for its default modifier duration, while the current Rust helper uses a measure
-(192 rows). `ActionDeleteModFromAttack.DoImplementation` removes the modifier
-without deleting its event; the current Rust last-modifier helper removes the
-event. These confirmed differences require original-default/action fixtures and
-core/native workflow changes before claiming attack-editor parity.
+The two attack-inspector differences identified here (one-beat default duration
+and retaining the event after deleting its last modifier) are addressed in the
+lifecycle increment below.
+
 
 Final resident-position validation: 521 core tests across 99 suites and 316 native
 edition tests across 63 targets passed. The five focused attack suites passed
@@ -5714,3 +5711,40 @@ check passed. Logs: `/tmp/deadsync-resident-complete-all-core.log`,
 `/tmp/deadsync-resident-final-all-native.log`,
 `/tmp/deadsync-resident-final-check.log`, `/tmp/deadsync-resident-oracle.log`.
 Physical keyboard/pad/GPU gameplay has not been executed for this increment.
+
+
+### Attack creation and empty-event lifecycle
+
+New attacks use one beat at the active tempo (48 rows), including a tempo change
+at the cursor row. Added modifiers reuse the first modifier's duration, or one
+beat when the event has no modifiers, matching the pinned UI. Deleting the last
+modifier keeps its attack event; deleting the event remains a separate command.
+The ordinary attack serializer now retains empty events as `LEN=0:MODS=` instead
+of dropping their editor positions. The actual Fumen parser fixtures verify both
+an empty event and an empty event preceding a normal one.
+
+Empty attacks retain an editable start-time field. F2 moves their start to the
+cursor, including repairing an invalid pending time; F5 visits their start. F3/F4
+require a selected modifier. Modifier fields and their clipboard input are
+unavailable when there is no modifier. Deleting a modifier commits pending event
+time but discards that modifier's pending fields, so an invalid modifier name
+cannot trap the user or silently discard a valid time edit. Event deletion
+intentionally discards all pending fields of the deleted event.
+
+The C# timing oracle injects unchanged `CreateAttackEvent`, `CreateAttackConfig`,
+`CreateDefaultModifier`, modifier accessors/list operations, and
+`ActionDeleteModFromAttack` do/undo bodies. Eight creation/delete/undo/redo traces
+cover tempo boundaries, delays, negative stops and an interior warp position.
+The trace uses non-rendering event/action containers; it does not emulate the
+whole editor, its dirty-state notifications or hardware/audio/GPU runtime.
+`attack_lifecycle_workflows` checks those transitions, exact source undo/redo,
+empty-event save/reopen and explicit event deletion. EN/FR native workflows cover
+SM and SSC, active-tempo defaults, first-modifier duration reuse, editable empty
+attack time, rejected modifier input, F2/F5 transport and disk reopen.
+
+Verification checkpoint for this increment: the complete editor-core regression
+passed 523 tests across 100 integration suites
+(`/tmp/deadsync-attack-lifecycle-all-core.log`). The four focused native attack
+event/widget targets passed 28 tests. The full 63-target native regression and
+theme compilation check are still running; this checkpoint does not claim their
+completion or physical keyboard/audio/GPU validation.

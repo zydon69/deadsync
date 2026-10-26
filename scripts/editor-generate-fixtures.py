@@ -40,7 +40,14 @@ def prepare_timing_reference(editor):
     deletion = read("EditorActions/ActionDeletePatternNotes.cs")
     pattern_event = read("EditorEvents/EditorPatternEvent.cs")
     attack_ui = read("UI/UIAttackEvent.cs")
+    attack_event = read("EditorEvents/EditorAttackEvent.cs")
+    attack_config = read("EditorEvents/EventConfig.cs")
     groups = {
+        "ATTACK_CREATE_METHOD": [extract_member(read("UI/UIEditEvents.cs"), r"\tprivate EditorEvent CreateAttackEvent\(")],
+        "ATTACK_CONFIG_METHODS": [extract_member(attack_config, r"\tpublic static EventConfig CreateAttackConfig\("), extract_member(attack_config, r"\tpublic static Modifier CreateDefaultModifier\(")],
+        "ATTACK_DELETE_ACTION": [extract_member(read("EditorActions/ActionDeleteModFromAttack.cs"), r"internal sealed class ActionDeleteModFromAttack\s*")],
+        "ATTACK_MODIFIER": [extract_member(attack_event, r"\tinternal sealed class EditorModifier\s*:")],
+        "ATTACK_EVENT_METHODS": [extract_member(attack_event, pattern) for pattern in [r"\tpublic void AddModifier\(", r"\tpublic void InsertModifier\(", r"\tpublic void RemoveModifier\(EditorModifier modifier\)", r"\tpublic string GetMiscEventText\("]],
         "ATTACK_METHODS": [extract_member(attack_ui, r"\tprivate void " + name + r"\(") for name in ["SetModLengthFromCurrentTime", "JumpToModEnd"]],
         "CHART_METHODS": [extract_member(chart, r"\tprivate void " + name + r"\(") for name in ["RefreshEventTimingData", "RefreshRateAlteringEvents"]]
             + [extract_member(chart, r"\tpublic double " + name + r"\(") for name in ["GetStartChartTime", "GetEndChartTime"]]

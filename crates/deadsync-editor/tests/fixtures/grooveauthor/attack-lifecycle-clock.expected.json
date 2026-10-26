@@ -1,0 +1,354 @@
+[
+  {
+    "Created": {
+      "Row": 0,
+      "Time": 0,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.5
+        }
+      ]
+    },
+    "Deleted": {
+      "Row": 0,
+      "Time": 0,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    },
+    "Restored": {
+      "Row": 0,
+      "Time": 0,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.5
+        }
+      ]
+    },
+    "Redone": {
+      "Row": 0,
+      "Time": 0,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    }
+  },
+  {
+    "Created": {
+      "Row": 96,
+      "Time": 1,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.5
+        }
+      ]
+    },
+    "Deleted": {
+      "Row": 96,
+      "Time": 1,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    },
+    "Restored": {
+      "Row": 96,
+      "Time": 1,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.5
+        }
+      ]
+    },
+    "Redone": {
+      "Row": 96,
+      "Time": 1,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    }
+  },
+  {
+    "Created": {
+      "Row": 191,
+      "Time": 1.9895833333333333,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.5
+        }
+      ]
+    },
+    "Deleted": {
+      "Row": 191,
+      "Time": 1.9895833333333333,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    },
+    "Restored": {
+      "Row": 191,
+      "Time": 1.9895833333333333,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.5
+        }
+      ]
+    },
+    "Redone": {
+      "Row": 191,
+      "Time": 1.9895833333333333,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    }
+  },
+  {
+    "Created": {
+      "Row": 192,
+      "Time": 2,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.25
+        }
+      ]
+    },
+    "Deleted": {
+      "Row": 192,
+      "Time": 2,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    },
+    "Restored": {
+      "Row": 192,
+      "Time": 2,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.25
+        }
+      ]
+    },
+    "Redone": {
+      "Row": 192,
+      "Time": 2,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    }
+  },
+  {
+    "Created": {
+      "Row": 240,
+      "Time": 3.25,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.25
+        }
+      ]
+    },
+    "Deleted": {
+      "Row": 240,
+      "Time": 3.25,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    },
+    "Restored": {
+      "Row": 240,
+      "Time": 3.25,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.25
+        }
+      ]
+    },
+    "Redone": {
+      "Row": 240,
+      "Time": 3.25,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    }
+  },
+  {
+    "Created": {
+      "Row": 384,
+      "Time": 4,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.25
+        }
+      ]
+    },
+    "Deleted": {
+      "Row": 384,
+      "Time": 4,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    },
+    "Restored": {
+      "Row": 384,
+      "Time": 4,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.25
+        }
+      ]
+    },
+    "Redone": {
+      "Row": 384,
+      "Time": 4,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    }
+  },
+  {
+    "Created": {
+      "Row": 600,
+      "Time": 4.5,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.25
+        }
+      ]
+    },
+    "Deleted": {
+      "Row": 600,
+      "Time": 4.5,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    },
+    "Restored": {
+      "Row": 600,
+      "Time": 4.5,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.25
+        }
+      ]
+    },
+    "Redone": {
+      "Row": 600,
+      "Time": 4.5,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    }
+  },
+  {
+    "Created": {
+      "Row": 768,
+      "Time": 5,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.25
+        }
+      ]
+    },
+    "Deleted": {
+      "Row": 768,
+      "Time": 5,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    },
+    "Restored": {
+      "Row": 768,
+      "Time": 5,
+      "Caption": "Dizzy",
+      "EventCount": 1,
+      "Modifiers": [
+        {
+          "Name": "Dizzy",
+          "Level": 100,
+          "Speed": 1,
+          "Length": 0.25
+        }
+      ]
+    },
+    "Redone": {
+      "Row": 768,
+      "Time": 5,
+      "Caption": "No Mods",
+      "EventCount": 1,
+      "Modifiers": []
+    }
+  }
+]

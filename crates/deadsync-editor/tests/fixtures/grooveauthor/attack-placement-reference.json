@@ -22,6 +22,11 @@
       "Name": "attack-resident-file",
       "RequestSHA256": "31e0ea43523c7a98461c67eb1a9876de909ba3be45291a2ef55eedea58e5a195",
       "ExpectedSHA256": "80b4f7384a91ac4048630228c16f3cdf783a10bb93562b8e64c4178723411f52"
+    },
+    {
+      "Name": "attack-lifecycle-clock",
+      "RequestSHA256": "23fa007957fe068fc5bf975b5caa6c681ac28d5da3bacacc4077abe88c89822c",
+      "ExpectedSHA256": "97274c731ca99638983b85991600b25ec06873f28aa47bed5c5b6684ed601d8d"
     }
   ],
   "UnchangedSourceTimingFields": [
@@ -41,12 +46,19 @@
     "source-timing-tiny-regions"
   ],
   "SourceTimingComparison": "Historical fields exact; additive PlaybackPositions omitted only when absent in historical capture",
-  "EditorTimingMethodsSHA256": "956fe5cb3ee64e818f3a489f8020770273c858bc2b7bb938aa1f89b9017269bb",
+  "EditorTimingMethodsSHA256": "3a2f82ae9e0cd5e1ee25323db5700092dfe899e926e59870d003c4aa57b726d3",
   "SourceTimingMethodsSHA256": "68a95cb9d47eef1f424b4b7f4c5fb3959b4e971c8d96728d83863d904a87fffe",
   "SourceTimingAdapterSHA256": "27a2440de743c514e43d8fb3a9aa2a7d01c0689837814ec472bdbd952b884e51",
   "AttackUiSourceSHA256": "004d95f5a3ff99490e36aa2e1ec8153eeefbc069f809e91d1135002a27710dae",
+  "AttackLifecycleSourcesSHA256": {
+    "UI/UIEditEvents.cs": "5d3efae956507e98594a8885f259a6182d61c0c75722f658a6a0cea1ee91885b",
+    "EditorEvents/EventConfig.cs": "58ca7ecc67ba4ada93df51e4499d2defadf565e7e7934adea484e2d8e5dfb816",
+    "EditorEvents/EditorAttackEvent.cs": "07f72d72d572ecce5751b3e756dc1ebf2a9825e5f9a21d4af66bd79dbf621aba",
+    "EditorActions/ActionDeleteModFromAttack.cs": "f08fa8265cebe34a312fbadeea7b3a298660a3ad89215f7d84d5c357f01fb990"
+  },
+  "LifecycleScope": "Unchanged UI creation/default modifier and delete-modifier do/undo methods; chart/modifier containers, not full editor runtime",
   "TransportScope": "Unchanged UIAttackEvent duration-to-cursor and jump-to-end methods; property/action/editor-position containers only",
-  "EditorTimingAdapterSHA256": "946a204302ac10eafbafc29d7c868fc86c6cc3c9b3b0d127ecac9ff138e9a51c",
+  "EditorTimingAdapterSHA256": "457d70fea5dd7a0eb3ec5c916090ab55d7946f017b39855356bcc59dc6243269",
   "LoaderSourcesSHA256": {
     "SMReader.cs": "22e6b561094fbe26642251cee146ca090f3d56ed970b306ae85103c39640bfe0",
     "SSCReader.cs": "7d8fc98ede83f65079270989eb4edcf88ea10dd275f0206eb68e35aa6ffc88e2",

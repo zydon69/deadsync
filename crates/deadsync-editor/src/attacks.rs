@@ -214,9 +214,6 @@ impl Attacks {
             return Err(invalid("Attack modifier does not exist"));
         }
         entry.modifiers.remove(modifier);
-        if entry.modifiers.is_empty() {
-            self.events.remove(event);
-        }
         Ok(())
     }
     pub fn remove(&mut self, event: usize) -> Result<(), Error> {
@@ -227,16 +224,10 @@ impl Attacks {
         Ok(())
     }
     pub fn serialize(&self) -> Result<Vec<u8>, Error> {
-        self.serialize_options(false)
-    }
-    pub(super) fn serialize_preserving_empty(&self) -> Result<Vec<u8>, Error> {
-        self.serialize_options(true)
-    }
-    fn serialize_options(&self, retain_empty: bool) -> Result<Vec<u8>, Error> {
         let mut entries = Vec::new();
         for event in &self.events {
             valid_time(event.time)?;
-            if retain_empty && event.modifiers.is_empty() {
+            if event.modifiers.is_empty() {
                 entries.push(format!("TIME={}:LEN=0:MODS=", event.time));
             }
             for modifier in &event.modifiers {
@@ -334,7 +325,7 @@ impl Draft {
         )
     }
 }
-/// Current default is one measure; the reference uses one beat (see docs/editor).
+/// UIEditEvents.CreateAttackEvent uses one beat at the active rate.
 pub fn default_length(session: &Session, chart: usize, row: u64) -> Result<f64, Error> {
     let clock = crate::playback::Clock::capture(session, chart)?;
     let rate = clock
@@ -343,7 +334,7 @@ pub fn default_length(session: &Session, chart: usize, row: u64) -> Result<f64, 
         .last()
         .map(|(_, rate)| rate)
         .ok_or_else(|| invalid("No tempo available for an attack duration"))?;
-    let length = rate.seconds_per_row() * crate::notes::ROWS_PER_MEASURE as f64;
+    let length = rate.seconds_per_row() * crate::notes::ROWS_PER_BEAT as f64;
     valid_time(length)?;
     Ok(length)
 }

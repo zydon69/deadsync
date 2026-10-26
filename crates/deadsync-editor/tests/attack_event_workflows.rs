@@ -250,6 +250,14 @@ fn modifier_deletion_and_event_movement_preserve_other_modifiers_and_reorder_by_
     attacks.remove_modifier(0, 0).unwrap();
     assert_eq!(attacks.events()[0].modifiers[0].name, "Reverse");
     attacks.remove_modifier(0, 0).unwrap();
+    assert_eq!(attacks.events().len(), 2);
+    assert_eq!(attacks.events()[0].time, -3.0);
+    assert!(attacks.events()[0].modifiers.is_empty());
+    assert_eq!(
+        Attacks::parse(&attacks.serialize().unwrap()).unwrap(),
+        attacks
+    );
+    attacks.remove(0).unwrap();
     assert_eq!(attacks.events().len(), 1);
     assert_eq!(attacks.events()[0].time, -1.0);
 }
@@ -278,11 +286,11 @@ fn attack_cursor_length_and_endpoint_use_chart_offset_but_ignore_audio_sync_offs
     rates.set_text(None, "BPMS", "0=120,4=240").unwrap();
     assert_eq!(
         deadsync_editor::attacks::default_length(&rates, 0, 191).unwrap(),
-        2.0
+        0.5
     );
     assert_eq!(
         deadsync_editor::attacks::default_length(&rates, 0, 192).unwrap(),
-        1.0
+        0.25
     );
 }
 

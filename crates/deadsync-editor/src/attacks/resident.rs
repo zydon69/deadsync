@@ -169,7 +169,7 @@ pub(crate) fn encode(
             })
             .collect(),
     };
-    attacks.serialize_preserving_empty()
+    attacks.serialize()
 }
 /// Called only on a staged transaction, after writing its ordinary ATTACKS tag.
 pub(crate) fn reconcile(

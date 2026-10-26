@@ -263,7 +263,7 @@ fn empty_attack_list_creation_and_clipboard_requests_remain_bound_to_the_active_
     let created = read(&s);
     assert_eq!(created.attacks().events()[0].time, 0.0);
     assert_eq!(created.attacks().events()[0].modifiers[0].name, "Reverse");
-    assert_eq!(created.attacks().events()[0].modifiers[0].length, 2.0);
+    assert_eq!(created.attacks().events()[0].modifiers[0].length, 0.5);
     ctrl(&mut s, KeyCode::KeyZ);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
 }
@@ -338,4 +338,103 @@ fn attack_transport_uses_resident_rows_with_delay_and_stop_and_preserves_them_on
     assert_eq!(placed.markers()[0].modifiers[0].length, 0.75);
     ctrl(&mut s, KeyCode::KeyZ);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+}
+
+#[test]
+fn empty_attack_keeps_time_editing_keyboard_transport_save_reopen_and_independent_event_deletion() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    for format in [Format::Sm, Format::Ssc] {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join(if format == Format::Sm {
+            "song.sm"
+        } else {
+            "song.ssc"
+        });
+        let notes = if format == Format::Sm {
+            "#NOTES:dance-single::Hard:9::1000;"
+        } else {
+            "#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;"
+        };
+        let source =
+            format!("#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=1:LEN=2:MODS=100% Dizzy;{notes}")
+                .into_bytes();
+        fs::write(&path, &source).unwrap();
+        let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+        open(&mut s);
+        field(&mut s, 3, "2.25");
+        field(&mut s, 4, "123 invalid name");
+        action(&mut s, 9);
+        press(&mut s, KeyCode::F5);
+        assert_eq!(s.workspace().row(), 216);
+        assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+        row(&mut s, 4);
+        assert!(!s.wants_text_input());
+        assert!(!s.text_input("Unexpected"));
+        press(&mut s, KeyCode::F3);
+        press(&mut s, KeyCode::F4);
+        assert_eq!(s.workspace().row(), 216);
+        field(&mut s, 3, "3");
+        press(&mut s, KeyCode::F2);
+        field(&mut s, 3, "NaN");
+        press(&mut s, KeyCode::F2);
+        press(&mut s, KeyCode::F5);
+        assert_eq!(s.workspace().row(), 216);
+        action(&mut s, 12);
+        let empty = s.workspace().file().session.serialize().unwrap();
+        let draft = read(&s);
+        assert_eq!(draft.attacks().events().len(), 1);
+        assert_eq!(draft.attacks().events()[0].time, 2.25);
+        assert!(draft.attacks().events()[0].modifiers.is_empty());
+        ctrl(&mut s, KeyCode::KeyS);
+        let mut reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+        ctrl(&mut reopened, KeyCode::KeyJ);
+        assert_eq!(reopened.workspace().row(), 216);
+        ctrl(&mut reopened, KeyCode::Enter);
+        row(&mut reopened, 3);
+        assert!(reopened.wants_text_input());
+        press(&mut reopened, KeyCode::Escape);
+        open(&mut s);
+        action(&mut s, 8);
+        action(&mut s, 12);
+        assert_eq!(read(&s).attacks().events()[0].modifiers[0].length, 0.5);
+        ctrl(&mut s, KeyCode::KeyZ);
+        assert_eq!(s.workspace().file().session.serialize().unwrap(), empty);
+        open(&mut s);
+        action(&mut s, 11);
+        action(&mut s, 12);
+        assert!(read(&s).attacks().events().is_empty());
+        ctrl(&mut s, KeyCode::KeyZ);
+        assert_eq!(s.workspace().file().session.serialize().unwrap(), empty);
+        ctrl(&mut s, KeyCode::KeyZ);
+        assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    }
+}
+#[test]
+fn new_attack_duration_is_one_beat_at_active_tempo_and_added_modifiers_reuse_first_length() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source=b"#VERSION:0.83;#BPMS:0=120,4=240;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    open(&mut s);
+    action(&mut s, 10);
+    action(&mut s, 12);
+    assert_eq!(read(&s).attacks().events()[0].modifiers[0].length, 0.5);
+    open(&mut s);
+    field(&mut s, 7, "3");
+    action(&mut s, 8);
+    press(&mut s, KeyCode::F4);
+    assert_eq!(s.workspace().row(), 384);
+    action(&mut s, 10);
+    action(&mut s, 12);
+    let draft = read(&s);
+    let events = draft.attacks().events();
+    assert_eq!(events.len(), 2);
+    assert_eq!(events[0].modifiers.len(), 2);
+    assert_eq!(events[0].modifiers[1].length, 3.0);
+    assert_eq!(events[1].modifiers[0].length, 0.25);
+    ctrl(&mut s, KeyCode::KeyS);
+    let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    assert_eq!(read(&reopened).attacks(), draft.attacks());
 }

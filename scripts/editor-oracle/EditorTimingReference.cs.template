@@ -26,6 +26,7 @@ internal class EventList<T> : List<T> where T:EditorEvent {
 internal class EventIntervalTree<T> : IntervalTree<double,T> where T:IEquatable<T> { }
 internal class EditorEvent(EditorChart chart, Event data) {
     public Event Data=data;
+    public static EditorEvent CreateEvent(EventConfig config)=>new EditorAttackEvent(config.Chart,config.Attack,[]);
     protected EditorChart EditorChart=chart;
     public double Time;
     public bool Fake;
@@ -46,10 +47,38 @@ internal class EditorEvent(EditorChart chart, Event data) {
 }
 // The attack UI methods below are injected unchanged from the pinned source.
 // These containers expose their temporal inputs and action result only.
-internal class EditorAttackEvent(EditorChart chart, Attack data, double[] lengths) : EditorEvent(chart,data) {
-    public class EditorModifier { public double LengthSeconds {get;set;} }
-    public EditorModifier[] Modifiers=lengths.Select(length=>new EditorModifier{LengthSeconds=length}).ToArray();
+internal class Notifier<T> {
+    public void AddObserver(object observer) { }
+    public void RemoveObserver(object observer) { }
+    protected void Notify(string name,T notifier) { }
 }
+internal class EditorAttackEvent : EditorEvent {
+    private readonly Attack AttackEvent;
+    private readonly List<EditorModifier> EditorModifiers=[];
+    private bool WidthDirty;
+    public IReadOnlyList<EditorModifier> Modifiers=>EditorModifiers;
+    public IReadOnlyList<EditorModifier> GetModifiers()=>EditorModifiers;
+    public EditorAttackEvent(EditorChart chart,Attack data,double[] lengths):base(chart,data) {
+        AttackEvent=data;
+        foreach(var modifier in data.Modifiers) EditorModifiers.Add(new EditorModifier(modifier));
+        foreach(var length in lengths) AddModifier(new Modifier {Name="Dizzy",Level=100.0,Speed=1.0,LengthSeconds=length});
+    }
+    // ATTACK_MODIFIER
+    // ATTACK_EVENT_METHODS
+}
+internal class EventConfig(EditorChart chart,Attack attack) {
+    public EditorChart Chart=chart;
+    public Attack Attack=attack;
+    // ATTACK_CONFIG_METHODS
+}
+internal abstract class UndoableAction(bool first,bool second) {
+    public abstract bool AffectsFile();
+    protected abstract void DoImplementation();
+    protected abstract void UndoImplementation();
+    public void Run()=>DoImplementation();
+    public void Undo()=>UndoImplementation();
+}
+    // ATTACK_DELETE_ACTION
 internal interface IAttackAction { void Apply(); }
 internal class ActionSetObjectFieldOrPropertyValue<T>(object target,string property,T value,bool unused) : IAttackAction {
     public void Apply()=>target.GetType().GetProperty(property)!.SetValue(target,value);
@@ -61,11 +90,16 @@ internal class ActionQueue {
 internal class AttackEditor {
     internal class Position {public double ChartTime;}
     public Position Current=new();
+    public EditorChart Chart=new();
+    public EditorChart GetFocusedChart()=>Chart;
     public Position GetPosition()=>Current;
     public void SetChartTime(double time)=>Current.ChartTime=time;
 }
 internal class AttackTransportReference {
     private readonly AttackEditor Editor=new();
+    public AttackTransportReference(EditorChart? chart=null) {if(chart!=null)Editor.Chart=chart;}
+    public EditorAttackEvent Create(int row,EditorRateAlteringEvent rate)=>(EditorAttackEvent)CreateAttackEvent(row,rate);
+    // ATTACK_CREATE_METHOD
     public double Length(EditorAttackEvent attack,EditorAttackEvent.EditorModifier mod,double cursor) {
         Editor.Current.ChartTime=cursor;SetModLengthFromCurrentTime(attack,mod);return mod.LengthSeconds;
     }
@@ -326,6 +360,21 @@ internal static class Reference {
         }
         if(request.TryGetProperty("Region",out var region)) chart.EditorEvents.Add(new EditorPatternEvent(chart,region[0].GetInt32(),region[1].GetInt32()));
         chart.Refresh();
+        if(request.TryGetProperty("AttackLifecycleRows",out var lifecycleRows)) {
+            var transport=new AttackTransportReference(chart);
+            return lifecycleRows.EnumerateArray().Select(rowValue=> {
+                var row=rowValue.GetInt32();
+                var rate=chart.RateAlteringEvents.FindActiveRateAlteringEventForPosition(row,true);
+                var attack=transport.Create(row,rate);chart.EditorEvents.Add(attack);chart.Refresh();
+                object Capture()=>new {Row=attack.GetRow(),Time=attack.GetChartTime(),Caption=attack.GetMiscEventText(),EventCount=chart.EditorEvents.OfType<EditorAttackEvent>().Count(),Modifiers=attack.Modifiers.Select(mod=>new {mod.Name,mod.Level,mod.Speed,Length=mod.LengthSeconds}).ToArray()};
+                var created=Capture();var action=new ActionDeleteModFromAttack(attack,0);
+                action.Run();chart.Refresh();var deleted=Capture();
+                action.Undo();chart.Refresh();var restored=Capture();
+                action.Run();chart.Refresh();var redone=Capture();
+                chart.EditorEvents.Remove(attack);chart.Refresh();
+                return new {Created=created,Deleted=deleted,Restored=restored,Redone=redone};
+            }).ToArray();
+        }
         if (request.TryGetProperty("AttackTimesOnly", out var attacksOnly) && attacksOnly.GetBoolean()) {
             var transport=new AttackTransportReference();
             return chart.EditorEvents.OfType<EditorAttackEvent>().Select(e => new {

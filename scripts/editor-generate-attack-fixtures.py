@@ -68,6 +68,11 @@ def main():
             expected_path = resident_request.with_name(resident_request.name.replace(".request.", ".expected."))
             expected_path.write_text(json.dumps(actual, indent=2, ensure_ascii=False) + "\n")
             resident_traces.append({"Name": resident_request.stem.removesuffix(".request"), "RequestSHA256": hashlib.sha256(resident_request.read_bytes()).hexdigest(), "ExpectedSHA256": hashlib.sha256(expected_path.read_bytes()).hexdigest()})
+        for lifecycle_request in sorted(fixtures.glob("attack-lifecycle*.request.json")):
+            actual=json.loads(subprocess.check_output([args.dotnet,str(project / "bin/Release/net10.0/EditorOracle.dll"),str(reference),str(lifecycle_request)],env=env))
+            expected_path=lifecycle_request.with_name(lifecycle_request.name.replace(".request.",".expected."))
+            expected_path.write_text(json.dumps(actual,indent=2,ensure_ascii=False)+"\n")
+            resident_traces.append({"Name":lifecycle_request.stem.removesuffix(".request"),"RequestSHA256":hashlib.sha256(lifecycle_request.read_bytes()).hexdigest(),"ExpectedSHA256":hashlib.sha256(expected_path.read_bytes()).hexdigest()})
     (fixtures / (prefix + ".expected.json")).write_text(json.dumps(cases, indent=2, ensure_ascii=False) + "\n")
     source = reference / "Fumen/Fumen/Converters/SMPropertyParsers.cs"
     manifest = {
@@ -90,6 +95,11 @@ def main():
         manifest["SourceTimingAdapterSHA256"] = hashlib.sha256((project / "SourceTimingReference.cs.template").read_bytes()).hexdigest()
         ui_source = subprocess.check_output(["git", "show", f"{helpers['EDITOR_PIN']}:StepManiaEditor/UI/UIAttackEvent.cs"], cwd=args.editor_root)
         manifest["AttackUiSourceSHA256"] = hashlib.sha256(ui_source).hexdigest()
+        manifest["AttackLifecycleSourcesSHA256"] = {
+            name: hashlib.sha256(subprocess.check_output(["git","show",f"{helpers['EDITOR_PIN']}:StepManiaEditor/{name}"],cwd=args.editor_root)).hexdigest()
+            for name in ["UI/UIEditEvents.cs","EditorEvents/EventConfig.cs","EditorEvents/EditorAttackEvent.cs","EditorActions/ActionDeleteModFromAttack.cs"]
+        }
+        manifest["LifecycleScope"] = "Unchanged UI creation/default modifier and delete-modifier do/undo methods; chart/modifier containers, not full editor runtime"
         manifest["TransportScope"] = "Unchanged UIAttackEvent duration-to-cursor and jump-to-end methods; property/action/editor-position containers only"
         manifest["EditorTimingAdapterSHA256"] = hashlib.sha256((project / "EditorTimingReference.cs.template").read_bytes()).hexdigest()
         manifest["LoaderSourcesSHA256"] = {
