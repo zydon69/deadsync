@@ -17,6 +17,7 @@ pub mod generation;
 pub mod history;
 pub mod music_file;
 pub mod notes;
+pub mod note_attributes;
 mod number;
 pub mod pad;
 pub mod playback;

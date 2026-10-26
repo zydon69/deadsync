@@ -498,6 +498,19 @@ impl Workspace {
     pub fn chart_properties(&self) -> Result<crate::chart_properties::Draft, Error> {
         crate::chart_properties::Draft::capture(&self.file.session, self.chart)
     }
+    pub fn note_attributes(&self, lane: u16) -> Result<crate::note_attributes::Draft, Error> {
+        let position = crate::notes::Position {
+            row: self.row(), lane, player: self.player(),
+        };
+        let note = self.grid().get(position)
+            .ok_or_else(|| Error::InvalidEdit("No note head at this position".into()))?;
+        Ok(crate::note_attributes::Draft::from_note(
+            &self.file.session, self.chart(), position, note,
+        ))
+    }
+    pub fn apply_note_attributes(&mut self, draft: &crate::note_attributes::Draft) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session, self.chart)
+    }
     pub fn song_properties(&self) -> Result<crate::song_properties::Draft, Error> {
         crate::song_properties::Draft::capture(&self.file.session)
     }

@@ -4,6 +4,7 @@ use crate::i18n;
 use deadlib_platform::input::KeyCode;
 use deadsync_editor::{
     chart_text::Field as ChartField,
+    note_attributes::Field as NoteField,
     song_text::Field as SongField,
     text_buffer::{Buffer, Movement},
 };
@@ -11,6 +12,7 @@ use deadsync_editor::{
 pub(super) enum Target {
     Chart(ChartField),
     Song(SongField),
+    Note(NoteField),
 }
 impl Target {
     pub(super) fn is_music(self) -> bool {
@@ -27,6 +29,8 @@ impl Target {
     }
     fn key(self) -> &'static str {
         match self {
+            Self::Note(NoteField::Head) => "NoteAttributesHead",
+            Self::Note(NoteField::Tail) => "NoteAttributesTail",
             Self::Chart(field) => match field {
                 ChartField::Name => "ChartName",
                 ChartField::Description => "ChartDescription",
@@ -53,6 +57,11 @@ impl Target {
 impl State {
     fn field_at(&self, index: usize) -> Option<Target> {
         match self.panel {
+            Some(Panel::NoteAttributes(_)) => match index {
+                1 => Some(Target::Note(NoteField::Head)),
+                2 => Some(Target::Note(NoteField::Tail)),
+                _ => None,
+            },
             Some(Panel::ChartText(_)) => ChartField::ALL.get(index).copied().map(Target::Chart),
             Some(Panel::SongText(_)) => SongField::ALL.get(index).copied().map(Target::Song),
             _ => None,
@@ -60,12 +69,15 @@ impl State {
     }
     fn field_value(&self, target: Target) -> Option<&str> {
         match target {
+            Target::Note(f) => self.note_attributes.as_ref().map(|d| d.text(f)),
             Target::Chart(f) => self.chart_properties.as_ref().map(|d| d.text(f)),
             Target::Song(f) => self.song_properties.as_ref().map(|d| d.text(f)),
         }
     }
     fn field_supported(&self, target: Target) -> bool {
         match target {
+            Target::Note(f) => self.note_attributes.as_ref()
+                .is_some_and(|d| f == NoteField::Head || d.note().end.is_some()),
             Target::Chart(f) => self
                 .chart_properties
                 .as_ref()
@@ -83,6 +95,7 @@ impl State {
     ) -> Result<(), deadsync_editor::Error> {
         let missing = || deadsync_editor::Error::InvalidEdit("No property draft is active".into());
         match target {
+            Target::Note(f) => self.note_attributes.as_mut().ok_or_else(missing)?.set_text(f, value),
             Target::Chart(f) => self
                 .chart_properties
                 .as_mut()
@@ -97,7 +110,7 @@ impl State {
     }
     pub(super) fn text_target(&self) -> Option<Target> {
         let index = match self.panel {
-            Some(Panel::ChartText(i) | Panel::SongText(i)) => i,
+            Some(Panel::ChartText(i) | Panel::SongText(i) | Panel::NoteAttributes(i)) => i,
             _ => return None,
         };
         self.field_at(index)
@@ -129,7 +142,7 @@ impl State {
         self.focus_text();
         self.status = i18n::tr("Edition", "SongTextHelp");
     }
-    fn focus_text(&mut self) {
+    pub(super) fn focus_text(&mut self) {
         self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
         self.text_buffer = self.text_target().and_then(|target| {
             self.field_value(target)

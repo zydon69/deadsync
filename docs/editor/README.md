@@ -5356,3 +5356,39 @@ Validation: all 57 native editor integration targets passed (286 tests) in
 owner, metadata, editing and selection suites passed 35 tests in
 `/tmp/deadsync-participant-count-core.log`. Theme compilation check passed in
 `/tmp/deadsync-participant-count-check.log`. Commands used `--jobs 2 --locked`.
+
+
+### Note attribute inspector (2026-10-26)
+
+`F1 → Transformations → Inspect note attributes` opens a keyboard inspector
+for a note head at the current row and active participant. The column selector
+shows note kind, participant, and head/end rows. Head suffixes and sustain-tail
+suffixes are staged separately; nonsustains have no editable tail field. Pending
+edits must be applied or cancelled before changing column. Empty positions remain
+safe and explicit. English and French strings are included, with bounded text
+width in the panel.
+
+The inspector reuses the existing Unicode/IME text buffer, selection, local
+undo/redo, and guarded clipboard requests. Up/Down/Tab move focus; PageUp/PageDown
+jump to the column/cancel rows; Escape discards the draft. Applying valid data
+creates one global note-history gesture. A no-op preserves redo. Invalid suffix
+syntax, simfile delimiters, or a stale/foreign/wrong-chart draft cannot change the
+chart; validation failure leaves the inspector open for correction. Saved SM/SSC
+notes retain kind, end row, owner, and untouched notes/unknown tags.
+
+This increment edits raw attached simfile suffixes (for example `[7]`), using the
+existing note parser and transaction validation. It does not yet provide typed
+attack-modifier or StepF2 attribute forms, create Keysound/Attack notes, or replace
+the existing kind-conversion/owner panels. No full GrooveAuthor parity or physical
+GPU/app review is claimed.
+
+Evidence: four new core inspector workflows cover all eight note kinds in SM/SSC,
+round trips, exact undo/redo, no-op redo preservation, invalid input, stale/foreign
+snapshots, and the current Routine participant. Two workflows per language cover
+keyboard cancel/apply/failure repair, save/reopen, field-local undo/redo, column
+selection, pending edits, unavailable fields, Unicode entry, and stale clipboard
+requests. The complete native edition integration run passed 290 tests across 59
+targets (`/tmp/deadsync-note-attributes-all-native.log`). Final targeted regression
+logs: `/tmp/deadsync-note-attributes-core.log` and
+`/tmp/deadsync-note-attributes-native.log`; compilation diagnostics:
+`/tmp/deadsync-note-attributes-check.log`.

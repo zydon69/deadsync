@@ -13,6 +13,7 @@ mod chart_rating;
 mod display_tempo;
 mod profile_edit;
 mod note_conversion;
+mod note_attributes;
 mod note_owners;
 mod text_fields;
 mod clipboard;
@@ -63,6 +64,7 @@ enum Panel {
     Menu(usize),
     Transforms(usize),
     NoteConversion(usize),
+    NoteAttributes(usize),
     NoteOwners(usize),
     Unsaved(usize),
     ConfirmDiscard,
@@ -255,6 +257,8 @@ pub struct State {
     display_tempo_input: Option<(usize, String)>,
     profile_edit: Option<profile_edit::Draft>,
     note_conversion: note_conversion::Settings,
+    note_attributes: Option<deadsync_editor::note_attributes::Draft>,
+    note_attribute_lane: u16,
     note_owners: note_owners::Settings,
     profile_saved_choices: Option<profile_edit::Choices>,
     profile_preference_history: std::collections::BTreeMap<u64, profile_edit::PreferenceChange>,
@@ -404,6 +408,8 @@ impl State {
             display_tempo_input: None,
             profile_edit: None,
             note_conversion: Default::default(),
+            note_attributes: None,
+            note_attribute_lane: 0,
             note_owners: Default::default(),
             profile_preference_history: Default::default(),
             profile_creations: Default::default(),
@@ -1396,7 +1402,7 @@ impl State {
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
         let repeating_text_cursor = matches!(
-            self.panel, Some(Panel::ChartText(_) | Panel::SongText(_) | Panel::ProfileText)
+            self.panel, Some(Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::ProfileText)
         )
             && matches!(
                 event.code,
@@ -1598,6 +1604,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if let Panel::NoteAttributes(index) = panel { self.note_attributes_key(index, code); return false; }
         if let Panel::NoteOwners(index) = panel { self.note_owners_key(index, code); return false; }
         if let Panel::NoteConversion(index) = panel { self.note_conversion_key(index, code); return false; }
         if let Panel::ProfileWeights(index) = panel { self.profile_weights_key(index, code); return false; }
@@ -1710,6 +1717,7 @@ impl State {
             Panel::ProfileDefaults(_) => unreachable!("profile defaults dispatched above"),
             Panel::ProfileSpeed(_) => unreachable!("profile speed dispatched above"),
             Panel::NoteOwners(_) => unreachable!("note owners dispatched above"),
+            Panel::NoteAttributes(_) => unreachable!("note inspector dispatched above"),
             Panel::NoteConversion(_) => unreachable!("note conversion dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
             Panel::ProfileEdit(_) => unreachable!("expression editing dispatched above"),
@@ -2138,7 +2146,7 @@ impl State {
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
                     Panel::Menu(_) => 16,
-                    Panel::Transforms(_) => 11,
+                    Panel::Transforms(_) => 12,
                     _ => 3,
                 };
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
@@ -2157,6 +2165,10 @@ impl State {
                 } else if code == KeyCode::Enter {
                     self.panel = None;
                     if matches!(panel, Panel::Transforms(_)) {
+                        if index == 11 {
+                            self.open_note_attributes();
+                            return false;
+                        }
                         if index == 10 {
                             self.note_owners.count = self.workspace.grid().players();
                             self.note_owners.a = self.workspace.player();
@@ -2587,7 +2599,7 @@ impl State {
                 "AnalysisTitle",
                 "DuplicateChart",
             ],
-            Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen", "NoteOwnersOpen"],
+            Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen", "NoteOwnersOpen", "NoteAttributesOpen"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
             Panel::ConfirmDiscard => &["ConfirmDiscard"],
             Panel::Regeneration(_) => &["RegeneratePattern", "RegeneratePatternSet", "KeepEditing"],
@@ -2646,6 +2658,7 @@ impl State {
                 "MarkerProfiles",
             ],
             Panel::NoteOwners(_) => &["NoteOwnersMode", "NoteOwnersA", "NoteOwnersB", "NoteOwnersCount", "NoteOwnersApply", "KeepEditing"],
+            Panel::NoteAttributes(_) => &["NoteAttributesLane", "NoteAttributesHead", "NoteAttributesTail", "NoteAttributesApply", "NoteAttributesCancel"],
             Panel::NoteConversion(_) => &["NoteConversionFrom", "NoteConversionTo", "NoteConversionDuration", "NoteConversionApply", "KeepEditing"],
             Panel::ConversionProfiles(_) => &[
                 "GenerationPerformedProfile",
@@ -2728,6 +2741,7 @@ impl State {
             | Panel::NewChart(i)
             | Panel::Menu(i)
             | Panel::NoteOwners(i)
+            | Panel::NoteAttributes(i)
             | Panel::NoteConversion(i)
             | Panel::Transforms(i)
             | Panel::Unsaved(i)
@@ -2938,6 +2952,8 @@ impl State {
                 self.profile_speed_label(index, key)
             } else if matches!(panel, Panel::NoteOwners(_)) {
                 self.note_owners_label(index, key)
+            } else if matches!(panel, Panel::NoteAttributes(_)) {
+                self.note_attributes_label(index, key)
             } else if matches!(panel, Panel::NoteConversion(_)) {
                 self.note_conversion_label(index, key)
             } else if matches!(panel, Panel::ProfileEdit(_)) {
@@ -3168,7 +3184,7 @@ impl State {
                 let y=panel_y-panel_height*0.5+extra_height+30.0+(index-menu_start) as f32*32.0;
                 actors.push(act!(quad: xy(panel_x+panel_width*0.5-20.0,y): zoomto(16.0,16.0): diffuse(rgba[0],rgba[1],rgba[2],rgba[3]): z(8022)));
             }
-            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_) | Panel::ProfileEdit(_) | Panel::ProfileText) {
+            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::ProfileEdit(_) | Panel::ProfileText) {
                 if let Some(Actor::Text { max_width, .. }) = actors.last_mut() {
                     *max_width = Some(panel_width - 30.0);
                 }
