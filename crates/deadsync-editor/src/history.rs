@@ -27,6 +27,12 @@ enum Change {
         source: Box<crate::generation::profiles::ProfileFile>,
         deleted: Option<crate::generation::profiles::DeletedProfile>,
     },
+    ProfileCreation {
+        profile: Box<crate::generation::profiles::Profile>,
+        directory: std::path::PathBuf,
+        file: Option<Box<crate::generation::profiles::ProfileFile>>,
+        removed: Option<crate::generation::profiles::DeletedProfile>,
+    },
     DocumentSwap(Box<DocumentState>),
     Notes {
         chart: usize,
@@ -352,7 +358,7 @@ impl Session {
             .collect();
         fn allowed(change: &Change, chart: usize) -> bool {
             match change {
-                Change::DocumentSwap(_) | Change::ProfileDeletion { .. } => false,
+                Change::DocumentSwap(_) | Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } => false,
                 Change::Notes { chart: target, .. } => *target == chart,
                 Change::Group(changes) => changes.iter().all(|change| allowed(change, chart)),
                 _ => true,
@@ -370,8 +376,24 @@ impl Session {
         Ok(true)
     }
 
-    /// Delete a custom profile and repair all active-song references as one
-    /// gesture in the same history as notes and chart properties.
+    /// Create a profile as one disk-only gesture in global history.
+    /// Existing library identities and destination files remain protected.
+    pub fn create_profile(&mut self, directory: &std::path::Path, profile: &crate::generation::profiles::Profile) -> Result<std::path::PathBuf, Error> {
+        if !self.allows_external_edits {
+            return Err(Error::InvalidEdit("Staged chart edits cannot create profile files".into()));
+        }
+        let loaded = crate::generation::profiles::Loaded::directory(directory)?;
+        if loaded.profiles.contains_key(&(profile.config().kind(), profile.guid().clone())) {
+            return Err(Error::InvalidEdit("A profile with this identity already exists in the library".into()));
+        }
+        let path = directory.join(profile.filename());
+        self.execute("Create generation profile".into(), Change::ProfileCreation {
+            profile: Box::new(profile.clone()), directory: directory.to_owned(), file: None, removed: None,
+        })?;
+        Ok(path)
+    }
+
+    /// Delete a custom profile and repair active-song references as one gesture.
     pub fn delete_profile(&mut self, file: &crate::generation::profiles::ProfileFile) -> Result<(), Error> {
         if !self.allows_external_edits {
             return Err(Error::InvalidEdit("Staged chart edits cannot delete profile files".into()));
@@ -678,7 +700,7 @@ impl Session {
         self.apply(&mut change, true)?;
         fn affects_song(change: &Change) -> bool {
             match change {
-                Change::ProfileDeletion { .. } => false,
+                Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } => false,
                 Change::Group(changes) => changes.iter().any(affects_song),
                 _ => true,
             }
@@ -713,6 +735,21 @@ impl Session {
                         }
                         return Err(error);
                     }
+                }
+                Ok(())
+            }
+            Change::ProfileCreation { profile, directory, file, removed } => {
+                if forward {
+                    if let Some(removed) = removed {
+                        removed.restore()?;
+                    } else {
+                        *file = Some(Box::new(profile.export_new(directory)?));
+                    }
+                } else if let Some(removed) = removed {
+                    removed.delete_again()?;
+                } else {
+                    let source = file.as_ref().ok_or_else(|| Error::InvalidEdit("Missing created profile snapshot".into()))?;
+                    *removed = Some(source.delete()?);
                 }
                 Ok(())
             }

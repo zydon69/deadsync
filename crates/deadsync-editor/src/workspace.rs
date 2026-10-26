@@ -101,6 +101,10 @@ impl Workspace {
         })
     }
 
+    pub fn create_profile(&mut self, directory: &Path, profile: &crate::generation::profiles::Profile) -> Result<std::path::PathBuf, Error> {
+        self.file.session.create_profile(directory, profile)
+    }
+
     pub fn delete_profile(&mut self, file: &crate::generation::profiles::ProfileFile) -> Result<(), Error> {
         self.file.session.delete_profile(file)
     }

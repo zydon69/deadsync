@@ -5020,3 +5020,27 @@ Validation: all 47 native editor integration targets passed (266 tests) in
 suites passed 8 tests in `/tmp/deadsync-profile-transfer-core.log`. The theme
 compilation check passed in `/tmp/deadsync-profile-transfer-check.log`. Commands
 used `--jobs 2 --locked`.
+
+### Global history foundation for profile-copy creation
+
+`Session::create_profile` and the Workspace facade now support a profile creation
+as a disk-only global history gesture. Initial publication uses the same guarded
+no-clobber library export; undo retains a private exact-byte backup and removes
+the new file; redo restores it without clobbering a recreated destination. Created
+files modified externally cannot be silently removed. Same-family GUID collisions
+under another recognized filename are rejected before publication. Failed creates
+do not erase an existing redo branch, and staged chart transactions cannot create
+external files. Profile creations participate in ordinary history ordering while
+leaving the song-content dirty state unchanged.
+
+Tests cover all three profile families, note/property history ordering, exact
+restoration and identity, external undo conflicts, redo destination conflicts,
+identity collisions, nested staging rejection, failed-create redo preservation,
+and abandoning an undone creation branch. Native Save copy still uses its existing
+export path: it must be connected only after open chart/marker drafts can retain
+their pending values across this disk-only history revision. No native creation
+undo workflow is claimed yet.
+
+Validation: three selected core integration suites passed all 17 tests in
+`/tmp/deadsync-profile-create-core.log`; the theme compilation check passed in
+`/tmp/deadsync-profile-create-check.log`. Commands used `--jobs 2 --locked`.
