@@ -21,6 +21,59 @@ var options = new JsonSerializerOptions
 };
 var request = JsonDocument.Parse(File.ReadAllBytes(args[1])).RootElement;
 var operation = request.GetProperty("Operation").GetString();
+// File-level attack placement uses the actual pinned readers and SetAttackRowsAndTimes.
+if (operation == "AttackPlacement") {
+    System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+    var results = new List<object>();
+    foreach (var item in request.GetProperty("Cases").EnumerateArray()) {
+        var format = item.GetProperty("Format").GetString()!;
+        var content = item.GetProperty("Content").GetString()!;
+        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid() + "." + format);
+        try {
+            await File.WriteAllTextAsync(path, content);
+            Fumen.Converters.Reader reader = format == "sm" ? new Fumen.Converters.SMReader(path) : new Fumen.Converters.SSCReader(path);
+            var song = await reader.LoadAsync(CancellationToken.None);
+            var charts = new List<object>();
+            foreach (var attackChart in song.Charts) {
+                var timing = new List<object[]>();
+                foreach (var e in attackChart.Layers[0].Events) {
+                    object[]? value = e switch {
+                        Tempo t => [e.IntegerPosition, "tempo", t.TempoBPM],
+                        Stop t => [e.IntegerPosition, t.IsDelay ? "delay" : "stop", t.LengthSeconds],
+                        Warp t => [e.IntegerPosition, "warp", t.LengthIntegerPosition],
+                        FakeSegment t => [e.IntegerPosition, "fake", t.LengthIntegerPosition],
+                        TimeSignature t => [e.IntegerPosition, "signature", t.Signature.Numerator, t.Signature.Denominator],
+                        ScrollRate t => [e.IntegerPosition, "scroll", t.Rate],
+                        ScrollRateInterpolation => [e.IntegerPosition, "speed"],
+                        TickCount => [e.IntegerPosition, "tick"], Multipliers => [e.IntegerPosition, "combo"],
+                        Label => [e.IntegerPosition, "label"], Attack => [e.IntegerPosition, "attack"], _ => null,
+                    };
+                    if (value != null) timing.Add(value);
+                }
+                var noteEvents = attackChart.Layers[0].Events.OfType<LaneNote>().ToArray();
+                var editorNotes = new List<object[]>();
+                foreach (var note in noteEvents.Where(note => note is not LaneHoldEndNote)) {
+                    if (note is LaneHoldStartNote) {
+                        var tail = noteEvents.OfType<LaneHoldEndNote>().First(tail => tail.Lane == note.Lane && tail.IntegerPosition > note.IntegerPosition);
+                        editorNotes.Add([note.IntegerPosition, note.Lane, note.SourceType, tail.IntegerPosition]);
+                    } else editorNotes.Add([note.IntegerPosition, note.Lane, note.SourceType]);
+                }
+                var editorTimes = EditorTimingOracle.Reference.Run(JsonSerializer.SerializeToElement(new {
+                    Timing = timing, Notes = editorNotes, AttackTimesOnly = true
+                }), args[0]);
+                charts.Add(new {
+                    Offset = attackChart.ChartOffsetFromMusic, EditorAttacks = editorTimes,
+                    Attacks = attackChart.Layers[0].Events.OfType<Attack>().Select(e => new {
+                        Row = e.IntegerPosition, Time = e.TimeSeconds,
+                        Modifiers = e.Modifiers.Select(m => new { m.Name, m.Level, m.Speed, Length = m.LengthSeconds }).ToArray()
+                    }).ToArray()
+                });
+            }
+            results.Add(new { Format = format, Content = content, Charts = charts });
+        } finally { File.Delete(path); }
+    }
+    Console.WriteLine(JsonSerializer.Serialize(results, options)); return;
+}
 // Execute the pinned Fumen attack parser directly; no reimplementation in this adapter.
 if (operation == "Attacks") {
     System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;

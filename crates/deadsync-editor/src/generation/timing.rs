@@ -239,7 +239,7 @@ pub(crate) struct ClockSample {
     pub warping: bool,
 }
 impl Clock {
-    fn event(&mut self, row: i64, kind: Option<EventKind>) -> f64 {
+    pub(crate) fn event(&mut self, row: i64, kind: Option<EventKind>) -> f64 {
         self.sample(row, kind, false).time
     }
 

@@ -15,6 +15,7 @@ mod profile_edit;
 mod note_conversion;
 mod note_attributes;
 mod attacks;
+mod attack_view;
 mod note_owners;
 mod text_fields;
 mod clipboard;
@@ -262,6 +263,7 @@ pub struct State {
     note_attributes: Option<deadsync_editor::note_attributes::Draft>,
     note_attribute_lane: u16,
     attacks: Option<attacks::Settings>,
+    attack_view: Option<attack_view::Cache>,
     note_owners: note_owners::Settings,
     profile_saved_choices: Option<profile_edit::Choices>,
     profile_preference_history: std::collections::BTreeMap<u64, profile_edit::PreferenceChange>,
@@ -414,6 +416,7 @@ impl State {
             note_attributes: None,
             note_attribute_lane: 0,
             attacks: None,
+            attack_view: None,
             note_owners: Default::default(),
             profile_preference_history: Default::default(),
             profile_creations: Default::default(),
@@ -1242,6 +1245,7 @@ impl State {
 
     fn refresh(&mut self) {
         self.refresh_spacing_cache();
+        self.refresh_attack_view();
         self.refresh_waveform();
         self.refresh_sample_region();
         if !self.workspace.has_chart() {
@@ -1468,6 +1472,14 @@ impl State {
             return false;
         }
         self.stop_audio();
+        if self.control && matches!(event.code, KeyCode::Enter | KeyCode::NumpadEnter) {
+            self.open_attack_at_cursor();
+            return false;
+        }
+        if self.control && event.code == KeyCode::KeyJ {
+            self.navigate_attack(!self.shift);
+            return false;
+        }
         if self.control && self.shift && event.code == KeyCode::Backspace {
             self.open_chart_deletion();
             return false;
@@ -2329,7 +2341,8 @@ impl State {
         let last_row = grid.last_row()
             .max(self.workspace.row().saturating_add(48 * 16))
             .max(self.region_index.last_row())
-            .max(label_end);
+            .max(label_end)
+            .max(self.attack_last_row());
         let ranges = match projection.visible_ranges(top, bottom, last_row) {
             Ok(ranges) => ranges,
             Err(error) => {
@@ -2347,6 +2360,7 @@ impl State {
         };
         self.waveform_actors(actors, field_center, field_width, top, bottom, &projection);
         self.sample_region_actors(actors, field_center, field_width, top, bottom, &projection);
+        self.attack_actors(actors, left, top, bottom, &projection, &ranges);
         for lane in 0..=grid.columns() {
             actors.push(act!(quad: xy(left + f32::from(lane) * lane_width, (top + bottom) * 0.5): zoomto(1.0, bottom - top): diffuse(0.12, 0.16, 0.22, 1.0): z(8001)));
         }

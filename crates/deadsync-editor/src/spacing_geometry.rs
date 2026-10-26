@@ -304,6 +304,78 @@ impl<'a> Frame<'a> {
         )?;
         helper.row_y(row, self.anchors[section], |row| rate.mapping.time_at(row))
     }
+    /// Clipped row-interval pieces through visible rate sections. Preserve turns
+    /// and frozen sections instead of joining endpoints across a signed scroll.
+    pub fn region_segments(
+        &self,
+        start: f64,
+        end: f64,
+        visible: &[VisibleRows],
+        top: f64,
+        bottom: f64,
+        limit: usize,
+    ) -> Result<Vec<(f64, f64)>, Error> {
+        if ![start, end, top, bottom]
+            .iter()
+            .all(|value| value.is_finite())
+            || start < 0.0
+            || start > end
+            || top > bottom
+            || !(1..=4096).contains(&limit)
+        {
+            return Err(Error::InvalidEdit("Invalid region geometry".into()));
+        }
+        let mut result = Vec::new();
+        for span in visible {
+            let rate = self
+                .origin
+                .index
+                .sections()
+                .get(span.section)
+                .ok_or_else(|| Error::InvalidEdit("Invalid visible rate section".into()))?;
+            let section_start = if span.section == 0 {
+                0.0
+            } else {
+                rate.mapping.row()
+            };
+            let lower = start.max(section_start).max(span.start as f64);
+            let upper = end.min(span.end as f64).min(
+                self.origin
+                    .index
+                    .sections()
+                    .get(span.section + 1)
+                    .map_or(end, |next| next.mapping.row()),
+            );
+            if lower > upper {
+                continue;
+            }
+            let settings = self.origin.settings;
+            let mut helper = Helper::new(settings.mode, settings.reverse);
+            helper.update(
+                rate.spacing_rate(),
+                settings.speeds,
+                settings.interpolated_scroll,
+                settings.zoom,
+            )?;
+            let a = helper.row_y(lower, self.anchors[span.section], |row| {
+                rate.mapping.time_at(row)
+            })?;
+            let b = helper.row_y(upper, self.anchors[span.section], |row| {
+                rate.mapping.time_at(row)
+            })?;
+            if a.max(b) < top || a.min(b) > bottom {
+                continue;
+            }
+            let band = (a.min(b).clamp(top, bottom), a.max(b).clamp(top, bottom));
+            if result.last() != Some(&band) {
+                result.push(band);
+            }
+            if result.len() == limit {
+                break;
+            }
+        }
+        Ok(result)
+    }
     pub fn visible_rows(
         &self,
         top: f64,

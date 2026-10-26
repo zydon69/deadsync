@@ -47,7 +47,7 @@ reviewable and tested.
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
-| Attack events | F10 optional keyboard inspector: song/chart scope, multiple modifiers per instant, name/level/speed/duration, insertion/deletion, move time, cursor/end navigation, transactional history | Executed pinned Fumen parser fixtures plus core/native EN/FR workflows; chart widgets, permissive malformed-input normalization and broader file corpus remain pending |
+| Attack events | F10 optional keyboard inspector: song/chart scope, multiple modifiers per instant, name/level/speed/duration, insertion/deletion, move time, cursor/end navigation, transactional history | Executed pinned Fumen parser fixtures plus core/native EN/FR workflows; native widgets and maximum-duration overview shipped; resident row anchoring across timing edits, permissive malformed-input normalization and broader file corpus remain pending |
 | Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; layout weight addition/inheritance are connected; library undo/deletion and broader runtime parity remain pending |
@@ -5465,3 +5465,84 @@ Final validation for this increment: 300 native edition integration tests across
 61 targets, 32 core tests across four targeted suites, and theme compilation check
 passed. Existing timing navigation helpers now account for the added eleventh
 menu row; their assertions and timing behavior coverage are retained.
+
+
+### Attack widgets and source-derived placement (2026-10-26)
+
+The chart now displays attack heads, compact modifier captions and a maximum
+modifier-duration overview. Coincident loader rows combine into one widget while
+retaining every raw attack-record index and modifier. A coincident pixel in a
+frozen/dense view reports the number of displayed markers. Rendering has a budget
+of 64 widget candidates and 16 duration pieces per candidate; this affects only
+the overview, never the document or inspector contents. A 4,000-record native
+workflow checks the bounds and confirms all records remain in the working file.
+
+`Ctrl/Cmd+J` goes to the next attack; Shift selects the previous one. Navigation
+wraps in logical row order. `Ctrl/Cmd+Enter` opens the attack at the current row,
+selecting its actual source record instead of the first attack in the file.
+Modern SSC opens chart scope, including inherited shared data; SM opens song
+scope. Editing an inherited widget creates an independent local attack property,
+and undo restores both the source and annotation. Other coincident raw records
+remain accessible through the inspector's event selector. No main-menu entry or
+additional F1 page is introduced.
+
+`attacks::placement::Timeline` first runs the pinned Fumen file-clock placement
+algorithm, including absolute offsets, note tails, same-time/coincident-row
+merges, stop/warp tracking and original source encounter order. It then refreshes
+editor event times with the actual attack phase (6), before delays and notes.
+This pass includes the note heads and unique attack rows: querying only the rate
+snapshots can differ by one ULP after a warp. Source records and original tags
+are never changed by building these display snapshots.
+
+The native cache belongs to document identity, revision and chart. It uses the
+current loaded grid for unsaved notes and rebuilds after edits, undo/redo and
+chart changes. Actor construction reads the cache and performs bounded geometry
+queries; it does not parse or serialize simfiles. Malformed attack data gets an
+explicit localized annotation/status while ordinary note editing remains usable.
+
+Constant-row and constant-time duration bands use their respective axes. Variable
+spacing draws the interval through initialized rate sections, retaining turns and
+frozen sections instead of joining endpoints across a negative scroll. Bands,
+heads and captions are bounded by the chart viewport. The first rate section also
+covers rows preceding its timing event. The overlay uses the same projection as
+the chart, including reverse display.
+
+Evidence: nine real SM/SSC file traces are generated by running the unchanged
+Fumen readers and `SetAttackRowsAndTimes`, then the original GrooveAuthor timing
+refresh methods with container adapters. Rust compares exact rows, loader times,
+editor-phase times and all modifier fields. Cases include offsets, LEN durations,
+coincident source times, delays/stops, negative stops, warps, a time signature
+inside a warp, notes/hold tails, independent chart scope, no BPM and unsorted
+attack records. The generator additionally re-executes three existing original
+timing traces and requires their outputs to remain unchanged.
+
+Three core placement workflows and two interval-geometry workflows verify the
+reference data, index/navigation, crossing durations, unsaved-note consistency,
+attack-before-delay ordering, clipping, reverse/frozen/negative scroll and the
+pre-first-rate interval. Five native workflows per language cover direct
+inspection/edit/save/history, all display modes, bounded dense overviews,
+malformed data, chart switching and scope isolation. These exercise actual native
+key dispatch and actors, not a physical GPU/window or audible gameplay session.
+
+Regenerate placement and editor-time expectations with the existing oracle:
+
+```sh
+python3 scripts/editor-generate-attack-fixtures.py --placement \
+  --reference-root /tmp/deadsync-grooveauthor-step-library \
+  --dotnet /tmp/deadsync-dotnet10/dotnet
+```
+
+The `attack-placement*` fixtures record reader/helper pins and hashes. Validation
+logs use `/tmp/deadsync-attack-placement-{oracle,core,all-native,check}.log`.
+
+Required parity work remains: the editor still derives these placements from its
+working time-based attack records. GrooveAuthor's resident row anchoring across
+tempo/offset edits, alignment of the inspector's raw-file-time transport shortcuts
+with these mapped anchors on irregular clocks, complete miscellaneous-event
+selection/clipboard and full attack-effect playback preview remain unfinished. This increment does not claim
+complete attack/editor parity or replace that work with the display snapshot.
+
+Final validation: 310 native edition integration tests across 63 targets,
+41 core tests across seven targeted suites, and theme compilation check passed.
+The final tree includes the empty-timeline render fast path, avoiding a second
+rate-section traversal for ordinary charts without attacks.

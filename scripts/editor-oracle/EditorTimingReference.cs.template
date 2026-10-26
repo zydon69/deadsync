@@ -280,6 +280,7 @@ internal static class Reference {
                 "fake"=>new EditorFakeSegmentEvent(chart,new FakeSegment(item[2].GetInt32())),
                 "scroll"=>new EditorScrollRateEvent(chart,new ScrollRate(item[2].GetDouble())),
                 "label"=>new EditorEvent(chart,new Label("label")),
+                "attack"=>new EditorEvent(chart,new Attack()),
                 "tick"=>new EditorEvent(chart,new TickCount(4)),
                 "combo"=>new EditorEvent(chart,new Multipliers(1,1)),
                 "speed"=>new EditorEvent(chart,new ScrollRateInterpolation(1,48,0,false)),
@@ -295,6 +296,8 @@ internal static class Reference {
         }
         if(request.TryGetProperty("Region",out var region)) chart.EditorEvents.Add(new EditorPatternEvent(chart,region[0].GetInt32(),region[1].GetInt32()));
         chart.Refresh();
+        if (request.TryGetProperty("AttackTimesOnly", out var attacksOnly) && attacksOnly.GetBoolean())
+            return chart.EditorEvents.Where(e => e.Data is Attack).Select(e => new { Row = e.GetRow(), Time = e.GetChartTime() }).ToArray();
         if (request.TryGetProperty("TempoSummary",out var tempoSummary) && tempoSummary.GetBoolean()) return chart.CaptureTempoSummary();
         if (request.TryGetProperty("SpeedOrigins",out var speedOrigins) && speedOrigins.GetBoolean()) {
             return chart.EditorEvents.Where(e=>e.GetEvent() is ScrollRateInterpolation)

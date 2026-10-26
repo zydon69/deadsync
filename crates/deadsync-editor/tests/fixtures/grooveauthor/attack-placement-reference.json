@@ -1,0 +1,23 @@
+{
+  "StepManiaLibrary": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "Fumen": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "ParserSourceSHA256": "64a042d72dd1dfe66a6f13237eb769c0ec219ca745de8af3caaf13050c2bef1e",
+  "AdapterSHA256": "bb5b08ca8cc6fe745850bbdaca23c13b8e2c54de1f135974b5e54b4e4fac7933",
+  "RequestSHA256": "6aaec7b2e2143872b70e85ffd6bec3ea7700603646dbde08248570f5417bc1e5",
+  "Cases": 9,
+  "Scope": "Unmodified Fumen readers/SetAttackRowsAndTimes followed by original GrooveAuthor timing refresh with event-container adapters",
+  "GrooveAuthor": "48e18f71655d0f0d86144c63239331833501fda2",
+  "UnchangedTimingTraces": [
+    "editor-timing-baseline",
+    "editor-timing-warp",
+    "editor-timing-negative-stop-delay"
+  ],
+  "EditorTimingMethodsSHA256": "aa750e7bfaee572d9d4fbd0d66bf8d5cae74f9498a86a84b033b22bbc6225d5a",
+  "EditorTimingAdapterSHA256": "128d3ae9b4d9d19da0b5d7602d33d00055c0c575fd7aaafe327a853be6a70d36",
+  "LoaderSourcesSHA256": {
+    "SMReader.cs": "22e6b561094fbe26642251cee146ca090f3d56ed970b306ae85103c39640bfe0",
+    "SSCReader.cs": "7d8fc98ede83f65079270989eb4edcf88ea10dd275f0206eb68e35aa6ffc88e2",
+    "SMCommon.cs": "8517ace018aeb788808be9e584f289620c00f59e94ac114ffec130952f65160a",
+    "SMPropertyParsers.cs": "64a042d72dd1dfe66a6f13237eb769c0ec219ca745de8af3caaf13050c2bef1e"
+  }
+}

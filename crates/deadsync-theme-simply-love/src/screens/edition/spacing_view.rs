@@ -58,6 +58,65 @@ impl Projection<'_> {
             Self::Variable { geometry, .. } => geometry.row_y(row, 0).ok(),
         }
     }
+    pub(super) fn attack_y(
+        &self,
+        marker: &deadsync_editor::attacks::placement::Marker,
+    ) -> Option<f64> {
+        match self {
+            Self::Variable { geometry, .. } => geometry.row_y(marker.row as f64, 6).ok(),
+            _ => self.sample_y(marker.row as f64, marker.chart_time),
+        }
+    }
+    pub(super) fn attack_sections(
+        &self,
+        top: f32,
+        bottom: f32,
+        last: u64,
+    ) -> Vec<deadsync_editor::spacing_geometry::VisibleRows> {
+        match self {
+            Self::Variable { geometry, .. } => geometry
+                .visible_rows(f64::from(top), f64::from(bottom), last)
+                .unwrap_or_default(),
+            _ => Vec::new(),
+        }
+    }
+    pub(super) fn attack_segments(
+        &self,
+        marker: &deadsync_editor::attacks::placement::Marker,
+        sections: &[deadsync_editor::spacing_geometry::VisibleRows],
+        top: f32,
+        bottom: f32,
+        limit: usize,
+    ) -> Vec<(f64, f64)> {
+        if marker.end_time <= marker.chart_time {
+            return Vec::new();
+        }
+        if let Self::Variable { geometry, .. } = self {
+            return geometry
+                .region_segments(
+                    marker.row as f64,
+                    marker.end_row,
+                    sections,
+                    f64::from(top),
+                    f64::from(bottom),
+                    limit,
+                )
+                .unwrap_or_default();
+        }
+        let (Some(a), Some(b)) = (
+            self.attack_y(marker),
+            self.sample_y(marker.end_row, marker.end_time),
+        ) else {
+            return Vec::new();
+        };
+        if a.max(b) < f64::from(top) || a.min(b) > f64::from(bottom) {
+            return Vec::new();
+        }
+        vec![(
+            a.min(b).clamp(f64::from(top), f64::from(bottom)),
+            a.max(b).clamp(f64::from(top), f64::from(bottom)),
+        )]
+    }
     pub(super) fn music_interval(&self, y: f64, next_y: f64, clock: &Clock) -> Option<(f64, f64)> {
         match self {
             Self::Rows(_, None) => None,

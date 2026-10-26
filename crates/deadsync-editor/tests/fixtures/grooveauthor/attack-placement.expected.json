@@ -1,0 +1,497 @@
+[
+  {
+    "Format": "ssc",
+    "Content": "#VERSION:0.83;#BPMS:0=120;#OFFSET:0.25;#ATTACKS:TIME=-0.5:LEN=1:MODS=100% Dizzy:TIME=0.75:LEN=2:MODS=50% Drunk:TIME=0.751:LEN=3:MODS=no Reverse:TIME=2.5:LEN=0:MODS=*2 -25% Confusion;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000,\n0100\n0000\n0000\n0000;",
+    "Charts": [
+      {
+        "Offset": 0.25,
+        "EditorAttacks": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 96,
+            "Time": 1
+          },
+          {
+            "Row": 264,
+            "Time": 2.75
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 0,
+            "Time": 0,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          },
+          {
+            "Row": 96,
+            "Time": 1,
+            "Modifiers": [
+              {
+                "Name": "Drunk",
+                "Level": 50,
+                "Speed": 1,
+                "Length": 2
+              },
+              {
+                "Name": "Reverse",
+                "Level": 0,
+                "Speed": 1,
+                "Length": 3
+              }
+            ]
+          },
+          {
+            "Row": 264,
+            "Time": 2.75,
+            "Modifiers": [
+              {
+                "Name": "Confusion",
+                "Level": -25,
+                "Speed": 2,
+                "Length": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Format": "ssc",
+    "Content": "#VERSION:0.83;#BPMS:0=120;#DELAYS:4=1;#STOPS:8=1;#ATTACKS:TIME=1.5:LEN=1:MODS=100% Dizzy:TIME=2:LEN=1:MODS=100% Drunk:TIME=2.5:LEN=1:MODS=100% Mini:TIME=5.25:LEN=1:MODS=100% Reverse;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000,\n0100\n0000\n0000\n0000;",
+    "Charts": [
+      {
+        "Offset": 0,
+        "EditorAttacks": [
+          {
+            "Row": 144,
+            "Time": 1.5
+          },
+          {
+            "Row": 192,
+            "Time": 2
+          },
+          {
+            "Row": 312,
+            "Time": 4.25
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              },
+              {
+                "Name": "Mini",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Modifiers": [
+              {
+                "Name": "Drunk",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          },
+          {
+            "Row": 312,
+            "Time": 6,
+            "Modifiers": [
+              {
+                "Name": "Reverse",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Format": "ssc",
+    "Content": "#VERSION:0.83;#BPMS:0=120,8=240;#WARPS:4=4;#ATTACKS:TIME=1.99:LEN=1:MODS=100% Dizzy:TIME=2:LEN=1:MODS=100% Drunk:TIME=2.5:LEN=2:MODS=100% Mini;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000,\n0100\n0000\n0000\n0000;",
+    "Charts": [
+      {
+        "Offset": 0,
+        "EditorAttacks": [
+          {
+            "Row": 191,
+            "Time": 1.9895833333333333
+          },
+          {
+            "Row": 192,
+            "Time": 2
+          },
+          {
+            "Row": 480,
+            "Time": 2.5
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 191,
+            "Time": 1.9895833333333333,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Modifiers": [
+              {
+                "Name": "Drunk",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          },
+          {
+            "Row": 480,
+            "Time": 2.5,
+            "Modifiers": [
+              {
+                "Name": "Mini",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Format": "ssc",
+    "Content": "#VERSION:0.83;#BPMS:0=120;#STOPS:4=-1,8=0.5;#ATTACKS:TIME=1.5:LEN=1:MODS=100% Dizzy:TIME=2:LEN=1:MODS=100% Drunk:TIME=3.5:LEN=2:MODS=100% Mini;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:2000\n0000\n0000\n0000,\n0000\n3000\n0000\n0000;",
+    "Charts": [
+      {
+        "Offset": 0,
+        "EditorAttacks": [
+          {
+            "Row": 144,
+            "Time": 1.5
+          },
+          {
+            "Row": 192,
+            "Time": 2
+          },
+          {
+            "Row": 384,
+            "Time": 3
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          },
+          {
+            "Row": 192,
+            "Time": 2,
+            "Modifiers": [
+              {
+                "Name": "Drunk",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          },
+          {
+            "Row": 384,
+            "Time": 3.5,
+            "Modifiers": [
+              {
+                "Name": "Mini",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Format": "ssc",
+    "Content": "#VERSION:0.83;#BPMS:0=120;#WARPS:4=8;#TIMESIGNATURES:6=3=4;#SCROLLS:8=-1;#ATTACKS:TIME=2:LEN=3:MODS=100% Reverse:TIME=2.1:LEN=1:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000,\n0000\n0000\n0000\n0000,\n0000\n0000\n0000\n0000,\n0100;",
+    "Charts": [
+      {
+        "Offset": 0,
+        "EditorAttacks": [
+          {
+            "Row": 192,
+            "Time": 2
+          },
+          {
+            "Row": 586,
+            "Time": 2.104166666666666
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 192,
+            "Time": 2,
+            "Modifiers": [
+              {
+                "Name": "Reverse",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 3
+              }
+            ]
+          },
+          {
+            "Row": 586,
+            "Time": 2.1041666666666665,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Format": "sm",
+    "Content": "#BPMS:0=120;#OFFSET:-0.5;#ATTACKS:TIME=0:LEN=2:MODS=100% Dizzy:TIME=2:LEN=1:MODS=50% Drunk;#NOTES:dance-single::Hard:9:0,0,0,0,0:1000\n0000\n0000\n0000,\n0100;",
+    "Charts": [
+      {
+        "Offset": -0.5,
+        "EditorAttacks": [
+          {
+            "Row": 0,
+            "Time": 0
+          },
+          {
+            "Row": 144,
+            "Time": 1.5
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 0,
+            "Time": 0,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 2
+              }
+            ]
+          },
+          {
+            "Row": 144,
+            "Time": 1.5,
+            "Modifiers": [
+              {
+                "Name": "Drunk",
+                "Level": 50,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Format": "ssc",
+    "Content": "#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=1:LEN=1:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000,\n0100\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#BPMS:0=240;#OFFSET:0.5;#ATTACKS:TIME=0.5:LEN=2:MODS=50% Drunk;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#ATTACKS:;#NOTES:1000;",
+    "Charts": [
+      {
+        "Offset": 0,
+        "EditorAttacks": [
+          {
+            "Row": 96,
+            "Time": 1
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 96,
+            "Time": 1,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "Offset": 0.5,
+        "EditorAttacks": [
+          {
+            "Row": 192,
+            "Time": 1
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 192,
+            "Time": 1,
+            "Modifiers": [
+              {
+                "Name": "Drunk",
+                "Level": 50,
+                "Speed": 1,
+                "Length": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "Offset": 0,
+        "EditorAttacks": [
+          {
+            "Row": 96,
+            "Time": 1
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 96,
+            "Time": 1,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Format": "ssc",
+    "Content": "#VERSION:0.83;#ATTACKS:TIME=2:LEN=1:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000,\n0100\n0000\n0000\n0000;",
+    "Charts": [
+      {
+        "Offset": 0,
+        "EditorAttacks": [
+          {
+            "Row": 0,
+            "Time": 0
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 0,
+            "Time": 2,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Format": "ssc",
+    "Content": "#VERSION:0.83;#BPMS:0=120,4=240,8=90;#ATTACKS:TIME=6:LEN=1:MODS=100% Dizzy:TIME=1:LEN=2:MODS=50% Drunk;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000,0100,0010;",
+    "Charts": [
+      {
+        "Offset": 0,
+        "EditorAttacks": [
+          {
+            "Row": 240,
+            "Time": 2.25
+          },
+          {
+            "Row": 600,
+            "Time": 6
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 240,
+            "Time": 3,
+            "Modifiers": [
+              {
+                "Name": "Drunk",
+                "Level": 50,
+                "Speed": 1,
+                "Length": 2
+              }
+            ]
+          },
+          {
+            "Row": 600,
+            "Time": 6,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

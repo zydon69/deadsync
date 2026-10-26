@@ -1,5 +1,6 @@
 //! Attack events use absolute song-file seconds and have independent SSC inheritance.
 //! Reference: Fumen AttackPropertyParser / GrooveAuthor UIAttackEvent.
+pub mod placement;
 use crate::{
     Error,
     document::Format,
@@ -65,6 +66,12 @@ impl Attacks {
         &self.events
     }
     pub fn parse(raw: &[u8]) -> Result<Self, Error> {
+        Self::parse_order(raw, true)
+    }
+    pub(super) fn parse_source_order(raw: &[u8]) -> Result<Self, Error> {
+        Self::parse_order(raw, false)
+    }
+    fn parse_order(raw: &[u8], sort: bool) -> Result<Self, Error> {
         let raw = without_comments(raw);
         let mut out = Self::default();
         let mut by_time = std::collections::BTreeMap::<u64, usize>::new();
@@ -143,7 +150,7 @@ impl Attacks {
         if pending {
             return Err(invalid("An attack entry must finish with MODS"));
         }
-        out.events.sort_by(|a, b| a.time.total_cmp(&b.time));
+        if sort { out.events.sort_by(|a, b| a.time.total_cmp(&b.time)); }
         Ok(out)
     }
     pub fn add(&mut self, time: f64, modifier: Modifier) -> Result<usize, Error> {

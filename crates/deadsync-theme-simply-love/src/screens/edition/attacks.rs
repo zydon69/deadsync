@@ -92,6 +92,16 @@ impl Settings {
     }
 }
 impl State {
+    pub(super) fn select_attack_source(&mut self, index: usize) {
+        if let Some(settings) = &mut self.attacks {
+            if index < settings.draft.attacks().events().len() {
+                settings.event = index;
+                settings.modifier = 0;
+                settings.load();
+                self.focus_text();
+            }
+        }
+    }
     pub(super) fn open_attacks(&mut self, scope: Scope) {
         if self.is_generating() {
             return;
