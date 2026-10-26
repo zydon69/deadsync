@@ -1,0 +1,324 @@
+[
+  {
+    "Format": "ssc",
+    "Content": "#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=1:LEN=1:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#ATTACKS:;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#BPMS:0=240;#OFFSET:0.5;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#ATTACKS:TIME=2:LEN=2:MODS=50% Drunk;#NOTES:0100;",
+    "Charts": [
+      {
+        "Offset": 0,
+        "EditorAttacks": [
+          {
+            "Row": 96,
+            "Time": 1,
+            "Transport": [
+              {
+                "EndTime": 2,
+                "EndRow": 192,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 1
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 3
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 7
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 96,
+            "Time": 1,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "Offset": 0.5,
+        "EditorAttacks": [
+          {
+            "Row": 288,
+            "Time": 1.5,
+            "Transport": [
+              {
+                "EndTime": 2.5,
+                "EndRow": 480,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.25,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 2,
+                    "Length": 0.5
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 4,
+                    "Length": 2.5
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 288,
+            "Time": 1.5,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "Offset": 0,
+        "EditorAttacks": [
+          {
+            "Row": 192,
+            "Time": 2,
+            "Transport": [
+              {
+                "EndTime": 4,
+                "EndRow": 384,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 2
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 6
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 192,
+            "Time": 2,
+            "Modifiers": [
+              {
+                "Name": "Drunk",
+                "Level": 50,
+                "Speed": 1,
+                "Length": 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Format": "ssc",
+    "Content": "#VERSION:0.83;#BPMS:0=120;#ATTACKS:;#NOTEDATA:;#STEPSTYPE:dance-single;#ATTACKS:;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#BPMS:0=240;#OFFSET:0.5;#ATTACKS:TIME=1:LEN=1:MODS=100% Dizzy;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#ATTACKS:TIME=2:LEN=2:MODS=50% Drunk;#NOTES:0100;",
+    "Charts": [
+      {
+        "Offset": 0,
+        "EditorAttacks": [],
+        "Attacks": []
+      },
+      {
+        "Offset": 0.5,
+        "EditorAttacks": [
+          {
+            "Row": 288,
+            "Time": 1.5,
+            "Transport": [
+              {
+                "EndTime": 2.5,
+                "EndRow": 480,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.25,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 2,
+                    "Length": 0.5
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 4,
+                    "Length": 2.5
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 288,
+            "Time": 1.5,
+            "Modifiers": [
+              {
+                "Name": "Dizzy",
+                "Level": 100,
+                "Speed": 1,
+                "Length": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "Offset": 0,
+        "EditorAttacks": [
+          {
+            "Row": 192,
+            "Time": 2,
+            "Transport": [
+              {
+                "EndTime": 4,
+                "EndRow": 384,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 2
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 6
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "Attacks": [
+          {
+            "Row": 192,
+            "Time": 2,
+            "Modifiers": [
+              {
+                "Name": "Drunk",
+                "Level": 50,
+                "Speed": 1,
+                "Length": 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

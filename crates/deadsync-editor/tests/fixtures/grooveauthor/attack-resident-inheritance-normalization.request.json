@@ -1,0 +1,13 @@
+{
+  "Operation": "AttackPlacement",
+  "Cases": [
+    {
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=1:LEN=1:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#ATTACKS:;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#BPMS:0=240;#OFFSET:0.5;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#ATTACKS:TIME=2:LEN=2:MODS=50% Drunk;#NOTES:0100;"
+    },
+    {
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#BPMS:0=120;#ATTACKS:;#NOTEDATA:;#STEPSTYPE:dance-single;#ATTACKS:;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#BPMS:0=240;#OFFSET:0.5;#ATTACKS:TIME=1:LEN=1:MODS=100% Dizzy;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#ATTACKS:TIME=2:LEN=2:MODS=50% Drunk;#NOTES:0100;"
+    }
+  ]
+}

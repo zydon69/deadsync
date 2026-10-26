@@ -1,0 +1,37 @@
+{
+  "StepManiaLibrary": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "Fumen": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "GrooveAuthor": "48e18f71655d0f0d86144c63239331833501fda2",
+  "Scope": "Actual pinned SSCReader and original editor timing refresh on manually assembled before/after SSC inputs. No execution of the GrooveAuthor writer, native runtime or future Rust normalization implementation is claimed.",
+  "RequestSHA256": "c431b283648d3b94356fde55cb6d1391b90ae4f73d5b61623ccacbff8bf0c280",
+  "ExpectedSHA256": "0c928f7356aa782cc524ca98bba2a276e024f323add4752486f8b7224a8bc2a1",
+  "AdapterSHA256": "c846cce7c027a13a5e24457aa2df725381cdc304c323603aaf0492a9c75ce92f",
+  "SourcesSHA256": {
+    "Fumen/Fumen/Converters/SSCReader.cs": "7d8fc98ede83f65079270989eb4edcf88ea10dd275f0206eb68e35aa6ffc88e2",
+    "Fumen/Fumen/Converters/SMWriterBase.cs": "6f71f40e60c0c0b213281fc54c9520fefcc2387c40783aa46b1069562119eb30"
+  },
+  "EditorSongSourceSHA256": "066bd606d5138343b444fb0355a125929c7b19baef4832202775eb419a5c60ff",
+  "Regeneration": "scripts/editor-generate-attack-fixtures.py --placement includes this request via its attack-resident*.request.json loop.",
+  "ExpectedRowsBefore": [
+    [
+      96
+    ],
+    [
+      288
+    ],
+    [
+      192
+    ]
+  ],
+  "ExpectedRowsAfter": [
+    [],
+    [
+      288
+    ],
+    [
+      192
+    ]
+  ],
+  "OracleDLLSHA256": "1592a4be099a850b5adc23fe2aad8c21698883f43c7b6f24bda64ccf7e975743",
+  "BasePlacementReferenceSHA256": "f616c59779ed66eaba2d0f8b757a2205213da49c21dbf745276d041bd8bb47e6"
+}
