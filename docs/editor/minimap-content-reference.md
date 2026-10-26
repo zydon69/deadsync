@@ -1,131 +1,103 @@
-# Minimap content raster increment
+# Native minimap content: implementation and evidence
 
-Source: GrooveAuthor commit `48e18f71655d0f0d86144c63239331833501fda2`,
-`StepManiaEditor/MiniMap.cs` and `Utils.cs`. The generator verifies that source
-bytes equal `git show <pin>:<path>` before extraction. Fixture hashes record
-both complete files and unchanged extracted methods.
+## Reference and scope
 
-## Current evidence
+GrooveAuthor pin `48e18f71655d0f0d86144c63239331833501fda2` supplies
+`MiniMap.cs`, `Editor.UpdateMiniMap`, note-color caches and UI byte helpers.
+Its StepManiaLibrary gitlink is `bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8`,
+with Fumen at `0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89` for HSV math and
+SMEventComparer. Oracle generators verify source bytes against `git show` at
+the relevant pin, and record complete-file/method hashes and adapter scope.
 
-The preceding viewport increment passed 20 native tests (10 English, 10 French)
-and 2 minimap preference tests, with 22 shared preference regressions passing at
-checkpoint `543e3d106`. The integer JSON compatibility fixture lives at
+The native content patch is applied. It preserves the previously validated
+vertical viewport and navigation. Aggregate density drawing has been replaced
+by a lane raster and one retained mesh. The current mounting remains at the
+native right edge; original four-position mounting is a subsequent increment.
+No GPU screenshot comparison or manual game session is claimed here.
+
+## Validated centrally
+
+All executions below were managed by the parent, with no parallel Cargo process.
+
+| Target | Passed | Evidence |
+| --- | ---: | --- |
+| `minimap_content` | 2 | 168 C# visibility/lane/pixel cases; crossing sustain, invalid bounds |
+| `minimap_event_policy` | 3 | supported classes, source post-add budget, labels/pattern adjacency |
+| `minimap_chronological` | 3 | heap order/crossings, bounded dense history, real-clock warp boundaries |
+| `minimap_palette` | 2 | 4,224 C# UI color lookups plus dispatch/selected clamp |
+| `minimap_background` | 2 | 96 C# UpdateBegin/UpdateEnd background/fade cases |
+| `note_color_preferences` | 2 | distinct source groups, RGB objects, preservation/validation |
+| `minimap_pattern_region` | 1 | start after Tap/Delay; end before equal-row rates |
+| `edition_minimap_content_scene` | 3 | crossing hold/roll, overlays, partial budgets, warp heads |
+| `edition_minimap_raster_mesh` | 2 | merged runs, retained orientations, explicit rectangle limit |
+| `edition_minimap_content_cache` | 2 | exact current key, binding, failures, source/selection invalidation |
+| `edition_minimap_content_workflow` | 3 | native State English paths |
+| `edition_minimap_content_fr_workflow` | 3 | same native State French paths |
+
+The latest run27299 passed the cache2 and State6 tests. The preceding
+viewport/navigation regression run7744 passed9/10 French cases and stopped on
+an obsolete density-quad assertion; English was not executed in that run.
+The assertion now checks one bounded retained mesh, all4 fixture notes and
+complete query/marker/mesh flags. The20-case rerun is pending. The original integer-preference DTO oracle and its
+fixture remain at
 `crates/deadsync-editor/tests/fixtures/grooveauthor/minimap-preferences.reference.json`.
-Its isolated .NET DTO accepts integer `uint` values and rejects decimal tokens;
-it does not execute the original full preference loader.
+That oracle accepts integer uint tokens and rejects decimal tokens; it does not
+execute the original complete preference loader.
 
-Core work is declared and validated; native composition is still isolated and
-not connected to the editor screen:
+## Runtime contracts
 
-- `minimap_content.rs`: bounded pixel buffer, lane layout, horizontal short
-  notes/cursors/labels, rectangles for pattern/preview markers, hold/roll head
-  and body colors. Quantized and unquantized blending follow the source.
-- `editor-minimap-content-oracle.py`: actually executed .NET 10 and generated
-  168 cases with unchanged helper bodies, injected palette and a buffer stub.
-  Each case records visibility classification, lane positions and final pixels.
-- Core `--test minimap_content`: both tests passed; compares all 168 cases, crossing
-  sustain body, invalid input and zero width.
-- Native `--test edition_minimap_raster_mesh`: pending; same-color horizontal
-  runs merge vertically into rectangles in one `Actor::Mesh`, with retained
-  `Arc` vertex buffers for both orientations. The rectangle budget yields an
-  explicit incomplete result. No texture service is introduced.
+- The raster uses source short-note, horizontal-line, rectangle and hold math,
+  including quantization, edge blending, clipped crossing bodies and distinct
+  hold/roll/mine colors. Geometry/resource guards are explicit adaptations.
+- Original background, rim, content markers, unquantized cursor/editor region
+  and fade are composed before/after foreground in source order. The background
+  oracle records marker positions separately; marker pixels are covered by the
+  raster oracle and native composition tests, not by that background oracle.
+- Exact chronological head queries replace track-major sampling. Crossings are
+  separate. The source budget is checked after adding (`count > maximum`), with
+  crossing sustains counted first. Query, marker and mesh completeness remain
+  independent; any partial result gets a localized indicator.
+- Time bounds binary-search note-phase time directly, retaining every equal-time
+  warp head. Pattern starts use the after-Tap phase; Pattern ends use fractional
+  pre-rate chart-position conversion, including equal-row Delay/Stop boundaries.
+- Raw NoteColor/Options settings are one Arc snapshot on State. The minimap
+  resolves its UI cache from that snapshot; the main chart can derive XNA
+  held/selected variants from the same RGB/player/blend fields. UI byte packing
+  and multipliers1.5/8 differ from XNA variants1.5/1.7.
+- File getters are pure configuration reads. Rendering performs no filesystem
+  reads. NoteColor and Options remain distinct application groups with original
+  field names; direct import of an entire original GA preference file is not
+  claimed (GA root names have the Preferences prefix).
+- Frame identity includes session/content/chart binding, axis, quantized and
+  unquantized projection, dimensions, selection/player, focus/capture and palette/
+  options revision. Both forward and reflected meshes retain Arc buffers.
+- Diagnostics return no certification for hidden/non-drawable content, a panel,
+  failed build, or a frame whose source/key no longer matches current state.
 
-## Integration still required
+## Oracle adapters and limits
 
-The raster receives an injected palette. The separate declared
-`minimap_palette` now matches 4,224 original C# lookups in two passing workflows;
-its native preference/cache binding is still being implemented.
-Roll and hold use distinct injected body colors; player and selected colors
-must be resolved by the caller. C# oracle agreement proves raster arithmetic,
-not event enumeration, palette, timing conversion, native draw pixels or GPU.
+The content oracle runs unchanged C# helpers on an isolated buffer with injected
+colors. The palette oracle runs unchanged cached constructors, byte helpers and
+HSV functions; XNA drawing Color is a no-op adapter, fraction reduction is an
+exact integer adapter, and FloatEquals copies its verified epsilon expression.
+Neither oracle proves GPU output, event loading as a whole, or preference UI.
 
-The native cache key must include source/content identity, focused chart GUID,
-axis, mini-start (quantized and unquantized), visible range/height, lane geometry,
-palette revision, selected note range and player selection. Reverse reuses the
-retained reflected mesh. Do not reuse complete status from another cache key.
+Keysound/Attack are not invented as source-supported taps. Their deterministic
+query ordering does not claim parity with unsupported original editor classes.
+Large input can produce an explicit partial result under resource limits; this
+is never presented as complete merely because a mesh was emitted.
 
-Use bounded head queries plus crossing sustains per lane; do not scan the whole
-chart on every frame. The source counts crossing sustains against its note budget.
-Expose partial/loading status separately from an actual complete map.
+## Remaining required work
 
-Source `Editor.UpdateMiniMap` also skips labels at row zero, merges immediately
-adjacent pattern regions, and includes preview/pattern/label overlays only when
-their independent preferences are enabled. The declared `minimap_event_policy` passed three tests covering these
-enumeration rules; their native preference binding still needs integration. Keysound/attack rendering is not
-silently treated as source-supported tap rendering. Preserve aggregate density
-until the full lane raster/cache is connected and validated.
+- Original four mounting positions, per-position offsets and DPI behavior.
+- Original MoveToSelectedArea capture semantics and an explicit keyboard/pad
+  equivalent, with provenance separate from the original mouse input.
+- Advanced geometry/overlay controls and the shared note-color inspector with
+  conflict-safe apply/cancel/save; pure getters do not constitute this UI.
+- Original full chart-content bounds including metadata/end hints, beyond the
+  already validated initial viewport/content-bound increment.
+- Runtime measurements and real native visual/input verification.
 
-## Chronological queries and palette validation (2026-10-26)
-
-`notes::minimap_query` passed three workflows: heap merging across participants
-and lanes in source lane/type/player order, bounded work after dense history,
-and exact inclusive note-phase windows through warps, negative stops, delays and
-offsets. The query returns crossing sustains separately and reports incomplete
-head budgets. It does not claim the full mixed-event comparer for nonlane events.
-
-All ten core workflows passed: raster two, event policy three, chronological
-queries three, palette two. One palette test initially assumed selected colors
-would differ despite the source multiplier of eight saturating both to white.
-It now explicitly checks that clamp and uses a nonsaturating multiplier for
-dispatch differences; the production algorithm did not change.
-
-## Central validation update
-
-The following preparations have now passed centrally:
-
-- Raster2 (including all168 original C# pixel cases), event-policy3 and bounded
-  chronological query3:8coretests.
-- Palette2, including4,224 original cached color lookups. The dispatch test
-  explicitly proves selected saturation to white at multiplier8, then chooses
-  multiplier2 to observe the underlying family difference.
-- Native isolated scene3 and retained mesh2:5tests.
-- Background2, including96 UpdateBegin/UpdateEnd C# cases with recorded marker
-  positions. Clear buffers use the original rim/interior policy; marker calls
-  are recorded separately so this oracle does not claim marker pixel drawing.
-
-Full native State wiring remains unapplied while shared UI builds are running.
-`patches/editor-minimap-native-content.patch` currently proposes the narrow
-Raster buffer replacement API and reuse of the existing scene/raster, without
-changing the validated viewport model. Native cache2 and shared NoteColor/Options
-DTO2 are additional pending targets. No new Cargo execution was performed by
-the media agent; these results are from parent-managed validation.
-
-## Native hook review before application
-
-The isolated native adapter now derives its diagnostic from a cache entry matching
-session/content/chart and the complete current key. It returns no certification
-while a panel hides the map, ShowMiniMap is false, geometry suppresses rendering,
-or selection/player/palette/projection/content changed before the next draw.
-Pending cache2 and State6 tests explicitly cover these transitions. The reverse
-orientation clones a retained reflected vertex Arc; map boundsY are actor
-translation, independent of local raster cache identity.
-
-A source timing review found Pattern end conversion differs from note phase:
-`EditorPatternEvent.GetEndChartTime` calls the pre-rate chart-position method.
-The new `minimap_pattern_region` helper retains start after the Tap/Delay phase
-(Fumen.Pattern is ordered immediately after LaneTapNote), and converts the end
-with `Clock.fractional_chart_time`. One pending isolated test covers endpoints
-on equal-row Delay, Stop and Tempo, start after Delay, overflow and nonmutation.
-This correction is included in the unapplied native hook patch.
-
-Current hooks read a single shared `NoteColor`/`Options` DTO during configuration;
-rendering performs no filesystem reads. An Arc on State is the sole raw settings
-snapshot. The minimap keeps resolved UI colors, and the main renderer can derive
-its distinct XNA held/selected variants from the same DTO. The dedicated color
-inspector/save transition remains a later required UI increment; read-only File
-getters preserve existing groups without changing the audio Settings storage.
-
-Content width reads original MiniMapWidth (90default), with existing native
-right-edge mounting retained for this increment. The four original mounting
-positions and density-graph-dependent offsets remain a separately required
-geometry increment; the validated vertical viewport is unchanged.
-
-### Latest pre-integration validation
-
-Central validation has now also passed shared NoteColor/Options DTO2 and Pattern
-phase1. Their core modules are declared by the parent. The unapplied integration
-patch has been refreshed to omit those existing declarations; it adds only the
-still-missing `minimap_content_preferences` declaration. `git apply --check`
-passes against the current tree. Cache2 and State6 remain pending, and the patch
-has not been applied by the media agent. Shared sources were left untouched
-during the parent's holds build83823.
+New mounting/preferences preparations are isolated and unvalidated until their
+specific tests and oracle are run. Shared source changes are coordinated with the parent; mounting preparation
+remains isolated until explicitly integrated.

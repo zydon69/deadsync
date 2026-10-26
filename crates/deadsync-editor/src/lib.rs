@@ -14,6 +14,7 @@ pub mod minimap_content;
 pub mod minimap_background;
 pub mod minimap_event_policy;
 pub mod minimap_palette;
+pub mod minimap_content_preferences;
 pub mod event_shift;
 pub mod pack;
 pub mod chart_properties;

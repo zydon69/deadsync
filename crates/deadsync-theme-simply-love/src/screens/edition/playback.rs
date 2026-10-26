@@ -41,12 +41,16 @@ impl State {
         self.audio_preferences_path = Some(path.to_owned());
         self.audio_preferences_file = None;
         let file = deadsync_editor::audio_preferences::File::open(path)?;
+        let note_colors = file.note_colors()?;
+        let minimap_content = file.minimap_content()?;
         let zoom_preferences = file.zoom();
         zoom_preferences.apply(&mut self.zoom)?;
         self.zoom_preferences = zoom_preferences;
         self.audio_preferences = file.audio();
         self.scroll_preferences = file.scroll();
         self.configure_minimap_preferences(file.minimap());
+        self.configure_note_color_preferences(note_colors)?;
+        self.configure_minimap_content_preferences(minimap_content);
         self.waveform_preferences = file.waveform();
         self.audio_preferences_file = Some(file);
         if previous_rate != self.audio_preferences.music_rate() {

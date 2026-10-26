@@ -9,15 +9,6 @@ use deadsync_editor::{
 };
 use std::cell::RefCell;
 
-struct Density {
-    axis: Axis,
-    binding: Binding,
-    bins: [u32; 64],
-    full_start: f64,
-    range: f64,
-    cursor: Option<deadsync_editor::notes::Position>,
-    done: bool,
-}
 
 #[cfg(test)]
 mod tests {
@@ -79,17 +70,14 @@ pub(super) struct Navigation {
     gesture: Gesture,
     binding: Option<Binding>,
     clock: RefCell<Option<(Binding, Arc<Clock>)>>,
-    density: RefCell<Option<Density>>,
+    pub(super) content: super::minimap_content_state::Content,
 }
 impl State {
+    /// Compatibility diagnostic: content is now queried exactly, not aggregated.
     pub fn minimap_density_progress(&self) -> Option<(u64, bool)> {
-        self.minimap.density.borrow().as_ref().map(|cache| {
-            (
-                cache.bins.iter().map(|count| u64::from(*count)).sum(),
-                cache.done,
-            )
-        })
+        self.minimap_content_progress().map(|(count, notes, markers, mesh)| (count as u64, notes && markers && mesh))
     }
+    pub(super) fn minimap_capture_active(&self) -> bool { self.minimap.gesture.active() }
     pub fn minimap_focused(&self) -> bool {
         self.minimap.focused
     }
@@ -263,6 +251,7 @@ impl State {
                 self.open_minimap_settings();
                 return true;
             }
+            if !self.minimap.content.options.visible { return true; }
             if self.minimap.focused {
                 self.minimap_end();
             }
@@ -277,6 +266,7 @@ impl State {
             );
             return true;
         }
+        if !self.minimap.content.options.visible { self.minimap_release_input(); return false; }
         if !self.minimap.focused {
             return false;
         }
@@ -372,98 +362,8 @@ impl State {
         true
     }
     pub(super) fn minimap_actors(&self, actors: &mut Vec<Actor>) {
-        if self.panel.is_some() || !self.workspace.has_chart() {
-            return;
-        }
-        let Ok((geometry, clock)) = self.minimap_projection() else {
-            return;
-        };
-        let projection = &geometry.projection;
-        let full_range = projection.full_end - projection.full_start;
-        let session = &self.workspace.file().session;
-        let mut cache = self.minimap.density.borrow_mut();
-        if cache.as_ref().is_none_or(|cache| {
-            !cache.binding.is_current(session, self.workspace.chart())
-                || cache.full_start != projection.full_start
-                || cache.range != full_range
-                || cache.axis != geometry.axis
-        }) {
-            *cache = Some(Density {
-                axis: geometry.axis,
-                binding: match Binding::capture(session, self.workspace.chart()) {
-                    Ok(binding) => binding,
-                    Err(_) => return,
-                },
-                bins: [0; 64],
-                full_start: projection.full_start,
-                range: full_range,
-                cursor: None,
-                done: false,
-            });
-        }
-        if let Some(cache) = cache.as_mut().filter(|cache| !cache.done) {
-            let mut count = 0;
-            for (position, _) in self
-                .workspace
-                .grid()
-                .iter_heads_after(cache.cursor)
-                .take(4096)
-            {
-                cache.cursor = Some(position);
-                count += 1;
-                let coordinate = match geometry.axis {
-                    Axis::Time => clock.note_time(position.row),
-                    Axis::Row => Ok(position.row as f64),
-                };
-                if let Ok(coordinate) = coordinate {
-                    let fraction =
-                        ((coordinate - projection.full_start) / full_range).clamp(0.0, 1.0);
-                    let bin = ((fraction * 64.0) as usize).min(63);
-                    cache.bins[bin] = cache.bins[bin].saturating_add(1);
-                }
-            }
-            cache.done = count < 4096;
-        }
-        let x = screen_width() - 24.0;
-        if cache.as_ref().is_some_and(|cache| !cache.done) {
-            actors.push(act!(text: font("miso"): settext(i18n::tr("Edition","MinimapLoading")): xy(x,82.0): zoom(0.5): maxwidth(90.0): z(8013)));
-        }
-        let y = projection.bounds_y as f32;
-        let height = projection.visible_height as f32;
-        actors.push(act!(quad: xy(x,y+height*0.5): setsize(32.0,height): diffuse(0.06,0.08,0.12,0.95): z(8010)));
-        if let Some(cache) = cache.as_ref() {
-            let maximum = cache.bins.iter().copied().max().unwrap_or(1).max(1) as f32;
-            for (index, count) in cache
-                .bins
-                .iter()
-                .enumerate()
-                .filter(|(_, count)| **count > 0)
-            {
-                let coordinate = cache.full_start + (index as f64 + 0.5) / 64.0 * cache.range;
-                let fraction =
-                    projection.project_editor(coordinate) / f64::from(projection.visible_height);
-                if !(0.0..=1.0).contains(&fraction) {
-                    continue;
-                }
-                let yy = if self.reverse_display {
-                    1.0 - fraction as f32
-                } else {
-                    fraction as f32
-                };
-                actors.push(act!(quad: xy(x,y+yy*height): setsize(24.0*(*count as f32/maximum).sqrt(),height/64.0): diffuse(0.25,0.75,0.95,0.9): z(8011)));
-            }
-        }
-        let start = (projection.project_editor(projection.editor_start)
-            / f64::from(projection.visible_height))
-        .clamp(0.0, 1.0) as f32;
-        let end = (projection.project_editor(projection.editor_end)
-            / f64::from(projection.visible_height))
-        .clamp(0.0, 1.0) as f32;
-        let center = if self.reverse_display {
-            1.0 - (start + end) * 0.5
-        } else {
-            (start + end) * 0.5
-        };
-        actors.push(act!(quad: xy(x,y+center*height): setsize(30.0,((end-start)*height).max(2.0)): diffuse(0.95,0.75,0.25,if self.minimap.focused {0.5}else{0.2}): z(8012)));
+        if self.panel.is_some() || !self.workspace.has_chart() { return; }
+        let Ok((geometry, clock)) = self.minimap_projection() else { return; };
+        self.minimap_content_actors(actors, &geometry, &clock);
     }
 }

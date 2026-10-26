@@ -81,6 +81,15 @@ impl Raster {
     pub fn pixels(&self) -> &[u32] {
         &self.pixels
     }
+    /// Replace a validated background without changing lane/geometry identity.
+    pub fn replace_pixels(&mut self, pixels: Vec<u32>) -> Result<(), Error> {
+        if pixels.len() != self.pixels.len() {
+            return Err(Error::InvalidEdit("Invalid minimap background size".into()));
+        }
+        self.pixels = pixels;
+        Ok(())
+    }
+    pub fn pixels_mut(&mut self) -> &mut [u32] { &mut self.pixels }
     pub fn lane_positions(&self) -> &[u32] {
         &self.lanes
     }

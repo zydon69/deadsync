@@ -24,6 +24,10 @@ mod pack_properties;
 mod end_hint;
 mod minimap;
 mod minimap_settings;
+mod minimap_content_scene;
+mod minimap_content_render;
+mod minimap_content_cache;
+mod minimap_content_state;
 mod view_layout;
 mod view_render;
 mod view_render_screen;
@@ -276,6 +280,7 @@ pub struct State {
     receptor_views: receptor_views::Runtime,
     end_hint: Option<end_hint::Cache>,
     minimap: minimap::Navigation,
+    note_colors: Arc<deadsync_editor::note_color_preferences::Preferences>,
     scroll_preferences: deadsync_editor::scroll_preferences::Preferences,
     scroll_preferences_draft: Option<deadsync_editor::scroll_preferences::Preferences>,
     audio_preferences: deadsync_editor::audio_preferences::Audio,
@@ -428,6 +433,7 @@ impl State {
             receptor_views: receptor_views::Runtime::default(),
             end_hint: None,
             minimap: Default::default(),
+            note_colors: Default::default(),
             scroll_preferences: Default::default(),
             scroll_preferences_draft: None,
             audio_preferences: Default::default(),

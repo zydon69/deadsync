@@ -244,6 +244,19 @@ impl File {
     pub fn set_minimap(&mut self, minimap: crate::minimap_preferences::Preferences) {
         self.settings.minimap = minimap;
     }
+    fn group_fields(&self, name: &str) -> Result<serde_json::Map<String, serde_json::Value>, Error> {
+        match self.root.get(name) {
+            None => Ok(Default::default()),
+            Some(serde_json::Value::Object(fields)) => Ok(fields.clone()),
+            Some(_) => Err(Error::InvalidFormat(format!("Editor {name} preferences must be an object"))),
+        }
+    }
+    pub fn note_colors(&self) -> Result<crate::note_color_preferences::Preferences, Error> {
+        crate::note_color_preferences::Preferences::read(&self.group_fields("NoteColor")?, &self.group_fields("Options")?)
+    }
+    pub fn minimap_content(&self) -> Result<crate::minimap_content_preferences::Preferences, Error> {
+        crate::minimap_content_preferences::Preferences::read(&self.minimap_fields, &self.group_fields("Options")?)
+    }
     pub fn has_changes(&self) -> bool {
         self.settings != self.original || self.settings != self.written
     }

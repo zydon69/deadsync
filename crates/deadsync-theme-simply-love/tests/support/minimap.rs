@@ -106,20 +106,33 @@ fn focus_loss_does_not_resume_and_minimap_presentation_is_bounded() {
     assert!(state.take_audio_commands().is_empty());
     let mut actors = Vec::new();
     state.actors(&mut actors);
-    let bars = actors
+    let meshes: Vec<_> = actors
         .iter()
-        .filter(|actor| {
-            matches!(
-                actor,
-                deadlib_present::actors::Actor::Sprite { z: 8011, .. }
-            )
+        .filter_map(|actor| match actor {
+            deadlib_present::actors::Actor::Mesh {
+                z: 8011, vertices, ..
+            } => Some(vertices),
+            _ => None,
         })
-        .count();
-    assert!(bars > 0 && bars <= 64);
-    assert!(actors.iter().any(|actor| matches!(
-        actor,
-        deadlib_present::actors::Actor::Sprite { z: 8012, .. }
-    )));
+        .collect();
+    assert_eq!(
+        meshes.len(),
+        1,
+        "one retained minimap mesh replaces density quads"
+    );
+    assert!(!meshes[0].is_empty());
+    assert!(
+        meshes[0].len() <= 16384 * 6,
+        "explicit rectangle/vertex budget"
+    );
+    let (count, notes, markers, mesh) = state.minimap_content_progress().unwrap();
+    assert_eq!(count, 4);
+    assert!(
+        notes && markers && mesh,
+        "bounded frame is complete for the fixture"
+    );
+    let geometry = state.minimap_viewport_geometry().unwrap();
+    assert!(geometry.projection.editor_end > geometry.projection.editor_start);
 }
 
 #[test]
@@ -152,7 +165,7 @@ fn distinct_drag_preference_is_reviewable_saved_and_reloaded_without_song_change
 }
 
 #[test]
-fn overview_batches_are_bounded_complete_and_invalidate_after_note_edits() {
+fn exact_overview_is_complete_and_invalidates_after_note_edits() {
     let (directory, _state) = setup(false);
     let measures = std::iter::repeat_n("1000\n".repeat(48), 125)
         .collect::<Vec<_>>()
@@ -169,16 +182,16 @@ fn overview_batches_are_bounded_complete_and_invalidate_after_note_edits() {
         actors
     };
     let actors = render(&state);
-    assert_eq!(state.minimap_density_progress(), Some((4096, false)));
-    let loading = i18n::tr("Edition", "MinimapLoading");
-    assert!(actors.iter().any(|actor|matches!(actor,deadlib_present::actors::Actor::Text {content,..} if content.contains(loading.as_ref()))));
+    assert_eq!(state.minimap_density_progress(), Some((6000, true)));
+    let partial = i18n::tr("Edition", "MinimapPartial");
+    assert!(!actors.iter().any(|actor|matches!(actor,deadlib_present::actors::Actor::Text {content,..} if content.contains(partial.as_ref()))));
     render(&state);
     assert_eq!(state.minimap_density_progress(), Some((6000, true)));
     render(&state);
     assert_eq!(state.minimap_density_progress(), Some((6000, true)));
     press(&mut state, KeyCode::Digit1);
     render(&state);
-    assert_eq!(state.minimap_density_progress(), Some((4096, false)));
+    assert_eq!(state.minimap_density_progress(), Some((5999, true)));
     render(&state);
     assert_eq!(state.minimap_density_progress(), Some((5999, true)));
 }
