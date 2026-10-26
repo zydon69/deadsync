@@ -37,7 +37,10 @@ pub fn apply(
     if start > end {
         return Err(Error::InvalidEdit("Selection ends before it starts".into()));
     }
-    if let Transform::ShiftLanes { right, wrap } = transform {
+    if matches!(
+        transform,
+        Transform::ShiftLanes { .. } | Transform::ShiftRows(_)
+    ) {
         let original = session.grid(chart)?;
         let mut staged = original.clone();
         let mut selected: Vec<_> = original
@@ -51,28 +54,45 @@ pub fn apply(
         for (pos, _) in &selected {
             staged.set(*pos, None)?;
         }
-        for (mut pos, note) in selected {
-            let lane = if right {
-                pos.lane
-                    .checked_add(1)
-                    .filter(|lane| *lane < staged.columns())
-            } else {
-                pos.lane.checked_sub(1)
-            };
-            pos.lane = match lane {
-                Some(lane) => lane,
-                None if wrap => {
-                    if right {
-                        0
+        for (mut pos, mut note) in selected {
+            match transform {
+                Transform::ShiftLanes { right, wrap } => {
+                    let lane = if right {
+                        pos.lane
+                            .checked_add(1)
+                            .filter(|lane| *lane < staged.columns())
                     } else {
-                        staged.columns() - 1
-                    }
+                        pos.lane.checked_sub(1)
+                    };
+                    pos.lane = match lane {
+                        Some(lane) => lane,
+                        None if wrap => {
+                            if right {
+                                0
+                            } else {
+                                staged.columns() - 1
+                            }
+                        }
+                        None => continue,
+                    };
                 }
-                None => continue,
-            };
+                Transform::ShiftRows(delta) => {
+                    if delta < 0 && pos.row < delta.unsigned_abs() {
+                        continue;
+                    }
+                    pos.row = shift(pos.row, delta)?;
+                    note.end = note.end.map(|end| shift(end, delta)).transpose()?;
+                }
+                _ => unreachable!("staged shift"),
+            }
             staged.force_insert(pos, note)?;
         }
-        return session.apply_grid_delta(chart, &staged, "Shift note columns");
+        let label = if matches!(transform, Transform::ShiftRows(_)) {
+            "Shift note rows"
+        } else {
+            "Shift note columns"
+        };
+        return session.apply_grid_delta(chart, &staged, label);
     }
     let layout = session
         .document()
@@ -117,10 +137,7 @@ pub fn apply(
                 }
             }
             Transform::ShiftLanes { .. } => unreachable!("lane shift handled above"),
-            Transform::ShiftRows(delta) => {
-                pos.row = shift(pos.row, delta)?;
-                note.end = note.end.map(|end| shift(end, delta)).transpose()?;
-            }
+            Transform::ShiftRows(_) => unreachable!("row shift handled above"),
             Transform::AssignPlayer(owner) => pos.player = owner,
             Transform::Convert {
                 from,

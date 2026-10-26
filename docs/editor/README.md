@@ -5145,3 +5145,33 @@ selection suites passed 12 tests in `/tmp/deadsync-lane-shift-core.log`. Theme
 compilation check passed in `/tmp/deadsync-lane-shift-check.log`. Commands used
 `--jobs 2 --locked`. The initial native scenario used Escape instead of F1 to
 open the menu; corrected keyboard routing passed both targeted and full runs.
+
+### Row shifts follow original removal and ForceAdd behavior
+
+`Transform::ShiftRows` now shares the staged ForceAdd transformation path with
+column shifts. This follows pinned ActionShiftSelectionRow: remove selected heads
+first, omit events whose shifted heads are before zero, then add the remaining
+shifted notes with destination-conflict side effects. Sustain heads and ends move
+by the same delta, preserving duration/type and owner. A sustain whose head moves
+before zero is removed as a whole, even if its former tail could remain positive.
+Arithmetic overflow remains an atomic error rather than wrapping row coordinates.
+
+The native Earlier/Later commands use these semantics; Earlier explicitly labels
+that notes before the start are removed. One global undo restores moved/deleted
+heads and affected unselected notes, including shortened holds. The old selection
+regression expected collision/negative-row refusal; it now verifies reference
+replacement/removal plus exact undo, reflecting the corrected requested behavior.
+
+Core tests cover negative heads, holds/rolls and durations, untouched out-of-range
+heads, collisions with unselected sustains, source restoration, and overflow with
+unchanged redo/revision. English/French native tests exercise removal at row zero,
+undo, moving a hold onto an unselected tap, undo/redo, save and reopen. This is
+lane-note row shifting; timing/miscellaneous event moves and broader transformation
+parity remain outstanding. No physical app/GPU review or executable C# oracle is
+claimed for this step.
+
+Validation: all 53 native editor integration targets passed (274 tests) in
+`/tmp/deadsync-row-shift-all-native.log`; the four selected core row/column shift,
+ForceAdd paste and selection suites passed 15 tests in
+`/tmp/deadsync-row-shift-core.log`. Theme compilation check passed in
+`/tmp/deadsync-row-shift-check.log`. Commands used `--jobs 2 --locked`.

@@ -170,12 +170,26 @@ fn hold_creation_copy_cut_paste_conversion_and_redo_share_the_ui_command_path() 
 }
 
 #[test]
-fn transform_collision_or_negative_shift_preserves_document_and_history() {
+fn row_shift_replaces_collisions_and_drops_negative_heads_with_exact_undo() {
     let source = b"#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:\n1000\n1000\n0000\n0000\n;";
     let mut session =
         Session::new(Document::parse(Arc::<[u8]>::from(source.as_slice()), Format::Ssc).unwrap());
-    assert!(transform::apply(&mut session, 0, 0, 0, None, Transform::ShiftRows(48)).is_err());
-    assert!(transform::apply(&mut session, 0, 0, 0, None, Transform::ShiftRows(-1)).is_err());
+    assert!(transform::apply(&mut session, 0, 0, 0, None, Transform::ShiftRows(48)).unwrap());
+    assert!(
+        session
+            .grid(0)
+            .unwrap()
+            .get(Position {
+                row: 0,
+                lane: 0,
+                player: 0
+            })
+            .is_none()
+    );
+    session.undo().unwrap();
+    assert_eq!(session.serialize().unwrap(), source);
+    assert!(transform::apply(&mut session, 0, 0, 0, None, Transform::ShiftRows(-1)).unwrap());
+    session.undo().unwrap();
     assert!(!session.is_dirty());
     assert_eq!(session.serialize().unwrap(), source);
 }
