@@ -152,9 +152,11 @@ lifecycle test, 1 WAV/playback regression test, 7 audio-stream tests and 1 shell
 adapter test passed. These results belong to the states validated at that time;
 they do not prove the precision follow-up described below.
 
-The new precision follow-up remains **in validation**: model 5 tests, native
-English/French 16 tests and audio-stream 8 tests. Do not record these as passed
-until the parent receives their terminal results.
+The precision follow-up passed parent validation: model 5 tests and native
+English/French 16 tests in run 19227, plus audio-stream 8 tests (including f64
+after 24 hours) in run 10280. The same native run passed chart-tab 10, playback
+follow 10 and navigation 3 regression tests. The final shell f64 bridge requires
+its separate compilation result; these counts do not claim hardware playback.
 
 - Gameplay retains its existing f32 stream-time snapshot contract. A separate
   editor clock path carries absolute callback time as f64, before casting the
@@ -238,3 +240,15 @@ integrated shell lib-test harness compiled with the f64 bridge. All 161 focused
 theme checks passed in the final affected regression and pagination rerun.
 Output-device failure and callback-stall policy,
 hardware listening, and full runtime/rendering verification remain required.
+
+### Callback interruption boundary
+
+The editor clock has a focused regression for an output callback interruption.
+With an unchanged callback window, time advances only through the last submitted
+buffer and then stays at its end, even when the observation timestamp advances
+by a minute. A resumed callback advances from its actual frame count, without
+adding the interruption duration. The test
+`editor_clock_stops_at_last_callback_end_until_output_resumes` passed. This
+establishes bounded transport time for that clock path; it does not establish
+device-disconnection detection, a user-facing failure notice, or physical output
+recovery. Those remain required separately.

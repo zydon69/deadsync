@@ -740,6 +740,21 @@ impl EditorTimeline {
     pub fn position_time(&self, row: u64) -> Result<f64, Error> {
         self.query(row, None)
     }
+    /// Continuous cursor position, preceding rate events at an equal row.
+    /// Unlike note editing, presentation positions may be fractional or negative.
+    pub fn fractional_position_time(&self, row: f64) -> Result<f64, Error> {
+        finite(row)?;
+        let index = self.rates.partition_point(|rate| (rate.row as f64) < row);
+        let rate = index.checked_sub(1)
+            .and_then(|index| self.rates.get(index))
+            .or_else(|| self.rates.first());
+        let time = rate.map_or(0.0, |rate| crate::rate_mapping::rate_time(
+            rate.row as f64, rate.time, rate.warp as f64,
+            rate.stop, rate.seconds_per_row, row,
+        ));
+        finite(time)?;
+        Ok(time)
+    }
     /// Fractional chart row at a chart time, before applying the music offset.
     /// Like GrooveAuthor, an exact boundary precedes every rate event with
     /// that time. Negative time extrapolates into the lead-in; positive stops

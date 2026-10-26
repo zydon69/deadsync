@@ -142,6 +142,14 @@ impl Clock {
     pub fn music_time(&self, row: u64) -> Result<f64, Error> {
         self.chart_time_to_music(self.chart_time(row)?)
     }
+    /// Presentation cursor before same-row rate events; retains fractional rows
+    /// and negative lead-in without quantizing an editor navigation gesture.
+    pub fn fractional_chart_time(&self, row: f64) -> Result<f64, Error> {
+        self.timeline.fractional_position_time(row)
+    }
+    pub fn fractional_music_time(&self, row: f64) -> Result<f64, Error> {
+        self.chart_time_to_music(self.fractional_chart_time(row)?)
+    }
     pub fn position(&self, music_seconds: f64) -> Result<f64, Error> {
         self.timeline
             .time_position(self.music_to_chart_time(music_seconds)?)

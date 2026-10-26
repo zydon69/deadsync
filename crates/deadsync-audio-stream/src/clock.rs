@@ -187,6 +187,39 @@ mod tests {
     const ANCHOR_NANOS: u64 = 1_000_000_000;
 
     #[test]
+    fn editor_clock_stops_at_last_callback_end_until_output_resumes() {
+        let _guard = crate::CLOCK_TEST_LOCK.lock().unwrap();
+        reset_music_stream_clock_state();
+        clear_music_pos_map();
+        let (stream, _) = music_transport(SAMPLE_RATE, 2);
+        let clock = MusicClock::new(stream.played_map, SAMPLE_RATE);
+        let window = CallbackClockWindow {
+            last_nanos: ANCHOR_NANOS + 1,
+            last_base_frames: u64::from(SAMPLE_RATE) * 10,
+            last_callback_frames: 480,
+            ..Default::default()
+        };
+        let read = |delta, window| {
+            editor_clock_at_nanos(
+                &clock, SAMPLE_RATE, 0, Instant::now(), ANCHOR_NANOS + delta,
+                CallbackClockSource::Instant, window,
+            ).2
+        };
+        assert!((read(5_000_000, window) - 10.005).abs() < 1e-12);
+        let end = read(10_000_000, window);
+        assert!((end - 10.01).abs() < 1e-12);
+        assert_eq!(read(60_000_000_000, window), end);
+        let resumed = CallbackClockWindow {
+            last_nanos: ANCHOR_NANOS + 60_000_000_000 + 1,
+            last_base_frames: window.last_base_frames + window.last_callback_frames,
+            ..window
+        };
+        assert!((read(60_005_000_000, resumed) - 10.015).abs() < 1e-12);
+        reset_music_stream_clock_state();
+        clear_music_pos_map();
+    }
+
+    #[test]
     fn precise_editor_clock_retains_submillisecond_callback_steps_after_a_day() {
         let _guard = crate::CLOCK_TEST_LOCK.lock().unwrap();
         reset_music_stream_clock_state();
