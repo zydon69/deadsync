@@ -292,7 +292,7 @@ pub fn chart_render(r: ChartRequest<'_>) -> Result<Output, &'static str> {
         .retain(|a| matches!(a, Actor::Sprite { visible: true, .. }));
     Ok(output)
 }
-fn clip_to_viewport(
+pub(super) fn clip_to_viewport(
     actor: &mut Actor,
     [left, top, right, bottom]: [f32; 4],
 ) -> Result<(), &'static str> {

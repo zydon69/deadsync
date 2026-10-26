@@ -211,6 +211,18 @@ impl Workspace {
         self.file.session.delete_profile(file)
     }
 
+    pub fn capture_lane_input(&mut self)->Result<crate::lane_entry::Inputs,Error>{
+        let chart=self.active_chart().ok_or_else(||Error::InvalidEdit("No active lane input chart".into()))?;
+        crate::lane_entry::Inputs::capture(&mut self.file.session,chart)
+    }
+    pub fn press_lane_input(&mut self,input:&mut crate::lane_entry::Inputs,press:crate::lane_entry::Press)->Result<crate::lane_entry::Outcome,Error>{
+        if self.active_chart()!=Some(input.chart()){return Err(Error::InvalidEdit("Lane input chart lost focus".into()));}
+        input.press(&mut self.file.session,press)
+    }
+    pub fn release_lane_input(&mut self,input:&mut crate::lane_entry::Inputs,lane:u16)->Result<bool,Error>{
+        if self.active_chart()!=Some(input.chart()){return Err(Error::InvalidEdit("Lane input chart lost focus".into()));}
+        input.release(&mut self.file.session,lane)
+    }
     pub fn file(&self) -> &FileSession {
         &self.file
     }

@@ -1,9 +1,11 @@
 # Keyboard note press/release transactions
 
 Status: core `lane_entry.rs` is declared in lib.rs and its 13 workflow tests
-passed central execution. Native key routing is not connected yet. The separate
-native bridge remains a temporary unapplied patch; no State/Workspace hooks have
-been changed for it.
+passed central execution. Native State/Workspace key routing is now connected.
+Five native gesture workflows, three minimap State regressions and all 37
+general editor workflows passed. Focus/modal cancellation, detached previews,
+per-lane release history and immediate playing/advance commits are exercised.
+The broader playback regression and source Snap Off remain separate increments.
 
 ## Original behavior
 

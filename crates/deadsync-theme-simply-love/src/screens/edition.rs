@@ -34,6 +34,7 @@ mod view_render_screen;
 mod receptor_render;
 mod receptor_views;
 mod hold_render;
+mod lane_entry;
 mod help;
 pub mod decoder_transport;
 mod attacks;
@@ -278,6 +279,7 @@ pub struct State {
     active_views: Option<deadsync_editor::chart_views::ActiveChartViews>,
     view_inputs: view_render::Cache,
     receptor_views: receptor_views::Runtime,
+    lane_input: lane_entry::Runtime,
     end_hint: Option<end_hint::Cache>,
     minimap: minimap::Navigation,
     note_colors: Arc<deadsync_editor::note_color_preferences::Preferences>,
@@ -431,6 +433,7 @@ impl State {
             active_views: None,
             view_inputs: view_render::Cache::default(),
             receptor_views: receptor_views::Runtime::default(),
+            lane_input: lane_entry::Runtime::default(),
             end_hint: None,
             minimap: Default::default(),
             note_colors: Default::default(),
@@ -546,6 +549,7 @@ impl State {
     pub fn release_input(&mut self) {
         self.minimap_release_input();
         self.receptor_views.release_input();
+        self.lane_entry_release_input();
         self.control = false;
         self.control_keys = 0;
         self.shift = false;
@@ -1338,6 +1342,7 @@ impl State {
     }
 
     fn refresh(&mut self) {
+        self.lane_entry_reconcile();
         self.refresh_chart_views();
         self.prepare_view_render();
         self.prepare_receptors();
@@ -1438,6 +1443,7 @@ impl State {
     }
 
     fn command(&mut self, command: Command) {
+        self.lane_entry_command(command);
         if matches!(command, Command::Recover)
             && (self.pack_has_unsaved_changes() || self.pack_has_pending_durability())
         {
@@ -1484,6 +1490,8 @@ impl State {
     /// Returns true only after an explicit, safe close decision.
     pub fn raw_key(&mut self, event: &RawKeyboardEvent) -> bool {
         self.receptor_modifiers(event);
+        self.receptor_manual_input(event);
+        if self.lane_entry_before_key(event) {return false;}
         match event.code {
             KeyCode::ControlLeft
             | KeyCode::ControlRight
@@ -1516,7 +1524,6 @@ impl State {
             }
             _ => {}
         }
-        self.receptor_manual_input(event);
         if self.help && self.panel.is_none() {
             self.help_key(event);
             return false;
@@ -1627,6 +1634,7 @@ impl State {
             self.navigate_snap((event.code == KeyCode::ArrowDown) != self.reverse_display);
             return false;
         }
+        if self.lane_entry_key(event) {return false;}
         self.stop_audio();
         if self.control && matches!(event.code, KeyCode::Enter | KeyCode::NumpadEnter) {
             self.open_attack_at_cursor();
@@ -2682,7 +2690,9 @@ impl State {
         let policy = self.receptor_policy(geometry.source);
         let padding = lane_width * self.zoom.size_zoom() as f32;
         let note_ranges = projection.visible_ranges(top-padding,bottom+padding,last_row).unwrap_or_else(|_|ranges.clone());
-        let stats = view_render::notes(actors, grid, layout, &projection, geometry, viewport, &note_ranges, self.zoom.size_zoom() as f32, self.view_note_budget(), policy.as_ref(), self.reverse_display, selection);
+        let draft_budget=self.lane_entry_overlay_budget();
+        let mut stats = view_render::notes(actors, grid, layout, &projection, geometry, viewport, &note_ranges, self.zoom.size_zoom() as f32, self.view_note_budget().saturating_sub(draft_budget), policy.as_ref(), self.reverse_display, selection, self.lane_entry_model());
+        stats.partial|=self.lane_entry_actors(actors,&projection,geometry,viewport,draft_budget);
         view_render::cursor(actors, geometry, viewport);
         view_render::partial_notice(actors, geometry, viewport, stats);
         self.end_hint_actors(actors, &projection, geometry, viewport);

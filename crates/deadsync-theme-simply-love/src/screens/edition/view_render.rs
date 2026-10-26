@@ -261,6 +261,7 @@ pub(super) fn notes(
     policy: Option<&super::receptor_views::Policy<'_>>,
     reverse: bool,
     selection: Option<(u64,u64)>,
+    pending: Option<&deadsync_editor::lane_entry::Inputs>,
 ) -> NoteRenderStats {
     let mut stats = NoteRenderStats::default();
     if note_limit == 0 {
@@ -299,6 +300,7 @@ pub(super) fn notes(
             if !shown.insert(position) {
                 continue;
             }
+            if pending.is_some_and(|input|input.deleted_heads().any(|deleted|deleted==position)){continue;}
             let presentation = policy.and_then(|policy| policy.presentation(position));
             if presentation.is_some_and(|presentation| presentation.hidden) {
                 continue;
@@ -525,6 +527,7 @@ mod tests {
             limit,
             None,
             false,
+            None,
             None,
         )
     }
