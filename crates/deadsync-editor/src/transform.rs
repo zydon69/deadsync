@@ -19,6 +19,7 @@ pub enum Transform {
         wrap: bool,
     },
     AssignPlayer(u32),
+    SwapPlayers(u32, u32),
     Convert {
         from: Kind,
         to: Kind,
@@ -121,6 +122,13 @@ pub fn apply(
         return session.apply_grid_delta(chart, &staged, label);
     }
     let grid = session.grid(chart)?;
+    if let Transform::SwapPlayers(a, b) = transform {
+        if a >= grid.players() || b >= grid.players() {
+            return Err(Error::InvalidEdit(
+                "Player swap targets must exist in this chart".into(),
+            ));
+        }
+    }
     let selected: Vec<_> = grid
         .iter()
         .filter(|(pos, _)| {
@@ -140,6 +148,13 @@ pub fn apply(
             Transform::ShiftLanes { .. } => unreachable!("lane shift handled above"),
             Transform::ShiftRows(_) => unreachable!("row shift handled above"),
             Transform::AssignPlayer(owner) => pos.player = owner,
+            Transform::SwapPlayers(a, b) => {
+                if pos.player == a {
+                    pos.player = b;
+                } else if pos.player == b {
+                    pos.player = a;
+                }
+            }
             Transform::Convert {
                 from,
                 to,

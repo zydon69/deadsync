@@ -5280,3 +5280,36 @@ Validation: two targeted native suites passed 4 tests in
 `/tmp/deadsync-note-conversion-repair-core.log`. Theme compilation check passed in
 `/tmp/deadsync-note-conversion-repair-check.log` (`--jobs 2 --locked`).
 This targeted repair did not rerun the complete native integration suite.
+
+### Existing-player assignment and two-player exchange
+
+The Transformations menu now opens Change note players, a five-row keyboard panel
+for assignment/exchange mode, first/target player, second player, Apply and Return.
+It chooses among participants already represented by the chart. Assignment uses
+the first player; exchange swaps the two chosen owners. Escape leaves notes
+unchanged. Successful/no-op/failed operations share the same dialog-application
+helper as note-kind conversion, keeping failed/no-op controls reviewable and
+preserving undo/redo behavior.
+
+`Transform::SwapPlayers(a,b)` follows inspected ActionSwapNotePlayer: clone the
+selected lane notes, exchange only owners A/B, leave other owners untouched, and
+commit removals/additions in one history entry. Sustain ends and head/tail attributes
+are retained. Invalid participants are rejected before mutation; identical pairs
+create no change/history entry. Existing assignment still uses the same guarded
+core operation exposed previously through the API. Neither operation silently
+replaces colliding target-owner note addresses.
+
+Core tests cover swapping two among three Routine participants, unchanged third
+owner/out-of-range heads, exact attribute/duration retention, exact undo/redo,
+invalid targets and no-op redo preservation. English/French native workflows open
+the panel, inspect translated labels, cancel an assignment, apply it, undo, swap
+players, undo/redo, save and reopen both note blocks. Existing conversion-failure
+workflows also pass through the new shared dialog helper. Adding participants and
+full participant metadata/attribute inspectors remain outstanding; no physical
+app/GPU review or complete-editor parity claim is made.
+
+Validation: all 57 native editor integration targets passed (282 tests) in
+`/tmp/deadsync-note-owners-all-native.log`; three selected core player/selection
+and sustain-conversion suites passed 10 tests in `/tmp/deadsync-note-owners-core.log`.
+Theme compilation check passed in `/tmp/deadsync-note-owners-check.log`.
+Commands used `--jobs 2 --locked`.

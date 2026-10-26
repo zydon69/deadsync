@@ -1,4 +1,4 @@
-use super::{Command, Panel, SNAP_ROWS, State};
+use super::{Panel, SNAP_ROWS, State};
 use crate::i18n;
 use deadlib_platform::input::KeyCode;
 use deadsync_editor::{notes::Kind, transform::Transform};
@@ -58,20 +58,12 @@ impl State {
                     to: TARGETS[settings.to],
                     sustain_rows: SNAP_ROWS[settings.duration],
                 };
-                let revision = self.workspace.file().session.revision();
-                match self.workspace.execute(Command::Transform(transform)) {
-                    Ok(()) if self.workspace.file().session.revision() == revision => {
-                        self.status = i18n::tr("Edition", "NoteConversionNoChange");
-                    }
-                    Ok(()) => {
-                        self.panel = None;
-                        self.status = i18n::tr("Edition", "NoteConversionApplied");
-                    }
-                    Err(_) => {
-                        self.status = i18n::tr("Edition", "NoteConversionFailed");
-                    }
-                }
-                self.refresh();
+                self.apply_dialog_transform(
+                    transform,
+                    "NoteConversionApplied",
+                    "NoteConversionNoChange",
+                    "NoteConversionFailed",
+                );
             }
             KeyCode::Enter => self.panel = Some(Panel::Transforms(9)),
             _ => {}
