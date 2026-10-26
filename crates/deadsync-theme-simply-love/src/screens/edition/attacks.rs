@@ -4,7 +4,7 @@ use crate::i18n;
 use deadlib_platform::input::KeyCode;
 use deadsync_editor::{
     Error,
-    attacks::{Draft, Modifier},
+    attacks::{Modifier, inspector::Draft},
     timing_edit::Scope,
 };
 pub(super) const FIELD_KEYS: [&str; 5] = [
@@ -71,10 +71,8 @@ impl Settings {
             speed: number(3)?,
             length: number(4)?,
         };
-        self.event = self
-            .draft
-            .attacks_mut()
-            .set(self.event, self.modifier, time, value)?;
+        self.event = self.draft.set(self.event, self.modifier, time, value)?;
+        self.fields[0] = self.draft.attacks().events()[self.event].time.to_string();
         Ok(())
     }
     fn clamp(&mut self) {
@@ -94,8 +92,8 @@ impl Settings {
 impl State {
     pub(super) fn select_attack_source(&mut self, index: usize) {
         if let Some(settings) = &mut self.attacks {
-            if index < settings.draft.attacks().events().len() {
-                settings.event = index;
+            if let Some(event) = settings.draft.event_for_source(index) {
+                settings.event = event;
                 settings.modifier = 0;
                 settings.load();
                 self.focus_text();
@@ -106,7 +104,7 @@ impl State {
         if self.is_generating() {
             return;
         }
-        match self.workspace.attacks(scope) {
+        match self.workspace.attack_inspector(scope) {
             Ok(draft) => {
                 self.timing = None;
                 self.attacks = Some(Settings::new(draft));
@@ -129,37 +127,30 @@ impl State {
                 if !settings.editable() {
                     return Err(Error::InvalidEdit("No attack selected".into()));
                 }
-                if code == KeyCode::F2 {
-                    settings.fields[0] = deadsync_editor::attacks::cursor_time(
-                        &self.workspace.file().session,
-                        self.workspace.chart(),
-                        self.workspace.row(),
-                    )?
-                    .to_string();
-                }
                 settings.commit()?;
-                let event = &settings.draft.attacks().events()[settings.event];
-                if code == KeyCode::F3 {
-                    settings.fields[4] = deadsync_editor::attacks::length_to_cursor(
-                        &self.workspace.file().session,
-                        self.workspace.chart(),
+                if code == KeyCode::F2 {
+                    let modifier = settings.draft.attacks().events()[settings.event].modifiers
+                        [settings.modifier]
+                        .clone();
+                    settings.event = settings.draft.set_at_row(
+                        settings.event,
+                        settings.modifier,
                         self.workspace.row(),
-                        event.time,
-                    )?
-                    .to_string();
-                    settings.commit()?;
-                } else if matches!(code, KeyCode::F4 | KeyCode::F5) {
-                    let length = if code == KeyCode::F4 {
-                        event.modifiers[settings.modifier].length
-                    } else {
-                        0.0
-                    };
-                    let row = deadsync_editor::attacks::endpoint_row(
-                        &self.workspace.file().session,
-                        self.workspace.chart(),
-                        event.time,
-                        length,
+                        modifier,
                     )?;
+                    settings.load();
+                } else if code == KeyCode::F3 {
+                    settings.fields[4] = settings
+                        .draft
+                        .length_to_cursor(settings.event, self.workspace.row())?
+                        .to_string();
+                    settings.commit()?;
+                } else {
+                    let row = if code == KeyCode::F4 {
+                        settings.draft.end_row(settings.event, settings.modifier)?
+                    } else {
+                        settings.draft.start_row(settings.event)?
+                    };
                     self.stop_audio();
                     self.command(deadsync_editor::workspace::Command::Seek(row));
                 }
@@ -234,7 +225,7 @@ impl State {
                 } else {
                     Scope::Song
                 };
-                settings = Settings::new(self.workspace.attacks(scope)?);
+                settings = Settings::new(self.workspace.attack_inspector(scope)?);
                 return Ok(());
             }
             // Delete actions deliberately discard the selected object's pending fields.
@@ -266,66 +257,48 @@ impl State {
                 }
                 8 if code == KeyCode::Enter => {
                     if let Some(event) = settings.draft.attacks().events().get(settings.event) {
-                        let time = event.time;
                         let length = match event.modifiers.first() {
                             Some(modifier) => modifier.length,
-                            None => {
-                                let session = &self.workspace.file().session;
-                                let chart = self.workspace.chart();
-                                let row = deadsync_editor::attacks::endpoint_row(
-                                    session, chart, time, 0.0,
-                                )?;
-                                deadsync_editor::attacks::default_length(session, chart, row)?
-                            }
+                            None => settings.draft.default_length(event.row)?,
                         };
-                        let modifier = Modifier {
-                            length,
-                            ..Modifier::default()
-                        };
-                        settings.modifier = event.modifiers.len();
-                        settings.event = settings.draft.attacks_mut().add(time, modifier)?;
+                        settings.modifier = settings.draft.add_modifier(
+                            settings.event,
+                            Modifier {
+                                length,
+                                ..Modifier::default()
+                            },
+                        )?;
                         settings.load();
                     }
                 }
                 9 if code == KeyCode::Enter => {
                     settings
                         .draft
-                        .attacks_mut()
                         .remove_modifier(settings.event, settings.modifier)?;
                     settings.clamp();
                 }
                 10 if code == KeyCode::Enter => {
-                    let session = &self.workspace.file().session;
-                    let chart = self.workspace.chart();
                     let row = self.workspace.row();
-                    let time = deadsync_editor::attacks::cursor_time(session, chart, row)?;
-                    if settings
-                        .draft
-                        .attacks()
-                        .events()
-                        .iter()
-                        .any(|event| event.time == time)
-                    {
-                        return Err(Error::InvalidEdit(
-                            "An attack already occupies the cursor time".into(),
-                        ));
-                    }
                     let modifier = Modifier {
-                        length: deadsync_editor::attacks::default_length(session, chart, row)?,
+                        length: settings.draft.default_length(row)?,
                         ..Modifier::default()
                     };
-                    settings.event = settings.draft.attacks_mut().add(time, modifier)?;
+                    settings.event = settings.draft.add(row, modifier)?;
                     settings.modifier = 0;
                     settings.load();
                 }
                 11 if code == KeyCode::Enter => {
-                    settings.draft.attacks_mut().remove(settings.event)?;
+                    settings.draft.remove(settings.event)?;
                     settings.modifier = 0;
                     settings.clamp();
                 }
                 12 if code == KeyCode::Enter => {
                     self.apply_dialog_operation(
-                        |workspace| workspace.apply_attacks(&settings.draft).map(|_| ()),
+                        |workspace| {
+                            workspace
+                                .apply_attack_inspector(&settings.draft)
+                                .map(|_| ())
+                        },
                         "AttacksApplied",
                         "AttacksNoChange",
                         "AttacksFailed",

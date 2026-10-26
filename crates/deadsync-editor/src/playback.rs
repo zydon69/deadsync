@@ -83,6 +83,37 @@ impl Clock {
             timeline,
         })
     }
+    pub(crate) fn capture_with_attacks(
+        session: &Session,
+        chart: usize,
+        rows: &[u64],
+    ) -> Result<Self, Error> {
+        let document = session.document();
+        let descriptor = document
+            .charts()
+            .get(chart)
+            .ok_or_else(|| Error::InvalidEdit("Invalid attack chart".into()))?;
+        let parsed;
+        let grid = if let Some(grid) = session.loaded_grid(chart) {
+            grid
+        } else {
+            let columns = crate::notes::layout_columns(&descriptor.steps_type)
+                .ok_or_else(|| Error::Unsupported("Unknown attack layout".into()))?;
+            parsed = Grid::parse(document.value(descriptor.notes.clone()), columns)?;
+            &parsed
+        };
+        let offset = chart_properties::Draft::capture(session, chart)?.effective_music_offset();
+        let sync_offset = crate::song_properties::sync_offset(document)?;
+        let timing = GenerationTiming::from_document(document, chart)?;
+        Ok(Self {
+            offset,
+            sync_offset,
+            timeline: EditorTimeline::build_clock(&timing, grid, rows)?,
+        })
+    }
+    pub(crate) fn attack_times(&self) -> impl Iterator<Item = (u64, f64)> + '_ {
+        self.timeline.attack_times()
+    }
     /// Ordered chart-time rate snapshots for visual spacing. Use
     /// chart_time_to_music when converting these times to audio-file seconds.
     pub fn rate_mappings(&self) -> impl Iterator<Item = (u8, crate::rate_mapping::RateMapping)> + '_ {

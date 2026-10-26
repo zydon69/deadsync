@@ -498,6 +498,18 @@ impl Workspace {
     pub fn chart_properties(&self) -> Result<crate::chart_properties::Draft, Error> {
         crate::chart_properties::Draft::capture(&self.file.session, self.chart)
     }
+    pub fn attack_inspector(
+        &self,
+        scope: crate::timing_edit::Scope,
+    ) -> Result<crate::attacks::inspector::Draft, Error> {
+        crate::attacks::inspector::Draft::capture(&self.file.session, self.chart(), scope)
+    }
+    pub fn apply_attack_inspector(
+        &mut self,
+        draft: &crate::attacks::inspector::Draft,
+    ) -> Result<bool, Error> {
+        draft.apply(&mut self.file.session, self.chart)
+    }
     pub fn attacks(&self, scope: crate::timing_edit::Scope) -> Result<crate::attacks::Draft, Error> {
         crate::attacks::Draft::capture(&self.file.session, self.chart(), scope)
     }

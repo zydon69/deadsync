@@ -39,6 +39,9 @@ impl Timeline {
         } else {
             Scope::Song
         };
+        Self::capture_scope(session, chart, scope)
+    }
+    pub fn capture_scope(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let draft = Draft::capture(session, chart, scope)?;
         let attacks = draft.attacks().events();
         let origin = if scope == Scope::Chart && !draft.inherited() {
@@ -67,62 +70,7 @@ impl Timeline {
                 regions: Default::default(),
             });
         }
-        let document = session.document();
-        let descriptor = &document.charts()[chart];
-        let columns = layout_columns(&descriptor.steps_type)
-            .ok_or_else(|| Error::Unsupported("Unknown attack chart layout".into()))?;
-        let parsed;
-        let grid = if let Some(grid) = session.loaded_grid(chart) {
-            grid
-        } else {
-            parsed = Grid::parse(document.value(descriptor.notes.clone()), columns)?;
-            &parsed
-        };
-        let timing = GenerationTiming::from_document(document, chart)?;
-        let mut input: Vec<Input> = timing
-            .file_events()
-            .iter()
-            .map(|event| Input {
-                row: event.row,
-                order: event.order(),
-                lane: 0,
-                kind: Some(event.kind),
-                time: 0.0,
-            })
-            .collect();
-        for (position, note) in grid.iter() {
-            let row =
-                i64::try_from(position.row).map_err(|_| error("Attack source row overflow"))?;
-            let order = match note.kind {
-                Kind::Tap | Kind::Fake | Kind::Lift => 8,
-                Kind::Hold | Kind::Roll => 10,
-                _ => 12,
-            };
-            input.push(Input {
-                row,
-                order,
-                lane: position.lane,
-                kind: None,
-                time: 0.0,
-            });
-            if let Some(end) = note.end {
-                input.push(Input {
-                    row: i64::try_from(end).map_err(|_| error("Attack source tail overflow"))?,
-                    order: 11,
-                    lane: position.lane,
-                    kind: None,
-                    time: 0.0,
-                });
-            }
-        }
-        input.sort_by_key(|event| (event.row, event.order, event.lane));
-        let mut file_clock = crate::generation::timing::Clock::default();
-        for event in &mut input {
-            event.time = file_clock.event(event.row, event.kind);
-            if !event.time.is_finite() {
-                return Err(error("Nonfinite attack source clock"));
-            }
-        }
+        let input = file_inputs(session, chart)?;
         if input.is_empty() {
             return Ok(Self {
                 markers: Vec::new(),
@@ -131,7 +79,6 @@ impl Timeline {
         }
         let offset =
             crate::chart_properties::Draft::capture(session, chart)?.effective_music_offset();
-        let clock = Clock::capture(session, chart)?;
         let mut raw_times = Vec::with_capacity(attacks.len());
         for attack in source_order.events() {
             let time = attack.time + offset;
@@ -142,47 +89,12 @@ impl Timeline {
         }
         let mut markers = Vec::with_capacity(attacks.len());
         let mut next = 0;
-        let mut warp = 0i64;
-        let mut stop = 0.0;
-        let mut seconds_per_row = 1.0;
-        let mut rows_per_second = 1.0;
-        let mut has_tempo = false;
-        // The pinned reference keeps previousEvent at the first source event.
-        let first_row = input[0].row;
-        for (index, event) in input.iter().enumerate() {
-            let rows = event.row - first_row;
-            warp = (warp - rows).max(0);
-            if stop != 0.0 {
-                stop = (stop + rows as f64 * seconds_per_row).min(0.0);
-            }
-            match event.kind {
-                Some(EventKind::Stop(length) | EventKind::Delay(length)) => stop += length,
-                Some(EventKind::Warp(length)) => warp = warp.max(length),
-                Some(EventKind::Tempo(bpm)) => {
-                    has_tempo = true;
-                    seconds_per_row = 60.0 / bpm / 48.0;
-                    rows_per_second = 1.0 / seconds_per_row;
-                }
-                _ => {}
-            }
+        let states = file_states(&input);
+        for (index, state) in states.iter().enumerate() {
             while next < attacks.len()
                 && (index + 1 == input.len() || input[index + 1].time >= raw_times[next])
             {
-                let (row, loaded_time) = if has_tempo {
-                    let relative = raw_times[next] - (event.time + stop);
-                    let value = event.row as f64 + relative * rows_per_second + warp as f64;
-                    let rounded = (value + 0.5).trunc();
-                    if !rounded.is_finite() || rounded > i32::MAX as f64 {
-                        return Err(error("Attack position exceeds editor rows"));
-                    }
-                    let row = rounded.max(0.0) as u64;
-                    let time = event.time
-                        + (((row as f64 - event.row as f64).max(0.0)) * seconds_per_row + stop)
-                            .max(0.0);
-                    (row, time)
-                } else {
-                    (0, raw_times[next])
-                };
+                let (row, loaded_time) = state.place(raw_times[next])?;
                 let source_index = source_indices[next];
                 markers.push(Marker {
                     row,
@@ -212,36 +124,11 @@ impl Timeline {
                 grouped.push(marker);
             }
         }
-        // Refresh all event times in the editor pass, including note heads and
-        // the unique attack phase. A rate-query shortcut can differ by one ULP
-        // after crossing a warp; the original helper visits these events too.
-        let mut editor: Vec<(i64, u8, u16, Option<EventKind>, Option<usize>)> = timing
-            .editor_events()
-            .iter()
-            .map(|event| (event.row, event.order(), 0, Some(event.kind), None))
-            .collect();
-        editor.extend(
-            input
-                .iter()
-                .filter(|event| event.kind.is_none() && event.order != 11)
-                .map(|event| (event.row, event.order, event.lane, None, None)),
-        );
-        editor.extend(
-            grouped
-                .iter()
-                .enumerate()
-                .map(|(index, marker)| (marker.row as i64, 6, 0, None, Some(index))),
-        );
-        editor.sort_by_key(|event| (event.0, event.1, event.2));
-        let mut editor_clock = crate::generation::timing::Clock::default();
-        for (row, _, _, kind, marker) in editor {
-            let time = editor_clock.editor_event(row, kind).time;
-            if !time.is_finite() {
-                return Err(error("Nonfinite editor attack time"));
-            }
-            if let Some(index) = marker {
-                grouped[index].chart_time = time;
-            }
+        let rows: Vec<_> = grouped.iter().map(|marker| marker.row).collect();
+        let clock = Clock::capture_with_attacks(session, chart, &rows)?;
+        for (marker, (row, time)) in grouped.iter_mut().zip(clock.attack_times()) {
+            debug_assert_eq!(marker.row, row);
+            marker.chart_time = time;
         }
         for marker in &mut grouped {
             let duration = marker
@@ -312,4 +199,209 @@ impl Timeline {
 }
 fn error(message: &str) -> Error {
     Error::InvalidEdit(message.into())
+}
+
+fn file_inputs(session: &Session, chart: usize) -> Result<Vec<Input>, Error> {
+    let document = session.document();
+    let descriptor = &document.charts()[chart];
+    let columns = layout_columns(&descriptor.steps_type)
+        .ok_or_else(|| Error::Unsupported("Unknown attack chart layout".into()))?;
+    let parsed;
+    let grid = if let Some(grid) = session.loaded_grid(chart) {
+        grid
+    } else {
+        parsed = Grid::parse(document.value(descriptor.notes.clone()), columns)?;
+        &parsed
+    };
+    let timing = GenerationTiming::from_document(document, chart)?;
+    let mut input: Vec<Input> = timing
+        .file_events()
+        .iter()
+        .map(|event| Input {
+            row: event.row,
+            order: event.order(),
+            lane: 0,
+            kind: Some(event.kind),
+            time: 0.0,
+        })
+        .collect();
+    for (position, note) in grid.iter() {
+        let row = i64::try_from(position.row).map_err(|_| error("Attack source row overflow"))?;
+        let order = match note.kind {
+            Kind::Tap | Kind::Fake | Kind::Lift => 8,
+            Kind::Hold | Kind::Roll => 10,
+            _ => 12,
+        };
+        input.push(Input {
+            row,
+            order,
+            lane: position.lane,
+            kind: None,
+            time: 0.0,
+        });
+        if let Some(end) = note.end {
+            input.push(Input {
+                row: i64::try_from(end).map_err(|_| error("Attack source tail overflow"))?,
+                order: 11,
+                lane: position.lane,
+                kind: None,
+                time: 0.0,
+            });
+        }
+    }
+    input.sort_by_key(|event| (event.row, event.order, event.lane));
+    let mut file_clock = crate::generation::timing::Clock::default();
+    for event in &mut input {
+        event.time = file_clock.event(event.row, event.kind);
+        if !event.time.is_finite() {
+            return Err(error("Nonfinite attack source clock"));
+        }
+    }
+    Ok(input)
+}
+#[derive(Clone, Copy)]
+struct FileState {
+    event: Input,
+    warp: i64,
+    stop: f64,
+    seconds_per_row: f64,
+    rows_per_second: f64,
+    has_tempo: bool,
+}
+impl FileState {
+    fn place(self, time: f64) -> Result<(u64, f64), Error> {
+        if !self.has_tempo {
+            return Ok((0, time));
+        }
+        let relative = time - (self.event.time + self.stop);
+        let rounded =
+            (self.event.row as f64 + relative * self.rows_per_second + self.warp as f64 + 0.5)
+                .trunc();
+        if !rounded.is_finite() || rounded > i32::MAX as f64 {
+            return Err(error("Attack position exceeds editor rows"));
+        }
+        let row = rounded.max(0.0) as u64;
+        let loaded = self.event.time
+            + ((row as f64 - self.event.row as f64).max(0.0) * self.seconds_per_row + self.stop)
+                .max(0.0);
+        Ok((row, loaded))
+    }
+    fn inverse(self, row: u64, offset: f64) -> f64 {
+        if !self.has_tempo {
+            return -offset;
+        }
+        (row as f64 - self.event.row as f64 - self.warp as f64) * self.seconds_per_row
+            + self.event.time
+            + self.stop
+            - offset
+    }
+}
+fn file_states(input: &[Input]) -> Vec<FileState> {
+    let Some(first) = input.first() else {
+        return Vec::new();
+    };
+    let mut result = Vec::with_capacity(input.len());
+    let mut warp = 0i64;
+    let mut stop = 0.0;
+    let mut seconds_per_row = 1.0;
+    let mut rows_per_second = 1.0;
+    let mut has_tempo = false;
+    // Preserve the pinned loader's first-event tracking for stop/warp state.
+    for &event in input {
+        let rows = event.row - first.row;
+        warp = (warp - rows).max(0);
+        if stop != 0.0 {
+            stop = (stop + rows as f64 * seconds_per_row).min(0.0);
+        }
+        match event.kind {
+            Some(EventKind::Stop(length) | EventKind::Delay(length)) => stop += length,
+            Some(EventKind::Warp(length)) => warp = warp.max(length),
+            Some(EventKind::Tempo(bpm)) => {
+                has_tempo = true;
+                seconds_per_row = 60.0 / bpm / 48.0;
+                rows_per_second = 1.0 / seconds_per_row;
+            }
+            _ => {}
+        }
+        result.push(FileState {
+            event,
+            warp,
+            stop,
+            seconds_per_row,
+            rows_per_second,
+            has_tempo,
+        });
+    }
+    result
+}
+/// Encode resident rows using actual loader preimages, preserving source times
+/// when possible. A chart-time subtraction alone is not an inverse near stops.
+pub(super) fn encode_times(
+    session: &Session,
+    chart: usize,
+    desired: &[(u64, f64, Vec<f64>)],
+) -> Result<Vec<f64>, Error> {
+    if desired.is_empty() {
+        return Ok(Vec::new());
+    }
+    let input = file_inputs(session, chart)?;
+    let states = file_states(&input);
+    if states.is_empty() {
+        return Err(error("No source events for attack placement"));
+    }
+    let offset = crate::chart_properties::Draft::capture(session, chart)?.effective_music_offset();
+    let mut cursor = 0;
+    let mut used = std::collections::BTreeSet::new();
+    let mut output = Vec::with_capacity(desired.len());
+    for (row, normalized, hints) in desired {
+        let mut accepted = None;
+        let mut try_time = |value: f64| {
+            for candidate in [value, value.next_up(), value.next_down()] {
+                let key = if candidate == 0.0 {
+                    0
+                } else {
+                    candidate.to_bits()
+                };
+                let time = candidate + offset;
+                if !candidate.is_finite() || !time.is_finite() || used.contains(&key) {
+                    continue;
+                }
+                let time = time.max(0.0);
+                // Negative stops can make source-event times nonmonotonic.
+                // Match the loader's forward traversal from the current event.
+                let index = (cursor..states.len().saturating_sub(1))
+                    .find(|&index| states[index + 1].event.time >= time)
+                    .unwrap_or(states.len() - 1);
+                if states[index]
+                    .place(time)
+                    .is_ok_and(|(actual, _)| actual == *row)
+                {
+                    accepted = Some((candidate, index, key));
+                    return true;
+                }
+            }
+            false
+        };
+        let mut found = false;
+        for &hint in hints.iter().chain(std::iter::once(normalized)) {
+            if try_time(hint) {
+                found = true;
+                break;
+            }
+        }
+        if !found {
+            for state in &states[cursor..] {
+                if try_time(state.inverse(*row, offset)) {
+                    break;
+                }
+            }
+        }
+        let Some((time, index, key)) = accepted else {
+            return Err(error("Attack row cannot be represented by this file clock"));
+        };
+        output.push(time);
+        cursor = index;
+        used.insert(key);
+    }
+    Ok(output)
 }

@@ -16,6 +16,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 #[derive(Clone, Copy, Debug)]
 enum EntryKind {
+    Attack,
     Timing(EventKind),
     Head {
         position: Position,
@@ -35,6 +36,7 @@ struct Entry {
 impl Entry {
     fn order(self) -> u8 {
         match self.kind {
+            EntryKind::Attack => 6,
             EntryKind::Timing(kind) => Event {
                 row: self.row as i64,
                 kind,
@@ -139,8 +141,27 @@ impl EditorTimeline {
         region: Option<(u64, u64)>,
         cancelled: &AtomicBool,
     ) -> Result<Self, Error> {
+        Self::build_internal(timing, grid, region, &[], false, cancelled)
+    }
+    /// Resident editor clock includes actual note heads and attack phase six.
+    /// Multiple participants are valid here; generation retains its own guard.
+    pub(crate) fn build_clock(
+        timing: &GenerationTiming,
+        grid: &Grid,
+        attacks: &[u64],
+    ) -> Result<Self, Error> {
+        Self::build_internal(timing, grid, None, attacks, true, &AtomicBool::new(false))
+    }
+    fn build_internal(
+        timing: &GenerationTiming,
+        grid: &Grid,
+        region: Option<(u64, u64)>,
+        attacks: &[u64],
+        allow_players: bool,
+        cancelled: &AtomicBool,
+    ) -> Result<Self, Error> {
         check(cancelled)?;
-        if grid.players() != 1 {
+        if !allow_players && grid.players() != 1 {
             return invalid("Pattern timing requires one participant");
         }
         let mut entries = Vec::new();
@@ -170,6 +191,14 @@ impl EditorTimeline {
                     kind: note.kind,
                     end: note.end,
                 },
+                time: 0.0,
+            });
+        }
+        for &row in attacks {
+            valid_row(row)?;
+            entries.push(Entry {
+                row,
+                kind: EntryKind::Attack,
                 time: 0.0,
             });
         }
@@ -619,6 +648,11 @@ impl EditorTimeline {
         })
     }
 
+    pub(crate) fn attack_times(&self) -> impl Iterator<Item = (u64, f64)> + '_ {
+        self.entries.iter().filter_map(|entry| {
+            matches!(entry.kind, EntryKind::Attack).then_some((entry.row, entry.time))
+        })
+    }
     pub fn heads(&self) -> &[TimedHead] {
         &self.heads
     }

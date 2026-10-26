@@ -5537,12 +5537,37 @@ logs use `/tmp/deadsync-attack-placement-{oracle,core,all-native,check}.log`.
 
 Required parity work remains: the editor still derives these placements from its
 working time-based attack records. GrooveAuthor's resident row anchoring across
-tempo/offset edits, alignment of the inspector's raw-file-time transport shortcuts
-with these mapped anchors on irregular clocks, complete miscellaneous-event
-selection/clipboard and full attack-effect playback preview remain unfinished. This increment does not claim
+tempo/offset edits, complete miscellaneous-event selection/clipboard and full
+attack-effect playback preview remain unfinished. Inspector transport alignment
+on irregular clocks is addressed in the increment below. This increment does not claim
 complete attack/editor parity or replace that work with the display snapshot.
 
 Final validation: 310 native edition integration tests across 63 targets,
 41 core tests across seven targeted suites, and theme compilation check passed.
 The final tree includes the empty-timeline render fast path, avoiding a second
 rate-section traversal for ordinary charts without attacks.
+
+
+### Resident attack inspector transport (in progress)
+
+The native inspector now edits attack rows in the same event clock used by the
+chart markers. F5 selects the mapped start; F4 resolves the modifier end from its
+resident chart time; F3 measures duration from that start to the cursor. File
+seconds are encoded only on Apply. Original file times are preferred when they
+still decode to the desired rows. The transaction verifies every row and modifier
+by reloading its proposed property before changing the working document.
+Unrepresentable warp-interior positions fail atomically. Empty modifier markers
+are retained, and unchanged drafts preserve the original bytes.
+
+`attack_inspector_workflows` covers all nine pinned loader-placement fixture cases,
+SM/SSC save/reopen, exact undo/redo, collision rejection, warp boundaries, and
+foreign/stale draft rejection. The native attack workflow additionally exercises
+the actual F3/F4/F5 keys through a delay and stop. These additions do not yet
+anchor attacks across subsequent tempo/offset edits, implement miscellaneous-event
+clipboard, or prove full editor parity. Extended original-C# transport comparisons remain pending.
+
+Validation for this increment: 312 native edition integration tests across 63
+targets, 24 core tests across four targeted suites, and the theme compilation
+check passed. Logs: `/tmp/deadsync-inspector-all-native.log`,
+`/tmp/deadsync-inspector-core-final.log`, `/tmp/deadsync-inspector-check.log`.
+No physical gameplay or GPU runtime validation was performed for this increment.

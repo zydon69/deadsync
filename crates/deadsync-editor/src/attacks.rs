@@ -1,6 +1,7 @@
 //! Attack events use absolute song-file seconds and have independent SSC inheritance.
 //! Reference: Fumen AttackPropertyParser / GrooveAuthor UIAttackEvent.
 pub mod placement;
+pub mod inspector;
 use crate::{
     Error,
     document::Format,
@@ -223,9 +224,18 @@ impl Attacks {
         Ok(())
     }
     pub fn serialize(&self) -> Result<Vec<u8>, Error> {
+        self.serialize_options(false)
+    }
+    pub(super) fn serialize_preserving_empty(&self) -> Result<Vec<u8>, Error> {
+        self.serialize_options(true)
+    }
+    fn serialize_options(&self, retain_empty: bool) -> Result<Vec<u8>, Error> {
         let mut entries = Vec::new();
         for event in &self.events {
             valid_time(event.time)?;
+            if retain_empty && event.modifiers.is_empty() {
+                entries.push(format!("TIME={}:LEN=0:MODS=", event.time));
+            }
             for modifier in &event.modifiers {
                 modifier.validate()?;
                 // Always write explicit level and speed: Fumen's absent-level default is 1, not 100.

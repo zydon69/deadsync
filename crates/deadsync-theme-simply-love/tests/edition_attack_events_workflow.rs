@@ -314,3 +314,28 @@ fn timing_menu_entry_and_shortcut_preserve_pending_timing_before_opening_attacks
             .is_none()
     );
 }
+
+#[test]
+fn attack_transport_uses_resident_rows_with_delay_and_stop_and_preserves_them_on_apply() {
+    i18n::init_for_tests();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source=b"#VERSION:0.83;#BPMS:0=120;#DELAYS:4=1;#STOPS:8=1;#ATTACKS:TIME=5.25:LEN=1:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000,0100;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    open(&mut s);
+    press(&mut s, KeyCode::F5);
+    assert_eq!(s.workspace().row(), 312);
+    press(&mut s, KeyCode::F4);
+    assert_eq!(s.workspace().row(), 384);
+    press(&mut s, KeyCode::F3);
+    field(&mut s, 4, "Reverse");
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    action(&mut s, 12);
+    let session = &s.workspace().file().session;
+    let placed = deadsync_editor::attacks::placement::Timeline::capture(session, 0).unwrap();
+    assert_eq!(placed.markers()[0].row, 312);
+    assert_eq!(placed.markers()[0].modifiers[0].length, 0.75);
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+}
