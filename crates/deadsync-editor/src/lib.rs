@@ -11,6 +11,7 @@ pub mod receptors;
 pub mod minimap_viewport;
 pub mod minimap_preferences;
 pub mod minimap_content;
+pub mod minimap_background;
 pub mod minimap_event_policy;
 pub mod minimap_palette;
 pub mod event_shift;

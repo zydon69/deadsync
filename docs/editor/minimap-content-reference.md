@@ -68,3 +68,24 @@ queries three, palette two. One palette test initially assumed selected colors
 would differ despite the source multiplier of eight saturating both to white.
 It now explicitly checks that clamp and uses a nonsaturating multiplier for
 dispatch differences; the production algorithm did not change.
+
+## Central validation update
+
+The following preparations have now passed centrally:
+
+- Raster2 (including all168 original C# pixel cases), event-policy3 and bounded
+  chronological query3:8coretests.
+- Palette2, including4,224 original cached color lookups. The dispatch test
+  explicitly proves selected saturation to white at multiplier8, then chooses
+  multiplier2 to observe the underlying family difference.
+- Native isolated scene3 and retained mesh2:5tests.
+- Background2, including96 UpdateBegin/UpdateEnd C# cases with recorded marker
+  positions. Clear buffers use the original rim/interior policy; marker calls
+  are recorded separately so this oracle does not claim marker pixel drawing.
+
+Full native State wiring remains unapplied while shared UI builds are running.
+`patches/editor-minimap-native-content.patch` currently proposes the narrow
+Raster buffer replacement API and reuse of the existing scene/raster, without
+changing the validated viewport model. Native cache2 and shared NoteColor/Options
+DTO2 are additional pending targets. No new Cargo execution was performed by
+the media agent; these results are from parent-managed validation.
