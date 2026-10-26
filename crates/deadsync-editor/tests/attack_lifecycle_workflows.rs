@@ -115,3 +115,70 @@ fn empty_event_time_and_row_edits_preserve_identity_and_reject_invalid_moves_ato
     draft.apply(&mut session, 0).unwrap();
     assert_eq!(Timeline::capture(&session, 0).unwrap().markers()[0].row, 24);
 }
+
+#[test]
+fn distinct_empty_events_survive_clock_changes_recovery_disk_save_and_structural_history() {
+    use deadsync_editor::{storage::FileSession, timing_edit::TempoDraft};
+    for format in [Format::Sm, Format::Ssc] {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join(format!("empty.{}", format.extension()));
+        let notes = if format == Format::Sm {
+            "#NOTES:dance-single::Hard:9::1000,0100;"
+        } else {
+            "#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000,0100;"
+        };
+        let original = format!("#VERSION:0.83;#BPMS:0=120;#STOPS:0=-2;{notes}");
+        std::fs::write(&path, &original).unwrap();
+        let mut file = FileSession::open(&path).unwrap();
+        let scope = if format == Format::Sm {
+            Scope::Song
+        } else {
+            Scope::Chart
+        };
+        let mut draft = Draft::capture(&file.session, 0, scope).unwrap();
+        for row in [48, 96] {
+            let event = draft.add(row, Modifier::default()).unwrap();
+            draft.remove_modifier(event, 0).unwrap();
+        }
+        draft.apply(&mut file.session, 0).unwrap();
+        let check = |session: &Session, chart| {
+            let timeline = Timeline::capture(session, chart).unwrap();
+            assert_eq!(
+                timeline.markers().iter().map(|m| m.row).collect::<Vec<_>>(),
+                [48, 96]
+            );
+            assert!(timeline.markers().iter().all(|m| m.modifiers.is_empty()));
+        };
+        check(&file.session, 0);
+        let before_clock = file.session.serialize().unwrap();
+        let mut tempo = TempoDraft::capture(&file.session, 0, Scope::Song).unwrap();
+        tempo.set(0, 240.0).unwrap();
+        tempo.apply(&mut file.session, 0).unwrap();
+        let after_tempo = file.session.serialize().unwrap();
+        check(&file.session, 0);
+        file.session.undo().unwrap();
+        assert_eq!(file.session.serialize().unwrap(), before_clock);
+        file.session.redo().unwrap();
+        assert_eq!(file.session.serialize().unwrap(), after_tempo);
+        let mut offset = deadsync_editor::song_properties::Draft::capture(&file.session).unwrap();
+        offset.set_music_offset(0.25).unwrap();
+        offset.apply(&mut file.session).unwrap();
+        check(&file.session, 0);
+        file.save_recovery().unwrap();
+        assert_eq!(std::fs::read(&path).unwrap(), original.as_bytes());
+        let mut recovered = FileSession::open(&path).unwrap();
+        recovered.recover().unwrap();
+        check(&recovered.session, 0);
+        let recovered_bytes = recovered.session.serialize().unwrap();
+        recovered
+            .session
+            .duplicate_chart(0, recovered.session.revision())
+            .unwrap();
+        check(&recovered.session, 1);
+        recovered.session.undo().unwrap();
+        assert_eq!(recovered.session.serialize().unwrap(), recovered_bytes);
+        recovered.save().unwrap();
+        let reopened = FileSession::open(&path).unwrap();
+        check(&reopened.session, 0);
+    }
+}

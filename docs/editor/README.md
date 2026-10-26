@@ -5744,7 +5744,16 @@ attack time, rejected modifier input, F2/F5 transport and disk reopen.
 
 Verification checkpoint for this increment: the complete editor-core regression
 passed 523 tests across 100 integration suites
-(`/tmp/deadsync-attack-lifecycle-all-core.log`). The four focused native attack
-event/widget targets passed 28 tests. The full 63-target native regression and
-theme compilation check are still running; this checkpoint does not claim their
-completion or physical keyboard/audio/GPU validation.
+(`/tmp/deadsync-attack-lifecycle-all-core.log`). The complete native editor
+regression passed 320 tests across 63 targets
+(`/tmp/deadsync-attack-lifecycle-all-native.log`), and the theme compilation check
+succeeded (`/tmp/deadsync-attack-lifecycle-check.log`). These checks do not prove
+physical keyboard/audio/GPU behavior.
+
+An additional lifecycle workflow now verifies two distinct empty attacks inside
+a negative stop in both SM and SSC. Their rows and empty modifier lists survive
+tempo and global-offset edits, exact undo/redo, recovery without overwriting the
+original, chart duplication/undo, atomic disk save and reopen. All three tests
+in `attack_lifecycle_workflows` passed
+(`/tmp/deadsync-empty-attack-recovery.log`); the extra case was added after the
+full 523-test core regression above.
