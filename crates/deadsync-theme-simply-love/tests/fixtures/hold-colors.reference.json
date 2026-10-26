@@ -1,0 +1,318 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_bytes_verified_against_git": true,
+  "source_path": "StepManiaEditor/Preferences/PreferencesNoteColor.cs",
+  "source_sha256": "86a6b92900bcf32c4d758cc2248334fb426d7a9fce31db122521cdb7186ecc27",
+  "monogame_commit": "8e61b2effa9f8775bd63f24dc33b2f7924f9eba2",
+  "monogame_path": "MonoGame.Framework/Color.cs",
+  "monogame_sha256": "bb40ac7bfc5b275965a9c7bdf14acf134df9756fbee1ba17f88181239b0e70ac",
+  "monogame_provenance": "Raw pinned submodule URL, supplied as --monogame-color; no local submodule checkout claimed.",
+  "method_sha256": {
+    "arrow_color": "fc68712c14c357d2615d21d6a5cf2a90973fa722fa0404ed8b6101663e8f0026",
+    "float_color": "76def3195db524f5ab6e821959d93089887703124eb02d9eafd6a65f1cb66f90",
+    "int_color": "87d06f43008db8a05992da32acddc6f58ff6acb6646293a7dba8087d59d0e8e7"
+  },
+  "scope": "Original ArrowColor plus original MonoGame float/int constructors. Inert UI helper adapters; only XNA fills compared, not UI packing or full preference cache/layout resolution.",
+  "cases": [
+    {
+      "rgb": [
+        0.2666667,
+        0.2666667,
+        0.2666667
+      ],
+      "held": false,
+      "selected": false,
+      "expected": [
+        68,
+        68,
+        68,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.2666667,
+        0.2666667,
+        0.2666667
+      ],
+      "held": false,
+      "selected": true,
+      "expected": [
+        115,
+        115,
+        115,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.2666667,
+        0.2666667,
+        0.2666667
+      ],
+      "held": true,
+      "selected": false,
+      "expected": [
+        102,
+        102,
+        102,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.2666667,
+        0.2666667,
+        0.2666667
+      ],
+      "held": true,
+      "selected": true,
+      "expected": [
+        173,
+        173,
+        173,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.7803921,
+        0.4666667,
+        0.1607843
+      ],
+      "held": false,
+      "selected": false,
+      "expected": [
+        198,
+        119,
+        40,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.7803921,
+        0.4666667,
+        0.1607843
+      ],
+      "held": false,
+      "selected": true,
+      "expected": [
+        255,
+        202,
+        69,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.7803921,
+        0.4666667,
+        0.1607843
+      ],
+      "held": true,
+      "selected": false,
+      "expected": [
+        255,
+        178,
+        61,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.7803921,
+        0.4666667,
+        0.1607843
+      ],
+      "held": true,
+      "selected": true,
+      "expected": [
+        255,
+        255,
+        104,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.7109375,
+        0.09375,
+        0.7109375
+      ],
+      "held": false,
+      "selected": false,
+      "expected": [
+        181,
+        23,
+        181,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.7109375,
+        0.09375,
+        0.7109375
+      ],
+      "held": false,
+      "selected": true,
+      "expected": [
+        255,
+        40,
+        255,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.7109375,
+        0.09375,
+        0.7109375
+      ],
+      "held": true,
+      "selected": false,
+      "expected": [
+        255,
+        35,
+        255,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.7109375,
+        0.09375,
+        0.7109375
+      ],
+      "held": true,
+      "selected": true,
+      "expected": [
+        255,
+        60,
+        255,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.094,
+        0.999,
+        0.5
+      ],
+      "held": false,
+      "selected": false,
+      "expected": [
+        23,
+        254,
+        127,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.094,
+        0.999,
+        0.5
+      ],
+      "held": false,
+      "selected": true,
+      "expected": [
+        40,
+        255,
+        216,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.094,
+        0.999,
+        0.5
+      ],
+      "held": true,
+      "selected": false,
+      "expected": [
+        35,
+        255,
+        191,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0.094,
+        0.999,
+        0.5
+      ],
+      "held": true,
+      "selected": true,
+      "expected": [
+        61,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0,
+        1,
+        0.1
+      ],
+      "held": false,
+      "selected": false,
+      "expected": [
+        0,
+        255,
+        25,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0,
+        1,
+        0.1
+      ],
+      "held": false,
+      "selected": true,
+      "expected": [
+        0,
+        255,
+        43,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0,
+        1,
+        0.1
+      ],
+      "held": true,
+      "selected": false,
+      "expected": [
+        0,
+        255,
+        38,
+        255
+      ]
+    },
+    {
+      "rgb": [
+        0,
+        1,
+        0.1
+      ],
+      "held": true,
+      "selected": true,
+      "expected": [
+        0,
+        255,
+        65,
+        255
+      ]
+    }
+  ]
+}

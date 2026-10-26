@@ -1,0 +1,1019 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_bytes_verified_against_git": true,
+  "source_path": "StepManiaEditor/EditorEvents/EditorHoldNoteEvent.cs",
+  "source_sha256": "f96a616508c6e616cf98a8dbedf2ab8ecbd99b901ddaafae644aa41c61310aab",
+  "method_sha256": {
+    "draw": "7f302c531027571b7b324dd290f2e3411f11ce847d11eab591d62f253f4e4ef1",
+    "body": "b3148607e128f5fd6e352146383c17c9bcbb0793a3819823f68186961fbdac6f",
+    "start": "14187a4558660de482b1cf2e2a988179354152287fe79ae0cdc99e699287ccc2",
+    "end": "d4122594088c4ef3c4d9132e6cff8dd7340bc25b97f78d74180a96ec8922a519",
+    "reflect": "e1d7033d00d868520f9477db0a11e755875043f5cb59cdfd482494f282a607c6",
+    "flip": "b10bdb8ce90251b1678fdc8fd1344e31110b89473a0798d9e0a9ba2df7e672e6",
+    "cap_flip": "a6da6c0ef0708cbda59a5fee48e64e4c20d952a7599c35660e0a6f55d4988ef9"
+  },
+  "scope": "Original Draw and HoldRenderState draw/reflection/flip methods. Adapted constructor supplies explicit dimensions; TextureAtlas records destination rectangles. No original texture/color/layout resolution, GPU or timing execution.",
+  "cases": [
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": 300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 0,
+        "cap_centered": false,
+        "reverse": false,
+        "screen_height": 480.0,
+        "cutoff": null
+      },
+      "expected": {
+        "head_top": 100,
+        "body": [
+          {
+            "top": 327.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 279.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 231.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 183.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 135.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 124,
+            "height": 11.625,
+            "source_top": 97,
+            "source_height": 31
+          }
+        ],
+        "start": null,
+        "cap": {
+          "top": 375.625,
+          "height": 24.375,
+          "source_top": 0,
+          "source_height": 65
+        }
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": 300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 0,
+        "cap_centered": false,
+        "reverse": false,
+        "screen_height": 480.0,
+        "cutoff": 200.0
+      },
+      "expected": {
+        "head_top": 176,
+        "body": [
+          {
+            "top": 327.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 279.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 231.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 200,
+            "height": 31.625,
+            "source_top": 44,
+            "source_height": 84
+          }
+        ],
+        "start": null,
+        "cap": {
+          "top": 375.625,
+          "height": 24.375,
+          "source_top": 0,
+          "source_height": 65
+        }
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": 300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 28,
+        "cap_centered": false,
+        "reverse": false,
+        "screen_height": 480.0,
+        "cutoff": null
+      },
+      "expected": {
+        "head_top": 100,
+        "body": [
+          {
+            "top": 327.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 279.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 231.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 183.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 135.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 124,
+            "height": 11.625,
+            "source_top": 97,
+            "source_height": 31
+          }
+        ],
+        "start": {
+          "top": 113.5,
+          "height": 10.5,
+          "source_top": 0,
+          "source_height": 28
+        },
+        "cap": {
+          "top": 375.625,
+          "height": 24.375,
+          "source_top": 0,
+          "source_height": 65
+        }
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": 300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 28,
+        "cap_centered": false,
+        "reverse": false,
+        "screen_height": 480.0,
+        "cutoff": 200.0
+      },
+      "expected": {
+        "head_top": 176,
+        "body": [
+          {
+            "top": 327.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 279.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 231.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 200,
+            "height": 31.625,
+            "source_top": 44,
+            "source_height": 84
+          }
+        ],
+        "start": {
+          "top": 189.5,
+          "height": 10.5,
+          "source_top": 0,
+          "source_height": 28
+        },
+        "cap": {
+          "top": 375.625,
+          "height": 24.375,
+          "source_top": 0,
+          "source_height": 65
+        }
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": 300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 0,
+        "cap_centered": true,
+        "reverse": false,
+        "screen_height": 480.0,
+        "cutoff": null
+      },
+      "expected": {
+        "head_top": 100,
+        "body": [
+          {
+            "top": 339.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 291.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 243.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 195.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 147.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 124,
+            "height": 23.8125,
+            "source_top": 65,
+            "source_height": 63
+          }
+        ],
+        "start": null,
+        "cap": {
+          "top": 375.625,
+          "height": 24.375,
+          "source_top": 0,
+          "source_height": 65
+        }
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": 300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 0,
+        "cap_centered": true,
+        "reverse": false,
+        "screen_height": 480.0,
+        "cutoff": 200.0
+      },
+      "expected": {
+        "head_top": 176,
+        "body": [
+          {
+            "top": 339.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 291.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 243.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 200,
+            "height": 43.8125,
+            "source_top": 12,
+            "source_height": 116
+          }
+        ],
+        "start": null,
+        "cap": {
+          "top": 375.625,
+          "height": 24.375,
+          "source_top": 0,
+          "source_height": 65
+        }
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": 300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 28,
+        "cap_centered": true,
+        "reverse": false,
+        "screen_height": 480.0,
+        "cutoff": null
+      },
+      "expected": {
+        "head_top": 100,
+        "body": [
+          {
+            "top": 339.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 291.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 243.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 195.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 147.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 124,
+            "height": 23.8125,
+            "source_top": 65,
+            "source_height": 63
+          }
+        ],
+        "start": {
+          "top": 113.5,
+          "height": 10.5,
+          "source_top": 0,
+          "source_height": 28
+        },
+        "cap": {
+          "top": 375.625,
+          "height": 24.375,
+          "source_top": 0,
+          "source_height": 65
+        }
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": 300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 28,
+        "cap_centered": true,
+        "reverse": false,
+        "screen_height": 480.0,
+        "cutoff": 200.0
+      },
+      "expected": {
+        "head_top": 176,
+        "body": [
+          {
+            "top": 339.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 291.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 243.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 200,
+            "height": 43.8125,
+            "source_top": 12,
+            "source_height": 116
+          }
+        ],
+        "start": {
+          "top": 189.5,
+          "height": 10.5,
+          "source_top": 0,
+          "source_height": 28
+        },
+        "cap": {
+          "top": 375.625,
+          "height": 24.375,
+          "source_top": 0,
+          "source_height": 65
+        }
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": -300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 0,
+        "cap_centered": false,
+        "reverse": true,
+        "screen_height": 480.0,
+        "cutoff": null
+      },
+      "expected": {
+        "head_top": 100,
+        "body": [
+          {
+            "top": -79.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": -31.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 16.375,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 64.375,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 112.375,
+            "height": 11.625,
+            "source_top": 97,
+            "source_height": 31
+          }
+        ],
+        "start": null,
+        "cap": null
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": -300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 0,
+        "cap_centered": false,
+        "reverse": true,
+        "screen_height": 480.0,
+        "cutoff": 200.0
+      },
+      "expected": {
+        "head_top": 176,
+        "body": [
+          {
+            "top": -79.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": -31.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 16.375,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 64.375,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 112.375,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 160.375,
+            "height": 39.625,
+            "source_top": 23,
+            "source_height": 105
+          }
+        ],
+        "start": null,
+        "cap": null
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": -300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 28,
+        "cap_centered": false,
+        "reverse": true,
+        "screen_height": 480.0,
+        "cutoff": null
+      },
+      "expected": {
+        "head_top": 100,
+        "body": [
+          {
+            "top": -79.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": -31.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 16.375,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 64.375,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 112.375,
+            "height": 1.125,
+            "source_top": 125,
+            "source_height": 3
+          }
+        ],
+        "start": null,
+        "cap": null
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": -300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 28,
+        "cap_centered": false,
+        "reverse": true,
+        "screen_height": 480.0,
+        "cutoff": 200.0
+      },
+      "expected": {
+        "head_top": 176,
+        "body": [
+          {
+            "top": -79.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": -31.625,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 16.375,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 64.375,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 112.375,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 160.375,
+            "height": 29.125,
+            "source_top": 51,
+            "source_height": 77
+          }
+        ],
+        "start": null,
+        "cap": null
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": -300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 0,
+        "cap_centered": true,
+        "reverse": true,
+        "screen_height": 480.0,
+        "cutoff": null
+      },
+      "expected": {
+        "head_top": 100,
+        "body": [
+          {
+            "top": -91.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": -43.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 4.1875,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 52.1875,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 100.1875,
+            "height": 23.8125,
+            "source_top": 65,
+            "source_height": 63
+          }
+        ],
+        "start": null,
+        "cap": null
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": -300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 0,
+        "cap_centered": true,
+        "reverse": true,
+        "screen_height": 480.0,
+        "cutoff": 200.0
+      },
+      "expected": {
+        "head_top": 176,
+        "body": [
+          {
+            "top": -91.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": -43.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 4.1875,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 52.1875,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 100.1875,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 148.1875,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 196.1875,
+            "height": 3.8125,
+            "source_top": 118,
+            "source_height": 10
+          }
+        ],
+        "start": null,
+        "cap": null
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": -300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 28,
+        "cap_centered": true,
+        "reverse": true,
+        "screen_height": 480.0,
+        "cutoff": null
+      },
+      "expected": {
+        "head_top": 100,
+        "body": [
+          {
+            "top": -91.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": -43.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 4.1875,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 52.1875,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 100.1875,
+            "height": 13.3125,
+            "source_top": 93,
+            "source_height": 35
+          }
+        ],
+        "start": null,
+        "cap": null
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": -300.0,
+        "scale": 0.375,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 28,
+        "cap_centered": true,
+        "reverse": true,
+        "screen_height": 480.0,
+        "cutoff": 200.0
+      },
+      "expected": {
+        "head_top": 176,
+        "body": [
+          {
+            "top": -91.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": -43.8125,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 4.1875,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 52.1875,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 100.1875,
+            "height": 48,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 148.1875,
+            "height": 41.3125,
+            "source_top": 18,
+            "source_height": 110
+          }
+        ],
+        "start": null,
+        "cap": null
+      }
+    },
+    {
+      "input": {
+        "head_top": -1000000000.0,
+        "height": 2000000000.0,
+        "scale": 1.0,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 0,
+        "cap_centered": false,
+        "reverse": false,
+        "screen_height": 480.0,
+        "cutoff": null
+      },
+      "expected": {
+        "head_top": -1000000000,
+        "body": [
+          {
+            "top": 575,
+            "height": 128,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 447,
+            "height": 128,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 319,
+            "height": 128,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 191,
+            "height": 128,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": 63,
+            "height": 128,
+            "source_top": 0,
+            "source_height": 128
+          },
+          {
+            "top": -65,
+            "height": 128,
+            "source_top": 0,
+            "source_height": 128
+          }
+        ],
+        "start": null,
+        "cap": null
+      }
+    },
+    {
+      "input": {
+        "head_top": 100.0,
+        "height": -20.0,
+        "scale": 1.0,
+        "arrow_height": 128,
+        "body_height": 128,
+        "cap_height": 65,
+        "start_height": 0,
+        "cap_centered": false,
+        "reverse": false,
+        "screen_height": 480.0,
+        "cutoff": null
+      },
+      "expected": {
+        "head_top": 100,
+        "body": [],
+        "start": null,
+        "cap": null
+      }
+    }
+  ]
+}
