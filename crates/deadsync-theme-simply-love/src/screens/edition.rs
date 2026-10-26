@@ -312,7 +312,7 @@ pub struct State {
     status: Arc<str>,
     toolbar: Arc<str>,
     chart_label: Arc<str>,
-    last_recovery_revision: u64,
+    auto_recovery: deadsync_editor::storage::AutoRecovery,
 }
 
 impl State {
@@ -468,7 +468,7 @@ impl State {
             status: i18n::tr("Edition", "Ready"),
             toolbar: Arc::from(""),
             chart_label: Arc::from(""),
-            last_recovery_revision: 0,
+            auto_recovery: Default::default(),
         };
         state.refresh();
         if let Some(path) = deadsync_editor::runtime::preferences_path() {
@@ -1058,6 +1058,9 @@ impl State {
     /// Update using the host's monotonic frame clock, also permitting
     /// deterministic animation checks without sleeps or hardware input.
     pub fn update_with_time(&mut self, now: std::time::Instant) {
+        if let Err(error) = self.auto_recovery.update(self.workspace.file(), now) {
+            self.recovery_error(error);
+        }
         self.zoom.update(now.saturating_duration_since(self.zoom_epoch).as_secs_f64())
             .expect("finite monotonic frame clock");
         self.poll_waveform();
@@ -2268,19 +2271,24 @@ impl State {
         false
     }
 
-    /// Called at a low frequency by the screen. Durable drafts never write the
-    /// original chart. No I/O is performed from actor construction.
+    /// Whether an immutable recovery snapshot is still being written.
+    pub fn recovery_pending(&self) -> bool {
+        self.auto_recovery.is_pending()
+    }
+
+    /// Request a background draft without waiting for disk I/O.
     pub fn autosave(&mut self) {
-        let session = &self.workspace.file().session;
-        if session.is_dirty() && session.revision() != self.last_recovery_revision {
-            match self.workspace.file().save_recovery() {
-                Ok(()) => self.last_recovery_revision = session.revision(),
-                Err(error) => {
-                    self.status =
-                        i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
-                }
-            }
+        if let Err(error) = self.auto_recovery.request(self.workspace.file(), std::time::Instant::now()) {
+            self.recovery_error(error);
         }
+    }
+
+    fn recovery_error(&mut self, error: deadsync_editor::Error) {
+        self.status = if matches!(error, deadsync_editor::Error::RecoveryConflict) {
+            i18n::tr("Edition", "RecoveryExists")
+        } else {
+            i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+        };
     }
 
     pub fn actors(&self, actors: &mut Vec<Actor>) {

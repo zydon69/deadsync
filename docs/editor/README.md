@@ -43,7 +43,7 @@ reviewable and tested.
 | Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste uses GrooveAuthor ForceAdd conflict rules; attack inspector has an event clipboard; mixed row-range copy/cut/paste includes typed timing and attacks; individual note/timing/attack choices are available in the keyboard picker; pattern and other editor-only event clipboard parity remain pending |
 | Layouts | Reference pad coordinates, starting tiers, ten relationship matrices, mirror/flip mappings | All imported layout definitions validated; original compressed graphs decoded and traversed |
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/row shifts and column shifts with optional wrapping; miscellaneous-event transformations and broader original workflow coverage pending |
-| Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
+| Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; periodic background recovery drafts with guarded replacement and native EN/FR conflict notices; full conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; native constant-time, Reverse and variable displays now share the original rate geometry; physical scroll/speed rendering verification, broader legacy normalization and conversion remain pending |
@@ -6082,3 +6082,42 @@ reopening and exact undo/redo. The new file-clock cases also compare interpreted
 steps/mines, event spans and converted notes with the actual pinned C# pipeline.
 No complete-editor regression, physical input, rendered GPU or audible playback
 claim is made by these focused checks.
+
+### Automatic recovery scheduling
+
+The native frame update now drives a 30-second recovery scheduler. Previously
+the screen exposed an `autosave` method without a caller. The scheduler captures
+accepted document edits, permits only one worker at a time, and performs durable
+sidecar I/O on that worker. Rendering does not write files; snapshot serialization
+still occurs on the editor thread. Recovery remains an explicit Ctrl/Cmd+R action.
+
+Automatic writes and normal/manual saves share the existing file-save lock.
+Background snapshots check the source baseline and the exact last authorized
+draft before replacement. A draft from another session is preserved until
+explicit recovery or manual draft replacement; the native conflict notice is
+localized in EN/FR. A delayed worker cannot replace a newer manual draft or
+publish against a source changed by normal saving. A completed revision is
+identified by session identity, revision and saved-file bytes, so recovery/reload
+and save-then-undo cannot accidentally suppress a necessary draft.
+
+Clean and unchanged sessions do not write; failures retain the prior draft and
+retry on the next interval. Closing the screen may leave its current worker
+finishing the immutable snapshot. The scheduler does not mark the document clean
+or change its undo history. Existing explicit draft files retain the v1 format.
+This is the DeadSync storage/safety adapter; no claim is made that the C# editor
+uses this recovery file format or scheduling policy. Full conflict review UI and
+large-document snapshot/latency measurements remain pending.
+
+Core verification: six public `auto_recovery_workflows` tests, thirteen existing
+`editing_workflows` tests, and two deterministic snapshot-ordering tests passed.
+The ordering tests stage writes explicitly rather than relying on thread races
+or sleep-based scheduling to prove stale-write rejection.
+
+Native verification: the new frame-update workflow passed in EN and FR within
+one test, and all 37 existing `edition_workflow` tests passed. The new test waits
+for the first worker to finish before reopening another editor, then checks the
+localized conflict notice and unchanged foreign draft/source bytes. These are
+synthetic frame/input and actor assertions, not physical-input or GPU checks.
+Existing unclaimed sidecars, including older drafts after a saved-file baseline
+change, remain available for explicit review/replacement rather than being
+automatically deleted. No full-editor regression is claimed for this increment.

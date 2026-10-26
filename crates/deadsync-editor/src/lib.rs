@@ -54,6 +54,7 @@ pub enum Error {
     Unsupported(String),
     InvalidEdit(String),
     ExternalChange,
+    RecoveryConflict,
     Io(std::io::Error),
 }
 
@@ -66,6 +67,7 @@ impl fmt::Display for Error {
             Self::ExternalChange => {
                 f.write_str("The simfile changed on disk; reload or save a copy.")
             }
+            Self::RecoveryConflict => f.write_str("An existing recovery draft changed; recover it or explicitly save a draft before replacing it."),
             Self::Io(error) => error.fmt(f),
         }
     }

@@ -1,21 +1,24 @@
 //! Native storage adapter. Saving never marks the document clean until the
 //! atomic replacement succeeds; failures leave the current document editable.
+mod auto_recovery;
 use crate::{
     Error,
     document::{Document, Format},
     history::Session,
 };
+pub use auto_recovery::AutoRecovery;
 use std::{
     fs,
     io::Write,
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{Arc, Mutex},
 };
 
 pub struct FileSession {
     pub session: Session,
     path: PathBuf,
     expected: Arc<[u8]>,
+    recovery_receipt: Arc<Mutex<Option<Arc<[u8]>>>>,
 }
 
 impl FileSession {
@@ -41,6 +44,7 @@ impl FileSession {
             session: Session::new(document),
             path,
             expected,
+            recovery_receipt: Default::default(),
         })
     }
 
@@ -103,19 +107,23 @@ impl FileSession {
     /// Durable draft; the original song is untouched. Recovery is explicit and
     /// refuses a draft whose original file has since changed.
     pub fn save_recovery(&self) -> Result<(), Error> {
-        let path = self.recovery_path();
-        let parent = path.parent().unwrap();
-        let mut pending = tempfile::NamedTempFile::new_in(parent)?;
-        pending.write_all(b"DEADSYNC-EDITOR-RECOVERY-1\n")?;
-        pending.write_all(&(self.expected.len() as u64).to_le_bytes())?;
-        pending.write_all(&self.expected)?;
-        pending.write_all(&self.session.serialize()?)?;
-        pending.as_file().sync_all()?;
-        pending
-            .persist(&path)
-            .map_err(|error| Error::Io(error.error))?;
-        sync_directory(parent)?;
-        Ok(())
+        self.recovery_snapshot()?.write(false)
+    }
+
+    fn recovery_snapshot(&self) -> Result<RecoverySnapshot, Error> {
+        Ok(RecoverySnapshot {
+            source: self.path.clone(),
+            path: self.recovery_path(),
+            lock_path: self.sidecar_path(".deadsync-save-lock"),
+            expected: self.expected.clone(),
+            content: self.session.serialize()?,
+            expected_draft: self
+                .recovery_receipt
+                .lock()
+                .map_err(|_| std::io::Error::other("Recovery receipt unavailable"))?
+                .clone(),
+            receipt: self.recovery_receipt.clone(),
+        })
     }
 
     pub fn recover(&mut self) -> Result<(), Error> {
@@ -144,9 +152,76 @@ impl FileSession {
             Arc::<[u8]>::from(&bytes[end..]),
             self.session.document().format,
         )?;
-        // Recovery is a new unsaved document, whose clean baseline remains the
-        // on-disk file. It must not be silently dismissed as an unchanged file.
+        // Recovery keeps the on-disk baseline and a fresh session identity.
         self.session = Session::recovered(recovered);
+        *self
+            .recovery_receipt
+            .lock()
+            .map_err(|_| std::io::Error::other("Recovery receipt unavailable"))? =
+            Some(bytes.into());
+        Ok(())
+    }
+}
+
+struct RecoverySnapshot {
+    source: PathBuf,
+    path: PathBuf,
+    lock_path: PathBuf,
+    expected: Arc<[u8]>,
+    content: Vec<u8>,
+    expected_draft: Option<Arc<[u8]>>,
+    receipt: Arc<Mutex<Option<Arc<[u8]>>>>,
+}
+impl RecoverySnapshot {
+    fn write(self, require_current_source: bool) -> Result<(), Error> {
+        let lock = fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(false)
+            .open(&self.lock_path)?;
+        lock.try_lock().map_err(std::io::Error::other)?;
+        let check = || -> Result<(), Error> {
+            if require_current_source
+                && fs::read(&self.source)?.as_slice() != self.expected.as_ref()
+            {
+                return Err(Error::ExternalChange);
+            }
+            Ok(())
+        };
+        check()?;
+        if require_current_source {
+            match fs::read(&self.path) {
+                Ok(bytes) if self.expected_draft.as_deref() == Some(bytes.as_slice()) => {}
+                Err(error)
+                    if error.kind() == std::io::ErrorKind::NotFound
+                        && self.expected_draft.is_none() => {}
+                Ok(_) => return Err(Error::RecoveryConflict),
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                    return Err(Error::RecoveryConflict);
+                }
+                Err(error) => return Err(error.into()),
+            }
+        }
+        let parent = self.path.parent().unwrap();
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(b"DEADSYNC-EDITOR-RECOVERY-1\n");
+        bytes.extend_from_slice(&(self.expected.len() as u64).to_le_bytes());
+        bytes.extend_from_slice(&self.expected);
+        bytes.extend_from_slice(&self.content);
+        let mut pending = tempfile::NamedTempFile::new_in(parent)?;
+        pending.write_all(&bytes)?;
+        pending.as_file().sync_all()?;
+        check()?;
+        pending
+            .persist(&self.path)
+            .map_err(|error| Error::Io(error.error))?;
+        sync_directory(parent)?;
+        *self
+            .receipt
+            .lock()
+            .map_err(|_| std::io::Error::other("Recovery receipt unavailable"))? =
+            Some(bytes.into());
         Ok(())
     }
 }
