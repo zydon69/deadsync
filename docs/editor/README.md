@@ -42,7 +42,7 @@ reviewable and tested.
 | Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; attribute inspector, new participants, StepF2 conventions pending |
 | Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste now uses GrooveAuthor ForceAdd conflict rules; miscellaneous-event clipboard parity remains pending |
 | Layouts | Reference pad coordinates, starting tiers, ten relationship matrices, mirror/flip mappings | All imported layout definitions validated; original compressed graphs decoded and traversed |
-| Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/move; broader GrooveAuthor transformations pending |
+| Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/row shifts and column shifts with optional wrapping; broader GrooveAuthor transformations pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
@@ -5112,3 +5112,36 @@ Validation: all 49 native editor integration targets passed (270 tests) in
 selection and ForceAdd paste suites passed 22 tests in
 `/tmp/deadsync-force-paste-core.log`. Theme compilation check passed in
 `/tmp/deadsync-force-paste-check.log`. Commands used `--jobs 2 --locked`.
+
+
+### Shift selected note columns left/right, with optional wrapping
+
+The native Transformations panel now exposes the four original column-shift
+variants: left/right with edge-note removal, and left/right wrapping to the other
+edge. This follows pinned ActionShiftSelectionLane and its
+ActionTransformSelectionLanes base: selected heads are removed first; failed
+non-wrapping edge transforms are omitted; remaining notes are processed in sorted
+order with ForceAdd destination-conflict handling. Sustain duration/type and
+participant assignments are retained. Previously unselected notes affected by a
+destination conflict are included in the same undo gesture.
+
+The core `Transform::ShiftLanes` stages a grid and uses the same grid-delta commit
+helper as ForceAdd paste, avoiding separate undo/diff implementations. The helper
+refuses layout/participant-count changes. Native selection behavior remains the
+current range, or current row when no range is selected. Labels describe edge
+removal explicitly in English and French.
+
+Core tests exercise all four combinations, edge removal/wrapping, preserved roll
+ends, conflict with an unselected sustain and exact side-effect undo/redo, empty
+selections and invalid-range preservation of redo. English/French native workflows
+open the transformation panel, shift left without wrapping, undo/redo, shift right
+with wrapping, save and reopen the result. Broader lane/row transformations and
+miscellaneous-event transformation parity remain outstanding; no physical app/GPU
+review or new executable C# oracle is claimed.
+
+Validation: all 51 native editor integration targets passed (272 tests) in
+`/tmp/deadsync-lane-shift-all-native.log`; three selected core lane-shift, paste and
+selection suites passed 12 tests in `/tmp/deadsync-lane-shift-core.log`. Theme
+compilation check passed in `/tmp/deadsync-lane-shift-check.log`. Commands used
+`--jobs 2 --locked`. The initial native scenario used Escape instead of F1 to
+open the menu; corrected keyboard routing passed both targeted and full runs.

@@ -14,6 +14,10 @@ pub enum Transform {
     Flip,
     MirrorAndFlip,
     ShiftRows(i64),
+    ShiftLanes {
+        right: bool,
+        wrap: bool,
+    },
     AssignPlayer(u32),
     Convert {
         from: Kind,
@@ -32,6 +36,43 @@ pub fn apply(
 ) -> Result<bool, Error> {
     if start > end {
         return Err(Error::InvalidEdit("Selection ends before it starts".into()));
+    }
+    if let Transform::ShiftLanes { right, wrap } = transform {
+        let original = session.grid(chart)?;
+        let mut staged = original.clone();
+        let mut selected: Vec<_> = original
+            .iter()
+            .filter(|(pos, _)| {
+                pos.row >= start && pos.row <= end && player.is_none_or(|p| pos.player == p)
+            })
+            .map(|(pos, note)| (pos, note.clone()))
+            .collect();
+        selected.sort_by_key(|(pos, _)| (pos.row, pos.lane, pos.player));
+        for (pos, _) in &selected {
+            staged.set(*pos, None)?;
+        }
+        for (mut pos, note) in selected {
+            let lane = if right {
+                pos.lane
+                    .checked_add(1)
+                    .filter(|lane| *lane < staged.columns())
+            } else {
+                pos.lane.checked_sub(1)
+            };
+            pos.lane = match lane {
+                Some(lane) => lane,
+                None if wrap => {
+                    if right {
+                        0
+                    } else {
+                        staged.columns() - 1
+                    }
+                }
+                None => continue,
+            };
+            staged.force_insert(pos, note)?;
+        }
+        return session.apply_grid_delta(chart, &staged, "Shift note columns");
     }
     let layout = session
         .document()
@@ -75,6 +116,7 @@ pub fn apply(
                     })?;
                 }
             }
+            Transform::ShiftLanes { .. } => unreachable!("lane shift handled above"),
             Transform::ShiftRows(delta) => {
                 pos.row = shift(pos.row, delta)?;
                 note.end = note.end.map(|end| shift(end, delta)).transpose()?;

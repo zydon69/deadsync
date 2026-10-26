@@ -421,6 +421,20 @@ impl Session {
         self.execute("Delete generation profile".into(), Change::Group(changes))
     }
 
+    pub(crate) fn apply_grid_delta(&mut self, chart: usize, staged: &Grid, label: &str) -> Result<bool, Error> {
+        let original = self.grid(chart)?;
+        if original.columns() != staged.columns() || original.players() != staged.players() {
+            return Err(Error::InvalidEdit("Grid replacement cannot change layout or participants".into()));
+        }
+        let positions: std::collections::BTreeSet<_> = original.iter().map(|(pos, _)| pos)
+            .chain(staged.iter().map(|(pos, _)| pos)).collect();
+        let edits: Vec<_> = positions.into_iter().filter_map(|pos| {
+            let after = staged.get(pos);
+            (original.get(pos) != after).then(|| (pos, after.cloned()))
+        }).collect();
+        self.edit_notes(chart, label, edits)
+    }
+
     pub fn undo(&mut self) -> Result<bool, Error> {
         let Some(mut entry) = self.undo.pop() else {
             return Ok(false);
@@ -942,13 +956,7 @@ impl Clipboard {
                 .ok_or_else(|| Error::InvalidEdit("Paste exceeds the row range".into()))).transpose()?;
             staged.force_insert(position, note)?;
         }
-        let positions: std::collections::BTreeSet<_> = original.iter().map(|(pos, _)| pos)
-            .chain(staged.iter().map(|(pos, _)| pos)).collect();
-        let edits: Vec<_> = positions.into_iter().filter_map(|pos| {
-            let after = staged.get(pos);
-            (original.get(pos) != after).then(|| (pos, after.cloned()))
-        }).collect();
-        session.edit_notes(chart, "Paste notes", edits)
+        session.apply_grid_delta(chart, &staged, "Paste notes")
     }
 
     /// GrooveAuthor pastes a single-owner selection as the active participant;
