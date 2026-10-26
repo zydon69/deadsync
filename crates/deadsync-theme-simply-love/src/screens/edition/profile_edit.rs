@@ -4,7 +4,7 @@ use deadlib_platform::input::KeyCode;
 use deadsync_editor::generation::{
     metadata::Guid,
     profile_controls::{Control, Editor},
-    profiles::{Kind, Profile},
+    profiles::{Kind, Profile, TravelSpeed},
 };
 #[derive(Default)]
 pub(super) struct Choices {
@@ -43,6 +43,14 @@ pub(super) struct Draft {
     description: Option<String>,
     pub(super) text_field: TextField,
     pub(super) text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
+    travel_speed: Option<TravelSpeed>,
+    travel_editor: Option<TravelSpeed>,
+    travel_input: Option<(usize, String)>,
+}
+impl Draft {
+    pub(super) fn supports_travel_speed(&self) -> bool {
+        self.kind == Kind::Performed
+    }
 }
 impl State {
     pub(super) fn open_profile_edit(&mut self, kind: Kind, back: Panel) {
@@ -92,6 +100,9 @@ impl State {
                 description: None,
                 text_field: TextField::Name,
                 text_buffer: None,
+                travel_speed: None,
+                travel_editor: None,
+                travel_input: None,
             })
         })();
         match result {
@@ -129,6 +140,7 @@ impl State {
             return;
         };
         let count = draft.editor.fields().len();
+        let actions = if draft.supports_travel_speed() { 6 } else { 5 };
         if code == KeyCode::Escape || (index == count + 1 && code == KeyCode::Enter) {
             let back = draft.back;
             self.profile_edit = None;
@@ -152,6 +164,16 @@ impl State {
             self.open_profile_text(TextField::Description);
             return;
         }
+        if draft.supports_travel_speed()
+            && ((index == count + 5 && code == KeyCode::Enter)
+                || (code == KeyCode::F4 && !self.control))
+        {
+            if !self.stage_profile_input() {
+                return;
+            }
+            self.open_profile_speed();
+            return;
+        }
         if index == count + 3 && code == KeyCode::Enter {
             if self.stage_profile_input() {
                 self.save_profile(false);
@@ -164,24 +186,7 @@ impl State {
             .get(index)
             .is_some_and(|f| matches!(f.control, Control::Integer | Control::Number));
         if !self.control && numeric {
-            let character = match code {
-                KeyCode::Digit0 | KeyCode::Numpad0 => Some('0'),
-                KeyCode::Digit1 | KeyCode::Numpad1 => Some('1'),
-                KeyCode::Digit2 | KeyCode::Numpad2 => Some('2'),
-                KeyCode::Digit3 | KeyCode::Numpad3 => Some('3'),
-                KeyCode::Digit4 | KeyCode::Numpad4 => Some('4'),
-                KeyCode::Digit5 | KeyCode::Numpad5 => Some('5'),
-                KeyCode::Digit6 | KeyCode::Numpad6 => Some('6'),
-                KeyCode::Digit7 | KeyCode::Numpad7 => Some('7'),
-                KeyCode::Digit8 | KeyCode::Numpad8 => Some('8'),
-                KeyCode::Digit9 | KeyCode::Numpad9 => Some('9'),
-                KeyCode::Minus | KeyCode::NumpadSubtract => Some('-'),
-                KeyCode::Period | KeyCode::NumpadDecimal => Some('.'),
-                KeyCode::KeyE => Some('e'),
-                KeyCode::NumpadAdd => Some('+'),
-                KeyCode::Equal if self.shift => Some('+'),
-                _ => None,
-            };
+            let character = numeric_key(code, self.shift);
 
             if let Some(draft) = self.profile_edit.as_mut() {
                 if let Some(c) = character {
@@ -210,10 +215,12 @@ impl State {
             return;
         }
         let next = match code {
-            KeyCode::ArrowUp => Some((index + count + 4) % (count + 5)),
-            KeyCode::ArrowDown => Some((index + 1) % (count + 5)),
-            KeyCode::Tab => Some((index + if self.shift { count + 4 } else { 1 }) % (count + 5)),
-            KeyCode::PageDown => Some((index + 8).min(count + 4)),
+            KeyCode::ArrowUp => Some((index + count + actions - 1) % (count + actions)),
+            KeyCode::ArrowDown => Some((index + 1) % (count + actions)),
+            KeyCode::Tab => {
+                Some((index + if self.shift { count + actions - 1 } else { 1 }) % (count + actions))
+            }
+            KeyCode::PageDown => Some((index + 8).min(count + actions - 1)),
             KeyCode::PageUp => Some(index.saturating_sub(8)),
             KeyCode::Home => Some(0),
             KeyCode::End => Some(count),
@@ -279,6 +286,9 @@ impl State {
                     .as_deref()
                     .ok_or_else(|| i18n::tr("Edition", "ExpressionEditUnavailable").to_string())?;
                 let mut profile = draft.profile.clone();
+                if let Some(speed) = draft.travel_speed {
+                    profile.set_travel_speed(speed).map_err(profile_error)?;
+                }
                 profile.set_config(config).map_err(profile_error)?;
                 if let Some(name) = &draft.name {
                     profile.rename(name).map_err(profile_error)?;
@@ -304,6 +314,9 @@ impl State {
                     )
                     .map_err(profile_error)?;
                 let mut profile = file.profile().clone();
+                if let Some(speed) = draft.travel_speed {
+                    profile.set_travel_speed(speed).map_err(profile_error)?;
+                }
                 profile.set_config(config).map_err(profile_error)?;
                 if let Some(name) = &draft.name {
                     profile.rename(name).map_err(profile_error)?;
@@ -632,5 +645,203 @@ fn profile_error(error: deadsync_editor::Error) -> String {
         i18n::tr("Edition", "ProfileEditExternalChange").to_string()
     } else {
         error.to_string()
+    }
+}
+
+fn numeric_key(code: KeyCode, shift: bool) -> Option<char> {
+    match code {
+        KeyCode::Digit0 | KeyCode::Numpad0 => Some('0'),
+        KeyCode::Digit1 | KeyCode::Numpad1 => Some('1'),
+        KeyCode::Digit2 | KeyCode::Numpad2 => Some('2'),
+        KeyCode::Digit3 | KeyCode::Numpad3 => Some('3'),
+        KeyCode::Digit4 | KeyCode::Numpad4 => Some('4'),
+        KeyCode::Digit5 | KeyCode::Numpad5 => Some('5'),
+        KeyCode::Digit6 | KeyCode::Numpad6 => Some('6'),
+        KeyCode::Digit7 | KeyCode::Numpad7 => Some('7'),
+        KeyCode::Digit8 | KeyCode::Numpad8 => Some('8'),
+        KeyCode::Digit9 | KeyCode::Numpad9 => Some('9'),
+        KeyCode::Minus | KeyCode::NumpadSubtract => Some('-'),
+        KeyCode::Period | KeyCode::NumpadDecimal => Some('.'),
+        KeyCode::KeyE => Some('e'),
+        KeyCode::NumpadAdd => Some('+'),
+        KeyCode::Equal if shift => Some('+'),
+        _ => None,
+    }
+}
+
+impl State {
+    fn open_profile_speed(&mut self) {
+        let Some(draft) = self.profile_edit.as_mut() else {
+            return;
+        };
+        draft.travel_editor = draft.travel_speed.or_else(|| draft.profile.travel_speed());
+        if draft.travel_editor.is_none() {
+            return;
+        }
+        draft.travel_input = None;
+        self.panel = Some(Panel::ProfileSpeed(0));
+        self.status = i18n::tr("Edition", "ProfileSpeedHelp");
+    }
+    fn stage_speed_input(&mut self) -> bool {
+        let Some(draft) = self.profile_edit.as_mut() else {
+            return false;
+        };
+        let Some((index, text)) = &draft.travel_input else {
+            return true;
+        };
+        let Some(value) = text
+            .trim()
+            .parse::<i32>()
+            .ok()
+            .filter(|v| (1..=1000).contains(v))
+        else {
+            self.status = i18n::tr("Edition", "ProfileSpeedInvalid");
+            return false;
+        };
+        let Some(speed) = draft.travel_editor.as_mut() else {
+            return false;
+        };
+        if *index == 1 {
+            speed.min_bpm = value;
+        } else {
+            speed.max_bpm = value;
+        }
+        draft.travel_input = None;
+        true
+    }
+    pub(super) fn profile_speed_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::Escape || (index == 6 && code == KeyCode::Enter) {
+            if let Some(draft) = self.profile_edit.as_mut() {
+                draft.travel_editor = None;
+                draft.travel_input = None;
+                self.panel = Some(Panel::ProfileEdit(draft.editor.fields().len() + 5));
+            }
+            self.status = i18n::tr("Edition", "ProfileSpeedDiscarded");
+            return;
+        }
+        if !self.control && matches!(index, 1 | 2) {
+            if let Some(draft) = self.profile_edit.as_mut() {
+                if let Some(c) = numeric_key(code, self.shift) {
+                    let (_, text) = draft
+                        .travel_input
+                        .get_or_insert_with(|| (index, String::new()));
+                    if text.len() < 32 {
+                        text.push(c);
+                    }
+                    return;
+                }
+                if code == KeyCode::Delete {
+                    draft.travel_input = Some((index, String::new()));
+                    return;
+                }
+                if code == KeyCode::Backspace {
+                    let Some(speed) = draft.travel_editor else {
+                        return;
+                    };
+                    let value = if index == 1 {
+                        speed.min_bpm
+                    } else {
+                        speed.max_bpm
+                    };
+                    draft
+                        .travel_input
+                        .get_or_insert((index, value.to_string()))
+                        .1
+                        .pop();
+                    return;
+                }
+            }
+        }
+        if !self.stage_speed_input() {
+            return;
+        }
+        if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
+            self.panel = Some(Panel::ProfileSpeed(
+                (index
+                    + if code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift) {
+                        6
+                    } else {
+                        1
+                    })
+                    % 7,
+            ));
+            return;
+        }
+        let Some(draft) = self.profile_edit.as_mut() else {
+            return;
+        };
+        let Some(speed) = draft.travel_editor.as_mut() else {
+            return;
+        };
+        if index == 5 && code == KeyCode::Enter {
+            if draft.editor.apply_travel_speed(*speed).is_err() {
+                self.status = i18n::tr("Edition", "ProfileSpeedInvalid");
+                return;
+            }
+            draft.travel_speed = Some(*speed);
+            draft.travel_editor = None;
+            self.panel = Some(Panel::ProfileEdit(draft.editor.fields().len()));
+            self.status = i18n::tr("Edition", "ProfileSpeedStaged");
+            return;
+        }
+        if !matches!(
+            code,
+            KeyCode::ArrowLeft | KeyCode::ArrowRight | KeyCode::Enter
+        ) {
+            return;
+        }
+        let forward = code != KeyCode::ArrowLeft;
+        if index == 0 {
+            speed.subdivision_index = (speed.subdivision_index + if forward { 1 } else { 8 }) % 9;
+        }
+        if matches!(index, 1 | 2) && code != KeyCode::Enter {
+            let value = if index == 1 {
+                &mut speed.min_bpm
+            } else {
+                &mut speed.max_bpm
+            };
+            *value = value
+                .saturating_add(if forward {
+                    if self.shift { 10 } else { 1 }
+                } else if self.shift {
+                    -10
+                } else {
+                    -1
+                })
+                .clamp(1, 1000);
+        }
+    }
+    pub(super) fn profile_speed_label(&self, index: usize, key: &str) -> std::sync::Arc<str> {
+        let Some(draft) = self.profile_edit.as_ref() else {
+            return i18n::tr("Edition", key);
+        };
+        let Some(speed) = draft.travel_editor else {
+            return i18n::tr("Edition", key);
+        };
+        let value = match index {
+            0 => format!(
+                "1/{}",
+                TravelSpeed::SUBDIVISIONS[speed.subdivision_index] * 4
+            ),
+            1 | 2 => draft
+                .travel_input
+                .as_ref()
+                .filter(|(i, _)| *i == index)
+                .map(|(_, s)| s.clone())
+                .unwrap_or_else(|| {
+                    if index == 1 {
+                        speed.min_bpm
+                    } else {
+                        speed.max_bpm
+                    }
+                    .to_string()
+                }),
+            3 | 4 => speed
+                .intervals()
+                .map(|(min, max)| format!("{:.6}", if index == 3 { min } else { max }))
+                .unwrap_or_else(|_| "-".into()),
+            _ => return i18n::tr("Edition", key),
+        };
+        i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
 }

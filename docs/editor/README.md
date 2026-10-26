@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
 | Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; library undo/deletion, absent-layout dictionary editing, BPM wrapper controls and broader runtime parity remain pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; library undo/deletion, absent-layout dictionary editing and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -4679,3 +4679,55 @@ tests (2 description, 4 snapshot, 9 existing profile workflows) passed. Final
 `/tmp/deadsync-profile-description-final-native.log`,
 `/tmp/deadsync-profile-description-core.log` and
 `/tmp/deadsync-profile-description-check.log`.
+
+### Original travel-speed BPM/subdivision controls
+
+Movement profiles now offer Travel speed in BPM (F4). A dedicated seven-row
+panel edits the original nine note subdivisions and integer min/max BPM, shows
+the resulting per-foot intervals, and stages the values into the existing typed
+configuration. It uses the original UI range 1..1000 and validates min <= max.
+Cancel leaves the interval values and other staged profile settings intact.
+Staging does not change limiter enablement or song timing. Copy/original save
+remain explicit actions in the parent inspector, with the existing guards.
+
+`Profile` retains the original three travel-speed wrapper values independently
+of the effective Config, matching their state when a later Config member overrides
+an earlier wrapper setter. Imported wrapper order and index clamping remain
+unchanged. `TravelSpeed::intervals` uses the original operation order:
+`60.0 / (notes_per_beat * max_bpm) * 2.0` for minimum time, and min_bpm for maximum
+time. Native edits are bounded like the original widget; import parsing retains
+its existing signed-integer/wrapping semantics without imposing those UI bounds.
+
+`set_travel_speed` atomically updates wrapper properties and installs the complete
+effective Config last, retaining unknown raw members and avoiding accumulating
+Config entries on repeated edits. The existing generic configuration setter now
+shares that final-config installation helper. Native save applies wrapper changes
+before the final staged Config, so a later direct seconds edit wins while the
+wrapper metadata remains preserved. This chronology is tested explicitly.
+
+Builtin catalog captures now seed the original editor wrapper defaults before
+Config (sixteenths, 125..170 BPM; double stamina minimum 99), preserving the existing
+Registry generation configurations. Custom imports without wrappers retain the
+original constructor defaults, rather than guessing BPM from arbitrary seconds.
+Staging the helper explicitly replaces the interval settings; simply opening and
+cancelling does not normalize those imports.
+
+Sources inspected: EditorPerformedChartConfig.UpdateStepTighteningSpeed,
+PerformedChartConfigManager.AddDefaultConfigs, and
+ImGuiLayoutUtils.DrawRowPerformedChartConfigSpeedTightening (range 1..1000).
+Core tests exercise all subdivisions through save/reopen, no-op preservation,
+invalid edit atomicity, repeated edits, preset defaults, later direct-second
+edits, and the original performed-before/after fixture comparison. Native English
+and French workflows cover typed ranges, invalid order repair, staging, copy and
+in-place save, cancel preserving other controls, unchanged limiter enablement,
+unchanged song bytes, and manual-second edit precedence. These are scoped numeric,
+file and actor/input checks; no new executable C# oracle or physical GPU review
+was run for this panel. The complete editor port remains unfinished.
+
+Validation: 243 native editor integration tests across 43 targets passed, as did
+23 core tests across travel speed (4), existing profile workflows (9), profile
+edits (6), and snapshots (4). Final
+`cargo check -p deadsync-theme-simply-love --jobs 2 --locked` passed. Logs:
+`/tmp/deadsync-travel-speed-all-native.log`,
+`/tmp/deadsync-travel-speed-core.log`, and
+`/tmp/deadsync-travel-speed-check.log`.

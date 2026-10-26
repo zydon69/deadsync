@@ -120,6 +120,43 @@ impl Serialize for Members {
         map.end()
     }
 }
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct TravelSpeed {
+    pub subdivision_index: usize,
+    pub min_bpm: i32,
+    pub max_bpm: i32,
+}
+impl Default for TravelSpeed {
+    fn default() -> Self {
+        Self {
+            subdivision_index: 0,
+            min_bpm: 1,
+            max_bpm: 1,
+        }
+    }
+}
+impl TravelSpeed {
+    pub const SUBDIVISIONS: [u32; 9] = SUBDIVISIONS;
+    pub fn intervals(self) -> Result<(f64, f64), Error> {
+        if self.subdivision_index >= SUBDIVISIONS.len()
+            || !(1..=1000).contains(&self.min_bpm)
+            || !(1..=1000).contains(&self.max_bpm)
+            || self.min_bpm > self.max_bpm
+        {
+            return invalid(
+                "Travel speed needs an ordered BPM range from 1 to 1000 and a valid subdivision",
+            );
+        }
+        Ok(self.original_intervals())
+    }
+    fn original_intervals(self) -> (f64, f64) {
+        let subdivision = SUBDIVISIONS[self.subdivision_index] as i32;
+        (
+            60.0 / f64::from(subdivision.wrapping_mul(self.max_bpm)) * 2.0,
+            60.0 / f64::from(subdivision.wrapping_mul(self.min_bpm)) * 2.0,
+        )
+    }
+}
 #[derive(Clone, Debug)]
 pub struct Profile {
     guid: Guid,
@@ -127,6 +164,7 @@ pub struct Profile {
     description: Option<String>,
     config: Config,
     members: Members,
+    travel_speed: TravelSpeed,
 }
 impl Profile {
     pub fn parse(kind: Kind, bytes: &[u8]) -> Result<Self, Error> {
@@ -189,12 +227,14 @@ impl Profile {
                         _ => max_bpm = value,
                     }
                     if let Config::Performed(c) = &mut config {
-                        c.step_tightening.speed_min_time_seconds = 60.0
-                            / f64::from((SUBDIVISIONS[speed_index] as i32).wrapping_mul(max_bpm))
-                            * 2.0;
-                        c.step_tightening.speed_max_time_seconds = 60.0
-                            / f64::from((SUBDIVISIONS[speed_index] as i32).wrapping_mul(min_bpm))
-                            * 2.0;
+                        let (min, max) = TravelSpeed {
+                            subdivision_index: speed_index,
+                            min_bpm,
+                            max_bpm,
+                        }
+                        .original_intervals();
+                        c.step_tightening.speed_min_time_seconds = min;
+                        c.step_tightening.speed_max_time_seconds = max;
                     }
                 }
                 _ => {}
@@ -214,6 +254,11 @@ impl Profile {
             description,
             config,
             members,
+            travel_speed: TravelSpeed {
+                subdivision_index: speed_index,
+                min_bpm,
+                max_bpm,
+            },
         })
     }
     pub fn new_pattern(name: &str, config: PatternConfig) -> Result<Self, Error> {
@@ -253,6 +298,65 @@ impl Profile {
     }
     pub fn config(&self) -> &Config {
         &self.config
+    }
+    pub fn travel_speed(&self) -> Option<TravelSpeed> {
+        (self.config.kind() == Kind::Performed).then_some(self.travel_speed)
+    }
+    /// UI-style speed edits retain wrapper values and install the complete
+    /// effective Config last, so subsequent reloads cannot undo the edit.
+    pub fn set_travel_speed(&mut self, speed: TravelSpeed) -> Result<bool, Error> {
+        let Config::Performed(mut config) = self.config.clone() else {
+            return invalid("Only movement profiles have travel-speed settings");
+        };
+        let (min, max) = speed.intervals()?;
+        config.step_tightening.speed_min_time_seconds = min;
+        config.step_tightening.speed_max_time_seconds = max;
+        let mut config = Config::Performed(config);
+        config.validate()?;
+        if self.travel_speed == speed && self.config == config {
+            return Ok(false);
+        }
+        let mut members = self.members.clone();
+        for (key, value) in [
+            (
+                "TravelSpeedNoteTypeDenominatorIndex",
+                raw(&speed.subdivision_index)?,
+            ),
+            ("TravelSpeedMinBPM", raw(&speed.min_bpm)?),
+            ("TravelSpeedMaxBPM", raw(&speed.max_bpm)?),
+        ] {
+            if let Some((_, old)) = members.0.iter_mut().rev().find(|(name, _)| name == key) {
+                *old = value;
+            } else {
+                members.0.push((key.into(), value));
+            }
+        }
+        install_config(&mut members, &config)?;
+        let candidate = Self::from_members(Kind::Performed, members)?;
+        if candidate.config != config || candidate.travel_speed != speed {
+            return invalid("Travel-speed settings changed during serialization");
+        }
+        *self = candidate;
+        Ok(true)
+    }
+    pub(crate) fn preset(
+        id: &Guid,
+        config: Config,
+        speed: Option<TravelSpeed>,
+    ) -> Result<Self, Error> {
+        let mut members = Members(vec![("Guid".into(), raw(id)?)]);
+        if let Some(speed) = speed {
+            members.0.extend([
+                (
+                    "TravelSpeedNoteTypeDenominatorIndex".into(),
+                    raw(&speed.subdivision_index)?,
+                ),
+                ("TravelSpeedMinBPM".into(), raw(&speed.min_bpm)?),
+                ("TravelSpeedMaxBPM".into(), raw(&speed.max_bpm)?),
+            ]);
+        }
+        members.0.push(("Config".into(), raw(&config.json()?)?));
+        Self::from_members(config.kind(), members)
     }
     pub fn filename(&self) -> String {
         format!("{}{}.json", self.config.kind().prefix(), self.guid)
@@ -294,20 +398,7 @@ impl Profile {
         if config == self.config {
             return Ok(false);
         }
-        let schema = match config.kind() {
-            Kind::Pattern => Config::Pattern(PatternConfig::default()),
-            Kind::Performed => Config::Performed(PerformedConfig::default()),
-            Kind::Expressed => Config::Expressed(ExpressedConfig::default()),
-        }
-        .json()?;
         let mut members = self.members.clone();
-        let original = members
-            .0
-            .iter()
-            .rev()
-            .find(|(key, _)| key == "Config")
-            .map(|(_, value)| value.clone())
-            .unwrap_or(raw(&serde_json::json!({}))?);
         if let Config::Pattern(pattern) = &config {
             let index = SUBDIVISIONS
                 .iter()
@@ -328,13 +419,7 @@ impl Profile {
                 }
             }
         }
-        let merged = merge_config(&original, &config.json()?, &schema)?;
-        if let Some((key, value)) = members.0.last_mut().filter(|(key, _)| key == "Config") {
-            debug_assert_eq!(key, "Config");
-            *value = merged;
-        } else {
-            members.0.push(("Config".into(), merged));
-        }
+        install_config(&mut members, &config)?;
         let candidate = Self::from_members(self.config.kind(), members)?;
         if candidate.config != config {
             return invalid("Profile configuration changed during serialization");
@@ -398,6 +483,28 @@ impl Profile {
             profile: self.clone(),
         })
     }
+}
+fn install_config(members: &mut Members, config: &Config) -> Result<(), Error> {
+    let schema = match config.kind() {
+        Kind::Pattern => Config::Pattern(PatternConfig::default()),
+        Kind::Performed => Config::Performed(PerformedConfig::default()),
+        Kind::Expressed => Config::Expressed(ExpressedConfig::default()),
+    }
+    .json()?;
+    let original = members
+        .0
+        .iter()
+        .rev()
+        .find(|(key, _)| key == "Config")
+        .map(|(_, value)| value.clone())
+        .unwrap_or(raw(&serde_json::json!({}))?);
+    let merged = merge_config(&original, &config.json()?, &schema)?;
+    if let Some((_, value)) = members.0.last_mut().filter(|(key, _)| key == "Config") {
+        *value = merged;
+    } else {
+        members.0.push(("Config".into(), merged));
+    }
+    Ok(())
 }
 // Only typed object fields are merged. Empty schema objects represent dynamic
 // dictionaries: their keys are user data, so removal must remain possible.

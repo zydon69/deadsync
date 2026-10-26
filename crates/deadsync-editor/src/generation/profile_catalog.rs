@@ -214,9 +214,16 @@ impl Catalog {
                 .map(|c| super::profiles::Config::Expressed(c.clone())),
         }
         .ok_or_else(|| invalid("Selected preset is missing"))?;
-        let bytes = serde_json::to_vec(&serde_json::json!({"Guid":id,"Config":config.json()?}))
-            .map_err(|error| invalid(&error.to_string()))?;
-        super::profiles::Profile::parse(kind, &bytes)
+        let speed = (kind == Kind::Performed).then(|| super::profiles::TravelSpeed {
+            subdivision_index: 3,
+            min_bpm: if builtin_label(kind, id) == Some(BuiltinLabel::StaminaDouble) {
+                99
+            } else {
+                125
+            },
+            max_bpm: 170,
+        });
+        super::profiles::Profile::preset(id, config, speed)
     }
     /// Open the same custom file captured by this catalog, retaining the file's
     /// byte guard for a later atomic save. Built-in presets have no writable file.

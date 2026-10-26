@@ -232,6 +232,23 @@ impl Editor {
             .ok_or_else(|| invalid("Missing profile field"))? = next;
         Ok(())
     }
+    pub fn apply_travel_speed(&mut self, speed: super::profiles::TravelSpeed) -> Result<(), Error> {
+        if self.kind != Kind::Performed {
+            return Err(invalid("Only movement profiles have travel-speed settings"));
+        }
+        let (min, max) = speed.intervals()?;
+        let step = self
+            .value
+            .get_mut("StepTightening")
+            .and_then(Value::as_object_mut)
+            .ok_or_else(|| invalid("Missing travel-speed configuration"))?;
+        if !step.contains_key("SpeedMinTimeSeconds") || !step.contains_key("SpeedMaxTimeSeconds") {
+            return Err(invalid("Missing travel-speed intervals"));
+        }
+        step.insert("SpeedMinTimeSeconds".into(), Value::from(min));
+        step.insert("SpeedMaxTimeSeconds".into(), Value::from(max));
+        Ok(())
+    }
     pub fn finish(&self) -> Result<Config, Error> {
         let mut config = match self.kind {
             Kind::Pattern => Config::Pattern(
