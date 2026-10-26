@@ -88,6 +88,7 @@ struct Settings {
     waveform: Waveform,
     zoom: crate::zoom_preferences::Preferences,
     scroll: crate::scroll_preferences::Preferences,
+    minimap: crate::minimap_preferences::Preferences,
 }
 
 #[derive(Clone)]
@@ -99,6 +100,7 @@ pub struct File {
     waveform_fields: Map<String, Value>,
     zoom_fields: Map<String, Value>,
     scroll_fields: Map<String, Value>,
+    minimap_fields: Map<String, Value>,
     original: Settings,
     written: Settings,
     settings: Settings,
@@ -179,11 +181,21 @@ impl File {
                 ));
             }
         };
+        let minimap_fields = match root.get("MiniMap") {
+            None => Map::new(),
+            Some(Value::Object(fields)) => fields.clone(),
+            Some(_) => {
+                return Err(Error::InvalidFormat(
+                    "Editor minimap preferences must be an object".into(),
+                ));
+            }
+        };
         let settings = Settings {
             audio,
             waveform: Waveform::read(&waveform_fields)?,
             zoom: crate::zoom_preferences::Preferences::read(&zoom_fields)?,
             scroll: crate::scroll_preferences::Preferences::read(&scroll_fields)?,
+            minimap: crate::minimap_preferences::Preferences::read(&minimap_fields)?,
         };
         Ok(Self {
             path: path.to_owned(),
@@ -193,6 +205,7 @@ impl File {
             waveform_fields,
             zoom_fields,
             scroll_fields,
+            minimap_fields,
             original: settings,
             written: settings,
             settings,
@@ -224,6 +237,12 @@ impl File {
     }
     pub fn set_scroll(&mut self, scroll: crate::scroll_preferences::Preferences) {
         self.settings.scroll = scroll;
+    }
+    pub fn minimap(&self) -> crate::minimap_preferences::Preferences {
+        self.settings.minimap
+    }
+    pub fn set_minimap(&mut self, minimap: crate::minimap_preferences::Preferences) {
+        self.settings.minimap = minimap;
     }
     pub fn has_changes(&self) -> bool {
         self.settings != self.original || self.settings != self.written
@@ -270,7 +289,10 @@ impl File {
         self.settings.zoom.write(&mut zoom_fields);
         let mut scroll_fields = self.scroll_fields.clone();
         self.settings.scroll.write(&mut scroll_fields);
+        let mut minimap_fields = self.minimap_fields.clone();
+        self.settings.minimap.write(&mut minimap_fields);
         let mut root = self.root.clone();
+        root.insert("MiniMap".into(), Value::Object(minimap_fields.clone()));
         root.insert("Scroll".into(), Value::Object(scroll_fields.clone()));
         root.insert("Zoom".into(), Value::Object(zoom_fields.clone()));
         root.insert("Waveform".into(), Value::Object(waveform_fields.clone()));
@@ -299,6 +321,7 @@ impl File {
         self.waveform_fields = waveform_fields;
         self.zoom_fields = zoom_fields;
         self.scroll_fields = scroll_fields;
+        self.minimap_fields = minimap_fields;
         crate::storage::sync_directory(parent)?;
         self.original = self.settings;
         Ok(true)

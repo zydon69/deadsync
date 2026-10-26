@@ -1,0 +1,386 @@
+{
+  "Cases": [
+    {
+      "Name": "mixed-later-protects-first-nodes",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Label",
+          "Row": 48
+        },
+        {
+          "Kind": "Attack",
+          "Row": 96
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 144,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Tap",
+          "Row": 192,
+          "Lane": 1,
+          "Player": 0
+        }
+      ],
+      "Rows": 48,
+      "Layout": "dance-single",
+      "Players": 1
+    },
+    {
+      "Name": "negative-rows-delete-not-clamp",
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0
+        },
+        {
+          "Kind": "Label",
+          "Row": 16
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Attack",
+          "Row": 96
+        }
+      ],
+      "Rows": -48,
+      "Layout": "dance-single",
+      "Players": 1
+    },
+    {
+      "Name": "first-nodes-immutable-later-nodes-move",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Signature",
+          "Row": 384,
+          "N": 3,
+          "D": 4
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Bpm": 90,
+          "Selected": false
+        }
+      ],
+      "Rows": 96,
+      "Layout": "dance-single",
+      "Players": 1
+    },
+    {
+      "Name": "same-type-misc-replacement",
+      "Events": [
+        {
+          "Kind": "Label",
+          "Row": 48
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Selected": false
+        },
+        {
+          "Kind": "Delay",
+          "Row": 96,
+          "Selected": false
+        }
+      ],
+      "Rows": 48,
+      "Layout": "dance-single",
+      "Players": 1
+    },
+    {
+      "Name": "same-head-pattern-replacement",
+      "Events": [
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 96,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 7,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          },
+          "Selected": false
+        }
+      ],
+      "Rows": 48,
+      "Layout": "dance-single",
+      "Players": 1
+    },
+    {
+      "Name": "overlapping-pattern-regions-remain",
+      "Events": [
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 192,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 144,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 192,
+            "RandomSeed": 7,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          },
+          "Selected": false
+        }
+      ],
+      "Rows": 48,
+      "Layout": "dance-single",
+      "Players": 1
+    },
+    {
+      "Name": "tap-trims-existing-hold",
+      "Events": [
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "End": 192,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 240,
+          "Lane": 0,
+          "Player": 0
+        }
+      ],
+      "Rows": -144,
+      "Layout": "dance-single",
+      "Players": 1
+    },
+    {
+      "Name": "tap-short-hold-becomes-tap",
+      "Events": [
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "End": 36,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0
+        }
+      ],
+      "Rows": -36,
+      "Layout": "dance-single",
+      "Players": 1
+    },
+    {
+      "Name": "hold-force-add-deletes-overlaps",
+      "Events": [
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "End": 48,
+          "Lane": 0,
+          "Player": 0
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 120,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        }
+      ],
+      "Rows": 96,
+      "Layout": "dance-single",
+      "Players": 1
+    },
+    {
+      "Name": "mixed-owner-notes-preserve-owners",
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 1
+        },
+        {
+          "Kind": "Label",
+          "Row": 96
+        }
+      ],
+      "Rows": 48,
+      "Layout": "dance-routine",
+      "Players": 2
+    },
+    {
+      "Name": "unsupported-routine-pattern-is-deleted",
+      "Events": [
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0
+        }
+      ],
+      "Rows": 48,
+      "Layout": "dance-routine",
+      "Players": 1
+    },
+    {
+      "Name": "zero-shift-preserves-events",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Label",
+          "Row": 48
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 96,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0
+        }
+      ],
+      "Rows": 0,
+      "Layout": "dance-single",
+      "Players": 1
+    }
+  ]
+}

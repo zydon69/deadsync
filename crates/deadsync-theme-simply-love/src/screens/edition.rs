@@ -22,9 +22,12 @@ mod chart_views;
 mod chart_event_copy;
 mod end_hint;
 mod minimap;
+mod minimap_settings;
 mod view_layout;
 mod view_render;
 mod view_render_screen;
+mod receptor_render;
+mod help;
 pub mod decoder_transport;
 mod attacks;
 mod event_selection;
@@ -112,6 +115,7 @@ enum Panel {
     AudioSettings(usize),
     ZoomSettings(usize),
     ScrollSettings(usize),
+    MinimapSettings(usize),
     WaveformSettings(usize),
     WaveformColors(usize),
     Timing(usize),
@@ -338,6 +342,7 @@ pub struct State {
     shift: bool,
     shift_keys: u8,
     help: bool,
+    help_page: usize,
     panel: Option<Panel>,
     status: Arc<str>,
     toolbar: Arc<str>,
@@ -507,6 +512,7 @@ impl State {
             shift: false,
             shift_keys: 0,
             help: false,
+            help_page: 0,
             panel: None,
             status: i18n::tr("Edition", "Ready"),
             toolbar: Arc::from(""),
@@ -1482,6 +1488,10 @@ impl State {
             }
             _ => {}
         }
+        if self.help && self.panel.is_none() {
+            self.help_key(event);
+            return false;
+        }
         if self.minimap_key(event) {
             return false;
         }
@@ -1508,7 +1518,7 @@ impl State {
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
-            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0..=2) | Panel::ZoomSettings(0..=2) | Panel::WaveformSettings(2 | 3) | Panel::WaveformColors(1..=13))
+            Some(Panel::MinimapSettings(1 | 2) | Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0..=2) | Panel::ZoomSettings(0..=2) | Panel::WaveformSettings(2 | 3) | Panel::WaveformColors(1..=13))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !(self.panel.is_none() && self.shift && !self.control && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight))
@@ -1762,6 +1772,7 @@ impl State {
             self.waveform_settings_key(index, code);
             return false;
         }
+        if let Panel::MinimapSettings(index) = panel { self.minimap_settings_key(index, code); return false; }
         if let Panel::ScrollSettings(index) = panel { self.scroll_settings_key(index, code); return false; }
         if let Panel::ZoomSettings(index) = panel { self.zoom_settings_key(index, code); return false; }
         if let Panel::AudioSettings(index) = panel {
@@ -1919,6 +1930,7 @@ impl State {
             Panel::WaveformColors(_) => unreachable!("waveform colours dispatched above"),
             Panel::WaveformSettings(_) => unreachable!("waveform settings dispatched above"),
             Panel::ScrollSettings(_) => unreachable!("scroll settings dispatched above"),
+            Panel::MinimapSettings(_) => unreachable!("minimap settings dispatched above"),
             Panel::ZoomSettings(_) => unreachable!("zoom settings dispatched above"),
             Panel::AudioSettings(_) => unreachable!("audio settings dispatched above"),
             Panel::TimingMigration(index) => self.timing_migration_key(index, code),
@@ -2361,7 +2373,7 @@ impl State {
                             9 => self.open_chart_properties(),
                             10 => self.open_batch(),
                             11 => self.command(Command::SaveRecovery),
-                            12 => self.help = !self.help,
+                            12 => { self.help = true; self.help_page = 0; },
                             13 => return self.request_close(),
                             14 => self.open_analysis(),
                             15 => self.command(Command::DuplicateChart),
@@ -2426,6 +2438,10 @@ impl State {
         // Reserve a bounded multiline footer for localized help and errors.
         let status_width = (width - 36.0).max(1.0);
         actors.push(act!(text: font("miso"): settext(self.status.clone()): align(0.0,0.0): xy(18.0,height-50.0): zoom(0.5): wrapwidthpixels(status_width/0.5): maxwidth(status_width): maxheight(42.0): diffuse(0.9,0.9,0.9,1.0): z(8006)));
+        if self.help && self.preview.is_none() && self.panel.is_none() {
+            self.help_actors(actors);
+            return;
+        }
         if !self.workspace.has_chart() {
             self.no_chart_actors(actors);
             return;
@@ -2629,26 +2645,6 @@ impl State {
         view_render::partial_notice(actors, geometry, viewport, stats);
         self.end_hint_actors(actors, &projection, geometry, viewport);
         self.minimap_actors(actors);
-        if self.help
-            && self.preview.is_none()
-            && !matches!(
-                self.panel,
-                Some(
-                    Panel::Timing(_)
-                        | Panel::TimingMigration(_)
-                        | Panel::SongProperties(_)
-                        | Panel::SongSample(_)
-                        | Panel::ScrollSettings(_)
-                        | Panel::ZoomSettings(_)
-                        | Panel::AudioSettings(_)
-                        | Panel::WaveformSettings(_)
-                        | Panel::WaveformColors(_)
-                        | Panel::SongText(_)
-                )
-            )
-        {
-            self.help_actors(actors);
-        }
         if let Some(panel) = self.panel {
             self.panel_actors(panel, actors);
         }
@@ -2663,13 +2659,8 @@ impl State {
             .expect("finite mapped playback row")
     }
 
-    fn help_actors(&self, actors: &mut Vec<Actor>) {
-        actors.push(act!(quad: xy(screen_width() * 0.5, screen_height() * 0.5): zoomto(screen_width() - 30.0, 280.0): diffuse(0.05, 0.08, 0.12, 0.97): z(8010)));
-        let label = i18n::tr("Edition", "Help");
-        actors.push(act!(text: font("miso"): settext(label): align(0.0, 0.0): xy(35.0, screen_height() * 0.5 - 120.0): zoom(0.65): z(8011)));
-    }
-
     fn panel_actors(&self, panel: Panel, actors: &mut Vec<Actor>) {
+        if let Panel::MinimapSettings(index) = panel { self.minimap_settings_actors(index, actors); return; }
         if matches!(panel, Panel::ChartEventCopy) { self.chart_event_copy_actors(actors); return; }
         if matches!(panel, Panel::ChartList) { self.chart_list_actors(actors); return; }
         if matches!(panel, Panel::EventSelection) { self.event_selection_actors(actors); return; }
@@ -2685,7 +2676,7 @@ impl State {
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
-            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy => &[],
+            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::MinimapSettings(_) => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
             Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
@@ -2882,6 +2873,7 @@ impl State {
             | Panel::SongProperties(i)
             | Panel::SongSample(i)
             | Panel::ScrollSettings(i)
+            | Panel::MinimapSettings(i)
             | Panel::ZoomSettings(i)
             | Panel::AudioSettings(i)
             | Panel::WaveformSettings(i)

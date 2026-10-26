@@ -1,0 +1,52 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source": "StepManiaEditor/Preferences/PreferencesMiniMap.cs",
+  "source_sha256": "c1f3c6a055de75ebdd630cabb090619aae77cf013e794c6039606723c2efc7ee",
+  "scope": "System.Text.Json uint range DTO only; original full preference loader is not executed.",
+  "cases": [
+    {
+      "input": {
+        "MiniMapVisibleTimeRange": 240,
+        "MiniMapVisibleRowRange": 24576
+      },
+      "expected": {
+        "accepted": true,
+        "time": 240,
+        "row": 24576
+      }
+    },
+    {
+      "input": {
+        "MiniMapVisibleTimeRange": 120,
+        "MiniMapVisibleRowRange": 384
+      },
+      "expected": {
+        "accepted": true,
+        "time": 120,
+        "row": 384
+      }
+    },
+    {
+      "input": {
+        "MiniMapVisibleTimeRange": 4294967295,
+        "MiniMapVisibleRowRange": 1
+      },
+      "expected": {
+        "accepted": true,
+        "time": 4294967295,
+        "row": 1
+      }
+    },
+    {
+      "input": {
+        "MiniMapVisibleTimeRange": 240.0,
+        "MiniMapVisibleRowRange": 24576.0
+      },
+      "expected": {
+        "accepted": false,
+        "time": 0,
+        "row": 0
+      }
+    }
+  ]
+}

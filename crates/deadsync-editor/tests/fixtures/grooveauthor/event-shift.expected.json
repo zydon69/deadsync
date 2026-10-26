@@ -1,0 +1,1875 @@
+[
+  {
+    "Name": "mixed-later-protects-first-nodes",
+    "Before": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Attack",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "After": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Attack",
+        "Row": 144,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 240,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Attack",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Attack",
+        "Row": 144,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 240,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Attack",
+        "Row": 144,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 240,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Attack",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Attack",
+        "Row": 144,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 240,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "negative-rows-delete-not-clamp",
+    "Before": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 16,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Attack",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "After": [
+      {
+        "Kind": "Pattern",
+        "Row": 0,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Attack",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 16,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Attack",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "Pattern",
+        "Row": 0,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Attack",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "Pattern",
+        "Row": 0,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Attack",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 16,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Attack",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "Pattern",
+        "Row": 0,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Attack",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "first-nodes-immutable-later-nodes-move",
+    "Before": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 96,
+        "Bpm": 90
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 192,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Signature",
+        "Row": 384,
+        "N": 3,
+        "D": 4
+      }
+    ],
+    "After": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 96,
+        "Bpm": 90
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 288,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Signature",
+        "Row": 480,
+        "N": 3,
+        "D": 4
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 96,
+        "Bpm": 90
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 192,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Signature",
+        "Row": 384,
+        "N": 3,
+        "D": 4
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 96,
+        "Bpm": 90
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 288,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Signature",
+        "Row": 480,
+        "N": 3,
+        "D": 4
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "Tempo",
+        "Row": 288,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Signature",
+        "Row": 480,
+        "N": 3,
+        "D": 4
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "Tempo",
+        "Row": 192,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Signature",
+        "Row": 384,
+        "N": 3,
+        "D": 4
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "Tempo",
+        "Row": 288,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Signature",
+        "Row": 480,
+        "N": 3,
+        "D": 4
+      }
+    ]
+  },
+  {
+    "Name": "same-type-misc-replacement",
+    "Before": [
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Stop",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "After": [
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Stop",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Stop",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Stop",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "same-head-pattern-replacement",
+    "Before": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "After": [
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ]
+  },
+  {
+    "Name": "overlapping-pattern-regions-remain",
+    "Before": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "After": [
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ]
+  },
+  {
+    "Name": "tap-trims-existing-hold",
+    "Before": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": 192
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 240,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "After": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": 84
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": 192
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 240,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": 84
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 240,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "tap-short-hold-becomes-tap",
+    "Before": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": 36
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 48,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "After": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 12,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": 36
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 48,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 12,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 12,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 48,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 12,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "hold-force-add-deletes-overlaps",
+    "Before": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": 48
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 120,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "After": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": 144
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": 48
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 120,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": 144
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": 144
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 0,
+        "Lane": 0,
+        "Player": 0,
+        "End": 48
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": 144
+      }
+    ]
+  },
+  {
+    "Name": "mixed-owner-notes-preserve-owners",
+    "Before": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 48,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 1,
+        "Player": 1,
+        "End": null
+      }
+    ],
+    "After": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 144,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 1,
+        "Player": 1,
+        "End": null
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 48,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 1,
+        "Player": 1,
+        "End": null
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 144,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 1,
+        "Player": 1,
+        "End": null
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 144,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 1,
+        "Player": 1,
+        "End": null
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 48,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 1,
+        "Player": 1,
+        "End": null
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Label",
+        "Row": 144,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 1,
+        "Player": 1,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "unsupported-routine-pattern-is-deleted",
+    "Before": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 48,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "After": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 48,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 48,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "zero-shift-preserves-events",
+    "Before": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "After": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedAfter": [
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedUndone": [
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SelectedRedone": [
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 144,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  }
+]

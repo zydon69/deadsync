@@ -56,6 +56,11 @@ impl ViewState {
         let clock = self.clock(session)?;
         Position::with_clock(session, self.source_index(), music_time, &clock)
     }
+    /// Use this resident view's validated shared clock for row-preserving focus.
+    pub fn position_at_row(&self, session: &Session, row: f64) -> Result<Position, Error> {
+        let clock = self.clock(session)?;
+        Position::with_row_clock(session, self.source_index(), row, &clock)
+    }
     pub fn selection_anchor(&self) -> Option<u64> {
         self.selection_anchor
     }

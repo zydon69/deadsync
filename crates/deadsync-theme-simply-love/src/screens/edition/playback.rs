@@ -13,6 +13,7 @@ pub(super) struct Playing {
     precise_stream: Option<(u64, Instant, f64)>,
     valid_after: Instant,
     mapped: bool,
+    mapped_generation: Option<u64>,
     position: Option<Position>,
 }
 #[derive(Clone, Copy)]
@@ -45,6 +46,7 @@ impl State {
         self.zoom_preferences = zoom_preferences;
         self.audio_preferences = file.audio();
         self.scroll_preferences = file.scroll();
+        self.configure_minimap_preferences(file.minimap());
         self.waveform_preferences = file.waveform();
         self.audio_preferences_file = Some(file);
         if previous_rate != self.audio_preferences.music_rate() {
@@ -119,6 +121,43 @@ impl State {
         self.playback
             .as_ref()
             .is_some_and(|playing| playing.preview.is_some())
+    }
+    /// Autoplay requires a validated chart position, including acknowledged
+    /// silent continuation. Merely queued decoding, sample audition and pause
+    /// never qualify. Legacy synthetic callers have no backend generation.
+    pub(super) fn chart_autoplay_transport(&self) -> Option<(Option<u64>, f64)> {
+        let playing = self
+            .playback
+            .as_ref()
+            .filter(|playing| playing.preview.is_some() && playing.mapped)?;
+        let position = playing.position.filter(|position| {
+            position.music_time.is_finite()
+                && position.chart_time.is_finite()
+                && position.row.is_finite()
+        })?;
+        let generation = if playing.decoder.is_some() {
+            let generation = playing.issued_generation?;
+            if playing.clock_generation != Some(generation)
+                || playing.mapped_generation != Some(generation)
+            {
+                return None;
+            }
+            let ack = playing
+                .decoder_ack
+                .filter(|ack| ack.generation == generation && ack.opened)?;
+            if !matches!(
+                ack.phase,
+                super::decoder_transport::Phase::Opened
+                    | super::decoder_transport::Phase::Producing
+                    | super::decoder_transport::Phase::Exhausted
+            ) {
+                return None;
+            }
+            Some(generation)
+        } else {
+            None
+        };
+        Some((generation, position.music_time))
     }
     pub fn is_playing(&self) -> bool {
         self.playback.is_some()
@@ -196,6 +235,7 @@ impl State {
                     precise_stream: None,
                     valid_after: Instant::now(),
                     mapped: false,
+                    mapped_generation: None,
                     position: resume,
                 });
                 self.status = i18n::tr("Edition", "PlaybackPlaying");
@@ -299,6 +339,7 @@ impl State {
                     precise_stream: None,
                     valid_after: Instant::now(),
                     mapped: false,
+                    mapped_generation: None,
                     position: None,
                 });
                 self.status = i18n::tr("Edition", "SongSamplePlaying");
@@ -332,6 +373,7 @@ impl State {
             return;
         }
         playing.issued_generation = Some(generation);
+        playing.mapped_generation = None;
         playing.clock_generation = Some(generation);
         playing.decoder_ack = None;
         playing.precise_stream = None;
@@ -418,6 +460,7 @@ impl State {
                     row,
                     music_time: seconds,
                 });
+                playing.mapped_generation = playing.issued_generation;
                 // Notes use nonnegative integral rows; the transport clock
                 // itself retains fractional/negative positions.
                 let row = row.max(0.0).min(i32::MAX as f64).floor() as u64;
@@ -432,5 +475,130 @@ impl State {
                     i18n::tr_fmt("Edition", "PlaybackError", &[("error", &error.to_string())]);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod autoplay_transport_tests {
+    use super::super::decoder_transport::Phase;
+    use super::*;
+    use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
+    use std::{fs, sync::Mutex};
+    static SERIAL: Mutex<()> = Mutex::new(());
+    fn press(state: &mut State, code: KeyCode) {
+        for pressed in [true, false] {
+            state.raw_key(&RawKeyboardEvent {
+                code,
+                pressed,
+                repeat: false,
+                timestamp: Instant::now(),
+                host_nanos: 0,
+            });
+        }
+    }
+    fn setup() -> (tempfile::TempDir, State) {
+        crate::i18n::init_for_tests();
+        let dir = tempfile::tempdir().unwrap();
+        fs::write(dir.path().join("music.wav"), b"command-only fixture").unwrap();
+        fs::write(dir.path().join("song.ssc"),"#VERSION:0.83;#MUSIC:music.wav;#SAMPLESTART:0;#SAMPLELENGTH:1;#BPMS:0=120;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
+        let mut state = State::open(&dir.path().join("song.ssc"), 0).unwrap();
+        press(&mut state, KeyCode::Enter);
+        state.take_audio_commands();
+        (dir, state)
+    }
+    fn status(state: &mut State, generation: u64, phase: Phase, opened: bool) {
+        state.set_decoder_status(
+            generation,
+            Some(Ack {
+                generation,
+                phase,
+                opened,
+            }),
+        );
+    }
+    fn update(state: &mut State, music: Option<f64>, stream: f32) {
+        let mut snapshot = GameplayAudioSnapshot::default();
+        snapshot.stream_clock.valid_at = Instant::now();
+        snapshot.stream_clock.stream_seconds = stream;
+        snapshot.stream_clock.has_music_mapping = music.is_some();
+        snapshot.stream_clock.music_nanos = (music.unwrap_or_default() * 1e9).round() as i64;
+        snapshot.stream_clock.music_seconds_per_second = 1.0;
+        state.update_audio(snapshot);
+    }
+    #[test]
+    fn autoplay_transport_requires_current_opened_generation_and_validated_position() {
+        let _guard = SERIAL.lock().unwrap();
+        let (_dir, mut state) = setup();
+        assert!(state.chart_autoplay_transport().is_none());
+        state.bind_decoder_generation(Some(1));
+        status(&mut state, 1, Phase::Pending, false);
+        update(&mut state, Some(0.25), 1.0);
+        assert!(state.chart_autoplay_transport().is_none());
+        status(&mut state, 1, Phase::Producing, true);
+        update(&mut state, Some(0.5), 2.0);
+        assert_eq!(state.chart_autoplay_transport(), Some((Some(1), 0.5)));
+        status(&mut state, 99, Phase::Producing, true);
+        assert!(state.chart_autoplay_transport().is_none());
+        status(&mut state, 1, Phase::Producing, false);
+        assert!(state.chart_autoplay_transport().is_none());
+        status(&mut state, 1, Phase::Failed, true);
+        assert!(state.chart_autoplay_transport().is_none());
+        status(&mut state, 1, Phase::Stopped, true);
+        assert!(state.chart_autoplay_transport().is_none());
+    }
+    #[test]
+    fn autoplay_transport_rebind_rejects_old_position_even_after_new_opened_ack() {
+        let _guard = SERIAL.lock().unwrap();
+        let (_dir, mut state) = setup();
+        state.bind_decoder_generation(Some(1));
+        status(&mut state, 1, Phase::Producing, true);
+        update(&mut state, Some(0.5), 1.0);
+        assert!(state.chart_autoplay_transport().is_some());
+        state.bind_decoder_generation(Some(2));
+        assert!(state.chart_autoplay_transport().is_none());
+        status(&mut state, 2, Phase::Pending, false);
+        assert!(state.chart_autoplay_transport().is_none());
+        status(&mut state, 2, Phase::Opened, true);
+        assert!(state.chart_autoplay_transport().is_none());
+        update(&mut state, None, 2.0);
+        assert_eq!(state.chart_autoplay_transport(), Some((Some(2), 0.5)));
+        state
+            .playback
+            .as_mut()
+            .unwrap()
+            .position
+            .as_mut()
+            .unwrap()
+            .music_time = f64::NAN;
+        assert!(state.chart_autoplay_transport().is_none());
+    }
+    #[test]
+    fn autoplay_transport_accepts_acknowledged_silent_time_but_excludes_pause_and_sample() {
+        let _guard = SERIAL.lock().unwrap();
+        let (_dir, mut state) = setup();
+        state.bind_decoder_generation(Some(1));
+        status(&mut state, 1, Phase::Exhausted, true);
+        update(&mut state, None, 10.0);
+        update(&mut state, None, 10.25);
+        assert_eq!(state.chart_autoplay_transport(), Some((Some(1), 0.25)));
+        press(&mut state, KeyCode::Enter);
+        assert!(state.paused_playback.is_some());
+        assert!(state.chart_autoplay_transport().is_none());
+        // Audition requires the real Song Properties draft, opened through its keyboard UI.
+        press(&mut state, KeyCode::F11);
+        press(&mut state, KeyCode::F6);
+        press(&mut state, KeyCode::F4);
+        assert!(state.is_playing());
+        assert!(state.playback.as_ref().unwrap().preview.is_none());
+        assert!(state.chart_autoplay_transport().is_none());
+    }
+    #[test]
+    fn autoplay_transport_legacy_synthetic_mapping_has_no_generation() {
+        let _guard = SERIAL.lock().unwrap();
+        let (_dir, mut state) = setup();
+        update(&mut state, Some(0.125), 1.0);
+        assert_eq!(state.chart_autoplay_transport(), Some((None, 0.125)));
+        state.stop_audio();
+        assert!(state.chart_autoplay_transport().is_none());
     }
 }

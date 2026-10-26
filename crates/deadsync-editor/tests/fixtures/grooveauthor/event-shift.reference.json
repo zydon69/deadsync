@@ -1,0 +1,25 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sdk": "10.0.403",
+  "scope": "Executed whole unchanged ActionShiftSelectionRow and ForceAddSideEffect, original ForceAddEventInternal/CanEventExistAtRow/CanBeRepositioned, Pattern definition and real Fumen/SML event comparison. Explicit event-container/base-event row and clone adapters, initial first-tempo/signature flags, selection notification projections, inert timing dependencies. No original GUI, writer or full clock recalculation.",
+  "extracted_sha256": {
+    "ORIGINAL_REPOSITIONABLE": "d117198b450ae28685e7f097c9a598a7d59ebbef5e4a65d5fe925fb9a54814b4",
+    "ORIGINAL_DEFINITION": "a30435d571a6168e544d6ea3af50770c35b242ea3533140058b33496d6a021b5",
+    "ORIGINAL_PATTERN_CLONE": "e44a1424587dfe01add96cba8d8fd0b719a8b83ad6ebe4a1531f9e4c76f3ff9a",
+    "ORIGINAL_IS_MULTIPLAYER": "48969315ec833f81a9e2f7dc79b442a179f1285960dd635ded024fea187e83be",
+    "ORIGINAL_CAN_EXIST": "13b3564c1f3e4f72010ea6743c34c741b8e613afcbfa70024925b7d7072eb82f",
+    "ORIGINAL_FORCE_ADD": "415b6795aa9600fc5488b34a0904a9bb6869650fc309c8bac4d1451b393d3cc5"
+  },
+  "sources_sha256": {
+    "OriginalActionShiftSelectionRow.cs": "30bc13278a6fc3d7f2ebaebf09134a1bf29e2a368985fa430ab07e0f672e8abd",
+    "OriginalForceAddSideEffect.cs": "587bd384a4ac235b230540b4013af11f042560d9ac316cd569d7f401c275b3f5",
+    "Adapter.cs": "c531ebc5979e25aa1bb45779c6270042c486b29134495d564e22571a4fa866dc"
+  },
+  "adapter_template_sha256": "f78d29444132d8e0153f1115d6da168c74c48cf24a47eab66f864a67a164e99b",
+  "program_sha256": "9ba1c42ea7c4f4d993be490468c1b5300afb0e4bf6584985d5bb2a26c8541b2e",
+  "assembly_sha256": "b41345d4a0b062f5a70dc54cb2235bf5570f943eecbe25fc41eff568db7ce0b3",
+  "request_sha256": "3944c5d091a62593de86579215bcb583e5f5c9f92014cb75a9b00a5f187b7946",
+  "expected_sha256": "fd5c7fcba03711fd70e9a759b3674df4bfb5508cee0f2919520aa86f5c16fd51"
+}

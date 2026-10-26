@@ -1,0 +1,126 @@
+// Development-only event-container adapter. Original action, definition clone,
+// ForceAdd and CanEventExistAtRow bodies are inserted unchanged by the generator.
+// Timing dependency callbacks are inert; fixtures do not prove timing math.
+using Fumen;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Fumen.ChartDefinition;
+using Fumen.Converters;
+using static Fumen.Converters.SMCommon;
+
+namespace StepManiaEditor;
+internal abstract class UndoableAction(bool a, bool b) {
+    public abstract bool AffectsFile();
+    protected abstract void DoImplementation();
+    protected abstract void UndoImplementation();
+    public void Do() => DoImplementation();
+    public void Undo() => UndoImplementation();
+}
+internal sealed class Editor(int player) {
+    public int GetPlayer(EditorChart chart) => player;
+    public void OnNoteTransformationBegin() { }
+    public object[] SelectedAfter = [];
+    public void OnNoteTransformationEnd(List<EditorEvent> events) { SelectedAfter = events.Select(value => value.Project()).ToArray(); }
+}
+internal class EditorEvent : IComparable<EditorEvent> {
+    public bool IsPositionImmutable;
+    // ORIGINAL_REPOSITIONABLE
+    protected Event Value;
+    protected EditorChart Chart;
+    protected int End;
+    private static readonly SMEventComparer Comparer = new(StepManiaLibrary.EventOrder.Order);
+    public EditorEvent(Event value, EditorChart chart) { Value = value; Chart = chart; End = value.IntegerPosition; }
+    public int GetRow() => Value.IntegerPosition;
+    public int GetLane() => Value is LaneNote note ? note.Lane : -1;
+    public int GetPlayer() => Value is LaneNote note ? note.Player : 0;
+    public int GetEndRow() => End;
+    public int GetRowDuration() => End - GetRow();
+    public bool IsLaneNote() => Value is LaneNote;
+    public void SetPlayer(int player) { if (Value is LaneNote note) note.Player = player; }
+    public void SetRow(int row) { var delta = row - GetRow(); Value.IntegerPosition = row; End += delta; }
+    public void RefreshRowDependencies() { }
+    public virtual EditorEvent Clone(EditorChart chart = null) { var result = (EditorEvent)MemberwiseClone(); result.Value = Value.Clone(); result.Chart = chart ?? Chart; return result; }
+    public int CompareTo(EditorEvent other) => Comparer.Compare(Value, other.Value);
+    public static EditorEvent CreateEvent(EditorEvent value) => value;
+    public virtual object Project() => new { Kind = Value.GetType().Name, Row = GetRow(), Lane = GetLane(), Player = GetPlayer(), End = GetRowDuration() > 0 ? (int?)End : null };
+    public static EditorEvent Read(JsonElement item, EditorChart chart) {
+        int row = item.GetProperty("Row").GetInt32();
+        int lane = item.TryGetProperty("Lane", out var l) ? l.GetInt32() : 0;
+        int player = item.TryGetProperty("Player", out var p) ? p.GetInt32() : 0;
+        return item.GetProperty("Kind").GetString() switch {
+            "Tempo" => new EditorTempoEvent(new Tempo(item.GetProperty("Bpm").GetDouble()) { IntegerPosition = row }, chart),
+            "Signature" => new EditorTimeSignatureEvent(new TimeSignature(new Fraction(item.GetProperty("N").GetInt32(), item.GetProperty("D").GetInt32()), 0) { IntegerPosition = row }, chart),
+            "Pattern" => new EditorPatternEvent(row, item.GetProperty("Definition").Deserialize<EditorPatternEvent.Definition>(new JsonSerializerOptions { IncludeFields = true }), chart),
+            "Tap" => new EditorTapEvent(new LaneTapNote { IntegerPosition = row, Lane = lane, Player = player, SourceType = "1" }, chart),
+            "Hold" => new EditorHoldNoteEvent(row, lane, player, item.GetProperty("End").GetInt32(), false, chart),
+            "Attack" => new EditorAttackEvent(new Attack { IntegerPosition = row }, chart),
+            "Label" => new EditorLabelEvent(new Label("marker") { IntegerPosition = row }, chart),
+            "Delay" => new EditorDelayEvent(new Stop(0.25, true) { IntegerPosition = row }, chart),
+            _ => throw new ArgumentException("Unknown fixture kind")
+        };
+    }
+}
+internal sealed class EditorTapEvent(LaneTapNote value, EditorChart chart) : EditorEvent(value, chart);
+internal class EditorRateAlteringEvent(Event value, EditorChart chart) : EditorEvent(value, chart);
+internal sealed class EditorTempoEvent(Tempo value, EditorChart chart) : EditorRateAlteringEvent(value, chart) {
+    public double DoubleValue { get => ((Tempo)Value).TempoBPM; set => ((Tempo)Value).TempoBPM = value; }
+    public override object Project() => new { Kind = "Tempo", Row = GetRow(), Bpm = DoubleValue };
+}
+internal sealed class EditorTimeSignatureEvent(TimeSignature value, EditorChart chart) : EditorRateAlteringEvent(value, chart) {
+    public string StringValue { get => ((TimeSignature)Value).Signature.ToString(); set { var parts = value.Split('/'); ((TimeSignature)Value).Signature = new Fraction(int.Parse(parts[0]), int.Parse(parts[1])); } }
+    public override object Project() => new { Kind = "Signature", Row = GetRow(), N = ((TimeSignature)Value).Signature.Numerator, D = ((TimeSignature)Value).Signature.Denominator };
+}
+internal sealed class EditorDelayEvent(Stop value, EditorChart chart) : EditorRateAlteringEvent(value, chart);
+internal sealed class EditorAttackEvent(Attack value, EditorChart chart) : EditorEvent(value, chart);
+internal sealed class EditorLabelEvent(Label value, EditorChart chart) : EditorEvent(value, chart);
+internal sealed class EditorHoldNoteEvent : EditorEvent {
+    private readonly bool Roll;
+    public EditorHoldNoteEvent(int row, int lane, int player, int end, bool roll, EditorChart chart) : base(new LaneHoldStartNote {IntegerPosition = row, Lane = lane, Player = player, SourceType = roll ? "4" : "2"}, chart) { End = end; Roll = roll; }
+    public bool IsRoll() => Roll;
+}
+internal sealed class EditorPatternEvent : EditorEvent {
+    // ORIGINAL_DEFINITION
+    private Definition EventDefinition;
+    public EditorPatternEvent(int row, Definition definition, EditorChart chart) : base(new Pattern {IntegerPosition = row}, chart) { EventDefinition = definition; }
+    // ORIGINAL_PATTERN_CLONE
+    public bool MatchesDefinition(EditorPatternEvent other) => EventDefinition.Matches(other.EventDefinition);
+    public void MutateSeed() => EventDefinition.RandomSeed++;
+    public override object Project() => new { Kind = "Pattern", Row = GetRow(), Definition = EventDefinition };
+}
+internal static class EventConfig {
+    public static EditorEvent CreateTapConfig(EditorEvent value) => new EditorTapEvent(new LaneTapNote {IntegerPosition = value.GetRow(), Lane = value.GetLane(), Player = value.GetPlayer(), SourceType = "1"}, null);
+    public static EditorEvent CreateHoldConfig(EditorChart chart, int row, int lane, int player, int duration, bool roll) => new EditorHoldNoteEvent(row, lane, player, row + duration, roll, chart);
+}
+internal sealed class EventContainer {
+    public readonly List<EditorEvent> Values = [];
+    public EditorEvent FindNoteAt(int row, int lane, bool ignored) => Values.LastOrDefault(e => e.GetLane() == lane && e.GetRow() <= row && e.GetEndRow() >= row);
+    public IEnumerator<EditorEvent> FindBestByPosition(int row) => Values.Where(e => e.GetRow() >= row).ToList().GetEnumerator();
+    public List<EditorEvent> FindEventsAtRow(int row) => Values.Where(e => e.GetRow() == row).ToList();
+}
+internal sealed class StepTotalsStub { public void CommitAddsAndDeletesToStepDensity() { } }
+internal sealed class EditorChart {
+    private const int InvalidArrowIndex = -1;
+    private readonly EventContainer EditorEvents = new();
+    private readonly StepTotalsStub StepTotals = new();
+    public readonly int NumInputs;
+    public readonly int DefaultNumPlayers;
+    public readonly int MaxPlayers;
+    public EditorChart(string layout, int players) { var properties = GetChartProperties(Enum.Parse<ChartType>(layout.Replace('-', '_'))); NumInputs = properties.GetNumInputs(); DefaultNumPlayers = properties.GetNumPlayers(); MaxPlayers = players; }
+    public IEnumerable<EditorEvent> GetEvents() => EditorEvents.Values;
+    public string GetDescriptiveName() => "Oracle chart";
+    // ORIGINAL_IS_MULTIPLAYER
+    // ORIGINAL_CAN_EXIST
+    public void DeleteEvent(EditorEvent value) => EditorEvents.Values.Remove(value);
+    public void DeleteEvents(List<EditorEvent> values) { foreach (var value in values) DeleteEvent(value); }
+    public void AddEvents(List<EditorEvent> values) { foreach (var value in values) AddEventInternal(value); }
+    public void AddEvent(EditorEvent value) => AddEventInternal(value);
+    private void AddEventInternal(EditorEvent value) { EditorEvents.Values.Add(value); EditorEvents.Values.Sort(); }
+    public object[] Project() => EditorEvents.Values.Select(value => value.Project()).ToArray();
+    public (List<EditorEvent>, List<EditorEvent>) ForceAddEvent(EditorEvent value) {
+        bool dirty = false; List<EditorEvent> added = null, deleted = null;
+        ForceAddEventInternal(value, ref dirty, ref added, ref deleted);
+        return (added, deleted);
+    }
+    public void ForceAddEventsComplete(List<EditorEvent> events) { }
+    // ORIGINAL_FORCE_ADD
+}

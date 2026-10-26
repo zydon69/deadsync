@@ -1,8 +1,13 @@
 # Required next minimap increment
 
-This plan follows the first ConstantTime keyboard navigation increment. That
-increment is not complete GrooveAuthor minimap parity. The native tests for it
-are being validated by the parent; no additional source wiring is made here.
+The original plan below followed the first ConstantTime keyboard increment.
+Viewport assembly, Time/Row navigation, an independent Variable axis and range/
+quantization preferences are now connected. Twenty native EN/FR tests, two
+preference tests, three viewport and three row-focus tests passed. The extended
+original arithmetic oracle contains 160 executed cases. Range JSON uses uint
+tokens verified with a minimal .NET DTO. This remains incomplete minimap parity:
+the overview is aggregated, and lane/hold/marker graphics plus the remaining
+original visibility/position options still need their own port.
 
 ## Source and available contracts
 
@@ -16,8 +21,8 @@ Pinned source: `48e18f71655d0f0d86144c63239331833501fda2`.
   extends chart content by one editor range at each end. The minimap's visible
   range is a separate configured value, not automatically the entire chart.
 - `MiniMap.cs::SetMiniMapAreaFromEditorArea`: position that minimap viewport
-  relative to the full and editor ranges. This method still needs to be added
-  unchanged to the C# arithmetic oracle before claiming its port is proven.
+  relative to the full and editor ranges. The extended oracle now executes this
+  method and its quantization helper unchanged in 160 cases.
 - `MiniMap.cs::GetYPixelRelativeToBounds` and `UpdateBasedOnSelectedPixel`: the
   existing oracle proves their arithmetic on 60 configurations. Native keyboard
   binding and viewport assembly are separate adaptations.
@@ -27,7 +32,7 @@ Pinned source: `48e18f71655d0f0d86144c63239331833501fda2`.
   before converting it to time. A row inside a warp is not interchangeable with
   an arbitrary inverse time-to-row round trip.
 
-## Implementation order
+## Original implementation order (first viewport/preference steps now connected)
 
 1. Share the exact native `view_render::Viewport` bounds/focal position with
    minimap assembly. Remove the first increment's simplified viewport height and

@@ -153,7 +153,14 @@ impl Workspace {
     }
     pub fn event_selection(&mut self) -> Result<crate::event_clipboard::Selection, Error> {
         let (start, end) = self.selection().unwrap_or((self.row, self.row));
+        self.event_selection_between(start, end)
+    }
+    pub fn event_selection_between(&mut self, start: u64, end: u64) -> Result<crate::event_clipboard::Selection, Error> {
         crate::event_clipboard::Selection::capture(&mut self.file.session, self.chart, start, end)
+    }
+    pub fn shift_event_selection(&mut self, selection: &crate::event_clipboard::Selection, rows: i64) -> Result<crate::event_shift::Report, Error> {
+        self.validate_event_selection(selection)?;
+        crate::event_shift::Plan::capture(&mut self.file.session, selection, rows)?.apply(&mut self.file.session)
     }
     fn validate_event_selection(&self, selection: &crate::event_clipboard::Selection) -> Result<(), Error> {
         if selection.chart() == self.chart { Ok(()) } else { Err(Error::InvalidEdit("Event selection belongs to another chart".into())) }

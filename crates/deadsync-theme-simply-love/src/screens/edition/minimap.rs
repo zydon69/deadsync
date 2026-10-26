@@ -1,14 +1,16 @@
-//! Compact ConstantTime overview; keyboard capture adapts the original drag policy.
+//! Time/row viewport overview; keyboard capture adapts the original drag policy.
 use super::*;
 use deadsync_editor::{
     chart_order::Binding,
     minimap_navigation::{Effect, Gesture, Input, Position},
-    minimap_projection::Projection,
+    minimap_preferences::Preferences,
+    minimap_viewport::{Axis, Geometry, Viewport},
     playback::Clock,
 };
 use std::cell::RefCell;
 
 struct Density {
+    axis: Axis,
     binding: Binding,
     bins: [u32; 64],
     full_start: f64,
@@ -71,6 +73,8 @@ mod tests {
 #[derive(Default)]
 pub(super) struct Navigation {
     focused: bool,
+    pub(super) preferences: Preferences,
+    pub(super) draft: Option<Preferences>,
     held: u8,
     gesture: Gesture,
     binding: Option<Binding>,
@@ -132,34 +136,61 @@ impl State {
         let clock = self.minimap_clock()?;
         self.minimap_position_with_clock(&clock)
     }
-    fn minimap_projection(&self) -> Result<(Projection, Arc<Clock>), deadsync_editor::Error> {
+    pub(super) fn configure_minimap_preferences(&mut self, preferences: Preferences) {
+        self.minimap.preferences = preferences;
+        self.minimap.draft = None;
+    }
+    pub fn minimap_preferences(&self) -> Preferences {
+        self.minimap.preferences
+    }
+    pub fn minimap_viewport_geometry(&self) -> Result<Geometry, deadsync_editor::Error> {
+        self.minimap_projection().map(|(geometry, _)| geometry)
+    }
+    fn minimap_axis(&self) -> Axis {
+        match self.spacing_mode() {
+            deadsync_editor::zoom::SpacingMode::ConstantTime => Axis::Time,
+            deadsync_editor::zoom::SpacingMode::ConstantRow => Axis::Row,
+            deadsync_editor::zoom::SpacingMode::Variable => {
+                self.minimap.preferences.variable_axis()
+            }
+        }
+    }
+    fn minimap_projection(&self) -> Result<(Geometry, Arc<Clock>), deadsync_editor::Error> {
         let clock = self.minimap_clock()?;
         let position = self.minimap_position_with_clock(&clock)?;
-        let scale = self
-            .zoom
-            .spacing(deadsync_editor::zoom::SpacingMode::ConstantTime)
-            * self.zoom.spacing_zoom();
-        let range = f64::from(screen_height()) / scale;
-        let full_start = clock.chart_time(0)? - range;
-        let full_end = clock.note_time(self.workspace.grid().last_row())? + range;
-        let height = (screen_height() - 192.0).max(40.0) as i32;
-        let projection = Projection {
-            full_start,
-            full_end,
-            mini_start: full_start,
-            mini_unquantized: full_start,
-            mini_range: full_end - full_start,
-            editor_start: position.chart_time - range * 0.25,
-            editor_end: position.chart_time + range * 0.75,
-            bounds_y: 96,
-            visible_height: height,
-            grabbed_percentage: 0.25,
-            reverse: self.reverse_display,
-            quantize: false,
-        }
-        .initialized()
-        .ok_or_else(|| deadsync_editor::Error::InvalidEdit("Invalid minimap projection".into()))?;
-        Ok((projection, clock))
+        let axis = self.minimap_axis();
+        let mode = match axis {
+            Axis::Time => deadsync_editor::zoom::SpacingMode::ConstantTime,
+            Axis::Row => deadsync_editor::zoom::SpacingMode::ConstantRow,
+        };
+        let scale = self.zoom.spacing(mode) * self.zoom.spacing_zoom();
+        let native = self.chart_viewport();
+        let viewport = Viewport {
+            top: native.top.into(),
+            bottom: native.bottom.into(),
+            focal: native.cursor.into(),
+        };
+        let last_row = self.workspace.grid().last_row();
+        let (focus, content) = match axis {
+            Axis::Time => (
+                position.chart_time,
+                (clock.chart_time(0)?, clock.note_time(last_row)?),
+            ),
+            Axis::Row => (position.row, (0.0, last_row as f64)),
+        };
+        let geometry = Geometry::build(
+            axis,
+            viewport,
+            scale,
+            focus,
+            content,
+            self.minimap.preferences.visible_range(axis),
+            96,
+            (screen_height() - 192.0).max(40.0) as i32,
+            self.reverse_display,
+            self.minimap.preferences.quantize(),
+        )?;
+        Ok((geometry, clock))
     }
     fn minimap_effect(&mut self, effect: Option<Effect>) -> Result<(), deadsync_editor::Error> {
         match effect {
@@ -172,7 +203,17 @@ impl State {
                         .iter()
                         .find(|view| view.source_index() == self.workspace.chart())
                 }) {
+                    Some(view) if self.minimap_axis() == Axis::Row => {
+                        view.position_at_row(session, position.row)?
+                    }
                     Some(view) => view.position_at_time(session, position.music_time)?,
+                    None if self.minimap_axis() == Axis::Row => {
+                        deadsync_editor::chart_focus::Position::at_fractional_row(
+                            session,
+                            self.workspace.chart(),
+                            position.row,
+                        )?
+                    }
                     None => deadsync_editor::chart_focus::Position::at_time(
                         session,
                         self.workspace.chart(),
@@ -215,6 +256,10 @@ impl State {
             && self.workspace.has_chart()
         {
             if !event.pressed || event.repeat {
+                return true;
+            }
+            if self.shift {
+                self.open_minimap_settings();
                 return true;
             }
             if self.minimap.focused {
@@ -291,10 +336,14 @@ impl State {
                 self.minimap_effect(effect)?;
             }
             self.minimap.held |= bit;
-            let (mut projection, clock) = self.minimap_projection()?;
+            let (mut geometry, clock) = self.minimap_projection()?;
+            let projection = &mut geometry.projection;
             let focus = self.minimap_position()?;
             let unreflected = (f64::from(projection.bounds_y)
-                + projection.project_editor(focus.chart_time))
+                + projection.project_editor(match geometry.axis {
+                    Axis::Time => focus.chart_time,
+                    Axis::Row => focus.row,
+                }))
             .round() as i32;
             let current = projection.reflect_y(unreflected).ok_or_else(|| {
                 deadsync_editor::Error::InvalidEdit("Minimap pixel overflow".into())
@@ -312,14 +361,7 @@ impl State {
             projection.drag(selected).ok_or_else(|| {
                 deadsync_editor::Error::InvalidEdit("Invalid minimap drag".into())
             })?;
-            let chart_time = projection.editor_start
-                + (projection.editor_end - projection.editor_start) * projection.grabbed_percentage;
-            let music_time = clock.chart_time_to_music(chart_time)?;
-            let position = Position {
-                chart_time,
-                music_time,
-                row: clock.position(music_time)?,
-            };
+            let position = geometry.position(&clock)?;
             let effect = self.minimap.gesture.input(Input::Move(position));
             self.minimap_effect(effect)
         })();
@@ -332,24 +374,28 @@ impl State {
         if self.panel.is_some() || !self.workspace.has_chart() {
             return;
         }
-        let Ok((projection, clock)) = self.minimap_projection() else {
+        let Ok((geometry, clock)) = self.minimap_projection() else {
             return;
         };
+        let projection = &geometry.projection;
+        let full_range = projection.full_end - projection.full_start;
         let session = &self.workspace.file().session;
         let mut cache = self.minimap.density.borrow_mut();
         if cache.as_ref().is_none_or(|cache| {
             !cache.binding.is_current(session, self.workspace.chart())
                 || cache.full_start != projection.full_start
-                || cache.range != projection.mini_range
+                || cache.range != full_range
+                || cache.axis != geometry.axis
         }) {
             *cache = Some(Density {
+                axis: geometry.axis,
                 binding: match Binding::capture(session, self.workspace.chart()) {
                     Ok(binding) => binding,
                     Err(_) => return,
                 },
                 bins: [0; 64],
                 full_start: projection.full_start,
-                range: projection.mini_range,
+                range: full_range,
                 cursor: None,
                 done: false,
             });
@@ -364,9 +410,13 @@ impl State {
             {
                 cache.cursor = Some(position);
                 count += 1;
-                if let Ok(time) = clock.note_time(position.row) {
+                let coordinate = match geometry.axis {
+                    Axis::Time => clock.note_time(position.row),
+                    Axis::Row => Ok(position.row as f64),
+                };
+                if let Ok(coordinate) = coordinate {
                     let fraction =
-                        ((time - projection.full_start) / projection.mini_range).clamp(0.0, 1.0);
+                        ((coordinate - projection.full_start) / full_range).clamp(0.0, 1.0);
                     let bin = ((fraction * 64.0) as usize).min(63);
                     cache.bins[bin] = cache.bins[bin].saturating_add(1);
                 }
@@ -388,11 +438,16 @@ impl State {
                 .enumerate()
                 .filter(|(_, count)| **count > 0)
             {
-                let fraction = (index as f32 + 0.5) / 64.0;
+                let coordinate = cache.full_start + (index as f64 + 0.5) / 64.0 * cache.range;
+                let fraction =
+                    projection.project_editor(coordinate) / f64::from(projection.visible_height);
+                if !(0.0..=1.0).contains(&fraction) {
+                    continue;
+                }
                 let yy = if self.reverse_display {
-                    1.0 - fraction
+                    1.0 - fraction as f32
                 } else {
-                    fraction
+                    fraction as f32
                 };
                 actors.push(act!(quad: xy(x,y+yy*height): setsize(24.0*(*count as f32/maximum).sqrt(),height/64.0): diffuse(0.25,0.75,0.95,0.9): z(8011)));
             }

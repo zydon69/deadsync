@@ -1,0 +1,2412 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source": "StepManiaEditor/MiniMap.cs",
+  "source_sha256": "445d6c0532c1e75b679fbee658981de1e152e853952a8a9918b79f5a6d995345",
+  "method_sha256": {
+    "SetMiniMapAreaFromEditorArea": "7fd8b1989338164ab957efc4d1893481fdb2cdb72dc237ec9a5e0d2a94988f13",
+    "SetMiniMapAreaStart": "f5d3345ef136bc38d33d5019b8e55dac8ade8314b228ea7d5b7c9605c38546ae"
+  },
+  "scope": "Unchanged C# positioning and quantization only; fixture-supplied geometry, no native viewport, GUI, timing conversion or input claim.",
+  "cases": [
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": -80.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -1.0101010101010104,
+        "unquantized": -1.0101010101010104
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -0.9166666666666666,
+        "unquantized": -1.0101010101010104
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 73.23232323232324,
+        "unquantized": 73.23232323232324
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 73.25,
+        "unquantized": 73.23232323232324
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 880,
+        "unquantized": 880
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 880.0833333333333,
+        "unquantized": 880
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 880,
+        "unquantized": 880
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 880.0833333333333,
+        "unquantized": 880
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -99.91666666666666,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 96,
+        "unquantized": 96
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 96.08333333333333,
+        "unquantized": 96
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 243,
+        "unquantized": 243
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 243.08333333333331,
+        "unquantized": 243
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 880,
+        "unquantized": 880
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 880.0833333333333,
+        "unquantized": 880
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 880,
+        "unquantized": 880
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 880.0833333333333,
+        "unquantized": 880
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": -100,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": -100.0,
+        "FullEnd": 900.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": -91.66666666666667,
+        "unquantized": -100
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 20.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 74.24242424242425,
+        "unquantized": 74.24242424242425
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 74.25,
+        "unquantized": 74.24242424242425
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 980,
+        "unquantized": 980
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 980.0833333333333,
+        "unquantized": 980
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 980,
+        "unquantized": 980
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 980.0833333333333,
+        "unquantized": 980
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": -500.0,
+        "EditorEnd": -490.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 10.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 85.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2010.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 147,
+        "unquantized": 147
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 147.08333333333331,
+        "unquantized": 147
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 980,
+        "unquantized": 980
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 980.0833333333333,
+        "unquantized": 980
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 980,
+        "unquantized": 980
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 20.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 980.0833333333333,
+        "unquantized": 980
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": -500.0,
+        "EditorEnd": 0.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 0.0,
+        "EditorEnd": 500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 75.0,
+        "EditorEnd": 575.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 1000.0,
+        "EditorEnd": 1500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": false
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    },
+    {
+      "input": {
+        "FullStart": 0.0,
+        "FullEnd": 1000.0,
+        "EditorStart": 2000.0,
+        "EditorEnd": 2500.0,
+        "MiniRange": 2000.0,
+        "VisibleHeight": 240,
+        "Quantize": true
+      },
+      "expected": {
+        "miniStart": 0,
+        "unquantized": 0
+      }
+    }
+  ]
+}

@@ -203,3 +203,191 @@ fn leaving_preview_audition_does_not_arm_chart_resume_for_minimap_capture() {
     assert!(!state.is_playing());
     assert!(state.take_audio_commands().is_empty());
 }
+fn chord(state: &mut State, code: KeyCode, shift: bool) {
+    event(state, KeyCode::SuperLeft, true);
+    if shift {
+        event(state, KeyCode::ShiftLeft, true);
+    }
+    press(state, code);
+    if shift {
+        event(state, KeyCode::ShiftLeft, false);
+    }
+    event(state, KeyCode::SuperLeft, false);
+}
+#[test]
+fn native_viewport_uses_render_bounds_focal_reverse_and_time_row_axes() {
+    use deadsync_editor::minimap_viewport::Axis;
+    let (_dir, mut state) = setup(false);
+    for reversed in [false, true] {
+        if reversed {
+            event(&mut state, KeyCode::ShiftLeft, true);
+            press(&mut state, KeyCode::KeyV);
+            event(&mut state, KeyCode::ShiftLeft, false);
+        }
+        for axis in [Axis::Time, Axis::Row] {
+            let mode = match axis {
+                Axis::Time => deadsync_editor::zoom::SpacingMode::ConstantTime,
+                Axis::Row => deadsync_editor::zoom::SpacingMode::ConstantRow,
+            };
+            if state.spacing_mode() != mode {
+                chord(&mut state, KeyCode::KeyT, false);
+            }
+            assert_eq!(state.spacing_mode(), mode);
+            let geometry = state.minimap_viewport_geometry().unwrap();
+            let p = &geometry.projection;
+            assert_eq!(geometry.axis, axis);
+            assert_eq!(p.reverse, reversed);
+            // Actual render viewport is [105,395], cursor 160 or340. In both
+            // directions the earlier distance is55, not one quarter screen.
+            assert!((p.grabbed_percentage - 55.0 / 290.0).abs() < 1e-12);
+            assert!((geometry.focused_coordinate()).abs() < 1e-12);
+            assert_eq!(
+                p.mini_range,
+                if axis == Axis::Time { 240.0 } else { 24576.0 }
+            );
+        }
+    }
+    assert!(!state.workspace().file().session.is_dirty());
+}
+#[test]
+fn minimap_settings_cancel_save_reopen_and_variable_axis_are_independent() {
+    use deadsync_editor::minimap_viewport::Axis;
+    let (dir, mut state) = setup(false);
+    let original = state.minimap_preferences();
+    chord(&mut state, KeyCode::KeyM, true);
+    press(&mut state, KeyCode::ArrowRight);
+    press(&mut state, KeyCode::Escape);
+    assert_eq!(state.minimap_preferences(), original);
+    chord(&mut state, KeyCode::KeyM, true);
+    press(&mut state, KeyCode::ArrowRight);
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::ArrowLeft);
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::ArrowLeft);
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::ArrowRight);
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::Enter);
+    let prefs = state.minimap_preferences();
+    assert_eq!(prefs.variable_axis(), Axis::Row);
+    assert_eq!(prefs.visible_range(Axis::Time), 230.0);
+    assert_eq!(prefs.visible_range(Axis::Row), 24384.0);
+    assert!(prefs.quantize());
+    let mut reopened = State::open(&dir.path().join("song.ssc"), 0).unwrap();
+    reopened
+        .configure_audio_preferences(&dir.path().join("preferences.json"))
+        .unwrap();
+    assert_eq!(reopened.minimap_preferences(), prefs);
+    chord(&mut reopened, KeyCode::KeyT, true);
+    assert_eq!(
+        reopened.minimap_viewport_geometry().unwrap().axis,
+        Axis::Row
+    );
+    assert!(!reopened.workspace().file().session.is_dirty());
+}
+#[test]
+fn row_drag_preserves_fractional_warp_destination_and_offsets_in_both_directions() {
+    use deadsync_editor::{minimap_viewport::Axis, playback::Clock};
+    for reverse in [false, true] {
+        let (dir, _) = setup(false);
+        let song = dir.path().join("song.ssc");
+        fs::write(&song,b"#VERSION:0.83;#MUSIC:music.wav;#OFFSET:0.25;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0.1};#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#STOPS:1=1;#DELAYS:2=0.25;#WARPS:3=1;#NOTES:1000\n0100\n0010\n0001;").unwrap();
+        let mut state = State::open(&song, 0).unwrap();
+        let path = dir.path().join("preferences.json");
+        let mut file = deadsync_editor::audio_preferences::File::open(&path).unwrap();
+        let mut prefs = file.minimap();
+        prefs.set_visible_range(Axis::Row, 512.0).unwrap();
+        file.set_minimap(prefs);
+        file.save().unwrap();
+        state.configure_audio_preferences(&path).unwrap();
+        if reverse {
+            event(&mut state, KeyCode::ShiftLeft, true);
+            press(&mut state, KeyCode::KeyV);
+            event(&mut state, KeyCode::ShiftLeft, false);
+        }
+        press(&mut state, KeyCode::Space);
+        press(&mut state, KeyCode::ArrowDown);
+        let selection = state.workspace().selection();
+        assert_eq!(
+            state.spacing_mode(),
+            deadsync_editor::zoom::SpacingMode::ConstantRow
+        );
+        focus(&mut state);
+        let clock = Clock::capture(&state.workspace().file().session, 0).unwrap();
+        let code = if reverse {
+            KeyCode::ArrowUp
+        } else {
+            KeyCode::ArrowDown
+        };
+        let mut found = false;
+        for _ in 0..150 {
+            press(&mut state, code);
+            let geometry = state.minimap_viewport_geometry().unwrap();
+            let row = geometry.focused_coordinate();
+            if row > 145.0 && row < 191.0 {
+                assert_eq!(geometry.axis, Axis::Row);
+                assert!(
+                    (state.chart_focus_time().unwrap() - clock.fractional_music_time(row).unwrap())
+                        .abs()
+                        < 1e-10
+                );
+                assert!(
+                    (clock.position(state.chart_focus_time().unwrap()).unwrap() - row).abs() > 0.1,
+                    "inverse timing would lose the requested warp row"
+                );
+                assert_eq!(state.workspace().row(), row.floor() as u64);
+                assert_eq!(state.workspace().selection(), selection);
+                found = true;
+                break;
+            }
+        }
+        assert!(found, "keyboard drag reached warp interval");
+        assert!(!state.workspace().file().session.is_dirty());
+    }
+}
+#[test]
+fn numeric_settings_accept_key_repeats_only_while_panel_is_open() {
+    use deadsync_editor::minimap_viewport::Axis;
+    let (_dir, mut state) = setup(false);
+    let repeat = |state: &mut State, code| {
+        state.raw_key(&RawKeyboardEvent {
+            code,
+            pressed: true,
+            repeat: true,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+    };
+    chord(&mut state, KeyCode::KeyM, true);
+    // Boolean/enum toggles keep their single-press policy.
+    repeat(&mut state, KeyCode::ArrowRight);
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::ArrowRight);
+    for _ in 0..3 {
+        repeat(&mut state, KeyCode::ArrowRight);
+    }
+    event(&mut state, KeyCode::ArrowRight, false);
+    press(&mut state, KeyCode::ArrowDown);
+    for _ in 0..2 {
+        repeat(&mut state, KeyCode::ArrowRight);
+    }
+    event(&mut state, KeyCode::ArrowRight, false);
+    for _ in 0..3 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
+    press(&mut state, KeyCode::Enter);
+    let settings = state.minimap_preferences();
+    assert_eq!(settings.variable_axis(), Axis::Time);
+    assert_eq!(settings.visible_range(Axis::Time), 280.0);
+    assert_eq!(settings.visible_range(Axis::Row), 24960.0);
+    let before = state.workspace().file().session.serialize().unwrap();
+    repeat(&mut state, KeyCode::ArrowRight);
+    event(&mut state, KeyCode::ArrowRight, false);
+    assert_eq!(state.minimap_preferences(), settings);
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        before
+    );
+    assert!(!state.workspace().file().session.is_dirty());
+}

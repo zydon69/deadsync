@@ -1,0 +1,777 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_bytes_verified_against_git": true,
+  "source": "StepManiaEditor/AutoPlayer.cs",
+  "source_sha256": "7418dcb9ba58b9d51a033522dd9f4c7dd2f7d35935894b8d94d18d8b5a8281fc",
+  "method_sha256": {
+    "state": "66d803bb6a3ea443457f742a1ac88b227dac7abd9d7db4957d041c090090116f",
+    "update": "6548a0f7a900fcd1ee0a08041dbee12a6edff49dc1036def5b9357852f382880",
+    "stop": "b49365ee70ffefe9110518a620b53945361534ea81ba526ca7bd635e48f6e2b1"
+  },
+  "scope": "Unchanged AutoPlayState, Update and Stop methods; supplied next-input snapshots. Excludes candidate search, Fumen/editor timing, rendering and animations.",
+  "cases": [
+    {
+      "name": "Tap-normal",
+      "steps": [
+        {
+          "time": 0,
+          "next": [
+            {
+              "kind": "Tap",
+              "time": 1
+            }
+          ]
+        },
+        {
+          "time": 1.01,
+          "next": [
+            null
+          ]
+        },
+        {
+          "reset": true
+        },
+        {
+          "time": 1.1,
+          "next": [
+            {
+              "kind": "HoldEnd",
+              "time": 2
+            }
+          ]
+        },
+        {
+          "time": 2.1,
+          "next": [
+            null
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "actions": [],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.010000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.010000000000000009
+            }
+          ],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Cancel",
+              "time_delta": 0
+            }
+          ],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0
+            }
+          ],
+          "held": [
+            true
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.10000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.10000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.10000000000000009
+            }
+          ],
+          "held": [
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HoldStart-normal",
+      "steps": [
+        {
+          "time": 0,
+          "next": [
+            {
+              "kind": "HoldStart",
+              "time": 1
+            }
+          ]
+        },
+        {
+          "time": 1.01,
+          "next": [
+            null
+          ]
+        },
+        {
+          "reset": true
+        },
+        {
+          "time": 1.1,
+          "next": [
+            {
+              "kind": "HoldEnd",
+              "time": 2
+            }
+          ]
+        },
+        {
+          "time": 2.1,
+          "next": [
+            null
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "actions": [],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.010000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.010000000000000009
+            }
+          ],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Cancel",
+              "time_delta": 0
+            }
+          ],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0
+            }
+          ],
+          "held": [
+            true
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.10000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.10000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.10000000000000009
+            }
+          ],
+          "held": [
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HoldEnd-normal",
+      "steps": [
+        {
+          "time": 0,
+          "next": [
+            {
+              "kind": "HoldEnd",
+              "time": 1
+            }
+          ]
+        },
+        {
+          "time": 1.01,
+          "next": [
+            null
+          ]
+        },
+        {
+          "reset": true
+        },
+        {
+          "time": 1.1,
+          "next": [
+            {
+              "kind": "HoldEnd",
+              "time": 2
+            }
+          ]
+        },
+        {
+          "time": 2.1,
+          "next": [
+            null
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0
+            }
+          ],
+          "held": [
+            true
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.010000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.010000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.010000000000000009
+            }
+          ],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Cancel",
+              "time_delta": 0
+            }
+          ],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0
+            }
+          ],
+          "held": [
+            true
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.10000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.10000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.10000000000000009
+            }
+          ],
+          "held": [
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "name": "warp-transitions",
+      "steps": [
+        {
+          "time": 0,
+          "next": [
+            {
+              "kind": "HoldStart",
+              "time": 1
+            }
+          ]
+        },
+        {
+          "time": 1.1,
+          "next": [
+            {
+              "kind": "HoldEnd",
+              "time": 2
+            }
+          ]
+        },
+        {
+          "time": 2.1,
+          "next": [
+            {
+              "kind": "HoldEnd",
+              "time": 3
+            }
+          ]
+        },
+        {
+          "time": 3.1,
+          "next": [
+            {
+              "kind": "Tap",
+              "time": 4
+            }
+          ]
+        },
+        {
+          "time": 4.1,
+          "next": [
+            null
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "actions": [],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.10000000000000009
+            }
+          ],
+          "held": [
+            true
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.10000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.10000000000000009
+            }
+          ],
+          "held": [
+            true
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.10000000000000009
+            }
+          ],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.09999999999999964
+            },
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.09999999999999964
+            }
+          ],
+          "held": [
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "name": "equal-time-kind-and-ulp",
+      "steps": [
+        {
+          "time": 0,
+          "next": [
+            {
+              "kind": "Tap",
+              "time": 1
+            }
+          ]
+        },
+        {
+          "time": 1,
+          "next": [
+            {
+              "kind": "HoldStart",
+              "time": 1
+            }
+          ]
+        },
+        {
+          "time": 1,
+          "next": [
+            {
+              "kind": "HoldEnd",
+              "time": 1.0000000000000002
+            }
+          ]
+        },
+        {
+          "time": 1.000000000000001,
+          "next": [
+            {
+              "kind": "HoldEnd",
+              "time": 1.0000000000000004
+            }
+          ]
+        },
+        {
+          "time": 2,
+          "next": [
+            null
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "actions": [],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.9999999999999996
+            },
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.9999999999999996
+            }
+          ],
+          "held": [
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zero-negative-seek-reset",
+      "steps": [
+        {
+          "time": -1,
+          "next": [
+            {
+              "kind": "HoldEnd",
+              "time": 0
+            }
+          ]
+        },
+        {
+          "time": 0,
+          "next": [
+            null
+          ]
+        },
+        {
+          "reset": true
+        },
+        {
+          "time": -2,
+          "next": [
+            {
+              "kind": "Tap",
+              "time": -1
+            }
+          ]
+        },
+        {
+          "time": -0.5,
+          "next": [
+            null
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "actions": [],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Cancel",
+              "time_delta": 0
+            }
+          ],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [],
+          "held": [
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.5
+            },
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.5
+            }
+          ],
+          "held": [
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "name": "three-lanes",
+      "steps": [
+        {
+          "time": 0,
+          "next": [
+            {
+              "kind": "Tap",
+              "time": 1
+            },
+            {
+              "kind": "HoldEnd",
+              "time": 2
+            },
+            null
+          ]
+        },
+        {
+          "time": 1.1,
+          "next": [
+            null,
+            {
+              "kind": "HoldEnd",
+              "time": 2
+            },
+            {
+              "kind": "HoldStart",
+              "time": 2
+            }
+          ]
+        },
+        {
+          "time": 2.1,
+          "next": [
+            null,
+            null,
+            {
+              "kind": "HoldEnd",
+              "time": 3
+            }
+          ]
+        },
+        {
+          "reset": true
+        }
+      ],
+      "expected": [
+        {
+          "actions": [
+            {
+              "lane": 1,
+              "kind": "Down",
+              "time_delta": 0
+            }
+          ],
+          "held": [
+            false,
+            true,
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Down",
+              "time_delta": 0.10000000000000009
+            },
+            {
+              "lane": 0,
+              "kind": "Up",
+              "time_delta": 0.10000000000000009
+            }
+          ],
+          "held": [
+            false,
+            true,
+            false
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 1,
+              "kind": "Up",
+              "time_delta": 0.10000000000000009
+            },
+            {
+              "lane": 1,
+              "kind": "Down",
+              "time_delta": 0.10000000000000009
+            },
+            {
+              "lane": 1,
+              "kind": "Up",
+              "time_delta": 0.10000000000000009
+            },
+            {
+              "lane": 2,
+              "kind": "Down",
+              "time_delta": 0.10000000000000009
+            }
+          ],
+          "held": [
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "actions": [
+            {
+              "lane": 0,
+              "kind": "Cancel",
+              "time_delta": 0
+            },
+            {
+              "lane": 1,
+              "kind": "Cancel",
+              "time_delta": 0
+            },
+            {
+              "lane": 2,
+              "kind": "Cancel",
+              "time_delta": 0
+            }
+          ],
+          "held": [
+            false,
+            false,
+            false
+          ]
+        }
+      ]
+    }
+  ]
+}

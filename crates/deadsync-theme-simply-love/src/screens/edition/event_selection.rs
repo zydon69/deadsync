@@ -1,4 +1,4 @@
-use super::{Panel, State};
+use super::{Panel, SNAP_ROWS, State};
 use crate::{act, i18n};
 use deadlib_platform::input::KeyCode;
 use deadlib_present::{
@@ -6,6 +6,7 @@ use deadlib_present::{
     space::{screen_height, screen_width},
 };
 use deadsync_editor::event_clipboard::{Event, Selection, TimingKind};
+use std::collections::BTreeSet;
 const PAGE: usize = 8;
 pub(super) struct Settings {
     selection: Selection,
@@ -40,6 +41,11 @@ impl State {
         let Some(mut settings) = self.event_selection.take() else {
             return;
         };
+        if self.control && matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
+            self.shift_event_choices(&mut settings, code == KeyCode::ArrowRight);
+            self.event_selection = Some(settings);
+            return;
+        }
         let length = settings.selection.events().len();
         let mut close = false;
         let result = (|| -> Result<&str, deadsync_editor::Error> {
@@ -99,6 +105,73 @@ impl State {
             self.refresh();
         } else {
             self.event_selection = Some(settings);
+        }
+    }
+    fn shift_event_choices(&mut self, settings: &mut Settings, later: bool) {
+        if settings.selection.selected_count() == 0 {
+            self.status = i18n::tr("Edition", "EventSelectionNoChoice");
+            return;
+        }
+        let mut start = settings
+            .selection
+            .events()
+            .iter()
+            .map(|event| event.row())
+            .min()
+            .unwrap_or(self.workspace.row());
+        let mut end = settings
+            .selection
+            .events()
+            .iter()
+            .map(|event| event.row())
+            .max()
+            .unwrap_or(start);
+        let rows = SNAP_ROWS[self.workspace.snap()] as i64 * if later { 1 } else { -1 };
+        match self
+            .workspace
+            .shift_event_selection(&settings.selection, rows)
+        {
+            Ok(report) => {
+                self.refresh();
+                for event in &report.selection_after {
+                    start = start.min(event.row());
+                    end = end.max(event.row());
+                }
+                match self.workspace.event_selection_between(start, end) {
+                    Ok(mut refreshed) => {
+                        refreshed.select_all(false);
+                        let selected: BTreeSet<_> =
+                            report.selection_after.iter().copied().collect();
+                        for index in 0..refreshed.events().len() {
+                            if selected.contains(&refreshed.events()[index]) {
+                                refreshed
+                                    .set_selected(index, true)
+                                    .expect("index belongs to captured events");
+                            }
+                        }
+                        settings.index = (0..refreshed.events().len())
+                            .find(|index| refreshed.is_selected(*index))
+                            .unwrap_or(0);
+                        settings.selection = refreshed;
+                        self.status = i18n::tr_fmt(
+                            "Edition",
+                            "EventShiftReport",
+                            &[
+                                ("moved", &report.moved.to_string()),
+                                ("deleted", &report.deleted.to_string()),
+                                ("immutable", &report.immutable.to_string()),
+                            ],
+                        );
+                    }
+                    Err(_) => {
+                        // The atomic shift succeeded; never imply a rollback
+                        // merely because rebuilding its presentation failed.
+                        settings.selection.select_all(false);
+                        self.status = i18n::tr("Edition", "EventShiftRefreshFailed");
+                    }
+                }
+            }
+            Err(_) => self.status = i18n::tr("Edition", "EventShiftFailed"),
         }
     }
     pub(super) fn event_selection_actors(&self, actors: &mut Vec<Actor>) {
@@ -199,6 +272,7 @@ impl State {
             height - 132.0,
             [0.7, 0.8, 0.9, 1.0],
         );
+        actors.push(act!(text: font("miso"): settext(i18n::tr("Edition", "EventShiftHelp")): align(0.0,0.0): xy(42.0,height-78.0): zoom(0.5): wrapwidthpixels((width-84.0)/0.5): maxwidth(width-84.0): maxheight(36.0): diffuse(0.7,0.8,0.9,1.0): z(8012)));
     }
 }
 fn label(actors: &mut Vec<Actor>, value: &str, y: f32, color: [f32; 4]) {

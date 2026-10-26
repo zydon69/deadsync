@@ -1,0 +1,23 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "license": "MIT; LICENSE copied unchanged",
+  "files": {
+    "atlas.png": {
+      "source": "StepManiaEditor/Content/atlas.png",
+      "sha256": "01c1c00c3dca4a8cf47bb1541dd2e7858fc4feb0fe21f1520b9761dcd51f6ea4"
+    },
+    "atlas.json": {
+      "source": "StepManiaEditor/atlas.json",
+      "sha256": "974b4e27e42bf9e5df47c150a263270556be962f860c999cdf258ab512c6bf56"
+    },
+    "LICENSE": {
+      "source": "LICENSE",
+      "sha256": "3b31d89c6433541f91e7c6b4707b449fa412cdeed74e1b44f7ba47160565c650"
+    }
+  },
+  "dimensions": [
+    1280,
+    1280
+  ],
+  "note": "Root atlas.json matches 1280px PNG. Content/atlas.json is a different 1800px packing and is deliberately not paired with this PNG."
+}

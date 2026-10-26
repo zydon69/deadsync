@@ -67,3 +67,33 @@ current document and keeping the new path makes those older values point to
 different assets when undone. The storage/history adapter must preserve asset
 meaning across that history, not just the current serialized output. Neither
 the pure path helper nor its oracle resolves this ownership issue.
+
+### Proposed history migration to investigate
+
+Keep the live Session identity, chart GUIDs and both history branches. Prepare a
+pure in-memory relocation patch before writing the destination. It would rebase
+the current document and each stored DocumentSwap document, plus the before/after
+payloads of media Value/AddedProperty changes. Value ranges must be classified in
+their actual historical document context, not guessed from the current chart
+indices. Walk cloned document contexts backwards/forwards; never replay external
+profile or audio-preference actions merely to inspect history.
+
+An absent Value replacement can restore a relative value from immutable source
+bytes. Its rebased equivalent therefore needs an explicit replacement; changing
+only existing replacement payloads is insufficient. Preserve source ranges and
+unknown tags rather than reparsing and invalidating every stored range. Include
+pending grids in output serialization without modifying them.
+
+Relocation also invalidates content caches without destroying open-view identity.
+A fresh consistent revision mapping for current/history/redo content tokens may
+be needed. Reusing an old revision after Undo must not resurrect a clock/media
+cache captured against the former asset base. Planning must also detect a new
+edit followed by Undo: the visible revision can return while the redo branch has
+changed, so a current revision token alone cannot bind a prepared history patch.
+
+This approach is unimplemented and requires dedicated history proof. Same-format
+Save As must remain unexposed until media edits, structural snapshots, pending
+peers, both history branches and cache invalidation survive relocation. It must
+also permit rescuing working edits to a different destination when the old disk
+file changed, because that operation leaves the old file untouched; this is
+distinct from authorizing overwrite of an externally changed destination.

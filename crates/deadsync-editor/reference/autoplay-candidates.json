@@ -1,0 +1,1504 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_bytes_verified_against_git": true,
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "source_sha256": {
+    "StepManiaEditor/AutoPlayer.cs": "7418dcb9ba58b9d51a033522dd9f4c7dd2f7d35935894b8d94d18d8b5a8281fc",
+    "StepManiaEditor/EditorChart.cs": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd",
+    "StepManiaEditor/EditorEvents/Containers/EventTree.cs": "154d1e307368636752879e0f9123af67f43c8c4a6eac6950f5b9159a75cfd94f",
+    "StepManiaEditor/EditorEvents/Containers/EventTreeUtils.cs": "debc87e321265b4b694fe902cb9147e66804e75669fef7a842830a925a6ecdee"
+  },
+  "fumen_tree_sha256": "8d6eb13fa2ccc67eef415c76ebb30643aa83098bc94d88321e0078cc0a9e118f",
+  "method_sha256": {
+    "next": "a8ba6cc2319962221dd1d0452bfa809749b24768ca46db0ab5b6ae732c6e54e5",
+    "holds": "00258194c4d6d9a7e87d40a545b5ce801502a7498a3aa1adad3df0340111a3e6",
+    "best": "464dc6bd36b28d324ef2dbcf97f57dd1a32069cbe7f246b9248cd594897ddcd7",
+    "before": "33a04dcec4a01578726c325f14841ed62185f7e405293ded67fee6456cf0ceae",
+    "ensure_before": "cf6fe4dda7d3b9bedbeb47ba67453e0ce60b9cd2cec9d8056ae2627563f2c57f",
+    "ensure_before_equal": "e8bdc73722bf149a51002507221cdbe62f4b5d2039892acb7035a493fd7eb472",
+    "ensure_after_equal": "8ca146f9f3a7af745e6e4ae3b18d6744a3dfc8b26a65544d28355bdcff169b90",
+    "unset": "829a3663a734fedaed6b8d1246893a964bd0c5619344772dddd615f46033f31f"
+  },
+  "scope": "Original GetNextInputs, GetHoldsOverlappingTime, time-window search/Ensure methods and unchanged Fumen RedBlackTree. Adapted event time/fake/tie-order snapshots: not original timing, complete EditorEvent comparer, or rendering.",
+  "cases": [
+    {
+      "name": "fake-region-and-mid-hold",
+      "timing": "#FAKES:1=1;",
+      "notes": "20000000\n00000000\n30000000\n00000000\n&\n00000000\n01000000\n00L00000\n00000000",
+      "events": [
+        {
+          "lane": 0,
+          "row": 0,
+          "time": 0,
+          "kind": "Hold",
+          "end": 1,
+          "fake": false,
+          "player": 0
+        },
+        {
+          "lane": 1,
+          "row": 48,
+          "time": 0.5,
+          "kind": "Tap",
+          "end": null,
+          "fake": true,
+          "player": 1
+        },
+        {
+          "lane": 2,
+          "row": 96,
+          "time": 1,
+          "kind": "Lift",
+          "end": null,
+          "fake": false,
+          "player": 1
+        }
+      ],
+      "queries": [
+        -0.01,
+        0,
+        0.25,
+        0.5,
+        0.5000000001,
+        0.75,
+        1,
+        1.0000000001,
+        1.5,
+        2
+      ],
+      "expected": [
+        [
+          {
+            "kind": "HoldStart",
+            "time": 0
+          },
+          null,
+          {
+            "kind": "Tap",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          {
+            "kind": "Tap",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          {
+            "kind": "Tap",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          {
+            "kind": "Tap",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          {
+            "kind": "Tap",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          {
+            "kind": "Tap",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          {
+            "kind": "Tap",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "warp-equal-head-times",
+      "timing": "#WARPS:1=1;",
+      "notes": "00200000\n10000000\n01000000\n00000000,\n00300000",
+      "events": [
+        {
+          "lane": 2,
+          "row": 0,
+          "time": 0,
+          "kind": "Hold",
+          "end": 1.5,
+          "fake": false,
+          "player": 0
+        },
+        {
+          "lane": 0,
+          "row": 48,
+          "time": 0.5,
+          "kind": "Tap",
+          "end": null,
+          "fake": true,
+          "player": 0
+        },
+        {
+          "lane": 1,
+          "row": 96,
+          "time": 0.5,
+          "kind": "Tap",
+          "end": null,
+          "fake": false,
+          "player": 0
+        }
+      ],
+      "queries": [
+        -0.01,
+        0,
+        0.25,
+        0.5,
+        0.5000000001,
+        0.75,
+        1,
+        1.0000000001,
+        1.5,
+        2
+      ],
+      "expected": [
+        [
+          null,
+          {
+            "kind": "Tap",
+            "time": 0.5
+          },
+          {
+            "kind": "HoldStart",
+            "time": 0
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          {
+            "kind": "Tap",
+            "time": 0.5
+          },
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          {
+            "kind": "Tap",
+            "time": 0.5
+          },
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          {
+            "kind": "Tap",
+            "time": 0.5
+          },
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "negative-stop-fake-head",
+      "timing": "#STOPS:1=-0.5;",
+      "notes": "00000000\n10000000\n01000000\n00000000",
+      "events": [
+        {
+          "lane": 0,
+          "row": 48,
+          "time": 0.5,
+          "kind": "Tap",
+          "end": null,
+          "fake": true,
+          "player": 0
+        },
+        {
+          "lane": 1,
+          "row": 96,
+          "time": 0.5,
+          "kind": "Tap",
+          "end": null,
+          "fake": false,
+          "player": 0
+        }
+      ],
+      "queries": [
+        -0.01,
+        0,
+        0.25,
+        0.5,
+        0.5000000001,
+        0.75,
+        1,
+        1.0000000001,
+        1.5,
+        2
+      ],
+      "expected": [
+        [
+          null,
+          {
+            "kind": "Tap",
+            "time": 0.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          {
+            "kind": "Tap",
+            "time": 0.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          {
+            "kind": "Tap",
+            "time": 0.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          {
+            "kind": "Tap",
+            "time": 0.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "fake-and-mine-block-older-owner-hold",
+      "timing": "",
+      "notes": "20000000\n00000000\n00000000\n30000000\n&\n00000000\nM0000000\n00000000\n00000000",
+      "events": [
+        {
+          "lane": 0,
+          "row": 0,
+          "time": 0,
+          "kind": "Hold",
+          "end": 1.5,
+          "fake": false,
+          "player": 0
+        },
+        {
+          "lane": 0,
+          "row": 48,
+          "time": 0.5,
+          "kind": "Mine",
+          "end": null,
+          "fake": false,
+          "player": 1
+        }
+      ],
+      "queries": [
+        -0.01,
+        0,
+        0.25,
+        0.5,
+        0.5000000001,
+        0.75,
+        1,
+        1.0000000001,
+        1.5,
+        2
+      ],
+      "expected": [
+        [
+          {
+            "kind": "HoldStart",
+            "time": 0
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "same-lane-owner-equality",
+      "timing": "",
+      "notes": "20000000\n00000000\n30000000\n00000000\n&\n10000000\n00000000\n00000000\n00000000",
+      "events": [
+        {
+          "lane": 0,
+          "row": 0,
+          "time": 0,
+          "kind": "Tap",
+          "end": null,
+          "fake": false,
+          "player": 1
+        },
+        {
+          "lane": 0,
+          "row": 0,
+          "time": 0,
+          "kind": "Hold",
+          "end": 1,
+          "fake": false,
+          "player": 0
+        }
+      ],
+      "queries": [
+        -0.01,
+        0,
+        0.25,
+        0.5,
+        0.5000000001,
+        0.75,
+        1,
+        1.0000000001,
+        1.5,
+        2
+      ],
+      "expected": [
+        [
+          {
+            "kind": "Tap",
+            "time": 0
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "nonlane-predecessor-LABELS",
+      "timing": "#LABELS:0.5=middle;",
+      "notes": "20000000\n00000000\n00000000\n30000000\n&\n00000000\nM0000000\n00000000\n00000000",
+      "events": [
+        {
+          "lane": 0,
+          "row": 0,
+          "time": 0,
+          "kind": "Hold",
+          "end": 1.5,
+          "fake": false,
+          "player": 0
+        },
+        {
+          "lane": -1,
+          "row": 24,
+          "time": 0.25,
+          "kind": "Marker",
+          "end": null,
+          "fake": false,
+          "player": 0
+        },
+        {
+          "lane": 0,
+          "row": 48,
+          "time": 0.5,
+          "kind": "Mine",
+          "end": null,
+          "fake": false,
+          "player": 1
+        }
+      ],
+      "queries": [
+        -0.01,
+        0,
+        0.25,
+        0.5,
+        0.5000000001,
+        0.75,
+        1,
+        1.0000000001,
+        1.5,
+        2
+      ],
+      "expected": [
+        [
+          {
+            "kind": "HoldStart",
+            "time": 0
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "nonlane-predecessor-SAMPLESTART",
+      "timing": "#SAMPLESTART:0.25;#SAMPLELENGTH:0.5;",
+      "notes": "20000000\n00000000\n00000000\n30000000\n&\n00000000\nM0000000\n00000000\n00000000",
+      "events": [
+        {
+          "lane": 0,
+          "row": 0,
+          "time": 0,
+          "kind": "Hold",
+          "end": 1.5,
+          "fake": false,
+          "player": 0
+        },
+        {
+          "lane": -1,
+          "row": 24,
+          "time": 0.25,
+          "kind": "Marker",
+          "end": null,
+          "fake": false,
+          "player": 0
+        },
+        {
+          "lane": 0,
+          "row": 48,
+          "time": 0.5,
+          "kind": "Mine",
+          "end": null,
+          "fake": false,
+          "player": 1
+        }
+      ],
+      "queries": [
+        -0.01,
+        0,
+        0.25,
+        0.5,
+        0.5000000001,
+        0.75,
+        1,
+        1.0000000001,
+        1.5,
+        2
+      ],
+      "expected": [
+        [
+          {
+            "kind": "HoldStart",
+            "time": 0
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "nonlane-predecessor-LASTSECONDHINT",
+      "timing": "#LASTSECONDHINT:0.25;",
+      "notes": "20000000\n00000000\n00000000\n30000000\n&\n00000000\nM0000000\n00000000\n00000000",
+      "events": [
+        {
+          "lane": 0,
+          "row": 0,
+          "time": 0,
+          "kind": "Hold",
+          "end": 1.5,
+          "fake": false,
+          "player": 0
+        },
+        {
+          "lane": -1,
+          "row": 24,
+          "time": 0.25,
+          "kind": "Marker",
+          "end": null,
+          "fake": false,
+          "player": 0
+        },
+        {
+          "lane": 0,
+          "row": 48,
+          "time": 0.5,
+          "kind": "Mine",
+          "end": null,
+          "fake": false,
+          "player": 1
+        }
+      ],
+      "queries": [
+        -0.01,
+        0,
+        0.25,
+        0.5,
+        0.5000000001,
+        0.75,
+        1,
+        1.0000000001,
+        1.5,
+        2
+      ],
+      "expected": [
+        [
+          {
+            "kind": "HoldStart",
+            "time": 0
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 1.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "hint-before-equal-row-hold-predecessor",
+      "timing": "#LASTSECONDHINT:0.5;",
+      "notes": "00000000\n20000000\n00000000\n00000000,\n30000000\n&\n00000000\n00000000\nM0000000\n00000000",
+      "events": [
+        {
+          "lane": -1,
+          "row": 48,
+          "time": 0.5,
+          "kind": "Marker",
+          "end": null,
+          "fake": false,
+          "player": 0
+        },
+        {
+          "lane": 0,
+          "row": 48,
+          "time": 0.5,
+          "kind": "Hold",
+          "end": 2,
+          "fake": false,
+          "player": 0
+        },
+        {
+          "lane": 0,
+          "row": 96,
+          "time": 1,
+          "kind": "Mine",
+          "end": null,
+          "fake": false,
+          "player": 1
+        }
+      ],
+      "queries": [
+        -0.01,
+        0,
+        0.25,
+        0.5,
+        0.5000000001,
+        0.75,
+        1,
+        1.0000000001,
+        1.5,
+        2
+      ],
+      "expected": [
+        [
+          {
+            "kind": "HoldStart",
+            "time": 0.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldStart",
+            "time": 0.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldStart",
+            "time": 0.5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 2
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 2
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 2
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          {
+            "kind": "HoldEnd",
+            "time": 2
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ]
+    }
+  ]
+}

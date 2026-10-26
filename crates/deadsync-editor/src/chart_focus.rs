@@ -59,8 +59,46 @@ impl Position {
         })
     }
     pub fn at_row(session: &Session, chart: usize, row: u64) -> Result<Self, Error> {
-        let music_time = Clock::capture(session, chart)?.music_time(row)?;
-        Self::at_time(session, chart, music_time)
+        Self::at_fractional_row(session, chart, row as f64)
+    }
+    /// Preserve a chosen row through equal-time warps; never round-trip via time.
+    pub fn at_fractional_row(session: &Session, chart: usize, row: f64) -> Result<Self, Error> {
+        let clock = Clock::capture(session, chart)?;
+        Self::with_row_clock(session, chart, row, &clock)
+    }
+    pub(crate) fn with_row_clock(
+        session: &Session,
+        chart: usize,
+        row: f64,
+        clock: &Clock,
+    ) -> Result<Self, Error> {
+        let descriptor = session
+            .document()
+            .charts()
+            .get(chart)
+            .ok_or_else(|| Error::InvalidEdit("Invalid focus chart".into()))?;
+        if crate::notes::layout_columns(&descriptor.steps_type).is_none() {
+            return Err(Error::Unsupported(
+                "Focus chart has an unsupported layout".into(),
+            ));
+        }
+        if !row.is_finite() {
+            return Err(Error::InvalidEdit("Nonfinite focus position".into()));
+        }
+        let identity = session
+            .chart_ids()
+            .get(chart)
+            .cloned()
+            .ok_or_else(|| Error::InvalidEdit("Missing focus chart identity".into()))?;
+        Ok(Self {
+            token: session.content_token(),
+            identity,
+            chart,
+            row,
+            chart_time: clock.fractional_chart_time(row)?,
+            music_time: clock.fractional_music_time(row)?,
+            edit_row: row.max(0.0).min(i32::MAX as f64).floor() as u64,
+        })
     }
     pub fn music_time(&self) -> f64 {
         self.music_time

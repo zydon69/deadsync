@@ -36,6 +36,33 @@ reviewable and tested.
 
 ## Current implementation and verification
 
+### Continuous viewport, mixed shifting and bounded help
+
+The minimap now uses the actual chart viewport/focal position, supports exact
+Time/Row axes and an independent Variable-mode axis, and preserves the requested
+fractional row inside warps. Its range/quantization settings persist in the
+original MiniMap group, with integer JSON range values. Twenty native EN/FR,
+two preference, three viewport and three row-focus workflows passed, alongside
+the ten resident-view workflows. Original C# comparisons cover 160 viewport
+cases; the JSON compatibility check executes a minimal uint DTO, not the full
+original preference loader. Per-lane minimap graphics remain pending.
+
+The mixed event picker shifts checked events earlier/later via Ctrl+Left/Right,
+retaining only the transformed selection. Negative destinations delete whole
+events, initial timing nodes remain immutable, and ForceAdd conflicts are
+reversible. Six domain workflows (nineteen original action/format comparisons)
+and ten native EN/FR workflows passed. Two additional native help workflows
+verify bounded pagination, command discovery and modal editing protection.
+Twenty-two existing shared-preference domain regressions also passed.
+
+Autoplay candidate/transition models and receptor animation/atlas models are
+prepared and tested: five autoplay, four animation, two actor and four validated
+transport-signal checks passed. Original executed C# comparisons contain
+34 transition stages and 90 candidate searches. They remain unconnected to
+State/rendering in this checkpoint; `autoplay-plan.md` records the next step.
+
+The following subsections record earlier checkpoints and their validation scope.
+
 ### Resumed native views, minimap and chart-wide event copy
 
 Several open charts now render together around the focused chart, with their
@@ -146,11 +173,11 @@ workflows and the isolated transport model; it is not full-editor regression.
 | --- | --- | --- |
 | SM/SSC source preservation | Byte spans and explicit replacements; unknown tags, unchanged chart note data, and legacy metadata bytes preserved | `editing_workflows`, `property_workflows`; broader format corpus still required |
 | Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; Routine/Team participant changes with atomic metadata/history; raw and typed head/tail StepF2 inspector shipped with one shared draft; explicit live Pump Double co-op normalization to Routine, coherent type/fake conversion and participant metadata are reversible and validated (see `stepf2.md`); broader note-format corpus and physical input review remain |
-| Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste uses GrooveAuthor ForceAdd conflict rules; attack inspector has an event clipboard; mixed row-range copy/cut/paste includes typed timing, attacks and detached Pattern definitions; individual note/timing/attack/Pattern choices, source-compatible force-paste lane skipping and localized skipped-item reports are validated in core and EN/FR workflows; see `pattern-clipboard-plan.md` for 29 original-oracle SM/SSC comparisons and format/order boundaries; advanced whole-chart type-based event copying remains pending |
+| Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste uses GrooveAuthor ForceAdd conflict rules; mixed copy/cut/paste includes timing, attacks and detached Patterns with individual choices and skipped-item reports. Whole-chart replacement of thirteen event families is connected through Ctrl+Shift+Y/F1, with nine core and eight EN/FR workflows passed. See `pattern-clipboard-plan.md` and `chart-event-copy-plan.md` for original-oracle comparisons and format boundaries. |
 | Layouts | Reference pad coordinates, starting tiers, ten relationship matrices, mirror/flip mappings | All imported layout definitions validated; original compressed graphs decoded and traversed |
-| Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/row shifts and column shifts with optional wrapping; miscellaneous-event transformations and broader original workflow coverage pending |
+| Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | Notes-only transformations retain their existing workflow. The mixed picker also shifts checked note/timing/attack/Pattern events with one undo gesture and an exclusive resulting selection; six core and ten EN/FR workflows passed, including nineteen original action/format comparisons. Broader original transformation coverage remains pending; see `event-shift-plan.md`. |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; periodic background recovery drafts with guarded replacement and native EN/FR conflict notices; full conflict review UI pending |
-| Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
+| Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | Native workflows exercise keyboard commands and actors. Help is now paginated, bounded and modal, with new shortcuts; two EN/FR workflows passed at 854×480 and 640×360. Hardware input, complete runtime rendering and broader navigation verification remain pending. |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, scoped media paths and automatic image/lyrics discovery, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; native constant-time, Reverse and variable displays now share the original rate geometry; physical scroll/speed rendering verification, broader legacy normalization and conversion remain pending |
 | Attack events | F10 optional keyboard inspector, widgets/duration overview, song/chart scope, multiple modifiers, temporal shortcuts and history; exact row model survives timing edits and ambiguous warp/negative-stop export through bound editor metadata | Pinned original parser/clock/UI comparisons, save/recovery/structural/undo tests and native EN/FR workflows; miscellaneous-event clipboard, cross-chart shared-event identity, runtime widget/transport verification, permissive normalization and broader file corpus remain pending |

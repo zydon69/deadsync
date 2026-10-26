@@ -85,6 +85,14 @@ pub struct TimedHead {
     pub time: f64,
     pub fake: bool,
 }
+/// One initialized editor-tree entry, retaining nonlane search boundaries.
+/// Consumers must preserve stream order for equal times/rows.
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct TimedEvent {
+    pub row: u64,
+    pub time: f64,
+    pub head: Option<Position>,
+}
 #[derive(Clone, Copy)]
 struct Rate {
     row: u64,
@@ -679,6 +687,16 @@ impl EditorTimeline {
     pub(crate) fn attack_times(&self) -> impl Iterator<Item = (u64, f64)> + '_ {
         self.entries.iter().filter_map(|entry| {
             matches!(entry.kind, EntryKind::Attack).then_some((entry.row, entry.time))
+        })
+    }
+    pub(crate) fn timed_events(&self) -> impl Iterator<Item = TimedEvent> + '_ {
+        self.entries.iter().map(|entry| TimedEvent {
+            row: entry.row,
+            time: entry.time,
+            head: match entry.kind {
+                EntryKind::Head { position, .. } => Some(position),
+                _ => None,
+            },
         })
     }
     pub fn heads(&self) -> &[TimedHead] {
