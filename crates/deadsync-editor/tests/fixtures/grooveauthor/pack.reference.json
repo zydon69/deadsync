@@ -1,0 +1,41 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sdk": "10.0.403",
+  "scope": "Actual pinned Fumen ItgManiaPack.LoadAsync/Save/Clone/Matches and IniFile; unchanged original editor CreateNewPack, SaveAsync, HasUnsavedChanges and UI sync-default statements. Explicit owner/watcher/clock adapters, injected UTC year. Real file I/O only in a generated temporary directory. No original GUI or file-watcher behavior.",
+  "source_blobs": {
+    "editor_pack": {
+      "path": "StepManiaEditor/EditorItgManiaPack.cs",
+      "git_blob": "b0db6216c64d23b5865b2188f6646495cb76754c",
+      "sha256": "33501312bbc2c7775468fd73bfd86c2cb7d3965c0c39081fb3d25813a9533711"
+    },
+    "ui_pack": {
+      "path": "StepManiaEditor/UI/UIPackProperties.cs",
+      "git_blob": "5099f8bf38dfa6b433781710615a1f2389b8dfeb",
+      "sha256": "85e57878861cb73ff6abc236b93ba58525f89392d100f264d41362d5d425cab6"
+    },
+    "fumen_pack": {
+      "path": "Fumen/Converters/ItgManiaPack.cs",
+      "git_blob": "abd067ebc7c28e349b04c0d22515f6b35b4412da",
+      "sha256": "95cb98a8515d606a0dd4cc3d0421232ae3d41450ad55163a2e0fa9423254357b"
+    },
+    "fumen_ini": {
+      "path": "Fumen/Converters/IniFile.cs",
+      "git_blob": "178b48cf9de5bd100ef9b87ca5bceb392dfbd1e8",
+      "sha256": "037c3a47f7fbecd342009610f623a53b270f6196fd4633940664ba47b80a2d4f"
+    }
+  },
+  "extracted_sha256": {
+    "ORIGINAL_CREATE": "8b8b1136e3719ba780a69d8ab1a86879f974b68055701114fc768b06458ed093",
+    "ORIGINAL_SAVE_ASYNC": "fe0154d9f9e4291a33d7f3e538a1ec0f614208fdf8f6157ec1b87cb70c494b54",
+    "ORIGINAL_DIRTY": "b80fb9ccf173c71a5b6dc6a45adf377fc0033d39f72dc4f141c5c11d75bd5b34",
+    "ORIGINAL_SYNC_DEFAULTS": "d338a73231abdca6b581c3c905efeadf41e70739bc63827d5a39796fb6e50934"
+  },
+  "adapter_sha256": "e5e0edee137c411cb89ff728f5922a0f5dbedee918e1b5cadb37c19cc3eac44e",
+  "program_sha256": "6169bc082de8fc6cc36454507c77c2781f2f074e274faf3c8bc28152fdba2f5d",
+  "assembly_sha256": "6c55e1004ad94ca11425fd7f600b9566ba0708b051c99edeafa436e90f071047",
+  "fumen_assembly_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "request_sha256": "b765f9f4537a834a35722e44d69f6a5cca17b09d6d34810091776ef463d38f49",
+  "expected_sha256": "01baf4ae2451b9d127898516dde086930993c74fe7da76c8aa4e1de01688e365"
+}

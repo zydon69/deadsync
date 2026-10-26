@@ -1,0 +1,43 @@
+// Explicit development adapter: original creation/save/dirty bodies are inserted
+// unchanged. Only owner/watcher/clock bindings are adapted; real Fumen does I/O.
+using Fumen;
+using Fumen.Converters;
+using static Fumen.Converters.ItgManiaPack;
+using DateTime = PackOracle.OracleClock;
+namespace PackOracle;
+internal static class OracleClock {
+    public static int Year = 2026;
+    public static System.DateTime UtcNow => new(Year,1,1,0,0,0,System.DateTimeKind.Utc);
+    public static System.DateTime Now => System.DateTime.Now;
+}
+internal sealed class EditorPack;
+internal sealed class Song(double sync) { public double SyncOffset = sync; }
+internal sealed class EditorStub(double? sync) { public Song GetActiveSong() => sync is double value ? new Song(value) : null; }
+internal sealed class Options { public double NewSongSyncOffset; }
+internal sealed class Preferences {
+    public static readonly Preferences Instance = new();
+    public readonly Options PreferencesOptions = new();
+}
+internal static class Defaults {
+    public static SyncOffSetType ChooseSync(double? active, double preferred) {
+        var Editor = new EditorStub(active);
+        Preferences.Instance.PreferencesOptions.NewSongSyncOffset = preferred;
+        // ORIGINAL_SYNC_DEFAULTS
+        return packOffset.Value;
+    }
+}
+internal sealed class EditorItgManiaPack {
+    public ItgManiaPack Pack;
+    private readonly string FilePath;
+    private ItgManiaPack LastSavedPackState;
+    private bool Saving;
+    private System.DateTime LastSaveCompleteTime;
+    private EditorItgManiaPack(EditorPack editorPack,string filePath,ItgManiaPack pack) {
+        Pack=pack; FilePath=filePath; LastSavedPackState=(ItgManiaPack)pack.Clone();
+    }
+    public static EditorItgManiaPack FromLoaded(string path,ItgManiaPack pack) => new(new EditorPack(),path,pack);
+    private void StartObservingFile() { }
+    // ORIGINAL_CREATE
+    // ORIGINAL_SAVE_ASYNC
+    // ORIGINAL_DIRTY
+}

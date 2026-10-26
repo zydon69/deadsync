@@ -11,6 +11,7 @@ pub mod receptors;
 pub mod minimap_viewport;
 pub mod minimap_preferences;
 pub mod event_shift;
+pub mod pack;
 pub mod chart_properties;
 pub mod chart_identity;
 pub mod chart_text;

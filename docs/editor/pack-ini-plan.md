@@ -2,11 +2,24 @@
 
 ## Status and scope
 
-Referenced implementation proposal only. No new Pack production code, module
-declaration or real pack file has been created or changed. Shift native
-diagnostics remain the first priority. Root owns Save As/storage integration,
-media owns minimap, and ordering owns receptors/rendering.
+The real original C# oracle has executed successfully: 37 reader cases and six
+creation/default cases, with clean pinned sources, Git blob IDs and SHA256
+provenance recorded in `pack.reference.json`. The declared model/codec in
+`src/pack.rs` and `src/pack/codec.rs` passed all six `pack_metadata_workflows`
+tests, including a resumed replay on 2026-10-26. The declared storage adapter
+passed all 13 file workflows and six internal failure/race tests on macOS. No user pack file or shared storage adapter
+has changed. Shift core six/native ten checks passed before checkpoint
+`543e3d106`.
 
+The model provides seven values plus Version, first-wins parsing, injected UTC
+creation defaults, original canonical writer output, source-preserving edits,
+and prepared snapshots with explicit save acknowledgement. Acknowledgement is a
+caller contract, not evidence of disk publication. Missing/new metadata remains
+dirty until that acknowledgement; edits after prepare remain dirty against the
+saved snapshot. Foreign or obsolete receipts are rejected.
+
+Root owns Save As/storage integration, media owns minimap, and ordering owns
+receptors/rendering.
 This first Pack increment should implement discovery, seven editable metadata
 properties, explicit creation, dirty state and guarded save/external-change
 handling. Pack song-library browsing, pack deletion and banner decoding are
@@ -192,3 +205,73 @@ Pack song-table enumeration, load concurrency limits, banner selection/decoding,
 explicit deletion and automatic file watching remain separate increments unless
 root expands this scope. The original delete is explicitly confirmed and
 non-undoable; it is not part of initial metadata/save implementation.
+
+
+## Isolated storage increment (validation pending)
+
+`src/pack/storage.rs` and `tests/pack_storage_workflows.rs` are prepared but not
+linked at this point. The proposed public path is `pack::storage`; the shared
+simfile `storage.rs` is unchanged. Thirteen filesystem workflows and six private
+fault/race tests are ready for central validation. They use synthetic temporary
+directories exclusively. The previously declared metadata model's six tests
+have passed; this does not certify the new filesystem adapter.
+
+`FileSession::open(pack_root)` is read-only and returns `None` only for absence.
+Malformed, oversized, non-file and dangling-symlink targets are errors. Explicit
+`create` prepares a missing-file draft; only `save` publishes it, using atomic
+no-clobber. Existing files retain permission bits and unknown bytes. Paths are
+bound to canonical pack/target parents and Unix device/inode identities; an
+existing Pack.ini symlink survives because its resolved target is replaced.
+Retargeting a link, rebinding a directory, deleting/replacing a file, or changing
+its bytes prevents save. On non-Unix platforms std's available creation metadata
+is a weaker identity fallback, not an inode guarantee.
+
+A persistent advisory sidecar coordinates DeadSync saves to the resolved target.
+Existing sidecars are opened without create/truncate, checked against the opened
+file identity, and symlink sidecars are refused. The adapter compares exact disk
+bytes before and after temporary-file preparation. Arbitrary external processes
+do not participate in the lock: the final comparison and overwrite rename are
+not a kernel compare-and-swap. The documented residual race does not weaken the
+atomic no-clobber guarantee for creation.
+
+`prepare_save` captures immutable bytes and a private adapter generation.
+`publish` refuses foreign/stale snapshots, syncs the temporary file, atomically
+publishes it, then synchronizes the directory on Unix. The receipt uses the
+published temporary file's handle identity rather than a post-rename path read.
+Publication followed by a directory-sync failure retains the exact on-disk
+baseline and snapshot in an explicit pending state. `retry_durability` verifies
+that published binding/bytes and synchronizes without rewriting; only success
+acknowledges the saved semantic snapshot. Later live edits remain dirty.
+Pre-publication failures leave the prior baseline and dirty draft intact.
+
+Successful save/retry returns an inspectable `Durability`:
+
+- `FileAndDirectory` on Unix: both file and directory synchronization succeeded.
+- `FileOnly` elsewhere: file synchronization and atomic publication succeeded;
+  directory synchronization is unavailable in this std-based adapter, matching
+  the shared storage strategy. This is a narrower guarantee and does not claim
+  Windows validation from execution on macOS.
+
+Coverage includes missing inspection, creation/no-clobber races, malformed and
+oversized targets, raw metadata preservation, independent prepared/live edits,
+foreign/stale snapshots, external modification/deletion/same-bytes replacement,
+locking, permission bits, symlink preservation/retargeting/dangling targets,
+parent-directory replacement, failures before publication, published durability
+failure/retry, unavailable post-publication path metadata and external edits
+while a receipt is pending. ACLs/ownership beyond std `Permissions`, hostile
+filesystem-wide race resistance, watchers, native Pack UI and shared Save As
+integration remain outside this isolated increment.
+
+## Resumed storage validation
+
+The 19 storage tests include no-clobber creation, exact external-change and inode
+checks, symlink preservation/retarget conflict, parent rebinding, permissions,
+advisory lock contention, pending publication receipts and retry after directory
+sync failure. Receipt identity is captured from the temporary file handle before
+publication; a post-rename path metadata lookup is not required to acknowledge
+the published payload. Later draft edits remain dirty against that payload.
+
+The API reports `FileAndDirectory` durability on Unix and `FileOnly` elsewhere,
+matching the ordinary storage adapter's directory-sync boundary. The macOS run
+does not validate Windows. Native Pack properties and close guards are being
+implemented separately; these tests do not claim that UI is connected.
