@@ -12,6 +12,7 @@ mod chart_deletion;
 mod chart_rating;
 mod display_tempo;
 mod profile_edit;
+mod note_conversion;
 mod text_fields;
 mod clipboard;
 mod music_file;
@@ -60,6 +61,7 @@ enum Panel {
     EmptyMenu(usize),
     Menu(usize),
     Transforms(usize),
+    NoteConversion(usize),
     Unsaved(usize),
     ConfirmDiscard,
     Generation(usize),
@@ -250,6 +252,7 @@ pub struct State {
     display_tempo_draft: Option<deadsync_editor::display_tempo::Value>,
     display_tempo_input: Option<(usize, String)>,
     profile_edit: Option<profile_edit::Draft>,
+    note_conversion: note_conversion::Settings,
     profile_saved_choices: Option<profile_edit::Choices>,
     profile_preference_history: std::collections::BTreeMap<u64, profile_edit::PreferenceChange>,
     profile_creations: std::collections::BTreeMap<u64, (ProfileKind, deadsync_editor::generation::metadata::Guid)>,
@@ -397,6 +400,7 @@ impl State {
             display_tempo_draft: None,
             display_tempo_input: None,
             profile_edit: None,
+            note_conversion: Default::default(),
             profile_preference_history: Default::default(),
             profile_creations: Default::default(),
             profile_preference_revision: 0,
@@ -1577,6 +1581,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if let Panel::NoteConversion(index) = panel { self.note_conversion_key(index, code); return false; }
         if let Panel::ProfileWeights(index) = panel { self.profile_weights_key(index, code); return false; }
         if let Panel::ProfileDelete(index) = panel { self.profile_delete_key(index, code); return false; }
         if let Panel::ProfileDefaults(index) = panel { self.profile_defaults_key(index, code); return false; }
@@ -1686,6 +1691,7 @@ impl State {
             Panel::ProfileDelete(_) => unreachable!("profile deletion dispatched above"),
             Panel::ProfileDefaults(_) => unreachable!("profile defaults dispatched above"),
             Panel::ProfileSpeed(_) => unreachable!("profile speed dispatched above"),
+            Panel::NoteConversion(_) => unreachable!("note conversion dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
             Panel::ProfileEdit(_) => unreachable!("expression editing dispatched above"),
             Panel::DisplayTempo(_) => unreachable!("display tempo dispatched above"),
@@ -2113,7 +2119,7 @@ impl State {
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
                     Panel::Menu(_) => 16,
-                    Panel::Transforms(_) => 9,
+                    Panel::Transforms(_) => 10,
                     _ => 3,
                 };
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
@@ -2132,6 +2138,12 @@ impl State {
                 } else if code == KeyCode::Enter {
                     self.panel = None;
                     if matches!(panel, Panel::Transforms(_)) {
+                        if index == 9 {
+                            self.note_conversion.duration = self.workspace.snap();
+                            self.panel = Some(Panel::NoteConversion(0));
+                            self.status = i18n::tr("Edition", "NoteConversionHelp");
+                            return false;
+                        }
                         use deadsync_editor::transform::Transform;
                         let transform = match index {
                             0 => Transform::Mirror,
@@ -2548,7 +2560,7 @@ impl State {
                 "AnalysisTitle",
                 "DuplicateChart",
             ],
-            Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip"],
+            Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
             Panel::ConfirmDiscard => &["ConfirmDiscard"],
             Panel::Regeneration(_) => &["RegeneratePattern", "RegeneratePatternSet", "KeepEditing"],
@@ -2606,6 +2618,7 @@ impl State {
                 "MarkerNext",
                 "MarkerProfiles",
             ],
+            Panel::NoteConversion(_) => &["NoteConversionFrom", "NoteConversionTo", "NoteConversionDuration", "NoteConversionApply", "KeepEditing"],
             Panel::ConversionProfiles(_) => &[
                 "GenerationPerformedProfile",
                 "GenerationExpressionProfile",
@@ -2686,6 +2699,7 @@ impl State {
             | Panel::DeleteChart(i)
             | Panel::NewChart(i)
             | Panel::Menu(i)
+            | Panel::NoteConversion(i)
             | Panel::Transforms(i)
             | Panel::Unsaved(i)
             | Panel::Pattern(i)
@@ -2893,6 +2907,8 @@ impl State {
                 self.profile_weights_label(index, key)
             } else if matches!(panel, Panel::ProfileSpeed(_)) {
                 self.profile_speed_label(index, key)
+            } else if matches!(panel, Panel::NoteConversion(_)) {
+                self.note_conversion_label(index, key)
             } else if matches!(panel, Panel::ProfileEdit(_)) {
                 self.profile_edit_label(index, key)
             } else if matches!(panel, Panel::DisplayTempo(_)) {

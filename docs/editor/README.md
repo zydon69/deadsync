@@ -5228,3 +5228,33 @@ Validation: four selected core sustain-conversion/chart-conversion/selection/sym
 19 tests in `/tmp/deadsync-conversion-duration-core.log`; theme compilation check
 passed in `/tmp/deadsync-conversion-duration-check.log` (`--jobs 2 --locked`).
 This step did not rerun the complete native integration suite.
+
+### Native note-kind conversion panel
+
+The Transformations menu now opens a small Convert selected notes panel. Its five
+rows choose source kind, target kind, new-sustain duration from the existing snap
+values, Apply and Return. Left/Right changes choices; Escape returns without
+changing notes. The panel uses current-row/range selection through the public
+Workspace transform command and applies one global undo gesture.
+
+Source choices include all eight existing lane-note kinds. Destination choices
+are Tap/Hold/Roll/Mine/Lift/Fake; creating attributed Keysound/Attack notes still
+requires the future explicit attribute inspector. Duration starts from the current
+snap and only affects newly created holds/rolls. Existing sustain ends are retained
+when changing hold/roll type, using the corrected core conversion behavior.
+English/French help and values describe that distinction. Original selected notes
+of other kinds or outside the selected row/range remain unchanged.
+
+English/French native workflows exercise opening the panel through F1, resolved
+translated labels, adjusting/cancelling duration without editing notes, creating a
+24-row hold, exact undo/redo, converting a separate 96-row hold to a roll while
+retaining its original end despite a different duration setting, and save/reopen
+with unrelated notes preserved. This connects the existing core API; conversion
+attribute editing, broader participant inspectors and physical app/GPU review
+remain outstanding. No complete-editor parity claim is made.
+
+Validation: all 55 native editor integration targets passed (278 tests) in
+`/tmp/deadsync-note-conversion-all-native.log`; four selected core sustain/type
+conversion, chart conversion, selection and symmetry suites passed 19 tests in
+`/tmp/deadsync-note-conversion-core.log`. Theme compilation check passed in
+`/tmp/deadsync-note-conversion-check.log`. Commands used `--jobs 2 --locked`.
