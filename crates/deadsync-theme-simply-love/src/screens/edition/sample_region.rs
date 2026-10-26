@@ -10,6 +10,7 @@ pub(super) struct Cache {
 }
 impl State {
     pub(super) fn refresh_sample_region(&mut self) {
+        self.refresh_end_hint();
         self.refresh_waveform();
         if !self.workspace.has_chart() {
             self.sample_region = None;

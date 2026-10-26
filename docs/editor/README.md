@@ -36,6 +36,47 @@ reviewable and tested.
 
 ## Current implementation and verification
 
+### Resumed native views, minimap and chart-wide event copy
+
+Several open charts now render together around the focused chart, with their
+own live timing at the shared musical instant. Keyboard edits affect only the
+focused chart. Seven layout/actor workflows and two renderer-budget checks
+passed, including Couple/Routine participants and crossing sustains. Viewport
+culling and shared work limits bound drawing; a localized notice identifies
+partial note views. GPU output and the remaining receptor/autoplay rendering
+are separate work; see `multiview-plan.md`.
+
+Ctrl+M focuses the keyboard minimap. Twelve EN/FR native workflows, five existing
+scroll-settings workflows, three selection-navigation workflows and one bounded
+head-scan workflow passed. Capture preserves the existing note selection,
+pauses once, and conditionally resumes at the exact destination on release.
+The independent drag preference persists. Overview construction proceeds in
+bounded chunks with a loading notice. This first control uses ConstantTime and
+an aggregate overview; original ConstantRow, viewport/range options and
+lane-specific minimap graphics remain in `minimap-next.md`.
+
+Sample audition never arms chart-transport resume. Twelve native minimap tests
+passed after this guard, and a separate state-machine test covers completion
+during a simulated nonmodal handoff. It does not claim such a handoff exists in
+the current modal interface. The final affected regression passed 84 theme tests;
+fourteen selection/event-selection/navigation-preference domain tests also passed.
+
+Ctrl+Shift+Y and F1 expose chart-wide replacement of thirteen event families.
+Nine core workflows, the property-only transaction guard, and eight EN/FR
+native workflows passed. Nine representable cases match the executed original
+C# action. Late failure rolls back every destination; a net-identical copy
+preserves history and redo. Source format sharing and unsupported multiplayer
+Patterns have explicit reports; see `chart-event-copy-plan.md`.
+
+Positive End Hint markers now appear in each visible chart with its own clock,
+including song-property draft preview. Two actor workflows cover EN/FR,
+offset/BPM/SyncOffset, commit/cancel and Undo. Fractional cursor clocks and
+callback-interruption behavior are validated separately in
+`fractional-clock-plan.md` and `audio-transport-plan.md`.
+
+The following two subsections record the earlier checkpoints; their statements
+about prepared or disconnected modules describe those checkpoints.
+
 ### Resumed image, chart-list and StepF2 increment
 
 Song properties now display Banner/CDTitle thumbnails through one application-owned

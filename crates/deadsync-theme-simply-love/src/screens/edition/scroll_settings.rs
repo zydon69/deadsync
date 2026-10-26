@@ -14,19 +14,17 @@ impl State {
         let settings = self
             .scroll_preferences_draft
             .unwrap_or(self.scroll_preferences);
-        let value = i18n::tr(
-            "Edition",
-            if settings.stop_playback() {
-                "WaveformYes"
-            } else {
-                "WaveformNo"
-            },
-        );
+        let stop = if key == "ScrollStopDragging" {
+            settings.stop_playback_when_dragging()
+        } else {
+            settings.stop_playback()
+        };
+        let value = i18n::tr("Edition", if stop { "WaveformYes" } else { "WaveformNo" });
         i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
     pub(super) fn scroll_settings_key(&mut self, index: usize, code: KeyCode) {
         let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
-        if code == KeyCode::Escape || (index == 3 && enter) {
+        if code == KeyCode::Escape || (index == 4 && enter) {
             self.scroll_preferences_draft = None;
             if let Some(file) = self.audio_preferences_file.as_mut() {
                 file.set_scroll(self.scroll_preferences);
@@ -38,11 +36,11 @@ impl State {
         if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
             let back = code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift);
             self.panel = Some(Panel::ScrollSettings(
-                (index + if back { 3 } else { 1 }) % 4,
+                (index + if back { 4 } else { 1 }) % 5,
             ));
             return;
         }
-        if index == 0
+        if index <= 1
             && (enter
                 || matches!(
                     code,
@@ -56,21 +54,27 @@ impl State {
             if let Some(settings) = self.scroll_preferences_draft.as_mut() {
                 let value = if matches!(code, KeyCode::Home | KeyCode::Digit0 | KeyCode::Numpad0) {
                     false
-                } else {
+                } else if index == 0 {
                     !settings.stop_playback()
+                } else {
+                    !settings.stop_playback_when_dragging()
                 };
-                settings.set_stop_playback(value);
+                if index == 0 {
+                    settings.set_stop_playback(value);
+                } else {
+                    settings.set_stop_playback_when_dragging(value);
+                }
             }
             return;
         }
         if !enter {
             return;
         }
-        if index == 1 {
+        if index == 2 {
             self.scroll_preferences_draft = Some(Preferences::default());
             return;
         }
-        if index != 2 {
+        if index != 3 {
             return;
         }
         let Some(path) = self.audio_preferences_path.clone() else {

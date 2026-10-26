@@ -27,9 +27,11 @@ malformed geometry; those protective guards are not claimed as original C# code.
 
 Generation executed successfully with `/tmp/deadsync-dotnet10/dotnet`. The Rust
 comparison target `cargo test -p deadsync-editor --locked --jobs 2 --test
-minimap_projection` is **pending parent validation**. It compares six output
-values per case plus reflected coordinates. The separate `minimap_navigation`
-gesture target also remains pending here.
+minimap_projection` passed its single differential test in the parent’s Cargo run 37390. It
+compares six output values per case plus reflected coordinates. The separate
+`minimap_navigation` gesture target passed four tests in that same run. Those
+results concern the isolated models; subsequent native wiring is a separate
+validation scope.
 
 ## Keyboard and pad adaptation
 
@@ -41,8 +43,13 @@ capture. Density-graph dragging uses the same policy.
 The Rust Begin/Move/End model preserves that lifecycle and exact positions. The
 choice of keyboard/pad focus, movement step and release binding is a simplified
 interface adaptation. It must be labeled and tested as such; the C# arithmetic
-oracle cannot prove those bindings. Current new modules are isolated preparation,
-not connected, operable minimap functionality.
+oracle cannot prove those bindings. The ConstantTime keyboard control has now
+been connected. Twelve native EN/FR workflows and five scroll-settings regression
+workflows passed, along with three selection-navigation checks and one bounded
+head-scan check. These establish keyboard behavior and actor construction,
+not physical input or GPU output. ConstantRow, original
+visible-range preferences, lane-specific note rendering and advanced options
+remain required; see `minimap-next.md`.
 
 The source's repeating audio path is preview audition. No general chart A/B-loop
 requirement is introduced by this minimap or preview reference.

@@ -92,6 +92,11 @@ impl State {
             && paused.edit_row == self.workspace.row())
         .then_some(paused.position)
     }
+    pub(super) fn pause_for_minimap(&mut self) {
+        if self.chart_transport_is_playing() {
+            self.pause_audio();
+        }
+    }
     fn pause_audio(&mut self) {
         let Some(playing) = self.playback.take() else {
             return;
@@ -109,6 +114,11 @@ impl State {
         };
         self.audio_commands.push(GameplayAudioCommand::StopMusic);
         self.status = i18n::tr("Edition", "PlaybackPaused");
+    }
+    pub(super) fn chart_transport_is_playing(&self) -> bool {
+        self.playback
+            .as_ref()
+            .is_some_and(|playing| playing.preview.is_some())
     }
     pub fn is_playing(&self) -> bool {
         self.playback.is_some()
@@ -412,7 +422,7 @@ impl State {
                 // itself retains fractional/negative positions.
                 let row = row.max(0.0).min(i32::MAX as f64).floor() as u64;
                 if row != self.workspace.row() {
-                    let _ = self.workspace.execute(Command::Seek(row));
+                    let _ = self.workspace.seek_preserving_selection(row);
                     self.refresh();
                 }
             }

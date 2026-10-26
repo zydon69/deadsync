@@ -12,6 +12,7 @@ pub mod chart_text;
 pub mod chart_creation;
 pub mod chart_deletion;
 pub mod chart_order;
+pub mod chart_event_copy;
 pub mod chart_focus;
 pub mod chart_views;
 pub mod clipboard;
@@ -85,3 +86,6 @@ impl From<std::io::Error> for Error {
         Self::Io(error)
     }
 }
+
+pub mod minimap_navigation;
+pub mod minimap_projection;

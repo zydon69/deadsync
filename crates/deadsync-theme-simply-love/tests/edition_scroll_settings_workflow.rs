@@ -40,6 +40,7 @@ fn has(s: &State, needle: &str) -> bool {
 fn save(s: &mut State) {
     press(s, KeyCode::ArrowDown);
     press(s, KeyCode::ArrowDown);
+    press(s, KeyCode::ArrowDown);
     press(s, KeyCode::Enter);
 }
 fn setup(empty: bool) -> (tempfile::TempDir, State) {
@@ -107,6 +108,7 @@ fn french_panel_saves_reloads_and_drives_actual_playback_policy_without_song_edi
         vec![GameplayAudioCommand::StopMusic]
     );
     open(&mut r);
+    press(&mut r, KeyCode::ArrowDown);
     press(&mut r, KeyCode::ArrowDown);
     press(&mut r, KeyCode::Enter);
     assert!(has(&r, "flèches : Non"));

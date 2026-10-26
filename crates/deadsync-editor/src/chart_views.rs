@@ -51,6 +51,11 @@ impl ViewState {
         }
         Ok(self.clock.clone())
     }
+    /// Map another instant through this resident view's validated immutable clock.
+    pub fn position_at_time(&self, session: &Session, music_time: f64) -> Result<Position, Error> {
+        let clock = self.clock(session)?;
+        Position::with_clock(session, self.source_index(), music_time, &clock)
+    }
     pub fn selection_anchor(&self) -> Option<u64> {
         self.selection_anchor
     }

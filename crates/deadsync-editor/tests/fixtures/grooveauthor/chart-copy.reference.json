@@ -1,0 +1,24 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sdk": "10.0.403",
+  "scope": "Executed whole original ActionCopyEventsBetweenCharts unchanged, original IsMultiPlayer and Pattern.Definition/Clone; actual Fumen/SML event comparer. Event-container, BPM/signature value accessors, base-event clone, input-output and inert timing-callback adapters. Reused ForceAdd helpers are compiled but not used by this action. No original GUI, writer execution, profile observers or timing dependency math.",
+  "extracted_sha256": {
+    "ORIGINAL_DEFINITION": "a30435d571a6168e544d6ea3af50770c35b242ea3533140058b33496d6a021b5",
+    "ORIGINAL_PATTERN_CLONE": "e44a1424587dfe01add96cba8d8fd0b719a8b83ad6ebe4a1531f9e4c76f3ff9a",
+    "ORIGINAL_IS_MULTIPLAYER": "48969315ec833f81a9e2f7dc79b442a179f1285960dd635ded024fea187e83be",
+    "ORIGINAL_CAN_EXIST": "13b3564c1f3e4f72010ea6743c34c741b8e613afcbfa70024925b7d7072eb82f",
+    "ORIGINAL_FORCE_ADD": "415b6795aa9600fc5488b34a0904a9bb6869650fc309c8bac4d1451b393d3cc5"
+  },
+  "sources_sha256": {
+    "OriginalActionCopyEventsBetweenCharts.cs": "0d30a34bb29f53c0edb093cd6583b5afea4db42739aa9b8bb79061b0d0130a02",
+    "OriginalForceAddSideEffect.cs": "587bd384a4ac235b230540b4013af11f042560d9ac316cd569d7f401c275b3f5",
+    "Adapter.cs": "b97ba3108717d938e1fc16a1318754af2635e3e496ca118031aeeb329309672c"
+  },
+  "adapter_template_sha256": "4db33513e996c4aec27f2c195bc11701ff961adaa655952f18c4912dfbbce832",
+  "program_sha256": "0e65bd5693d29d40e51be53b528ae07c070520cf49bdc2806fbb5c87f2cd2aa6",
+  "assembly_sha256": "6b8602374bb5616133c71f18d200703ab7cf45934f365fb207f121ad9955d947",
+  "request_sha256": "612b270e129e56b2b0c46d54773d4cd1af75b6ddd8e62e6b6e27c31c7c3296e1",
+  "expected_sha256": "a7188c4bae954edf391a513199e2809977fbcc9e781d3bc7b835027f1782c90c"
+}

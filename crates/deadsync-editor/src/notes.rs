@@ -179,6 +179,20 @@ impl Grid {
         })
     }
 
+    /// Resume a bounded head scan in (player, lane, row) order without walking
+    /// prior tracks/rows. Sustains crossing a viewport are intentionally absent.
+    pub fn iter_heads_after(&self, cursor: Option<Position>) -> impl Iterator<Item = (Position, &Note)> {
+        use std::ops::Bound::{Excluded, Included, Unbounded};
+        let start = cursor.map_or((0, 0), |position| (position.player, position.lane));
+        self.tracks.range((Included(start), Unbounded)).flat_map(move |(&(player, lane), track)| {
+            let lower = match cursor {
+                Some(position) if (position.player, position.lane) == (player, lane) => Excluded(position.row),
+                _ => Unbounded,
+            };
+            track.range((lower, Unbounded)).map(move |(&row, note)| (Position { player, lane, row }, note))
+        })
+    }
+
     /// Only query the visible interval of each lane. Include a sustain whose
     /// head precedes the viewport and whose tail is still visible.
     pub fn visible(&self, start: u64, end: u64) -> impl Iterator<Item = (Position, &Note)> {

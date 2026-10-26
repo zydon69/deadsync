@@ -1,9 +1,11 @@
 //! Original GrooveAuthor playback policy for navigation.
+pub mod dragging;
 use crate::Error;
 use serde_json::{Map, Value};
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Preferences {
     stop_playback: bool,
+    dragging: dragging::Preferences,
 }
 impl Preferences {
     pub fn stop_playback(self) -> bool {
@@ -12,6 +14,12 @@ impl Preferences {
     pub fn set_stop_playback(&mut self, stop: bool) {
         self.stop_playback = stop;
     }
+    pub fn stop_playback_when_dragging(self) -> bool {
+        self.dragging.stop_playback()
+    }
+    pub fn set_stop_playback_when_dragging(&mut self, stop: bool) {
+        self.dragging.set_stop_playback(stop);
+    }
     pub(crate) fn read(fields: &Map<String, Value>) -> Result<Self, Error> {
         let stop_playback = match fields.get("StopPlaybackWhenScrolling") {
             None => false,
@@ -19,9 +27,13 @@ impl Preferences {
                 .as_bool()
                 .ok_or_else(|| Error::InvalidFormat("Invalid StopPlaybackWhenScrolling".into()))?,
         };
-        Ok(Self { stop_playback })
+        Ok(Self {
+            stop_playback,
+            dragging: dragging::Preferences::read(fields)?,
+        })
     }
     pub(crate) fn write(self, fields: &mut Map<String, Value>) {
+        self.dragging.write(fields);
         fields.insert(
             "StopPlaybackWhenScrolling".into(),
             self.stop_playback.into(),

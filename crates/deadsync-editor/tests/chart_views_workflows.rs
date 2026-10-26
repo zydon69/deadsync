@@ -311,6 +311,9 @@ fn immutable_clocks_survive_time_focus_and_order_changes_without_recapture() {
                 &view.clock(&session).unwrap()
             ));
             close(view.position().music_time(), time);
+            let mapped = view.position_at_time(&session, time + 0.125).unwrap();
+            close(mapped.row(), clock.position(time + 0.125).unwrap());
+            close(mapped.music_time(), time + 0.125);
         }
     }
 }
@@ -325,6 +328,7 @@ fn timing_and_undo_invalidate_clock_handles_and_another_session_is_rejected() {
     let original = old_view.clock(&session).unwrap();
     session.set_text(None, "BPMS", "0=60").unwrap();
     assert!(old_view.clock(&session).is_err());
+    assert!(old_view.position_at_time(&session, 2.0).is_err());
     views.synchronize(&session, Some(0), 1.0).unwrap();
     let edited = views.entries()[0].clock(&session).unwrap();
     assert!(!std::sync::Arc::ptr_eq(&original, &edited));

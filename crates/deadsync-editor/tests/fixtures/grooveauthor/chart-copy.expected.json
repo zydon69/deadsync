@@ -1,0 +1,1510 @@
+[
+  {
+    "Name": "replace-selected-retain-unselected",
+    "Before": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Stop",
+          "Row": 144,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "After": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Label",
+          "Row": 48,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Stop",
+          "Row": 144,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "Undone": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Stop",
+          "Row": 144,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "Redone": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Label",
+          "Row": 48,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Stop",
+          "Row": 144,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "SourceBefore": [
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SourceAfter": [
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Label",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "empty-source-clears-selected-type",
+    "Before": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "After": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        }
+      ]
+    ],
+    "Undone": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "Redone": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        }
+      ]
+    ],
+    "SourceBefore": [
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      }
+    ],
+    "SourceAfter": [
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      }
+    ]
+  },
+  {
+    "Name": "tempo-first-value-and-following-replacement",
+    "Before": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Bpm": 110
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "After": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        }
+      ]
+    ],
+    "Undone": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Bpm": 110
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "Redone": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        }
+      ]
+    ],
+    "SourceBefore": [
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 192,
+        "Bpm": 240
+      }
+    ],
+    "SourceAfter": [
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 192,
+        "Bpm": 240
+      }
+    ]
+  },
+  {
+    "Name": "signature-written-ratio-retained",
+    "Before": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Signature",
+          "Row": 96,
+          "N": 5,
+          "D": 8
+        }
+      ]
+    ],
+    "After": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "N": 2,
+          "D": 2
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Signature",
+          "Row": 192,
+          "N": 3,
+          "D": 4
+        }
+      ]
+    ],
+    "Undone": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Signature",
+          "Row": 96,
+          "N": 5,
+          "D": 8
+        }
+      ]
+    ],
+    "Redone": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "N": 2,
+          "D": 2
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Signature",
+          "Row": 192,
+          "N": 3,
+          "D": 4
+        }
+      ]
+    ],
+    "SourceBefore": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 2,
+        "D": 2
+      },
+      {
+        "Kind": "Signature",
+        "Row": 192,
+        "N": 3,
+        "D": 4
+      }
+    ],
+    "SourceAfter": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 2,
+        "D": 2
+      },
+      {
+        "Kind": "Signature",
+        "Row": 192,
+        "N": 3,
+        "D": 4
+      }
+    ]
+  },
+  {
+    "Name": "first-event-destination-position-preserved",
+    "Before": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 48,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 48,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Bpm": 110
+        },
+        {
+          "Kind": "Signature",
+          "Row": 192,
+          "N": 5,
+          "D": 8
+        }
+      ]
+    ],
+    "After": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 48,
+          "N": 2,
+          "D": 2
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 48,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        },
+        {
+          "Kind": "Signature",
+          "Row": 384,
+          "N": 3,
+          "D": 4
+        }
+      ]
+    ],
+    "Undone": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 48,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 48,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Bpm": 110
+        },
+        {
+          "Kind": "Signature",
+          "Row": 192,
+          "N": 5,
+          "D": 8
+        }
+      ]
+    ],
+    "Redone": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 48,
+          "N": 2,
+          "D": 2
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 48,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        },
+        {
+          "Kind": "Signature",
+          "Row": 384,
+          "N": 3,
+          "D": 4
+        }
+      ]
+    ],
+    "SourceBefore": [
+      {
+        "Kind": "Signature",
+        "Row": 16,
+        "N": 2,
+        "D": 2
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 16,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 192,
+        "Bpm": 240
+      },
+      {
+        "Kind": "Signature",
+        "Row": 384,
+        "N": 3,
+        "D": 4
+      }
+    ],
+    "SourceAfter": [
+      {
+        "Kind": "Signature",
+        "Row": 16,
+        "N": 2,
+        "D": 2
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 16,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 192,
+        "Bpm": 240
+      },
+      {
+        "Kind": "Signature",
+        "Row": 384,
+        "N": 3,
+        "D": 4
+      }
+    ]
+  },
+  {
+    "Name": "patterns-replace-whole-type-not-just-head",
+    "Before": [
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 96,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 7,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Label",
+          "Row": 192,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 192,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 8,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ]
+    ],
+    "After": [
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Label",
+          "Row": 192,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "Undone": [
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 96,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 7,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Label",
+          "Row": 192,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 192,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 8,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ]
+    ],
+    "Redone": [
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Label",
+          "Row": 192,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "SourceBefore": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "SourceAfter": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ]
+  },
+  {
+    "Name": "overlapping-source-regions-retained",
+    "Before": [
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 0,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 9,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ]
+    ],
+    "After": [
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 192,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 96,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 192,
+            "RandomSeed": 7,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ]
+    ],
+    "Undone": [
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 0,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 9,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ]
+    ],
+    "Redone": [
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 192,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 96,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 192,
+            "RandomSeed": 7,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ]
+    ],
+    "SourceBefore": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "SourceAfter": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ]
+  },
+  {
+    "Name": "multidestination-mixed-includes-routine-one",
+    "Before": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Label",
+          "Row": 0,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 0,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 7,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ],
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 100
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 0,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 8,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Label",
+          "Row": 192,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 110
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 0,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 9,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ]
+    ],
+    "After": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        }
+      ],
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        }
+      ],
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        }
+      ]
+    ],
+    "Undone": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Label",
+          "Row": 0,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 0,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 7,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ],
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 100
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 0,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 8,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Label",
+          "Row": 192,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 110
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 0,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 9,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ]
+    ],
+    "Redone": [
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        }
+      ],
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        }
+      ],
+      [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Pattern",
+          "Row": 48,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 42,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        }
+      ]
+    ],
+    "SourceBefore": [
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 192,
+        "Bpm": 240
+      }
+    ],
+    "SourceAfter": [
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Label",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 192,
+        "Bpm": 240
+      }
+    ]
+  },
+  {
+    "Name": "unsupported-patterns-remove-existing",
+    "Before": [
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 0,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 7,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ],
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 96,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 8,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ]
+    ],
+    "After": [
+      [],
+      []
+    ],
+    "Undone": [
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 0,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 7,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ],
+      [
+        {
+          "Kind": "Pattern",
+          "Row": 96,
+          "Definition": {
+            "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+            "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+            "Length": 96,
+            "RandomSeed": 8,
+            "StartPositionInclusive": true,
+            "EndPositionInclusive": false,
+            "IgnorePrecedingDistribution": true
+          }
+        }
+      ]
+    ],
+    "Redone": [
+      [],
+      []
+    ],
+    "SourceBefore": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "SourceAfter": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ]
+  },
+  {
+    "Name": "delay-and-attack-retain-rows",
+    "Before": [
+      [
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Attack",
+          "Row": 288,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "After": [
+      [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Attack",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "Undone": [
+      [
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Attack",
+          "Row": 288,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "Redone": [
+      [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Label",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Attack",
+          "Row": 96,
+          "Lane": -1,
+          "Player": 0,
+          "End": null
+        }
+      ]
+    ],
+    "SourceBefore": [
+      {
+        "Kind": "Stop",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Attack",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "SourceAfter": [
+      {
+        "Kind": "Stop",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Attack",
+        "Row": 96,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  }
+]

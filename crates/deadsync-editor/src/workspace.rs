@@ -67,6 +67,7 @@ pub struct Workspace {
     player: u32,
     tool: Kind,
     anchor: Option<u64>,
+    selection_end: Option<u64>,
     auto_advance: bool,
     clipboard: Option<Clipboard>,
     event_clipboard: Option<crate::event_clipboard::Clipboard>,
@@ -83,6 +84,7 @@ impl Workspace {
         self.row = row;
         self.player = player;
         self.anchor = None;
+        self.selection_end = None;
         Ok(())
     }
 
@@ -125,6 +127,7 @@ impl Workspace {
             player: 0,
             tool: Kind::Tap,
             anchor: None,
+            selection_end: None,
             auto_advance: false,
             clipboard: None,
             event_clipboard: None,
@@ -159,6 +162,14 @@ impl Workspace {
         self.validate_event_selection(selection)?;
         if let Some(clipboard) = selection.copy(&mut self.file.session)? { self.event_clipboard = Some(clipboard); }
         Ok(())
+    }
+    pub fn copy_chart_events(
+        &mut self,
+        destinations: impl IntoIterator<Item = usize>,
+        types: impl IntoIterator<Item = crate::chart_event_copy::EventType>,
+    ) -> Result<crate::chart_event_copy::Report, Error> {
+        crate::chart_event_copy::Plan::capture(&mut self.file.session, self.chart, destinations, types)?
+            .apply(&mut self.file.session)
     }
     pub fn paste_events_with_report(&mut self) -> Result<crate::event_clipboard::PasteReport, Error> {
         if let Some(clipboard) = &self.event_clipboard {
@@ -212,6 +223,15 @@ impl Workspace {
     pub fn clear_active_chart(&mut self) {
         self.chart = usize::MAX;
         self.anchor = None;
+        self.selection_end = None;
+    }
+    /// Prepare immutable view access to resident charts. Loading note caches
+    /// neither selects a chart nor changes document content or undo history.
+    pub fn prepare_view_grids(&mut self, charts: &[usize]) -> Result<(), Error> {
+        for &chart in charts {
+            self.file.session.grid(chart)?;
+        }
+        Ok(())
     }
     pub fn try_grid(&self) -> Option<&Grid> {
         self.active_chart()
@@ -245,8 +265,23 @@ impl Workspace {
         self.auto_advance
     }
     pub fn selection(&self) -> Option<(u64, u64)> {
-        self.anchor
-            .map(|anchor| (anchor.min(self.row), anchor.max(self.row)))
+        self.anchor.map(|anchor| {
+            let end = self.selection_end.unwrap_or(self.row);
+            (anchor.min(end), anchor.max(end))
+        })
+    }
+
+    /// Move presentation focus without stretching an already selected note range.
+    /// Selection-consuming commands still read its exact original endpoints.
+    pub fn seek_preserving_selection(&mut self, row: u64) -> Result<(), Error> {
+        if !self.has_chart() {
+            return Err(Error::InvalidEdit("No active chart".into()));
+        }
+        if self.anchor.is_some() && self.selection_end.is_none() {
+            self.selection_end = Some(self.row);
+        }
+        self.row = row;
+        Ok(())
     }
 
     pub fn execute(&mut self, command: Command) -> Result<(), Error> {
@@ -258,13 +293,17 @@ impl Workspace {
                 let distance = SNAP_ROWS[self.snap]
                     .checked_mul(steps.unsigned_abs())
                     .ok_or_else(|| Error::InvalidEdit("Cursor movement overflow".into()))?;
+                self.selection_end = None;
                 self.row = if steps >= 0 {
                     self.row.saturating_add(distance)
                 } else {
                     self.row.saturating_sub(distance)
                 };
             }
-            Command::Seek(row) => self.row = row,
+            Command::Seek(row) => {
+                self.selection_end = None;
+                self.row = row;
+            }
             Command::DuplicateChart => {
                 self.duplicate_chart()?;
             }
@@ -282,6 +321,7 @@ impl Workspace {
                     matches!(command, Command::PreviousMeasure),
                 )?;
                 // Workspace note positions are currently nonnegative reference rows.
+                self.selection_end = None;
                 self.row = destination.clamp(0, i32::MAX as i64) as u64;
             }
             Command::PreviousLabel | Command::NextLabel => {
@@ -295,6 +335,7 @@ impl Workspace {
                     labels.next_row(self.row)
                 };
                 if let Some(row) = row {
+                    self.selection_end = None;
                     self.row = row;
                 }
             }
@@ -302,6 +343,7 @@ impl Workspace {
                 if snap >= SNAP_ROWS.len() {
                     return Err(Error::InvalidEdit("Invalid quantization".into()));
                 }
+                self.selection_end = None;
                 self.snap = snap;
                 self.row -= self.row % SNAP_ROWS[snap];
             }
@@ -310,6 +352,7 @@ impl Workspace {
                 self.player = self.player.min(grid.players() - 1);
                 self.chart = chart;
                 self.anchor = None;
+                self.selection_end = None;
             }
             Command::SelectPlayer(player) => {
                 if player >= self.grid().players() {
@@ -330,6 +373,7 @@ impl Workspace {
             }
             Command::ToggleAutoAdvance => self.auto_advance = !self.auto_advance,
             Command::ToggleSelection => {
+                self.selection_end = None;
                 self.anchor = if self.anchor.is_some() {
                     None
                 } else {
@@ -372,6 +416,7 @@ impl Workspace {
                     .session
                     .edit_notes(self.chart, "Place note", [(position, note)])?;
                 if self.auto_advance {
+                    self.selection_end = None;
                     self.row = self.row.saturating_add(SNAP_ROWS[self.snap]);
                 }
             }
@@ -707,12 +752,14 @@ impl Workspace {
     ) -> Result<bool, Error> {
         let changed = preview.apply(&mut self.file.session, self.chart)?;
         self.anchor = None;
+        self.selection_end = None;
         Ok(changed)
     }
     pub fn navigate_saved_pattern(&mut self, forward: bool) -> Result<bool, Error> {
         let data =
             crate::generation::metadata::ChartData::read(self.file.session.document(), self.chart)?;
         if let Some(row) = data.and_then(|data| data.adjacent_marker(self.row, forward)) {
+            self.selection_end = None;
             self.row = row;
             Ok(true)
         } else {
@@ -768,6 +815,7 @@ impl Workspace {
         let changed = preview.apply(&mut self.file.session, self.chart)?;
         self.file.session.grid(self.chart)?;
         self.anchor = None;
+        self.selection_end = None;
         Ok(changed)
     }
 
@@ -800,6 +848,7 @@ impl Workspace {
         let changed = preview.apply(&mut self.file.session, self.chart)?;
         self.file.session.grid(self.chart)?;
         self.anchor = None;
+        self.selection_end = None;
         Ok(changed)
     }
 
@@ -838,6 +887,7 @@ impl Workspace {
         self.chart = chart;
         self.player = 0;
         self.anchor = None;
+        self.selection_end = None;
         Ok(indices)
     }
 
@@ -874,6 +924,7 @@ impl Workspace {
         );
         self.player = 0;
         self.anchor = None;
+        self.selection_end = None;
         if self.has_chart() {
             self.file.session.grid(self.chart)?;
         }
@@ -904,6 +955,7 @@ impl Workspace {
         self.row = 0;
         self.player = 0;
         self.anchor = None;
+        self.selection_end = None;
         Ok(chart)
     }
 
@@ -926,6 +978,7 @@ impl Workspace {
         self.chart = chart;
         self.player = 0;
         self.anchor = None;
+        self.selection_end = None;
         Ok(chart)
     }
 
@@ -953,6 +1006,7 @@ impl Workspace {
         self.chart = chart;
         self.player = 0;
         self.anchor = None;
+        self.selection_end = None;
         Ok(chart)
     }
 
@@ -975,6 +1029,7 @@ impl Workspace {
         } else {
             self.player = 0;
             self.anchor = None;
+            self.selection_end = None;
         }
         Ok(())
     }
@@ -984,6 +1039,7 @@ impl Workspace {
             self.chart = usize::MAX;
             self.player = 0;
             self.anchor = None;
+            self.selection_end = None;
             return Ok(());
         }
         if self.chart == usize::MAX {
@@ -997,6 +1053,7 @@ impl Workspace {
             let Some(chart) = candidate else {
                 self.player = 0;
                 self.anchor = None;
+                self.selection_end = None;
                 return Ok(());
             };
             self.chart = chart;
@@ -1014,6 +1071,7 @@ impl Workspace {
         self.player = self.player.min(grid.players() - 1);
         if self.chart != previous_chart {
             self.anchor = None;
+            self.selection_end = None;
         }
         Ok(())
     }

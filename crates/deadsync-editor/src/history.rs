@@ -1,5 +1,7 @@
 //! Commands store only changed notes and tag values. One gesture is one history
 //! entry; failed gestures roll back and never erase the redo branch.
+mod event_properties;
+
 use crate::{
     Error,
     document::{Document, escape_text},

@@ -372,3 +372,95 @@ parent integration and central test execution remain required. Inactive
 waveform policy and interactive attack widgets remain separate unfinished
 layers; the current prepared inactive pass covers lanes, owner-colored notes,
 sustains, beat/signature/label/pattern markers and the synchronized cursor.
+
+### Native renderer connected after checkpoint `eff40ebbf`
+
+`edition.rs` now prepares visible Session grids, draws the inactive natural-width
+fields, and delegates focused/inactive note construction to the same bounded
+renderer. `Workspace::prepare_view_grids` only initializes read caches: selection,
+source bytes and history are preserved. Each chart maps the shared musical
+instant through its own cached clock, with independent note-owner colors and
+sustains; keyboard editing remains routed through the focused Workspace chart.
+The partial-view notice is wrapped inside the visible portion of its field.
+The new actor/statistics/geometry targets still await central execution; this
+connection does not certify inactive waveform/attack-widget or GPU parity.
+
+### Concrete remaining rendering differences (reference reread after restart)
+
+Reference paths below are relative to the pinned GrooveAuthor checkout,
+`StepManiaEditor/`; native paths are relative to this repository. These are
+observed omissions, not inferred completed parity.
+
+| Remaining difference | Reference evidence | Current native evidence / next contract |
+| --- | --- | --- |
+| Receptor graphics and lane feedback | `Editor.cs:2777` draws receptors for every visible chart; `ActiveEditorChart.cs:3027` delegates each receptor graphic. | `edition/view_render.rs::cursor` draws a horizontal focus line; no receptor row is drawn. Introduce owner/layout-aware receptor actors separately from scrolling notes, then test inactive as well as focused charts. |
+| Inactive waveform placement policy | `ActiveEditorChart.cs:390` supports focused, all, and all with the same MUSIC and offset. | `edition.rs:2473` invokes waveform actors once for the focused field; `view_render::Data` only supplies an unused waveform axis for variable projections. Requires a per-view waveform source binding and explicit policy; do not reuse focused samples for charts with different MUSIC/offset. |
+| Miscellaneous timing/event widgets on inactive charts | `ActiveEditorChart.cs:379` explicitly enables miscellaneous events for all charts; `Editor.cs:3008` draws each chart's visible events through its own graphic manager. | `view_render::markers` covers measure/signature/label/pattern markers; `edition.rs:2475` invokes attack actors only for the focus. BPM, stop, delay, warp, scroll/speed and attack widgets need an explicit per-chart bounded visible-event stream. |
+| Note graphics and playback consumption | `Editor.cs:3038` hides consumed arrows during autoplay and clips active holds at receptors before event-specific drawing. | Shared `view_render::notes` uses the highlight-arrow texture, owner tint, letter symbols and a plain sustain body; no consumption/receptor state or hold-tail graphic. Requires a render policy based on each chart's musical position, independent of the shared audio adapter. |
+| Exact horizontal padding and boundaries | `ActiveEditorChart.cs:277` accounts for waveform/misc-event widths and focused minimap preferences; `Editor.cs:2947` draws focused/inactive boundaries. | `view_layout::layout` uses natural lane widths with fixed 42/30 margins. This preserves neighboring charts without squeezing but does not reproduce preference-driven full widths or themed boundaries. Coordinate minimap placement before changing geometry. |
+| Key-release lane gestures | `Editor.cs:6749` and `:6757` forward both down and up to the focused view. Focus loss clears lane edit state (`ActiveEditorChart.cs:359`). | `edition.rs` returns before processing non-modifier releases; lane keys dispatch `Command::Place` on press. Existing note tools work, but sustained key gestures and feedback are not implemented. Minimap release routing must not be mistaken for this separate lane-edit contract. |
+
+Suggested next independent increments: receptor actors and boundaries; bounded
+per-view miscellaneous-event projection; waveform source/policy; note graphics
+and autoplay clipping; lane press/release gesture transaction. Existing musical
+focus, registry and actor tests should remain regression targets for each.
+
+Global note traversal bound: with `N` visible fields, each gets
+`floor(NOTE_BUDGET / N)` candidate notes and four times that many track/bin
+queries. Each field subtracts its cumulative query/candidate counts before
+processing another visible row range. Consequently, across all fields and all
+ranges, note traversal issues at most `4 * NOTE_BUDGET` track/bin queries and
+returns at most `NOTE_BUDGET` candidates per draw. This statement concerns the
+note traversal pass, not metadata preparation, markers, waveform or GPU time.
+
+### End Hint widget prepared
+
+`edition/end_hint.rs` projects positive song `LASTSECONDHINT` seconds into each
+visible chart using its own music offset, SyncOffset and timing map. Reference:
+`EditorEvents/EditorLastSecondHintEvent.cs::GetChartTime`,
+`EditorPosition.cs:189–197`, `EditorChart.cs:1792–1804`. Nonpositive hints produce
+no widget. The reference marks this widget unselectable and position-immutable;
+native editing stays in the existing keyboard Song Properties / sample panel.
+
+Both committed values and staged song-property values are reflected in all
+visible widgets, with cancellation restoring the committed view. Projection
+inputs are cached by exact Session/content and hint/offset/sync values plus the
+visible source list. Committed projections share registry clocks. Two native
+workflows cover differing BPM/offset/SyncOffset, absent hints, EN/FR labels and
+staged cancel/commit/Undo. They await central execution. This closes only the
+End Hint item, not the other miscellaneous-event widgets inventoried above.
+
+### Receptors/autoplay source contract for the next rendering increment
+
+Read-only review, no implementation started in this increment:
+
+- `Receptor.cs:80–124` updates beat/tap/rim/glow animation and draws a
+  layout-specific receptor texture, including size-zoom fading. Foreground
+  effects are separate (`:131–183`). Current native cursor line is insufficient.
+- `Editor.cs:3168–3180` updates autoplay for **all resident charts** only while
+  playing; scrolling cancels their autoplay state. `AutoPlayer.cs:79–164` keeps
+  previous next-event state by physical lane, avoids a false tap when starting
+  mid-chart, activates an already-overlapping hold, and handles hold→hold or
+  tap→hold transitions at equal warped time. `Stop` resets every lane and
+  cancels held input (`:172–183`).
+- Input candidates use chart **time**, not rounded row: overlapping holds
+  first, then tap/hold/lift events, excluding fake events (`AutoPlayer.cs:196–249`).
+  The hold's tail becomes the next input after its head is passed. A native
+  replica must consider FAKE regions as well as `Kind::Fake`, not merely note
+  kind, and must preserve owners while resolving physical-lane collisions.
+- `Editor.cs:3038–3058` consumes arrows only during playback: hide events whose
+  end chart-time is strictly earlier than the per-chart current time when the
+  hide preference is enabled; active consumed holds are cut at the receptor.
+  `EditorTapNoteEvent.cs:36` and `EditorHoldNoteEvent.cs:168` consume only
+  nonfake events. This should be a render policy, not mutation of Session notes.
+- Native note input currently handles only key press (`edition.rs` early
+  release guard); adding receptor graphics must not claim lane gesture parity.
+
+Suggested contracts: a pure `AutoplayState` keyed by resident GUID and physical
+lane, receiving immutable time-sorted input events and exact chart-time; a
+separate preference-controlled note-consumption policy; then actor rendering
+and finally animation time. Tests should cover start inside hold, pause/stop,
+seek/reset, time equality at warp edges, fake tap/hold/FAKE regions, lift,
+multiplayer owners and per-chart clocks. Real playback/sample separation must
+use the existing typed transport contract, not infer `playing` from a queued
+or paused decoder request. No production source is changed by this review.

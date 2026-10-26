@@ -19,6 +19,12 @@ pub mod chart_list;
 mod chart_list_view;
 mod chart_focus;
 mod chart_views;
+mod chart_event_copy;
+mod end_hint;
+mod minimap;
+mod view_layout;
+mod view_render;
+mod view_render_screen;
 pub mod decoder_transport;
 mod attacks;
 mod event_selection;
@@ -71,6 +77,7 @@ use std::{
 enum Panel {
     Analysis,
     ChartList,
+    ChartEventCopy,
     NewChart(usize),
     DeleteChart(usize),
     EmptyMenu(usize),
@@ -257,6 +264,9 @@ pub struct State {
     paused_playback: Option<playback::Paused>,
     focus_position: Option<deadsync_editor::chart_focus::Position>,
     active_views: Option<deadsync_editor::chart_views::ActiveChartViews>,
+    view_inputs: view_render::Cache,
+    end_hint: Option<end_hint::Cache>,
+    minimap: minimap::Navigation,
     scroll_preferences: deadsync_editor::scroll_preferences::Preferences,
     scroll_preferences_draft: Option<deadsync_editor::scroll_preferences::Preferences>,
     audio_preferences: deadsync_editor::audio_preferences::Audio,
@@ -282,6 +292,7 @@ pub struct State {
     note_attribute_typed: bool,
     chart_list_cache: chart_list::Cache,
     chart_list_selection: chart_list::Selection,
+    chart_event_copy: Option<chart_event_copy::Settings>,
     attacks: Option<attacks::Settings>,
     event_selection: Option<event_selection::Settings>,
     attack_clipboard: Option<deadsync_editor::attacks::inspector::Clipboard>,
@@ -402,6 +413,9 @@ impl State {
             paused_playback: None,
             focus_position: None,
             active_views: None,
+            view_inputs: view_render::Cache::default(),
+            end_hint: None,
+            minimap: Default::default(),
             scroll_preferences: Default::default(),
             scroll_preferences_draft: None,
             audio_preferences: Default::default(),
@@ -444,6 +458,7 @@ impl State {
             note_attribute_typed: false,
             chart_list_cache: Default::default(),
             chart_list_selection: Default::default(),
+            chart_event_copy: None,
             attacks: None,
             event_selection: None,
             attack_clipboard: None,
@@ -509,6 +524,7 @@ impl State {
 
     /// Focus loss cancels transient input state while retaining the editing draft.
     pub fn release_input(&mut self) {
+        self.minimap_release_input();
         self.control = false;
         self.control_keys = 0;
         self.shift = false;
@@ -1301,6 +1317,7 @@ impl State {
 
     fn refresh(&mut self) {
         self.refresh_chart_views();
+        self.prepare_view_render();
         self.refresh_spacing_cache();
         self.refresh_attack_view();
         self.refresh_waveform();
@@ -1465,6 +1482,9 @@ impl State {
             }
             _ => {}
         }
+        if self.minimap_key(event) {
+            return false;
+        }
         if !event.pressed {
             return false;
         }
@@ -1502,6 +1522,10 @@ impl State {
                 KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::PageUp | KeyCode::PageDown
             )
         {
+            return false;
+        }
+        if self.control && self.shift && event.code == KeyCode::KeyY && self.panel.is_none() {
+            self.open_chart_event_copy();
             return false;
         }
         if self.control && self.shift && event.code == KeyCode::KeyE && self.panel.is_none() {
@@ -1712,6 +1736,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if matches!(panel, Panel::ChartEventCopy) { self.chart_event_copy_key(code); return false; }
         if matches!(panel, Panel::ChartList) { self.chart_list_key(code); return false; }
         if matches!(panel, Panel::EventSelection) { self.event_selection_key(code); return false; }
         if let Panel::Attacks(index) = panel { self.attacks_key(index, code); return false; }
@@ -1831,6 +1856,7 @@ impl State {
             Panel::Attacks(_) => unreachable!("attacks dispatched above"),
             Panel::EventSelection => unreachable!("event selection dispatched above"),
             Panel::ChartList => unreachable!("chart list dispatched above"),
+            Panel::ChartEventCopy => unreachable!("chart event copy dispatched above"),
             Panel::NoteAttributes(_) => unreachable!("note inspector dispatched above"),
             Panel::NoteConversion(_) => unreachable!("note conversion dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
@@ -2261,7 +2287,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 17,
+                    Panel::Menu(_) => 18,
                     Panel::Transforms(_) => 12,
                     _ => 3,
                 };
@@ -2340,6 +2366,7 @@ impl State {
                             14 => self.open_analysis(),
                             15 => self.command(Command::DuplicateChart),
                             16 => self.open_chart_list(),
+                            17 => self.open_chart_event_copy(),
                             _ => {}
                         }
                     }
@@ -2403,6 +2430,7 @@ impl State {
             self.no_chart_actors(actors);
             return;
         }
+        self.inactive_view_actors(actors);
         let grid = self
             .preview
             .as_ref()
@@ -2586,69 +2614,21 @@ impl State {
                 actors.push(act!(quad: xy(field_center, (y1 + y2) * 0.5): zoomto(field_width, (y2 - y1).abs().max(2.0)): diffuse(0.2, 0.6, 0.9, 0.2): z(8002)));
             }
         }
-        let size_zoom = self.zoom.size_zoom() as f32;
-        let note_bins = ((bottom - top).ceil() as usize).clamp(1, 4096);
-        let bins_per_range = (note_bins / ranges.len().max(1)).max(1);
-        let mut shown_notes = std::collections::BTreeSet::new();
-        for &(start, end) in ranges.iter().take(note_bins) {
-            let visible_notes = grid
-                .visible_overview(start, end, bins_per_range)
-                .expect("ordered viewport bounds and bounded overview bins");
-            for (position, note) in visible_notes {
-                if !shown_notes.insert(position) {
-                    continue;
-                }
-                let x = left + (f32::from(position.lane) + 0.5) * lane_width;
-                let Some(y) = projection.note_y(position.row) else {
-                    continue;
-                };
-                let y = y as f32;
-                let color = player_color(position.player);
-                if let Some(tail) = note.end {
-                    let a = y.clamp(top, bottom);
-                    let Some(tail_y) = projection.note_y(tail) else {
-                        continue;
-                    };
-                    let b = (tail_y as f32).clamp(top, bottom);
-                    actors.push(act!(quad: xy(x, (a + b) * 0.5): zoomto(lane_width * 0.3 * size_zoom, (b - a).abs()): diffuse(color[0], color[1], color[2], 0.65): z(8003)));
-                }
-                if y < top || y > bottom {
-                    continue;
-                }
-                let symbol = match note.kind {
-                    Kind::Mine => "M",
-                    Kind::Lift => "L",
-                    Kind::Fake => "F",
-                    Kind::Keysound => "K",
-                    Kind::Attack => "A",
-                    _ => "",
-                };
-                if symbol.is_empty() {
-                    let rotation = lane_rotation(
-                        self.preview
-                            .as_ref()
-                            .map(GenerationPreview::layout)
-                            .unwrap_or_else(|| {
-                                &self.workspace.file().session.document().charts()
-                                    [self.workspace.chart()]
-                                .steps_type
-                            }),
-                        position.lane,
-                    );
-                    actors.push(act!(sprite("test_input/highlightarrow.png"): xy(x, y): setsize(lane_width * 0.7 * size_zoom, lane_width * 0.7 * size_zoom): rotationz(rotation): diffuse(color[0], color[1], color[2], 1.0): z(8004)));
-                } else {
-                    text(
-                        actors,
-                        symbol,
-                        x - 6.0 * size_zoom,
-                        y - 9.0 * size_zoom,
-                        0.65 * size_zoom,
-                        color,
-                    );
-                }
-            }
-        }
-        actors.push(act!(quad: xy(field_center, cursor_y): zoomto(field_width, 2.0): diffuse(1.0, 0.85, 0.25, 1.0): z(8005)));
+        let geometry = view_layout::Geometry {
+            source: self.workspace.chart(), order: 0, focused: true,
+            left, field_width, lane_width,
+            clip_left: 0.0,
+            clip_right: if side_panel { width - 390.0 } else { width },
+        };
+        let viewport = view_render::Viewport { top, bottom, cursor: cursor_y };
+        let layout = self.preview.as_ref().map(GenerationPreview::layout).unwrap_or_else(|| {
+            &self.workspace.file().session.document().charts()[self.workspace.chart()].steps_type
+        });
+        let stats = view_render::notes(actors, grid, layout, &projection, geometry, viewport, &ranges, self.zoom.size_zoom() as f32, self.view_note_budget());
+        view_render::cursor(actors, geometry, viewport);
+        view_render::partial_notice(actors, geometry, viewport, stats);
+        self.end_hint_actors(actors, &projection, geometry, viewport);
+        self.minimap_actors(actors);
         if self.help
             && self.preview.is_none()
             && !matches!(
@@ -2690,6 +2670,7 @@ impl State {
     }
 
     fn panel_actors(&self, panel: Panel, actors: &mut Vec<Actor>) {
+        if matches!(panel, Panel::ChartEventCopy) { self.chart_event_copy_actors(actors); return; }
         if matches!(panel, Panel::ChartList) { self.chart_list_actors(actors); return; }
         if matches!(panel, Panel::EventSelection) { self.event_selection_actors(actors); return; }
         if matches!(panel, Panel::Analysis) {
@@ -2704,7 +2685,7 @@ impl State {
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
-            Panel::Analysis | Panel::EventSelection | Panel::ChartList => &[],
+            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
             Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
@@ -2726,6 +2707,7 @@ impl State {
                 "AnalysisTitle",
                 "DuplicateChart",
                 "ChartListOpen",
+                "ChartEventCopyOpen",
             ],
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen", "NoteOwnersOpen", "NoteAttributesOpen"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
@@ -2800,7 +2782,7 @@ impl State {
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
             Panel::WaveformColors(_) => &["WaveformColorMode","WaveformColorDarken","WaveformDenseRed","WaveformDenseGreen","WaveformDenseBlue","WaveformDenseAlpha","WaveformSparseRed","WaveformSparseGreen","WaveformSparseBlue","WaveformSparseAlpha","WaveformBackgroundRed","WaveformBackgroundGreen","WaveformBackgroundBlue","WaveformBackgroundAlpha","WaveformColorsBack"],
             Panel::WaveformSettings(_) => &["WaveformSettingShow", "WaveformSettingEnabled", "WaveformSettingWidth", "WaveformSettingDense", "WaveformSettingScroll", "WaveformSettingsDefaults", "WaveformSettingsSave", "WaveformSettingsCancel"],
-            Panel::ScrollSettings(_) => &["ScrollStopPlayback", "ScrollSettingsDefaults", "ScrollSettingsSave", "ScrollSettingsCancel"],
+            Panel::ScrollSettings(_) => &["ScrollStopPlayback", "ScrollStopDragging", "ScrollSettingsDefaults", "ScrollSettingsSave", "ScrollSettingsCancel"],
             Panel::ZoomSettings(_) => &["ZoomDuration", "ZoomMultiplier", "ZoomSizeCap", "ZoomLimited", "ZoomSettingsDefaults", "ZoomSettingsSave", "ZoomSettingsCancel"],
             Panel::AudioSettings(_) => &["AudioFadeIn", "AudioFadeOut", "AudioMusicRate", "AudioSettingsDefaults", "AudioSettingsApply", "AudioSettingsCancel"],
             Panel::SongSample(_) => &["SongSampleStart", "SongSampleLength", "SongLastSecondHint", "SongSampleBack"],
@@ -3301,7 +3283,7 @@ impl State {
                 self.waveform_colors_label(index,key)
             } else if matches!(panel, Panel::WaveformSettings(_)) && index < 5 {
                 self.waveform_settings_label(index, key)
-            } else if matches!(panel, Panel::ScrollSettings(_)) && index == 0 {
+            } else if matches!(panel, Panel::ScrollSettings(_)) && index <= 1 {
                 self.scroll_settings_label(key)
             } else if matches!(panel, Panel::ZoomSettings(_)) && index < 4 {
                 self.zoom_settings_label(index, key)

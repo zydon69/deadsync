@@ -1,0 +1,589 @@
+{
+  "Cases": [
+    {
+      "Name": "replace-selected-retain-unselected",
+      "Types": [
+        "Label"
+      ],
+      "Source": {
+        "Layout": "dance-single",
+        "Players": 1,
+        "Events": [
+          {
+            "Kind": "Label",
+            "Row": 48
+          },
+          {
+            "Kind": "Tempo",
+            "Row": 0,
+            "Bpm": 120
+          }
+        ]
+      },
+      "Destinations": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Label",
+              "Row": 96
+            },
+            {
+              "Kind": "Tempo",
+              "Row": 0,
+              "Bpm": 90
+            },
+            {
+              "Kind": "Delay",
+              "Row": 144
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "empty-source-clears-selected-type",
+      "Types": [
+        "Label"
+      ],
+      "Source": {
+        "Layout": "dance-single",
+        "Players": 1,
+        "Events": [
+          {
+            "Kind": "Tempo",
+            "Row": 0,
+            "Bpm": 120
+          }
+        ]
+      },
+      "Destinations": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Tempo",
+              "Row": 0,
+              "Bpm": 90
+            },
+            {
+              "Kind": "Label",
+              "Row": 96
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "tempo-first-value-and-following-replacement",
+      "Types": [
+        "Tempo"
+      ],
+      "Source": {
+        "Layout": "dance-single",
+        "Players": 1,
+        "Events": [
+          {
+            "Kind": "Tempo",
+            "Row": 0,
+            "Bpm": 180
+          },
+          {
+            "Kind": "Tempo",
+            "Row": 192,
+            "Bpm": 240
+          }
+        ]
+      },
+      "Destinations": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Tempo",
+              "Row": 0,
+              "Bpm": 90
+            },
+            {
+              "Kind": "Tempo",
+              "Row": 96,
+              "Bpm": 110
+            },
+            {
+              "Kind": "Label",
+              "Row": 96
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "signature-written-ratio-retained",
+      "Types": [
+        "Signature"
+      ],
+      "Source": {
+        "Layout": "dance-single",
+        "Players": 1,
+        "Events": [
+          {
+            "Kind": "Signature",
+            "Row": 0,
+            "N": 2,
+            "D": 2
+          },
+          {
+            "Kind": "Signature",
+            "Row": 192,
+            "N": 3,
+            "D": 4
+          }
+        ]
+      },
+      "Destinations": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Signature",
+              "Row": 0,
+              "N": 4,
+              "D": 4
+            },
+            {
+              "Kind": "Signature",
+              "Row": 96,
+              "N": 5,
+              "D": 8
+            },
+            {
+              "Kind": "Tempo",
+              "Row": 0,
+              "Bpm": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "first-event-destination-position-preserved",
+      "Types": [
+        "Tempo",
+        "Signature"
+      ],
+      "Source": {
+        "Layout": "dance-single",
+        "Players": 1,
+        "Events": [
+          {
+            "Kind": "Tempo",
+            "Row": 16,
+            "Bpm": 180
+          },
+          {
+            "Kind": "Tempo",
+            "Row": 192,
+            "Bpm": 240
+          },
+          {
+            "Kind": "Signature",
+            "Row": 16,
+            "N": 2,
+            "D": 2
+          },
+          {
+            "Kind": "Signature",
+            "Row": 384,
+            "N": 3,
+            "D": 4
+          }
+        ]
+      },
+      "Destinations": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Tempo",
+              "Row": 48,
+              "Bpm": 90
+            },
+            {
+              "Kind": "Tempo",
+              "Row": 96,
+              "Bpm": 110
+            },
+            {
+              "Kind": "Signature",
+              "Row": 48,
+              "N": 4,
+              "D": 4
+            },
+            {
+              "Kind": "Signature",
+              "Row": 192,
+              "N": 5,
+              "D": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "patterns-replace-whole-type-not-just-head",
+      "Types": [
+        "Pattern"
+      ],
+      "Source": {
+        "Layout": "dance-single",
+        "Players": 1,
+        "Events": [
+          {
+            "Kind": "Pattern",
+            "Row": 48,
+            "Definition": {
+              "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+              "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+              "Length": 96,
+              "RandomSeed": 42,
+              "StartPositionInclusive": true,
+              "EndPositionInclusive": false,
+              "IgnorePrecedingDistribution": true
+            }
+          }
+        ]
+      },
+      "Destinations": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Pattern",
+              "Row": 96,
+              "Definition": {
+                "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+                "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+                "Length": 96,
+                "RandomSeed": 7,
+                "StartPositionInclusive": true,
+                "EndPositionInclusive": false,
+                "IgnorePrecedingDistribution": true
+              }
+            },
+            {
+              "Kind": "Pattern",
+              "Row": 192,
+              "Definition": {
+                "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+                "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+                "Length": 96,
+                "RandomSeed": 8,
+                "StartPositionInclusive": true,
+                "EndPositionInclusive": false,
+                "IgnorePrecedingDistribution": true
+              }
+            },
+            {
+              "Kind": "Label",
+              "Row": 192
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "overlapping-source-regions-retained",
+      "Types": [
+        "Pattern"
+      ],
+      "Source": {
+        "Layout": "dance-single",
+        "Players": 1,
+        "Events": [
+          {
+            "Kind": "Pattern",
+            "Row": 48,
+            "Definition": {
+              "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+              "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+              "Length": 192,
+              "RandomSeed": 42,
+              "StartPositionInclusive": true,
+              "EndPositionInclusive": false,
+              "IgnorePrecedingDistribution": true
+            }
+          },
+          {
+            "Kind": "Pattern",
+            "Row": 96,
+            "Definition": {
+              "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+              "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+              "Length": 192,
+              "RandomSeed": 7,
+              "StartPositionInclusive": true,
+              "EndPositionInclusive": false,
+              "IgnorePrecedingDistribution": true
+            }
+          }
+        ]
+      },
+      "Destinations": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Pattern",
+              "Row": 0,
+              "Definition": {
+                "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+                "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+                "Length": 96,
+                "RandomSeed": 9,
+                "StartPositionInclusive": true,
+                "EndPositionInclusive": false,
+                "IgnorePrecedingDistribution": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "multidestination-mixed-includes-routine-one",
+      "Types": [
+        "Pattern",
+        "Label",
+        "Tempo"
+      ],
+      "Source": {
+        "Layout": "dance-single",
+        "Players": 1,
+        "Events": [
+          {
+            "Kind": "Pattern",
+            "Row": 48,
+            "Definition": {
+              "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+              "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+              "Length": 96,
+              "RandomSeed": 42,
+              "StartPositionInclusive": true,
+              "EndPositionInclusive": false,
+              "IgnorePrecedingDistribution": true
+            }
+          },
+          {
+            "Kind": "Label",
+            "Row": 96
+          },
+          {
+            "Kind": "Tempo",
+            "Row": 0,
+            "Bpm": 180
+          },
+          {
+            "Kind": "Tempo",
+            "Row": 192,
+            "Bpm": 240
+          }
+        ]
+      },
+      "Destinations": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Pattern",
+              "Row": 0,
+              "Definition": {
+                "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+                "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+                "Length": 96,
+                "RandomSeed": 7,
+                "StartPositionInclusive": true,
+                "EndPositionInclusive": false,
+                "IgnorePrecedingDistribution": true
+              }
+            },
+            {
+              "Kind": "Label",
+              "Row": 0
+            },
+            {
+              "Kind": "Tempo",
+              "Row": 0,
+              "Bpm": 90
+            }
+          ]
+        },
+        {
+          "Layout": "dance-routine",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Pattern",
+              "Row": 0,
+              "Definition": {
+                "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+                "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+                "Length": 96,
+                "RandomSeed": 8,
+                "StartPositionInclusive": true,
+                "EndPositionInclusive": false,
+                "IgnorePrecedingDistribution": true
+              }
+            },
+            {
+              "Kind": "Label",
+              "Row": 192
+            },
+            {
+              "Kind": "Tempo",
+              "Row": 0,
+              "Bpm": 100
+            }
+          ]
+        },
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Pattern",
+              "Row": 0,
+              "Definition": {
+                "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+                "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+                "Length": 96,
+                "RandomSeed": 9,
+                "StartPositionInclusive": true,
+                "EndPositionInclusive": false,
+                "IgnorePrecedingDistribution": true
+              }
+            },
+            {
+              "Kind": "Tempo",
+              "Row": 0,
+              "Bpm": 110
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "unsupported-patterns-remove-existing",
+      "Types": [
+        "Pattern"
+      ],
+      "Source": {
+        "Layout": "dance-single",
+        "Players": 1,
+        "Events": [
+          {
+            "Kind": "Pattern",
+            "Row": 48,
+            "Definition": {
+              "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+              "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+              "Length": 96,
+              "RandomSeed": 42,
+              "StartPositionInclusive": true,
+              "EndPositionInclusive": false,
+              "IgnorePrecedingDistribution": true
+            }
+          }
+        ]
+      },
+      "Destinations": [
+        {
+          "Layout": "dance-routine",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Pattern",
+              "Row": 0,
+              "Definition": {
+                "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+                "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+                "Length": 96,
+                "RandomSeed": 7,
+                "StartPositionInclusive": true,
+                "EndPositionInclusive": false,
+                "IgnorePrecedingDistribution": true
+              }
+            }
+          ]
+        },
+        {
+          "Layout": "dance-couple",
+          "Players": 2,
+          "Events": [
+            {
+              "Kind": "Pattern",
+              "Row": 96,
+              "Definition": {
+                "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+                "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+                "Length": 96,
+                "RandomSeed": 8,
+                "StartPositionInclusive": true,
+                "EndPositionInclusive": false,
+                "IgnorePrecedingDistribution": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "delay-and-attack-retain-rows",
+      "Types": [
+        "Delay",
+        "Attack"
+      ],
+      "Source": {
+        "Layout": "dance-single",
+        "Players": 1,
+        "Events": [
+          {
+            "Kind": "Delay",
+            "Row": 48
+          },
+          {
+            "Kind": "Attack",
+            "Row": 96
+          }
+        ]
+      },
+      "Destinations": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Delay",
+              "Row": 192
+            },
+            {
+              "Kind": "Attack",
+              "Row": 288
+            },
+            {
+              "Kind": "Label",
+              "Row": 96
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
