@@ -1,5 +1,6 @@
 //! Sparse, participant-aware note data. GrooveAuthor's 48 rows per beat is
 //! retained; unsupported subdivisions fail explicitly instead of being rounded.
+pub mod minimap_query;
 use crate::Error;
 use std::collections::BTreeMap;
 use std::sync::Arc;
