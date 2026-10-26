@@ -105,6 +105,11 @@ impl Session {
         Arc::ptr_eq(&self.identity, &token.identity) && self.revision == token.revision
     }
 
+    pub(crate) fn redo_reaches(&self, token: &RevisionToken) -> bool {
+        Arc::ptr_eq(&self.identity, &token.identity)
+            && self.redo.last().is_some_and(|entry| entry.after_revision == token.revision)
+    }
+
     pub fn document(&self) -> &Document {
         &self.document
     }

@@ -4888,3 +4888,36 @@ later-chart rejection before mutation. Eleven existing metadata tests also pass.
 Evidence: `/tmp/deadsync-profile-reference-core.log` (`--jobs 2 --locked`).
 The native theme compilation check passed in
 `/tmp/deadsync-profile-reference-check.log` (`--jobs 2 --locked`).
+
+### Reversible disk deletion and coordinated reference repair
+
+`ProfileFile::delete` now moves a validated custom profile into a private temporary
+backup excluded from catalog scanning. `DeletedProfile` restores exact original
+bytes and permissions with a no-clobber atomic publication, or deletes the restored
+file again after checking its bytes. External changes, recreated destination files
+and built-in identities are refused. The backup lives with deletion history and is
+removed when that history is discarded; a restored original is retained. This is
+session history, not a persistent cross-session recovery UI or a claim of atomicity
+across filesystem crashes.
+
+`profile_deletion::Action` coordinates disk deletion with the prepared whole-song
+reference reset. Invalid metadata is rejected before deleting the file. Undo first
+restores the file, then undoes the matching reference edit; a disk conflict consumes
+neither half. Unreferenced deletions do not create or consume unrelated song undo
+entries. Actions reject another session/revision. Redo additionally checks the
+identity of the target history revision: creating a new branch and undoing back to
+the old position must not redo an unrelated edit as though it were a deletion.
+Failure to restore during initial rollback retains a named recovery backup and
+reports its path. Native confirmation, selected-profile fallback, and coordinated
+routing through the native global undo queue remain outstanding.
+
+Tests exercise exact disk/catalog removal/restoration, no-clobber and external-edit
+failures, protected presets, Unix file permissions, coordinated file/reference
+undo/redo, unreferenced deletion history, stale undo, and replacement redo branches.
+
+Validation: four targeted core integration suites passed (18 tests) in
+`/tmp/deadsync-profile-delete-core.log`; the final deletion suite adds the
+invalid-metadata-before-disk-mutation case and passes all 8 tests in
+`/tmp/deadsync-profile-delete-final.log` (19 distinct tests across the four suites).
+Native theme compilation check passed in `/tmp/deadsync-profile-delete-check.log`.
+All commands used `--jobs 2 --locked`. No native deletion UI/GPU test is claimed.

@@ -728,6 +728,35 @@ impl ProfileFile {
         self.redo.clear();
         Ok(())
     }
+    /// Remove a custom profile while retaining an exact, private recovery file.
+    /// The returned deletion owns that backup until its history is discarded.
+    pub fn delete(&self) -> Result<DeletedProfile, Error> {
+        if builtin(self.profile.config.kind(), &self.profile.guid) {
+            return invalid("Built-in editor profiles cannot be deleted");
+        }
+        let _lock = profile_lock(&self.path)?;
+        if fs::read(&self.path)?.as_slice() != self.expected.as_ref() {
+            return Err(Error::ExternalChange);
+        }
+        let permissions = fs::metadata(&self.path)?.permissions();
+        let parent = self.path.parent().unwrap();
+        let backup = tempfile::Builder::new()
+            .prefix(".deadsync-deleted-")
+            .suffix(".profile")
+            .tempfile_in(parent)?
+            .into_temp_path();
+        if fs::read(&self.path)?.as_slice() != self.expected.as_ref() {
+            return Err(Error::ExternalChange);
+        }
+        fs::rename(&self.path, &backup)?;
+        Ok(DeletedProfile {
+            path: self.path.clone(),
+            bytes: self.expected.clone(),
+            permissions,
+            backup,
+            deleted: true,
+        })
+    }
     pub fn can_undo(&self) -> bool {
         !self.undo.is_empty()
     }
@@ -761,17 +790,7 @@ impl ProfileFile {
             .path
             .parent()
             .ok_or_else(|| invalid_error("Profile has no parent directory"))?;
-        let lock_path = parent.join(format!(
-            ".{}.deadsync-save-lock",
-            self.path.file_name().unwrap().to_string_lossy()
-        ));
-        let lock = fs::OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
-            .truncate(false)
-            .open(lock_path)?;
-        lock.try_lock().map_err(std::io::Error::other)?;
+        let _lock = profile_lock(&self.path)?;
         if fs::read(&self.path)?.as_slice() != self.expected.as_ref() {
             return Err(Error::ExternalChange);
         }
@@ -792,6 +811,76 @@ impl ProfileFile {
         sync_directory(parent)?;
         Ok(())
     }
+}
+/// An undoable disk deletion. Backups are excluded from the profile catalog.
+/// Dropping this value discards its private backup; a restored original remains.
+pub struct DeletedProfile {
+    path: PathBuf,
+    bytes: Arc<[u8]>,
+    permissions: fs::Permissions,
+    backup: tempfile::TempPath,
+    deleted: bool,
+}
+impl DeletedProfile {
+    pub(crate) fn preserve_backup(self) -> Result<PathBuf, Error> {
+        self.backup.keep().map_err(|error| Error::Io(error.error))
+    }
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+    pub fn is_deleted(&self) -> bool {
+        self.deleted
+    }
+    pub fn restore(&mut self) -> Result<bool, Error> {
+        if !self.deleted {
+            return Ok(false);
+        }
+        let _lock = profile_lock(&self.path)?;
+        if fs::read(&self.backup)?.as_slice() != self.bytes.as_ref() {
+            return Err(Error::ExternalChange);
+        }
+        let mut pending = tempfile::NamedTempFile::new_in(self.path.parent().unwrap())?;
+        pending
+            .as_file()
+            .set_permissions(self.permissions.clone())?;
+        pending.write_all(&self.bytes)?;
+        pending.as_file().sync_all()?;
+        pending
+            .persist_noclobber(&self.path)
+            .map_err(|e| Error::Io(e.error))?;
+        self.deleted = false;
+        Ok(true)
+    }
+    pub fn delete_again(&mut self) -> Result<bool, Error> {
+        if self.deleted {
+            return Ok(false);
+        }
+        let _lock = profile_lock(&self.path)?;
+        if fs::read(&self.path)?.as_slice() != self.bytes.as_ref()
+            || fs::read(&self.backup)?.as_slice() != self.bytes.as_ref()
+        {
+            return Err(Error::ExternalChange);
+        }
+        fs::remove_file(&self.path)?;
+        self.deleted = true;
+        Ok(true)
+    }
+}
+fn profile_lock(path: &Path) -> Result<fs::File, Error> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| invalid_error("Profile has no parent directory"))?;
+    let lock = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(false)
+        .open(parent.join(format!(
+            ".{}.deadsync-save-lock",
+            path.file_name().unwrap().to_string_lossy()
+        )))?;
+    lock.try_lock().map_err(std::io::Error::other)?;
+    Ok(lock)
 }
 #[derive(Clone, Debug)]
 pub struct Issue {
