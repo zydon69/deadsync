@@ -56,6 +56,11 @@ impl TickCounts {
         valid_row(row)?;
         Ok(self.values.remove(&row).is_some())
     }
+    pub(super) fn clone_at(&mut self, row: u64, value: i32) -> Result<(), Error> {
+        valid_row(row)?;
+        self.values.insert(row, value);
+        Ok(())
+    }
     pub fn move_node(&mut self, from: u64, to: u64) -> Result<bool, Error> {
         valid_row(from)?;
         valid_row(to)?;

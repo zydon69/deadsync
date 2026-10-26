@@ -614,3 +614,89 @@ fn attack_range_selection_copy_cut_delete_and_select_all_are_atomic_keyboard_ges
     let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
     assert_eq!(read(&reopened).attacks(), read(&s).attacks());
 }
+
+#[test]
+fn mixed_event_clipboard_shortcuts_cross_charts_and_undo_notes_timing_and_attacks_together() {
+    i18n::init_for_tests();
+    fn mixed(s: &mut State, code: KeyCode) {
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::ShiftLeft,
+            pressed: true,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+        ctrl(s, code);
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::ShiftLeft,
+            pressed: false,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+    }
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("mixed.ssc");
+    let source = b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120,4=180;#ATTACKS:TIME=1:LEN=1:MODS=100% Drunk;#NOTES:1000,0200,0300;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Challenge;#METER:10;#BPMS:0=90;#ATTACKS:TIME=0:LEN=1:MODS=100% Reverse;#NOTES:1000;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    press(&mut s, KeyCode::Space);
+    press(&mut s, KeyCode::PageDown);
+    mixed(&mut s, KeyCode::KeyC);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    ctrl(&mut s, KeyCode::Tab);
+    press(&mut s, KeyCode::Home);
+    press(&mut s, KeyCode::PageDown);
+    press(&mut s, KeyCode::PageDown);
+    assert_eq!(s.workspace().row(), 384);
+    mixed(&mut s, KeyCode::KeyV);
+    let session = &s.workspace().file().session;
+    assert_eq!(
+        session.document().text(Some(1), "BPMS").unwrap(),
+        "0=90,8=120,12=180"
+    );
+    let attacks = deadsync_editor::attacks::placement::Timeline::capture(session, 1).unwrap();
+    assert_eq!(
+        attacks.markers().iter().map(|m| m.row).collect::<Vec<_>>(),
+        [0, 480]
+    );
+    let saved = session.serialize().unwrap();
+    let mut parsed = Session::new(Document::parse(saved.clone(), Format::Ssc).unwrap());
+    let position = deadsync_editor::notes::Position {
+        row: 576,
+        lane: 1,
+        player: 0,
+    };
+    assert_eq!(
+        parsed.grid(1).unwrap().get(position).unwrap().end,
+        Some(768)
+    );
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    ctrl(&mut s, KeyCode::KeyY);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), saved);
+    ctrl(&mut s, KeyCode::KeyS);
+    let reopened = State::open_selected(&path, "dance-single", "Challenge", "", 10).unwrap();
+    assert_eq!(
+        reopened.workspace().file().session.serialize().unwrap(),
+        saved
+    );
+    ctrl(&mut s, KeyCode::Tab);
+    press(&mut s, KeyCode::Home);
+    press(&mut s, KeyCode::Space);
+    press(&mut s, KeyCode::PageDown);
+    mixed(&mut s, KeyCode::KeyX);
+    let session = &s.workspace().file().session;
+    assert_eq!(session.document().text(Some(0), "BPMS").unwrap(), "0=120");
+    assert!(
+        deadsync_editor::attacks::placement::Timeline::capture(session, 0)
+            .unwrap()
+            .markers()
+            .is_empty()
+    );
+    let mut parsed =
+        Session::new(Document::parse(session.serialize().unwrap(), Format::Ssc).unwrap());
+    assert_eq!(parsed.grid(0).unwrap().iter().count(), 0);
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), saved);
+}

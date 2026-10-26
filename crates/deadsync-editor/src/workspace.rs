@@ -41,6 +41,9 @@ pub enum Command {
     Copy,
     Cut,
     Paste,
+    CopyEvents,
+    CutEvents,
+    PasteEvents,
     Undo,
     Redo,
     Save,
@@ -65,6 +68,7 @@ pub struct Workspace {
     anchor: Option<u64>,
     auto_advance: bool,
     clipboard: Option<Clipboard>,
+    event_clipboard: Option<crate::event_clipboard::Clipboard>,
     structural_focus: std::collections::BTreeMap<u64, StructuralFocus>,
 }
 
@@ -97,6 +101,7 @@ impl Workspace {
             anchor: None,
             auto_advance: false,
             clipboard: None,
+            event_clipboard: None,
             structural_focus: Default::default(),
         })
     }
@@ -306,6 +311,20 @@ impl Workspace {
             Command::Paste => {
                 if let Some(clipboard) = &self.clipboard {
                     clipboard.paste_force(&mut self.file.session, self.chart, self.row, self.player)?;
+                }
+            }
+            Command::CopyEvents | Command::CutEvents => {
+                let (start, end) = self.selection().unwrap_or((self.row, self.row));
+                let clipboard = if matches!(command, Command::CutEvents) {
+                    crate::event_clipboard::Clipboard::cut(&mut self.file.session, self.chart, start, end)?
+                } else {
+                    crate::event_clipboard::Clipboard::copy(&mut self.file.session, self.chart, start, end)?
+                };
+                if let Some(clipboard) = clipboard { self.event_clipboard = Some(clipboard); }
+            }
+            Command::PasteEvents => {
+                if let Some(clipboard) = &self.event_clipboard {
+                    clipboard.paste(&mut self.file.session, self.chart, self.row, self.player)?;
                 }
             }
             Command::Undo => {

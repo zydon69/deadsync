@@ -12,6 +12,7 @@ pub mod chart_text;
 pub mod chart_creation;
 pub mod chart_deletion;
 pub mod clipboard;
+pub mod event_clipboard;
 pub mod document;
 pub mod display_tempo;
 pub mod generation;

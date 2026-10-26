@@ -379,6 +379,9 @@ impl Session {
     ) -> Result<bool, Error> {
         let grid = self.grid(chart)?.clone();
         let mut temporary = Session::staged(self.document.clone());
+        // Timing transactions may inspect other charts to preserve their attack
+        // positions. They must see those charts' unsaved note edits as well.
+        temporary.grids = self.grids.clone();
         temporary.grids.insert(chart, grid);
         operation(&mut temporary)?;
         let changes: Vec<_> = temporary

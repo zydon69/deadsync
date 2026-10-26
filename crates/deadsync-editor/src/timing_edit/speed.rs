@@ -197,6 +197,11 @@ impl Speeds {
         valid_row(row)?;
         Ok(self.values.remove(&row).is_some())
     }
+    pub(super) fn clone_at(&mut self, row: u64, value: Speed) -> Result<(), Error> {
+        value.validate(row, false)?;
+        self.values.insert(row, value);
+        Ok(())
+    }
     pub fn move_node(&mut self, from: u64, to: u64) -> Result<bool, Error> {
         valid_row(from)?;
         let value = *self

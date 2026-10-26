@@ -40,7 +40,7 @@ reviewable and tested.
 | --- | --- | --- |
 | SM/SSC source preservation | Byte spans and explicit replacements; unknown tags, unchanged chart note data, and legacy metadata bytes preserved | `editing_workflows`, `property_workflows`; broader format corpus still required |
 | Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; Routine/Team participant changes with atomic metadata/history; raw head/tail attribute inspector shipped; typed note-specific suffix forms and StepF2 conventions pending |
-| Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste uses GrooveAuthor ForceAdd conflict rules; attack inspector has an event clipboard; mixed miscellaneous-event clipboard parity remains pending |
+| Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste uses GrooveAuthor ForceAdd conflict rules; attack inspector has an event clipboard; mixed row-range copy/cut/paste includes typed timing and attacks; arbitrary subsets and pattern-event clipboard parity remain pending |
 | Layouts | Reference pad coordinates, starting tiers, ten relationship matrices, mirror/flip mappings | All imported layout definitions validated; original compressed graphs decoded and traversed |
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/row shifts and column shifts with optional wrapping; miscellaneous-event transformations and broader original workflow coverage pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
@@ -5831,3 +5831,59 @@ the staged-reordering scenario, both EN/FR versions were rebuilt and passed agai
 (`/tmp/deadsync-attack-selection-reorder.log`). These checks cover the adapter and
 actor descriptions; physical keyboard/pad and GPU rendering remain unverified
 for this increment.
+
+### Mixed chart selection clipboard (focused validation complete)
+
+The chart adapter exposes Ctrl/Cmd+Shift+C/X/V for the mixed row-range clipboard.
+It copies note heads (including their sustain tails and opaque attributes), timing
+nodes and attack events together. Existing Ctrl/Cmd+C/X/V continues to address
+lane notes; text fields and the attack-inspector clipboard retain their separate
+contexts. Empty mixed selections retain the previously copied batch. The shared
+anchor is the earliest selected event, matching `Editor.OnPaste`, rather than the
+start of an otherwise empty selection rectangle.
+
+`event_clipboard::Clipboard` owns detached snapshots. Timing payloads cover BPM,
+stop, delay, time signature, tick count, combo multiplier, warp, fake, scroll,
+speed and label. They are prepared in typed models and published in one timing
+Target transaction. Pasted notes use the existing ForceAdd conflict planner;
+attacks use their row-based clipboard after the destination clock is final.
+The surrounding `edit_chart_atomic` transaction commits or discards the entire
+operation, including attack re-encoding and metadata, with one undo/redo entry.
+Initial BPM and signature nodes survive cut, while remaining selected events are
+removed. Copying loaded signed tick/combo/speed values and existing label text
+uses cloning semantics, rather than the stricter new-value form validators.
+
+Chart transactions now copy all pending grids into their staging session so
+attack anchoring on a sibling chart sees its unsaved notes. The publication guard
+still rejects another chart's note or structural edits. Timing-only batches can
+cross lane layouts; batches containing notes retain the note-layout constraint.
+SSC-only timing families pasted into SM fail atomically until format conversion
+is implemented. The current attack inspector guard still prevents deleting the
+last chart attack while song attacks would immediately be inherited; the mixed
+cut reports that failure atomically. Chart-scoped empty-attack normalization,
+arbitrary mixed-event subsets, and clipboard C# differential execution remain
+required before claiming complete GrooveAuthor selection/clipboard parity.
+
+The reference behavior was read in pinned `Editor.cs` (`OnCopy`, `OnCut`,
+`OnPaste`) and `ActionPasteEvents`/`EditorChart.ForceAddEventInternal`. Tests cover
+all timing families, note/hold collision effects, attacks inside a warp, exact
+single-gesture undo/redo and reopen, protected starting timing, cross-format and
+row-bound failures preserving redo, layout constraints, signed loaded timing and
+label text, and sibling pending-grid visibility without relaxing mutation scope.
+Native EN/FR tests deliver the mixed shortcut keys across charts and save/reopen.
+
+Focused validation on the final source passed 14 core tests across
+`mixed_event_clipboard_workflows` (6) and `persistent_pattern_workflows` (8),
+including the existing atomic chart transaction failure cases
+(`/tmp/deadsync-mixed-clipboard-final-core.log`). All 65 native tests passed
+across attack events EN/FR (11 each), the text clipboard (6) and the general editor
+screen workflows (37), including the new mixed-keyboard workflow
+(`/tmp/deadsync-mixed-clipboard-native-final.log`). The initial native scenario
+assumed chart switching reset the cursor; it was corrected to explicitly seek
+Home because chart switching deliberately preserves position. No product change
+was made to satisfy that mistaken expectation.
+
+The earlier full core regression was deliberately interrupted after the loaded
+value cloning rules changed; its partial results do not validate the final source.
+A full regression on the final commit remains separate from this focused evidence.
+No physical keyboard/pad/GPU or audible playback validation is claimed here.
