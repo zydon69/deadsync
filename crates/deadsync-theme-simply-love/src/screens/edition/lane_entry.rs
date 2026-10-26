@@ -300,7 +300,7 @@ impl State {
                     partial = true;
                     continue;
                 };
-                match super::hold_render::chart_render(super::hold_render::ChartRequest {
+                match super::hold_render::chart_render_cached(super::hold_render::ChartRequest {
                     layout,
                     row: draft.position.row,
                     lane: draft.position.lane,
@@ -322,7 +322,7 @@ impl State {
                     cutoff: None,
                     size_zoom: self.zoom.size_zoom(),
                     body_budget: strips,
-                }) {
+                }, &self.hold_colors, self.signatures.as_ref()) {
                     Ok(output) => {
                         strips = strips.saturating_sub(output.body_strips);
                         partial |= output.partial;

@@ -149,6 +149,7 @@ impl State {
                     policy.as_ref(),
                     self.reverse_display,
                     self.active_views.as_ref().and_then(|views|views.entries().iter().find(|view|view.source_index()==geometry.source)).and_then(|view|view.selection()),
+                    Some((&self.hold_colors,data.signatures.as_ref())),
                     None,
                 );
                 view_render::cursor(actors, geometry, viewport);

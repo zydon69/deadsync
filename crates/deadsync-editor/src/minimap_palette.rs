@@ -269,7 +269,7 @@ fn equal(a: f32, b: f32) -> bool {
     a - 0.0000001 <= b && a + 0.0000001 >= b
 }
 /// Fumen ColorUtils at0fe292f9: preserve float ordering, radians and epsilon.
-fn desaturate([r, g, b]: Rgb, multiplier: f32) -> Rgb {
+pub(crate) fn desaturate([r, g, b]: Rgb, multiplier: f32) -> Rgb {
     let min = r.min(g).min(b);
     let max = r.max(g).max(b);
     let mut hue = 0.0f32;

@@ -222,6 +222,27 @@ pub struct ChartRequest<'a> {
     pub body_budget: usize,
 }
 pub fn chart_render(r: ChartRequest<'_>) -> Result<Output, &'static str> {
+    let fills = palette::palette(
+        r.layout,
+        r.row,
+        r.lane,
+        r.player,
+        r.selected,
+        r.roll,
+        r.active,
+        palette::Options {
+            multiplayer: matches!(r.layout, "dance-routine" | "pump-routine" | "smx-team"),
+            ..Default::default()
+        },
+    )?;
+    chart_render_colors(r, Colors {head:fills.head,start:fills.start,body:fills.body,cap:fills.cap})
+}
+pub fn chart_render_cached(r: ChartRequest<'_>, palette: &deadsync_editor::note_color_palette::Palette, signatures: Option<&deadsync_editor::timing_edit::signature::Signatures>) -> Result<Output, &'static str> {
+    let row=palette.color_row(r.row,signatures).map_err(|_|"Invalid chart note color phase")?;
+    let fills=palette.fills(r.layout,row,r.lane,r.player as u32,r.selected,r.roll,r.active,true).map_err(|_|"Invalid chart note color palette")?;
+    chart_render_colors(r, Colors {head:fills.head,start:fills.start,body:fills.body,cap:fills.cap})
+}
+fn chart_render_colors(r: ChartRequest<'_>, colors: Colors) -> Result<Output, &'static str> {
     let [left, top, right, bottom] = r.viewport;
     if !r.viewport.iter().all(|n| n.is_finite()) || right <= left || bottom <= top {
         return Err("Invalid hold viewport");
@@ -244,19 +265,6 @@ pub fn chart_render(r: ChartRequest<'_>) -> Result<Output, &'static str> {
     let head_top = r.head_center - top - f64::from(arrow_height) * scale * 0.5;
     let cap_extent = f64::from(cap_height) * scale * if graphic.cap_centered { 0.5 } else { 1.0 };
     let height = r.tail_center - top + cap_extent * if r.reverse { -1.0 } else { 1.0 } - head_top;
-    let fills = palette::palette(
-        r.layout,
-        r.row,
-        r.lane,
-        r.player,
-        r.selected,
-        r.roll,
-        r.active,
-        palette::Options {
-            multiplayer: matches!(r.layout, "dance-routine" | "pump-routine" | "smx-team"),
-            ..Default::default()
-        },
-    )?;
     let mut output = render(Request {
         graphic: &graphic,
         geometry: geometry::Input {
@@ -274,12 +282,7 @@ pub fn chart_render(r: ChartRequest<'_>) -> Result<Output, &'static str> {
         },
         center_x: r.center_x,
         width: r.width,
-        colors: Colors {
-            head: fills.head,
-            start: fills.start,
-            body: fills.body,
-            cap: fills.cap,
-        },
+        colors,
         alpha: deadsync_editor::receptors::alpha(r.size_zoom)
             .map_err(|_| "Invalid hold size alpha")?,
         body_budget: r.body_budget,

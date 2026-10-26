@@ -105,7 +105,10 @@ impl State {
     ) -> Result<(), deadsync_editor::Error> {
         preferences.validate()?;
         let palette = Palette::new(&preferences.colors)?;
-        self.note_colors = Arc::new(preferences);
+        let note_colors=Arc::new(preferences);
+        let hold_colors=deadsync_editor::note_color_palette::Palette::capture(Arc::clone(&note_colors))?;
+        self.note_colors = note_colors;
+        self.hold_colors = hold_colors;
         self.minimap.content.palette = palette;
         self.minimap.content.revision = self.minimap.content.revision.wrapping_add(1);
         self.minimap.content.frames.clear();

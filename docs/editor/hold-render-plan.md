@@ -103,8 +103,8 @@ Routine P1 alone still uses its owner palette, independently of Grid.players().
 The 2 family dispatch and 3 viewport tests prove these source differences and
 compact clipping at top/bottom/left/right, including Pump90 and Solo reverse.
 Sprite crops map world edges back to their rotated local axes while preserving
-the original tile UVs; source geometry oracle cases remain unchanged. Shared NoteColor/Options preferences will be injected through
-media's single core DTO; no second color storage is introduced.
+the original tile UVs; source geometry oracle cases remain unchanged. Shared NoteColor/Options preferences now use the single core DTO and immutable
+Arc; no second color storage is introduced.
 
 ## Selected-player indicator prepared separately
 
@@ -116,8 +116,27 @@ The chart-family gate follows `DefaultNumPlayers > 1`, including Couple and
 Routine independently of currently populated streams. It does not add a badge
 on each note or change the source family palettes.
 
-`edition_player_indicator` has two isolated actor tests prepared; these have not
-yet been run. There is no State hook for this module yet. Earlier owner-colored
+`edition_player_indicator` passed its two isolated actor tests in run 36375. There is no State hook for this module yet. Earlier owner-colored
 placeholder holds provided a native visual distinction for Couple streams;
 source Couple graphics use the ordinary Double palette, so this distinction is
 not claimed as preserved by a nonexistent source per-note marker.
+
+### Shared color cache, connected after checkpoint 03e70e92f
+
+The native bridge uses the single immutable `State.note_colors` Arc for
+both minimap UI colors and large-chart XNA variants. Only installing a new
+validated preference DTO rebuilds the large-chart palette. Per-note rendering
+performs cached lookup and reads the signature phase of its own chart; it does
+not reconstruct the palette or apply minimap byte multipliers.
+
+`LightHolds` is still fixed to the source default `true` in the native runtime.
+The core palette accepts this flag and tests the disabled body/end behavior,
+but no application preference or settings control exposes it yet. The color
+bridge does not claim to add that preference. `HideArrows` remains the existing
+independent cutoff policy.
+
+Four State color scenarios passed in run 58054, and six core cache scenarios
+passed in run 19320. Source fill/rim selection and the actual Space toggle are
+asserted separately; Home retains a selection anchor and does not clear it.
+Hold runtime (3), clipping (3) and lane gestures (5) also passed after connection.
+The selected-player indicator still awaits its native State hook.

@@ -98,8 +98,13 @@ fn stale_unmapped_and_negative_audio_do_not_invent_cursor_progress() {
 #[test]
 fn editing_stops_transport_before_mutating_and_close_stops_without_dirtying_file() {
     let (_dir, mut state) = setup();
+    // Explicit Mine tool retains the legacy immediate edit/transport policy.
+    // Default Tap playing input is covered separately by lane-entry workflows.
+    for _ in 0..3 {key(&mut state, KeyCode::Tab);}
+    assert_eq!(state.workspace().tool(),deadsync_editor::notes::Kind::Mine);
     key(&mut state, KeyCode::Enter);
     key(&mut state, KeyCode::Digit2);
+    state.raw_key(&RawKeyboardEvent {code:KeyCode::Digit2,pressed:false,repeat:false,timestamp:Instant::now(),host_nanos:0});
     let commands = state.take_audio_commands();
     assert!(matches!(
         commands.as_slice(),

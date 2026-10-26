@@ -261,6 +261,7 @@ pub(super) fn notes(
     policy: Option<&super::receptor_views::Policy<'_>>,
     reverse: bool,
     selection: Option<(u64,u64)>,
+    palette: Option<(&deadsync_editor::note_color_palette::Palette,Option<&Signatures>)>,
     pending: Option<&deadsync_editor::lane_entry::Inputs>,
 ) -> NoteRenderStats {
     let mut stats = NoteRenderStats::default();
@@ -315,7 +316,7 @@ pub(super) fn notes(
             if let Some(tail) = note.end {
                 let Some(tail_y) = projection.note_y(tail) else { continue; };
                 let selected = selection.is_some_and(|(a,b)|a<=position.row&&position.row<=b);
-                match super::hold_render::chart_render(super::hold_render::ChartRequest {
+                let request=super::hold_render::ChartRequest {
                     layout,row:position.row,lane:position.lane,player:position.player as usize,
                     selected,roll:note.kind==Kind::Roll,
                     active:presentation.is_some_and(|p|p.active_hold),
@@ -323,7 +324,12 @@ pub(super) fn notes(
                     reverse,viewport:[geometry.clip_left,viewport.top,geometry.clip_right,viewport.bottom],
                     cutoff:presentation.filter(|p|p.clip_hold).map(|_|f64::from(viewport.cursor)),
                     size_zoom:f64::from(size_zoom),body_budget:hold_strips_remaining,
-                }) {
+                };
+                let result=match palette {
+                    Some((palette,signatures))=>super::hold_render::chart_render_cached(request,palette,signatures),
+                    None=>super::hold_render::chart_render(request),
+                };
+                match result {
                     Ok(output)=>{
                         hold_strips_remaining=hold_strips_remaining.saturating_sub(output.body_strips);
                         stats.partial|=output.partial;
@@ -527,6 +533,7 @@ mod tests {
             limit,
             None,
             false,
+            None,
             None,
             None,
         )

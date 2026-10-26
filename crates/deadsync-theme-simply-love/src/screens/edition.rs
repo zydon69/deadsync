@@ -283,6 +283,7 @@ pub struct State {
     end_hint: Option<end_hint::Cache>,
     minimap: minimap::Navigation,
     note_colors: Arc<deadsync_editor::note_color_preferences::Preferences>,
+    hold_colors: deadsync_editor::note_color_palette::Palette,
     scroll_preferences: deadsync_editor::scroll_preferences::Preferences,
     scroll_preferences_draft: Option<deadsync_editor::scroll_preferences::Preferences>,
     audio_preferences: deadsync_editor::audio_preferences::Audio,
@@ -419,6 +420,8 @@ impl State {
             .iter()
             .position(|candidate| *candidate == layout)
             .unwrap_or(0);
+        let note_colors=Arc::new(deadsync_editor::note_color_preferences::Preferences::default());
+        let hold_colors=deadsync_editor::note_color_palette::Palette::capture(Arc::clone(&note_colors))?;
         let mut state = Self {
             spacing_mode: deadsync_editor::zoom::SpacingMode::ConstantRow,
             reverse_display: false,
@@ -436,7 +439,8 @@ impl State {
             lane_input: lane_entry::Runtime::default(),
             end_hint: None,
             minimap: Default::default(),
-            note_colors: Default::default(),
+            note_colors,
+            hold_colors,
             scroll_preferences: Default::default(),
             scroll_preferences_draft: None,
             audio_preferences: Default::default(),
@@ -2691,7 +2695,7 @@ impl State {
         let padding = lane_width * self.zoom.size_zoom() as f32;
         let note_ranges = projection.visible_ranges(top-padding,bottom+padding,last_row).unwrap_or_else(|_|ranges.clone());
         let draft_budget=self.lane_entry_overlay_budget();
-        let mut stats = view_render::notes(actors, grid, layout, &projection, geometry, viewport, &note_ranges, self.zoom.size_zoom() as f32, self.view_note_budget().saturating_sub(draft_budget), policy.as_ref(), self.reverse_display, selection, self.lane_entry_model());
+        let mut stats = view_render::notes(actors, grid, layout, &projection, geometry, viewport, &note_ranges, self.zoom.size_zoom() as f32, self.view_note_budget().saturating_sub(draft_budget), policy.as_ref(), self.reverse_display, selection, Some((&self.hold_colors,self.signatures.as_ref())), self.lane_entry_model());
         stats.partial|=self.lane_entry_actors(actors,&projection,geometry,viewport,draft_budget);
         view_render::cursor(actors, geometry, viewport);
         view_render::partial_notice(actors, geometry, viewport, stats);

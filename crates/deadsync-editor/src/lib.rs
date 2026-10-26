@@ -106,3 +106,5 @@ pub mod lane_entry;
 pub mod note_color_preferences;
 
 pub mod minimap_pattern_region;
+
+pub mod note_color_palette;
