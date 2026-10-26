@@ -1314,8 +1314,11 @@ impl State {
     }
 
     fn apply_dialog_transform(&mut self, transform: deadsync_editor::transform::Transform, applied: &str, unchanged: &str, failed: &str) {
+        self.apply_dialog_operation(|workspace| workspace.execute(Command::Transform(transform)), applied, unchanged, failed);
+    }
+    fn apply_dialog_operation(&mut self, operation: impl FnOnce(&mut Workspace) -> Result<(), deadsync_editor::Error>, applied: &str, unchanged: &str, failed: &str) {
         let revision = self.workspace.file().session.revision();
-        match self.workspace.execute(Command::Transform(transform)) {
+        match operation(&mut self.workspace) {
             Ok(()) if self.workspace.file().session.revision() == revision => self.status = i18n::tr("Edition", unchanged),
             Ok(()) => { self.panel = None; self.status = i18n::tr("Edition", applied); }
             Err(_) => self.status = i18n::tr("Edition", failed),
@@ -2155,6 +2158,7 @@ impl State {
                     self.panel = None;
                     if matches!(panel, Panel::Transforms(_)) {
                         if index == 10 {
+                            self.note_owners.count = self.workspace.grid().players();
                             self.note_owners.a = self.workspace.player();
                             self.note_owners.b = (self.workspace.player() + 1) % self.workspace.grid().players();
                             self.panel = Some(Panel::NoteOwners(0));
@@ -2641,7 +2645,7 @@ impl State {
                 "MarkerNext",
                 "MarkerProfiles",
             ],
-            Panel::NoteOwners(_) => &["NoteOwnersMode", "NoteOwnersA", "NoteOwnersB", "NoteOwnersApply", "KeepEditing"],
+            Panel::NoteOwners(_) => &["NoteOwnersMode", "NoteOwnersA", "NoteOwnersB", "NoteOwnersCount", "NoteOwnersApply", "KeepEditing"],
             Panel::NoteConversion(_) => &["NoteConversionFrom", "NoteConversionTo", "NoteConversionDuration", "NoteConversionApply", "KeepEditing"],
             Panel::ConversionProfiles(_) => &[
                 "GenerationPerformedProfile",

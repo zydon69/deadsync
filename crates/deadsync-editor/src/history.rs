@@ -23,6 +23,7 @@ struct DocumentState {
 #[derive(Debug)]
 enum Change {
     Group(Vec<Change>),
+    PlayerCount { chart: usize, before: u32, after: u32 },
     ProfileDeletion {
         source: Box<crate::generation::profiles::ProfileFile>,
         deleted: Option<crate::generation::profiles::DeletedProfile>,
@@ -173,7 +174,12 @@ impl Session {
                     descriptor.steps_type
                 ))
             })?;
-            let grid = Grid::parse(self.document.value(descriptor.notes.clone()), columns)?;
+            let mut grid = Grid::parse(self.document.value(descriptor.notes.clone()), columns)?;
+            if crate::notes::supports_variable_players(&descriptor.steps_type) {
+                if let Ok(Some(metadata)) = crate::generation::metadata::ChartData::read(&self.document, chart) {
+                    grid.set_players(grid.players().max(metadata.max_player_index + 1))?;
+                }
+            }
             self.grids.insert(chart, grid);
         }
         Ok(&self.grids[&chart])
@@ -368,7 +374,7 @@ impl Session {
         fn allowed(change: &Change, chart: usize) -> bool {
             match change {
                 Change::DocumentSwap(_) | Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } => false,
-                Change::Notes { chart: target, .. } => *target == chart,
+                Change::Notes { chart: target, .. } | Change::PlayerCount { chart: target, .. } => *target == chart,
                 Change::Group(changes) => changes.iter().all(|change| allowed(change, chart)),
                 _ => true,
             }
@@ -387,6 +393,27 @@ impl Session {
 
     /// Create a profile as one disk-only gesture in global history.
     /// Existing library identities and destination files remain protected.
+    pub fn set_participants(&mut self, chart: usize, requested: u32) -> Result<bool, Error> {
+        let layout = self.document.charts().get(chart)
+            .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?.steps_type.clone();
+        let grid = self.grid(chart)?;
+        let before = grid.players();
+        let after = requested.max(grid.minimum_players()).max(1);
+        if before == after { return Ok(false); }
+        if !crate::notes::supports_variable_players(&layout) {
+            return Err(Error::Unsupported("This chart type has a fixed participant count".into()));
+        }
+        grid.validate_players(after)?;
+        let mut metadata = crate::generation::metadata::ChartData::existing_or_initial(&self.document, chart)?;
+        metadata.max_player_index = after - 1;
+        let mut staged = Session::staged(self.document.clone());
+        metadata.save(&mut staged, chart)?;
+        let mut changes: Vec<_> = staged.undo.into_iter().map(|entry| entry.change).collect();
+        changes.push(Change::PlayerCount { chart, before, after });
+        self.execute("Change chart participants".into(), Change::Group(changes))?;
+        Ok(true)
+    }
+
     pub fn create_profile(&mut self, directory: &std::path::Path, profile: &crate::generation::profiles::Profile) -> Result<std::path::PathBuf, Error> {
         if !self.allows_external_edits {
             return Err(Error::InvalidEdit("Staged chart edits cannot create profile files".into()));
@@ -787,6 +814,10 @@ impl Session {
                 }
                 Ok(())
             }
+            Change::PlayerCount { chart, before, after } => {
+                self.grid(*chart)?;
+                self.grids.get_mut(chart).unwrap().set_players(if forward { *after } else { *before })
+            }
             Change::DocumentSwap(state) => {
                 std::mem::swap(&mut self.document, &mut state.document);
                 std::mem::swap(&mut self.grids, &mut state.grids);
@@ -856,7 +887,7 @@ impl Session {
         // Merely viewing a chart must never change its source formatting.
         fn collect(change: &Change, charts: &mut std::collections::BTreeSet<usize>) {
             match change {
-                Change::Notes { chart, .. } => {
+                Change::Notes { chart, .. } | Change::PlayerCount { chart, .. } => {
                     charts.insert(*chart);
                 }
                 Change::Group(changes) => {

@@ -75,6 +75,7 @@ fn keyboard_assigns_and_swaps_routine_players_with_cancel_undo_save_and_reopen()
     press(&mut s, KeyCode::ArrowRight);
     press(&mut s, KeyCode::ArrowDown);
     press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::ArrowDown);
     press(&mut s, KeyCode::Enter);
     assert!(s.workspace().grid().get(p(0, 0)).is_none());
     assert_eq!(s.workspace().grid().get(p(0, 1)).unwrap().end, Some(96));
@@ -83,7 +84,7 @@ fn keyboard_assigns_and_swaps_routine_players_with_cancel_undo_save_and_reopen()
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
     open_owners(&mut s);
     press(&mut s, KeyCode::ArrowRight);
-    for _ in 0..3 {
+    for _ in 0..4 {
         press(&mut s, KeyCode::ArrowDown);
     }
     press(&mut s, KeyCode::Enter);
@@ -101,4 +102,90 @@ fn keyboard_assigns_and_swaps_routine_players_with_cancel_undo_save_and_reopen()
         Some(96)
     );
     assert!(reopened.workspace().grid().get(p(4, 0)).is_some());
+}
+
+#[test]
+fn adding_a_participant_and_assigning_notes_is_one_undoable_saved_operation() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source=b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-routine;#DIFFICULTY:Hard;#METER:9;#NOTES:20000000\n00000000\n30000000\n00000000\n&\n00001000\n00000000\n00000000\n00000000;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-routine", "Hard", "", 9).unwrap();
+    open_owners(&mut s);
+    for _ in 0..3 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    press(&mut s, KeyCode::ArrowRight);
+    press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::ArrowRight);
+    press(&mut s, KeyCode::ArrowRight);
+    for _ in 0..3 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    press(&mut s, KeyCode::Enter);
+    let p = Position {
+        row: 0,
+        lane: 0,
+        player: 2,
+    };
+    assert_eq!(s.workspace().grid().players(), 3);
+    assert_eq!(s.workspace().grid().get(p).unwrap().end, Some(96));
+    let metadata = deadsync_editor::generation::metadata::ChartData::read(
+        s.workspace().file().session.document(),
+        0,
+    )
+    .unwrap()
+    .unwrap();
+    assert_eq!(metadata.max_player_index, 2);
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().grid().players(), 2);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    ctrl(&mut s, KeyCode::KeyY);
+    ctrl(&mut s, KeyCode::KeyS);
+    let reopened = State::open_selected(&path, "dance-routine", "Hard", "", 9).unwrap();
+    assert_eq!(reopened.workspace().grid().players(), 3);
+    assert_eq!(reopened.workspace().grid().get(p).unwrap().end, Some(96));
+}
+
+#[test]
+fn adding_an_empty_participant_does_not_reassign_existing_notes() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source=b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-routine;#DIFFICULTY:Hard;#METER:9;#NOTES:10000000\n&\n00001000;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-routine", "Hard", "", 9).unwrap();
+    open_owners(&mut s);
+    press(&mut s, KeyCode::ArrowLeft);
+    for _ in 0..3 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    press(&mut s, KeyCode::ArrowRight);
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::Enter);
+    let p = |lane, player| Position {
+        row: 0,
+        lane,
+        player,
+    };
+    assert_eq!(s.workspace().grid().players(), 3);
+    assert!(s.workspace().grid().get(p(0, 0)).is_some());
+    assert!(s.workspace().grid().get(p(4, 1)).is_some());
+    assert!(!s.workspace().grid().iter().any(|(pos, _)| pos.player == 2));
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    ctrl(&mut s, KeyCode::KeyY);
+    ctrl(&mut s, KeyCode::KeyS);
+    let reopened = State::open_selected(&path, "dance-routine", "Hard", "", 9).unwrap();
+    assert_eq!(reopened.workspace().grid().players(), 3);
+    assert!(reopened.workspace().grid().get(p(0, 0)).is_some());
+    assert!(reopened.workspace().grid().get(p(4, 1)).is_some());
 }

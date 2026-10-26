@@ -101,6 +101,24 @@ impl Workspace {
         })
     }
 
+    pub fn change_note_owners(&mut self, count: u32, transform: crate::transform::Transform) -> Result<bool, Error> {
+        let chart = self.chart;
+        let (start, end) = self.selection().unwrap_or((self.row, self.row));
+        let changed = self.file.session.edit_chart_atomic(chart, "Change note players", |staged| {
+            staged.set_participants(chart, count)?;
+            crate::transform::apply(staged, chart, start, end, None, transform)?;
+            Ok(())
+        })?;
+        self.sync_active_chart()?;
+        Ok(changed)
+    }
+
+    pub fn set_participants(&mut self, count: u32) -> Result<bool, Error> {
+        let changed = self.file.session.set_participants(self.chart, count)?;
+        self.sync_active_chart()?;
+        Ok(changed)
+    }
+
     pub fn create_profile(&mut self, directory: &Path, profile: &crate::generation::profiles::Profile) -> Result<std::path::PathBuf, Error> {
         self.file.session.create_profile(directory, profile)
     }

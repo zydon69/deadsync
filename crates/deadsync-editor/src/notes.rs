@@ -135,6 +135,24 @@ impl Grid {
             .unwrap_or(0)
     }
 
+    pub fn minimum_players(&self) -> u32 {
+        self.tracks.last_key_value().map_or(1, |(&(player, _), _)| player + 1)
+    }
+    pub(crate) fn validate_players(&self, count: u32) -> Result<(), Error> {
+        if count == 0 || count < self.minimum_players() || count > i32::MAX as u32 {
+            return Err(Error::InvalidEdit("Participant count cannot discard existing note owners".into()));
+        }
+        let minimum_bytes = u64::from(count) * (4 * (u64::from(self.columns) + 1) + 3) - 2;
+        if minimum_bytes > MAX_SERIALIZED_BYTES as u64 {
+            return Err(Error::InvalidEdit("Serialized note data exceeds 128 MiB".into()));
+        }
+        Ok(())
+    }
+    pub(crate) fn set_players(&mut self, count: u32) -> Result<(), Error> {
+        self.validate_players(count)?;
+        self.players = count;
+        Ok(())
+    }
     pub fn players(&self) -> u32 {
         self.players
     }
@@ -396,7 +414,10 @@ impl Grid {
                 output.push_str("\n&\n");
             }
             let mut rows: BTreeMap<u64, BTreeMap<u16, String>> = BTreeMap::new();
-            for (pos, note) in self.iter().filter(|(pos, _)| pos.player == player) {
+            let notes = self.tracks.range((player, 0)..=(player, u16::MAX))
+                .flat_map(|(&(owner, lane), track)| track.iter().map(move |(&row, note)|
+                    (Position { player: owner, lane, row }, note)));
+            for (pos, note) in notes {
                 rows.entry(pos.row)
                     .or_default()
                     .insert(pos.lane, format!("{}{}", note.symbol(), note.attributes));
@@ -544,6 +565,11 @@ fn tokens(line: &str) -> Result<Vec<(char, &str)>, Error> {
 
 /// Layout inventory follows GrooveAuthor/Fumen chart identifiers. Editing a
 /// layout does not imply that DeadSync can play that layout.
+/// Fumen SMCommon.ChartProperties variable-participant chart families.
+pub fn supports_variable_players(layout: &str) -> bool {
+    matches!(layout, "dance-routine" | "pump-routine" | "smx-team")
+}
+
 pub fn layout_columns(steps_type: &str) -> Option<u16> {
     Some(match steps_type {
         "dance-single" | "pump-halfdouble" => {

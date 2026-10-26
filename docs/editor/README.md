@@ -39,7 +39,7 @@ reviewable and tested.
 | Domain | Rust implementation | Evidence / remaining work |
 | --- | --- | --- |
 | SM/SSC source preservation | Byte spans and explicit replacements; unknown tags, unchanged chart note data, and legacy metadata bytes preserved | `editing_workflows`, `property_workflows`; broader format corpus still required |
-| Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; attribute inspector, new participants, StepF2 conventions pending |
+| Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; Routine/Team participant changes with atomic metadata/history; attribute inspector and StepF2 conventions pending |
 | Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste now uses GrooveAuthor ForceAdd conflict rules; miscellaneous-event clipboard parity remains pending |
 | Layouts | Reference pad coordinates, starting tiers, ten relationship matrices, mirror/flip mappings | All imported layout definitions validated; original compressed graphs decoded and traversed |
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/row shifts and column shifts with optional wrapping; broader GrooveAuthor transformations pending |
@@ -5313,3 +5313,46 @@ Validation: all 57 native editor integration targets passed (282 tests) in
 and sustain-conversion suites passed 10 tests in `/tmp/deadsync-note-owners-core.log`.
 Theme compilation check passed in `/tmp/deadsync-note-owners-check.log`.
 Commands used `--jobs 2 --locked`.
+
+### Add/remove empty participants with atomic ownership changes
+
+The note-player panel now includes participant count and a third operation,
+Change participant count only. It can add an empty participant without reassigning
+notes, or combine count and assignment/exchange in one global undo gesture.
+The count is variable only for dance-routine, pump-routine and smx-team, following
+Fumen SMCommon.ChartProperties and EditorChart.MaxPlayers. Reductions clamp to at
+least one participant and the highest owner with notes; existing owned notes are
+never silently removed. Fixed-player chart types refuse count changes.
+
+`Session::set_participants` stores participant count and MaxPlayerIndex metadata
+in one history group, preserves pending note edits, and explicitly marks the chart
+for note serialization so empty trailing participant blocks survive SM/SSC save
+and reopen. A count-only history variant avoids copying whole grids into undo.
+Valid metadata-declared empty participants are honored when loading variable-player
+charts, without rewriting source bytes merely on view. Invalid/future metadata
+retains the existing independent metadata-validation behavior.
+
+`Workspace::change_note_owners` stages count and ownership edits through the same
+chart transaction. A collision while assigning notes cancels both changes and
+leaves metadata/history intact. Undo removes newly assigned notes before restoring
+the previous count; active-player focus is clamped safely when the count decreases.
+Oversized requests are refused using the existing metadata/128-MiB serialization
+bounds before publishing changes. Serialization queries each owner's tracks
+rather than rescanning all notes for every empty participant.
+
+Core tests exercise all three variable-player chart types in SM and SSC, empty
+participant save/reopen, metadata, exact undo/redo, safe reduction, metadata-only
+participant declarations without source rewriting, invalid/oversized requests,
+fixed-player refusal, combined ownership rollback and active-player clamping.
+English/French native workflows cover adding a third participant with selected-note
+assignment, one-step undo/redo and save/reopen, plus count-only addition preserving
+existing owners. The existing assignment/swap and conversion repair workflows also
+pass with the expanded panel/shared operation helper. StepF2-specific encoding,
+broader participant attributes and physical app/GPU review remain outstanding.
+
+
+Validation: all 57 native editor integration targets passed (286 tests) in
+`/tmp/deadsync-participant-count-all-native.log`; five selected core participant,
+owner, metadata, editing and selection suites passed 35 tests in
+`/tmp/deadsync-participant-count-core.log`. Theme compilation check passed in
+`/tmp/deadsync-participant-count-check.log`. Commands used `--jobs 2 --locked`.
