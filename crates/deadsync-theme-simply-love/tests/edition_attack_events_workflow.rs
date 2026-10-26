@@ -505,3 +505,112 @@ fn attack_event_clipboard_crosses_charts_with_destination_clock_conflicts_and_on
     action(&mut s, 12);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), pasted);
 }
+
+#[test]
+fn attack_range_selection_copy_cut_delete_and_select_all_are_atomic_keyboard_gestures() {
+    i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    fn extend(s: &mut State, code: KeyCode) {
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::ShiftLeft,
+            pressed: true,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+        press(s, code);
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::ShiftLeft,
+            pressed: false,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+    }
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("range.sm");
+    let source = b"#BPMS:0=120;#ATTACKS:TIME=0:LEN=1:MODS=100% Dizzy:TIME=1:LEN=2:MODS=50% Drunk:TIME=2:LEN=3:MODS=100% Reverse;#NOTES:dance-single::Hard:9::1000,0100;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    open(&mut s);
+    row(&mut s, 1);
+    ctrl(&mut s, KeyCode::KeyV); // Empty clipboard must leave the draft intact.
+    extend(&mut s, KeyCode::ArrowRight);
+    extend(&mut s, KeyCode::ArrowRight);
+    extend(&mut s, KeyCode::ArrowLeft); // Shrink back to the first two attacks.
+    let mut actors = Vec::new();
+    s.actors(&mut actors);
+    assert!(actors.iter().any(|a| matches!(a, deadlib_present::actors::Actor::Text { content, .. } if content.contains("[2 selected]"))));
+    ctrl(&mut s, KeyCode::KeyC);
+    press(&mut s, KeyCode::Escape);
+    press(&mut s, KeyCode::PageDown);
+    assert_eq!(s.workspace().row(), 192);
+    open(&mut s);
+    row(&mut s, 1);
+    ctrl(&mut s, KeyCode::KeyV);
+    action(&mut s, 12);
+    let placed =
+        deadsync_editor::attacks::placement::Timeline::capture(&s.workspace().file().session, 0)
+            .unwrap();
+    assert_eq!(
+        placed.markers().iter().map(|m| m.row).collect::<Vec<_>>(),
+        [0, 96, 192, 288]
+    );
+    assert_eq!(placed.markers()[2].modifiers[0].name, "Dizzy");
+    assert_eq!(placed.markers()[3].modifiers[0].name, "Drunk");
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    open(&mut s);
+    row(&mut s, 1);
+    extend(&mut s, KeyCode::ArrowRight);
+    ctrl(&mut s, KeyCode::KeyX);
+    action(&mut s, 12);
+    assert_eq!(read(&s).attacks().events().len(), 1);
+    assert_eq!(read(&s).attacks().events()[0].modifiers[0].name, "Reverse");
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    open(&mut s);
+    row(&mut s, 1);
+    ctrl(&mut s, KeyCode::KeyA);
+    action(&mut s, 11);
+    action(&mut s, 12);
+    assert!(read(&s).attacks().events().is_empty());
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    // A staged time edit may reorder the focused event; selection follows it.
+    open(&mut s);
+    row(&mut s, 1);
+    extend(&mut s, KeyCode::ArrowRight);
+    field(&mut s, 3, "3");
+    row(&mut s, 1);
+    ctrl(&mut s, KeyCode::KeyC);
+    press(&mut s, KeyCode::Escape);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    open(&mut s);
+    row(&mut s, 1);
+    ctrl(&mut s, KeyCode::KeyV);
+    action(&mut s, 12);
+    let placed =
+        deadsync_editor::attacks::placement::Timeline::capture(&s.workspace().file().session, 0)
+            .unwrap();
+    assert_eq!(
+        placed.markers().iter().map(|m| m.row).collect::<Vec<_>>(),
+        [0, 96, 192, 480]
+    );
+    assert_eq!(placed.markers()[3].modifiers[0].name, "Drunk");
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    // An ordinary navigation step replaces the range with the focused event.
+    open(&mut s);
+    row(&mut s, 1);
+    ctrl(&mut s, KeyCode::KeyA);
+    press(&mut s, KeyCode::ArrowRight);
+    ctrl(&mut s, KeyCode::KeyX);
+    action(&mut s, 12);
+    assert_eq!(read(&s).attacks().events().len(), 2);
+    ctrl(&mut s, KeyCode::KeyS);
+    let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    assert_eq!(read(&reopened).attacks(), read(&s).attacks());
+}

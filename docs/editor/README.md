@@ -5773,8 +5773,8 @@ modifier durations/levels/speeds. Destination times are recomputed from its cloc
 source seconds are not transferred. An attack at a destination row is replaced,
 while notes and other event types remain untouched. A whole batch is validated
 before publication, and an out-of-bounds or clock failure leaves it unchanged.
-The public core API supports multiple selected attacks; the native inspector
-currently exposes its one selected event. Mixed note/timing/attack selection and
+The public core API supports multiple selected attacks; native multi-selection
+was added in the next increment below. Mixed note/timing/attack selection and
 the general miscellaneous-event clipboard are still pending.
 
 The reference rules were checked in the pinned
@@ -5797,3 +5797,37 @@ The extra warp case was added after the first core invocation and rerun in
 `edition_clipboard_workflow` (`/tmp/deadsync-attack-clipboard-native.log`). This
 is targeted verification for this increment, not a new complete editor regression
 or physical-input/GPU validation.
+
+### Native attack range selection and atomic batch cut
+
+On the attack-event selector, Shift+Left/Right extends or shrinks an inclusive
+range from its anchor without wrapping. Plain Left/Right selects only the newly
+focused attack. Ctrl/Cmd+A selects every attack in the current inspector scope.
+The selector displays a localized selected count. Copy, cut and the delete action
+operate on that selection; paste selects the resulting batch. Text fields retain
+their text-selection shortcuts. Closing the panel discards the selection but keeps
+the detached event clipboard. Moving a selected event through a staged time edit
+or F2 preserves its membership even if its sorted index changes.
+
+`Draft::remove_events` validates every index before mutating anything, deduplicates
+repeated indices, and recomputes the destination clock once for the batch.
+Cut/delete/apply and undo/redo retain the inspector's one-gesture history contract.
+The new statuses explicitly describe the internal editor clipboard instead of
+claiming that it is the system clipboard.
+
+Public tests cover invalid-index atomicity, repeated/empty selections, preserving
+gaps in a cut/paste batch and exact SM/SSC save/reopen/undo/redo. Native EN/FR tests
+cover growing/shrinking a range, its rendered count, batch copy/paste with a
+conflict, cut/apply/undo, select-all/delete/undo, ordinary navigation resetting the
+selection, save/reopen and selection following a staged event reordering. Mixed
+note/timing/attack selection in the chart and general timing-event clipboard
+support remain required.
+
+Focused verification passed 10 core tests across the three attack clipboard,
+inspector and lifecycle suites (`/tmp/deadsync-attack-selection-core.log`), and
+26 native tests across attack events EN/FR and the existing text clipboard suite
+(`/tmp/deadsync-attack-selection-native.log`). After extending the range test with
+the staged-reordering scenario, both EN/FR versions were rebuilt and passed again
+(`/tmp/deadsync-attack-selection-reorder.log`). These checks cover the adapter and
+actor descriptions; physical keyboard/pad and GPU rendering remain unverified
+for this increment.

@@ -133,3 +133,50 @@ fn pasted_empty_and_nonempty_events_keep_distinct_rows_inside_a_destination_warp
     target.redo().unwrap();
     assert_eq!(target.serialize().unwrap(), saved);
 }
+
+#[test]
+fn batch_cut_is_atomic_deduplicates_selection_and_keeps_relative_gaps_on_paste() {
+    for format in [Format::Sm, Format::Ssc] {
+        let mut target = session(format, 120);
+        let mut draft = Draft::capture(&target, 0, scope(format)).unwrap();
+        for row in [0, 48, 96] {
+            draft.add(row, Modifier::default()).unwrap();
+        }
+        draft.apply(&mut target, 0).unwrap();
+        let before = target.serialize().unwrap();
+        let mut draft = Draft::capture(&target, 0, scope(format)).unwrap();
+        let clip = draft.copy_events(&[2, 0, 0]).unwrap();
+        let initial = draft.attacks().events().to_vec();
+        assert!(draft.remove_events(&[0, 3]).is_err());
+        assert_eq!(draft.attacks().events(), initial);
+        draft.remove_events(&[]).unwrap();
+        assert_eq!(draft.attacks().events(), initial);
+        draft.remove_events(&[2, 0, 0]).unwrap();
+        assert_eq!(
+            draft
+                .attacks()
+                .events()
+                .iter()
+                .map(|e| e.row)
+                .collect::<Vec<_>>(),
+            [48]
+        );
+        draft.paste_events(&clip, 192).unwrap();
+        draft.apply(&mut target, 0).unwrap();
+        let after = target.serialize().unwrap();
+        let reopened = Session::new(Document::parse(after.clone(), format).unwrap());
+        assert_eq!(
+            Timeline::capture(&reopened, 0)
+                .unwrap()
+                .markers()
+                .iter()
+                .map(|e| e.row)
+                .collect::<Vec<_>>(),
+            [48, 192, 288]
+        );
+        target.undo().unwrap();
+        assert_eq!(target.serialize().unwrap(), before);
+        target.redo().unwrap();
+        assert_eq!(target.serialize().unwrap(), after);
+    }
+}

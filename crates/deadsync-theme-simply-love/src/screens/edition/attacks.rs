@@ -18,6 +18,8 @@ pub(super) struct Settings {
     draft: Draft,
     event: usize,
     modifier: usize,
+    selected: std::collections::BTreeSet<u64>,
+    anchor: Option<u64>,
     pub fields: [String; 5],
 }
 impl Settings {
@@ -26,6 +28,8 @@ impl Settings {
             draft,
             event: 0,
             modifier: 0,
+            selected: Default::default(),
+            anchor: None,
             fields: Default::default(),
         };
         s.load();
@@ -76,7 +80,9 @@ impl Settings {
         let time = self.fields[0]
             .parse::<f64>()
             .map_err(|_| Error::InvalidEdit("Invalid attack number".into()))?;
+        let old = self.draft.start_row(self.event)?;
         self.event = self.draft.set_time(self.event, time)?;
+        self.moved_selection(old);
         self.fields[0] = self.draft.attacks().events()[self.event].time.to_string();
         Ok(())
     }
@@ -103,11 +109,55 @@ impl Settings {
         let time = self.fields[0]
             .parse::<f64>()
             .map_err(|_| Error::InvalidEdit("Invalid attack number".into()))?;
+        let old = self.draft.start_row(self.event)?;
         self.event = self
             .draft
             .set(self.event, self.modifier, time, self.modifier_value()?)?;
+        self.moved_selection(old);
         self.fields[0] = self.draft.attacks().events()[self.event].time.to_string();
         Ok(())
+    }
+    fn selected_indices(&self) -> Vec<usize> {
+        if self.selected.is_empty() {
+            return if self.has_event() {
+                vec![self.event]
+            } else {
+                Vec::new()
+            };
+        }
+        let selected: Vec<_> = self
+            .draft
+            .attacks()
+            .events()
+            .iter()
+            .enumerate()
+            .filter_map(|(index, event)| self.selected.contains(&event.row).then_some(index))
+            .collect();
+        if selected.is_empty() && self.has_event() {
+            vec![self.event]
+        } else {
+            selected
+        }
+    }
+    fn clear_selection(&mut self) {
+        self.selected.clear();
+        self.anchor = None;
+    }
+    fn selected_count(&self) -> usize {
+        if self.selected.is_empty() {
+            usize::from(self.has_event())
+        } else {
+            self.selected.len()
+        }
+    }
+    fn moved_selection(&mut self, old: u64) {
+        let row = self.draft.attacks().events()[self.event].row;
+        if self.selected.remove(&old) {
+            self.selected.insert(row);
+        }
+        if self.anchor == Some(old) {
+            self.anchor = Some(row);
+        }
     }
     fn clamp(&mut self) {
         self.event = self
@@ -127,6 +177,7 @@ impl State {
     pub(super) fn select_attack_source(&mut self, index: usize) {
         if let Some(settings) = &mut self.attacks {
             if let Some(event) = settings.draft.event_for_source(index) {
+                settings.clear_selection();
                 settings.event = event;
                 settings.modifier = 0;
                 settings.load();
@@ -150,6 +201,24 @@ impl State {
         }
     }
     pub(super) fn attacks_key(&mut self, index: usize, code: KeyCode) {
+        if index == 1 && self.control && code == KeyCode::KeyA {
+            if let Some(settings) = &mut self.attacks {
+                if settings.commit().is_err() {
+                    self.status = i18n::tr("Edition", "AttacksInvalid");
+                    return;
+                }
+                settings.selected = settings
+                    .draft
+                    .attacks()
+                    .events()
+                    .iter()
+                    .map(|e| e.row)
+                    .collect();
+                settings.anchor = settings.draft.attacks().events().first().map(|e| e.row);
+            }
+            self.status = i18n::tr("Edition", "AttackSelectionHelp");
+            return;
+        }
         // Event clipboard is internal to this editor, like the lane-note clipboard.
         // Text fields retain their existing OS clipboard behavior.
         if index == 1
@@ -161,7 +230,7 @@ impl State {
             };
             let result = (|| -> Result<&str, Error> {
                 if code == KeyCode::KeyV && self.attack_clipboard.is_none() {
-                    return Ok("ClipboardNoText");
+                    return Ok("AttackClipboardEmpty");
                 }
                 settings.commit()?;
                 if code == KeyCode::KeyV {
@@ -171,21 +240,28 @@ impl State {
                             .expect("Clipboard checked above"),
                         self.workspace.row(),
                     )?;
+                    settings.selected = events
+                        .iter()
+                        .map(|&index| settings.draft.attacks().events()[index].row)
+                        .collect();
+                    settings.anchor = settings.selected.first().copied();
                     settings.event = events[0];
                     settings.modifier = 0;
                     settings.load();
-                    Ok("ClipboardPasted")
+                    Ok("AttackEventsPasted")
                 } else {
-                    let copied = settings.draft.copy_events(&[settings.event])?;
+                    let indices = settings.selected_indices();
+                    let copied = settings.draft.copy_events(&indices)?;
                     if code == KeyCode::KeyX {
-                        settings.draft.remove(settings.event)?;
+                        settings.draft.remove_events(&indices)?;
+                        settings.clear_selection();
                         settings.clamp();
                     }
                     self.attack_clipboard = Some(copied);
                     Ok(if code == KeyCode::KeyX {
-                        "ClipboardCut"
+                        "AttackEventsCut"
                     } else {
-                        "ClipboardCopied"
+                        "AttackEventsCopied"
                     })
                 }
             })();
@@ -212,6 +288,7 @@ impl State {
                     settings.commit()?;
                 }
                 if code == KeyCode::F2 {
+                    let old = settings.draft.start_row(settings.event)?;
                     settings.event = if settings.editable() {
                         settings.draft.set_at_row(
                             settings.event,
@@ -224,6 +301,7 @@ impl State {
                             .draft
                             .move_to_row(settings.event, self.workspace.row())?
                     };
+                    settings.moved_selection(old);
                     settings.load();
                 } else if code == KeyCode::F3 {
                     settings.fields[4] = settings
@@ -328,8 +406,30 @@ impl State {
                 1 => {
                     let count = settings.draft.attacks().events().len();
                     if count > 0 {
-                        settings.event =
-                            (settings.event + if forward { 1 } else { count - 1 }) % count;
+                        let old = settings.draft.attacks().events()[settings.event].row;
+                        settings.event = if self.shift {
+                            if forward {
+                                (settings.event + 1).min(count - 1)
+                            } else {
+                                settings.event.saturating_sub(1)
+                            }
+                        } else {
+                            (settings.event + if forward { 1 } else { count - 1 }) % count
+                        };
+                        if self.shift {
+                            let anchor = *settings.anchor.get_or_insert(old);
+                            let end = settings.draft.attacks().events()[settings.event].row;
+                            settings.selected = settings
+                                .draft
+                                .attacks()
+                                .events()
+                                .iter()
+                                .filter(|e| (anchor.min(end)..=anchor.max(end)).contains(&e.row))
+                                .map(|e| e.row)
+                                .collect();
+                        } else {
+                            settings.clear_selection();
+                        }
                         settings.modifier = 0;
                         settings.load();
                     }
@@ -376,11 +476,13 @@ impl State {
                         ..Modifier::default()
                     };
                     settings.event = settings.draft.add(row, modifier)?;
+                    settings.clear_selection();
                     settings.modifier = 0;
                     settings.load();
                 }
                 11 if code == KeyCode::Enter => {
-                    settings.draft.remove(settings.event)?;
+                    settings.draft.remove_events(&settings.selected_indices())?;
+                    settings.clear_selection();
                     settings.modifier = 0;
                     settings.clamp();
                 }
@@ -461,6 +563,19 @@ impl State {
                 )
             }
             _ => return i18n::tr("Edition", key),
+        };
+        let value = if index == 1 && settings.selected_count() > 1 {
+            i18n::tr_fmt(
+                "Edition",
+                "AttackSelectedCount",
+                &[
+                    ("value", &value),
+                    ("count", &settings.selected_count().to_string()),
+                ],
+            )
+            .to_string()
+        } else {
+            value
         };
         i18n::tr_fmt("Edition", key, &[("value", &value)])
     }

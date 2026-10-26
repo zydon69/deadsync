@@ -331,11 +331,22 @@ impl Draft {
         Ok(())
     }
     pub fn remove(&mut self, event: usize) -> Result<(), Error> {
-        let row = self.entry(event)?.row;
+        self.remove_events(&[event])
+    }
+    /// Delete a selection in one clock recomputation. Invalid indices cannot
+    /// remove a valid prefix of the selection.
+    pub fn remove_events(&mut self, indices: &[usize]) -> Result<(), Error> {
+        let rows: std::collections::BTreeSet<_> = indices
+            .iter()
+            .map(|&index| self.entry(index).map(|event| event.row))
+            .collect::<Result<_, _>>()?;
+        if rows.is_empty() {
+            return Ok(());
+        }
         let mut events = self.current.events.clone();
-        events.remove(event);
+        events.retain(|event| !rows.contains(&event.row));
         self.replace(events)?;
-        self.sources.retain(|_, source| *source != row);
+        self.sources.retain(|_, source| !rows.contains(source));
         Ok(())
     }
     pub fn start_row(&self, event: usize) -> Result<u64, Error> {
