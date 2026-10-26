@@ -147,6 +147,39 @@ impl Document {
     pub fn charts(&self) -> &[Chart] {
         &self.charts
     }
+
+    /// Build a fresh structural snapshot after changing only a chart's layout
+    /// field. Notes, unknown tags, other charts and source comments are retained.
+    pub(crate) fn with_chart_layout(&self, chart: usize, layout: &str) -> Result<Self, Error> {
+        let mut document = Self::parse(self.serialize(), self.format)?;
+        if chart >= document.charts.len() {
+            return Err(Error::InvalidEdit("Chart does not exist".into()));
+        }
+        let range = match document.format {
+            Format::Ssc => document.tag(Some(chart), "STEPSTYPE")
+                .ok_or_else(|| Error::InvalidFormat("Chart layout field is missing".into()))?
+                .value.clone(),
+            Format::Sm => {
+                let tag = document.tags.iter().find(|tag| tag.chart == Some(chart))
+                    .ok_or_else(|| Error::InvalidFormat("Chart header is missing".into()))?;
+                let end = delimiter(&document.source, tag.value.start, b':')
+                    .filter(|end| *end < tag.value.end)
+                    .ok_or_else(|| Error::InvalidFormat("Invalid SM chart header".into()))?;
+                tag.value.start..end
+            }
+        };
+        // Locate the original spelling rather than replacing its surrounding
+        // whitespace/comments. The parsed identifier supplies the exact token.
+        let previous = document.charts[chart].steps_type.as_bytes();
+        let field = &document.source[range.clone()];
+        let offset = field.windows(previous.len()).enumerate().find_map(|(offset, window)| {
+            (window == previous && decode(&field[..offset]).is_empty()
+                && decode(&field[offset + previous.len()..]).is_empty()).then_some(offset)
+        }).ok_or_else(|| Error::InvalidFormat("Chart layout token is ambiguous".into()))?;
+        document.replace(range.start + offset..range.start + offset + previous.len(),
+            Some(Arc::from(layout.as_bytes())))?;
+        Self::parse(document.serialize(), self.format)
+    }
     pub fn tags(&self) -> &[Tag] {
         &self.tags
     }

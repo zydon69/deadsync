@@ -74,14 +74,12 @@ fn co_op_ownership_note_kinds_and_hold_ends_match_actual_pinned_fumen_readers() 
             .collect();
         let grid = session.grid(0).unwrap();
         assert_eq!(signature(grid), reference_notes, "{}", input["Name"]);
-        if coop || descriptor.steps_type == "pump-double" {
-            assert_eq!(
-                u64::from(grid.players()),
-                reference["Players"].as_u64().unwrap(),
-                "{}",
-                input["Name"]
-            );
-        }
+        assert_eq!(
+            u64::from(grid.players()),
+            reference["Players"].as_u64().unwrap(),
+            "{}",
+            input["Name"]
+        );
         if coop {
             assert_eq!(reference["Layout"], "pump-routine");
             assert_eq!(

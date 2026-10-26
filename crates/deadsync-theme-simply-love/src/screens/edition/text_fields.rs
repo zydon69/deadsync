@@ -13,6 +13,8 @@ pub(super) enum Target {
     Chart(ChartField),
     Song(SongField),
     Note(NoteField),
+    NoteRaw(NoteField),
+    NoteReserved,
     Attack(usize),
 }
 impl Target {
@@ -43,6 +45,8 @@ impl Target {
             Self::Attack(index) => super::attacks::FIELD_KEYS[index],
             Self::Note(NoteField::Head) => "NoteAttributesHead",
             Self::Note(NoteField::Tail) => "NoteAttributesTail",
+            Self::NoteReserved => "NoteAttributesReserved",
+            Self::NoteRaw(_) => "NoteAttributesRaw",
             Self::Chart(field) => match field {
                 ChartField::Name => "ChartName",
                 ChartField::Description => "ChartDescription",
@@ -78,6 +82,11 @@ impl State {
     fn field_at(&self, index: usize) -> Option<Target> {
         match self.panel {
             Some(Panel::Attacks(_)) if (3..8).contains(&index) => Some(Target::Attack(index - 3)),
+            Some(Panel::NoteAttributes(_)) if self.note_attribute_typed => match index {
+                4 => Some(Target::NoteReserved),
+                5 => Some(Target::NoteRaw(self.note_attribute_inspector.endpoint())),
+                _ => None,
+            },
             Some(Panel::NoteAttributes(_)) => match index {
                 1 => Some(Target::Note(NoteField::Head)),
                 2 => Some(Target::Note(NoteField::Tail)),
@@ -88,19 +97,24 @@ impl State {
             _ => None,
         }
     }
-    fn field_value(&self, target: Target) -> Option<&str> {
+    fn field_value(&self, target: Target) -> Option<std::borrow::Cow<'_, str>> {
         match target {
-            Target::Attack(index) => self.attacks.as_ref().map(|d| d.fields[index].as_str()),
-            Target::Note(f) => self.note_attributes.as_ref().map(|d| d.text(f)),
-            Target::Chart(f) => self.chart_properties.as_ref().map(|d| d.text(f)),
-            Target::Song(f) => self.song_properties.as_ref().map(|d| d.text(f)),
+            Target::NoteReserved => self.note_attributes.as_ref()
+                .and_then(|draft| self.note_attribute_inspector.attributes(draft).ok())
+                .map(|attributes| std::borrow::Cow::Owned(attributes.reserved.to_string())),
+            Target::Attack(index) => self.attacks.as_ref().map(|d| d.fields[index].as_str().into()),
+            Target::Note(f) | Target::NoteRaw(f) => self.note_attributes.as_ref().map(|d| d.text(f).into()),
+            Target::Chart(f) => self.chart_properties.as_ref().map(|d| d.text(f).into()),
+            Target::Song(f) => self.song_properties.as_ref().map(|d| d.text(f).into()),
         }
     }
     fn field_supported(&self, target: Target) -> bool {
         match target {
+            Target::NoteReserved => self.note_attributes.as_ref()
+                .is_some_and(|draft| self.note_attribute_inspector.attributes(draft).is_ok()),
             Target::Attack(index) => self.attacks.as_ref()
                 .is_some_and(|d| d.can_edit_field(index)),
-            Target::Note(f) => self.note_attributes.as_ref()
+            Target::Note(f) | Target::NoteRaw(f) => self.note_attributes.as_ref()
                 .is_some_and(|d| f == NoteField::Head || d.note().end.is_some()),
             Target::Chart(f) => self
                 .chart_properties
@@ -119,12 +133,15 @@ impl State {
     ) -> Result<(), deadsync_editor::Error> {
         let missing = || deadsync_editor::Error::InvalidEdit("No property draft is active".into());
         match target {
+            Target::NoteReserved => self.note_attribute_inspector.set_reserved(
+                self.note_attributes.as_mut().ok_or_else(missing)?, value,
+            ),
             Target::Attack(index) => {
                 if value.chars().any(char::is_control) { return Err(deadsync_editor::Error::InvalidEdit("Attack fields must occupy one line".into())); }
                 self.attacks.as_mut().ok_or_else(missing)?.fields[index] = value.into();
                 Ok(())
             }
-            Target::Note(f) => self.note_attributes.as_mut().ok_or_else(missing)?.set_text(f, value),
+            Target::Note(f) | Target::NoteRaw(f) => self.note_attributes.as_mut().ok_or_else(missing)?.set_text(f, value),
             Target::Chart(f) => self
                 .chart_properties
                 .as_mut()
@@ -175,7 +192,7 @@ impl State {
         self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
         self.text_buffer = self.text_target().and_then(|target| {
             self.field_value(target)
-                .map(|value| Buffer::new(value, true))
+                .map(|value| Buffer::new(value.as_ref(), true))
         });
         self.label_preedit.clear();
     }
@@ -186,12 +203,14 @@ impl State {
         let Some(buffer) = self.text_buffer.as_ref() else {
             return true;
         };
-        if self.field_value(target) == Some(buffer.value()) {
+        if self.field_value(target).as_deref() == Some(buffer.value()) {
             return true;
         }
         let value = buffer.value().to_owned();
         if self.set_field_value(target, &value).is_err() {
-            self.status = i18n::tr("Edition", "ChartTextSingleLine");
+            self.status = i18n::tr("Edition", if matches!(target, Target::NoteReserved) {
+                "NoteAttributesReservedInvalid"
+            } else { "ChartTextSingleLine" });
             return false;
         }
         true
@@ -208,6 +227,7 @@ impl State {
     }
     pub(super) fn text_field_key(&mut self, index: usize, code: KeyCode) {
         self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
+        let note = matches!(self.panel, Some(Panel::NoteAttributes(_)));
         let song = matches!(self.panel, Some(Panel::SongText(_)));
         let count = if song {
             SongField::ALL.len()
@@ -233,8 +253,8 @@ impl State {
             self.queue_text_clipboard(code);
             return;
         }
-        if code == KeyCode::Escape
-            || (index == count && matches!(code, KeyCode::Enter | KeyCode::NumpadEnter))
+        if !note && (code == KeyCode::Escape
+            || (index == count && matches!(code, KeyCode::Enter | KeyCode::NumpadEnter)))
         {
             let accepted = self.sync_text();
             self.label_preedit.clear();
@@ -255,7 +275,7 @@ impl State {
             );
             return;
         }
-        if matches!(
+        if !note && matches!(
             code,
             KeyCode::ArrowUp
                 | KeyCode::ArrowDown
@@ -342,7 +362,7 @@ impl State {
             let value = if existing.is_empty() {
                 unsupported.to_string()
             } else {
-                let display = Buffer::new(existing, false).display("", 28);
+                let display = Buffer::new(existing.as_ref(), false).display("", 28);
                 format!(
                     "{} [{}]",
                     display.strip_suffix('|').unwrap_or(&display),
@@ -361,12 +381,12 @@ impl State {
                 .map(|b| b.display(&self.label_preedit, 48))
                 .unwrap_or_default()
         } else {
-            let b = Buffer::new(self.field_value(target).unwrap_or_default(), false);
+            let b = Buffer::new(self.field_value(target).unwrap_or_default().as_ref(), false);
             let p = b.display("", 48);
             p.strip_suffix('|').unwrap_or(&p).to_owned()
         };
         if target.is_music()
-            && self.field_value(target) == Some("")
+            && self.field_value(target).as_deref() == Some("")
             && (value.is_empty() || value == "|")
         {
             let hint = i18n::tr(

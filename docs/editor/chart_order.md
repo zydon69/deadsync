@@ -102,3 +102,40 @@ ICU culture-order test now also includes an unsupported source prefix. All nine
 domain tests, all 12 native tests and the three actual ICU contract tests
 passed. Linux/Windows execution and physical keyboard/runtime review remain
 separate validation work.
+
+## Keyboard chart list and cached navigation
+
+The native chart list opens with Ctrl+B (Command+B on macOS) or the final
+"Charts..." action in the F1 menu. It presents the same eligible chart set and
+culture-aware ordering as next/previous navigation. Rows show their sorted
+ordinal, effective type, localized difficulty, rating, and chart name (falling
+back to description). Unknown layouts remain preserved in the document and do
+not create gaps in displayed list ordinals. Source indices remain unchanged.
+
+Up/Down and Tab move the highlight without committing a chart selection;
+Shift+Tab moves backwards. Home/End select the list endpoints and PageUp/PageDown
+move eight rows. Eight rows are displayed per page. Enter opens the highlighted
+source chart; Escape cancels. Resident GUIDs keep highlight identity separate
+from a row's current source index. A culture change makes the visible list
+stale; the next navigation/confirmation input requests a refreshed order before
+any selection can be committed. Unsupported-only songs show a localized empty
+list and never invoke the native collator.
+
+A shared cache stores rich sorted rows and is reused across chart focus
+changes. Cache hits do not reconstruct note grids or editor clocks and do not
+open ICU. Content revision, resident chart GUIDs, and localization revision bind
+the cache to the current song and culture, including structural undo/redo and
+new sessions. Invalid permutations, backend errors, and culture changes during
+native work discard the old rows. Source-index-to-key lookup is linear through
+a hash map rather than rescanning every comparison key for each sorted row.
+
+This implements opening/selecting a chart from the song. GrooveAuthor's
+simultaneously open chart tabs, independent tab-focus traversal, tab rearranging,
+and side-by-side chart rendering are separate functions and are still required
+for full parity. The source-number toolbar is also distinct from the list's
+sorted ordinal; no simfile sections are reordered to obtain presentation order.
+
+New focused tests cover cached navigation and list behavior in English and
+French, including unknown-layout source gaps, pagination, cancellation,
+confirmation, stale language changes, and empty eligible sets. Their execution
+results will be recorded after integration validation.

@@ -440,6 +440,46 @@ pub fn serialize(grid: &Grid) -> Result<Vec<u8>, Error> {
     Ok(output.into_bytes())
 }
 
+/// Synchronize an explicit kind conversion with the compound fake flag while
+/// retaining all unrelated decorations and trailing extension data.
+pub(crate) fn change_kind(note: &mut Note, kind: Kind) -> Result<(), Error> {
+    if !matches!(kind, Kind::Tap | Kind::Fake | Kind::Hold | Kind::Mine) {
+        return Err(Error::Unsupported(
+            "StepF2 cannot losslessly encode this note kind".into(),
+        ));
+    }
+    let parsed = Attributes::read(&note.attributes)?;
+    let previous_fake = parsed
+        .as_ref()
+        .map_or(note.kind == Kind::Fake, |(attributes, _)| attributes.fake);
+    let fake = match kind {
+        Kind::Tap => false,
+        Kind::Fake => true,
+        _ => previous_fake,
+    };
+    let attributes = if let Some((mut attributes, trailing)) = parsed {
+        attributes.fake = fake;
+        Some(attributes.suffix('N', trailing)?)
+    } else if fake {
+        Some(Attributes { fake, ..Default::default() }.suffix('N', &note.attributes)?)
+    } else {
+        None
+    };
+    if let Some(attributes) = attributes {
+        note.attributes = attributes.into();
+    }
+    note.kind = kind;
+    Ok(())
+}
+
+/// A sustain shortened below one tick becomes a tap with its original fake
+/// semantics. Explicit user conversions to Tap instead clear that fake bit.
+pub(crate) fn shorten_to_tap(note: &mut Note) -> Result<(), Error> {
+    let fake = Attributes::read(&note.attributes)?
+        .map_or(note.kind == Kind::Fake, |(attributes, _)| attributes.fake);
+    change_kind(note, if fake { Kind::Fake } else { Kind::Tap })
+}
+
 /// Validate edited opaque suffixes with the same endpoint codec used by the
 /// StepF2 writer, before a draft is allowed to create a history entry.
 pub(crate) fn validate_attributes(note: &Note) -> Result<(), Error> {

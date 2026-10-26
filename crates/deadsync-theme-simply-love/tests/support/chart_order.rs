@@ -123,6 +123,8 @@ fn shortcuts_use_live_sorted_source_indices_both_directions_without_rewriting_so
     control(&mut state, KeyCode::Tab, true);
     state.process_chart_order(&mut fake);
     assert_eq!(state.workspace().chart(), 2);
+    // Changing active focus reuses the cached live rows and ICU keys.
+    assert_eq!(fake.calls, 1);
     assert_eq!(state.workspace().file().session.chart_ids(), ids);
     assert_eq!(
         state.workspace().file().session.serialize().unwrap(),
@@ -230,12 +232,22 @@ fn unsupported_source_gaps_do_not_block_navigation_or_accept_invalid_compact_ind
     control(&mut state, KeyCode::Tab, true);
     assert!(state.process_chart_order(&mut fake));
     assert_eq!(state.workspace().chart(), 1);
-    for invalid in [vec![0, 1, 2], vec![1, 3, 3], vec![1, 3, 5]] {
+    assert_eq!(fake.calls, 1);
+    for (attempt, invalid) in [vec![0, 1, 2], vec![1, 3, 3], vec![1, 3, 5]]
+        .into_iter()
+        .enumerate()
+    {
+        // A new live edit invalidates the previous valid cached permutation.
+        // Each malformed backend result must be checked after that miss.
+        press(&mut state, KeyCode::Digit2);
         fake.result = Some(invalid);
         control(&mut state, KeyCode::Tab, false);
         assert!(state.process_chart_order(&mut fake));
         assert_eq!(state.workspace().chart(), 1);
         assert!(texts(&state).contains(&*i18n::tr("Edition", "ChartOrderFailed")));
+        assert_eq!(fake.calls, attempt + 2);
+        // Undo returns the original exact song bytes but is another cache miss.
+        control(&mut state, KeyCode::KeyZ, false);
     }
     assert_eq!(
         state.workspace().file().session.serialize().unwrap(),

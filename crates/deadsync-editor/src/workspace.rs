@@ -28,6 +28,7 @@ pub enum Command {
     PreviousMeasure,
     NextMeasure,
     DuplicateChart,
+    NormalizeStepF2,
     PreviousLabel,
     NextLabel,
     SetSnap(usize),
@@ -73,6 +74,18 @@ pub struct Workspace {
 }
 
 impl Workspace {
+    /// Commit a prevalidated musical focus transition. Load the target before
+    /// changing any cursor state; subsequent assignments cannot fail.
+    pub(crate) fn commit_focus_position(&mut self, chart: usize, row: u64) -> Result<(), Error> {
+        let grid = self.file.session.grid(chart)?;
+        let player = self.player.min(grid.players() - 1);
+        self.chart = chart;
+        self.row = row;
+        self.player = player;
+        self.anchor = None;
+        Ok(())
+    }
+
     /// Live presentation order as source chart indices. The caller supplies
     /// culture-aware collation; no source sections or active focus are moved.
     pub fn ordered_charts(
@@ -117,6 +130,11 @@ impl Workspace {
             event_clipboard: None,
             structural_focus: Default::default(),
         })
+    }
+
+    pub fn can_normalize_stepf2_chart(&self) -> bool {
+        self.has_chart() && self.file.session.document().charts()[self.chart].steps_type == "pump-double"
+            && self.grid().uses_stepf2()
     }
 
     pub fn change_note_owners(&mut self, count: u32, transform: crate::transform::Transform) -> Result<bool, Error> {
@@ -237,6 +255,10 @@ impl Workspace {
             Command::Seek(row) => self.row = row,
             Command::DuplicateChart => {
                 self.duplicate_chart()?;
+            }
+            Command::NormalizeStepF2 => {
+                self.file.session.normalize_stepf2_chart(self.chart)?;
+                self.sync_active_chart()?;
             }
             Command::PreviousMeasure | Command::NextMeasure => {
                 let signatures = crate::timing_edit::signature::Signatures::from_document(

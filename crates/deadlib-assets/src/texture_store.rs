@@ -237,6 +237,26 @@ impl<T> TextureStore<T> {
         self.textures.insert(handle, texture)
     }
 
+    /// Release a dynamic texture's payload while retaining its reserved identity.
+    ///
+    /// Cancels queued uploads even when no texture has reached the renderer yet.
+    /// Key aliases and sheet metadata survive, so reuploading the exact key uses
+    /// the same handle. Immutable/global file metadata remains available as a
+    /// fallback; only this store's uploaded and prepared-source sizes are cleared.
+    /// The caller owns retirement of the returned renderer resource.
+    pub fn unload_texture_keep_handle(&mut self, key: &str) -> Option<(TextureHandle, T)> {
+        let handle = *self.texture_handles.get(key)?;
+        let pending = self.pending_texture_uploads.contains(handle);
+        self.pending_texture_uploads.remove(handle);
+        let uploaded = self.uploaded_texture_dims.remove(&handle).is_some();
+        let source = self.source_texture_dims.remove(&handle).is_some();
+        let texture = self.textures.remove(&handle);
+        if pending || uploaded || source || texture.is_some() {
+            self.revision.set(next_texture_revision());
+        }
+        texture.map(|texture| (handle, texture))
+    }
+
     pub fn remove_texture(&mut self, key: &str) -> Option<(TextureHandle, T)> {
         let handle = self.texture_handles.remove(key)?;
         self.pending_texture_uploads.remove(handle);
@@ -674,6 +694,64 @@ mod tests {
                 assert_eq!((physical.w, physical.h), (128, 64));
             }
         }
+    }
+
+    #[test]
+    fn unload_texture_keep_handle_cancels_pending_and_preserves_identity() {
+        let mut store = TextureStore::<u32>::new();
+        let before = store.revision.get();
+        assert!(store.unload_texture_keep_handle("unknown").is_none());
+        assert_eq!(store.revision.get(), before);
+        assert_eq!(store.next_texture_handle, 1);
+
+        let key = "unload-pending-preview 2x1.png";
+        store.queue_texture_upload(key.into(), blank_rgba(8, 4));
+        let handle = store.texture_handle(key);
+        store.set_source_dims(handle, [80, 40]);
+        let revision = store.revision.get();
+        assert!(store.unload_texture_keep_handle(key).is_none());
+        assert_ne!(store.revision.get(), revision);
+        assert!(!store.has_pending_texture_upload(key));
+        assert!(!store.has_uploaded_texture_key(key));
+        assert!(store.source_texture_dims.get(&handle).is_none());
+        assert!(store.uploaded_texture_dims.get(&handle).is_none());
+        let binding = store.bind_texture(&key.to_ascii_uppercase()).unwrap();
+        assert_eq!(binding.handle, handle);
+        assert_eq!(binding.sheet, (2, 1));
+        assert_eq!(store.texture_key(handle), key);
+        let revision = store.revision.get();
+        assert!(store.unload_texture_keep_handle(key).is_none());
+        assert_eq!(store.revision.get(), revision, "repeated unload is idempotent");
+    }
+
+    #[test]
+    fn unload_texture_keep_handle_reuses_two_slots_without_handle_growth() {
+        let mut store = TextureStore::<u32>::new();
+        let keys = ["unload-banner-slot", "unload-cdtitle-slot"];
+        let handles = keys.map(|key| store.reserve_texture_handle(key.into()));
+        let next = store.next_texture_handle;
+        for iteration in 0..256 {
+            for (index, key) in keys.iter().enumerate() {
+                let handle = handles[index];
+                assert!(store.insert_texture((*key).into(), iteration, 8, 4).is_none());
+                store.set_source_dims(handle, [80, 40]);
+                store.queue_texture_upload((*key).into(), blank_rgba(4, 2));
+                let revision = store.revision.get();
+                assert_eq!(store.unload_texture_keep_handle(key), Some((handle, iteration)));
+                assert_ne!(store.revision.get(), revision);
+                assert!(!store.has_pending_texture_upload(key));
+                assert!(!store.has_uploaded_texture_key(key));
+                assert!(store.uploaded_texture_dims.get(&handle).is_none());
+                assert!(store.source_texture_dims.get(&handle).is_none());
+                assert_eq!(store.texture_handle(&key.to_ascii_uppercase()), handle);
+            }
+            assert_eq!(store.next_texture_handle, next);
+            assert_eq!(store.texture_handles.len(), 2);
+            assert_eq!(store.texture_aliases.len(), 2);
+        }
+        // Full removal still discards identity, preserving its existing contract.
+        assert!(store.remove_texture(keys[0]).is_none());
+        assert_ne!(store.reserve_texture_handle(keys[0].into()), handles[0]);
     }
 
     #[test]

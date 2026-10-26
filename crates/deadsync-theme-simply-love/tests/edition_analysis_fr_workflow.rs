@@ -46,7 +46,7 @@ fn french_analysis_menu_stats_density_and_navigation_have_resolved_labels() {
     assert!(
         texts(&s)
             .iter()
-            .any(|t| t.contains("Actions 1/2 - Haut/Bas"))
+            .any(|t| t.contains("Actions 1/3 - Haut/Bas"))
     );
     for _ in 0..14 {
         press(&mut s, KeyCode::ArrowDown);

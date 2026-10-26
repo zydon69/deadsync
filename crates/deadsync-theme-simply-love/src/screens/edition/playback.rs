@@ -58,6 +58,25 @@ impl State {
             .and_then(|playing| playing.position)
             .or_else(|| self.paused_position())
             .map(|position| (position.chart_time, position.row))
+            .or_else(|| self.focus_position.as_ref()
+                .filter(|position| position.is_current(&self.workspace))
+                .map(|position| (position.chart_time(), position.row())))
+    }
+    /// Capture before stop_audio removes mapped/paused playback state. Sample
+    /// audition has no chart Preview and must never drive chart focus.
+    fn transport_music_time(&self) -> Option<f64> {
+        self.playback.as_ref().filter(|playing| playing.preview.is_some())
+            .and_then(|playing| playing.position)
+            .or_else(|| self.paused_position())
+            .map(|position| position.music_time)
+    }
+    pub(super) fn chart_focus_music_time(&self) -> Result<f64, deadsync_editor::Error> {
+        if let Some(time) = self.transport_music_time() { return Ok(time); }
+        if let Some(position) = self.focus_position.as_ref().filter(|position| position.is_current(&self.workspace)) {
+            return Ok(position.music_time());
+        }
+        deadsync_editor::playback::Clock::capture(&self.workspace.file().session, self.workspace.chart())?
+            .music_time(self.workspace.row())
     }
     fn paused_position(&self) -> Option<Position> {
         let paused = self.paused_playback.as_ref()?;
@@ -106,6 +125,11 @@ impl State {
         std::mem::take(&mut self.audio_commands)
     }
     pub(super) fn stop_audio(&mut self) {
+        if let Some(time) = self.transport_music_time() {
+            self.focus_position = deadsync_editor::chart_focus::Position::at_time(
+                &self.workspace.file().session, self.workspace.chart(), time,
+            ).ok();
+        }
         let paused = self.paused_playback.take().is_some();
         let playing = self.playback.take().is_some();
         if playing {
@@ -120,7 +144,9 @@ impl State {
             self.pause_audio();
             return;
         }
-        let resume = self.paused_position();
+        let resume = self.paused_position().or_else(|| self.focus_position.as_ref()
+            .filter(|position| position.is_current(&self.workspace))
+            .map(|position| Position { music_time: position.music_time(), chart_time: position.chart_time(), row: position.row() }));
         let result = Preview::capture(
             &self.workspace.file().session,
             self.workspace.chart(),
@@ -191,6 +217,7 @@ impl State {
             } else {
                 None
             };
+            if !continuing { self.stop_audio(); }
             self.command(Command::Seek(destination));
             if let Some(position) = audio {
                 self.paused_playback = None;
@@ -201,8 +228,6 @@ impl State {
                 self.audio_commands
                     .push(GameplayAudioCommand::SeekMusic(position.music_time));
                 self.status = i18n::tr("Edition", "PlaybackPlaying");
-            } else {
-                self.stop_audio();
             }
             Ok(())
         })();

@@ -202,14 +202,53 @@ impl Session {
                 .get(chart)
                 .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?;
             let mut grid = Grid::parse_layout(self.document.value(descriptor.notes.clone()), &descriptor.steps_type)?;
+            if descriptor.steps_type == "pump-routine" {
+                // Fumen's Routine layout defaults to two participants even
+                // when a standard stream only contains P1 notes.
+                grid.set_players(grid.players().max(2))?;
+            }
             if crate::notes::supports_variable_players(&descriptor.steps_type) {
                 if let Ok(Some(metadata)) = crate::generation::metadata::ChartData::read(&self.document, chart) {
-                    grid.set_players(grid.players().max(metadata.max_player_index + 1))?;
+                    let minimum = if descriptor.steps_type == "pump-routine" {
+                        // GrooveAuthor's explicit MaxPlayerIndex can lower
+                        // the default, but cannot discard existing owners.
+                        grid.minimum_players()
+                    } else { grid.players() };
+                    grid.set_players(minimum.max(metadata.max_player_index + 1))?;
                 }
             }
             self.grids.insert(chart, grid);
         }
         Ok(&self.grids[&chart])
+    }
+
+    /// Persist Fumen's effective Pump co-op layout as one reversible structural
+    /// gesture. Merely opening a legacy Double chart stays byte-preserving.
+    pub fn normalize_stepf2_chart(&mut self, chart: usize) -> Result<bool, Error> {
+        let descriptor = self.document.charts().get(chart)
+            .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?;
+        if descriptor.steps_type != "pump-double" || !self.grid(chart)?.uses_stepf2() {
+            return Ok(false);
+        }
+        let mut expected = self.grid(chart)?.clone();
+        let participants = match crate::generation::metadata::ChartData::read(&self.document, chart)? {
+            Some(metadata) => expected.minimum_players().max(metadata.max_player_index + 1),
+            None => expected.players().max(2),
+        };
+        expected.set_players(participants)?;
+        let current = Document::parse(self.serialize()?, self.document.format)?;
+        let after = current.with_chart_layout(chart, "pump-routine")?;
+        let mut validation = Session::staged(after.clone());
+        if validation.grid(chart)? != &expected {
+            return Err(Error::InvalidEdit("Co-op normalization changed note data".into()));
+        }
+        self.execute("Normalize StepF2 co-op layout".into(),
+            Change::DocumentSwap(Box::new(DocumentState {
+                document: after,
+                grids: BTreeMap::new(),
+                chart_ids: self.chart_ids.clone(),
+            })))?;
+        Ok(true)
     }
 
     pub fn edit_notes(

@@ -20,6 +20,8 @@ fn participant_addition_metadata_and_empty_blocks_round_trip_and_undo_in_both_fo
     for format in [Format::Sm, Format::Ssc] {
         for layout in ["dance-routine", "pump-routine", "smx-team"] {
             let mut s = session(layout, format);
+            let initial_players = if layout == "pump-routine" { 2 } else { 1 };
+            assert_eq!(s.grid(0).unwrap().players(), initial_players);
             let before = s.serialize().unwrap();
             assert!(s.set_participants(0, 3).unwrap());
             assert_eq!(s.grid(0).unwrap().players(), 3);
@@ -36,7 +38,7 @@ fn participant_addition_metadata_and_empty_blocks_round_trip_and_undo_in_both_fo
             assert_eq!(reopened.grid(0).unwrap().players(), 3);
             s.undo().unwrap();
             assert_eq!(s.serialize().unwrap(), before);
-            assert_eq!(s.grid(0).unwrap().players(), 1);
+            assert_eq!(s.grid(0).unwrap().players(), initial_players);
             s.redo().unwrap();
             assert_eq!(s.serialize().unwrap(), added);
         }

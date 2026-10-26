@@ -166,7 +166,11 @@ pub fn apply(
                             "Conversion to an attributed note needs explicit attributes".into(),
                         ));
                     }
-                    note.kind = to;
+                    if grid.uses_stepf2() {
+                        crate::stepf2::change_kind(&mut note, to)?;
+                    } else {
+                        note.kind = to;
+                    }
                     note.end = if matches!(to, Kind::Hold | Kind::Roll) {
                         Some(match note.end {
                             Some(end) => end,

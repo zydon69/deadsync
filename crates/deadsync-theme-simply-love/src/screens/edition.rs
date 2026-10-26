@@ -14,6 +14,10 @@ mod display_tempo;
 mod profile_edit;
 mod note_conversion;
 mod note_attributes;
+mod note_attributes_typed;
+pub mod chart_list;
+mod chart_list_view;
+mod chart_focus;
 mod attacks;
 mod event_selection;
 mod attack_view;
@@ -21,6 +25,7 @@ mod note_owners;
 mod text_fields;
 mod clipboard;
 mod music_file;
+pub mod image_previews;
 mod chart_order;
 mod pattern_set;
 mod playback;
@@ -62,6 +67,7 @@ use std::{
 #[derive(Clone, Copy)]
 enum Panel {
     Analysis,
+    ChartList,
     NewChart(usize),
     DeleteChart(usize),
     EmptyMenu(usize),
@@ -235,6 +241,8 @@ impl GenerationPreview {
 }
 
 pub struct State {
+    image_preview_identity: u64,
+    image_preview_views: Option<[image_previews::PreviewView; 2]>,
     spacing_mode: deadsync_editor::zoom::SpacingMode,
     reverse_display: bool,
     spacing_cache: Option<spacing_view::Cache>,
@@ -244,6 +252,7 @@ pub struct State {
     zoom_preferences_draft: Option<deadsync_editor::zoom_preferences::Preferences>,
     playback: Option<playback::Playing>,
     paused_playback: Option<playback::Paused>,
+    focus_position: Option<deadsync_editor::chart_focus::Position>,
     scroll_preferences: deadsync_editor::scroll_preferences::Preferences,
     scroll_preferences_draft: Option<deadsync_editor::scroll_preferences::Preferences>,
     audio_preferences: deadsync_editor::audio_preferences::Audio,
@@ -265,6 +274,10 @@ pub struct State {
     note_conversion: note_conversion::Settings,
     note_attributes: Option<deadsync_editor::note_attributes::Draft>,
     note_attribute_lane: u16,
+    note_attribute_inspector: note_attributes_typed::Inspector,
+    note_attribute_typed: bool,
+    chart_list_cache: chart_list::Cache,
+    chart_list_selection: chart_list::Selection,
     attacks: Option<attacks::Settings>,
     event_selection: Option<event_selection::Settings>,
     attack_clipboard: Option<deadsync_editor::attacks::inspector::Clipboard>,
@@ -383,6 +396,7 @@ impl State {
             zoom_epoch: std::time::Instant::now(),
             playback: None,
             paused_playback: None,
+            focus_position: None,
             scroll_preferences: Default::default(),
             scroll_preferences_draft: None,
             audio_preferences: Default::default(),
@@ -421,6 +435,10 @@ impl State {
             note_conversion: Default::default(),
             note_attributes: None,
             note_attribute_lane: 0,
+            note_attribute_inspector: Default::default(),
+            note_attribute_typed: false,
+            chart_list_cache: Default::default(),
+            chart_list_selection: Default::default(),
             attacks: None,
             event_selection: None,
             attack_clipboard: None,
@@ -437,6 +455,8 @@ impl State {
             music_picker_request: None,
             chart_order_request: None,
             text_edit_serial: 0,
+            image_preview_identity: image_previews::next_document_identity(),
+            image_preview_views: None,
             song_properties: None,
             sample_region: None,
             waveform: waveform::View::default(),
@@ -647,6 +667,24 @@ impl State {
             Err(error) => {
                 self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
             }
+        }
+    }
+    fn normalize_stepf2_chart(&mut self) {
+        if self.chart_rating_input.is_some()
+            || self.chart_properties.as_ref().is_some_and(|draft| draft.has_changes())
+        {
+            self.status = i18n::tr("Edition", "StepF2NormalizePending");
+            return;
+        }
+        self.apply_dialog_operation(
+            |workspace| workspace.execute(Command::NormalizeStepF2),
+            "StepF2Normalized", "StepF2NormalizeUnavailable", "StepF2NormalizeFailed",
+        );
+        if self.panel.is_none() {
+            self.chart_properties = None;
+            self.chart_rating_input = None;
+            self.display_tempo_draft = None;
+            self.display_tempo_input = None;
         }
     }
     fn open_chart_expression(&mut self) {
@@ -1354,6 +1392,12 @@ impl State {
     }
 
     fn command(&mut self, command: Command) {
+        // Explicit edit/cursor intentions reset fractional transport anchors,
+        // including Seek(0) when a negative anchor already clamps to row zero.
+        // Preference history and generic refresh retain the musical position.
+        if matches!(command, Command::Move(_) | Command::Seek(_) | Command::PreviousMeasure | Command::NextMeasure | Command::PreviousLabel | Command::NextLabel | Command::SelectChart(_) | Command::Place(_) | Command::Delete | Command::Cut | Command::Paste | Command::CutEvents | Command::PasteEvents | Command::Transform(_) | Command::Recover) {
+            self.focus_position = None;
+        }
         let before_revision = self.workspace.file().session.revision();
         match self.workspace.execute(command) {
             Ok(()) => {
@@ -1480,6 +1524,10 @@ impl State {
                 self.command(if undo { Command::Undo } else { Command::Redo });
                 return false;
             }
+        }
+        if self.control && event.code == KeyCode::KeyB {
+            self.open_chart_list();
+            return false;
         }
         if !self.workspace.has_chart() {
             self.stop_audio();
@@ -1653,6 +1701,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if matches!(panel, Panel::ChartList) { self.chart_list_key(code); return false; }
         if matches!(panel, Panel::EventSelection) { self.event_selection_key(code); return false; }
         if let Panel::Attacks(index) = panel { self.attacks_key(index, code); return false; }
         if let Panel::NoteAttributes(index) = panel { self.note_attributes_key(index, code); return false; }
@@ -1770,6 +1819,7 @@ impl State {
             Panel::NoteOwners(_) => unreachable!("note owners dispatched above"),
             Panel::Attacks(_) => unreachable!("attacks dispatched above"),
             Panel::EventSelection => unreachable!("event selection dispatched above"),
+            Panel::ChartList => unreachable!("chart list dispatched above"),
             Panel::NoteAttributes(_) => unreachable!("note inspector dispatched above"),
             Panel::NoteConversion(_) => unreachable!("note conversion dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
@@ -1844,8 +1894,9 @@ impl State {
                     return false;
                 }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
+                    let count = if self.workspace.can_normalize_stepf2_chart() { 12 } else { 11 };
                     self.panel = Some(Panel::ChartProperties(
-                        (index + if code == KeyCode::ArrowUp { 10 } else { 1 }) % 11,
+                        (index + if code == KeyCode::ArrowUp { count - 1 } else { 1 }) % count,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(draft) = &mut self.chart_properties {
@@ -1889,6 +1940,7 @@ impl State {
                         6 => self.open_timing(),
                         9 => self.open_chart_text(),
                         10 => self.open_display_tempo(),
+                        11 => self.normalize_stepf2_chart(),
                         8 => {
                             if self.stage_chart_rating() {
                                 self.status = i18n::tr("Edition", "ChartRatingStaged");
@@ -2198,7 +2250,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 16,
+                    Panel::Menu(_) => 17,
                     Panel::Transforms(_) => 12,
                     _ => 3,
                 };
@@ -2276,6 +2328,7 @@ impl State {
                             13 => return self.request_close(),
                             14 => self.open_analysis(),
                             15 => self.command(Command::DuplicateChart),
+                            16 => self.open_chart_list(),
                             _ => {}
                         }
                     }
@@ -2625,6 +2678,7 @@ impl State {
     }
 
     fn panel_actors(&self, panel: Panel, actors: &mut Vec<Actor>) {
+        if matches!(panel, Panel::ChartList) { self.chart_list_actors(actors); return; }
         if matches!(panel, Panel::EventSelection) { self.event_selection_actors(actors); return; }
         if matches!(panel, Panel::Analysis) {
             self.analysis_actors(actors);
@@ -2638,7 +2692,7 @@ impl State {
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
-            Panel::Analysis | Panel::EventSelection => &[],
+            Panel::Analysis | Panel::EventSelection | Panel::ChartList => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
             Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
@@ -2659,6 +2713,7 @@ impl State {
                 "Close",
                 "AnalysisTitle",
                 "DuplicateChart",
+                "ChartListOpen",
             ],
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen", "NoteOwnersOpen", "NoteAttributesOpen"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
@@ -2720,6 +2775,7 @@ impl State {
             ],
             Panel::NoteOwners(_) => &["NoteOwnersMode", "NoteOwnersA", "NoteOwnersB", "NoteOwnersCount", "NoteOwnersApply", "KeepEditing"],
             Panel::Attacks(_) => &["AttackScope", "AttackEvent", "AttackModifier", "AttackTime", "AttackName", "AttackLevel", "AttackSpeed", "AttackLength", "AttackAddModifier", "AttackDeleteModifier", "AttackAddEvent", "AttackDeleteEvent", "AttacksApply", "AttacksCancel"],
+            Panel::NoteAttributes(_) if self.note_attribute_typed => &["NoteAttributesLane", "NoteAttributesEndpoint", "NoteAttributesVisibility", "NoteAttributesFake", "NoteAttributesReserved", "NoteAttributesRaw", "NoteAttributesApply", "NoteAttributesCancel"],
             Panel::NoteAttributes(_) => &["NoteAttributesLane", "NoteAttributesHead", "NoteAttributesTail", "NoteAttributesApply", "NoteAttributesCancel"],
             Panel::NoteConversion(_) => &["NoteConversionFrom", "NoteConversionTo", "NoteConversionDuration", "NoteConversionApply", "KeepEditing"],
             Panel::ConversionProfiles(_) => &[
@@ -2768,6 +2824,11 @@ impl State {
             Panel::ProfileDefaults(_) => &["ProfileDefaultsApply", "ProfileDefaultsCancel"],
             Panel::ProfileSpeed(_) => &["ProfileSpeedSubdivision", "ProfileSpeedMin", "ProfileSpeedMax", "ProfileSpeedMinSeconds", "ProfileSpeedMaxSeconds", "ProfileSpeedStage", "ProfileSpeedCancel"],
             Panel::DisplayTempo(_) => &["DisplayTempoMode", "DisplayTempoMin", "DisplayTempoRange", "DisplayTempoMax", "DisplayTempoStage", "DisplayTempoCancel"],
+            Panel::ChartProperties(_) if self.workspace.can_normalize_stepf2_chart() => &[
+                "ChartChooseExpression", "ChartUseOffset", "ChartMusicOffset", "ChartEffectiveOffset",
+                "ChartApplyProperties", "KeepEditing", "TimingOpen", "ChartDifficulty", "ChartRating",
+                "ChartTextOpen", "DisplayTempoOpen", "StepF2NormalizeOpen",
+            ],
             Panel::ChartProperties(_) => &[
                 "ChartChooseExpression",
                 "ChartUseOffset",
@@ -2862,7 +2923,9 @@ impl State {
         } else {
             screen_width() * 0.5
         };
-        let extra_height = if side_panel {
+        let extra_height = if matches!(panel, Panel::SongText(_)) {
+            100.0
+        } else if side_panel {
             220.0
         } else if previewing {
             128.0
@@ -2886,6 +2949,7 @@ impl State {
             screen_height() * 0.5
         };
         actors.push(act!(quad: xy(panel_x, panel_y): setsize(panel_width, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
+        if matches!(panel, Panel::SongText(_)) { self.image_preview_actors(actors, panel_x, panel_y-panel_height*0.5+43.0, panel_width-24.0); }
         if matches!(panel, Panel::Menu(_) | Panel::Attacks(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
             let page = i18n::tr_fmt("Edition",
                 if matches!(panel, Panel::WaveformColors(_)) { "WaveformColorsPage" } else if matches!(panel, Panel::SongText(_)) { "TextFieldsPage" } else { "MenuPage" }, &[

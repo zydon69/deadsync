@@ -12,6 +12,7 @@ pub mod chart_text;
 pub mod chart_creation;
 pub mod chart_deletion;
 pub mod chart_order;
+pub mod chart_focus;
 pub mod clipboard;
 pub mod event_clipboard;
 pub mod document;

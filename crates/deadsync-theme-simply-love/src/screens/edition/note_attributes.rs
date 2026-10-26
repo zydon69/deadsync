@@ -1,6 +1,10 @@
-use super::{Panel, State};
+use super::{
+    Panel, State,
+    note_attributes_typed::{Inspector, Row},
+};
 use crate::i18n;
 use deadlib_platform::input::KeyCode;
+use deadsync_editor::note_attributes::Field;
 impl State {
     pub(super) fn open_note_attributes(&mut self) {
         self.note_attribute_lane = (0..self.workspace.grid().columns())
@@ -8,17 +12,78 @@ impl State {
             .unwrap_or(0);
         self.load_note_attributes();
         self.panel = Some(Panel::NoteAttributes(0));
-        self.status = i18n::tr("Edition", "NoteAttributesHelp");
+        self.note_attribute_typed = self
+            .note_attributes
+            .as_ref()
+            .is_some_and(Inspector::available);
+        self.note_attributes_help();
         self.focus_text();
     }
     fn load_note_attributes(&mut self) {
+        self.note_attribute_inspector = Inspector::default();
         self.note_attributes = self
             .workspace
             .note_attributes(self.note_attribute_lane)
             .ok();
     }
+    fn note_attributes_help(&mut self) {
+        self.status = i18n::tr(
+            "Edition",
+            if self.note_attribute_typed {
+                "NoteAttributesTypedHelp"
+            } else if self.workspace.grid().uses_stepf2() {
+                "NoteAttributesRawHelp"
+            } else {
+                "NoteAttributesHelp"
+            },
+        );
+    }
+    fn toggle_note_attribute_view(&mut self, index: usize) {
+        if !self.workspace.grid().uses_stepf2() || !self.sync_text() {
+            return;
+        }
+        let Some(draft) = self.note_attributes.as_ref() else {
+            self.status = i18n::tr("Edition", "NoteAttributesMissing");
+            return;
+        };
+        let next = if self.note_attribute_typed {
+            match self.note_attribute_inspector.endpoint() {
+                Field::Head => 1,
+                Field::Tail => 2,
+            }
+        } else {
+            let endpoint = match index {
+                1 => Field::Head,
+                2 => Field::Tail,
+                _ => self.note_attribute_inspector.endpoint(),
+            };
+            if self
+                .note_attribute_inspector
+                .select_endpoint(draft, endpoint)
+                .is_err()
+            {
+                self.status = i18n::tr("Edition", "NoteAttributesTypedInvalid");
+                return;
+            }
+            5
+        };
+        self.note_attribute_typed = !self.note_attribute_typed;
+        self.panel = Some(Panel::NoteAttributes(next));
+        self.focus_text();
+        self.note_attributes_help();
+    }
     pub(super) fn note_attributes_key(&mut self, index: usize, code: KeyCode) {
-        if code == KeyCode::Escape || (index == 4 && code == KeyCode::Enter) {
+        let count = if self.note_attribute_typed {
+            Row::ALL.len()
+        } else {
+            5
+        };
+        let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
+        if code == KeyCode::F2 {
+            self.toggle_note_attribute_view(index);
+            return;
+        }
+        if code == KeyCode::Escape || (index == count - 1 && enter) {
             self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
             self.text_buffer = None;
             self.note_attributes = None;
@@ -40,8 +105,8 @@ impl State {
             let back = code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift);
             let next = match code {
                 KeyCode::PageUp => 0,
-                KeyCode::PageDown => 4,
-                _ => (index + if back { 4 } else { 1 }) % 5,
+                KeyCode::PageDown => count - 1,
+                _ => (index + if back { count - 1 } else { 1 }) % count,
             };
             self.panel = Some(Panel::NoteAttributes(next));
             self.focus_text();
@@ -68,7 +133,37 @@ impl State {
             self.load_note_attributes();
             return;
         }
-        if index == 3 && code == KeyCode::Enter {
+        if self.note_attribute_typed
+            && matches!(index, 1..=3)
+            && matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight)
+        {
+            if !self.sync_text() {
+                return;
+            }
+            let Some(draft) = self.note_attributes.as_mut() else {
+                self.status = i18n::tr("Edition", "NoteAttributesMissing");
+                return;
+            };
+            let result = match Row::ALL[index] {
+                Row::Endpoint => self
+                    .note_attribute_inspector
+                    .toggle_endpoint(draft)
+                    .map(|_| ()),
+                Row::Visibility => self
+                    .note_attribute_inspector
+                    .cycle_visibility(draft, code == KeyCode::ArrowRight),
+                Row::Fake => self.note_attribute_inspector.toggle_fake(draft),
+                _ => unreachable!(),
+            };
+            if result.is_err() {
+                self.status = i18n::tr("Edition", "NoteAttributesTypedInvalid");
+            } else {
+                self.focus_text();
+                self.note_attributes_help();
+            }
+            return;
+        }
+        if index == count - 2 && enter {
             if !self.sync_text() {
                 return;
             }
@@ -90,11 +185,60 @@ impl State {
             }
             return;
         }
-        if matches!(index, 1 | 2) {
+        if self.text_target().is_some() {
             self.text_field_key(index, code);
         }
     }
     pub(super) fn note_attributes_label(&self, index: usize, key: &str) -> std::sync::Arc<str> {
+        if self.note_attribute_typed && (1..=5).contains(&index) {
+            let Some(draft) = self.note_attributes.as_ref() else {
+                return i18n::tr("Edition", "NoteAttributesMissing");
+            };
+            if matches!(index, 4 | 5) {
+                return self.text_field_label(index);
+            }
+            let value = match Row::ALL[index] {
+                Row::Endpoint => i18n::tr(
+                    "Edition",
+                    match self.note_attribute_inspector.endpoint() {
+                        Field::Head => "NoteAttributesEndpointHead",
+                        Field::Tail => "NoteAttributesEndpointTail",
+                    },
+                ),
+                Row::Visibility | Row::Fake => {
+                    let Ok(attributes) = self.note_attribute_inspector.attributes(draft) else {
+                        return i18n::tr("Edition", "NoteAttributesTypedInvalid");
+                    };
+                    i18n::tr(
+                        "Edition",
+                        if index == 3 {
+                            if attributes.fake {
+                                "NoteAttributesYes"
+                            } else {
+                                "NoteAttributesNo"
+                            }
+                        } else {
+                            match attributes.visibility {
+                                deadsync_editor::stepf2::Visibility::Normal => {
+                                    "NoteAttributesNormal"
+                                }
+                                deadsync_editor::stepf2::Visibility::Sudden => {
+                                    "NoteAttributesSudden"
+                                }
+                                deadsync_editor::stepf2::Visibility::Vanish => {
+                                    "NoteAttributesVanish"
+                                }
+                                deadsync_editor::stepf2::Visibility::Hidden => {
+                                    "NoteAttributesHidden"
+                                }
+                            }
+                        },
+                    )
+                }
+                _ => unreachable!(),
+            };
+            return i18n::tr_fmt("Edition", key, &[("value", &value)]);
+        }
         match index {
             0 => {
                 let mut value = (self.note_attribute_lane + 1).to_string();

@@ -25,8 +25,10 @@ therefore regenerate the correct embedded player symbol without losing flags.
 Raw edits to a valid head compound synchronize Tap/Fake classification. Malformed
 suffixes stay editable in the draft but cannot enter history; inconsistent external
 note classifications are refused rather than silently rewriting the fake bit.
-The existing raw inspector remains available; typed native controls are not
-implemented by this increment.
+The native inspector now offers eight typed rows for StepF2, with F2 switching
+to the existing raw view on the same draft. Ordinary charts keep five raw rows.
+Head/tail, visibility, fake and reserved edits are accessible with the keyboard.
+Invalid raw text remains recoverable and cannot create a history entry.
 
 ## Reference evidence
 
@@ -61,22 +63,45 @@ transient grids. An output containing P4 notes without any exclusive co-op
 marker is also refused because its ownership would be ambiguous on reload.
 An explicit standard-notation export/conversion UI remains to be integrated.
 
-Pump Double co-op data is decoded, but the resident layout descriptor has not
-yet been normalized to Pump Routine as Fumen does. That normalization needs a
-reversible structural operation and matching native layout behavior. This
-increment does not claim complete Pump Double normalization parity.
+Pump Double co-op normalization is implemented as an explicit structural
+operation (`Session::normalize_stepf2_chart` / `Command::NormalizeStepF2`), exposed
+in chart properties only for eligible legacy Double charts. It preserves source
+comments, flags, peer edits and chart identities, and protects pending property
+drafts. Its initial five workflows passed for live layout, participants, undo/redo,
+save and reopen. Four additional boundary workflows await revalidation. Merely viewing retains
+the original Double descriptor and source bytes. Fumen's parser instead promotes
+Double co-op to Routine automatically (`SMPropertyParsers.cs:1135–1146`).
 
-For ordinary non-coop Pump Routine files, Fumen defaults to two participants;
-DeadSync's existing raw-grid contract can expose one until other participant
-metadata/segments are present. Differential baseline cases compare notes,
-while co-op cases compare participant counts exactly. This discrepancy remains
-to be reconciled against the editor's participant metadata contracts.
+Resident Session Pump Routine now defaults to two participants, matching
+`SMCommon.cs:421`. Explicit GrooveAuthor metadata can lower this to one without
+losing note owners, following `EditorChart.MaxPlayers` and its metadata loader
+(`EditorChart.cs:472–500`, `3993–4004`). New unrelated Routine metadata retains the
+default count. Low-level raw Grid parsing still reflects participant segments;
+Session supplies the layout default. The revised differential test checks all
+24 reader participant counts; both differential workflows passed.
 
 Distinct combined visibility flags (for example `{S|h|0|0}`) are explicitly
 refused while the typed model supports one visibility at a time; `{S|n|0|0}`
 correctly retains Sudden. Unsupported charts remain byte-preserved.
 
-Non-coop Pump special-note loading, explicit cross-notation clipboard conversion,
-advanced export policy controls, and native typed inspector fields remain
-required work. Neutral StepF2 decorations must not be presented as standard
-StepMania note semantics when transferring notes to a different notation.
+Non-coop Pump special-note loading, explicit cross-notation clipboard conversion
+and advanced export policy controls remain required work. Neutral StepF2
+decorations must not be presented as standard StepMania note semantics when
+transferring notes to a different notation.
+
+## Current integration validation
+
+The integrating agent confirmed the initial normalization lot passed five core
+workflows, the differential target passed both workflows (24 reader cases), and
+participant-count (4), chart-property (7), metadata (11), conversion (3), and
+StepF2 (16) targets passed. Both EN/FR native inspector targets passed seven
+workflows each (14 total), including normalization actions. Existing
+`edition_workflow` also passed 37 tests.
+
+Four new core boundary workflows remain pending: normalization at a nonleading
+chart index with two unsaved peer charts and undo after save; duplicate SSC
+layout fields under the reader's last-value policy; unsaved P4 notes followed
+by unrelated offset metadata; and metadata-only operations on unsupported raw
+notes. The normalization target now contains nine tests, not all yet rerun.
+Metadata-only initialization intentionally falls back to the Routine default
+when notes cannot be decoded; its save path preserves those raw note bytes.

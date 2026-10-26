@@ -119,6 +119,15 @@ impl AssetManager {
         self.texture_store.remove_texture(key)
     }
 
+    /// Unload a reusable dynamic texture without discarding its reserved handle.
+    /// The renderer owner must retire the returned resource on its own thread.
+    pub fn unload_texture_keep_handle(
+        &mut self,
+        key: &str,
+    ) -> Option<(TextureHandle, RendererTexture)> {
+        self.texture_store.unload_texture_keep_handle(key)
+    }
+
     pub fn set_texture_for_key(
         &mut self,
         backend: &mut Backend,
@@ -398,6 +407,21 @@ mod tests {
 
     fn blank_rgba(width: u32, height: u32) -> RgbaImage {
         RgbaImage::from_pixel(width, height, image::Rgba([0, 0, 0, 0]))
+    }
+
+    #[test]
+    fn unload_texture_keep_handle_forwards_pending_cancellation() {
+        let mut assets = AssetManager::new();
+        let key = "manager-reusable-preview";
+        assets.queue_texture_upload(key.into(), blank_rgba(2, 2));
+        let handle = assets.reserve_texture_handle(key.into());
+        assert!(assets.unload_texture_keep_handle(key).is_none());
+        assert!(assets.has_texture_key(key));
+        assert!(!assets.has_pending_texture_upload(key));
+        assert_eq!(assets.reserve_texture_handle(key.into()), handle);
+        assets.queue_texture_upload(key.into(), blank_rgba(4, 4));
+        assert_eq!(assets.reserve_texture_handle(key.into()), handle);
+        assert!(assets.has_pending_texture_upload(key));
     }
 
     #[test]

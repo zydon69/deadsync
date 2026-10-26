@@ -36,6 +36,39 @@ reviewable and tested.
 
 ## Current implementation and verification
 
+### Resumed image, chart-list and StepF2 increment
+
+Song properties now display Banner/CDTitle thumbnails through one application-owned
+decoder service. Static images and GIFs use two stable texture identities, bounded
+memory, stale-result rejection and explicit GPU retirement. Loading, missing,
+unsupported-video and failure notices are localized. Seven CPU preview tests,
+three asset-retirement tests, eighteen native EN/FR media workflows and the
+shell service test passed. The shell lib-test harness compiled with its official
+pinned fixtures submodule initialized. These checks do not establish GPU output
+or physical input behavior; see `image-preview-plan.md` for remaining limits.
+
+The visible chart list opens through Ctrl+B or F1, with eight rows per page,
+cultural ordering and stable resident identities. Four cache tests, six EN/FR
+list workflows, twelve existing order workflows and four analysis-menu tests
+passed. This remains a single active chart; simultaneous views and tabs are
+tracked separately in `multiview-plan.md`.
+
+Native list and Ctrl+Tab transitions now preserve the exact music-file instant
+across chart clocks. Eight new EN/FR focus workflows and forty-one related
+list/order/playback/navigation tests passed. Chart navigation intentionally
+stops playback; continuous playback across chart changes remains pending.
+Explicit seeks reset fractional or negative anchors, while unchanged cursor
+quantization and application preference changes retain them.
+
+The StepF2 note inspector has typed and raw views sharing one draft. Explicit
+Pump Double co-op normalization changes the live layout to Routine as one
+reversible structural operation. Fourteen native EN/FR inspector/normalization
+workflows and all thirty-seven existing editor workflows passed. Nine domain
+normalization workflows, two real Fumen fixture comparisons, participant-count
+workflows and conversion regressions also passed. Boundary cases include a
+middle chart with unsaved peers, duplicate layout tags, and save/undo/reopen.
+This is not complete-editor regression or full parity.
+
 | Domain | Rust implementation | Evidence / remaining work |
 | --- | --- | --- |
 | SM/SSC source preservation | Byte spans and explicit replacements; unknown tags, unchanged chart note data, and legacy metadata bytes preserved | `editing_workflows`, `property_workflows`; broader format corpus still required |
@@ -6205,9 +6238,9 @@ protect unsupported SM fields.
 
 A dedicated oracle executes the complete pinned C# image utility with injected
 codec dimensions. Its 114 cases cover selection and classification; they do not
-validate Skia decoding. The native adapter uses image::image_dimensions. Original
-image preview thumbnails remain required. No image, video or lyrics rendering
-is claimed by this increment.
+validate Skia decoding. The native adapter uses image::image_dimensions. This
+discovery increment did not render media. Banner/CDTitle previews were added in
+the resumed increment above; video and lyrics rendering remain pending.
 
 Focused domain verification: 93 tests passed across song media/text/properties
 and lexical paths (31), StepF2/reference/attribute inspector (22), chart ordering

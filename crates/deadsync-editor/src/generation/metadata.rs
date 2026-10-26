@@ -234,6 +234,18 @@ impl ChartData {
             return Ok(data);
         }
         let mut data = Self::default();
+        if let Some(descriptor) = document.charts().get(chart) {
+            if descriptor.steps_type == "pump-routine" {
+                // Adding unrelated editor metadata must not turn the Routine
+                // default of two players into an explicit one-player choice.
+                // Metadata-only operations also accept opaque note streams:
+                // use the layout default if this codec cannot decode them,
+                // and leave their note bytes untouched when saving metadata.
+                data.max_player_index = crate::notes::Grid::parse_layout(
+                    document.value(descriptor.notes.clone()), &descriptor.steps_type,
+                ).map_or(1, |grid| grid.players().max(2) - 1);
+            }
+        }
         if document.format == Format::Ssc {
             let number = |scope| -> Result<Option<f64>, Error> {
                 document

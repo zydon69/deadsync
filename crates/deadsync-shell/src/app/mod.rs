@@ -1608,6 +1608,8 @@ pub struct App {
     >,
     asset_manager: AssetManager,
     option_previews: option_previews::Service,
+    editor_image_previews: Option<crate::editor_image_previews::Service>,
+    editor_image_preview_retry: Option<Instant>,
     /// The reader's noteskin for the Content Browser's chart preview.
     browser_skin: browser_skin::Service,
     dynamic_media: DynamicMedia,
@@ -4893,6 +4895,30 @@ impl App {
         } else {
             self.option_previews.idle();
         }
+        let image_request = if self.state.screens.current_screen == CurrentScreen::Practice {
+            self.state.screens.practice_state.as_ref().and_then(screens::practice::editor_image_preview_request)
+        } else { None };
+        if image_request.is_some() && self.editor_image_previews.is_none()
+            && self.editor_image_preview_retry.is_none_or(|retry| redraw_started >= retry) {
+            match crate::editor_image_previews::Service::new() {
+                Ok(service) => self.editor_image_previews = Some(service),
+                Err(error) => {
+                    self.editor_image_preview_retry = Some(redraw_started + std::time::Duration::from_secs(5));
+                    log::warn!("Cannot start editor image previews: {error}");
+                }
+            }
+        }
+        if let Some(service) = self.editor_image_previews.as_mut() {
+            service.set_request(image_request);
+            if let Some(backend) = self.backend.as_mut() {
+                if let Err(error) = service.update(std::time::Duration::from_secs_f32(total_elapsed), &mut self.asset_manager, backend) {
+                    log::warn!("Editor image preview upload failed: {error}");
+                }
+            }
+            if let Some(state) = self.state.screens.practice_state.as_mut() {
+                screens::practice::set_editor_image_preview_views(state, service.views());
+            }
+        }
         let fonts = self.asset_manager.fonts();
         let build_screen_started = Instant::now();
         let uses_gameplay_present = matches!(
@@ -5284,6 +5310,8 @@ impl App {
             smx_difficulty_tint_cache: std::collections::HashMap::new(),
             asset_manager: AssetManager::new(),
             option_previews: option_previews::Service::default(),
+            editor_image_previews: None,
+            editor_image_preview_retry: None,
             browser_skin: browser_skin::Service::default(),
             dynamic_media: DynamicMedia::new(),
             arrowcloud_result_dialog: None,

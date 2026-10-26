@@ -237,7 +237,11 @@ impl Grid {
                     let mut shortened = previous.clone();
                     let new_end = pos.row.saturating_sub(ROWS_PER_BEAT / 4);
                     if new_end <= row {
-                        shortened.kind = Kind::Tap;
+                        if self.uses_stepf2() {
+                            crate::stepf2::shorten_to_tap(&mut shortened)?;
+                        } else {
+                            shortened.kind = Kind::Tap;
+                        }
                         shortened.end = None;
                         shortened.tail_attributes = Arc::from("");
                     } else { shortened.end = Some(new_end); }

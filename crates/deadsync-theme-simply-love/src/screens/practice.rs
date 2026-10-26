@@ -1111,6 +1111,13 @@ fn set_offset_adjust_flash(state: &mut State) {
     state.flash = Some((text, FLASH_DURATION_SECS));
 }
 
+pub fn editor_image_preview_request(state: &State) -> Option<crate::screens::edition::image_previews::PreviewRequest> {
+    state.edition.as_ref().and_then(|editor| editor.image_preview_request())
+}
+pub fn set_editor_image_preview_views(state: &mut State, views: [crate::screens::edition::image_previews::PreviewView; 2]) {
+    if let Some(editor) = state.edition.as_mut() { editor.set_image_preview_views(views); }
+}
+
 pub fn push_overlay(actors: &mut Vec<Actor>, state: &mut State) {
     if let Some(editor) = state.edition.as_ref() {
         editor.actors(actors);
