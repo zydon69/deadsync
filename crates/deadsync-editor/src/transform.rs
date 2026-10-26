@@ -153,12 +153,12 @@ pub fn apply(
                     }
                     note.kind = to;
                     note.end = if matches!(to, Kind::Hold | Kind::Roll) {
-                        Some(
-                            note.end
-                                .unwrap_or(pos.row.checked_add(sustain_rows).ok_or_else(|| {
-                                    Error::InvalidEdit("Sustain exceeds row range".into())
-                                })?),
-                        )
+                        Some(match note.end {
+                            Some(end) => end,
+                            None => pos.row.checked_add(sustain_rows).ok_or_else(|| {
+                                Error::InvalidEdit("Sustain exceeds row range".into())
+                            })?,
+                        })
                     } else {
                         note.tail_attributes = "".into();
                         None

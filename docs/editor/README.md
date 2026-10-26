@@ -5206,3 +5206,25 @@ Validation: all 53 native editor integration targets passed (276 tests) in
 row/column shift suites passed 13 tests in `/tmp/deadsync-symmetry-core.log`.
 Theme compilation check passed in `/tmp/deadsync-symmetry-check.log`.
 Commands used `--jobs 2 --locked`.
+
+### Preserve existing sustain duration during type conversion
+
+A new public conversion regression reproduced eager evaluation of an unused
+new-duration expression: converting Hold/Roll to the other sustain kind could
+report row overflow even though the existing end was valid and must be retained.
+`Transform::Convert` now chooses the existing end before computing a new one.
+This matches inspected ActionChangeHoldType, which changes hold/roll type without
+changing duration. Converting a tap to a sustain still requires a valid positive
+length; genuine overflow/zero-length failures preserve source and redo. Conversion
+to a tap removes the sustain end and remains exactly undoable.
+
+The pre-fix failing run is `/tmp/deadsync-conversion-duration-red.log`. Three new
+workflow tests cover both sustain directions with zero/normal/overflowing unused
+lengths, exact undo/redo, valid new lengths, invalid new lengths and redo retention.
+This corrects the core conversion API; the broader native conversion inspector
+remains outstanding. No new native UI or physical runtime review is claimed.
+
+Validation: four selected core sustain-conversion/chart-conversion/selection/symmetry suites passed all
+19 tests in `/tmp/deadsync-conversion-duration-core.log`; theme compilation check
+passed in `/tmp/deadsync-conversion-duration-check.log` (`--jobs 2 --locked`).
+This step did not rerun the complete native integration suite.
