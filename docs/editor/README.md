@@ -4837,3 +4837,27 @@ Validation: `profile_history_workflows` (2 tests) and `profile_edit_workflows`
 (6 tests), with evidence in `/tmp/deadsync-profile-history-core.log`.
 Theme compilation check also passed (`--jobs 2 --locked`), recorded in
 `/tmp/deadsync-profile-history-check.log`.
+
+### Saved profile undo/redo in the native inspector
+
+Profile inspectors now expose Undo saved profile (F7) and Redo saved profile (F8)
+rows after Restore defaults. A session-owned map retains `ProfileFile` histories
+across asynchronous catalog reloads and repeated original saves. Song/chart undo
+remains separate. Undo/redo reloads the catalog while preserving selected profile
+GUIDs, so future generation resolves the restored settings. Pending text, numeric,
+configuration, defaults or travel-speed edits must be saved/discarded first; they
+are never silently discarded by saved-history commands. Built-in profiles remain
+protected by catalog writable-file validation. Histories last for this editor
+session; creating a copy is not yet undoable through these commands.
+
+The native save workflow now checks rename/save/reload, rejection with a pending
+draft, menu-row undo restoring exact original bytes, shortcut redo, retained
+selection/name, and unchanged source-song and session bytes. English and French
+menu/help text documents both commands. No physical app/GPU review is claimed.
+
+Validation: all 47 native editor integration targets passed (252 tests) in
+`/tmp/deadsync-profile-history-all-native.log`. The newly added French history
+workflow then passed with the existing French save test (2 tests) in
+`/tmp/deadsync-profile-history-fr.log`, bringing distinct native coverage to 253
+cases. The theme compilation check passed in
+`/tmp/deadsync-profile-history-native-check.log` (`--jobs 2 --locked`).

@@ -141,3 +141,44 @@ fn french_profile_name_staging_original_save_and_conflict_messages_are_resolved(
     assert_eq!(fs::read(&file).unwrap(), b"Externe");
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
 }
+
+#[test]
+fn french_saved_history_menu_restores_the_profile_without_touching_song() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let profiles = dir.path().join("profiles");
+    let (mut s, file, source) = custom(&path, &profiles);
+    let original = fs::read(&file).unwrap();
+    open(&mut s);
+    press(&mut s, KeyCode::F2);
+    assert!(s.text_input("Saved name"));
+    press(&mut s, KeyCode::Enter);
+    original_save(&mut s);
+    let saved = fs::read(&file).unwrap();
+    assert_ne!(saved, original);
+    press(&mut s, KeyCode::KeyE);
+    press(&mut s, KeyCode::F2);
+    assert!(s.text_input("Pending name"));
+    press(&mut s, KeyCode::Enter);
+    press(&mut s, KeyCode::F7);
+    assert!(has(&s, "Enregistrez ou abandonnez"));
+    assert_eq!(fs::read(&file).unwrap(), saved);
+    press(&mut s, KeyCode::Escape);
+    press(&mut s, KeyCode::KeyE);
+    press(&mut s, KeyCode::End);
+    for _ in 0..6 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    assert!(has(&s, "Annuler la sauvegarde"));
+    press(&mut s, KeyCode::Enter);
+    finish(&mut s);
+    assert_eq!(fs::read(&file).unwrap(), original);
+    press(&mut s, KeyCode::KeyE);
+    press(&mut s, KeyCode::F8);
+    finish(&mut s);
+    assert_eq!(fs::read(&file).unwrap(), saved);
+    assert!(has(&s, "Saved name"));
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    assert_eq!(fs::read(path).unwrap(), source);
+}

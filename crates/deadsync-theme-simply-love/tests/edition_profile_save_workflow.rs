@@ -260,3 +260,44 @@ fn ime_composition_keys_do_not_delete_the_previously_committed_name() {
     press(&mut s, KeyCode::Escape);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
 }
+
+#[test]
+fn saved_history_survives_catalog_reload_and_refuses_pending_edits() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let profiles = dir.path().join("profiles");
+    let (mut s, file, source) = custom(&path, &profiles);
+    let original = fs::read(&file).unwrap();
+    open(&mut s);
+    press(&mut s, KeyCode::F2);
+    assert!(s.text_input("Saved name"));
+    press(&mut s, KeyCode::Enter);
+    original_save(&mut s);
+    let saved = fs::read(&file).unwrap();
+    assert_ne!(saved, original);
+    press(&mut s, KeyCode::KeyE);
+    press(&mut s, KeyCode::F2);
+    assert!(s.text_input("Pending name"));
+    press(&mut s, KeyCode::Enter);
+    press(&mut s, KeyCode::F7);
+    assert!(has(&s, "Save or discard pending"));
+    assert_eq!(fs::read(&file).unwrap(), saved);
+    press(&mut s, KeyCode::Escape);
+    press(&mut s, KeyCode::KeyE);
+    press(&mut s, KeyCode::End);
+    for _ in 0..6 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    assert!(has(&s, "Undo saved profile"));
+    press(&mut s, KeyCode::Enter);
+    finish(&mut s);
+    assert_eq!(fs::read(&file).unwrap(), original);
+    press(&mut s, KeyCode::KeyE);
+    press(&mut s, KeyCode::F8);
+    finish(&mut s);
+    assert_eq!(fs::read(&file).unwrap(), saved);
+    assert!(has(&s, "Saved name"));
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    assert_eq!(fs::read(path).unwrap(), source);
+}

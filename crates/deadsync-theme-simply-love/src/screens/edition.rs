@@ -250,6 +250,7 @@ pub struct State {
     display_tempo_input: Option<(usize, String)>,
     profile_edit: Option<profile_edit::Draft>,
     profile_saved_choices: Option<profile_edit::Choices>,
+    profile_history: std::collections::BTreeMap<PathBuf, deadsync_editor::generation::profiles::ProfileFile>,
     text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
     text_clipboard_request: Option<clipboard::Request>,
     music_picker_request: Option<music_file::Request>,
@@ -391,6 +392,7 @@ impl State {
             display_tempo_draft: None,
             display_tempo_input: None,
             profile_edit: None,
+            profile_history: Default::default(),
             profile_saved_choices: None,
             text_buffer: None,
             text_clipboard_request: None,
@@ -2501,7 +2503,7 @@ impl State {
             let mut keys = vec!["ProfileEditField"; draft.editor.fields().len()];
             keys.extend(["ExpressionEditSaveCopy", "ExpressionEditCancel", "ProfileEditName", "ProfileEditSaveOriginal", "ProfileEditDescription"]);
             if draft.supports_travel_speed() { keys.extend(["ProfileSpeedOpen", "ProfileWeightsOpen"]); }
-            keys.push("ProfileRestoreDefaults");
+            keys.extend(["ProfileRestoreDefaults", "ProfileUndoSave", "ProfileRedoSave"]);
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {

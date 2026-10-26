@@ -52,7 +52,7 @@ pub(super) struct Draft {
 }
 impl Draft {
     pub(super) fn action_count(&self) -> usize {
-        if self.supports_travel_speed() { 8 } else { 6 }
+        if self.supports_travel_speed() { 10 } else { 8 }
     }
     pub(super) fn supports_travel_speed(&self) -> bool {
         self.kind == Kind::Performed
@@ -123,6 +123,68 @@ impl State {
             Err(error) => self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error)]),
         }
     }
+    fn profile_saved_history(&mut self, redo: bool) {
+        let result: Result<bool, String> = (|| {
+            let draft = self
+                .profile_edit
+                .as_ref()
+                .ok_or_else(|| "Missing draft".to_string())?;
+            if draft.input.is_some()
+                || draft.name.is_some()
+                || draft.description.is_some()
+                || draft.travel_speed.is_some()
+                || draft.reset_defaults
+                || draft.editor.finish().map_err(profile_error)? != *draft.profile.config()
+            {
+                return Err(i18n::tr("Edition", "ProfileHistoryPending").to_string());
+            }
+            let settings = self
+                .profile_selection
+                .as_ref()
+                .ok_or_else(|| "Missing profiles".to_string())?;
+            let captured = settings
+                .catalog
+                .profile_file(
+                    &self.workspace.file().session,
+                    self.workspace.chart(),
+                    draft.kind,
+                    &draft.source,
+                )
+                .map_err(profile_error)?;
+            let Some(file) = self.profile_history.get_mut(captured.path()) else {
+                return Ok(false);
+            };
+            let changed = if redo { file.redo() } else { file.undo() }.map_err(profile_error)?;
+            if !changed {
+                return Ok(false);
+            }
+            let offset = usize::from(matches!(draft.back, Panel::ConversionProfiles(_)));
+            let selected = |kind, index: Option<usize>| {
+                index
+                    .and_then(|i| i.checked_sub(offset))
+                    .and_then(|i| settings.catalog.entries(kind).get(i))
+                    .map(|entry| entry.guid.clone())
+            };
+            self.profile_saved_choices = Some(Choices {
+                pattern: selected(Kind::Pattern, settings.pattern),
+                performed: selected(Kind::Performed, settings.performed),
+                expressed: selected(Kind::Expressed, settings.expressed),
+            });
+            Ok(true)
+        })();
+        match result {
+            Ok(true) => {
+                self.profile_edit = None;
+                match self.catalog_target {
+                    ProfileTarget::Chart => self.open_chart_expression(),
+                    ProfileTarget::Marker => self.open_marker_profiles(),
+                    target => self.open_conversion_profiles_for(target),
+                }
+            }
+            Ok(false) => self.status = i18n::tr("Edition", "ProfileHistoryEmpty"),
+            Err(error) => self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error)]),
+        }
+    }
     fn stage_profile_input(&mut self) -> bool {
         let Some(draft) = self.profile_edit.as_mut() else {
             return false;
@@ -150,7 +212,15 @@ impl State {
         };
         let count = draft.editor.fields().len();
         let actions = draft.action_count();
-        if (index == count + actions - 1 && code == KeyCode::Enter)
+        let undo = code == KeyCode::F7 && !self.control
+            || index == count + actions - 2 && code == KeyCode::Enter;
+        let redo = code == KeyCode::F8 && !self.control
+            || index == count + actions - 1 && code == KeyCode::Enter;
+        if undo || redo {
+            self.profile_saved_history(redo);
+            return;
+        }
+        if (index == count + actions - 3 && code == KeyCode::Enter)
             || (code == KeyCode::F5 && !self.control)
         {
             if let Some(draft) = self.profile_edit.as_mut() {
@@ -337,7 +407,7 @@ impl State {
                 if !draft.custom_source {
                     return Err(i18n::tr("Edition", "ProfileEditProtected").to_string());
                 }
-                let mut file = settings
+                let captured = settings
                     .catalog
                     .profile_file(
                         &self.workspace.file().session,
@@ -346,6 +416,10 @@ impl State {
                         &draft.source,
                     )
                     .map_err(profile_error)?;
+                let file = self
+                    .profile_history
+                    .entry(captured.path().to_owned())
+                    .or_insert(captured);
                 let mut profile = file.profile().clone();
                 if draft.reset_defaults {
                     profile.restore_defaults().map_err(profile_error)?;
