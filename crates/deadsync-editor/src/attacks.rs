@@ -2,6 +2,7 @@
 //! Reference: Fumen AttackPropertyParser / GrooveAuthor UIAttackEvent.
 pub mod placement;
 pub mod inspector;
+mod inheritance;
 pub(crate) mod anchoring;
 pub(crate) mod resident;
 use crate::{
@@ -308,9 +309,7 @@ impl Draft {
             return Ok(false);
         }
         if self.scope == Scope::Chart && self.current.events.is_empty() && self.song_has_attacks {
-            return Err(invalid(
-                "An empty chart attack list inherits song attacks; remove them in song scope",
-            ));
+            return inheritance::clear_chart(session, chart);
         }
         let bytes = self.current.serialize()?;
         // Colons are structure here; set_text would escape them and flatten the MSD parameters.

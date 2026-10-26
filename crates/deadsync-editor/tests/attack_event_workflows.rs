@@ -127,7 +127,23 @@ fn chart_attack_inheritance_is_independent_of_split_timing_and_sibling_charts() 
         deleting.attacks_mut().remove(0).unwrap();
     }
     let current = session.serialize().unwrap();
-    assert!(deleting.apply(&mut session, 0).is_err());
+    assert!(deleting.apply(&mut session, 0).unwrap());
+    assert!(
+        Draft::capture(&session, 0, Scope::Chart)
+            .unwrap()
+            .attacks()
+            .events()
+            .is_empty()
+    );
+    assert_eq!(
+        Draft::capture(&session, 1, Scope::Chart)
+            .unwrap()
+            .attacks()
+            .events()
+            .len(),
+        1
+    );
+    session.undo().unwrap();
     assert_eq!(session.serialize().unwrap(), current);
     session.undo().unwrap();
     assert_eq!(session.serialize().unwrap(), before);

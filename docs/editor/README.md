@@ -5858,11 +5858,10 @@ attack anchoring on a sibling chart sees its unsaved notes. The publication guar
 still rejects another chart's note or structural edits. Timing-only batches can
 cross lane layouts; batches containing notes retain the note-layout constraint.
 SSC-only timing families pasted into SM fail atomically until format conversion
-is implemented. The current attack inspector guard still prevents deleting the
-last chart attack while song attacks would immediately be inherited; the mixed
-cut reports that failure atomically. Chart-scoped empty-attack normalization,
-arbitrary mixed-event subsets, and clipboard C# differential execution remain
-required before claiming complete GrooveAuthor selection/clipboard parity.
+is implemented. The original guard against deleting the final chart attack while song attacks
+exist was replaced by the scoped normalization described below. Arbitrary mixed
+event subsets, pattern clipboard support and clipboard C# differential execution
+remain required before claiming complete GrooveAuthor selection/clipboard parity.
 
 The reference behavior was read in pinned `Editor.cs` (`OnCopy`, `OnCut`,
 `OnPaste`) and `ActionPasteEvents`/`EditorChart.ForceAddEventInternal`. Tests cover
@@ -5923,5 +5922,50 @@ local attacks and pending notes, reject relevant unsupported metadata without
 mutation, and put the entire clear/peer-detachment operation in one history
 entry. Both inherited and independently local target attacks need this treatment
 when their final event is removed while song attacks exist. Mixed cut must then
-reuse that operation. These requirements remain pending; the current user-facing
-operation still refuses that case atomically.
+reuse that operation. The implementation below now covers this transaction and reuses it for mixed
+cut; broader selection/clipboard parity remains incomplete.
+
+### Clear final chart attack without reviving song attacks
+
+Both the raw and resident attack draft APIs now use one chart-scope normalization
+when the last chart event is removed while a song attack fallback exists. Other
+inheriting charts receive byte-identical copies of the shared ATTACKS value, and
+the song fallback is cleared together with the target chart's value. Independent
+local peer ATTACKS values are retained. All peers that retain attack events get
+complete local timing and an explicit BPM when needed, including peers whose
+attacks were already local, so the rewrite does not depend on a reader honoring
+local attacks without split timing.
+
+Original clocks, effective offsets, tempos and resident rows are captured before
+staging. If creating explicit timing changes a later chart's fallback tempo, its
+original effective tempo is materialized and every resulting clock is checked
+again. Inherited row metadata is rebound into the local scope; unrelated local
+attack values/metadata remain intact. Unsupported relevant metadata aborts the
+whole transaction. No pending notes are edited. Single-chart deletion, normalized
+peer properties and metadata form one history gesture; mixed cut wraps that same
+operation with note/timing deletion in its own one-gesture transaction.
+
+Tests exercise inherited and independently local targets through both draft APIs,
+compare resulting rows with the original reader fixture, keep peer pending notes,
+save/reopen and exact undo/redo, retain a peer attack inside a warp across recovery
+and atomic disk save, reject a future local metadata version without erasing redo,
+and handle absent/partial BPM data. Native EN/FR workflows cover the inspector
+Delete/Apply path, undo/redo, save/reopen and the mixed-cut shortcut.
+
+Verification of the final normalization source: 18 core tests passed across
+`attack_event_workflows` (8), `attack_inheritance_workflows` (4) and
+`mixed_event_clipboard_workflows` (6)
+(`/tmp/deadsync-inherited-clear-final-core.log`). Both native attack workflow
+targets passed all 24 tests (12 EN, 12 FR), including the new inspector deletion
+and inherited mixed-cut paths (`/tmp/deadsync-inherited-clear-final-native.log`).
+The tests explicitly require split timing on independently local peers as well
+as inheriting peers. These are adapter/filesystem workflows, not physical
+keyboard, GPU or audible gameplay verification.
+
+The preceding mixed-clipboard core baseline also completed its full regression:
+533 tests across 102 integration suites
+(`/tmp/deadsync-mixed-clipboard-committed-all-core.log`). That core run compiled
+before normalization was added and must not be presented as a full regression of
+this later source. The following broad native phase was deliberately stopped to
+prioritize the targeted normalization checks above; no complete native-regression
+claim is made for it.

@@ -389,6 +389,9 @@ impl Draft {
         if !self.has_changes() {
             return Ok(false);
         }
+        if self.scope() == Scope::Chart && self.current.events.is_empty() && self.file.song_has_attacks {
+            return super::inheritance::clear_chart(session, chart);
+        }
         let events: Vec<_> = self
             .current
             .events
@@ -421,14 +424,6 @@ impl Draft {
         {
             return Err(invalid(
                 "Attack rows cannot round-trip through this file timing",
-            ));
-        }
-        if self.scope() == Scope::Chart
-            && self.current.events.is_empty()
-            && self.file.song_has_attacks
-        {
-            return Err(invalid(
-                "An empty chart attack list would restore song attacks",
             ));
         }
         let mut properties = vec![(

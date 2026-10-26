@@ -700,3 +700,78 @@ fn mixed_event_clipboard_shortcuts_cross_charts_and_undo_notes_timing_and_attack
     ctrl(&mut s, KeyCode::KeyZ);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), saved);
 }
+
+#[test]
+fn clearing_last_chart_attack_and_mixed_cut_preserve_other_inherited_and_local_charts() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    fn mixed(s: &mut State, code: KeyCode) {
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::ShiftLeft,
+            pressed: true,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+        ctrl(s, code);
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::ShiftLeft,
+            pressed: false,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+    }
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("inheritance.ssc");
+    let source=b"#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=1:LEN=1:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Challenge;#METER:10;#BPMS:0=240;#OFFSET:0.5;#NOTES:0100;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Easy;#METER:5;#ATTACKS:TIME=2:LEN=2:MODS=50% Drunk;#NOTES:0010;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    let check = |s: &State| {
+        let session = &s.workspace().file().session;
+        for chart in [1, 2] {
+            assert!(
+                session
+                    .document()
+                    .raw_property(Some(chart), "BPMS")
+                    .is_some()
+            );
+        }
+        for (chart, expected) in [(0, vec![]), (1, vec![288]), (2, vec![192])] {
+            let actual =
+                deadsync_editor::attacks::placement::Timeline::capture(session, chart).unwrap();
+            assert_eq!(
+                actual.markers().iter().map(|m| m.row).collect::<Vec<_>>(),
+                expected
+            );
+        }
+    };
+    ctrl(&mut s, KeyCode::KeyJ);
+    ctrl(&mut s, KeyCode::Enter);
+    action(&mut s, 11);
+    action(&mut s, 12);
+    check(&s);
+    let cleared = s.workspace().file().session.serialize().unwrap();
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    ctrl(&mut s, KeyCode::KeyY);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), cleared);
+    ctrl(&mut s, KeyCode::KeyS);
+    let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    check(&reopened);
+    ctrl(&mut s, KeyCode::KeyZ);
+    press(&mut s, KeyCode::Home);
+    press(&mut s, KeyCode::Space);
+    press(&mut s, KeyCode::PageDown);
+    mixed(&mut s, KeyCode::KeyX);
+    check(&s);
+    let mut parsed = Session::new(
+        Document::parse(
+            s.workspace().file().session.serialize().unwrap(),
+            Format::Ssc,
+        )
+        .unwrap(),
+    );
+    assert_eq!(parsed.grid(0).unwrap().iter().count(), 0);
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+}
