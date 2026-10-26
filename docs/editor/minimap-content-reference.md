@@ -89,3 +89,43 @@ Raster buffer replacement API and reuse of the existing scene/raster, without
 changing the validated viewport model. Native cache2 and shared NoteColor/Options
 DTO2 are additional pending targets. No new Cargo execution was performed by
 the media agent; these results are from parent-managed validation.
+
+## Native hook review before application
+
+The isolated native adapter now derives its diagnostic from a cache entry matching
+session/content/chart and the complete current key. It returns no certification
+while a panel hides the map, ShowMiniMap is false, geometry suppresses rendering,
+or selection/player/palette/projection/content changed before the next draw.
+Pending cache2 and State6 tests explicitly cover these transitions. The reverse
+orientation clones a retained reflected vertex Arc; map boundsY are actor
+translation, independent of local raster cache identity.
+
+A source timing review found Pattern end conversion differs from note phase:
+`EditorPatternEvent.GetEndChartTime` calls the pre-rate chart-position method.
+The new `minimap_pattern_region` helper retains start after the Tap/Delay phase
+(Fumen.Pattern is ordered immediately after LaneTapNote), and converts the end
+with `Clock.fractional_chart_time`. One pending isolated test covers endpoints
+on equal-row Delay, Stop and Tempo, start after Delay, overflow and nonmutation.
+This correction is included in the unapplied native hook patch.
+
+Current hooks read a single shared `NoteColor`/`Options` DTO during configuration;
+rendering performs no filesystem reads. An Arc on State is the sole raw settings
+snapshot. The minimap keeps resolved UI colors, and the main renderer can derive
+its distinct XNA held/selected variants from the same DTO. The dedicated color
+inspector/save transition remains a later required UI increment; read-only File
+getters preserve existing groups without changing the audio Settings storage.
+
+Content width reads original MiniMapWidth (90default), with existing native
+right-edge mounting retained for this increment. The four original mounting
+positions and density-graph-dependent offsets remain a separately required
+geometry increment; the validated vertical viewport is unchanged.
+
+### Latest pre-integration validation
+
+Central validation has now also passed shared NoteColor/Options DTO2 and Pattern
+phase1. Their core modules are declared by the parent. The unapplied integration
+patch has been refreshed to omit those existing declarations; it adds only the
+still-missing `minimap_content_preferences` declaration. `git apply --check`
+passes against the current tree. Cache2 and State6 remain pending, and the patch
+has not been applied by the media agent. Shared sources were left untouched
+during the parent's holds build83823.

@@ -101,3 +101,7 @@ pub mod minimap_navigation;
 pub mod minimap_projection;
 
 pub mod lane_entry;
+
+pub mod note_color_preferences;
+
+pub mod minimap_pattern_region;
