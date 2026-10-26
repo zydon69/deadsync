@@ -1,0 +1,34 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sdk": "10.0.403",
+  "scope": "Whole unchanged PackSong.cs, PackChartComparer and PackSongComparer, real Fumen Reader.LoadMetaDataAsync. Program uses original lower-case extension enumeration predicate; full PackLoadTask/UI are reviewed provenance, not executed. Temporary generated files only; cancellation tested before each original load. Enumeration ties are recorded, not declared deterministic across filesystems.",
+  "source_blobs": {
+    "pack_song": {
+      "path": "StepManiaEditor/PackSong.cs",
+      "git_blob": "3363af33c4751c451fe3d6deb5cccb0b3b5660a6",
+      "sha256": "78fa452233b28c08f3e6663f5863fdd83b9f6cba85e0b43a56526d1a131441b4"
+    },
+    "pack_load": {
+      "path": "StepManiaEditor/PackLoadTask.cs",
+      "git_blob": "cd87f39b2f1efb9feb843e07c7dd097f3a208113",
+      "sha256": "d9cd7430ff4c8f48fa95a35ed90cda0fb7f7afe7358dd50d31feb98ebd72c984"
+    },
+    "ui_pack": {
+      "path": "StepManiaEditor/UI/UIPackProperties.cs",
+      "git_blob": "5099f8bf38dfa6b433781710615a1f2389b8dfeb",
+      "sha256": "85e57878861cb73ff6abc236b93ba58525f89392d100f264d41362d5d425cab6"
+    },
+    "reader": {
+      "path": "Fumen/Converters/Reader.cs",
+      "git_blob": "4f9c7d6b255dd615d7a8e294994f75918a8ff696",
+      "sha256": "59b5a59d6ca33693fc19b0d8f5467192c9b13f07d910bf252de6302bde60fabf"
+    }
+  },
+  "program_sha256": "0281e3d8623fe395d99eab1163d75de4f64d848058ac241120137d6800338d80",
+  "assembly_sha256": "3b81b2c4ac33419c2534a7a8d1a5528f52594218bc92a4c42bbc752d3e13c165",
+  "fumen_assembly_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "request_sha256": "ddadefdf9a11abaa47e64d0b3d176cabf3bffdc9d3c2ea1ee26178671e2a14b5",
+  "expected_sha256": "e5251d7906238ce3ece2ba36430095dad9ac1c12328ca7f234839253cd00811a"
+}

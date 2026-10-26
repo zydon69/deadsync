@@ -1,0 +1,4179 @@
+{
+  "Songs": [
+    {
+      "Name": "single-sm",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "SM title",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "single-ssc",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "SSC title",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "prefer-ssc",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Preferred",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc",
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "uppercase-only",
+      "Loaded": false,
+      "Selected": null,
+      "Excluded": true
+    },
+    {
+      "Name": "uppercase-and-sm",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Lowercase",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.SSC",
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "bad-ssc-with-sm",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Bad",
+      "TitleTranslit": null,
+      "Artist": null,
+      "Credit": null,
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": null
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc",
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "no-charts",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "No charts",
+      "TitleTranslit": null,
+      "Artist": "Artist",
+      "Credit": null,
+      "Ratings": "",
+      "Charts": [],
+      "Cancelled": true,
+      "SortedIndices": [],
+      "Comparisons": [],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "missing-title",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": null,
+      "TitleTranslit": null,
+      "Artist": null,
+      "Credit": null,
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "metadata-without-valid-notes",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Metadata only",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "ratings-layout-meter",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Ratings",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "7,7,9,15|12|13",
+      "Charts": [
+        {
+          "Type": "pump-double",
+          "Rating": 13,
+          "Difficulty": "Easy"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 15,
+          "Difficulty": "Beginner"
+        },
+        {
+          "Type": "dance-double",
+          "Rating": 12,
+          "Difficulty": "Challenge"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 7,
+          "Difficulty": "Challenge"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 7.9,
+          "Difficulty": "Easy"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        4,
+        5,
+        1,
+        2,
+        3,
+        0
+      ],
+      "Comparisons": [
+        [
+          0,
+          8,
+          8,
+          7,
+          8,
+          8
+        ],
+        [
+          -8,
+          0,
+          -1,
+          -1,
+          1,
+          1
+        ],
+        [
+          -8,
+          1,
+          0,
+          -1,
+          1,
+          1
+        ],
+        [
+          -7,
+          1,
+          1,
+          0,
+          1,
+          1
+        ],
+        [
+          -8,
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        [
+          -8,
+          -1,
+          -1,
+          -1,
+          1,
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "ratings-negative",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Negative",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "-3,0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": -3,
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Easy"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0,
+        1
+      ],
+      "Comparisons": [
+        [
+          0,
+          -1
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "z-title-translit",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Zulu",
+      "TitleTranslit": "Alpha",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "a-title",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Alpha",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "e-accent",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Éclair",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "b-title",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "beta",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "same-a",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Same",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "same-z",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Same",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "multiple-same-extension",
+      "Loaded": true,
+      "Selected": "a.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "First",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "z.ssc",
+        "a.ssc"
+      ]
+    },
+    {
+      "Name": "rating-nan",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Boundary",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "NaN",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "rating-positive-infinity",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Boundary",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "2147483647",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "Infinity",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "rating-negative-infinity",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Boundary",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "-2147483648",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "-Infinity",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "rating-above-int",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Boundary",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "2147483647",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 2147483648,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "rating-below-int",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Boundary",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "-2147483648",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": -2147483649,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "rating-very-large",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Boundary",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "2147483647",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 1e+30,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-thousands",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-thousands",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "1000",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 1000,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-misgroup",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-misgroup",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "15",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 15,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-consecutive-groups",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-consecutive-groups",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "12",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 12,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-leading-group",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-leading-group",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-trailing-group",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-trailing-group",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "1",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 1,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-group-before-decimal",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-group-before-decimal",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "1",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 1.5,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-group-after-decimal",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-group-after-decimal",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-group-before-exponent",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-group-before-exponent",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "100",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 100,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-group-in-exponent",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-group-in-exponent",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-group-and-exponent",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-group-and-exponent",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "1200",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 1200,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-only-groups",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-only-groups",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-zero-group",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-zero-group",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "1",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 1,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-plus",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "12",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 12,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-plus",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "12",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 12,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-negative",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "-12",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": -12,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-negative",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "-12",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": -12,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-double-minus",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-double-minus",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-mixed-signs",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-mixed-signs",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-space-after-sign",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-space-after-sign",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-leading-decimal",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-leading-decimal",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0.5,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-trailing-decimal",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-trailing-decimal",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "1",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 1,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-fraction",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-fraction",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "1",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 1.5,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-exponent",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-exponent",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "100",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 100,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-negative-exponent",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-negative-exponent",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0.01,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-combined",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-combined",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "-12345",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": -12345,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-special-short-inf",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-special-short-inf",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-special-negative-short-inf",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-special-negative-short-inf",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-special-plus-short-inf",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-special-plus-short-inf",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-special-upper-short-inf",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-special-upper-short-inf",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-special-lower-infinity",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-special-lower-infinity",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "2147483647",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "Infinity",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-special-negative-lower-infinity",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-special-negative-lower-infinity",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "-2147483648",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "-Infinity",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-special-plus-infinity",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-special-plus-infinity",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "2147483647",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "Infinity",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-special-nan",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-special-nan",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "NaN",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-special-lower-nan",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-special-lower-nan",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "NaN",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-special-negative-nan",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-special-negative-nan",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "NaN",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-special-plus-nan",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-special-plus-nan",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "NaN",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-exponent-overflow",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-exponent-overflow",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "2147483647",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "Infinity",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-negative-exponent-overflow",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-negative-exponent-overflow",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "-2147483648",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "-Infinity",
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          -1
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-underscore",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-underscore",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-currency",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-currency",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-hex",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-hex",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-leading-space",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "1",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 1,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-leading-space",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "1",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 1,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-surrounding-space",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "12",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 12,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-surrounding-space",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "12",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 12,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-empty",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-empty",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-only-sign",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-only-sign",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-plus-group",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-plus-group",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "1234",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 1234,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "grammar-sm-two-decimals",
+      "Loaded": true,
+      "Selected": "song.sm",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.sm"
+      ]
+    },
+    {
+      "Name": "grammar-ssc-two-decimals",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Grammar",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        0
+      ],
+      "Comparisons": [
+        [
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "mixed-decimal-finite",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Finite ordering",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "9,9,9,9,9",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": 9.9,
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 9.1,
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 9.2,
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 9.05,
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 9.95,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        3,
+        1,
+        2,
+        0,
+        4
+      ],
+      "Comparisons": [
+        [
+          0,
+          1,
+          1,
+          1,
+          -1
+        ],
+        [
+          -1,
+          0,
+          -1,
+          1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          0,
+          1,
+          -1
+        ],
+        [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        [
+          1,
+          1,
+          1,
+          1,
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    },
+    {
+      "Name": "mixed-nan-infinity-zero",
+      "Loaded": true,
+      "Selected": "song.ssc",
+      "Excluded": false,
+      "Error": null,
+      "Title": "Special ordering",
+      "TitleTranslit": "",
+      "Artist": "Artist",
+      "Credit": "Author",
+      "Ratings": "-2147483648,0,0,1,1,2147483647,2147483647,0",
+      "Charts": [
+        {
+          "Type": "dance-single",
+          "Rating": "NaN",
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": "Infinity",
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": "Infinity",
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": "-Infinity",
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 0,
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 1.25,
+          "Difficulty": "Hard"
+        },
+        {
+          "Type": "dance-single",
+          "Rating": 1.5,
+          "Difficulty": "Hard"
+        }
+      ],
+      "Cancelled": true,
+      "SortedIndices": [
+        4,
+        1,
+        5,
+        6,
+        7,
+        3,
+        2,
+        0
+      ],
+      "Comparisons": [
+        [
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0,
+          -1,
+          -1,
+          1,
+          0,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          -1,
+          -1,
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          -1,
+          1,
+          -1,
+          -1,
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          0,
+          -1,
+          -1,
+          1,
+          0,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          -1,
+          -1,
+          1,
+          1,
+          0,
+          -1
+        ],
+        [
+          -1,
+          1,
+          -1,
+          -1,
+          1,
+          1,
+          1,
+          0
+        ]
+      ],
+      "SortError": null,
+      "Enumeration": [
+        "song.ssc"
+      ]
+    }
+  ],
+  "Orders": {
+    "en-US": [
+      "missing-title",
+      "a-title",
+      "z-title-translit",
+      "bad-ssc-with-sm",
+      "b-title",
+      "rating-above-int",
+      "rating-below-int",
+      "rating-nan",
+      "rating-negative-infinity",
+      "rating-positive-infinity",
+      "rating-very-large",
+      "e-accent",
+      "mixed-decimal-finite",
+      "multiple-same-extension",
+      "grammar-sm-combined",
+      "grammar-sm-consecutive-groups",
+      "grammar-sm-currency",
+      "grammar-sm-double-minus",
+      "grammar-sm-empty",
+      "grammar-sm-exponent",
+      "grammar-sm-exponent-overflow",
+      "grammar-sm-fraction",
+      "grammar-sm-group-after-decimal",
+      "grammar-sm-group-and-exponent",
+      "grammar-sm-group-before-decimal",
+      "grammar-sm-group-before-exponent",
+      "grammar-sm-group-in-exponent",
+      "grammar-sm-hex",
+      "grammar-sm-leading-decimal",
+      "grammar-sm-leading-group",
+      "grammar-sm-leading-space",
+      "grammar-sm-misgroup",
+      "grammar-sm-mixed-signs",
+      "grammar-sm-negative",
+      "grammar-sm-negative-exponent",
+      "grammar-sm-negative-exponent-overflow",
+      "grammar-sm-only-groups",
+      "grammar-sm-only-sign",
+      "grammar-sm-plus",
+      "grammar-sm-plus-group",
+      "grammar-sm-space-after-sign",
+      "grammar-sm-special-lower-infinity",
+      "grammar-sm-special-lower-nan",
+      "grammar-sm-special-nan",
+      "grammar-sm-special-negative-lower-infinity",
+      "grammar-sm-special-negative-nan",
+      "grammar-sm-special-negative-short-inf",
+      "grammar-sm-special-plus-infinity",
+      "grammar-sm-special-plus-nan",
+      "grammar-sm-special-plus-short-inf",
+      "grammar-sm-special-short-inf",
+      "grammar-sm-special-upper-short-inf",
+      "grammar-sm-surrounding-space",
+      "grammar-sm-thousands",
+      "grammar-sm-trailing-decimal",
+      "grammar-sm-trailing-group",
+      "grammar-sm-two-decimals",
+      "grammar-sm-underscore",
+      "grammar-sm-zero-group",
+      "grammar-ssc-combined",
+      "grammar-ssc-consecutive-groups",
+      "grammar-ssc-currency",
+      "grammar-ssc-double-minus",
+      "grammar-ssc-empty",
+      "grammar-ssc-exponent",
+      "grammar-ssc-exponent-overflow",
+      "grammar-ssc-fraction",
+      "grammar-ssc-group-after-decimal",
+      "grammar-ssc-group-and-exponent",
+      "grammar-ssc-group-before-decimal",
+      "grammar-ssc-group-before-exponent",
+      "grammar-ssc-group-in-exponent",
+      "grammar-ssc-hex",
+      "grammar-ssc-leading-decimal",
+      "grammar-ssc-leading-group",
+      "grammar-ssc-leading-space",
+      "grammar-ssc-misgroup",
+      "grammar-ssc-mixed-signs",
+      "grammar-ssc-negative",
+      "grammar-ssc-negative-exponent",
+      "grammar-ssc-negative-exponent-overflow",
+      "grammar-ssc-only-groups",
+      "grammar-ssc-only-sign",
+      "grammar-ssc-plus",
+      "grammar-ssc-plus-group",
+      "grammar-ssc-space-after-sign",
+      "grammar-ssc-special-lower-infinity",
+      "grammar-ssc-special-lower-nan",
+      "grammar-ssc-special-nan",
+      "grammar-ssc-special-negative-lower-infinity",
+      "grammar-ssc-special-negative-nan",
+      "grammar-ssc-special-negative-short-inf",
+      "grammar-ssc-special-plus-infinity",
+      "grammar-ssc-special-plus-nan",
+      "grammar-ssc-special-plus-short-inf",
+      "grammar-ssc-special-short-inf",
+      "grammar-ssc-special-upper-short-inf",
+      "grammar-ssc-surrounding-space",
+      "grammar-ssc-thousands",
+      "grammar-ssc-trailing-decimal",
+      "grammar-ssc-trailing-group",
+      "grammar-ssc-two-decimals",
+      "grammar-ssc-underscore",
+      "grammar-ssc-zero-group",
+      "uppercase-and-sm",
+      "metadata-without-valid-notes",
+      "ratings-negative",
+      "no-charts",
+      "prefer-ssc",
+      "ratings-layout-meter",
+      "same-a",
+      "same-z",
+      "single-sm",
+      "mixed-nan-infinity-zero",
+      "single-ssc"
+    ],
+    "fr-FR": [
+      "missing-title",
+      "a-title",
+      "z-title-translit",
+      "bad-ssc-with-sm",
+      "b-title",
+      "rating-above-int",
+      "rating-below-int",
+      "rating-nan",
+      "rating-negative-infinity",
+      "rating-positive-infinity",
+      "rating-very-large",
+      "e-accent",
+      "mixed-decimal-finite",
+      "multiple-same-extension",
+      "grammar-sm-combined",
+      "grammar-sm-consecutive-groups",
+      "grammar-sm-currency",
+      "grammar-sm-double-minus",
+      "grammar-sm-empty",
+      "grammar-sm-exponent",
+      "grammar-sm-exponent-overflow",
+      "grammar-sm-fraction",
+      "grammar-sm-group-after-decimal",
+      "grammar-sm-group-and-exponent",
+      "grammar-sm-group-before-decimal",
+      "grammar-sm-group-before-exponent",
+      "grammar-sm-group-in-exponent",
+      "grammar-sm-hex",
+      "grammar-sm-leading-decimal",
+      "grammar-sm-leading-group",
+      "grammar-sm-leading-space",
+      "grammar-sm-misgroup",
+      "grammar-sm-mixed-signs",
+      "grammar-sm-negative",
+      "grammar-sm-negative-exponent",
+      "grammar-sm-negative-exponent-overflow",
+      "grammar-sm-only-groups",
+      "grammar-sm-only-sign",
+      "grammar-sm-plus",
+      "grammar-sm-plus-group",
+      "grammar-sm-space-after-sign",
+      "grammar-sm-special-lower-infinity",
+      "grammar-sm-special-lower-nan",
+      "grammar-sm-special-nan",
+      "grammar-sm-special-negative-lower-infinity",
+      "grammar-sm-special-negative-nan",
+      "grammar-sm-special-negative-short-inf",
+      "grammar-sm-special-plus-infinity",
+      "grammar-sm-special-plus-nan",
+      "grammar-sm-special-plus-short-inf",
+      "grammar-sm-special-short-inf",
+      "grammar-sm-special-upper-short-inf",
+      "grammar-sm-surrounding-space",
+      "grammar-sm-thousands",
+      "grammar-sm-trailing-decimal",
+      "grammar-sm-trailing-group",
+      "grammar-sm-two-decimals",
+      "grammar-sm-underscore",
+      "grammar-sm-zero-group",
+      "grammar-ssc-combined",
+      "grammar-ssc-consecutive-groups",
+      "grammar-ssc-currency",
+      "grammar-ssc-double-minus",
+      "grammar-ssc-empty",
+      "grammar-ssc-exponent",
+      "grammar-ssc-exponent-overflow",
+      "grammar-ssc-fraction",
+      "grammar-ssc-group-after-decimal",
+      "grammar-ssc-group-and-exponent",
+      "grammar-ssc-group-before-decimal",
+      "grammar-ssc-group-before-exponent",
+      "grammar-ssc-group-in-exponent",
+      "grammar-ssc-hex",
+      "grammar-ssc-leading-decimal",
+      "grammar-ssc-leading-group",
+      "grammar-ssc-leading-space",
+      "grammar-ssc-misgroup",
+      "grammar-ssc-mixed-signs",
+      "grammar-ssc-negative",
+      "grammar-ssc-negative-exponent",
+      "grammar-ssc-negative-exponent-overflow",
+      "grammar-ssc-only-groups",
+      "grammar-ssc-only-sign",
+      "grammar-ssc-plus",
+      "grammar-ssc-plus-group",
+      "grammar-ssc-space-after-sign",
+      "grammar-ssc-special-lower-infinity",
+      "grammar-ssc-special-lower-nan",
+      "grammar-ssc-special-nan",
+      "grammar-ssc-special-negative-lower-infinity",
+      "grammar-ssc-special-negative-nan",
+      "grammar-ssc-special-negative-short-inf",
+      "grammar-ssc-special-plus-infinity",
+      "grammar-ssc-special-plus-nan",
+      "grammar-ssc-special-plus-short-inf",
+      "grammar-ssc-special-short-inf",
+      "grammar-ssc-special-upper-short-inf",
+      "grammar-ssc-surrounding-space",
+      "grammar-ssc-thousands",
+      "grammar-ssc-trailing-decimal",
+      "grammar-ssc-trailing-group",
+      "grammar-ssc-two-decimals",
+      "grammar-ssc-underscore",
+      "grammar-ssc-zero-group",
+      "uppercase-and-sm",
+      "metadata-without-valid-notes",
+      "ratings-negative",
+      "no-charts",
+      "prefer-ssc",
+      "ratings-layout-meter",
+      "same-a",
+      "same-z",
+      "single-sm",
+      "mixed-nan-infinity-zero",
+      "single-ssc"
+    ]
+  }
+}

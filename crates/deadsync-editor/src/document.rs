@@ -1,3 +1,4 @@
+pub mod metadata;
 use crate::Error;
 use std::{collections::BTreeMap, ops::Range, sync::Arc};
 
@@ -45,89 +46,119 @@ pub struct Document {
     added_spelling: BTreeMap<(Option<usize>, String), String>,
 }
 
+// One tokenizer for editing and read-only metadata. Only strict Document::parse
+// can construct an editable Document; the read-only adapter drops note spans.
+struct Parts {
+    source: Arc<[u8]>,
+    tags: Vec<Tag>,
+    charts: Vec<Chart>,
+}
+fn parse_parts(
+    source: Arc<[u8]>,
+    format: Format,
+    limits: Option<(usize, usize)>,
+) -> Result<Parts, Error> {
+    let mut tags = Vec::new();
+    let mut charts: Vec<Chart> = Vec::new();
+    let mut pos = 0;
+    let mut chart = None;
+    while pos < source.len() {
+        if source[pos..].starts_with(b"//") {
+            pos = skip_comment(&source, pos);
+            continue;
+        }
+        if source[pos] != b'#' {
+            pos += 1;
+            continue;
+        }
+        let start = pos + 1;
+        pos = delimiter(&source, start, b':').ok_or_else(|| {
+            Error::InvalidFormat(format!("Unterminated tag at byte {}", start - 1))
+        })?;
+        let name = std::str::from_utf8(&source[start..pos])
+            .map_err(|_| Error::InvalidFormat("Invalid tag name".into()))?
+            .trim()
+            .to_ascii_uppercase();
+        if name.is_empty() || !name.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_') {
+            return Err(Error::InvalidFormat(format!(
+                "Invalid tag name at byte {start}"
+            )));
+        }
+        if limits.is_some_and(|(_, tags_limit)| tags.len() >= tags_limit) {
+            return Err(Error::Unsupported("Metadata tag limit exceeded".into()));
+        }
+        let value_start = pos + 1;
+        pos = delimiter(&source, value_start, b';')
+            .ok_or_else(|| Error::InvalidFormat(format!("Unterminated {name} tag")))?;
+        let value = value_start..pos;
+        if format == Format::Ssc && name == "NOTEDATA" {
+            chart = Some(charts.len());
+            if limits.is_some_and(|(charts_limit, _)| charts.len() >= charts_limit) {
+                return Err(Error::Unsupported("Metadata chart limit exceeded".into()));
+            }
+            charts.push(Chart {
+                steps_type: String::new(),
+                description: String::new(),
+                difficulty: String::new(),
+                meter: String::new(),
+                notes: pos..pos,
+            });
+        }
+        if format == Format::Sm && matches!(name.as_str(), "NOTES" | "NOTES2") {
+            let mut fields = Vec::new();
+            let mut offset = value_start;
+            for _ in 0..5 {
+                let next = delimiter(&source, offset, b':')
+                    .filter(|end| *end < pos)
+                    .ok_or_else(|| Error::InvalidFormat("SM chart requires six fields".into()))?;
+                fields.push(decode(&source[offset..next]));
+                offset = next + 1;
+            }
+            if limits.is_some_and(|(charts_limit, _)| charts.len() >= charts_limit) {
+                return Err(Error::Unsupported("Metadata chart limit exceeded".into()));
+            }
+            charts.push(Chart {
+                steps_type: fields[0].clone(),
+                description: fields[1].clone(),
+                difficulty: fields[2].clone(),
+                meter: fields[3].clone(),
+                notes: offset..pos,
+            });
+            tags.push(Tag {
+                name,
+                value,
+                chart: Some(charts.len() - 1),
+            });
+        } else {
+            if let Some(index) = chart {
+                let current = &mut charts[index];
+                match name.as_str() {
+                    "STEPSTYPE" => current.steps_type = decode(&source[value.clone()]),
+                    "DESCRIPTION" => current.description = decode(&source[value.clone()]),
+                    "DIFFICULTY" => current.difficulty = decode(&source[value.clone()]),
+                    "METER" => current.meter = decode(&source[value.clone()]),
+                    "NOTES" | "NOTES2" => current.notes = value.clone(),
+                    _ => {}
+                }
+            }
+            tags.push(Tag { name, value, chart });
+        }
+        pos += 1;
+    }
+    Ok(Parts {
+        source,
+        tags,
+        charts,
+    })
+}
+
 impl Document {
     pub fn parse(source: impl Into<Arc<[u8]>>, format: Format) -> Result<Self, Error> {
-        let source = source.into();
-        let mut tags = Vec::new();
-        let mut charts: Vec<Chart> = Vec::new();
-        let mut pos = 0;
-        let mut chart = None;
-        while pos < source.len() {
-            if source[pos..].starts_with(b"//") {
-                pos = skip_comment(&source, pos);
-                continue;
-            }
-            if source[pos] != b'#' {
-                pos += 1;
-                continue;
-            }
-            let start = pos + 1;
-            pos = delimiter(&source, start, b':').ok_or_else(|| {
-                Error::InvalidFormat(format!("Unterminated tag at byte {}", start - 1))
-            })?;
-            let name = std::str::from_utf8(&source[start..pos])
-                .map_err(|_| Error::InvalidFormat("Invalid tag name".into()))?
-                .trim()
-                .to_ascii_uppercase();
-            if name.is_empty() || !name.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_') {
-                return Err(Error::InvalidFormat(format!(
-                    "Invalid tag name at byte {start}"
-                )));
-            }
-            let value_start = pos + 1;
-            pos = delimiter(&source, value_start, b';')
-                .ok_or_else(|| Error::InvalidFormat(format!("Unterminated {name} tag")))?;
-            let value = value_start..pos;
-            if format == Format::Ssc && name == "NOTEDATA" {
-                chart = Some(charts.len());
-                charts.push(Chart {
-                    steps_type: String::new(),
-                    description: String::new(),
-                    difficulty: String::new(),
-                    meter: String::new(),
-                    notes: pos..pos,
-                });
-            }
-            if format == Format::Sm && matches!(name.as_str(), "NOTES" | "NOTES2") {
-                let mut fields = Vec::new();
-                let mut offset = value_start;
-                for _ in 0..5 {
-                    let next = delimiter(&source, offset, b':')
-                        .filter(|end| *end < pos)
-                        .ok_or_else(|| {
-                            Error::InvalidFormat("SM chart requires six fields".into())
-                        })?;
-                    fields.push(decode(&source[offset..next]));
-                    offset = next + 1;
-                }
-                charts.push(Chart {
-                    steps_type: fields[0].clone(),
-                    description: fields[1].clone(),
-                    difficulty: fields[2].clone(),
-                    meter: fields[3].clone(),
-                    notes: offset..pos,
-                });
-                tags.push(Tag {
-                    name,
-                    value,
-                    chart: Some(charts.len() - 1),
-                });
-            } else {
-                if let Some(index) = chart {
-                    let current = &mut charts[index];
-                    match name.as_str() {
-                        "STEPSTYPE" => current.steps_type = decode(&source[value.clone()]),
-                        "DESCRIPTION" => current.description = decode(&source[value.clone()]),
-                        "DIFFICULTY" => current.difficulty = decode(&source[value.clone()]),
-                        "METER" => current.meter = decode(&source[value.clone()]),
-                        "NOTES" | "NOTES2" => current.notes = value.clone(),
-                        _ => {}
-                    }
-                }
-                tags.push(Tag { name, value, chart });
-            }
-            pos += 1;
-        }
+        let Parts {
+            source,
+            tags,
+            charts,
+        } = parse_parts(source.into(), format, None)?;
         if charts.iter().any(|c| c.notes.is_empty()) {
             return Err(Error::InvalidFormat(
                 "Chart is missing its note data".into(),
@@ -156,11 +187,16 @@ impl Document {
             return Err(Error::InvalidEdit("Chart does not exist".into()));
         }
         let range = match document.format {
-            Format::Ssc => document.tag(Some(chart), "STEPSTYPE")
+            Format::Ssc => document
+                .tag(Some(chart), "STEPSTYPE")
                 .ok_or_else(|| Error::InvalidFormat("Chart layout field is missing".into()))?
-                .value.clone(),
+                .value
+                .clone(),
             Format::Sm => {
-                let tag = document.tags.iter().find(|tag| tag.chart == Some(chart))
+                let tag = document
+                    .tags
+                    .iter()
+                    .find(|tag| tag.chart == Some(chart))
                     .ok_or_else(|| Error::InvalidFormat("Chart header is missing".into()))?;
                 let end = delimiter(&document.source, tag.value.start, b':')
                     .filter(|end| *end < tag.value.end)
@@ -172,12 +208,20 @@ impl Document {
         // whitespace/comments. The parsed identifier supplies the exact token.
         let previous = document.charts[chart].steps_type.as_bytes();
         let field = &document.source[range.clone()];
-        let offset = field.windows(previous.len()).enumerate().find_map(|(offset, window)| {
-            (window == previous && decode(&field[..offset]).is_empty()
-                && decode(&field[offset + previous.len()..]).is_empty()).then_some(offset)
-        }).ok_or_else(|| Error::InvalidFormat("Chart layout token is ambiguous".into()))?;
-        document.replace(range.start + offset..range.start + offset + previous.len(),
-            Some(Arc::from(layout.as_bytes())))?;
+        let offset = field
+            .windows(previous.len())
+            .enumerate()
+            .find_map(|(offset, window)| {
+                (window == previous
+                    && decode(&field[..offset]).is_empty()
+                    && decode(&field[offset + previous.len()..]).is_empty())
+                .then_some(offset)
+            })
+            .ok_or_else(|| Error::InvalidFormat("Chart layout token is ambiguous".into()))?;
+        document.replace(
+            range.start + offset..range.start + offset + previous.len(),
+            Some(Arc::from(layout.as_bytes())),
+        )?;
         Self::parse(document.serialize(), self.format)
     }
     pub fn tags(&self) -> &[Tag] {
