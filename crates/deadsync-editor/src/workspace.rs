@@ -287,7 +287,7 @@ impl Workspace {
             }
             Command::Paste => {
                 if let Some(clipboard) = &self.clipboard {
-                    clipboard.paste(&mut self.file.session, self.chart, self.row, self.player)?;
+                    clipboard.paste_force(&mut self.file.session, self.chart, self.row, self.player)?;
                 }
             }
             Command::Undo => {

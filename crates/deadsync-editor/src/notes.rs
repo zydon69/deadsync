@@ -200,6 +200,41 @@ impl Grid {
         Ok(result)
     }
 
+    /// GrooveAuthor ForceAdd lane-note conflict rules (EditorChart.cs).
+    /// Conflicts are physical-lane-wide, including other routine participants.
+    pub(crate) fn force_insert(&mut self, pos: Position, note: Note) -> Result<(), Error> {
+        if pos.lane >= self.columns || pos.player >= self.players {
+            return Err(Error::InvalidEdit("Lane or participant lies outside this chart".into()));
+        }
+        note.validate(pos.row)?;
+        let end = note.end.unwrap_or(pos.row);
+        let mut changes = Vec::new();
+        for (&(player, lane), track) in &self.tracks {
+            if lane != pos.lane { continue; }
+            if let Some((&row, previous)) = track.range(..pos.row).next_back() {
+                if previous.end.is_some_and(|end| end >= pos.row) {
+                    let mut shortened = previous.clone();
+                    let new_end = pos.row.saturating_sub(ROWS_PER_BEAT / 4);
+                    if new_end <= row {
+                        shortened.kind = Kind::Tap;
+                        shortened.end = None;
+                        shortened.tail_attributes = Arc::from("");
+                    } else { shortened.end = Some(new_end); }
+                    changes.push((Position { player, row, lane }, Some(shortened)));
+                }
+            }
+            for (&row, _) in track.range(pos.row..=end) {
+                changes.push((Position { player, row, lane }, None));
+            }
+        }
+        for (position, replacement) in changes {
+            self.set(position, None)?;
+            if let Some(replacement) = replacement { self.set(position, Some(replacement))?; }
+        }
+        self.set(pos, Some(note))?;
+        Ok(())
+    }
+
     pub fn set(&mut self, pos: Position, note: Option<Note>) -> Result<Option<Note>, Error> {
         if pos.lane >= self.columns || pos.player >= self.players {
             return Err(Error::InvalidEdit(

@@ -40,7 +40,7 @@ reviewable and tested.
 | --- | --- | --- |
 | SM/SSC source preservation | Byte spans and explicit replacements; unknown tags, unchanged chart note data, and legacy metadata bytes preserved | `editing_workflows`, `property_workflows`; broader format corpus still required |
 | Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; attribute inspector, new participants, StepF2 conventions pending |
-| Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; clipboard conflict behavior intentionally refuses overlapping sustains instead of silently removing them; GrooveAuthor ForceAdd parity pending |
+| Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste now uses GrooveAuthor ForceAdd conflict rules; miscellaneous-event clipboard parity remains pending |
 | Layouts | Reference pad coordinates, starting tiers, ten relationship matrices, mirror/flip mappings | All imported layout definitions validated; original compressed graphs decoded and traversed |
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/move; broader GrooveAuthor transformations pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
@@ -5077,3 +5077,38 @@ Validation: all 47 native editor integration targets passed (268 tests) in
 suites passed 16 tests in `/tmp/deadsync-profile-copy-core.log`. The theme compilation
 check passed in `/tmp/deadsync-profile-copy-check.log`. Commands used
 `--jobs 2 --locked`.
+
+
+### Lane-note paste follows GrooveAuthor ForceAdd rules
+
+Native Paste now calls `Clipboard::paste_force`. The previous strict `paste` API
+remains available for callers explicitly requiring overlap refusal. The native
+path plans on a private grid and commits all inserted, removed and shortened notes
+as one history gesture; later validation/overflow errors leave the live chart and
+redo history untouched. Pasted events are processed by row/lane/participant order.
+
+The port follows pinned EditorChart.ForceAddEventInternal, EventTree.FindNoteAt and
+ActionPasteEvents: a same-row note replaces the previous head; a previous sustain
+covering the pasted head is shortened to twelve rows before it (Fumen's maximum
+denominator 48 divided by four), or becomes a tap when too short; a new sustain
+removes existing heads through its tail inclusively, including sustains that extend
+past the new tail. Other columns remain untouched. Conflicts are physical-column
+wide, including other participants in Routine. Single-owner selections use the
+active participant; mixed selections retain valid owners and clamp unavailable
+owners to player zero as in the original. Existing extension attributes are kept
+on shortened sustains; conversion to a tap drops sustain-tail-only attributes.
+
+Core workflows cover holds and rolls, near-head and exact-tail pastes, incoming
+sustains covering taps/holds, untouched columns, cross-participant conflicts,
+mixed-owner clamping, invalid active players and overflow, plus exact undo/redo.
+English/French native workflows copy a tap, paste through a hold, observe the
+shortened sustain, undo/redo, save and reopen. This ports lane notes; clipboard
+support for timing/miscellaneous events remains outstanding. These are tests of
+the Rust public workflows against inspected original rules, not a new executable
+C# oracle or a physical app/GPU review.
+
+Validation: all 49 native editor integration targets passed (270 tests) in
+`/tmp/deadsync-force-paste-all-native.log`; the three selected core editing,
+selection and ForceAdd paste suites passed 22 tests in
+`/tmp/deadsync-force-paste-core.log`. Theme compilation check passed in
+`/tmp/deadsync-force-paste-check.log`. Commands used `--jobs 2 --locked`.

@@ -923,6 +923,34 @@ impl Clipboard {
         })
     }
 
+    /// Paste with original GrooveAuthor lane-conflict replacement semantics.
+    /// Plan on a private grid, then publish every side effect as one gesture.
+    pub fn paste_force(&self, session: &mut Session, chart: usize, row: u64, active_player: u32) -> Result<bool, Error> {
+        let original = session.grid(chart)?;
+        if original.columns() != self.columns {
+            return Err(Error::InvalidEdit("Clipboard layout has a different number of lanes".into()));
+        }
+        let mut staged = original.clone();
+        let mut notes = self.notes.clone();
+        notes.sort_by_key(|(pos, _)| (pos.row, pos.lane, pos.player));
+        for (pos, mut note) in notes {
+            let player = if self.single_player { active_player }
+                else if pos.player < staged.players() { pos.player } else { 0 };
+            let position = Position { player, row: pos.row.checked_add(row)
+                .ok_or_else(|| Error::InvalidEdit("Paste exceeds the row range".into()))?, ..pos };
+            note.end = note.end.map(|end| end.checked_add(row)
+                .ok_or_else(|| Error::InvalidEdit("Paste exceeds the row range".into()))).transpose()?;
+            staged.force_insert(position, note)?;
+        }
+        let positions: std::collections::BTreeSet<_> = original.iter().map(|(pos, _)| pos)
+            .chain(staged.iter().map(|(pos, _)| pos)).collect();
+        let edits: Vec<_> = positions.into_iter().filter_map(|pos| {
+            let after = staged.get(pos);
+            (original.get(pos) != after).then(|| (pos, after.cloned()))
+        }).collect();
+        session.edit_notes(chart, "Paste notes", edits)
+    }
+
     /// GrooveAuthor pastes a single-owner selection as the active participant;
     /// a mixed-owner selection preserves its participant assignments.
     pub fn paste(
