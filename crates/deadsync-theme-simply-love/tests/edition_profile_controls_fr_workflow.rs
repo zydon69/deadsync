@@ -101,6 +101,7 @@ fn every_page_of_all_three_profile_families_has_french_labels_and_cancels_withou
             );
             press(&mut s, KeyCode::PageDown);
         }
+        press(&mut s, KeyCode::End);
         assert!(has(&s, "Enregistrer et sélectionner une copie"));
         press(&mut s, KeyCode::Escape);
         assert!(has(&s, "Modifications du profil abandonnées."));

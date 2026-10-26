@@ -490,6 +490,26 @@ impl ProfileFile {
             profile,
         })
     }
+    /// Retain the catalog's parsed identity (including a generated GUID for an
+    /// anonymous import) while validating the same source bytes a second time.
+    pub(crate) fn capture_snapshot(
+        path: &Path,
+        expected: Arc<[u8]>,
+        profile: Profile,
+    ) -> Result<Self, Error> {
+        if Kind::from_path(path) != Some(profile.config.kind()) {
+            return invalid("Profile filename does not match its configuration kind");
+        }
+        let path = path.canonicalize()?;
+        if fs::read(&path)?.as_slice() != expected.as_ref() {
+            return Err(Error::ExternalChange);
+        }
+        Ok(Self {
+            path,
+            expected,
+            profile,
+        })
+    }
     pub(crate) fn snapshot(&self) -> (PathBuf, Arc<[u8]>) {
         (self.path.clone(), self.expected.clone())
     }

@@ -4569,3 +4569,64 @@ source. Logs: `/tmp/deadsync-profile-controls-all-native.log`,
 `/tmp/deadsync-profile-controls-core.log` and
 `/tmp/deadsync-profile-controls-check.log`. These are scoped editor checks, not a
 claim that the full project suite or the complete GrooveAuthor port is finished.
+
+### Profile names and guarded saves of existing custom profiles
+
+The shared profile inspector now adds Rename (also F2) and Save original custom
+profile after the existing copy/cancel actions. End still selects Save copy.
+Rename opens a dedicated Unicode/grapheme text buffer with selection, cursor/word
+movement, local undo/redo, IME composition, and shared copy/cut/paste handling.
+Enter stages the name for the subsequent save action; Escape discards just that
+name edit while retaining the other staged configuration controls. Pending IME
+composition cannot be accidentally accepted as the previous committed name.
+
+Copy keeps the new GUID/export behavior. Save original opens the custom file via
+`Catalog::profile_file`, validates its catalog byte snapshot, and uses the existing
+ProfileFile atomic save/lock and external-change guard. A second snapshot check
+between catalog validation and file capture prevents a changed file from becoming
+the new accepted baseline. Presets have no writable catalog file and are rejected
+by both the native action and the core/file APIs. Updating a custom profile keeps
+its GUID and filename, preserves vendor data and reloads the selector. This edits
+shared settings for future generation; it does not regenerate notes or change the
+song document by itself.
+
+Clipboard requests now distinguish property fields from the profile-name buffer,
+retain revision/focus/IME guards, and are invalidated on name input, navigation or
+leaving/reopening the dialog. No clipboard IO occurs merely by focusing or typing.
+External-change errors identify the profile and are translated in English/French.
+
+New coverage exercises Unicode/IME names and local undo/redo, in-place name/config
+save with stable identity and untouched song bytes, protected preset refusal,
+external changes before capture and after guarded file capture, retained drafts
+on conflict, cancellation, clipboard cut/paste/undo and stale requests without IO,
+and French name/save/conflict messages. The page-label test now explicitly moves
+to End before checking the copy action, because the final page can contain the
+new rename/original-save actions.
+
+Profile library undo after committing a save, description editing, deletion,
+renaming/import/export management beyond these actions, travel-speed BPM wrapper
+controls and the broader editor backlog remain open. This is native actor/input
+coverage; no physical app/GPU review is claimed for these new dialogs.
+
+An additional anonymous-import regression initially failed: reparsing a custom
+profile without a Guid generated a different identity during catalog capture.
+The catalog now retains each parsed custom profile alongside its byte snapshot;
+`ProfileFile::capture_snapshot` preserves that identity and rechecks the original
+bytes before binding a writable handle. The test verifies capture and in-place
+save/reopen retain the catalog's generated GUID. Saving then makes that identity
+explicit in the JSON. Catalog construction and editing alone still do not write
+the imported file. The failing pre-fix log is
+`/tmp/deadsync-profile-anonymous-red.log`.
+
+The additional IME Backspace test passed against the existing shared raw-key
+composition guard; no redundant behavior change was needed. Its focused log is
+`/tmp/deadsync-profile-name-ime-verified.log`.
+
+Final validation: 234 native editor integration tests across 39 targets passed.
+The 24 core tests across profile snapshots (4), profile edits (6), catalog (5)
+and existing profile workflows (9) passed. Final
+`cargo check -p deadsync-theme-simply-love --jobs 2 --locked` passed. Logs:
+`/tmp/deadsync-profile-save-all-native.log`,
+`/tmp/deadsync-profile-save-core.log` and
+`/tmp/deadsync-profile-save-check.log`. The complete GrooveAuthor feature goal
+remains open; these results establish the scoped profile-management changes.

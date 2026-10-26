@@ -19,6 +19,9 @@ pub(super) struct Draft {
     pub editor: Editor,
     input: Option<(usize, String)>,
     back: Panel,
+    custom_source: bool,
+    name: Option<String>,
+    pub(super) name_buffer: Option<deadsync_editor::text_buffer::Buffer>,
 }
 impl State {
     pub(super) fn open_profile_edit(&mut self, kind: Kind, back: Panel) {
@@ -48,14 +51,14 @@ impl State {
                     kind,
                     &entry.guid,
                 )
-                .map_err(|e| e.to_string())?;
+                .map_err(profile_error)?;
             let name = i18n::tr_fmt(
                 "Edition",
                 "ExpressionEditCopyName",
                 &[("name", &super::profile_entry_name(entry))],
             );
-            let profile = source.duplicate(&name).map_err(|e| e.to_string())?;
-            let editor = Editor::new(profile.config()).map_err(|e| e.to_string())?;
+            let profile = source.duplicate(&name).map_err(profile_error)?;
+            let editor = Editor::new(profile.config()).map_err(profile_error)?;
             Ok(Draft {
                 source: entry.guid.clone(),
                 kind,
@@ -63,6 +66,9 @@ impl State {
                 editor,
                 input: None,
                 back,
+                custom_source: entry.builtin.is_none(),
+                name: None,
+                name_buffer: None,
             })
         })();
         match result {
@@ -105,6 +111,20 @@ impl State {
             self.profile_edit = None;
             self.panel = Some(back);
             self.status = i18n::tr("Edition", "ExpressionEditDiscarded");
+            return;
+        }
+        if (index == count + 2 && code == KeyCode::Enter) || (code == KeyCode::F2 && !self.control)
+        {
+            if !self.stage_profile_input() {
+                return;
+            }
+            self.open_profile_name();
+            return;
+        }
+        if index == count + 3 && code == KeyCode::Enter {
+            if self.stage_profile_input() {
+                self.save_profile(false);
+            }
             return;
         }
         let numeric = draft
@@ -159,10 +179,10 @@ impl State {
             return;
         }
         let next = match code {
-            KeyCode::ArrowUp => Some((index + count + 1) % (count + 2)),
-            KeyCode::ArrowDown => Some((index + 1) % (count + 2)),
-            KeyCode::Tab => Some((index + if self.shift { count + 1 } else { 1 }) % (count + 2)),
-            KeyCode::PageDown => Some((index + 8).min(count + 1)),
+            KeyCode::ArrowUp => Some((index + count + 3) % (count + 4)),
+            KeyCode::ArrowDown => Some((index + 1) % (count + 4)),
+            KeyCode::Tab => Some((index + if self.shift { count + 3 } else { 1 }) % (count + 4)),
+            KeyCode::PageDown => Some((index + 8).min(count + 3)),
             KeyCode::PageUp => Some(index.saturating_sub(8)),
             KeyCode::Home => Some(0),
             KeyCode::End => Some(count),
@@ -173,7 +193,7 @@ impl State {
             return;
         }
         if index == count && code == KeyCode::Enter {
-            self.save_profile_copy();
+            self.save_profile(true);
             return;
         }
         if index >= count
@@ -196,12 +216,8 @@ impl State {
             }
         }
     }
-    fn save_profile_copy(&mut self) {
+    fn save_profile(&mut self, copy: bool) {
         let result: Result<Choices, String> = (|| {
-            let directory = self
-                .profile_directory
-                .as_deref()
-                .ok_or_else(|| i18n::tr("Edition", "ExpressionEditUnavailable").to_string())?;
             let draft = self
                 .profile_edit
                 .as_mut()
@@ -218,7 +234,7 @@ impl State {
                     draft.kind,
                     &draft.source,
                 )
-                .map_err(|e| e.to_string())?;
+                .map_err(profile_error)?;
             let config = draft.editor.finish().map_err(|error| {
                 if error.to_string().contains("Aggressive bracket threshold") {
                     i18n::tr("Edition", "ExpressionEditThresholdOrder").to_string()
@@ -226,14 +242,39 @@ impl State {
                     error.to_string()
                 }
             })?;
-            draft
-                .profile
-                .set_config(config)
-                .map_err(|e| e.to_string())?;
-            draft
-                .profile
-                .export_new(directory)
-                .map_err(|e| e.to_string())?;
+            let saved_id = if copy {
+                let directory = self
+                    .profile_directory
+                    .as_deref()
+                    .ok_or_else(|| i18n::tr("Edition", "ExpressionEditUnavailable").to_string())?;
+                let mut profile = draft.profile.clone();
+                profile.set_config(config).map_err(profile_error)?;
+                if let Some(name) = &draft.name {
+                    profile.rename(name).map_err(profile_error)?;
+                }
+                profile.export_new(directory).map_err(profile_error)?;
+                profile.guid().clone()
+            } else {
+                if !draft.custom_source {
+                    return Err(i18n::tr("Edition", "ProfileEditProtected").to_string());
+                }
+                let mut file = settings
+                    .catalog
+                    .profile_file(
+                        &self.workspace.file().session,
+                        self.workspace.chart(),
+                        draft.kind,
+                        &draft.source,
+                    )
+                    .map_err(profile_error)?;
+                let mut profile = file.profile().clone();
+                profile.set_config(config).map_err(profile_error)?;
+                if let Some(name) = &draft.name {
+                    profile.rename(name).map_err(profile_error)?;
+                }
+                file.save(&profile).map_err(profile_error)?;
+                profile.guid().clone()
+            };
             let offset = usize::from(matches!(draft.back, Panel::ConversionProfiles(_)));
             let selected = |kind, index: Option<usize>| {
                 index
@@ -246,7 +287,7 @@ impl State {
                 performed: selected(Kind::Performed, settings.performed),
                 expressed: selected(Kind::Expressed, settings.expressed),
             };
-            let id = Some(draft.profile.guid().clone());
+            let id = Some(saved_id);
             match draft.kind {
                 Kind::Pattern => choices.pattern = id,
                 Kind::Performed => choices.performed = id,
@@ -273,6 +314,22 @@ impl State {
         let Some(draft) = &self.profile_edit else {
             return i18n::tr("Edition", key);
         };
+        let count = draft.editor.fields().len();
+        if index == count + 2 {
+            let fallback = i18n::tr("Edition", "ProfileNameUnchanged");
+            let name = draft.name.as_deref().unwrap_or(&fallback);
+            return i18n::tr_fmt("Edition", "ProfileEditName", &[("value", name)]);
+        }
+        if index == count + 3 {
+            return i18n::tr(
+                "Edition",
+                if draft.custom_source {
+                    "ProfileEditSaveOriginal"
+                } else {
+                    "ProfileEditProtected"
+                },
+            );
+        }
         let Some(field) = draft.editor.fields().get(index) else {
             return i18n::tr("Edition", key);
         };
@@ -358,5 +415,123 @@ impl State {
             key
         };
         i18n::tr_fmt("Edition", &key, &[("value", &value)])
+    }
+}
+
+impl State {
+    fn open_profile_name(&mut self) {
+        let Some(draft) = self.profile_edit.as_mut() else {
+            return;
+        };
+        let name = draft
+            .name
+            .as_deref()
+            .or_else(|| draft.profile.name())
+            .unwrap_or_default();
+        draft.name_buffer = Some(deadsync_editor::text_buffer::Buffer::new(name, true));
+        self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
+        self.label_preedit.clear();
+        self.panel = Some(Panel::ProfileName);
+        self.status = i18n::tr("Edition", "ProfileNameHelp");
+    }
+    pub(super) fn profile_name_input(&mut self, text: &str) -> bool {
+        self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
+        let changed = self
+            .profile_edit
+            .as_mut()
+            .and_then(|d| d.name_buffer.as_mut())
+            .is_some_and(|buffer| buffer.insert(text));
+        self.label_preedit.clear();
+        changed
+    }
+    pub(super) fn profile_name_key(&mut self, code: KeyCode) {
+        self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
+        if self.control && matches!(code, KeyCode::KeyC | KeyCode::KeyX | KeyCode::KeyV) {
+            self.queue_text_clipboard(code);
+            return;
+        }
+        use deadsync_editor::text_buffer::Movement;
+        let Some(draft) = self.profile_edit.as_mut() else {
+            return;
+        };
+        let Some(buffer) = draft.name_buffer.as_mut() else {
+            return;
+        };
+        if code == KeyCode::Escape {
+            draft.name_buffer = None;
+            self.label_preedit.clear();
+            self.panel = Some(Panel::ProfileEdit(draft.editor.fields().len() + 2));
+            self.status = i18n::tr("Edition", "ProfileNameDiscarded");
+            return;
+        }
+        if code == KeyCode::Enter {
+            if !self.label_preedit.is_empty() {
+                return;
+            }
+            draft.name = Some(buffer.value().to_owned());
+            draft.name_buffer = None;
+            self.panel = Some(Panel::ProfileEdit(draft.editor.fields().len()));
+            self.status = i18n::tr("Edition", "ProfileNameStaged");
+            return;
+        }
+        if self.control {
+            match code {
+                KeyCode::KeyA => buffer.select_all(),
+                KeyCode::KeyZ if self.shift => {
+                    buffer.redo();
+                }
+                KeyCode::KeyZ => {
+                    buffer.undo();
+                }
+                KeyCode::KeyY => {
+                    buffer.redo();
+                }
+                _ => {}
+            }
+        }
+        let movement = match code {
+            KeyCode::ArrowLeft => Some(if self.control {
+                Movement::WordLeft
+            } else {
+                Movement::Left
+            }),
+            KeyCode::ArrowRight => Some(if self.control {
+                Movement::WordRight
+            } else {
+                Movement::Right
+            }),
+            KeyCode::Home => Some(Movement::Start),
+            KeyCode::End => Some(Movement::End),
+            _ => None,
+        };
+        if let Some(movement) = movement {
+            buffer.move_cursor(movement, self.shift);
+            self.label_preedit.clear();
+        }
+        if code == KeyCode::Backspace {
+            buffer.backspace(self.control);
+            self.label_preedit.clear();
+        }
+        if code == KeyCode::Delete {
+            buffer.delete(self.control);
+            self.label_preedit.clear();
+        }
+    }
+    pub(super) fn profile_name_label(&self) -> std::sync::Arc<str> {
+        let value = self
+            .profile_edit
+            .as_ref()
+            .and_then(|draft| draft.name_buffer.as_ref())
+            .map(|buffer| buffer.display(&self.label_preedit, 44))
+            .unwrap_or_default();
+        i18n::tr_fmt("Edition", "ProfileNameInput", &[("value", &value)])
+    }
+}
+
+fn profile_error(error: deadsync_editor::Error) -> String {
+    if matches!(error, deadsync_editor::Error::ExternalChange) {
+        i18n::tr("Edition", "ProfileEditExternalChange").to_string()
+    } else {
+        error.to_string()
     }
 }

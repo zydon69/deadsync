@@ -1,12 +1,17 @@
-use super::State;
 use super::text_fields::Target;
+use super::{Panel, State};
 use crate::i18n;
 use deadlib_platform::input::KeyCode;
 use deadsync_editor::clipboard::TextClipboard;
 pub(super) struct Request {
     serial: u64,
-    field: Target,
+    field: ClipboardTarget,
     operation: Operation,
+}
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ClipboardTarget {
+    Property(Target),
+    ProfileName,
 }
 enum Operation {
     Copy(String),
@@ -14,11 +19,37 @@ enum Operation {
     Paste,
 }
 impl State {
+    fn clipboard_target(&self) -> Option<ClipboardTarget> {
+        if matches!(self.panel, Some(Panel::ProfileName)) {
+            self.profile_edit.as_ref()?.name_buffer.as_ref()?;
+            Some(ClipboardTarget::ProfileName)
+        } else {
+            self.text_target().map(ClipboardTarget::Property)
+        }
+    }
+    fn clipboard_buffer(&self) -> Option<&deadsync_editor::text_buffer::Buffer> {
+        if matches!(self.panel, Some(Panel::ProfileName)) {
+            self.profile_edit.as_ref()?.name_buffer.as_ref()
+        } else {
+            self.text_buffer.as_ref()
+        }
+    }
+    fn clipboard_buffer_mut(&mut self) -> Option<&mut deadsync_editor::text_buffer::Buffer> {
+        if matches!(self.panel, Some(Panel::ProfileName)) {
+            self.profile_edit.as_mut()?.name_buffer.as_mut()
+        } else {
+            self.text_buffer.as_mut()
+        }
+    }
+    fn clipboard_sync(&mut self) -> bool {
+        matches!(self.panel, Some(Panel::ProfileName)) || self.sync_text()
+    }
+
     pub(super) fn queue_text_clipboard(&mut self, code: KeyCode) {
-        let Some(field) = self.text_target() else {
+        let Some(field) = self.clipboard_target() else {
             return;
         };
-        let Some(buffer) = self.text_buffer.as_ref() else {
+        let Some(buffer) = self.clipboard_buffer() else {
             return;
         };
         let selected = buffer.selection();
@@ -53,7 +84,7 @@ impl State {
             return false;
         };
         if request.serial != self.text_edit_serial
-            || self.text_target() != Some(request.field)
+            || self.clipboard_target() != Some(request.field)
             || !self.label_preedit.is_empty()
         {
             return false;
@@ -63,18 +94,22 @@ impl State {
                 .write_text(&text)
                 .map(|()| Some("ClipboardCopied")),
             Operation::Cut(text) => clipboard.write_text(&text).map(|()| {
-                if let Some(buffer) = self.text_buffer.as_mut() {
+                if let Some(buffer) = self.clipboard_buffer_mut() {
                     buffer.delete(false);
                 }
                 self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
-                self.sync_text().then_some("ClipboardCut")
+                self.clipboard_sync().then_some("ClipboardCut")
             }),
             Operation::Paste => clipboard.read_text().map(|text| {
                 if text.is_empty() || text.chars().all(char::is_control) {
                     return Some("ClipboardNoChange");
                 }
-                self.edit_text_input(&text);
-                self.sync_text().then_some("ClipboardPasted")
+                if matches!(request.field, ClipboardTarget::ProfileName) {
+                    self.profile_name_input(&text);
+                } else {
+                    self.edit_text_input(&text);
+                }
+                self.clipboard_sync().then_some("ClipboardPasted")
             }),
         };
         match result {

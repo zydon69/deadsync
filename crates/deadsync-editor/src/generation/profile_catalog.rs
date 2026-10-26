@@ -48,6 +48,7 @@ pub struct Catalog {
     chart: usize,
     entries: BTreeMap<Kind, Vec<Entry>>,
     dependencies: BTreeMap<(Kind, Guid), (PathBuf, Arc<[u8]>)>,
+    custom_profiles: BTreeMap<(Kind, Guid), super::profiles::Profile>,
     issues: Vec<Issue>,
 }
 pub struct ExpressionSelection {
@@ -108,6 +109,7 @@ impl Task {
         };
         let mut entries = BTreeMap::new();
         let mut dependencies = BTreeMap::new();
+        let mut custom_profiles = BTreeMap::new();
         for (kind, ids) in [
             (
                 Kind::Pattern,
@@ -121,6 +123,7 @@ impl Task {
                 check(cancelled)?;
                 let (name, builtin) = if let Some(file) = loaded.profiles.get(&(kind, id.clone())) {
                     dependencies.insert((kind, id.clone()), file.snapshot());
+                    custom_profiles.insert((kind, id.clone()), file.profile().clone());
                     (file.profile().name().map(str::to_owned), None)
                 } else {
                     (
@@ -153,6 +156,7 @@ impl Task {
             chart: self.chart,
             entries,
             dependencies,
+            custom_profiles,
             issues: loaded.issues,
         })
     }
@@ -188,7 +192,11 @@ impl Catalog {
             if fs::read(path)?.as_slice() != expected.as_ref() {
                 return Err(Error::ExternalChange);
             }
-            return super::profiles::Profile::parse(kind, expected);
+            return self
+                .custom_profiles
+                .get(&(kind, id.clone()))
+                .cloned()
+                .ok_or_else(|| invalid("Custom profile snapshot is missing"));
         }
         let registry = Registry::builtin();
         let config = match kind {
@@ -209,6 +217,22 @@ impl Catalog {
         let bytes = serde_json::to_vec(&serde_json::json!({"Guid":id,"Config":config.json()?}))
             .map_err(|error| invalid(&error.to_string()))?;
         super::profiles::Profile::parse(kind, &bytes)
+    }
+    /// Open the same custom file captured by this catalog, retaining the file's
+    /// byte guard for a later atomic save. Built-in presets have no writable file.
+    pub fn profile_file(
+        &self,
+        session: &Session,
+        chart: usize,
+        kind: Kind,
+        id: &Guid,
+    ) -> Result<super::profiles::ProfileFile, Error> {
+        let profile = self.profile(session, chart, kind, id)?;
+        let (path, expected) = self
+            .dependencies
+            .get(&(kind, id.clone()))
+            .ok_or_else(|| invalid("Built-in editor profiles cannot be overwritten"))?;
+        super::profiles::ProfileFile::capture_snapshot(path, expected.clone(), profile)
     }
     pub fn select(
         &self,
