@@ -49,7 +49,7 @@ reviewable and tested.
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
 | Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
-| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; full configuration editing and broader runtime parity remain pending |
+| Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; library undo/deletion, absent-layout dictionary editing, BPM wrapper controls and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
 | Customization | Initial native shortcuts | Rebinding, presets, colors, scroll/receptor/waveform preferences and command palette pending |
 | Export and scale | Original SM/SSC format retained | Cross-format export checks, advanced save settings, long-file benchmarks and large-generation cancellation pending |
@@ -4630,3 +4630,52 @@ and existing profile workflows (9) passed. Final
 `/tmp/deadsync-profile-save-core.log` and
 `/tmp/deadsync-profile-save-check.log`. The complete GrooveAuthor feature goal
 remains open; these results establish the scoped profile-management changes.
+
+### Profile descriptions through shared metadata text editing
+
+The inspector now offers Description (F3), alongside Rename (F2). Both fields use
+one typed metadata-text dialog with the existing Unicode/grapheme buffer, IME,
+selection, cursor movement, local undo/redo and clipboard support. Clipboard
+requests retain the specific metadata field as well as the edit serial, so a
+pending name request cannot affect a subsequently opened description dialog.
+The internal name-only panel/buffer methods were renamed to shared profile-text
+methods rather than adding a second text-editing implementation.
+
+Description is staged independently from name/config edits. Copy and original
+save apply it through `Profile::set_description`; the setter changes only the
+last effective ordered Description member and retains all other raw members.
+Missing/null descriptions remain untouched on a semantic no-op. Explicit empty
+strings and null are distinct. Writing null does not remove the last member and
+accidentally expose an earlier duplicate. Rename shares the same private ordered
+text-member update path, preserving its existing public contract.
+
+Accepting an unchanged blank description does not add an empty property to a
+profile that had none. Existing imported multiline text is displayed with escaped
+control characters in the single-line dialog, and remains unchanged after an
+unmodified acceptance/save. Description edits preserve configuration, GUID, name
+and song bytes; they update profile information only and do not regenerate notes.
+English/French labels and staged/discarded messages are included.
+
+Core workflows cover missing/null/empty values, duplicate properties, large
+unknown JSON literals, all three configuration families, copy and guarded
+save/reopen. Native workflows cover Unicode text, local undo/redo, copying,
+in-place changes and clearing, unchanged blank acceptance, cancellation,
+clipboard request rejection across metadata fields without IO, imported multiline
+preservation, and French staging/save/cancel. These are actor/input and file
+workflows, not physical GPU review or a new executable C# differential oracle.
+The original shared EditorConfig Description member and the single-line
+Expressed/Performed config text controls were inspected for this addition.
+
+Library deletion/undo, richer import/export management, BPM wrapper controls and
+the broader editor backlog remain unfinished.
+
+Validation: the complete native editor integration run passed 238 tests across
+41 targets. One further absent-description acceptance test was then added; the
+four-test English description target passed again with unchanged production
+sources, bringing the distinct passing native cases to 239. The 15 targeted core
+tests (2 description, 4 snapshot, 9 existing profile workflows) passed. Final
+`cargo check -p deadsync-theme-simply-love --jobs 2 --locked` passed. Logs:
+`/tmp/deadsync-profile-description-all-native.log`,
+`/tmp/deadsync-profile-description-final-native.log`,
+`/tmp/deadsync-profile-description-core.log` and
+`/tmp/deadsync-profile-description-check.log`.

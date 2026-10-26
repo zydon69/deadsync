@@ -72,7 +72,7 @@ enum Panel {
     ChartProperties(usize),
     DisplayTempo(usize),
     ProfileEdit(usize),
-    ProfileName,
+    ProfileText,
     ChartText(usize),
     SongText(usize),
     SongProperties(usize),
@@ -1356,7 +1356,7 @@ impl State {
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
         let repeating_text_cursor = matches!(
-            self.panel, Some(Panel::ChartText(_) | Panel::SongText(_) | Panel::ProfileName)
+            self.panel, Some(Panel::ChartText(_) | Panel::SongText(_) | Panel::ProfileText)
         )
             && matches!(
                 event.code,
@@ -1558,7 +1558,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
-        if matches!(panel, Panel::ProfileName) { self.profile_name_key(code); return false; }
+        if matches!(panel, Panel::ProfileText) { self.profile_text_key(code); return false; }
         if let Panel::ProfileEdit(index) = panel { self.profile_edit_key(index, code); return false; }
         if let Panel::DisplayTempo(index) = panel { self.display_tempo_key(index, code); return false; }
         if let Panel::ChartText(index) | Panel::SongText(index) = panel {
@@ -1659,7 +1659,7 @@ impl State {
             return false;
         }
         match panel {
-            Panel::ProfileName => unreachable!("profile name dispatched above"),
+            Panel::ProfileText => unreachable!("profile name dispatched above"),
             Panel::ProfileEdit(_) => unreachable!("expression editing dispatched above"),
             Panel::DisplayTempo(_) => unreachable!("display tempo dispatched above"),
             Panel::ChartText(_) | Panel::SongText(_) => unreachable!("text field input dispatched above"),
@@ -2490,7 +2490,7 @@ impl State {
         }
         let profile_keys: Vec<&str> = self.profile_edit.as_ref().map(|draft| {
             let mut keys = vec!["ProfileEditField"; draft.editor.fields().len()];
-            keys.extend(["ExpressionEditSaveCopy", "ExpressionEditCancel", "ProfileEditName", "ProfileEditSaveOriginal"]);
+            keys.extend(["ExpressionEditSaveCopy", "ExpressionEditCancel", "ProfileEditName", "ProfileEditSaveOriginal", "ProfileEditDescription"]);
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
@@ -2612,7 +2612,7 @@ impl State {
                 "ChartMusic", "ChartTextBack",
             ],
             Panel::ProfileEdit(_) => &profile_keys,
-            Panel::ProfileName => &["ProfileNameInput", "ProfileNameAccept", "ProfileNameCancel"],
+            Panel::ProfileText => self.profile_text_keys(),
             Panel::DisplayTempo(_) => &["DisplayTempoMode", "DisplayTempoMin", "DisplayTempoRange", "DisplayTempoMax", "DisplayTempoStage", "DisplayTempoCancel"],
             Panel::ChartProperties(_) => &[
                 "ChartChooseExpression",
@@ -2847,8 +2847,8 @@ impl State {
                 || (matches!(panel, Panel::SongText(_)) && index < deadsync_editor::song_text::Field::ALL.len())
             {
                 self.text_field_label(index)
-            } else if matches!(panel, Panel::ProfileName) && index == 0 {
-                self.profile_name_label()
+            } else if matches!(panel, Panel::ProfileText) && index == 0 {
+                self.profile_text_label()
             } else if matches!(panel, Panel::ProfileEdit(_)) {
                 self.profile_edit_label(index, key)
             } else if matches!(panel, Panel::DisplayTempo(_)) {
@@ -3077,7 +3077,7 @@ impl State {
                 let y=panel_y-panel_height*0.5+extra_height+30.0+(index-menu_start) as f32*32.0;
                 actors.push(act!(quad: xy(panel_x+panel_width*0.5-20.0,y): zoomto(16.0,16.0): diffuse(rgba[0],rgba[1],rgba[2],rgba[3]): z(8022)));
             }
-            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_) | Panel::ProfileEdit(_) | Panel::ProfileName) {
+            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_) | Panel::ProfileEdit(_) | Panel::ProfileText) {
                 if let Some(Actor::Text { max_width, .. }) = actors.last_mut() {
                     *max_width = Some(panel_width - 30.0);
                 }

@@ -263,11 +263,22 @@ impl Profile {
     /// Unknown wrapper and generation fields stay in the ordered source body.
     /// A rename changes only the last effective Name property.
     pub fn rename(&mut self, name: &str) -> Result<(), Error> {
+        self.set_text_member("Name", Some(name))
+    }
+    /// A semantic no-op preserves missing/null descriptions and all source data.
+    pub fn set_description(&mut self, description: Option<&str>) -> Result<bool, Error> {
+        if self.description() == description {
+            return Ok(false);
+        }
+        self.set_text_member("Description", description)?;
+        Ok(true)
+    }
+    fn set_text_member(&mut self, key: &str, text: Option<&str>) -> Result<(), Error> {
         let mut members = self.members.clone();
-        if let Some((_, value)) = members.0.iter_mut().rev().find(|(key, _)| key == "Name") {
-            *value = raw(&name)?;
+        if let Some((_, value)) = members.0.iter_mut().rev().find(|(name, _)| name == key) {
+            *value = raw(&text)?;
         } else {
-            members.0.push(("Name".into(), raw(&name)?));
+            members.0.push((key.into(), raw(&text)?));
         }
         *self = Self::from_members(self.config.kind(), members)?;
         Ok(())

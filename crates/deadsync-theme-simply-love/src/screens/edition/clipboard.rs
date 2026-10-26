@@ -11,7 +11,7 @@ pub(super) struct Request {
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum ClipboardTarget {
     Property(Target),
-    ProfileName,
+    ProfileText(super::profile_edit::TextField),
 }
 enum Operation {
     Copy(String),
@@ -20,29 +20,31 @@ enum Operation {
 }
 impl State {
     fn clipboard_target(&self) -> Option<ClipboardTarget> {
-        if matches!(self.panel, Some(Panel::ProfileName)) {
-            self.profile_edit.as_ref()?.name_buffer.as_ref()?;
-            Some(ClipboardTarget::ProfileName)
+        if matches!(self.panel, Some(Panel::ProfileText)) {
+            self.profile_edit.as_ref()?.text_buffer.as_ref()?;
+            Some(ClipboardTarget::ProfileText(
+                self.profile_edit.as_ref()?.text_field,
+            ))
         } else {
             self.text_target().map(ClipboardTarget::Property)
         }
     }
     fn clipboard_buffer(&self) -> Option<&deadsync_editor::text_buffer::Buffer> {
-        if matches!(self.panel, Some(Panel::ProfileName)) {
-            self.profile_edit.as_ref()?.name_buffer.as_ref()
+        if matches!(self.panel, Some(Panel::ProfileText)) {
+            self.profile_edit.as_ref()?.text_buffer.as_ref()
         } else {
             self.text_buffer.as_ref()
         }
     }
     fn clipboard_buffer_mut(&mut self) -> Option<&mut deadsync_editor::text_buffer::Buffer> {
-        if matches!(self.panel, Some(Panel::ProfileName)) {
-            self.profile_edit.as_mut()?.name_buffer.as_mut()
+        if matches!(self.panel, Some(Panel::ProfileText)) {
+            self.profile_edit.as_mut()?.text_buffer.as_mut()
         } else {
             self.text_buffer.as_mut()
         }
     }
     fn clipboard_sync(&mut self) -> bool {
-        matches!(self.panel, Some(Panel::ProfileName)) || self.sync_text()
+        matches!(self.panel, Some(Panel::ProfileText)) || self.sync_text()
     }
 
     pub(super) fn queue_text_clipboard(&mut self, code: KeyCode) {
@@ -104,8 +106,8 @@ impl State {
                 if text.is_empty() || text.chars().all(char::is_control) {
                     return Some("ClipboardNoChange");
                 }
-                if matches!(request.field, ClipboardTarget::ProfileName) {
-                    self.profile_name_input(&text);
+                if matches!(request.field, ClipboardTarget::ProfileText(_)) {
+                    self.profile_text_input(&text);
                 } else {
                     self.edit_text_input(&text);
                 }

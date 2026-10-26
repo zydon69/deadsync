@@ -2,7 +2,7 @@
 use super::{Panel, State};
 impl State {
     pub fn wants_text_input(&self) -> bool {
-        matches!(self.panel, Some(Panel::ProfileName))
+        matches!(self.panel, Some(Panel::ProfileText))
             || self.text_target().is_some()
             || (matches!(self.panel, Some(Panel::Timing(2)))
                 && self.timing.as_ref().is_some_and(|s| s.is_label()))
@@ -15,8 +15,8 @@ impl State {
         {
             return false;
         }
-        if matches!(self.panel, Some(Panel::ProfileName)) {
-            return self.profile_name_input(text);
+        if matches!(self.panel, Some(Panel::ProfileText)) {
+            return self.profile_text_input(text);
         }
         if self.text_target().is_some() {
             return self.edit_text_input(text);

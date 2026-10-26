@@ -12,6 +12,25 @@ pub(super) struct Choices {
     pub performed: Option<Guid>,
     pub expressed: Option<Guid>,
 }
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(super) enum TextField {
+    Name,
+    Description,
+}
+impl TextField {
+    fn key(self, name: &'static str, description: &'static str) -> &'static str {
+        match self {
+            Self::Name => name,
+            Self::Description => description,
+        }
+    }
+    fn row(self) -> usize {
+        match self {
+            Self::Name => 2,
+            Self::Description => 4,
+        }
+    }
+}
 pub(super) struct Draft {
     source: Guid,
     kind: Kind,
@@ -21,7 +40,9 @@ pub(super) struct Draft {
     back: Panel,
     custom_source: bool,
     name: Option<String>,
-    pub(super) name_buffer: Option<deadsync_editor::text_buffer::Buffer>,
+    description: Option<String>,
+    pub(super) text_field: TextField,
+    pub(super) text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
 }
 impl State {
     pub(super) fn open_profile_edit(&mut self, kind: Kind, back: Panel) {
@@ -68,7 +89,9 @@ impl State {
                 back,
                 custom_source: entry.builtin.is_none(),
                 name: None,
-                name_buffer: None,
+                description: None,
+                text_field: TextField::Name,
+                text_buffer: None,
             })
         })();
         match result {
@@ -118,7 +141,15 @@ impl State {
             if !self.stage_profile_input() {
                 return;
             }
-            self.open_profile_name();
+            self.open_profile_text(TextField::Name);
+            return;
+        }
+        if (index == count + 4 && code == KeyCode::Enter) || (code == KeyCode::F3 && !self.control)
+        {
+            if !self.stage_profile_input() {
+                return;
+            }
+            self.open_profile_text(TextField::Description);
             return;
         }
         if index == count + 3 && code == KeyCode::Enter {
@@ -179,10 +210,10 @@ impl State {
             return;
         }
         let next = match code {
-            KeyCode::ArrowUp => Some((index + count + 3) % (count + 4)),
-            KeyCode::ArrowDown => Some((index + 1) % (count + 4)),
-            KeyCode::Tab => Some((index + if self.shift { count + 3 } else { 1 }) % (count + 4)),
-            KeyCode::PageDown => Some((index + 8).min(count + 3)),
+            KeyCode::ArrowUp => Some((index + count + 4) % (count + 5)),
+            KeyCode::ArrowDown => Some((index + 1) % (count + 5)),
+            KeyCode::Tab => Some((index + if self.shift { count + 4 } else { 1 }) % (count + 5)),
+            KeyCode::PageDown => Some((index + 8).min(count + 4)),
             KeyCode::PageUp => Some(index.saturating_sub(8)),
             KeyCode::Home => Some(0),
             KeyCode::End => Some(count),
@@ -252,6 +283,11 @@ impl State {
                 if let Some(name) = &draft.name {
                     profile.rename(name).map_err(profile_error)?;
                 }
+                if let Some(description) = &draft.description {
+                    profile
+                        .set_description(Some(description))
+                        .map_err(profile_error)?;
+                }
                 profile.export_new(directory).map_err(profile_error)?;
                 profile.guid().clone()
             } else {
@@ -271,6 +307,11 @@ impl State {
                 profile.set_config(config).map_err(profile_error)?;
                 if let Some(name) = &draft.name {
                     profile.rename(name).map_err(profile_error)?;
+                }
+                if let Some(description) = &draft.description {
+                    profile
+                        .set_description(Some(description))
+                        .map_err(profile_error)?;
                 }
                 file.save(&profile).map_err(profile_error)?;
                 profile.guid().clone()
@@ -319,6 +360,19 @@ impl State {
             let fallback = i18n::tr("Edition", "ProfileNameUnchanged");
             let name = draft.name.as_deref().unwrap_or(&fallback);
             return i18n::tr_fmt("Edition", "ProfileEditName", &[("value", name)]);
+        }
+        if index == count + 4 {
+            let description = draft
+                .description
+                .as_deref()
+                .or_else(|| draft.profile.description())
+                .unwrap_or_default();
+            let preview: String = description
+                .chars()
+                .map(|c| if c.is_control() { ' ' } else { c })
+                .take(44)
+                .collect();
+            return i18n::tr_fmt("Edition", "ProfileEditDescription", &[("value", &preview)]);
         }
         if index == count + 3 {
             return i18n::tr(
@@ -419,32 +473,39 @@ impl State {
 }
 
 impl State {
-    fn open_profile_name(&mut self) {
+    fn open_profile_text(&mut self, field: TextField) {
         let Some(draft) = self.profile_edit.as_mut() else {
             return;
         };
-        let name = draft
-            .name
-            .as_deref()
-            .or_else(|| draft.profile.name())
-            .unwrap_or_default();
-        draft.name_buffer = Some(deadsync_editor::text_buffer::Buffer::new(name, true));
+        draft.text_field = field;
+        let text = match field {
+            TextField::Name => draft.name.as_deref().or_else(|| draft.profile.name()),
+            TextField::Description => draft
+                .description
+                .as_deref()
+                .or_else(|| draft.profile.description()),
+        }
+        .unwrap_or_default();
+        draft.text_buffer = Some(deadsync_editor::text_buffer::Buffer::new(text, true));
         self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
         self.label_preedit.clear();
-        self.panel = Some(Panel::ProfileName);
-        self.status = i18n::tr("Edition", "ProfileNameHelp");
+        self.panel = Some(Panel::ProfileText);
+        self.status = i18n::tr(
+            "Edition",
+            field.key("ProfileNameHelp", "ProfileDescriptionHelp"),
+        );
     }
-    pub(super) fn profile_name_input(&mut self, text: &str) -> bool {
+    pub(super) fn profile_text_input(&mut self, text: &str) -> bool {
         self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
         let changed = self
             .profile_edit
             .as_mut()
-            .and_then(|d| d.name_buffer.as_mut())
+            .and_then(|d| d.text_buffer.as_mut())
             .is_some_and(|buffer| buffer.insert(text));
         self.label_preedit.clear();
         changed
     }
-    pub(super) fn profile_name_key(&mut self, code: KeyCode) {
+    pub(super) fn profile_text_key(&mut self, code: KeyCode) {
         self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
         if self.control && matches!(code, KeyCode::KeyC | KeyCode::KeyX | KeyCode::KeyV) {
             self.queue_text_clipboard(code);
@@ -454,24 +515,43 @@ impl State {
         let Some(draft) = self.profile_edit.as_mut() else {
             return;
         };
-        let Some(buffer) = draft.name_buffer.as_mut() else {
+        let Some(buffer) = draft.text_buffer.as_mut() else {
             return;
         };
         if code == KeyCode::Escape {
-            draft.name_buffer = None;
+            draft.text_buffer = None;
             self.label_preedit.clear();
-            self.panel = Some(Panel::ProfileEdit(draft.editor.fields().len() + 2));
-            self.status = i18n::tr("Edition", "ProfileNameDiscarded");
+            self.panel = Some(Panel::ProfileEdit(
+                draft.editor.fields().len() + draft.text_field.row(),
+            ));
+            self.status = i18n::tr(
+                "Edition",
+                draft
+                    .text_field
+                    .key("ProfileNameDiscarded", "ProfileDescriptionDiscarded"),
+            );
             return;
         }
         if code == KeyCode::Enter {
             if !self.label_preedit.is_empty() {
                 return;
             }
-            draft.name = Some(buffer.value().to_owned());
-            draft.name_buffer = None;
+            match draft.text_field {
+                TextField::Name => draft.name = Some(buffer.value().to_owned()),
+                TextField::Description => {
+                    draft.description = (buffer.value()
+                        != draft.profile.description().unwrap_or_default())
+                    .then(|| buffer.value().to_owned());
+                }
+            }
+            draft.text_buffer = None;
             self.panel = Some(Panel::ProfileEdit(draft.editor.fields().len()));
-            self.status = i18n::tr("Edition", "ProfileNameStaged");
+            self.status = i18n::tr(
+                "Edition",
+                draft
+                    .text_field
+                    .key("ProfileNameStaged", "ProfileDescriptionStaged"),
+            );
             return;
         }
         if self.control {
@@ -517,14 +597,33 @@ impl State {
             self.label_preedit.clear();
         }
     }
-    pub(super) fn profile_name_label(&self) -> std::sync::Arc<str> {
+    pub(super) fn profile_text_keys(&self) -> &'static [&'static str] {
+        match self.profile_edit.as_ref().map(|draft| draft.text_field) {
+            Some(TextField::Description) => &[
+                "ProfileDescriptionInput",
+                "ProfileDescriptionAccept",
+                "ProfileDescriptionCancel",
+            ],
+            _ => &["ProfileNameInput", "ProfileNameAccept", "ProfileNameCancel"],
+        }
+    }
+    pub(super) fn profile_text_label(&self) -> std::sync::Arc<str> {
         let value = self
             .profile_edit
             .as_ref()
-            .and_then(|draft| draft.name_buffer.as_ref())
+            .and_then(|draft| draft.text_buffer.as_ref())
             .map(|buffer| buffer.display(&self.label_preedit, 44))
             .unwrap_or_default();
-        i18n::tr_fmt("Edition", "ProfileNameInput", &[("value", &value)])
+        let key = self
+            .profile_edit
+            .as_ref()
+            .map(|draft| {
+                draft
+                    .text_field
+                    .key("ProfileNameInput", "ProfileDescriptionInput")
+            })
+            .unwrap_or("ProfileNameInput");
+        i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
 }
 
