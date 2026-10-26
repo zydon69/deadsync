@@ -9,7 +9,7 @@ use crate::{
 pub use auto_recovery::AutoRecovery;
 use std::{
     fs,
-    io::Write,
+    io::{Read, Write},
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
@@ -23,6 +23,27 @@ pub struct FileSession {
 
 impl FileSession {
     pub fn open(path: &Path) -> Result<Self, Error> {
+        Self::open_read(path, |path| Ok(fs::read(path)?))
+    }
+
+    /// Strict editor opening with an explicit byte cap and cooperative read
+    /// cancellation. The existing tokenizer is unchanged; parsing a bounded
+    /// buffer remains synchronous and cannot be interrupted internally.
+    pub fn open_bounded(
+        path: &Path,
+        maximum: usize,
+        cancelled: &std::sync::atomic::AtomicBool,
+    ) -> Result<Self, Error> {
+        Self::open_read(path, |path| {
+            let file = fs::File::open(path)?;
+            if file.metadata()?.len() > maximum as u64 {
+                return Err(Error::Unsupported("Song byte limit exceeded".into()));
+            }
+            read_bounded(file, maximum, cancelled)
+        })
+    }
+
+    fn open_read(path: &Path, read: impl FnOnce(&Path) -> Result<Vec<u8>, Error>) -> Result<Self, Error> {
         let path = path.canonicalize()?;
         let format = match path
             .extension()
@@ -38,7 +59,7 @@ impl FileSession {
                 ));
             }
         };
-        let expected: Arc<[u8]> = fs::read(&path)?.into();
+        let expected: Arc<[u8]> = read(&path)?.into();
         let document = Document::parse(expected.clone(), format)?;
         Ok(Self {
             session: Session::new(document),
@@ -232,4 +253,52 @@ pub(crate) fn sync_directory(path: &Path) -> Result<(), Error> {
     #[cfg(not(unix))]
     let _ = path;
     Ok(())
+}
+
+
+fn read_bounded(
+    mut reader: impl Read,
+    maximum: usize,
+    cancelled: &std::sync::atomic::AtomicBool,
+) -> Result<Vec<u8>, Error> {
+    let check = || {
+        if cancelled.load(std::sync::atomic::Ordering::Relaxed) {
+            Err(Error::InvalidEdit("Song opening cancelled".into()))
+        } else { Ok(()) }
+    };
+    let mut bytes = Vec::new();
+    let mut chunk = [0; 32 * 1024];
+    loop {
+        check()?;
+        let length = match reader.read(&mut chunk) {
+            Ok(length) => length,
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+            Err(error) => return Err(error.into()),
+        };
+        check()?;
+        if length == 0 { return Ok(bytes); }
+        if length > maximum.saturating_sub(bytes.len()) {
+            return Err(Error::Unsupported("Song byte limit exceeded".into()));
+        }
+        bytes.extend_from_slice(&chunk[..length]);
+    }
+}
+
+#[cfg(test)]
+mod bounded_open_tests {
+    use super::*;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    #[test]
+    fn growing_and_cancelled_reads_never_pass_a_partial_buffer_to_the_parser() {
+        let cancelled = AtomicBool::new(false);
+        assert!(read_bounded(std::io::Cursor::new(vec![0; 32*1024+1]),32*1024,&cancelled).is_err());
+        assert_eq!(read_bounded(std::io::Cursor::new(b"abc"),3,&cancelled).unwrap(),b"abc");
+        struct Cancel<'a>(&'a AtomicBool);
+        impl Read for Cancel<'_> {
+            fn read(&mut self, output: &mut [u8]) -> std::io::Result<usize> {
+                self.0.store(true,Ordering::Relaxed);output[0]=b'#';Ok(1)
+            }
+        }
+        assert!(read_bounded(Cancel(&cancelled),1024,&cancelled).is_err());
+    }
 }
