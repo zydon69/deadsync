@@ -543,6 +543,8 @@ impl Profile {
             path,
             expected: bytes.into(),
             profile: self.clone(),
+            undo: Vec::new(),
+            redo: Vec::new(),
         })
     }
 }
@@ -656,6 +658,8 @@ pub struct ProfileFile {
     path: PathBuf,
     expected: Arc<[u8]>,
     profile: Profile,
+    undo: Vec<(Arc<[u8]>, Profile)>,
+    redo: Vec<(Arc<[u8]>, Profile)>,
 }
 impl ProfileFile {
     pub fn open(path: &Path) -> Result<Self, Error> {
@@ -668,6 +672,8 @@ impl ProfileFile {
             path,
             expected,
             profile,
+            undo: Vec::new(),
+            redo: Vec::new(),
         })
     }
     /// Retain the catalog's parsed identity (including a generated GUID for an
@@ -688,6 +694,8 @@ impl ProfileFile {
             path,
             expected,
             profile,
+            undo: Vec::new(),
+            redo: Vec::new(),
         })
     }
     pub(crate) fn snapshot(&self) -> (PathBuf, Arc<[u8]>) {
@@ -707,7 +715,48 @@ impl ProfileFile {
         if builtin(profile.config.kind(), &profile.guid) {
             return invalid("Built-in editor profiles cannot be overwritten");
         }
-        let bytes = profile.serialize()?;
+        let bytes: Arc<[u8]> = profile.serialize()?.into();
+        if bytes == self.expected {
+            if fs::read(&self.path)?.as_slice() != self.expected.as_ref() {
+                return Err(Error::ExternalChange);
+            }
+            return Ok(());
+        }
+        let previous = (self.expected.clone(), self.profile.clone());
+        self.replace_bytes(bytes, profile.clone())?;
+        self.undo.push(previous);
+        self.redo.clear();
+        Ok(())
+    }
+    pub fn can_undo(&self) -> bool {
+        !self.undo.is_empty()
+    }
+    pub fn can_redo(&self) -> bool {
+        !self.redo.is_empty()
+    }
+    /// Restore exact source bytes, including unknown fields and formatting.
+    /// External edits are checked before changing either history stack.
+    pub fn undo(&mut self) -> Result<bool, Error> {
+        let Some((bytes, profile)) = self.undo.last().cloned() else {
+            return Ok(false);
+        };
+        let current = (self.expected.clone(), self.profile.clone());
+        self.replace_bytes(bytes, profile)?;
+        self.undo.pop();
+        self.redo.push(current);
+        Ok(true)
+    }
+    pub fn redo(&mut self) -> Result<bool, Error> {
+        let Some((bytes, profile)) = self.redo.last().cloned() else {
+            return Ok(false);
+        };
+        let current = (self.expected.clone(), self.profile.clone());
+        self.replace_bytes(bytes, profile)?;
+        self.redo.pop();
+        self.undo.push(current);
+        Ok(true)
+    }
+    fn replace_bytes(&mut self, bytes: Arc<[u8]>, profile: Profile) -> Result<(), Error> {
         let parent = self
             .path
             .parent()
@@ -738,8 +787,8 @@ impl ProfileFile {
         pending
             .persist(&self.path)
             .map_err(|e| Error::Io(e.error))?;
-        self.expected = bytes.into();
-        self.profile = profile.clone();
+        self.expected = bytes;
+        self.profile = profile;
         sync_directory(parent)?;
         Ok(())
     }

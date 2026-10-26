@@ -4818,3 +4818,22 @@ Validation: all 47 native editor integration targets passed (251 tests), as
 `/tmp/deadsync-profile-weights-all-native.log`,
 `/tmp/deadsync-profile-weights-core.log`, and
 `/tmp/deadsync-profile-weights-check.log`.
+
+### Saved profile history foundation
+
+`ProfileFile` now retains undo/redo snapshots for successful original-file saves.
+Undo restores the exact previous bytes (including source formatting and unknown
+JSON), alongside the parsed identity; redo restores the saved version. Diverging
+saves clear redo; identical saves create no history entry. Save, undo and redo
+refuse external changes without consuming history. Reopening a file starts a new
+in-memory history. The existing guarded atomic replacement and permissions are
+shared by all three operations. This is a core API foundation only: native menu
+routing, history lifetime across catalog reloads, profile deletion and reference
+repair are still outstanding. Original ActionDeletePerformedChartConfig also
+restores affected pattern references and last-selected preferences on undo; a
+file-only deletion would not satisfy that behavior.
+
+Validation: `profile_history_workflows` (2 tests) and `profile_edit_workflows`
+(6 tests), with evidence in `/tmp/deadsync-profile-history-core.log`.
+Theme compilation check also passed (`--jobs 2 --locked`), recorded in
+`/tmp/deadsync-profile-history-check.log`.
