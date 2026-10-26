@@ -342,6 +342,22 @@ impl Session {
             }
             temporary.set_property_bytes(*scope, name, bytes.clone())?;
         }
+        let changes_clock = properties.iter().any(|(_, name, _)| {
+            let name = name.to_ascii_uppercase();
+            matches!(
+                name.as_str(),
+                "BPMS" | "STOPS" | "DELAYS" | "WARPS" | "OFFSET" | "TIMESIGNATURES"
+            ) || name.starts_with("GACHARTDATA")
+        });
+        // Explicit attack replacements already own their positions. Otherwise
+        // timing and derived attack file times form a single reversible gesture.
+        if changes_clock
+            && !temporary.undo.is_empty()
+            && !properties.iter().any(|(_, name, _)| name.eq_ignore_ascii_case("ATTACKS"))
+        {
+            temporary.grids = self.grids.clone();
+            crate::attacks::anchoring::preserve(self, &mut temporary)?;
+        }
         let changes: Vec<_> = temporary
             .undo
             .into_iter()

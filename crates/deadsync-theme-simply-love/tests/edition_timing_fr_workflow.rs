@@ -800,3 +800,67 @@ fn french_section_labels_use_committed_unicode_text_and_translated_controls() {
     );
     assert!(texts(&screen).iter().any(|s| s == "Étiquette 日本語_fin"));
 }
+
+#[test]
+fn timing_menu_keeps_attack_rows_and_commits_attack_export_in_the_same_undo() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    fn ctrl(screen: &mut State, code: KeyCode) {
+        for pressed in [true, false] {
+            screen.raw_key(&RawKeyboardEvent {
+                code: KeyCode::SuperLeft,
+                pressed,
+                repeat: false,
+                timestamp: Instant::now(),
+                host_nanos: 0,
+            });
+            if pressed {
+                press(screen, code);
+            }
+        }
+    }
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source=b"#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=1:LEN=2:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path, source).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    for _ in 0..2 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    for code in [
+        KeyCode::Delete,
+        KeyCode::Digit2,
+        KeyCode::Digit4,
+        KeyCode::Digit0,
+    ] {
+        press(&mut screen, code);
+    }
+    for _ in 0..6 {
+        press(&mut screen, KeyCode::ArrowDown);
+    }
+    press(&mut screen, KeyCode::Enter);
+    let timeline = deadsync_editor::attacks::placement::Timeline::capture(
+        &screen.workspace().file().session,
+        0,
+    )
+    .unwrap();
+    assert_eq!(timeline.markers()[0].row, 96);
+    assert_eq!(timeline.markers()[0].chart_time, 0.5);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(
+        deadsync_editor::attacks::placement::Timeline::capture(
+            &reopened.workspace().file().session,
+            0
+        )
+        .unwrap()
+        .markers()[0]
+            .row,
+        96
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(
+        screen.workspace().file().session.serialize().unwrap(),
+        source
+    );
+}

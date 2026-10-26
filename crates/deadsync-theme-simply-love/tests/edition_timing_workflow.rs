@@ -1847,3 +1847,40 @@ fn escaped_legacy_label_moves_preserve_text_and_sm_filter_does_not_change_unknow
     assert!(!screen.text_input("ignored"));
     assert_eq!(serialized(&screen), original);
 }
+
+#[test]
+fn timing_menu_keeps_attack_rows_and_commits_attack_export_in_the_same_undo() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source=b"#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=1:LEN=2:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path, source).unwrap();
+    let mut screen = State::open(&path, 0).unwrap();
+    press(&mut screen, KeyCode::F10);
+    let mut index = 0;
+    choose(&mut screen, &mut index, 2);
+    type_number(&mut screen, "240");
+    choose(&mut screen, &mut index, 8);
+    press(&mut screen, KeyCode::Enter);
+    let timeline = deadsync_editor::attacks::placement::Timeline::capture(
+        &screen.workspace().file().session,
+        0,
+    )
+    .unwrap();
+    assert_eq!(timeline.markers()[0].row, 96);
+    assert_eq!(timeline.markers()[0].chart_time, 0.5);
+    ctrl(&mut screen, KeyCode::KeyS);
+    let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(
+        deadsync_editor::attacks::placement::Timeline::capture(
+            &reopened.workspace().file().session,
+            0
+        )
+        .unwrap()
+        .markers()[0]
+            .row,
+        96
+    );
+    ctrl(&mut screen, KeyCode::KeyZ);
+    assert_eq!(serialized(&screen), source);
+}

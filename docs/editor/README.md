@@ -5536,9 +5536,10 @@ The `attack-placement*` fixtures record reader/helper pins and hashes. Validatio
 logs use `/tmp/deadsync-attack-placement-{oracle,core,all-native,check}.log`.
 
 Required parity work remains: the editor still derives these placements from its
-working time-based attack records. GrooveAuthor's resident row anchoring across
-tempo/offset edits, complete miscellaneous-event selection/clipboard and full
-attack-effect playback preview remain unfinished. Inspector transport alignment
+working time-based attack records. Full resident attack state for unrepresentable
+file positions, complete miscellaneous-event selection/clipboard and full
+attack-effect playback preview remain unfinished. Representable tempo/offset
+transactions are addressed in the anchoring increment below. Inspector transport alignment
 on irregular clocks is addressed in the increment below. This increment does not claim
 complete attack/editor parity or replace that work with the display snapshot.
 
@@ -5563,11 +5564,46 @@ are retained, and unchanged drafts preserve the original bytes.
 SM/SSC save/reopen, exact undo/redo, collision rejection, warp boundaries, and
 foreign/stale draft rejection. The native attack workflow additionally exercises
 the actual F3/F4/F5 keys through a delay and stop. These additions do not yet
-anchor attacks across subsequent tempo/offset edits, implement miscellaneous-event
-clipboard, or prove full editor parity. Extended original-C# transport comparisons remain pending.
+complete the resident event lifecycle independently of file representability,
+implement miscellaneous-event clipboard, or prove full editor parity. Representable
+tempo/offset transactions are addressed in the following increment. Extended original-C# transport comparisons remain pending.
 
 Validation for this increment: 312 native edition integration tests across 63
 targets, 24 core tests across four targeted suites, and the theme compilation
 check passed. Logs: `/tmp/deadsync-inspector-all-native.log`,
 `/tmp/deadsync-inspector-core-final.log`, `/tmp/deadsync-inspector-check.log`.
 No physical gameplay or GPU runtime validation was performed for this increment.
+
+
+### Attack row preservation across timing transactions
+
+Atomic timing-property transactions now preserve the loaded attack rows while
+updating BPMS, STOPS, DELAYS, WARPS, time signatures, and music offsets (including
+chart metadata offsets). Staging retains unsaved note grids, so file-loader clock
+placement sees the current hold tails. Re-encoding and verification run before
+committing the grouped history entry. Undo/redo restores both the timing and the
+original attack property bytes in the same gesture.
+
+SSC writes local attack properties for charts whose shared/raw attack times would
+otherwise move; charts whose positions remain correct retain their existing
+properties. SM retains its single shared attack property and checks candidate
+encodings against every affected chart. A representation that cannot preserve all
+rows is rejected atomically. A newly introduced warp hiding an attack is currently
+one such case: full parity still requires persistent resident miscellaneous-event
+state independent of file representability. This implementation does not claim
+that broader lifecycle or full attack-effect preview is complete.
+
+`attack_anchoring_workflows` covers tempo/song offset/chart offset in SM and SSC,
+local timing detachment with three charts, save/reopen, exact undo/redo, and
+rejected warp edits retaining the redo branch, and unsaved hold-tail edits.
+Offset edits additionally replay
+the nine pinned original loader/editor placement cases. EN/FR native timing menu
+tests exercise BPM edits and save/reopen through keyboard dispatch with attacks.
+
+Validation: the complete core integration/unit invocation passed 509 tests across
+98 suites. After the final staging refinement and additional unsaved-hold test,
+the two attack suites passed nine tests, including all six anchoring workflows.
+Four native timing/attack targets passed 61 tests in EN/FR, and the theme check
+passed. Logs: `/tmp/deadsync-anchoring-all-core.log`,
+`/tmp/deadsync-anchoring-final-core.log`, `/tmp/deadsync-anchoring-native.log`,
+`/tmp/deadsync-anchoring-check.log`. This increment has no physical game run claim.

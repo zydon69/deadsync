@@ -2,6 +2,7 @@
 //! Reference: Fumen AttackPropertyParser / GrooveAuthor UIAttackEvent.
 pub mod placement;
 pub mod inspector;
+pub(crate) mod anchoring;
 use crate::{
     Error,
     document::Format,
