@@ -1,0 +1,179 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "source_sha256": "066bd606d5138343b444fb0355a125929c7b19baef4832202775eb419a5c60ff",
+  "method_sha256": "c6667cf92b9b6b8a065cb30b6e87604e6048f6c34cc686cc1607f4d18135dbe2",
+  "fumen_path_sha256": "656a12ee23c1d184897c6b23c8115d2fb120f23c8613e2e8c2d1ed122e703c03",
+  "platform": "macOS 26.6.2",
+  "scope": "Unchanged UpdateRelativePath and complete original Fumen.Path; fixture paths only. No filesystem save, history, media decoding or Windows-runtime equivalence claim.",
+  "cases": [
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/exports/New/chart.ssc",
+        "Media": ""
+      },
+      "expected": ""
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/exports/New/chart.ssc",
+        "Media": "music.ogg"
+      },
+      "expected": "../../songs/Pack/Song/music.ogg"
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/exports/New/chart.ssc",
+        "Media": "../Other/music.ogg"
+      },
+      "expected": "../../songs/Pack/Other/music.ogg"
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/exports/New/chart.ssc",
+        "Media": "./assets/../cover.png"
+      },
+      "expected": "../../songs/Pack/Song/cover.png"
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/exports/New/chart.ssc",
+        "Media": "/assets/a b #100%.png"
+      },
+      "expected": "../../assets/a b #100%.png"
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/exports/New/chart.ssc",
+        "Media": "images/été 日本語.png"
+      },
+      "expected": "../../songs/Pack/Song/images/été 日本語.png"
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/exports/New/chart.ssc",
+        "Media": "missing/not-created.ogg"
+      },
+      "expected": "../../songs/Pack/Song/missing/not-created.ogg"
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/songs/Pack/Song/copy.ssc",
+        "Media": ""
+      },
+      "expected": ""
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/songs/Pack/Song/copy.ssc",
+        "Media": "music.ogg"
+      },
+      "expected": "music.ogg"
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/songs/Pack/Song/copy.ssc",
+        "Media": "../Other/music.ogg"
+      },
+      "expected": "../Other/music.ogg"
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/songs/Pack/Song/copy.ssc",
+        "Media": "./assets/../cover.png"
+      },
+      "expected": "cover.png"
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/songs/Pack/Song/copy.ssc",
+        "Media": "/assets/a b #100%.png"
+      },
+      "expected": "../../../assets/a b #100%.png"
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/songs/Pack/Song/copy.ssc",
+        "Media": "images/été 日本語.png"
+      },
+      "expected": "images/été 日本語.png"
+    },
+    {
+      "input": {
+        "Old": "/songs/Pack/Song/chart.ssc",
+        "New": "/songs/Pack/Song/copy.ssc",
+        "Media": "missing/not-created.ogg"
+      },
+      "expected": "missing/not-created.ogg"
+    },
+    {
+      "input": {
+        "Old": "",
+        "New": "/exports/New/chart.ssc",
+        "Media": ""
+      },
+      "expected": ""
+    },
+    {
+      "input": {
+        "Old": "",
+        "New": "/exports/New/chart.ssc",
+        "Media": "music.ogg"
+      },
+      "expected": "music.ogg"
+    },
+    {
+      "input": {
+        "Old": "",
+        "New": "/exports/New/chart.ssc",
+        "Media": "../Other/music.ogg"
+      },
+      "expected": "../Other/music.ogg"
+    },
+    {
+      "input": {
+        "Old": "",
+        "New": "/exports/New/chart.ssc",
+        "Media": "./assets/../cover.png"
+      },
+      "expected": "./assets/../cover.png"
+    },
+    {
+      "input": {
+        "Old": "",
+        "New": "/exports/New/chart.ssc",
+        "Media": "/assets/a b #100%.png"
+      },
+      "expected": "../../assets/a b #100%.png"
+    },
+    {
+      "input": {
+        "Old": "",
+        "New": "/exports/New/chart.ssc",
+        "Media": "images/été 日本語.png"
+      },
+      "expected": "images/été 日本語.png"
+    },
+    {
+      "input": {
+        "Old": "",
+        "New": "/exports/New/chart.ssc",
+        "Media": "missing/not-created.ogg"
+      },
+      "expected": "missing/not-created.ogg"
+    }
+  ]
+}
