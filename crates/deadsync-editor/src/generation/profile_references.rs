@@ -77,6 +77,9 @@ impl Reset {
             references,
         })
     }
+    pub(crate) fn properties(&self) -> &[(Option<usize>, String, Arc<[u8]>)] {
+        &self.properties
+    }
     pub fn affected_charts(&self) -> usize {
         self.properties.len()
     }

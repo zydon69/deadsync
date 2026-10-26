@@ -225,3 +225,118 @@ fn invalid_song_metadata_prevents_disk_deletion() {
     assert_eq!(session.serialize().unwrap(), before);
     assert!(session.undo_label().is_none());
 }
+
+#[test]
+fn global_history_keeps_unreferenced_deletion_separate_from_song_dirty_state() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::metadata::ChartData,
+        history::Session,
+    };
+    use std::sync::Arc;
+    let (_dir, file, original) = fixture();
+    let mut s = Session::new(
+        Document::parse(
+            Arc::<[u8]>::from(
+                b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;"
+                    .as_slice(),
+            ),
+            Format::Ssc,
+        )
+        .unwrap(),
+    );
+    let before = s.serialize().unwrap();
+    s.delete_profile(&file).unwrap();
+    assert!(!s.is_dirty());
+    assert!(!file.path().exists());
+    let mut data = ChartData::default();
+    data.music_offset = 2.0;
+    data.save(&mut s, 0).unwrap();
+    assert!(s.is_dirty());
+    s.undo().unwrap();
+    assert!(!s.is_dirty());
+    assert!(!file.path().exists());
+    s.undo().unwrap();
+    assert!(!s.is_dirty());
+    assert_eq!(fs::read(file.path()).unwrap(), original);
+    assert_eq!(s.serialize().unwrap(), before);
+    s.redo().unwrap();
+    assert!(!file.path().exists());
+    assert!(!s.is_dirty());
+    s.redo().unwrap();
+    assert!(s.is_dirty());
+    s.mark_saved();
+    s.undo().unwrap();
+    assert!(s.is_dirty());
+    s.undo().unwrap();
+    assert!(s.is_dirty());
+    assert!(file.path().exists());
+}
+
+#[test]
+fn a_staged_chart_operation_cannot_delete_an_external_profile() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        history::Session,
+    };
+    use std::sync::Arc;
+    let (_dir, file, bytes) = fixture();
+    let mut s = Session::new(
+        Document::parse(
+            Arc::<[u8]>::from(
+                b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;"
+                    .as_slice(),
+            ),
+            Format::Ssc,
+        )
+        .unwrap(),
+    );
+    let before = s.serialize().unwrap();
+    assert!(
+        s.edit_chart_atomic(0, "Invalid nested deletion", |temporary| temporary
+            .delete_profile(&file))
+            .is_err()
+    );
+    assert_eq!(fs::read(file.path()).unwrap(), bytes);
+    assert_eq!(s.serialize().unwrap(), before);
+    assert!(s.undo_label().is_none());
+}
+
+#[test]
+fn global_redo_conflict_rolls_back_reference_changes_and_preserves_history() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        generation::metadata::ChartData,
+        history::Session,
+    };
+    use std::sync::Arc;
+    let (_dir, file, original) = fixture();
+    let mut s = Session::new(
+        Document::parse(
+            Arc::<[u8]>::from(
+                b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;"
+                    .as_slice(),
+            ),
+            Format::Ssc,
+        )
+        .unwrap(),
+    );
+    let mut data = ChartData::default();
+    data.expressed_chart_config = file.profile().guid().clone();
+    data.save(&mut s, 0).unwrap();
+    s.mark_saved();
+    let before = s.serialize().unwrap();
+    s.delete_profile(&file).unwrap();
+    s.undo().unwrap();
+    fs::write(file.path(), b"external edit").unwrap();
+    let redo = s.redo_label().unwrap().to_owned();
+    assert!(s.redo().is_err());
+    assert_eq!(s.redo_label(), Some(redo.as_str()));
+    assert_eq!(s.serialize().unwrap(), before);
+    assert!(!s.is_dirty());
+    assert_eq!(fs::read(file.path()).unwrap(), b"external edit");
+    fs::write(file.path(), original).unwrap();
+    s.redo().unwrap();
+    assert!(!file.path().exists());
+    assert!(s.is_dirty());
+}

@@ -4921,3 +4921,39 @@ invalid-metadata-before-disk-mutation case and passes all 8 tests in
 `/tmp/deadsync-profile-delete-final.log` (19 distinct tests across the four suites).
 Native theme compilation check passed in `/tmp/deadsync-profile-delete-check.log`.
 All commands used `--jobs 2 --locked`. No native deletion UI/GPU test is claimed.
+
+### Native profile deletion and global undo queue
+
+Profile inspectors now expose Delete custom profile (F9), with Keep selected by
+default and a confirmation reporting affected charts/references. Pending profile,
+chart-property or marker drafts must be saved/discarded before deletion. Built-in
+profiles remain protected. Confirmation validates the catalog source again,
+deletes the custom file and repairs song references, then returns to chart view.
+Only affected conversion-profile overrides are cleared to use generation defaults.
+Restoration of those transient conversion selections on undo is still outstanding.
+
+`Session::delete_profile` now records the disk operation alongside metadata edits
+in the ordinary global history. Native Ctrl/Cmd+Z/Y and menu Undo/Redo therefore
+order deletion with subsequent note/property edits. Disk deletion executes last
+forward and first backward; a disk conflict rolls metadata back and preserves the
+history entry. Source-song bytes on disk remain unchanged until Save. Deleting an
+unreferenced profile still has a global undo entry but does not dirty song content:
+song-content revision tracking is separate from history revision tracking. Session
+staging contexts prohibit external deletions before any filesystem side effect,
+including nested public chart transactions.
+
+The earlier standalone `profile_deletion::Action` remains a low-level explicit
+operation; native UI uses the unified Session history. Native English/French tests
+cover cancel-by-default, confirmed deletion, interleaved note undo, conflict on
+restore, retry, global redo, reference restoration and unchanged source-song bytes.
+Core tests also cover unreferenced history/dirty state, nested staging rejection,
+and atomic redo rollback after a conflicting external file edit. No physical
+app/GPU review is claimed for the deletion panel.
+
+Validation: all 47 native editor integration targets passed (255 tests) in
+`/tmp/deadsync-profile-global-all-native.log`. Four selected core suites passed
+26 tests in `/tmp/deadsync-profile-global-core.log`; the final deletion suite
+passes 11 tests including the additional redo-conflict case in
+`/tmp/deadsync-profile-global-final.log` (27 distinct core tests). Theme compilation
+check passed in `/tmp/deadsync-profile-global-check.log`. All commands used
+`--jobs 2 --locked`.

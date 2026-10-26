@@ -23,6 +23,10 @@ struct DocumentState {
 #[derive(Debug)]
 enum Change {
     Group(Vec<Change>),
+    ProfileDeletion {
+        source: Box<crate::generation::profiles::ProfileFile>,
+        deleted: Option<crate::generation::profiles::DeletedProfile>,
+    },
     DocumentSwap(Box<DocumentState>),
     Notes {
         chart: usize,
@@ -47,6 +51,8 @@ struct Entry {
     change: Change,
     before_revision: u64,
     after_revision: u64,
+    before_content_revision: u64,
+    after_content_revision: u64,
 }
 
 /// A revision is only meaningful within one live session. Recovery/reload creates
@@ -65,12 +71,14 @@ pub struct ChartAddition<'a> {
 
 pub struct Session {
     identity: Arc<()>,
+    allows_external_edits: bool,
     document: Document,
     grids: BTreeMap<usize, Grid>,
     undo: Vec<Entry>,
     redo: Vec<Entry>,
     revision: u64,
     saved_revision: u64,
+    content_revision: u64,
     next_revision: u64,
 }
 
@@ -78,14 +86,22 @@ impl Session {
     pub fn new(document: Document) -> Self {
         Self {
             identity: Arc::new(()),
+            allows_external_edits: true,
             document,
             grids: BTreeMap::new(),
             undo: Vec::new(),
             redo: Vec::new(),
             revision: 0,
             saved_revision: 0,
+            content_revision: 0,
             next_revision: 1,
         }
+    }
+
+    fn staged(document: Document) -> Self {
+        let mut session = Self::new(document);
+        session.allows_external_edits = false;
+        session
     }
 
     pub(crate) fn recovered(document: Document) -> Self {
@@ -114,7 +130,7 @@ impl Session {
         &self.document
     }
     pub fn is_dirty(&self) -> bool {
-        self.revision != self.saved_revision
+        self.content_revision != self.saved_revision
     }
     pub fn revision(&self) -> u64 {
         self.revision
@@ -126,7 +142,7 @@ impl Session {
         self.redo.last().map(|entry| entry.label.as_str())
     }
     pub fn mark_saved(&mut self) {
-        self.saved_revision = self.revision;
+        self.saved_revision = self.content_revision;
     }
 
     pub fn grid(&mut self, chart: usize) -> Result<&Grid, Error> {
@@ -296,7 +312,7 @@ impl Session {
             return Ok(false);
         }
         let mut names = std::collections::BTreeSet::new();
-        let mut temporary = Session::new(self.document.clone());
+        let mut temporary = Session::staged(self.document.clone());
         for (scope, name, bytes) in properties {
             if !names.insert((*scope, name.to_ascii_uppercase())) {
                 return Err(Error::InvalidEdit(
@@ -326,7 +342,7 @@ impl Session {
         operation: impl FnOnce(&mut Session) -> Result<(), Error>,
     ) -> Result<bool, Error> {
         let grid = self.grid(chart)?.clone();
-        let mut temporary = Session::new(self.document.clone());
+        let mut temporary = Session::staged(self.document.clone());
         temporary.grids.insert(chart, grid);
         operation(&mut temporary)?;
         let changes: Vec<_> = temporary
@@ -336,7 +352,7 @@ impl Session {
             .collect();
         fn allowed(change: &Change, chart: usize) -> bool {
             match change {
-                Change::DocumentSwap(_) => false,
+                Change::DocumentSwap(_) | Change::ProfileDeletion { .. } => false,
                 Change::Notes { chart: target, .. } => *target == chart,
                 Change::Group(changes) => changes.iter().all(|change| allowed(change, chart)),
                 _ => true,
@@ -354,6 +370,26 @@ impl Session {
         Ok(true)
     }
 
+    /// Delete a custom profile and repair all active-song references as one
+    /// gesture in the same history as notes and chart properties.
+    pub fn delete_profile(&mut self, file: &crate::generation::profiles::ProfileFile) -> Result<(), Error> {
+        if !self.allows_external_edits {
+            return Err(Error::InvalidEdit("Staged chart edits cannot delete profile files".into()));
+        }
+        let reset = crate::generation::profile_references::Reset::capture(
+            self, file.profile().config().kind(), file.profile().guid())?;
+        let (path, bytes) = file.snapshot();
+        let source = crate::generation::profiles::ProfileFile::capture_snapshot(
+            &path, bytes, file.profile().clone())?;
+        let mut temporary = Session::staged(self.document.clone());
+        temporary.set_property_bytes_atomic(reset.properties(), "Repair profile references")?;
+        let mut changes: Vec<_> = temporary.undo.into_iter().map(|entry| entry.change).collect();
+        // Disk deletion comes last forward and first backward. A disk conflict
+        // leaves/restores every metadata edit and both history stacks intact.
+        changes.push(Change::ProfileDeletion { source: Box::new(source), deleted: None });
+        self.execute("Delete generation profile".into(), Change::Group(changes))
+    }
+
     pub fn undo(&mut self) -> Result<bool, Error> {
         let Some(mut entry) = self.undo.pop() else {
             return Ok(false);
@@ -363,6 +399,7 @@ impl Session {
             return Err(error);
         }
         self.revision = entry.before_revision;
+        self.content_revision = entry.before_content_revision;
         self.redo.push(entry);
         Ok(true)
     }
@@ -376,6 +413,7 @@ impl Session {
             return Err(error);
         }
         self.revision = entry.after_revision;
+        self.content_revision = entry.after_content_revision;
         self.undo.push(entry);
         Ok(true)
     }
@@ -638,13 +676,24 @@ impl Session {
             .checked_add(1)
             .ok_or_else(|| Error::InvalidEdit("Editor revision overflow".into()))?;
         self.apply(&mut change, true)?;
+        fn affects_song(change: &Change) -> bool {
+            match change {
+                Change::ProfileDeletion { .. } => false,
+                Change::Group(changes) => changes.iter().any(affects_song),
+                _ => true,
+            }
+        }
+        let content_revision = if affects_song(&change) { self.next_revision } else { self.content_revision };
         self.undo.push(Entry {
             label,
             change,
             before_revision: self.revision,
             after_revision: self.next_revision,
+            before_content_revision: self.content_revision,
+            after_content_revision: content_revision,
         });
         self.revision = self.next_revision;
+        self.content_revision = content_revision;
         self.next_revision = next;
         self.redo.clear();
         Ok(())
@@ -664,6 +713,17 @@ impl Session {
                         }
                         return Err(error);
                     }
+                }
+                Ok(())
+            }
+            Change::ProfileDeletion { source, deleted } => {
+                if forward {
+                    match deleted {
+                        Some(file) => { file.delete_again()?; }
+                        None => { *deleted = Some(source.delete()?); }
+                    }
+                } else if let Some(file) = deleted {
+                    file.restore()?;
                 }
                 Ok(())
             }

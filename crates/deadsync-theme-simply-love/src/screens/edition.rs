@@ -75,6 +75,7 @@ enum Panel {
     ProfileText,
     ProfileSpeed(usize),
     ProfileDefaults(usize),
+    ProfileDelete(usize),
     ProfileWeights(usize),
     ChartText(usize),
     SongText(usize),
@@ -1564,6 +1565,7 @@ impl State {
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
         if let Panel::ProfileWeights(index) = panel { self.profile_weights_key(index, code); return false; }
+        if let Panel::ProfileDelete(index) = panel { self.profile_delete_key(index, code); return false; }
         if let Panel::ProfileDefaults(index) = panel { self.profile_defaults_key(index, code); return false; }
         if let Panel::ProfileSpeed(index) = panel { self.profile_speed_key(index, code); return false; }
         if matches!(panel, Panel::ProfileText) { self.profile_text_key(code); return false; }
@@ -1668,6 +1670,7 @@ impl State {
         }
         match panel {
             Panel::ProfileWeights(_) => unreachable!("profile weights dispatched above"),
+            Panel::ProfileDelete(_) => unreachable!("profile deletion dispatched above"),
             Panel::ProfileDefaults(_) => unreachable!("profile defaults dispatched above"),
             Panel::ProfileSpeed(_) => unreachable!("profile speed dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
@@ -2503,7 +2506,7 @@ impl State {
             let mut keys = vec!["ProfileEditField"; draft.editor.fields().len()];
             keys.extend(["ExpressionEditSaveCopy", "ExpressionEditCancel", "ProfileEditName", "ProfileEditSaveOriginal", "ProfileEditDescription"]);
             if draft.supports_travel_speed() { keys.extend(["ProfileSpeedOpen", "ProfileWeightsOpen"]); }
-            keys.extend(["ProfileRestoreDefaults", "ProfileUndoSave", "ProfileRedoSave"]);
+            keys.extend(["ProfileRestoreDefaults", "ProfileUndoSave", "ProfileRedoSave", "ProfileDeleteOpen"]);
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
@@ -2627,6 +2630,7 @@ impl State {
             Panel::ProfileEdit(_) => &profile_keys,
             Panel::ProfileText => self.profile_text_keys(),
             Panel::ProfileWeights(_) => &["ProfileWeightsLayout", "ProfileWeightsState", "ProfileWeightsAdd", "ProfileWeightsRemove", "ProfileWeightsReturn"],
+            Panel::ProfileDelete(_) => &["ProfileDeleteCancel", "ProfileDeleteConfirm"],
             Panel::ProfileDefaults(_) => &["ProfileDefaultsApply", "ProfileDefaultsCancel"],
             Panel::ProfileSpeed(_) => &["ProfileSpeedSubdivision", "ProfileSpeedMin", "ProfileSpeedMax", "ProfileSpeedMinSeconds", "ProfileSpeedMaxSeconds", "ProfileSpeedStage", "ProfileSpeedCancel"],
             Panel::DisplayTempo(_) => &["DisplayTempoMode", "DisplayTempoMin", "DisplayTempoRange", "DisplayTempoMax", "DisplayTempoStage", "DisplayTempoCancel"],
@@ -2674,6 +2678,7 @@ impl State {
             | Panel::TimingMigration(i)
             | Panel::Timing(i)
             | Panel::ProfileWeights(i)
+            | Panel::ProfileDelete(i)
             | Panel::ProfileDefaults(i)
             | Panel::ProfileSpeed(i)
             | Panel::ProfileEdit(i)

@@ -301,3 +301,41 @@ fn saved_history_survives_catalog_reload_and_refuses_pending_edits() {
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
     assert_eq!(fs::read(path).unwrap(), source);
 }
+
+#[test]
+fn profile_deletion_confirmation_uses_global_history_and_preserves_song_file() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let profiles = dir.path().join("profiles");
+    let (mut s, file, source) = custom(&path, &profiles);
+    let original = fs::read(&file).unwrap();
+    open(&mut s);
+    press(&mut s, KeyCode::F9);
+    assert!(has(&s, "Delete this custom profile?"));
+    press(&mut s, KeyCode::Enter);
+    assert_eq!(fs::read(&file).unwrap(), original);
+    press(&mut s, KeyCode::F9);
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::Enter);
+    assert!(!file.exists());
+    assert!(has(&s, "Profile deleted."));
+    let repaired = s.workspace().file().session.serialize().unwrap();
+    assert_ne!(repaired, source);
+    press(&mut s, KeyCode::Digit2);
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert!(!file.exists());
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), repaired);
+    fs::write(&file, b"external replacement").unwrap();
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(fs::read(&file).unwrap(), b"external replacement");
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), repaired);
+    fs::remove_file(&file).unwrap();
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(fs::read(&file).unwrap(), original);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    ctrl(&mut s, KeyCode::KeyY);
+    assert!(!file.exists());
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), repaired);
+    assert_eq!(fs::read(path).unwrap(), source);
+}

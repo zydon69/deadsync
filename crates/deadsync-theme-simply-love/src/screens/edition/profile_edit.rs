@@ -52,7 +52,7 @@ pub(super) struct Draft {
 }
 impl Draft {
     pub(super) fn action_count(&self) -> usize {
-        if self.supports_travel_speed() { 10 } else { 8 }
+        if self.supports_travel_speed() { 11 } else { 9 }
     }
     pub(super) fn supports_travel_speed(&self) -> bool {
         self.kind == Kind::Performed
@@ -121,6 +121,109 @@ impl State {
                 self.status = i18n::tr("Edition", "ProfileEditHelp");
             }
             Err(error) => self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error)]),
+        }
+    }
+    fn open_profile_delete(&mut self) {
+        let result: Result<(usize, usize), String> = (|| {
+            let draft = self
+                .profile_edit
+                .as_ref()
+                .ok_or_else(|| "Missing draft".to_string())?;
+            if !draft.custom_source {
+                return Err(i18n::tr("Edition", "ProfileEditProtected").to_string());
+            }
+            if draft.input.is_some()
+                || draft.name.is_some()
+                || draft.description.is_some()
+                || draft.travel_speed.is_some()
+                || draft.reset_defaults
+                || draft.editor.finish().map_err(profile_error)? != *draft.profile.config()
+                || self
+                    .chart_properties
+                    .as_ref()
+                    .is_some_and(|d| d.has_changes())
+                || self.marker.as_ref().is_some_and(|d| d.has_changes())
+            {
+                return Err(i18n::tr("Edition", "ProfileDeletePending").to_string());
+            }
+            let plan = deadsync_editor::generation::profile_references::Reset::capture(
+                &self.workspace.file().session,
+                draft.kind,
+                &draft.source,
+            )
+            .map_err(profile_error)?;
+            Ok((plan.affected_charts(), plan.affected_references()))
+        })();
+        match result {
+            Ok((charts, references)) => {
+                self.panel = Some(Panel::ProfileDelete(0));
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "ProfileDeleteHelp",
+                    &[
+                        ("charts", &charts.to_string()),
+                        ("references", &references.to_string()),
+                    ],
+                );
+            }
+            Err(error) => self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error)]),
+        }
+    }
+    pub(super) fn profile_delete_key(&mut self, index: usize, code: KeyCode) {
+        match code {
+            KeyCode::Escape => self.panel = Some(Panel::ProfileEdit(0)),
+            KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab => {
+                self.panel = Some(Panel::ProfileDelete(1 - index))
+            }
+            KeyCode::Enter if index == 0 => self.panel = Some(Panel::ProfileEdit(0)),
+            KeyCode::Enter => {
+                let result: Result<(), String> = (|| {
+                    let draft = self
+                        .profile_edit
+                        .as_ref()
+                        .ok_or_else(|| "Missing draft".to_string())?;
+                    let settings = self
+                        .profile_selection
+                        .as_ref()
+                        .ok_or_else(|| "Missing profiles".to_string())?;
+                    let file = settings
+                        .catalog
+                        .profile_file(
+                            &self.workspace.file().session,
+                            self.workspace.chart(),
+                            draft.kind,
+                            &draft.source,
+                        )
+                        .map_err(profile_error)?;
+                    self.workspace
+                        .delete_profile(&file)
+                        .map_err(profile_error)?;
+                    if self.generation.profiles.performed.as_ref() == Some(&draft.source) {
+                        self.generation.profiles.performed = None;
+                        self.generation.performed_name = None;
+                    }
+                    if self.generation.profiles.expressed.as_ref() == Some(&draft.source) {
+                        self.generation.profiles.expressed = None;
+                        self.generation.expressed_name = None;
+                    }
+                    Ok(())
+                })();
+                match result {
+                    Ok(()) => {
+                        self.profile_edit = None;
+                        self.profile_selection = None;
+                        self.chart_properties = None;
+                        self.marker = None;
+                        self.panel = None;
+                        self.status = i18n::tr("Edition", "ProfileDeleted");
+                        self.refresh();
+                    }
+                    Err(error) => {
+                        self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error)])
+                    }
+                }
+            }
+            _ => {}
         }
     }
     fn profile_saved_history(&mut self, redo: bool) {
@@ -212,15 +315,21 @@ impl State {
         };
         let count = draft.editor.fields().len();
         let actions = draft.action_count();
+        if code == KeyCode::F9 && !self.control
+            || index == count + actions - 1 && code == KeyCode::Enter
+        {
+            self.open_profile_delete();
+            return;
+        }
         let undo = code == KeyCode::F7 && !self.control
-            || index == count + actions - 2 && code == KeyCode::Enter;
+            || index == count + actions - 3 && code == KeyCode::Enter;
         let redo = code == KeyCode::F8 && !self.control
-            || index == count + actions - 1 && code == KeyCode::Enter;
+            || index == count + actions - 2 && code == KeyCode::Enter;
         if undo || redo {
             self.profile_saved_history(redo);
             return;
         }
-        if (index == count + actions - 3 && code == KeyCode::Enter)
+        if (index == count + actions - 4 && code == KeyCode::Enter)
             || (code == KeyCode::F5 && !self.control)
         {
             if let Some(draft) = self.profile_edit.as_mut() {

@@ -101,6 +101,10 @@ impl Workspace {
         })
     }
 
+    pub fn delete_profile(&mut self, file: &crate::generation::profiles::ProfileFile) -> Result<(), Error> {
+        self.file.session.delete_profile(file)
+    }
+
     pub fn file(&self) -> &FileSession {
         &self.file
     }

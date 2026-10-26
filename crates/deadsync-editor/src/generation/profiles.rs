@@ -654,6 +654,7 @@ fn builtin(kind: Kind, guid: &Guid) -> bool {
         Kind::Expressed => registry.expressed.contains_key(guid),
     }
 }
+#[derive(Debug)]
 pub struct ProfileFile {
     path: PathBuf,
     expected: Arc<[u8]>,
@@ -814,6 +815,7 @@ impl ProfileFile {
 }
 /// An undoable disk deletion. Backups are excluded from the profile catalog.
 /// Dropping this value discards its private backup; a restored original remains.
+#[derive(Debug)]
 pub struct DeletedProfile {
     path: PathBuf,
     bytes: Arc<[u8]>,
