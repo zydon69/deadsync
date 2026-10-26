@@ -438,3 +438,70 @@ fn new_attack_duration_is_one_beat_at_active_tempo_and_added_modifiers_reuse_fir
     let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
     assert_eq!(read(&reopened).attacks(), draft.attacks());
 }
+
+#[test]
+fn attack_event_clipboard_crosses_charts_with_destination_clock_conflicts_and_one_undo() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("clipboard.ssc");
+    let source = b"#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=0.5:LEN=2:MODS=100% Dizzy,50% Drunk;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Challenge;#METER:10;#BPMS:0=240;#ATTACKS:TIME=1:LEN=1:MODS=100% Reverse;#NOTES:0100;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    press(&mut s, KeyCode::F10);
+    press(&mut s, KeyCode::F6);
+    field(&mut s, 4, "Écran clair");
+    row(&mut s, 1);
+    ctrl(&mut s, KeyCode::KeyC);
+    // Copy includes staged fields without applying them to the source chart.
+    press(&mut s, KeyCode::Escape);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    ctrl(&mut s, KeyCode::Tab);
+    assert_eq!(s.workspace().chart(), 1);
+    ctrl(&mut s, KeyCode::KeyJ);
+    assert_eq!(s.workspace().row(), 192);
+    ctrl(&mut s, KeyCode::Enter);
+    row(&mut s, 1);
+    ctrl(&mut s, KeyCode::KeyV);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    action(&mut s, 12);
+    let session = &s.workspace().file().session;
+    let target = deadsync_editor::attacks::placement::Timeline::capture(session, 1).unwrap();
+    assert_eq!(target.markers().len(), 1);
+    assert_eq!(target.markers()[0].row, 192);
+    assert_eq!(target.markers()[0].chart_time, 1.0);
+    assert_eq!(target.markers()[0].modifiers.len(), 2);
+    assert_eq!(target.markers()[0].modifiers[0].name, "Écran clair");
+    assert_eq!(target.markers()[0].modifiers[1].name, "Drunk");
+    assert_eq!(
+        deadsync_editor::attacks::placement::Timeline::capture(session, 0)
+            .unwrap()
+            .markers()[0]
+            .modifiers[0]
+            .name,
+        "Dizzy"
+    );
+    let pasted = session.serialize().unwrap();
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    ctrl(&mut s, KeyCode::KeyY);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), pasted);
+    ctrl(&mut s, KeyCode::KeyS);
+    let reopened = State::open_selected(&path, "dance-single", "Challenge", "", 10).unwrap();
+    assert_eq!(
+        reopened.workspace().file().session.serialize().unwrap(),
+        pasted
+    );
+    // Cutting the whole event remains staged, and cancelling restores it.
+    ctrl(&mut s, KeyCode::Enter);
+    row(&mut s, 1);
+    ctrl(&mut s, KeyCode::KeyX);
+    press(&mut s, KeyCode::Escape);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), pasted);
+    ctrl(&mut s, KeyCode::Enter);
+    row(&mut s, 1);
+    ctrl(&mut s, KeyCode::KeyX);
+    // Paste after cut at the same cursor restores the snapshot without losing modifiers.
+    ctrl(&mut s, KeyCode::KeyV);
+    action(&mut s, 12);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), pasted);
+}

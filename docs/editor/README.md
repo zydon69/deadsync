@@ -40,7 +40,7 @@ reviewable and tested.
 | --- | --- | --- |
 | SM/SSC source preservation | Byte spans and explicit replacements; unknown tags, unchanged chart note data, and legacy metadata bytes preserved | `editing_workflows`, `property_workflows`; broader format corpus still required |
 | Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; Routine/Team participant changes with atomic metadata/history; raw head/tail attribute inspector shipped; typed note-specific suffix forms and StepF2 conventions pending |
-| Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste now uses GrooveAuthor ForceAdd conflict rules; miscellaneous-event clipboard parity remains pending |
+| Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste uses GrooveAuthor ForceAdd conflict rules; attack inspector has an event clipboard; mixed miscellaneous-event clipboard parity remains pending |
 | Layouts | Reference pad coordinates, starting tiers, ten relationship matrices, mirror/flip mappings | All imported layout definitions validated; original compressed graphs decoded and traversed |
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/row shifts and column shifts with optional wrapping; miscellaneous-event transformations and broader original workflow coverage pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
@@ -5757,3 +5757,43 @@ original, chart duplication/undo, atomic disk save and reopen. All three tests
 in `attack_lifecycle_workflows` passed
 (`/tmp/deadsync-empty-attack-recovery.log`); the extra case was added after the
 full 523-test core regression above.
+
+### Row-relative attack clipboard
+
+The attack inspector now accepts Ctrl/Cmd+C, X and V on its attack-event
+selector. Copy includes the whole attack and its staged fields; cut removes the
+whole event from the draft; paste targets the chart cursor. The editor retains
+this detached internal clipboard when the panel closes or the chart changes.
+Text-field shortcuts continue to use the existing OS text clipboard. Apply/cancel
+keeps the same draft transaction semantics as the other attack operations.
+
+`attacks::inspector::Clipboard` owns a snapshot of one or several events, with
+rows relative to the earliest selected attack, including empty events and all
+modifier durations/levels/speeds. Destination times are recomputed from its clock;
+source seconds are not transferred. An attack at a destination row is replaced,
+while notes and other event types remain untouched. A whole batch is validated
+before publication, and an out-of-bounds or clock failure leaves it unchanged.
+The public core API supports multiple selected attacks; the native inspector
+currently exposes its one selected event. Mixed note/timing/attack selection and
+the general miscellaneous-event clipboard are still pending.
+
+The reference rules were checked in the pinned
+`EditorActions/ActionPasteEvents.cs` (`PasteUntransformedEvents`) and
+`EditorChart.cs` (`ForceAddEventInternal`, `CanEventExistAtRow`): clone, set the
+shifted row, then replace an existing event of the same type at that row. This
+increment does not claim executable C# differential coverage for clipboard
+operations. Rust public workflow tests cover cross-format/different-tempo paste,
+multiple modifiers and an empty event, destination conflict replacement, atomic
+bounds rejection, save/reopen, exact undo/redo, and distinct positions inside a
+warp. Native EN/FR tests exercise staged copy, cross-chart paste at a conflicting
+row, source-chart isolation, save/reopen, undo/redo and cut/cancel/cut/paste.
+
+Focused verification: 9 unique core tests passed across `attack_clipboard_workflows`
+(2), `attack_inspector_workflows` (4) and `attack_lifecycle_workflows` (3).
+The extra warp case was added after the first core invocation and rerun in
+`/tmp/deadsync-attack-clipboard-extra.log`; the other core results are in
+`/tmp/deadsync-attack-clipboard-core.log`. All 24 native tests passed across
+`edition_attack_events_workflow`, its French counterpart and
+`edition_clipboard_workflow` (`/tmp/deadsync-attack-clipboard-native.log`). This
+is targeted verification for this increment, not a new complete editor regression
+or physical-input/GPU validation.

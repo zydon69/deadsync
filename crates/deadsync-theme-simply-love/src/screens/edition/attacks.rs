@@ -150,6 +150,50 @@ impl State {
         }
     }
     pub(super) fn attacks_key(&mut self, index: usize, code: KeyCode) {
+        // Event clipboard is internal to this editor, like the lane-note clipboard.
+        // Text fields retain their existing OS clipboard behavior.
+        if index == 1
+            && self.control
+            && matches!(code, KeyCode::KeyC | KeyCode::KeyX | KeyCode::KeyV)
+        {
+            let Some(mut settings) = self.attacks.take() else {
+                return;
+            };
+            let result = (|| -> Result<&str, Error> {
+                if code == KeyCode::KeyV && self.attack_clipboard.is_none() {
+                    return Ok("ClipboardNoText");
+                }
+                settings.commit()?;
+                if code == KeyCode::KeyV {
+                    let events = settings.draft.paste_events(
+                        self.attack_clipboard
+                            .as_ref()
+                            .expect("Clipboard checked above"),
+                        self.workspace.row(),
+                    )?;
+                    settings.event = events[0];
+                    settings.modifier = 0;
+                    settings.load();
+                    Ok("ClipboardPasted")
+                } else {
+                    let copied = settings.draft.copy_events(&[settings.event])?;
+                    if code == KeyCode::KeyX {
+                        settings.draft.remove(settings.event)?;
+                        settings.clamp();
+                    }
+                    self.attack_clipboard = Some(copied);
+                    Ok(if code == KeyCode::KeyX {
+                        "ClipboardCut"
+                    } else {
+                        "ClipboardCopied"
+                    })
+                }
+            })();
+            self.attacks = Some(settings);
+            self.focus_text();
+            self.status = i18n::tr("Edition", result.unwrap_or("AttacksInvalid"));
+            return;
+        }
         if matches!(code, KeyCode::F2 | KeyCode::F3 | KeyCode::F4 | KeyCode::F5) {
             if !self.sync_text() {
                 return;

@@ -16,6 +16,12 @@ pub struct Event {
 pub struct Events {
     events: Vec<Event>,
 }
+/// Detached row-relative attack events, reusable across charts and clocks.
+/// Times are deliberately not copied: the destination clock owns them.
+#[derive(Clone)]
+pub struct Clipboard {
+    events: Vec<resident::RowEvent>,
+}
 impl Events {
     pub fn events(&self) -> &[Event] {
         &self.events
@@ -108,6 +114,69 @@ impl Draft {
     }
     pub fn has_changes(&self) -> bool {
         self.current != self.original
+    }
+    pub fn copy_events(&self, indices: &[usize]) -> Result<Clipboard, Error> {
+        if indices.is_empty() {
+            return Err(invalid("No attacks selected"));
+        }
+        let mut events = BTreeMap::new();
+        for &index in indices {
+            let event = self.entry(index)?;
+            events.insert(event.row, event.modifiers.clone());
+        }
+        let first = *events.first_key_value().expect("Selection is nonempty").0;
+        Ok(Clipboard {
+            events: events
+                .into_iter()
+                .map(|(row, modifiers)| resident::RowEvent {
+                    row: row - first,
+                    modifiers,
+                })
+                .collect(),
+        })
+    }
+    /// GrooveAuthor ActionPasteEvents/ForceAddEvent replaces an attack at the
+    /// same row, retaining all other event kinds. Stage the whole batch before
+    /// publishing it so a clock/bounds failure cannot leave a partial paste.
+    pub fn paste_events(&mut self, clipboard: &Clipboard, row: u64) -> Result<Vec<usize>, Error> {
+        let mut events: BTreeMap<_, _> = self
+            .current
+            .events
+            .iter()
+            .map(|event| (event.row, event.clone()))
+            .collect();
+        let mut inserted = Vec::with_capacity(clipboard.events.len());
+        for event in &clipboard.events {
+            let row = row
+                .checked_add(event.row)
+                .filter(|row| *row <= i32::MAX as u64)
+                .ok_or_else(|| invalid("Pasted attacks exceed editor rows"))?;
+            events.insert(
+                row,
+                Event {
+                    row,
+                    time: 0.0,
+                    chart_time: 0.0,
+                    modifiers: event.modifiers.clone(),
+                },
+            );
+            inserted.push(row);
+        }
+        self.replace(events.into_values().collect())?;
+        self.sources
+            .retain(|_, row| inserted.binary_search(row).is_err());
+        for row in &inserted {
+            self.hints.remove(row);
+        }
+        Ok(inserted
+            .into_iter()
+            .map(|row| {
+                self.current
+                    .events
+                    .binary_search_by_key(&row, |event| event.row)
+                    .expect("Pasted attack exists")
+            })
+            .collect())
     }
     pub fn event_for_source(&self, index: usize) -> Option<usize> {
         let row = *self.sources.get(&index)?;
