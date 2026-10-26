@@ -6020,3 +6020,26 @@ passed all 28 tests, 14 per language (`/tmp/deadsync-event-selection-native.log`
 The panel/actor tests prove key dispatch, bounded pagination and localized content;
 they do not prove physical keyboard/pad delivery or GPU/font rendering. No full
 editor-regression claim is made for this increment.
+
+### Scheduled attacks in the generation timeline (preparatory increment)
+
+`EditorTimeline::build_with_attacks` accepts editor-assigned scheduled attack
+rows while retaining generation's single-participant, row-range and cancellation
+guards. Region preparation includes these non-performance events in event spans
+and in the ordered pattern context without manufacturing movement frames.
+Existing callers of `build` continue to supply no attacks.
+
+Reference inspection: Fumen `SMCommon.CopyNonPerformanceEvents` explicitly clones
+`Attack` events; GrooveAuthor `EditorChart.GetEventsInRangeForPattern` includes
+non-timing StepMania events and their editor counterparts inside the requested
+range. These observations guide this increment; the two new tests are direct
+Rust contract tests, not a new differential C# fixture.
+
+This does not yet enable attacked-chart generation. Source preparation still
+rejects scheduled attacks until source row loading, standalone Fumen timing and
+generated destination attack preservation are connected and proven together.
+
+Verification: all 12 tests in `editor_timing_workflows` passed on this increment,
+including the two new scheduled-attack tests and existing original-reference
+timing, pattern context, and native conversion cases. This is a focused suite,
+not a full editor regression or an end-to-end attacked-chart generation proof.

@@ -7,6 +7,69 @@ use deadsync_editor::{
 };
 use serde_json::Value;
 use std::{fs, path::PathBuf, sync::atomic::AtomicBool};
+
+#[test]
+fn scheduled_attacks_extend_generation_span_without_creating_steps() {
+    let timing = GenerationTiming::new(vec![Event {
+        row: 0,
+        kind: EventKind::Tempo(120.0),
+    }])
+    .unwrap();
+    let grid = Grid::new(4, 1).unwrap();
+    let cancelled = AtomicBool::new(false);
+    let timeline =
+        EditorTimeline::build_with_attacks(&timing, &grid, None, &[96, 192], &cancelled).unwrap();
+    let region = timeline
+        .prepare_region(&grid, Some((0, 192)), &cancelled)
+        .unwrap();
+    assert_eq!(region.event_span, [0.0, 2.0]);
+    assert!(region.frames.is_empty());
+    assert!(region.times.is_empty());
+    assert_eq!(region.editor_events.len(), 2);
+    assert_eq!(region.editor_events[0].row, 96);
+    assert_eq!(region.editor_events[1].row, 192);
+    assert!(region.editor_events.iter().all(|event| !event.is_step && event.lane.is_none()));
+    let clipped = timeline
+        .prepare_region(&grid, Some((0, 95)), &cancelled)
+        .unwrap();
+    assert_eq!(clipped.event_span, [0.0, 0.0]);
+    assert!(clipped.editor_events.is_empty());
+}
+
+#[test]
+fn scheduled_attack_clock_keeps_generation_input_guards() {
+    let timing = GenerationTiming::new(vec![Event {
+        row: 0,
+        kind: EventKind::Tempo(120.0),
+    }])
+    .unwrap();
+    let grid = Grid::new(4, 1).unwrap();
+    assert!(
+        EditorTimeline::build_with_attacks(
+            &timing,
+            &grid,
+            None,
+            &[i32::MAX as u64 + 1],
+            &AtomicBool::new(false),
+        )
+        .is_err()
+    );
+    assert!(
+        EditorTimeline::build_with_attacks(&timing, &grid, None, &[0], &AtomicBool::new(true),)
+            .is_err()
+    );
+    assert!(
+        EditorTimeline::build_with_attacks(
+            &timing,
+            &Grid::new(4, 2).unwrap(),
+            None,
+            &[0],
+            &AtomicBool::new(false),
+        )
+        .is_err()
+    );
+}
+
 fn timing(input: &Value) -> GenerationTiming {
     GenerationTiming::new(
         input["Timing"]

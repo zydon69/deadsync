@@ -141,7 +141,19 @@ impl EditorTimeline {
         region: Option<(u64, u64)>,
         cancelled: &AtomicBool,
     ) -> Result<Self, Error> {
-        Self::build_internal(timing, grid, region, &[], false, cancelled)
+        Self::build_with_attacks(timing, grid, region, &[], cancelled)
+    }
+    /// Build the generation clock with scheduled, non-performance events.
+    /// Attack rows use their editor-assigned positions and precede delays at
+    /// the same row, just as they do in the original event ordering.
+    pub fn build_with_attacks(
+        timing: &GenerationTiming,
+        grid: &Grid,
+        region: Option<(u64, u64)>,
+        attacks: &[u64],
+        cancelled: &AtomicBool,
+    ) -> Result<Self, Error> {
+        Self::build_internal(timing, grid, region, attacks, false, cancelled)
     }
     /// Resident editor clock includes actual note heads and attack phase six.
     /// Multiple participants are valid here; generation retains its own guard.
@@ -195,6 +207,7 @@ impl EditorTimeline {
             });
         }
         for &row in attacks {
+            check(cancelled)?;
             valid_row(row)?;
             entries.push(Entry {
                 row,
@@ -565,6 +578,21 @@ impl EditorTimeline {
         let mut metadata = Vec::new();
         for entry in self.entries.iter().copied() {
             check(cancelled)?;
+            if matches!(entry.kind, EntryKind::Attack)
+                && range.is_some_and(|(start, end)| start <= entry.row && entry.row <= end)
+            {
+                included.push((entry.row, entry.order(), 0, entry.time));
+                metadata.push((
+                    entry.row,
+                    entry.order(),
+                    0,
+                    ContextEvent {
+                        row: entry.row,
+                        lane: None,
+                        is_step: false,
+                    },
+                ));
+            }
             if let EntryKind::Timing(kind) = entry.kind {
                 let clock = matches!(
                     kind,
