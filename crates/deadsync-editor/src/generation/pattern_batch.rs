@@ -85,6 +85,7 @@ impl Task {
         if chart >= session.document().charts().len() {
             return Err(invalid("Pattern source chart does not exist"));
         }
+        source::require_reference_source(session.document(), chart)?;
         let rows: Vec<_> = rows
             .into_iter()
             .collect::<BTreeSet<_>>()

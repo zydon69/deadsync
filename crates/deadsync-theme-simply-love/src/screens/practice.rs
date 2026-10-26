@@ -701,9 +701,7 @@ fn update_inner(
     snap_music_start: MusicStartSnap,
 ) -> ThemeEffect {
     if let Some(editor) = state.edition.as_mut() {
-        editor.update();
-        editor.update_audio(audio_snapshot);
-        for command in editor.take_audio_commands() {
+        for command in update_editor_audio(editor, audio_snapshot) {
             state.gameplay.push_audio_command(command);
         }
         return ThemeEffect::None;
@@ -740,6 +738,23 @@ fn update_inner(
         start_playback(state, start_beat, stop_beat, snap_music_start);
     }
     ThemeEffect::None
+}
+
+fn update_editor_audio(
+    editor: &mut crate::screens::edition::State,
+    snapshot: GameplayAudioSnapshot,
+) -> Vec<GameplayAudioCommand> {
+    editor.update();
+    let mut commands = editor.take_audio_commands();
+    let changing_transport = commands.iter().any(|command| matches!(command,
+        GameplayAudioCommand::PlayMusic { .. } | GameplayAudioCommand::StopMusic
+        | GameplayAudioCommand::SeekMusic(_) | GameplayAudioCommand::SetMusicRate(_)
+    ));
+    // New commands have not reached the backend, so this snapshot still belongs
+    // to the preceding request even if its timestamp was sampled just now.
+    if !changing_transport { editor.update_audio(snapshot); }
+    commands.extend(editor.take_audio_commands());
+    commands
 }
 
 pub fn handle_input(
@@ -1116,6 +1131,47 @@ pub fn editor_image_preview_request(state: &State) -> Option<crate::screens::edi
 }
 pub fn set_editor_image_preview_views(state: &mut State, views: [crate::screens::edition::image_previews::PreviewView; 2]) {
     if let Some(editor) = state.edition.as_mut() { editor.set_image_preview_views(views); }
+}
+
+pub fn bind_editor_decoder_generation(state: &mut State, generation: Option<u64>) {
+    if let Some(editor) = state.edition.as_mut() {
+        editor.bind_decoder_generation(generation);
+    }
+}
+
+/// Deferred native operations can enqueue transport commands after raw-input
+/// draining. The shell executes them before observing another audio snapshot.
+pub fn flush_editor_audio_commands(state: &mut State) -> bool {
+    let Some(editor) = state.edition.as_mut() else { return false; };
+    let commands = editor.take_audio_commands();
+    let any = !commands.is_empty();
+    for command in commands { state.gameplay.push_audio_command(command); }
+    any
+}
+
+pub fn editor_is_open(state: &State) -> bool {
+    state.edition.is_some()
+}
+
+pub fn set_editor_decoder_status(
+    state: &mut State,
+    generation: u64,
+    ack: Option<crate::screens::edition::decoder_transport::Ack>,
+) {
+    if let Some(editor) = state.edition.as_mut() {
+        editor.set_decoder_status(generation, ack);
+    }
+}
+
+pub fn set_editor_stream_time(
+    state: &mut State,
+    generation: u64,
+    valid_at: std::time::Instant,
+    seconds: f64,
+) {
+    if let Some(editor) = state.edition.as_mut() {
+        editor.set_decoder_stream_time(generation, valid_at, seconds);
+    }
 }
 
 pub fn push_overlay(actors: &mut Vec<Actor>, state: &mut State) {
@@ -3020,6 +3076,45 @@ fn append_help_section(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn editor_pending_transport_commands_are_forwarded_before_another_snapshot_can_move_it() {
+        use deadlib_platform::input::RawKeyboardEvent;
+        use deadsync_gameplay::{GameplayAudioCommand, GameplayAudioSnapshot};
+        use std::time::Instant;
+        crate::i18n::init_for_tests();
+        let directory = tempfile::tempdir().unwrap();
+        std::fs::write(directory.path().join("music.ogg"), b"command-only asset").unwrap();
+        let path = directory.path().join("song.ssc");
+        std::fs::write(&path, "#VERSION:0.83;#MUSIC:music.ogg;#BPMS:0=120;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
+        let mut editor = crate::screens::edition::State::open(&path, 0).unwrap();
+        let key = |editor: &mut crate::screens::edition::State, code, pressed| {
+            editor.raw_key(&RawKeyboardEvent { code, pressed, repeat: false, timestamp: Instant::now(), host_nanos: 0 });
+        };
+        let snapshot = |seconds: f64| {
+            let mut value = GameplayAudioSnapshot::default();
+            value.stream_clock.valid_at = Instant::now();
+            value.stream_clock.has_music_mapping = true;
+            value.stream_clock.music_nanos = (seconds * 1e9).round() as i64;
+            value
+        };
+        key(&mut editor, KeyCode::Enter, true);
+        key(&mut editor, KeyCode::Enter, false);
+        let commands = super::update_editor_audio(&mut editor, snapshot(10.0));
+        assert!(matches!(&commands[..], [GameplayAudioCommand::PlayMusic { .. }]));
+        assert_eq!(editor.workspace().row(), 0);
+        assert!(super::update_editor_audio(&mut editor, snapshot(1.0)).is_empty());
+        assert_eq!(editor.workspace().row(), 96);
+        key(&mut editor, KeyCode::ShiftLeft, true);
+        key(&mut editor, KeyCode::ArrowRight, true);
+        key(&mut editor, KeyCode::ArrowRight, false);
+        key(&mut editor, KeyCode::ShiftLeft, false);
+        let commands = super::update_editor_audio(&mut editor, snapshot(20.0));
+        assert!(matches!(&commands[..], [GameplayAudioCommand::SetMusicRate(_)]));
+        assert_eq!(editor.workspace().row(), 96);
+        assert!(editor.is_playing());
+        assert!(!editor.workspace().file().session.is_dirty());
+    }
+
     use super::{
         CursorHoldDir, DISPLAY_SCROLL_MAX_SMOOTH_BEATS, DISPLAY_SCROLL_SNAP_EPSILON,
         EditInfoSource, HELP_MENU, MAIN_MENU, MUSIC_RATE_HOTKEY_MAX, MUSIC_RATE_HOTKEY_MIN,

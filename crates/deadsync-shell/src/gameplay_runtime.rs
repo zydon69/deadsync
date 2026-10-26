@@ -522,7 +522,27 @@ const fn audio_cut(cut: GameplayMusicCut) -> deadlib_audio::stream::Cut {
 pub(crate) fn snapshot(
     music_clock: &mut deadsync_audio_stream::MusicClock,
 ) -> GameplayAudioSnapshot {
-    let stream_clock = music_clock.snapshot();
+    snapshot_from_clock(music_clock.snapshot())
+}
+
+fn snapshot_for_editor(
+    music_clock: &mut deadsync_audio_stream::MusicClock,
+) -> (GameplayAudioSnapshot, f64) {
+    let (stream_clock, decoded_mapping, seconds) = music_clock.snapshot_for_editor_time();
+    (snapshot_for_editor_clock(stream_clock, decoded_mapping), seconds)
+}
+
+fn snapshot_for_editor_clock(
+    stream_clock: deadlib_audio_core::MusicStreamClockSnapshot,
+    decoded_mapping: bool,
+) -> GameplayAudioSnapshot {
+    let mut snapshot = snapshot_from_clock(stream_clock);
+    // Gameplay's optimistic startup seed cannot prove an editor decoder opened.
+    snapshot.stream_clock.has_music_mapping &= decoded_mapping;
+    snapshot
+}
+
+fn snapshot_from_clock(stream_clock: deadlib_audio_core::MusicStreamClockSnapshot) -> GameplayAudioSnapshot {
     let output_timing = deadsync_audio_stream::get_output_timing_snapshot();
     GameplayAudioSnapshot {
         stream_clock: GameplayStreamClockSnapshot {
@@ -720,6 +740,28 @@ pub(crate) fn handle_input(
     debug_assert!(effects.len() - start_len <= MAX_INPUT_EFFECTS);
 }
 
+fn sync_editor_decoder(state: &mut practice::State, audio: &deadsync_audio_stream::AudioControl) {
+    use deadlib_audio::stream::lifecycle::DecoderPhase;
+    use deadsync_theme_simply_love::screens::edition::decoder_transport::{Ack, Phase};
+    let generation = audio.music_command_generation();
+    practice::bind_editor_decoder_generation(state, generation);
+    if let Some(generation) = generation {
+        let ack = audio.decoder_status().map(|snapshot| Ack {
+            generation: snapshot.command_generation,
+            opened: snapshot.opened_successfully,
+            phase: match snapshot.phase {
+                DecoderPhase::Pending => Phase::Pending,
+                DecoderPhase::Opened => Phase::Opened,
+                DecoderPhase::Producing => Phase::Producing,
+                DecoderPhase::Exhausted => Phase::Exhausted,
+                DecoderPhase::Stopped => Phase::Stopped,
+                DecoderPhase::Failed => Phase::Failed,
+            },
+        });
+        practice::set_editor_decoder_status(state, generation, ack);
+    }
+}
+
 pub(crate) fn update_practice(
     state: &mut practice::State,
     delta_time: f32,
@@ -729,16 +771,30 @@ pub(crate) fn update_practice(
     score_cursor: &mut ScoreRuntimeCursor,
     effects: &mut Vec<ThemeEffect>,
 ) {
+    if practice::flush_editor_audio_commands(state) {
+        drain(&mut state.gameplay, audio, sounds, music_clock);
+    }
+    sync_editor_decoder(state, audio);
+    let audio_snapshot = if practice::editor_is_open(state) {
+        let (snapshot, seconds) = snapshot_for_editor(music_clock);
+        if let Some(generation) = audio.music_command_generation() {
+            practice::set_editor_stream_time(state, generation, snapshot.stream_clock.valid_at, seconds);
+        }
+        snapshot
+    } else {
+        snapshot(music_clock)
+    };
     practice::update(
         state,
         delta_time,
-        snapshot(music_clock),
+        audio_snapshot,
         deadlib_platform::host_time::now_nanos,
         deadlib_audio::stream::snap_music_start_sec,
         effects,
     );
     score_cursor.sync_if_dirty(&mut state.gameplay);
     drain(&mut state.gameplay, audio, sounds, music_clock);
+    sync_editor_decoder(state, audio);
 }
 
 pub(crate) fn enter_practice(
@@ -749,6 +805,7 @@ pub(crate) fn enter_practice(
 ) {
     practice::on_enter(state);
     drain(&mut state.gameplay, audio, sounds, music_clock);
+    sync_editor_decoder(state, audio);
 }
 
 pub(crate) fn handle_practice_input(
@@ -766,6 +823,7 @@ pub(crate) fn handle_practice_input(
         effects,
     );
     drain(&mut state.gameplay, audio, sounds, music_clock);
+    sync_editor_decoder(state, audio);
 }
 
 pub(crate) fn handle_practice_raw_key(
@@ -783,6 +841,7 @@ pub(crate) fn handle_practice_raw_key(
         effects,
     );
     drain(&mut state.gameplay, audio, sounds, music_clock);
+    sync_editor_decoder(state, audio);
     consumed
 }
 
@@ -868,6 +927,29 @@ pub(crate) fn push_practice_actors(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn editor_clock_adapter_strips_only_optimistic_mapping_and_preserves_clock_data() {
+        let valid_at = std::time::Instant::now();
+        for (has_mapping, decoded, expected) in [(true, false, false), (true, true, true), (false, true, false)] {
+            let raw = deadlib_audio_core::MusicStreamClockSnapshot {
+                stream_seconds: 3.25,
+                music_nanos: -125_000_000,
+                music_seconds_per_second: 2.0,
+                has_music_mapping: has_mapping,
+                valid_at,
+                valid_at_host_nanos: 42,
+            };
+            let editor = super::snapshot_for_editor_clock(raw, decoded).stream_clock;
+            assert_eq!(editor.has_music_mapping, expected);
+            assert_eq!(editor.stream_seconds, 3.25);
+            assert_eq!(editor.music_nanos, -125_000_000);
+            assert_eq!(editor.music_seconds_per_second, 2.0);
+            assert_eq!(editor.valid_at, valid_at);
+            assert_eq!(editor.valid_at_host_nanos, 42);
+            assert_eq!(super::snapshot_from_clock(raw).stream_clock.has_music_mapping, has_mapping);
+        }
+    }
+
     use super::{
         background_chart, mini_indicator_percent, mini_indicator_rival_score, policy_view,
         score_generation_changed, scorebox_profiles, smx_sensor_value,

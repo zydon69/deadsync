@@ -1,0 +1,707 @@
+[
+  {
+    "Name": "pattern-shift",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ]
+  },
+  {
+    "Name": "pattern-replaces-same-head",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [
+      {
+        "Kind": "Label",
+        "Row": 192,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "After": [
+      {
+        "Kind": "Label",
+        "Row": 192,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "Label",
+        "Row": 192,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "Label",
+        "Row": 192,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ]
+  },
+  {
+    "Name": "overlapping-regions-remain",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "After": [
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 144,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Undone": [
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Redone": [
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 144,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ]
+  },
+  {
+    "Name": "mixed-earliest-note-origin",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 96,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 144,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ]
+  },
+  {
+    "Name": "two-marker-relative-heads",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 0,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 112,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 128,
+          "RandomSeed": -7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 0,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 112,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 128,
+          "RandomSeed": -7,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ]
+  },
+  {
+    "Name": "skip-pattern-dance-routine-2",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "skip-pattern-dance-routine-1",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "skip-pattern-pump-routine-1",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "skip-pattern-smx-team-2",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "skip-pattern-dance-couple-2",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "ordinary-double-accepts-pattern",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      }
+    ]
+  },
+  {
+    "Name": "cross-layout-skips-only-invalid-lanes",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 240,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "Pattern",
+        "Row": 192,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 240,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "mixed-owner-clamping",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 240,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 240,
+        "Lane": 1,
+        "Player": 0,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "single-owner-destination-player",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 1,
+        "End": null
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "LaneTapNote",
+        "Row": 192,
+        "Lane": 0,
+        "Player": 1,
+        "End": null
+      }
+    ]
+  },
+  {
+    "Name": "actual-library-event-order",
+    "ClonesMatchedBefore": true,
+    "ClonesIndependentAfter": true,
+    "Before": [],
+    "After": [
+      {
+        "Kind": "Attack",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Stop",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 48,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 48,
+        "Lane": 1,
+        "Player": 0,
+        "End": 144
+      }
+    ],
+    "Undone": [],
+    "Redone": [
+      {
+        "Kind": "Attack",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Stop",
+        "Row": 48,
+        "Lane": -1,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "LaneTapNote",
+        "Row": 48,
+        "Lane": 0,
+        "Player": 0,
+        "End": null
+      },
+      {
+        "Kind": "Pattern",
+        "Row": 48,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 96,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": true
+        }
+      },
+      {
+        "Kind": "LaneHoldStartNote",
+        "Row": 48,
+        "Lane": 1,
+        "Player": 0,
+        "End": 144
+      }
+    ]
+  }
+]

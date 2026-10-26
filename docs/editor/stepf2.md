@@ -67,8 +67,8 @@ Pump Double co-op normalization is implemented as an explicit structural
 operation (`Session::normalize_stepf2_chart` / `Command::NormalizeStepF2`), exposed
 in chart properties only for eligible legacy Double charts. It preserves source
 comments, flags, peer edits and chart identities, and protects pending property
-drafts. Its initial five workflows passed for live layout, participants, undo/redo,
-save and reopen. Four additional boundary workflows await revalidation. Merely viewing retains
+drafts. Its nine workflows passed for live layout, participants, undo/redo,
+save/reopen and the added boundary cases. Merely viewing retains
 the original Double descriptor and source bytes. Fumen's parser instead promotes
 Double co-op to Routine automatically (`SMPropertyParsers.cs:1135–1146`).
 
@@ -91,17 +91,17 @@ transferring notes to a different notation.
 
 ## Current integration validation
 
-The integrating agent confirmed the initial normalization lot passed five core
+The integrating agent confirmed the complete normalization lot passed nine core
 workflows, the differential target passed both workflows (24 reader cases), and
 participant-count (4), chart-property (7), metadata (11), conversion (3), and
 StepF2 (16) targets passed. Both EN/FR native inspector targets passed seven
 workflows each (14 total), including normalization actions. Existing
 `edition_workflow` also passed 37 tests.
 
-Four new core boundary workflows remain pending: normalization at a nonleading
+The four additional core boundary workflows also passed: normalization at a nonleading
 chart index with two unsaved peer charts and undo after save; duplicate SSC
 layout fields under the reader's last-value policy; unsaved P4 notes followed
 by unrelated offset metadata; and metadata-only operations on unsupported raw
-notes. The normalization target now contains nine tests, not all yet rerun.
+notes. The normalization target contains nine tests and its complete version passed.
 Metadata-only initialization intentionally falls back to the Routine default
 when notes cannot be decoded; its save path preserves those raw note bytes.

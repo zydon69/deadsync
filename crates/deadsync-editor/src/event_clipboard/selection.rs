@@ -25,18 +25,24 @@ pub enum Event {
     Note(Position),
     Timing { row: u64, kind: TimingKind },
     Attack { row: u64 },
+    Pattern { row: u64 },
 }
 impl Event {
     pub fn row(self) -> u64 {
         match self {
             Self::Note(p) => p.row,
-            Self::Timing { row, .. } | Self::Attack { row } => row,
+            Self::Timing { row, .. } | Self::Attack { row } | Self::Pattern { row } => row,
         }
     }
-    fn order(self) -> u8 {
+    fn order(self, note_kinds: &BTreeMap<Position, Kind>) -> u8 {
         match self {
-            Self::Note(_) => 9,
-            Self::Attack { .. } => 12,
+            Self::Note(position) => match note_kinds.get(&position) {
+                Some(Kind::Tap | Kind::Fake | Kind::Lift) => 8,
+                Some(Kind::Hold | Kind::Roll) => 10,
+                _ => 12,
+            },
+            Self::Attack { .. } => 6,
+            Self::Pattern { .. } => 9,
             Self::Timing { kind, .. } => match kind {
                 TimingKind::Signature => 0,
                 TimingKind::Tempo => 1,
@@ -91,7 +97,18 @@ impl Selection {
             .map(|(p, n)| (p, n.kind))
             .collect();
         events.extend(note_kinds.keys().copied().map(Event::Note));
-        events.sort_by_key(|e| (e.row(), e.order(), *e));
+        if let Some(data) = crate::generation::metadata::ChartData::read(session.document(), chart)? {
+            events.extend(data.patterns.into_iter().flatten()
+                .filter(|(row, _)| (start..=end).contains(row))
+                .map(|(row, _)| Event::Pattern { row }));
+        }
+        // Keep a total presentation order. Fumen compares lanes before event
+        // type only when both events are lane notes, which can be nontransitive
+        // around a Pattern. Never feed that comparator to Rust's sort.
+        events.sort_by_key(|e| {
+            let (lane, player) = match e { Event::Note(p) => (p.lane, p.player), _ => (0, 0) };
+            (e.row(), e.order(&note_kinds), lane, player, *e)
+        });
         let selected = events.iter().copied().collect();
         Ok(Self {
             token: session.revision_token(),

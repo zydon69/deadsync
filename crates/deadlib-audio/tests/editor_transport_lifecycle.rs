@@ -1,6 +1,7 @@
 //! Observe the existing decoder/callback boundary with a real short WAV.
 //! These assertions describe current facts, not completed editor EOF parity.
 //! One test owns process-global clocks; no audio device or sleeps are involved.
+use deadlib_audio::stream::lifecycle::{DecoderPhase, DecoderSnapshot};
 use deadlib_audio::stream::{Cut, MusicDecodeContext, OutputFormat, spawn_music_decoder_thread};
 use deadlib_audio_core::{
     CallbackClockSource, CallbackInfo, MixControls, MusicMapSeg, OutputBufferMut, PlaybackPosMap,
@@ -50,6 +51,7 @@ struct Observation {
     second_maps: Vec<MusicMapSeg>,
     callback_frames: u64,
     active_after_eof: bool,
+    decoder: DecoderSnapshot,
 }
 
 fn observe(path: PathBuf, start_sec: f64) -> Observation {
@@ -80,6 +82,7 @@ fn observe(path: PathBuf, start_sec: f64) -> Observation {
     );
     // Entire fixture plus pre-roll is below the producer pool watermark.
     // Joining proves producer termination; a quiet callback alone cannot do so.
+    let status = worker.status_reader();
     let _writer = worker.thread.join().expect("decoder worker terminates");
     let mut renderer = RenderState::new(render, Arc::new(MixControls::new()), 2);
     let mut callback = |anchor| {
@@ -109,6 +112,7 @@ fn observe(path: PathBuf, start_sec: f64) -> Observation {
         second_maps,
         callback_frames: music_total_frames() - callback_start,
         active_after_eof: music_track_active(),
+        decoder: status.snapshot(),
     }
 }
 
@@ -116,6 +120,8 @@ fn observe(path: PathBuf, start_sec: f64) -> Observation {
 fn real_wav_negative_preroll_eof_and_beyond_eof_expose_existing_clock_contract() {
     let wav = Wav::new();
     let result = observe(wav.0.clone(), -0.005);
+    assert_eq!(result.decoder.phase, DecoderPhase::Exhausted);
+    assert!(result.decoder.opened_successfully);
     const LEAD: usize = 240;
     assert_eq!(&result.first[..LEAD * 2], vec![0; LEAD * 2]);
     assert_eq!(
@@ -165,6 +171,8 @@ fn real_wav_negative_preroll_eof_and_beyond_eof_expose_existing_clock_contract()
     );
     assert!(beyond.first_maps.is_empty() && beyond.second_maps.is_empty());
     assert!(beyond.active_after_eof);
+    assert_eq!(beyond.decoder.phase, DecoderPhase::Exhausted);
+    assert!(beyond.decoder.opened_successfully);
     let failed = observe(wav.0.with_extension("missing"), 0.02);
     assert!(
         failed
@@ -174,8 +182,117 @@ fn real_wav_negative_preroll_eof_and_beyond_eof_expose_existing_clock_contract()
             .all(|sample| *sample == 0)
     );
     assert!(failed.first_maps.is_empty() && failed.second_maps.is_empty());
+    assert_eq!(failed.decoder.phase, DecoderPhase::Failed);
+    assert!(!failed.decoder.opened_successfully);
+    assert!(failed.decoder.failure.is_some());
     // PCM/mapping absence alone currently cannot distinguish successfully opening
     // beyond EOF from decoder-open failure. A typed acknowledgement is required.
     assert_eq!(failed.active_after_eof, beyond.active_after_eof);
     stop_music_track();
+    retained_runtime_acknowledges_each_generation_and_keeps_stop_observable(&wav);
+}
+
+fn retained_runtime_acknowledges_each_generation_and_keeps_stop_observable(wav: &Wav) {
+    use deadlib_audio::stream::{MusicStreamRuntime, StreamCommand};
+    use std::time::{Duration, Instant};
+    reset_music_stream_clock_state();
+    let (stream, _render) = music_transport(HZ, 2);
+    let mut runtime = MusicStreamRuntime::new(
+        stream.writer,
+        OutputFormat {
+            sample_rate_hz: HZ,
+            channels: 2,
+        },
+    );
+    let monitor = runtime.decoder_status();
+    assert!(monitor.snapshot().is_none());
+    let generation = bump_music_map_generation();
+    runtime.handle(StreamCommand::PlayMusic {
+        decode_options: Default::default(),
+        path: wav.0.clone(),
+        cut: Cut::default(),
+        looping: false,
+        rate: 1.0,
+        preserve_pitch: true,
+        generation,
+    });
+    let wait = |generation, phase| {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            if let Some(snapshot) = monitor.snapshot()
+                && snapshot.command_generation == generation
+                && snapshot.phase == phase
+            {
+                return snapshot;
+            }
+            assert!(
+                Instant::now() < deadline,
+                "decoder acknowledgement: {:?}",
+                monitor.snapshot()
+            );
+            std::thread::yield_now();
+        }
+    };
+    let ended = wait(generation, DecoderPhase::Exhausted);
+    assert!(ended.opened_successfully);
+    assert!(ended.final_music_seconds.is_some());
+    // No callback has rendered: producer EOF must not be mistaken for heard EOF.
+    assert!(!deadlib_audio_core::music_track_has_started());
+    let seek_generation = bump_music_map_generation();
+    runtime.handle(StreamCommand::SeekMusic {
+        seconds: 0.02,
+        generation: seek_generation,
+    });
+    let seek = wait(seek_generation, DecoderPhase::Exhausted);
+    assert!(seek.opened_successfully);
+    assert_eq!(seek.requested_start_seconds, 0.02);
+    let rate_generation = bump_music_map_generation();
+    runtime.handle(StreamCommand::SetMusicRate {
+        rate: 0.25,
+        generation: rate_generation,
+    });
+    assert!(wait(rate_generation, DecoderPhase::Exhausted).opened_successfully);
+    runtime.handle(StreamCommand::StopMusic);
+    let stopped = wait(rate_generation, DecoderPhase::Stopped);
+    assert_eq!(stopped.command_generation, rate_generation);
+    assert!(!music_track_active());
+    let failure_generation = bump_music_map_generation();
+    runtime.handle(StreamCommand::PlayMusic {
+        decode_options: Default::default(),
+        path: wav.0.with_extension("absent"),
+        cut: Cut::default(),
+        looping: false,
+        rate: 1.0,
+        preserve_pitch: true,
+        generation: failure_generation,
+    });
+    let failed = wait(failure_generation, DecoderPhase::Failed);
+    assert!(!failed.opened_successfully);
+    assert!(
+        failed
+            .failure
+            .as_ref()
+            .is_some_and(|detail| detail.len() <= 2048)
+    );
+    for command in 0..3 {
+        let generation = bump_music_map_generation();
+        runtime.handle(match command {
+            0 => StreamCommand::SeekMusic {
+                seconds: 0.0,
+                generation,
+            },
+            1 => StreamCommand::SetMusicRate {
+                rate: 2.0,
+                generation,
+            },
+            _ => StreamCommand::SetPreservePitch {
+                enabled: false,
+                generation,
+            },
+        });
+        let failed = wait(generation, DecoderPhase::Failed);
+        assert!(!failed.opened_successfully);
+    }
+    runtime.handle(StreamCommand::StopMusic);
+    assert_eq!(monitor.snapshot().unwrap().phase, DecoderPhase::Stopped);
 }

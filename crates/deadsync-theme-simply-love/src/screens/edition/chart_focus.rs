@@ -5,10 +5,17 @@ impl State {
     /// Exposes the exact music-file instant for chart/view presentation checks.
     /// It does not claim that a decoder is playing or an audio mapping exists.
     pub fn chart_focus_time(&self) -> Result<f64, deadsync_editor::Error> {
+        if !self.workspace.has_chart() {
+            return Ok(self
+                .active_views
+                .as_ref()
+                .map_or(0.0, |views| views.music_time()));
+        }
         self.chart_focus_music_time()
     }
-    pub(super) fn focus_chart_at_time(&mut self, chart: usize, music_time: f64) {
-        let prepared = Transition::at_time(&self.workspace, chart, music_time);
+    pub(super) fn focus_chart_at_time(&mut self, chart: usize, music_time: f64) -> bool {
+        let prepared = Transition::open_at_time(&self.workspace, chart, music_time);
+        let mut success = false;
         match prepared {
             Ok(transition) => {
                 // Preserve the existing intentional stop on chart navigation.
@@ -17,6 +24,7 @@ impl State {
                 match transition.apply(&mut self.workspace) {
                     Ok(position) => {
                         self.focus_position = Some(position);
+                        success = true;
                         self.status = i18n::tr("Edition", "Ready");
                     }
                     Err(_) => self.status = i18n::tr("Edition", "ChartOrderFailed"),
@@ -25,5 +33,6 @@ impl State {
             Err(_) => self.status = i18n::tr("Edition", "ChartOrderFailed"),
         }
         self.refresh();
+        success
     }
 }

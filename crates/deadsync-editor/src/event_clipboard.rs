@@ -1,6 +1,7 @@
 //! Detached mixed selections. Clipboard contents never retain a session token;
 //! cut and paste publish through one atomic chart/history gesture.
 mod selection;
+mod patterns;
 use crate::{
     Error,
     attacks::inspector::Draft as Attacks,
@@ -17,6 +18,15 @@ pub struct Clipboard {
     notes: Option<Notes>,
     timing: Timing,
     attacks: Option<(u64, crate::attacks::inspector::Clipboard)>,
+    patterns: patterns::Patterns,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct PasteReport {
+    pub changed: bool,
+    pub patterns_pasted: usize,
+    pub patterns_skipped: usize,
+    pub notes_skipped: usize,
 }
 fn scope(session: &Session) -> Scope {
     if timing_edit::supports_chart_timing(session.document()) {
@@ -95,6 +105,7 @@ impl Clipboard {
             notes,
             timing,
             attacks,
+            patterns: patterns::Patterns::capture(session, chart, selected)?,
         }))
     }
     pub fn paste(
@@ -104,14 +115,24 @@ impl Clipboard {
         row: u64,
         player: u32,
     ) -> Result<bool, Error> {
+        self.paste_with_report(session, chart, row, player).map(|report| report.changed)
+    }
+    pub fn paste_with_report(
+        &self,
+        session: &mut Session,
+        chart: usize,
+        row: u64,
+        player: u32,
+    ) -> Result<PasteReport, Error> {
         if row > i32::MAX as u64 {
             return Err(Error::InvalidEdit("Event paste exceeds editor rows".into()));
         }
-        session.edit_chart_atomic(chart, "Paste selected events", |staged| {
+        let mut report = PasteReport::default();
+        report.changed = session.edit_chart_atomic(chart, "Paste selected events", |staged| {
             let before = snapshot(staged)?;
             let revision = staged.revision();
             if let Some(notes) = &self.notes {
-                notes.paste_force(staged, chart, row, player)?;
+                (_, report.notes_skipped) = notes.paste_force_with_report(staged, chart, row, player)?;
             }
             self.timing
                 .paste(staged, chart, scope(staged), self.origin, row)?;
@@ -128,8 +149,10 @@ impl Clipboard {
                 attacks.paste_events(clip, row)?;
                 attacks.apply(staged, chart)?;
             }
+            (report.patterns_pasted, report.patterns_skipped) = self.patterns.paste(staged, chart, self.origin, row)?;
             Ok(())
-        })
+        })?;
+        Ok(report)
     }
     /// Empty selections retain the caller's previous clipboard. A failed cut
     /// changes neither notes/properties nor either history branch.
@@ -181,6 +204,7 @@ impl Clipboard {
             if staged.revision() != revision {
                 crate::attacks::anchoring::preserve(&remaining, staged)?;
             }
+            self.patterns.remove(staged, chart)?;
             Ok(())
         })
     }

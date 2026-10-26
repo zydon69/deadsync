@@ -7,6 +7,7 @@
 
 mod processing;
 mod runtime;
+pub mod lifecycle;
 mod stretch;
 
 use deadlib_audio_core::{MusicBlockTiming, MusicBlockWriter, normalized_music_rate};
@@ -143,6 +144,9 @@ pub struct MusicStream {
     pub thread: thread::JoinHandle<MusicBlockWriter>,
     control: Arc<MusicControl>,
 }
+impl MusicStream {
+    pub fn status_reader(&self) -> lifecycle::DecoderStatusReader { self.control.status.clone() }
+}
 
 #[derive(Clone, Copy)]
 struct SeekRequest {
@@ -151,6 +155,8 @@ struct SeekRequest {
 }
 
 struct MusicControl {
+    failed: AtomicBool,
+    status: lifecycle::DecoderStatusReader,
     stop_signal: AtomicBool,
     rate_bits: AtomicU32,
     preserve_pitch: AtomicBool,
@@ -158,6 +164,30 @@ struct MusicControl {
     wake: DecoderWake,
     seek: Mutex<Option<SeekRequest>>,
     seek_serial: AtomicU64,
+}
+
+impl MusicControl {
+    fn fail(&self, detail: &str) {
+        // Publish the physical failure before reading the command generation.
+        // A command racing this path either observes failed=true after installing
+        // its generation, or this publisher sees that newly installed generation.
+        self.failed.store(true, Ordering::SeqCst);
+        self.status.publish(self.generation.load(Ordering::SeqCst), lifecycle::DecoderPhase::Failed, None, Some(detail));
+    }
+}
+impl MusicStream {
+    fn wake_command(&self, generation: u64) {
+        // Call only after Pending and the command's settings/generation have
+        // been published. Never leave a new Pending generation on a dead worker.
+        if self.control.failed.load(Ordering::SeqCst)
+            || self.control.stop_signal.load(Ordering::Acquire)
+            || self.thread.is_finished() {
+            self.control.status.publish(generation, lifecycle::DecoderPhase::Failed, None,
+                Some("Decoder worker is unavailable after failure"));
+        } else {
+            self.control.wake.notify();
+        }
+    }
 }
 
 struct DecoderWake {
@@ -401,6 +431,7 @@ fn push_music_block(
         let chunk_frames = pushed / out_channels;
         sample_offset += pushed;
         next_music_sec = (chunk_frames as f64).mul_add(timing.music_sec_per_frame, next_music_sec);
+        control.status.publish(timing.generation, lifecycle::DecoderPhase::Producing, Some(next_music_sec), None);
     }
     Ok(next_music_sec)
 }
@@ -493,6 +524,8 @@ fn spawn_music_decoder_thread_with_retention(
     retain_decoder: bool,
 ) -> MusicStream {
     let control = Arc::new(MusicControl {
+        failed: AtomicBool::new(false),
+        status: lifecycle::DecoderStatusReader::new(context.generation, cut.start_sec),
         stop_signal: AtomicBool::new(false),
         rate_bits: AtomicU32::new(rate.to_bits()),
         preserve_pitch: AtomicBool::new(preserve_pitch),
@@ -522,9 +555,19 @@ fn spawn_music_decoder_thread_with_retention(
             )
         }));
         match result {
-            Ok(Ok(())) => {}
-            Ok(Err(err)) => error!("Music decoder thread failed: {err}"),
-            Err(_) => error!("Music decoder thread panicked; transport writer recovered."),
+            Ok(Ok(())) => {
+                if retain_decoder && !decoder_control.stop_signal.load(Ordering::Acquire) {
+                    decoder_control.fail("Retained decoder exited unexpectedly");
+                }
+            }
+            Ok(Err(err)) => {
+                decoder_control.fail(&err.to_string());
+                error!("Music decoder thread failed: {err}");
+            }
+            Err(_) => {
+                decoder_control.fail("Decoder worker panicked");
+                error!("Music decoder thread panicked; transport writer recovered.");
+            }
         }
         writer
     });
@@ -591,6 +634,8 @@ fn music_decoder_thread_loop(
     retain_decoder: bool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let MusicControl {
+        failed: _,
+        status: _,
         stop_signal: stop,
         rate_bits,
         preserve_pitch,
@@ -600,6 +645,7 @@ fn music_decoder_thread_loop(
         seek_serial: _,
     } = control;
     let opened = decode::open_file(&path, context.decode_options)?;
+    control.status.publish(context.generation, lifecycle::DecoderPhase::Opened, None, None);
     let mut reader = opened.reader;
     let in_ch = opened.channels;
     let in_hz = opened.sample_rate_hz;
@@ -729,6 +775,7 @@ fn music_decoder_thread_loop(
             }
         }
 
+        control.status.publish(output_generation, lifecycle::DecoderPhase::Opened, None, None);
         let preroll_in_frames = seek_preroll_in_frames(seek_ok, start_floor, seek_start_frame);
         let mut preroll_out_frames: u64 = if preroll_in_frames > 0 {
             (preroll_in_frames as f64 * output_ratio).ceil() as u64
@@ -967,6 +1014,7 @@ fn music_decoder_thread_loop(
         }
         if !looping {
             backpressure.finish_generation(writer, output_generation);
+            control.status.publish(output_generation, lifecycle::DecoderPhase::Exhausted, None, None);
             if !retain_decoder {
                 break 'main_loop;
             }
@@ -974,6 +1022,10 @@ fn music_decoder_thread_loop(
             // later seek, without polling or retaining unrecycled audio blocks.
             loop {
                 let sequence = control.wake.sequence.load(Ordering::Acquire);
+                let latest_generation = generation.load(Ordering::Acquire);
+                if control.seek_serial.load(Ordering::Acquire) == applied_seek {
+                    control.status.publish(latest_generation, lifecycle::DecoderPhase::Exhausted, None, None);
+                }
                 if stop.load(Ordering::Acquire) {
                     break 'main_loop;
                 }
@@ -990,9 +1042,9 @@ fn music_decoder_thread_loop(
                 debug!("Looping music: restarted {path:?}");
                 reader = reopened.reader;
             }
-            Err(_) => {
+            Err(error) => {
                 warn!("Could not reopen audio stream for looping: {path:?}");
-                break 'main_loop;
+                return Err(error);
             }
         }
     }
@@ -1116,7 +1168,7 @@ mod tests {
     use super::{
         DecoderWake, MAX_SFX_PREALLOC_SAMPLES, MusicBackpressure, MusicControl, OutputFormat,
         lead_in_silence_timing, music_output_start_sec, push_music_block, seek_preroll_in_frames,
-        sfx_output_capacity,
+        sfx_output_capacity, lifecycle,
     };
     use deadlib_audio_core::{MusicBlockTiming, music_transport};
     use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
@@ -1127,6 +1179,8 @@ mod tests {
 
     fn control(generation: u64) -> MusicControl {
         MusicControl {
+            failed: AtomicBool::new(false),
+            status: lifecycle::DecoderStatusReader::new(generation, 0.0),
             stop_signal: AtomicBool::new(false),
             rate_bits: AtomicU32::new(1.0f32.to_bits()),
             preserve_pitch: AtomicBool::new(false),
@@ -1134,6 +1188,34 @@ mod tests {
             wake: DecoderWake::new(),
             seek: Mutex::new(None),
             seek_serial: AtomicU64::new(0),
+        }
+    }
+
+    #[test]
+    fn lifecycle_failure_racing_a_new_command_never_leaves_pending() {
+        use std::sync::{Arc, Barrier};
+        use std::sync::atomic::Ordering;
+        for _ in 0..64 {
+            let control = Arc::new(control(1));
+            let barrier = Arc::new(Barrier::new(2));
+            let worker_control = control.clone();
+            let worker_barrier = barrier.clone();
+            let (transport, _render) = music_transport(SAMPLE_RATE, 2);
+            let thread = std::thread::spawn(move || {
+                worker_barrier.wait();
+                worker_control.fail("decoder failed concurrently");
+                transport.writer
+            });
+            let stream = super::MusicStream { thread, control };
+            barrier.wait();
+            stream.control.status.begin(2, Some(10.0));
+            stream.control.generation.store(2, Ordering::SeqCst);
+            stream.wake_command(2);
+            let status = stream.status_reader();
+            let _writer = stream.thread.join().unwrap();
+            let snapshot = status.snapshot();
+            assert_eq!(snapshot.command_generation, 2);
+            assert_eq!(snapshot.phase, lifecycle::DecoderPhase::Failed);
         }
     }
 

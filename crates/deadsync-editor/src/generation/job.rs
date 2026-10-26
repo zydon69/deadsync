@@ -157,6 +157,9 @@ impl ChartTask {
                 "No reference generation graph for this target layout".into(),
             ));
         }
+        for &chart in source_charts {
+            source::require_reference_source(session.document(), chart)?;
+        }
         options.expressed.validate()?;
         options.performed.validate()?;
         options

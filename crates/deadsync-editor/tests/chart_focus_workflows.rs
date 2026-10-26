@@ -184,3 +184,81 @@ fn legacy_select_chart_keeps_its_row_contract_and_position_anchor_expires_after_
         .unwrap();
     assert!(!position.is_current(&workspace));
 }
+
+#[test]
+fn final_view_can_close_and_reopen_atomically_without_deleting_the_song() {
+    let (_directory, mut workspace) = ordinary();
+    let source = workspace.file().session.serialize().unwrap();
+    workspace.clear_active_chart();
+    assert!(!workspace.has_chart());
+    assert_eq!(workspace.file().session.document().charts().len(), 2);
+    let stale = Transition::open_at_time(&workspace, 1, 1.01).unwrap();
+    workspace.execute(Command::SelectChart(0)).unwrap();
+    assert!(stale.apply(&mut workspace).is_err());
+    workspace.clear_active_chart();
+    let position = Transition::open_at_time(&workspace, 1, 1.01)
+        .unwrap()
+        .apply(&mut workspace)
+        .unwrap();
+    assert_eq!(workspace.chart(), 1);
+    assert_eq!(workspace.row(), 60);
+    close(position.music_time(), 1.01);
+    assert_eq!(workspace.file().session.serialize().unwrap(), source);
+    assert!(!workspace.file().session.is_dirty());
+}
+#[test]
+fn song_level_binding_remains_specific_to_content_and_session_without_a_focused_chart() {
+    use deadsync_editor::{
+        chart_order::SessionBinding,
+        document::{Document, Format},
+        history::Session,
+    };
+    let source = b"#VERSION:0.83;#BPMS:0=120;".to_vec();
+    let mut session = Session::new(Document::parse(source.clone(), Format::Ssc).unwrap());
+    let binding = SessionBinding::capture(&session);
+    assert!(binding.is_current(&session));
+    let other = Session::new(Document::parse(source, Format::Ssc).unwrap());
+    assert!(!binding.is_current(&other));
+    session.set_text(None, "TITLE", "Changed").unwrap();
+    assert!(!binding.is_current(&session));
+}
+
+#[test]
+fn empty_undo_redo_does_not_reopen_a_closed_view_but_real_preference_history_still_executes() {
+    let (_directory, mut workspace) = ordinary();
+    let source = workspace.file().session.serialize().unwrap();
+    workspace.clear_active_chart();
+    workspace.execute(Command::Undo).unwrap();
+    workspace.execute(Command::Redo).unwrap();
+    assert!(!workspace.has_chart());
+    assert_eq!(workspace.file().session.serialize().unwrap(), source);
+    let before = deadsync_editor::audio_preferences::Audio::default();
+    let mut after = before;
+    after.set_music_rate(1.5).unwrap();
+    let content_revision = workspace.file().session.content_revision();
+    assert!(
+        workspace
+            .set_audio_preferences(before, after, None)
+            .unwrap()
+    );
+    assert_eq!(
+        workspace.file().session.content_revision(),
+        content_revision
+    );
+    workspace.take_audio_preferences_update();
+    workspace.execute(Command::Undo).unwrap();
+    assert_eq!(
+        workspace.take_audio_preferences_update().unwrap().audio,
+        before
+    );
+    assert_eq!(
+        workspace.file().session.content_revision(),
+        content_revision
+    );
+    workspace.execute(Command::Redo).unwrap();
+    assert_eq!(
+        workspace.take_audio_preferences_update().unwrap().audio,
+        after
+    );
+    assert!(!workspace.file().session.is_dirty());
+}

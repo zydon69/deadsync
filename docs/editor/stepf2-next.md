@@ -2,7 +2,7 @@
 
 The typed inspector, conversion consistency helpers and explicit structural
 normalization are implemented. Initial normalization and native tests passed;
-additional boundary tests are pending. Executed evidence is in `stepf2.md`.
+all nine normalization boundary tests also passed. Executed evidence is in `stepf2.md`.
 
 ## Native inspector
 
@@ -79,11 +79,11 @@ Run Cargo centrally, with `--locked --jobs 2`, after coordinating source ownersh
 with the integrating agent. No native hardware/render/audio claim follows from
 headless input workflows.
 
-The integrating agent confirmed initial normalization (5), differential (2),
+The integrating agent confirmed complete normalization (9), differential (2),
 participant count (4), chart properties (7), metadata (11), conversion (3) and
 StepF2 (16) targets passed. The native EN/FR targets passed seven tests each
-(14 total), and existing `edition_workflow` passed 37 tests. Four new boundary
-workflows await centralized execution: nonleading normalization and undo after
+(14 total), and existing `edition_workflow` passed 37 tests. Four added boundary
+workflows also passed: nonleading normalization and undo after
 save, duplicate SSC layout fields, pending P4 notes plus unrelated metadata,
 and metadata-only preservation of unsupported notes. The normalization target
-now has nine tests; its complete updated version has not yet been rerun.
+now has nine tests; its complete updated version passed.

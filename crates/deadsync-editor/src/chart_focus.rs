@@ -2,7 +2,7 @@
 //! SelectChart command retains its row-based behavior for existing callers.
 use crate::{
     Error,
-    chart_order::Binding,
+    chart_order::{Binding, SessionBinding},
     generation::metadata::Guid,
     history::{ContentToken, Session},
     playback::Clock,
@@ -34,6 +34,14 @@ impl Position {
             ));
         }
         let clock = Clock::capture(session, chart)?;
+        Self::with_clock(session, chart, music_time, &clock)
+    }
+    pub(crate) fn with_clock(
+        session: &Session,
+        chart: usize,
+        music_time: f64,
+        clock: &Clock,
+    ) -> Result<Self, Error> {
         let chart_time = clock.music_to_chart_time(music_time)?;
         let row = clock.position(music_time)?;
         if !row.is_finite() {
@@ -80,14 +88,35 @@ impl Position {
 /// Prepare all clock conversions before changing focus. Binding also rejects
 /// deferred results after source focus, cursor, content, or session changes.
 pub struct Transition {
-    source: Binding,
+    source: Option<Binding>,
+    session: SessionBinding,
     source_row: u64,
     target: Position,
 }
 impl Transition {
     pub fn at_time(workspace: &Workspace, target: usize, music_time: f64) -> Result<Self, Error> {
         Ok(Self {
-            source: Binding::capture(&workspace.file().session, workspace.chart())?,
+            source: Some(Binding::capture(
+                &workspace.file().session,
+                workspace.chart(),
+            )?),
+            session: SessionBinding::capture(&workspace.file().session),
+            source_row: workspace.row(),
+            target: Position::at_time(&workspace.file().session, target, music_time)?,
+        })
+    }
+    /// Reopen a view when the song has no currently focused chart.
+    pub fn open_at_time(
+        workspace: &Workspace,
+        target: usize,
+        music_time: f64,
+    ) -> Result<Self, Error> {
+        if workspace.has_chart() {
+            return Self::at_time(workspace, target, music_time);
+        }
+        Ok(Self {
+            source: None,
+            session: SessionBinding::capture(&workspace.file().session),
             source_row: workspace.row(),
             target: Position::at_time(&workspace.file().session, target, music_time)?,
         })
@@ -101,9 +130,13 @@ impl Transition {
     }
     pub fn apply(self, workspace: &mut Workspace) -> Result<Position, Error> {
         if self.source_row != workspace.row()
+            || !self.session.is_current(&workspace.file().session)
             || !self
                 .source
-                .is_current(&workspace.file().session, workspace.chart())
+                .as_ref()
+                .map_or(!workspace.has_chart(), |source| {
+                    source.is_current(&workspace.file().session, workspace.chart())
+                })
         {
             return Err(Error::InvalidEdit("Chart focus transition is stale".into()));
         }

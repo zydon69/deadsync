@@ -111,7 +111,7 @@ Then expose keyboard controls and visible tab headers in EN/FR.
 C. Extract reusable immutable projection/render inputs and draw multiple chart
 views at the shared song time. Test differing local timing at one audio instant,
 shared-event invalidation, viewport clipping, only focused view accepting edit
-input, and stable selection in unfocused dedicated views. Runtime rendering
+input, and cleared selection on focus loss, matching the reference. Runtime rendering
 validation remains necessary in addition to actor/domain tests.
 
 D. Integrate cross-view edit workflows and optional undoable focus operations
@@ -141,7 +141,8 @@ implemented by this core increment.
 Six prepared domain tests cover offset/BPM changes without file or history
 edits, fractional/negative positions, stop/warp ambiguity, target clock/grid
 failure atomicity, stale deferred transitions, and unchanged legacy row-based
-selection. Execution has not yet been recorded.
+selection. The six tests passed before the final added delay-event case; that
+expanded case still needs execution.
 
 ## Native focus integration prepared
 
@@ -167,4 +168,207 @@ selection through list and shortcuts, exact playback restart cuts, preference
 loading, stop/warp and negative anchors, audition exclusion, stale cursor
 requests, and explicit Home reset. These are synthetic mapped audio snapshots
 and command tests, not physical decoder/device or multiview rendering proof.
-Their execution results have not yet been recorded.
+All eight native tests passed. Wider playback/navigation regressions are
+pending at the checkpoint below.
+
+
+## Validation checkpoint for musical focus
+
+The six domain focus tests passed before the final additional delay-event case
+was added. All eight native English/French focus tests passed, including the
+explicit Home reset and quantization-preserves-anchor assertions. The wider
+playback/navigation regression run is still pending at this documentation
+checkpoint; no physical audio-device or continuous-playback parity is claimed.
+
+## Open-view registry domain increment prepared
+
+`chart_views::ActiveChartViews` holds ordered resident GUIDs, dedicated flags,
+per-view musical position and selection anchor, one focused GUID, and one shared
+music-file time. It borrows the caller's Session for operations; it owns no
+separate document, working grids, clipboard or undo stack. An owner token checks
+Session identity independently of content revision, so edits and structural
+undo remain in the same owner while another session is rejected even when the
+registry is empty.
+
+The bound is one temporary view and unique eligible chart identities, not an
+invented fixed maximum number of dedicated tabs. Show, focus, pin/unpin, close,
+move, and cycle operations follow the source distinction. In particular,
+`ActiveEditorChart.cs:359` clears selection when a view loses focus; the registry
+does likewise. Dedicated views retain their identity and order, not an active
+unfocused selection. Closing focus prefers the right neighbor, then the left.
+All view positions are remapped through their own clocks at the shared song
+time. A clock failure commits no partial registry update.
+
+Structural reconciliation removes missing/unsupported IDs and rebinds surviving
+views to new source indices. A preferred source focus can reopen the chart
+restored by Workspace structural undo, without claiming restoration of every
+previous dedicated-tab flag. Cross-session identity rejection, temporary-view
+replacement, dedicated toggling, independent order, shared/inherited timing,
+atomic failure, structural undo/redo/duplication and large unique tab sets have
+eight prepared domain tests. They have not yet been executed. This model is not
+yet connected to native tab controls or simultaneous chart rendering.
+
+## Native dedicated-view headers and keyboard front end prepared
+
+The registry now has a native path. Ctrl+Shift+B pins/unpins the focused view,
+Ctrl+W closes a view, Ctrl+PageUp/PageDown cycles open-view focus, and
+Ctrl+Shift+Left/Right moves its header in open-view order. Draft panels handle
+input before these commands, and the music-rate shortcuts require no Control
+modifier, so the new commands do not share their route. Localized headers show
+up to five open views around the focused header page, with dedicated/temporary
+labels. Only the focused chart's lanes are currently rendered: this is not yet
+simultaneous multichart drawing.
+
+Closing the final view calls `Workspace::clear_active_chart`; it neither deletes
+source charts nor closes the song. Ctrl+B still opens the complete sorted song
+chart list and can reopen a view at the retained exact musical instant. Deferred
+list requests use `SessionBinding` when no chart is focused, so they remain
+bound to the exact song session and content without inventing a chart identity.
+`Transition::open_at_time` validates the unfocused source state before atomic
+reopening. Presentation commands do not dirty the source or add document undo
+entries.
+
+Four native tests per English/French target are prepared for temporary
+replacement and pinning, separate open-view ordering/focus, right/left close
+fallback, closing/reopening the final view, protected drafts and stale requests,
+and exact retained musical time with explicit stopped playback. Two added
+focus-domain tests cover the unfocused transition and session binding. These new
+native/domain cases have not yet been executed at this checkpoint.
+
+This front end conservatively refreshes view clock inputs through the registry.
+Caching unchanged per-view clocks, visible-view resource budgeting, simultaneous
+lane drawing, dedicated view geometry, and continued playback are subsequent
+integration work; no performance parity claim follows from the current tests.
+
+A follow-up history case ensures empty Undo/Redo leaves a closed final view
+closed. Workspace refreshes active-chart focus only when Session reports an
+actual history action; it does not infer that from document content revision.
+The added test also exercises real preference Undo/Redo, whose audio updates
+must still run while the song's content revision and dirty state remain
+unchanged. The focus-domain target now contains nine cases; the new cases await
+execution with the native view integration.
+
+## Source review for simultaneous rendering and history focus
+
+### Layout and per-view rendering
+
+`Editor.cs:3076` positions the focused chart at the focal point, then packs
+neighbor charts to its left and right using their full natural chart widths.
+It does not divide the viewport into equal miniature columns or shrink every
+open chart to force all tabs on screen. `ActiveEditorChart.cs:279` includes lane,
+waveform, event-widget and focused-only auxiliary areas in width. `:417` culls
+views completely outside the chart area. The native implementation should keep
+this focal layout contract while simplifying controls.
+
+All visible views receive receptors, markers, regions and note drawing
+(`Editor.cs:2777`, `:2947`, `:2964`, `:2979`, `:3008`). Unfocused notes are still
+rendered with their own chart graphics. Focus is indicated by boundaries;
+focused-only selection is not a reason to hide other charts' arrows.
+`ActiveEditorChart.cs:379` draws miscellaneous events for every chart.
+Waveform policy has three alternatives at `:390`: focused only, every chart, or
+charts sharing both music path and offset. That policy must be ported explicitly
+rather than applying a single focused waveform everywhere.
+
+`Editor.cs:1384` synchronizes by music-file time. Each view converts through its
+own timing/offsets and has its own row/time/variable-spacing projection. All
+receptors share focal Y; equal song times can correspond to different rows or
+to a frozen row during a stop. The current native `spacing_view.rs:12` caches
+one focused clock/index and the actor code at `edition.rs:2387` builds one
+projection. Reusing that projection for inactive views would reproduce the
+wrong-row/offset bug in another form.
+
+### Undo focus is action-specific, not an affected-chart heuristic
+
+`Editor.cs:6778` invokes ActionQueue Undo directly. Ordinary
+`EditorActions/ActionAddEditorEvent.cs:46` modifies the event's owning chart
+without calling SetChartFocused. `Editor.cs:5839` OnNoteTransformationEnd also
+does not open or focus a chart: it selects transformed events only if their
+chart is already focused (`:5859`), otherwise clears that chart's selection and
+clears other active selections. Therefore undoing a note/transform on a closed
+chart should update the shared document in the background while keeping the
+current other focus, or no focus, unchanged. It must not open an arbitrary first
+chart, nor automatically open the affected chart.
+
+Explicit `ActionSelectChart` and `ActionDeleteChart.UndoImplementation` are
+different: they restore the designated previous/deleted focused chart. Keep
+Workspace's explicit structural focus records for those operations. A typed
+Session history effect should report whether an action applied and any resident
+chart-ID structure delta. Workspace can retain the current resident focus for
+ordinary actions and apply an explicit structural focus directive when present,
+without classifying user-visible action labels or guessing from note targets.
+
+### Keyboard and rendering increments
+
+1. Finish history-focus effects first. Test ordinary note Undo/Redo with its
+   chart closed, another chart focused, every view closed, preference actions,
+   and explicit structural delete/undo. Assert exact notes and independent focus.
+2. Prepare all open grids through a mutable Workspace boundary before actor
+   drawing. Actors borrow Session's live loaded grids by resident identity; they
+   must not read stale serialized source for unsaved notes or clone the whole
+   song per view. Resolve source indices after structural changes.
+3. Extract focused rendering into a reusable read-only view renderer accepting
+   grid, chart-specific metadata/projection, shared musical time, geometry,
+   selection eligibility and an event budget. First use that renderer for the
+   existing focused path and preserve its tests, then invoke it for all visible
+   views. Preview/generated replacement grids apply only to their target view.
+4. Build per-GUID clock/projection caches keyed by content and view inputs.
+   Reuse unchanged clocks and geometry inputs across transport frames. Distribute
+   a global note/marker/event budget across visible views, as the source does
+   (`ActiveEditorChart.cs:479`), and cull off-screen views before actor work.
+5. Add geometry/actor tests for Single plus Double and Couple/Routine, left/right
+   placement, clipping, two different BPM/offset clocks at one song time,
+   stops/warps/reverse/variable spacing, unsaved edits, and focused-only selection.
+   Validate waveform placement separately with the original policy options.
+6. Keyboard note commands must target only the focused resident view:
+   `Editor.cs:6749` dispatches lane down/up to GetFocusedChartData. Focus loss
+   clears active lane-edit gestures (`ActiveEditorChart.cs:359`). Test that a
+   held key released after focus changes cannot finish a hold in the new chart,
+   and that inactive charts' notes remain unchanged when typing in the focused
+   chart. Current native key-down placement is not proof of the source's full
+   press/release hold-editing behavior.
+
+## Typed history focus correction prepared
+
+Session now exposes `undo_with_effect` / `redo_with_effect`, returning an applied
+flag, before/after action revisions, whether song content changed, and an
+optional before/after resident chart-ID structure delta. Existing boolean
+Undo/Redo APIs remain available. Workspace preserves the current resident focus
+(or no focus) for ordinary actions and uses its explicit structural focus record
+only when that actual structural action calls for restoration. It no longer
+opens the first source chart as a side effect of ordinary history on a closed
+view. Preference actions still execute even when song content does not change.
+
+Four focused domain tests are prepared for actual note Undo/Redo on a closed
+view, keeping another chart's focus, structural deletion/undo restoration, and
+typed no-op/content/preference/structure outcomes. The native chart-view targets
+now contain five tests per language, including an actual note edit on a chart
+that is subsequently closed. These added history and native cases have not yet
+been executed at this checkpoint.
+
+### Prepared rendering budgets and immutable clocks (not yet integrated)
+
+The new `view_layout`/`view_render`/`view_render_screen` modules keep natural
+chart widths and prepare only views intersecting the viewport. The note pass
+has two independent bounds: candidate notes and track/bin tree queries. This
+second bound also limits sparse charts whose tracks all lie outside the view.
+The deterministic prefix retains crossing sustains before heads within a track.
+`NoteRenderStats` exposes both counts and `partial`; coarse row sampling also
+marks the view partial. Each affected view displays the localized instruction
+“Partial view. Zoom in to see more notes.” The focused note pass must use the
+same helper and indication when it is connected.
+
+Resident views now retain immutable `Arc<Clock>` handles guarded by exact
+content tokens and GUID/source bindings. Time movement, focus and view order
+changes reuse those clocks. Content changes (including timing edits and Undo)
+rebuild them; another Session is rejected. `synchronize` combines reconciliation
+and shared-time mapping into one pass. The new rendering input cache borrows
+these clock handles rather than capturing them again. This is a structural
+cost reduction, with no benchmark claim.
+
+Prepared coverage: five core overview-budget tests, two additional registry
+clock-handle tests, two note-render statistics tests, three geometry tests and
+four native simultaneous-view actor workflows. No result is asserted here:
+parent integration and central test execution remain required. Inactive
+waveform policy and interactive attack widgets remain separate unfinished
+layers; the current prepared inactive pass covers lanes, owner-colored notes,
+sustains, beat/signature/label/pattern markers and the synchronized cursor.

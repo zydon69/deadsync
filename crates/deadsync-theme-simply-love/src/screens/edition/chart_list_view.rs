@@ -50,8 +50,10 @@ impl State {
             KeyCode::Enter | KeyCode::NumpadEnter => {
                 if let Some(source) = self.chart_list_selection.selected_source(rows) {
                     self.panel = None;
-                    match self.chart_focus_music_time() {
-                        Ok(time) => self.focus_chart_at_time(source, time),
+                    match self.chart_focus_time() {
+                        Ok(time) => {
+                            self.focus_chart_at_time(source, time);
+                        }
                         Err(_) => self.status = i18n::tr("Edition", "ChartOrderFailed"),
                     }
                 }
@@ -145,6 +147,12 @@ impl State {
             i18n::tr("Edition", "ChartListHelp").to_string(),
             top + 327.0,
             [0.7, 0.8, 0.9, 1.0],
+        );
+        label(
+            actors,
+            i18n::tr("Edition", "ChartViewsHelp").to_string(),
+            top + 349.0,
+            [0.6, 0.75, 0.85, 1.0],
         );
     }
 }

@@ -160,6 +160,13 @@ impl Workspace {
         if let Some(clipboard) = selection.copy(&mut self.file.session)? { self.event_clipboard = Some(clipboard); }
         Ok(())
     }
+    pub fn paste_events_with_report(&mut self) -> Result<crate::event_clipboard::PasteReport, Error> {
+        if let Some(clipboard) = &self.event_clipboard {
+            clipboard.paste_with_report(&mut self.file.session, self.chart, self.row, self.player)
+        } else {
+            Ok(Default::default())
+        }
+    }
     pub fn cut_event_selection(&mut self, selection: &crate::event_clipboard::Selection) -> Result<(), Error> {
         self.validate_event_selection(selection)?;
         if let Some(clipboard) = selection.cut(&mut self.file.session)? { self.event_clipboard = Some(clipboard); }
@@ -200,6 +207,11 @@ impl Workspace {
     }
     pub fn has_chart(&self) -> bool {
         self.active_chart().is_some()
+    }
+    /// Close the final editor view without deleting or unloading its song.
+    pub fn clear_active_chart(&mut self) {
+        self.chart = usize::MAX;
+        self.anchor = None;
     }
     pub fn try_grid(&self) -> Option<&Grid> {
         self.active_chart()
@@ -387,35 +399,23 @@ impl Workspace {
                 if let Some(clipboard) = clipboard { self.event_clipboard = Some(clipboard); }
             }
             Command::PasteEvents => {
-                if let Some(clipboard) = &self.event_clipboard {
-                    clipboard.paste(&mut self.file.session, self.chart, self.row, self.player)?;
-                }
+                self.paste_events_with_report()?;
             }
             Command::Undo => {
-                let revision = self.file.session.revision();
-                if self.file.session.undo()? {
-                    if let Some(focus) = self
-                        .structural_focus
-                        .get(&revision)
-                        .filter(|focus| focus.before_revision == self.file.session.revision())
-                    {
-                        self.chart = focus.before_chart;
-                    }
-                }
-                self.sync_active_chart()?;
+                let focused = self.active_chart().and_then(|chart| self.file.session.chart_ids().get(chart)).cloned();
+                let effect = self.file.session.undo_with_effect()?;
+                let explicit = effect.applied.then(|| self.structural_focus.get(&effect.before_revision))
+                    .flatten().filter(|focus| focus.before_revision == effect.after_revision)
+                    .map(|focus| focus.before_chart);
+                self.sync_history_focus(&effect, focused.as_ref(), explicit)?;
             }
             Command::Redo => {
-                let revision = self.file.session.revision();
-                if self.file.session.redo()? {
-                    if let Some(focus) = self
-                        .structural_focus
-                        .get(&self.file.session.revision())
-                        .filter(|focus| focus.before_revision == revision)
-                    {
-                        self.chart = focus.after_chart;
-                    }
-                }
-                self.sync_active_chart()?;
+                let focused = self.active_chart().and_then(|chart| self.file.session.chart_ids().get(chart)).cloned();
+                let effect = self.file.session.redo_with_effect()?;
+                let explicit = effect.applied.then(|| self.structural_focus.get(&effect.after_revision))
+                    .flatten().filter(|focus| focus.before_revision == effect.before_revision)
+                    .map(|focus| focus.after_chart);
+                self.sync_history_focus(&effect, focused.as_ref(), explicit)?;
             }
             Command::Save => self.file.save()?,
             Command::SaveRecovery => self.file.save_recovery()?,
@@ -954,6 +954,29 @@ impl Workspace {
         self.player = 0;
         self.anchor = None;
         Ok(chart)
+    }
+
+    /// Ordinary history updates its owning chart in the background. Only an
+    /// explicit structural focus directive may reopen a closed view.
+    fn sync_history_focus(
+        &mut self,
+        effect: &crate::history::HistoryEffect,
+        focused: Option<&crate::generation::metadata::Guid>,
+        explicit: Option<usize>,
+    ) -> Result<(), Error> {
+        if !effect.applied { return Ok(()); }
+        let identities = effect.chart_structure.as_ref()
+            .map_or(self.file.session.chart_ids(), |delta| delta.after.as_slice());
+        self.chart = explicit.unwrap_or_else(|| focused
+            .and_then(|id| identities.iter().position(|candidate| candidate == id))
+            .unwrap_or(usize::MAX));
+        if self.chart != usize::MAX {
+            self.sync_active_chart()?;
+        } else {
+            self.player = 0;
+            self.anchor = None;
+        }
+        Ok(())
     }
 
     fn sync_active_chart(&mut self) -> Result<(), Error> {

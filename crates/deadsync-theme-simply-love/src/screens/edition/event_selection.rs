@@ -172,6 +172,7 @@ impl State {
                     ],
                 ),
                 Event::Attack { .. } => i18n::tr("Edition", "EventSelectionAttack"),
+                Event::Pattern { .. } => i18n::tr("Edition", "EventSelectionPattern"),
                 Event::Timing { kind, .. } => i18n::tr("Edition", timing_key(kind)),
             };
             let text = i18n::tr_fmt(

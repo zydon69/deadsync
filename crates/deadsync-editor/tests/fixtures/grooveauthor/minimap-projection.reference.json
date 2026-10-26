@@ -1,0 +1,1515 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source": "StepManiaEditor/MiniMap.cs",
+  "source_sha256": "445d6c0532c1e75b679fbee658981de1e152e853952a8a9918b79f5a6d995345",
+  "method_sha256": {
+    "ReflectScreenYIfNeeded": "a132eb7b8ee7300ae3f4b2b4e4917508daa110648bb5cde8083d859774d1a3f6",
+    "UpdateBasedOnSelectedPixel": "9f2627806d41654f758c27b277f0d2deaa7cede6edc01a8b455dbb75f9f624b4",
+    "SetMiniMapAreaStart": "f5d3345ef136bc38d33d5019b8e55dac8ade8314b228ea7d5b7c9605c38546ae",
+    "GetYPixelRelativeToBounds": "3f0bfe140428c1596561da781d3c42f6b04b853cd8f137669c6d503d78773603",
+    "GetPositionRelativeToPixel": "3c6800b804c7fca76395a852a20a200a609fc5b1996ee17235b8e1d9cea0e642"
+  },
+  "scope": "Unchanged projection/reflection/drag arithmetic only. Constructor fixture glue; no GUI hit testing, timing conversion, renderer or keyboard equivalence.",
+  "cases": [
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": -120,
+        "position": -283.25,
+        "projected": 13.5,
+        "miniStart": -10,
+        "miniUnquantized": -10,
+        "editorStart": -320,
+        "editorEnd": -240
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 20,
+        "position": -3.25,
+        "projected": 13.5,
+        "miniStart": -10,
+        "miniUnquantized": -10,
+        "editorStart": -40,
+        "editorEnd": 40
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 100,
+        "position": 156.75,
+        "projected": 13.5,
+        "miniStart": 233.75,
+        "miniUnquantized": 233.75,
+        "editorStart": 363.75,
+        "editorEnd": 443.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 396.75,
+        "projected": 13.5,
+        "miniStart": 590,
+        "miniUnquantized": 590,
+        "editorStart": 960,
+        "editorEnd": 1040
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 320,
+        "position": 596.75,
+        "projected": 13.5,
+        "miniStart": 590,
+        "miniUnquantized": 590,
+        "editorStart": 1160,
+        "editorEnd": 1240
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": -120,
+        "position": -283.25,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": -313.25,
+        "editorEnd": -233.25
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 20,
+        "position": -3.25,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": -33.25,
+        "editorEnd": 46.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 100,
+        "position": 156.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 126.75,
+        "editorEnd": 206.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 396.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 366.75,
+        "editorEnd": 446.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 320,
+        "position": 596.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 566.75,
+        "editorEnd": 646.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": -120,
+        "position": -283.25,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 20,
+        "position": -3.25,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 100,
+        "position": 156.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 396.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": false,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 320,
+        "position": 596.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": -120,
+        "position": -280,
+        "projected": 13.5,
+        "miniStart": -8,
+        "miniUnquantized": -10,
+        "editorStart": -318,
+        "editorEnd": -238
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 20,
+        "position": 0,
+        "projected": 13.5,
+        "miniStart": -8,
+        "miniUnquantized": -10,
+        "editorStart": -38,
+        "editorEnd": 42
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 100,
+        "position": 160,
+        "projected": 13.5,
+        "miniStart": 234,
+        "miniUnquantized": 233.75,
+        "editorStart": 364,
+        "editorEnd": 444
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 400,
+        "projected": 13.5,
+        "miniStart": 592,
+        "miniUnquantized": 590,
+        "editorStart": 962,
+        "editorEnd": 1042
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 320,
+        "position": 600,
+        "projected": 13.5,
+        "miniStart": 592,
+        "miniUnquantized": 590,
+        "editorStart": 1162,
+        "editorEnd": 1242
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": -120,
+        "position": -280,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": -310,
+        "editorEnd": -230
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 20,
+        "position": 0,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": -30,
+        "editorEnd": 50
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 100,
+        "position": 160,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 130,
+        "editorEnd": 210
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 400,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 370,
+        "editorEnd": 450
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 320,
+        "position": 600,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 570,
+        "editorEnd": 650
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": -120,
+        "position": -280,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 20,
+        "position": 0,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 100,
+        "position": 160,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 400,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": false,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 320,
+        "position": 600,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 360,
+        "position": 676.75,
+        "projected": 13.5,
+        "miniStart": 590,
+        "miniUnquantized": 590,
+        "editorStart": 1240,
+        "editorEnd": 1320
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 396.75,
+        "projected": 13.5,
+        "miniStart": 590,
+        "miniUnquantized": 590,
+        "editorStart": 960,
+        "editorEnd": 1040
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 140,
+        "position": 236.75,
+        "projected": 13.5,
+        "miniStart": 383.75,
+        "miniUnquantized": 383.75,
+        "editorStart": 593.75,
+        "editorEnd": 673.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 20,
+        "position": -3.25,
+        "projected": 13.5,
+        "miniStart": -10,
+        "miniUnquantized": -10,
+        "editorStart": -40,
+        "editorEnd": 40
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": -80,
+        "position": -203.25,
+        "projected": 13.5,
+        "miniStart": -10,
+        "miniUnquantized": -10,
+        "editorStart": -240,
+        "editorEnd": -160
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 360,
+        "position": 676.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 646.75,
+        "editorEnd": 726.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 396.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 366.75,
+        "editorEnd": 446.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 140,
+        "position": 236.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 206.75,
+        "editorEnd": 286.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 20,
+        "position": -3.25,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": -33.25,
+        "editorEnd": 46.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": -80,
+        "position": -203.25,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": -233.25,
+        "editorEnd": -153.25
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 360,
+        "position": 676.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 396.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 140,
+        "position": 236.75,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": 20,
+        "position": -3.25,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": true,
+        "Quantize": false
+      },
+      "expected": {
+        "reflected": -80,
+        "position": -203.25,
+        "projected": 13.5,
+        "miniStart": -3.25,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 360,
+        "position": 680,
+        "projected": 13.5,
+        "miniStart": 592,
+        "miniUnquantized": 590,
+        "editorStart": 1242,
+        "editorEnd": 1322
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 400,
+        "projected": 13.5,
+        "miniStart": 592,
+        "miniUnquantized": 590,
+        "editorStart": 962,
+        "editorEnd": 1042
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 140,
+        "position": 240,
+        "projected": 13.5,
+        "miniStart": 384,
+        "miniUnquantized": 383.75,
+        "editorStart": 594,
+        "editorEnd": 674
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 20,
+        "position": 0,
+        "projected": 13.5,
+        "miniStart": -8,
+        "miniUnquantized": -10,
+        "editorStart": -38,
+        "editorEnd": 42
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": -80,
+        "position": -200,
+        "projected": 13.5,
+        "miniStart": -8,
+        "miniUnquantized": -10,
+        "editorStart": -238,
+        "editorEnd": -158
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 360,
+        "position": 680,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 650,
+        "editorEnd": 730
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 400,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 370,
+        "editorEnd": 450
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 140,
+        "position": 240,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 210,
+        "editorEnd": 290
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 20,
+        "position": 0,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": -30,
+        "editorEnd": 50
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 190.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 103.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": -80,
+        "position": -200,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": -230,
+        "editorEnd": -150
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": -120,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 360,
+        "position": 680,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 20,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 220,
+        "position": 400,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 100,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 140,
+        "position": 240,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 220,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": 20,
+        "position": 0,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    },
+    {
+      "input": {
+        "FullStart": -10.0,
+        "FullEnd": 990.0,
+        "MiniStart": -3.25,
+        "MiniRange": 400.0,
+        "EditorStart": 23.75,
+        "EditorEnd": 423.75,
+        "BoundsY": 20,
+        "VisibleHeight": 200,
+        "GrabbedPercentage": 0.375,
+        "ScreenY": 320,
+        "Reverse": true,
+        "Quantize": true
+      },
+      "expected": {
+        "reflected": -80,
+        "position": -200,
+        "projected": 13.5,
+        "miniStart": 0,
+        "miniUnquantized": -3.25,
+        "editorStart": 23.75,
+        "editorEnd": 423.75
+      }
+    }
+  ]
+}

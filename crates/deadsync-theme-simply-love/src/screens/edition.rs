@@ -18,8 +18,11 @@ mod note_attributes_typed;
 pub mod chart_list;
 mod chart_list_view;
 mod chart_focus;
+mod chart_views;
+pub mod decoder_transport;
 mod attacks;
 mod event_selection;
+mod event_paste;
 mod attack_view;
 mod note_owners;
 mod text_fields;
@@ -253,6 +256,7 @@ pub struct State {
     playback: Option<playback::Playing>,
     paused_playback: Option<playback::Paused>,
     focus_position: Option<deadsync_editor::chart_focus::Position>,
+    active_views: Option<deadsync_editor::chart_views::ActiveChartViews>,
     scroll_preferences: deadsync_editor::scroll_preferences::Preferences,
     scroll_preferences_draft: Option<deadsync_editor::scroll_preferences::Preferences>,
     audio_preferences: deadsync_editor::audio_preferences::Audio,
@@ -397,6 +401,7 @@ impl State {
             playback: None,
             paused_playback: None,
             focus_position: None,
+            active_views: None,
             scroll_preferences: Default::default(),
             scroll_preferences_draft: None,
             audio_preferences: Default::default(),
@@ -1295,6 +1300,7 @@ impl State {
     }
 
     fn refresh(&mut self) {
+        self.refresh_chart_views();
         self.refresh_spacing_cache();
         self.refresh_attack_view();
         self.refresh_waveform();
@@ -1397,6 +1403,10 @@ impl State {
         // Preference history and generic refresh retain the musical position.
         if matches!(command, Command::Move(_) | Command::Seek(_) | Command::PreviousMeasure | Command::NextMeasure | Command::PreviousLabel | Command::NextLabel | Command::SelectChart(_) | Command::Place(_) | Command::Delete | Command::Cut | Command::Paste | Command::CutEvents | Command::PasteEvents | Command::Transform(_) | Command::Recover) {
             self.focus_position = None;
+        }
+        if matches!(command, Command::PasteEvents) {
+            self.paste_selected_events();
+            return;
         }
         let before_revision = self.workspace.file().session.revision();
         match self.workspace.execute(command) {
@@ -1509,6 +1519,7 @@ impl State {
         if self.panel.is_some() {
             return self.panel_key(event.code);
         }
+        if self.chart_views_key(event.code) { return false; }
         if self.shift && !self.control && event.code == KeyCode::KeyS {
             self.open_scroll_settings(); return false;
         }
@@ -2381,6 +2392,7 @@ impl State {
             0.55,
             [0.65, 0.7, 0.8, 1.0],
         );
+        self.chart_views_actors(actors);
         let shortcuts = i18n::tr("Edition", if self.workspace.has_chart() { "Shortcuts" } else { "NoChartShortcuts" });
         let shortcut_width = (width - 36.0).max(1.0);
         actors.push(act!(text: font("miso"): settext(shortcuts): align(0.0,0.0): xy(18.0,height-70.0): zoom(0.5): wrapwidthpixels(shortcut_width/0.5): maxwidth(shortcut_width): maxheight(20.0): diffuse(0.65,0.7,0.8,1.0): z(8006)));

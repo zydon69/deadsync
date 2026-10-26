@@ -1,0 +1,192 @@
+{
+  "single_player_graphs": [
+    "dance-single",
+    "dance-double",
+    "dance-solo",
+    "dance-threepanel",
+    "pump-single",
+    "pump-halfdouble",
+    "pump-double",
+    "smx-beginner",
+    "smx-single",
+    "smx-dual",
+    "smx-full"
+  ],
+  "cases": [
+    {
+      "layout": "dance-single",
+      "default_players": 1,
+      "columns": 4,
+      "supported_editor": true,
+      "graph_registered": true,
+      "autogen_feature": true
+    },
+    {
+      "layout": "dance-double",
+      "default_players": 1,
+      "columns": 8,
+      "supported_editor": true,
+      "graph_registered": true,
+      "autogen_feature": true
+    },
+    {
+      "layout": "dance-routine",
+      "default_players": 2,
+      "columns": 8,
+      "supported_editor": true,
+      "graph_registered": false,
+      "autogen_feature": false
+    },
+    {
+      "layout": "dance-solo",
+      "default_players": 1,
+      "columns": 6,
+      "supported_editor": true,
+      "graph_registered": true,
+      "autogen_feature": true
+    },
+    {
+      "layout": "dance-threepanel",
+      "default_players": 1,
+      "columns": 3,
+      "supported_editor": true,
+      "graph_registered": true,
+      "autogen_feature": true
+    },
+    {
+      "layout": "pump-single",
+      "default_players": 1,
+      "columns": 5,
+      "supported_editor": true,
+      "graph_registered": true,
+      "autogen_feature": true
+    },
+    {
+      "layout": "pump-halfdouble",
+      "default_players": 1,
+      "columns": 6,
+      "supported_editor": true,
+      "graph_registered": true,
+      "autogen_feature": true
+    },
+    {
+      "layout": "pump-double",
+      "default_players": 1,
+      "columns": 10,
+      "supported_editor": true,
+      "graph_registered": true,
+      "autogen_feature": true
+    },
+    {
+      "layout": "pump-routine",
+      "default_players": 2,
+      "columns": 10,
+      "supported_editor": true,
+      "graph_registered": false,
+      "autogen_feature": false
+    },
+    {
+      "layout": "smx-beginner",
+      "default_players": 1,
+      "columns": 3,
+      "supported_editor": true,
+      "graph_registered": true,
+      "autogen_feature": true
+    },
+    {
+      "layout": "smx-single",
+      "default_players": 1,
+      "columns": 5,
+      "supported_editor": true,
+      "graph_registered": true,
+      "autogen_feature": true
+    },
+    {
+      "layout": "smx-dual",
+      "default_players": 1,
+      "columns": 6,
+      "supported_editor": true,
+      "graph_registered": true,
+      "autogen_feature": true
+    },
+    {
+      "layout": "smx-full",
+      "default_players": 1,
+      "columns": 10,
+      "supported_editor": true,
+      "graph_registered": true,
+      "autogen_feature": true
+    },
+    {
+      "layout": "smx-team",
+      "default_players": 2,
+      "columns": 10,
+      "supported_editor": true,
+      "graph_registered": false,
+      "autogen_feature": false
+    },
+    {
+      "layout": "dance-couple",
+      "default_players": 2,
+      "columns": 8,
+      "supported_editor": false,
+      "graph_registered": false,
+      "autogen_feature": false
+    },
+    {
+      "layout": "pump-couple",
+      "default_players": 2,
+      "columns": 10,
+      "supported_editor": false,
+      "graph_registered": false,
+      "autogen_feature": false
+    }
+  ],
+  "source_arrays": {
+    "SupportedSinglePlayerChartTypes": "public static readonly ChartType[] SupportedSinglePlayerChartTypes =\n\t[\n\t\tChartType.dance_single,\n\t\tChartType.dance_double,\n\t\tChartType.dance_solo,\n\t\tChartType.dance_threepanel,\n\t\tChartType.pump_single,\n\t\tChartType.pump_halfdouble,\n\t\tChartType.pump_double,\n\t\tChartType.smx_beginner,\n\t\tChartType.smx_single,\n\t\tChartType.smx_dual,\n\t\tChartType.smx_full,\n\t];",
+    "SupportedSinglePlayerChartTypesValues": [
+      "dance-single",
+      "dance-double",
+      "dance-solo",
+      "dance-threepanel",
+      "pump-single",
+      "pump-halfdouble",
+      "pump-double",
+      "smx-beginner",
+      "smx-single",
+      "smx-dual",
+      "smx-full"
+    ],
+    "SupportedChartTypes": "public static readonly ChartType[] SupportedChartTypes =\n\t[\n\t\tChartType.dance_single,\n\t\tChartType.dance_double,\n\t\t//dance_couple,\n\t\tChartType.dance_routine,\n\t\tChartType.dance_solo,\n\t\tChartType.dance_threepanel,\n\t\tChartType.pump_single,\n\t\tChartType.pump_halfdouble,\n\t\tChartType.pump_double,\n\t\t//pump_couple,\n\t\tChartType.pump_routine,\n\t\tChartType.smx_beginner,\n\t\tChartType.smx_single,\n\t\tChartType.smx_dual,\n\t\tChartType.smx_full,\n\t\tChartType.smx_team,\n\t];",
+    "SupportedChartTypesValues": [
+      "dance-single",
+      "dance-double",
+      "dance-routine",
+      "dance-solo",
+      "dance-threepanel",
+      "pump-single",
+      "pump-halfdouble",
+      "pump-double",
+      "pump-routine",
+      "smx-beginner",
+      "smx-single",
+      "smx-dual",
+      "smx-full",
+      "smx-team"
+    ]
+  },
+  "source_methods": {
+    "IsMultiPlayer": "public bool IsMultiPlayer()\n\t{\n\t\treturn DefaultNumPlayers > 1;\n\t}",
+    "SupportsAutogenFeatures": "public bool SupportsAutogenFeatures()\n\t{\n\t\treturn !IsMultiPlayer();\n\t}",
+    "GetStepGraph": "public bool GetStepGraph(ChartType chartType, out StepGraph stepGraph, bool logErrorOnFailure)\n\t{\n\t\tvar result = StepGraphByChartType.TryGetValue(chartType, out stepGraph) && stepGraph != null;\n\t\tif (!result && logErrorOnFailure)\n\t\t{\n\t\t\tLogger.Error($\"No {GetPrettyEnumString(chartType)} StepGraph is loaded.\"\n\t\t\t             + \" You can specify which StepGraphs are loaded in the Options window.\");\n\t\t}\n\n\t\treturn result;\n\t}"
+  },
+  "provenance": {
+    "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+    "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+    "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+    "editor_sha256": "77246efb397b70390f458d3c9a9f1ffbf65be5048c142391674743ac27bbc830",
+    "chart_sha256": "b363bce0c00072e72a5e75dd5f80aa0de30fde10e3a83e806310e305f6d3f2eb",
+    "common_sha256": "8517ace018aeb788808be9e584f289620c00f59e94ac114ffec130952f65160a",
+    "scope": "Static extraction of original arrays, unchanged capability methods, graph registration and layout defaults. Not an executed GUI/.NET or generation oracle."
+  }
+}

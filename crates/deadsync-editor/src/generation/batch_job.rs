@@ -67,7 +67,8 @@ impl Task {
             .charts()
             .iter()
             .enumerate()
-            .filter(|(_, chart)| chart.steps_type == source_layout)
+            .filter(|(index, _)| super::source::effective_layout(session.document(), *index)
+                .is_ok_and(|layout| layout == source_layout))
             .map(|(index, chart)| (index, chart.difficulty.clone(), chart.meter.clone()))
             .collect();
         if sources.is_empty() {

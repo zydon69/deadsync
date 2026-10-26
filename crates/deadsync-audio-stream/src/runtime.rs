@@ -34,6 +34,7 @@ pub struct AudioControl {
 
 struct AudioEngine {
     command_sender: Sender<StreamCommand>,
+    decoder_status: stream::lifecycle::DecoderStatusMonitor,
     sfx_cache: SfxCache,
     output: OutputFormat,
     startup_output_devices: Vec<OutputDeviceInfo>,
@@ -78,6 +79,7 @@ pub fn init(
         backend_ready: ready,
         sfx_sender,
         played_map,
+        decoder_status,
     } = stream::start(output_plan)?;
     let music_clock = MusicClock::new(played_map, ready.device_sample_rate);
     Ok((
@@ -85,6 +87,7 @@ pub fn init(
             music_request: Cell::new(None),
             engine: Some(AudioEngine {
                 command_sender,
+                decoder_status,
                 sfx_cache: SfxCache::new(controls, sfx_sender),
                 output: OutputFormat {
                     sample_rate_hz: ready.device_sample_rate,
@@ -235,6 +238,23 @@ impl AudioControl {
         play_music(self.engine.as_ref(), path, cut, looping, rate);
     }
 
+    /// Latest acknowledgement for the current synchronous timeline command.
+    /// Old decoder completions are ignored while its replacement is pending.
+    /// This control-thread query does not indicate which samples are audible.
+    pub fn decoder_status(&self) -> Option<stream::lifecycle::DecoderSnapshot> {
+        let engine = self.engine.as_ref()?;
+        let snapshot = engine.decoder_status.snapshot()?;
+        (snapshot.command_generation == deadlib_audio_core::music_map_generation())
+            .then_some(snapshot)
+    }
+
+    /// Synchronous token assigned before the current music command is queued.
+    pub fn music_command_generation(&self) -> Option<u64> {
+        self.engine.as_ref()?;
+        self.music_request.get()?;
+        Some(deadlib_audio_core::music_map_generation())
+    }
+
     /// Seek the current decoder. The manager serializes this with pending Play/Stop.
     /// Invalid input and a disabled audio engine do not alter the shared clock.
     pub fn seek_music(&self, seconds: f64) {
@@ -372,6 +392,44 @@ pub fn get_output_timing_snapshot() -> OutputTimingSnapshot {
 mod seek_tests {
     use super::*;
     #[test]
+    fn decoder_acknowledgements_reject_prior_generations_without_an_audio_device() {
+        let _guard = crate::CLOCK_TEST_LOCK.lock().unwrap();
+        let output = OutputFormat { sample_rate_hz: 48_000, channels: 2 };
+        let (transport, _render) = deadlib_audio_core::music_transport(48_000, 2);
+        let mut runtime = stream::MusicStreamRuntime::new(transport.writer, output);
+        let monitor = runtime.decoder_status();
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let (sfx_sender, _sfx_receiver) = deadlib_audio_core::sfx_transport(8);
+        let audio = AudioControl {
+            engine: Some(AudioEngine {
+                command_sender: sender,
+                decoder_status: monitor,
+                sfx_cache: SfxCache::new(std::sync::Arc::new(deadlib_audio_core::MixControls::new()), sfx_sender),
+                output,
+                startup_output_devices: Vec::new(),
+            }),
+            music_request: Cell::new(None),
+        };
+        assert!(audio.decoder_status().is_none());
+        assert!(AudioControl::without_audio().decoder_status().is_none());
+        assert!(audio.music_command_generation().is_none());
+        let missing = std::env::temp_dir().join(format!("deadsync-status-missing-{}.wav", std::process::id()));
+        assert!(!missing.exists());
+        audio.play_music(missing, Cut::default(), false, 1.0);
+        let generation = audio.music_command_generation().unwrap();
+        runtime.handle(receiver.try_recv().unwrap());
+        // Stop joins the worker, avoiding a sleep or race with its open failure.
+        runtime.handle(StreamCommand::StopMusic);
+        let status = audio.decoder_status().unwrap();
+        assert_eq!(status.command_generation, generation);
+        assert_eq!(status.phase, stream::lifecycle::DecoderPhase::Stopped);
+        assert!(!status.opened_successfully);
+        audio.stop_music();
+        assert!(audio.music_command_generation().is_none());
+        assert!(audio.decoder_status().is_none());
+    }
+
+    #[test]
     fn seek_keeps_rate_gain_and_track_identity_and_rejects_invalid_or_disabled_requests() {
         let _guard = crate::CLOCK_TEST_LOCK.lock().unwrap();
         use deadlib_audio_core::*;
@@ -423,6 +481,7 @@ mod seek_tests {
         let audio = AudioControl {
             engine: Some(AudioEngine {
                 command_sender: tx,
+                decoder_status: Default::default(),
                 sfx_cache: SfxCache::new(std::sync::Arc::new(MixControls::new()), sfx_sender),
                 output: OutputFormat {
                     sample_rate_hz: 48_000,

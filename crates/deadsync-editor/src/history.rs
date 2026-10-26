@@ -64,6 +64,22 @@ struct Entry {
     after_content_revision: u64,
 }
 
+/// Actual history outcome, independent of user-visible labels or chart focus.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct HistoryEffect {
+    pub applied: bool,
+    pub before_revision: u64,
+    pub after_revision: u64,
+    pub content_changed: bool,
+    pub chart_structure: Option<ChartStructureDelta>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ChartStructureDelta {
+    pub before: Vec<crate::generation::metadata::Guid>,
+    pub after: Vec<crate::generation::metadata::Guid>,
+}
+
 /// A revision is only meaningful within one live session. Recovery/reload creates
 /// a new identity even when bytes and revision numbers happen to be identical.
 #[derive(Clone, Debug)]
@@ -143,6 +159,11 @@ impl Session {
     }
     pub(crate) fn accepts_content_token(&self, token: &ContentToken) -> bool {
         Arc::ptr_eq(&self.identity, &token.identity) && self.content_revision == token.revision
+    }
+    /// View registries survive content edits but never migrate to another song
+    /// session, including when both sessions currently contain no charts.
+    pub(crate) fn owns_content_token(&self, token: &ContentToken) -> bool {
+        Arc::ptr_eq(&self.identity, &token.identity)
     }
 
     pub(crate) fn after_profile_creation(&self, token: &RevisionToken) -> Result<RevisionToken, Error> {
@@ -589,6 +610,29 @@ impl Session {
         self.audio_preferences_update.take()
     }
 
+    pub fn undo_with_effect(&mut self) -> Result<HistoryEffect, Error> {
+        self.history_with_effect(false)
+    }
+    pub fn redo_with_effect(&mut self) -> Result<HistoryEffect, Error> {
+        self.history_with_effect(true)
+    }
+    fn history_with_effect(&mut self, redo: bool) -> Result<HistoryEffect, Error> {
+        let before_revision = self.revision;
+        let before_content = self.content_revision;
+        let before = self.chart_ids.clone();
+        let applied = if redo { self.redo()? } else { self.undo()? };
+        let chart_structure = (before != self.chart_ids).then(|| ChartStructureDelta {
+            before,
+            after: self.chart_ids.clone(),
+        });
+        Ok(HistoryEffect {
+            applied,
+            before_revision,
+            after_revision: self.revision,
+            content_changed: before_content != self.content_revision,
+            chart_structure,
+        })
+    }
     pub fn undo(&mut self) -> Result<bool, Error> {
         let Some(mut entry) = self.undo.pop() else {
             return Ok(false);
@@ -1131,14 +1175,19 @@ impl Clipboard {
     /// Paste with original GrooveAuthor lane-conflict replacement semantics.
     /// Plan on a private grid, then publish every side effect as one gesture.
     pub fn paste_force(&self, session: &mut Session, chart: usize, row: u64, active_player: u32) -> Result<bool, Error> {
+        self.paste_force_with_report(session, chart, row, active_player).map(|(changed, _)| changed)
+    }
+
+    pub(crate) fn paste_force_with_report(&self, session: &mut Session, chart: usize, row: u64, active_player: u32) -> Result<(bool, usize), Error> {
         let original = session.grid(chart)?;
-        if original.columns() != self.columns {
-            return Err(Error::InvalidEdit("Clipboard layout has a different number of lanes".into()));
-        }
         let mut staged = original.clone();
+        let mut skipped = 0;
         let mut notes = self.notes.clone();
         notes.sort_by_key(|(pos, _)| (pos.row, pos.lane, pos.player));
         for (pos, mut note) in notes {
+            // Original CanEventExistAtRow skips an out-of-range lane without
+            // preventing compatible notes/miscellaneous events from pasting.
+            if pos.lane >= staged.columns() { skipped += 1; continue; }
             let player = if self.single_player { active_player }
                 else if pos.player < staged.players() { pos.player } else { 0 };
             let position = Position { player, row: pos.row.checked_add(row)
@@ -1147,7 +1196,7 @@ impl Clipboard {
                 .ok_or_else(|| Error::InvalidEdit("Paste exceeds the row range".into()))).transpose()?;
             staged.force_insert(position, note)?;
         }
-        session.apply_grid_delta(chart, &staged, "Paste notes")
+        session.apply_grid_delta(chart, &staged, "Paste notes").map(|changed| (changed, skipped))
     }
 
     /// GrooveAuthor pastes a single-owner selection as the active participant;

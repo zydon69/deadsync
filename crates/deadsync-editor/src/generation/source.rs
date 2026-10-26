@@ -36,6 +36,36 @@ impl PreparedChart {
     }
 }
 
+/// Graph geometry aliases remain useful for editing, but GrooveAuthor only
+/// creates generation graphs for its eleven single-player chart families.
+pub(crate) fn require_reference_layout(layout: &str) -> Result<(), Error> {
+    if super::job::TARGET_LAYOUTS.contains(&layout) {
+        Ok(())
+    } else {
+        Err(Error::Unsupported("No reference generation graph for this chart layout".into()))
+    }
+}
+
+pub(crate) fn effective_layout(document: &Document, chart: usize) -> Result<&str, Error> {
+    let descriptor = document.charts().get(chart)
+        .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?;
+    Ok(if descriptor.steps_type == "pump-double"
+        && crate::stepf2::is_coop(document.value(descriptor.notes.clone()), &descriptor.steps_type)
+    { "pump-routine" } else { &descriptor.steps_type })
+}
+
+pub(crate) fn require_reference_source(document: &Document, chart: usize) -> Result<(), Error> {
+    require_reference_layout(effective_layout(document, chart)?)
+}
+
+fn require_reference_grid(layout: &str, grid: &Grid) -> Result<(), Error> {
+    require_reference_layout(if grid.uses_stepf2() { "pump-routine" } else { layout })?;
+    if grid.players() != 1 {
+        return Err(Error::Unsupported("Generation requires a chart with one participant".into()));
+    }
+    Ok(())
+}
+
 /// Call with a serialized editor snapshot so unsaved notes, timing and metadata
 /// are included together. The snapshot is never mutated during preparation.
 pub fn read(
@@ -56,6 +86,7 @@ pub fn read(
     checkpoint()?;
     let document = Document::parse(bytes.clone(), format)?;
     crate::timing_edit::migration::require_compatible(&document)?;
+    require_reference_source(&document, chart)?;
     let entry = document
         .charts()
         .get(chart)
@@ -67,11 +98,7 @@ pub fn read(
             "Reference interpretation does not support attack notes".into(),
         ));
     }
-    if grid.players() != 1 {
-        return Err(Error::Unsupported(
-            "Generation requires a chart with one participant".into(),
-        ));
-    }
+    require_reference_grid(&entry.steps_type, &grid)?;
     let timing = GenerationTiming::from_document(&document, chart)?;
     let session = crate::history::Session::new(Document::parse(bytes, format)?);
     let attack_rows = crate::attacks::placement::Timeline::capture(&session, chart)?
@@ -161,6 +188,7 @@ impl SourceChart {
         )
     }
     pub fn prepare_editor(&self, cancelled: &AtomicBool) -> Result<PreparedChart, Error> {
+        require_reference_grid(&self.layout, &self.grid)?;
         let regions = self.pattern_regions(cancelled)?;
         let timeline = self
             .editor_timeline(cancelled)?
@@ -241,6 +269,7 @@ impl SourceChart {
             }
         };
         checkpoint()?;
+        require_reference_grid(&self.layout, grid)?;
         if grid.players() != 1
             || layout_columns(&self.layout) != Some(grid.columns())
             || !self.difficulty.is_finite()

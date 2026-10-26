@@ -148,7 +148,7 @@ fn mixed_cut_keeps_initial_timing_and_undo_restores_all_families_and_note_bytes(
     );
 }
 #[test]
-fn unsupported_format_overflow_and_layout_failures_cannot_publish_partial_notes_or_erase_redo() {
+fn unsupported_format_and_overflow_are_atomic_while_compatible_cross_layout_notes_paste() {
     let mut source = source();
     assert!(Clipboard::copy(&mut source, 0, 20, 10).is_err());
     assert!(Clipboard::copy(&mut source, 0, 400, 500).unwrap().is_none());
@@ -170,8 +170,38 @@ fn unsupported_format_overflow_and_layout_failures_cannot_publish_partial_notes_
         .replace("#NOTES:1000;", "#NOTES:10000;");
     let mut other_layout = Session::new(Document::parse(bytes.as_bytes(), Format::Ssc).unwrap());
     let before = other_layout.serialize().unwrap();
-    assert!(clipboard.paste(&mut other_layout, 0, 384, 0).is_err());
+    let report = clipboard
+        .paste_with_report(&mut other_layout, 0, 384, 0)
+        .unwrap();
+    assert!(report.changed);
+    assert_eq!(report.notes_skipped, 0);
+    assert_eq!(
+        other_layout
+            .grid(0)
+            .unwrap()
+            .get(position(384, 0))
+            .unwrap()
+            .kind,
+        Kind::Tap
+    );
+    assert_eq!(
+        other_layout
+            .grid(0)
+            .unwrap()
+            .get(position(432, 1))
+            .unwrap()
+            .end,
+        Some(528)
+    );
+    assert_eq!(
+        Timeline::capture(&other_layout, 0).unwrap().markers()[0].row,
+        408
+    );
+    let after = other_layout.serialize().unwrap();
+    other_layout.undo().unwrap();
     assert_eq!(other_layout.serialize().unwrap(), before);
+    other_layout.redo().unwrap();
+    assert_eq!(other_layout.serialize().unwrap(), after);
 }
 
 #[test]

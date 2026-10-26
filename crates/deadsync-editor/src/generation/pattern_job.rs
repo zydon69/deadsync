@@ -98,6 +98,7 @@ impl Task {
         if chart >= session.document().charts().len() {
             return invalid("Pattern source chart does not exist");
         }
+        source::require_reference_source(session.document(), chart)?;
         options.pattern.validate()?;
         options.performed.validate()?;
         options.expressed.validate()?;

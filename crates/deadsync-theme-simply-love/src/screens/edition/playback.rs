@@ -1,4 +1,4 @@
-use super::State;
+use super::{State, decoder_transport::{Transport, Ack, Clock, Step}};
 use crate::i18n;
 use deadsync_editor::{playback::Preview, workspace::Command};
 use deadsync_gameplay::{GameplayAudioCommand, GameplayAudioSnapshot, GameplayMusicCut};
@@ -6,6 +6,11 @@ use std::{sync::Arc, time::Instant};
 
 pub(super) struct Playing {
     preview: Option<Preview>,
+    decoder: Option<Transport>,
+    decoder_ack: Option<Ack>,
+    clock_generation: Option<u64>,
+    issued_generation: Option<u64>,
+    precise_stream: Option<(u64, Instant, f64)>,
     valid_after: Instant,
     mapped: bool,
     position: Option<Position>,
@@ -174,6 +179,11 @@ impl State {
                 });
                 self.playback = Some(Playing {
                     preview: Some(preview),
+                    decoder: None,
+                    decoder_ack: None,
+                    clock_generation: None,
+                    issued_generation: None,
+                    precise_stream: None,
                     valid_after: Instant::now(),
                     mapped: false,
                     position: resume,
@@ -272,6 +282,11 @@ impl State {
                 });
                 self.playback = Some(Playing {
                     preview: None,
+                    decoder: None,
+                    decoder_ack: None,
+                    clock_generation: None,
+                    issued_generation: None,
+                    precise_stream: None,
                     valid_after: Instant::now(),
                     mapped: false,
                     position: None,
@@ -284,8 +299,53 @@ impl State {
             }
         }
     }
-    /// Only mapped audio advances the cursor. Wall-clock time alone never
-    /// claims that decoding or playback succeeded.
+    /// Bind the generation synchronously assigned to the last drained audio
+    /// command. Repeated frame updates must not reset an existing anchor.
+    pub fn bind_decoder_generation(&mut self, generation: Option<u64>) {
+        let Some(playing) = self.playback.as_ref().filter(|playing| playing.preview.is_some()) else { return; };
+        if generation.is_some() && playing.issued_generation == generation { return; }
+        let Some(generation) = generation else {
+            self.stop_audio();
+            self.status = i18n::tr("Edition", "PlaybackDecoderUnavailable");
+            return;
+        };
+        let Ok(start) = self.chart_focus_music_time() else {
+            self.stop_audio();
+            self.status = i18n::tr("Edition", "PlaybackDecoderFailed");
+            return;
+        };
+        let playing = self.playback.as_mut().expect("chart transport exists");
+        let decoder = playing.decoder.get_or_insert_with(Transport::default);
+        if !decoder.issue(generation, start) {
+            self.stop_audio();
+            self.status = i18n::tr("Edition", "PlaybackDecoderFailed");
+            return;
+        }
+        playing.issued_generation = Some(generation);
+        playing.clock_generation = Some(generation);
+        playing.decoder_ack = None;
+        playing.precise_stream = None;
+    }
+    /// Optional editor-only f64 stream time from the exact same clock snapshot.
+    /// Legacy gameplay snapshots and callers without this side channel keep their
+    /// existing f32 contract. Stale identities or non-finite values are ignored.
+    pub fn set_decoder_stream_time(&mut self, generation: u64, valid_at: Instant, seconds: f64) {
+        if !seconds.is_finite() { return; }
+        if let Some(playing) = self.playback.as_mut().filter(|playing| playing.preview.is_some())
+            && playing.issued_generation == Some(generation) {
+            playing.precise_stream = Some((generation, valid_at, seconds));
+        }
+    }
+    /// Install the backend acknowledgement before update_audio. The native
+    /// adapter supplies the synchronous command generation for the clock too.
+    pub fn set_decoder_status(&mut self, generation: u64, ack: Option<Ack>) {
+        if let Some(playing) = self.playback.as_mut().filter(|playing| playing.preview.is_some()) {
+            playing.clock_generation = Some(generation);
+            playing.decoder_ack = ack;
+        }
+    }
+    /// Mapped audio or acknowledged silent stream time advances the cursor.
+    /// Wall-clock time alone never claims decoding or playback succeeded.
     pub fn update_audio(&mut self, snapshot: GameplayAudioSnapshot) {
         let Some(playing) = self.playback.as_mut() else {
             return;
@@ -294,19 +354,50 @@ impl State {
             return;
         };
         let clock = snapshot.stream_clock;
+        if playing.decoder.is_some() && playing.clock_generation != playing.issued_generation { return; }
         if clock.valid_at < playing.valid_after {
             return;
         }
         // Reject out-of-order snapshots as well as snapshots from before play.
         playing.valid_after = clock.valid_at;
-        if !clock.has_music_mapping {
-            if playing.mapped {
-                self.pause_audio();
-            }
+        if playing.decoder.is_some()
+            && let Some(ack) = playing.decoder_ack.filter(|ack| Some(ack.generation) == playing.issued_generation)
+            && matches!(ack.phase, super::decoder_transport::Phase::Failed | super::decoder_transport::Phase::Stopped) {
+            let failed = ack.phase == super::decoder_transport::Phase::Failed;
+            self.stop_audio();
+            if failed { self.status = i18n::tr("Edition", "PlaybackDecoderFailed"); }
             return;
         }
+        let seconds = if let Some(decoder) = playing.decoder.as_mut() {
+            let Some(generation) = playing.clock_generation else { return; };
+            match decoder.observe(playing.decoder_ack, Clock {
+                generation, valid_at: clock.valid_at,
+                stream_seconds: playing.precise_stream
+                    .filter(|(precise_generation, stamp, _)| *precise_generation == generation && *stamp == clock.valid_at)
+                    .map_or_else(|| f64::from(clock.stream_seconds), |(_, _, seconds)| seconds),
+                music_seconds: clock.has_music_mapping.then_some(clock.music_nanos as f64 / 1_000_000_000.0),
+                rate: if clock.has_music_mapping { f64::from(clock.music_seconds_per_second) } else { self.audio_preferences.music_rate() },
+            }) {
+                Step::Position { music_seconds, .. } => music_seconds,
+                Step::Wait => return,
+                Step::Stopped => {
+                    self.stop_audio();
+                    return;
+                }
+                Step::Failed => {
+                    self.stop_audio();
+                    self.status = i18n::tr("Edition", "PlaybackDecoderFailed");
+                    return;
+                }
+            }
+        } else {
+            if !clock.has_music_mapping {
+                if playing.mapped { self.pause_audio(); }
+                return;
+            }
+            clock.music_nanos as f64 / 1_000_000_000.0
+        };
         playing.mapped = true;
-        let seconds = clock.music_nanos as f64 / 1_000_000_000.0;
         let result = preview
             .position(seconds)
             .and_then(|row| Ok((preview.music_to_chart_time(seconds)?, row)));

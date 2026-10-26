@@ -118,7 +118,8 @@ DecoderSnapshot {
 }
 DecoderStatusReader::snapshot() -> DecoderSnapshot
 MusicStream::status_reader() -> DecoderStatusReader
-MusicStreamRuntime::decoder_status() -> Option<DecoderStatusReader>
+MusicStreamRuntime::decoder_status() -> DecoderStatusMonitor
+DecoderStatusMonitor::snapshot() -> Option<DecoderSnapshot>
 ```
 
 One shared latest-value slot per decoder, protected by a mutex used only on the
@@ -142,3 +143,98 @@ in the isolated lifecycle module, then real-WAV Opened/Exhausted acknowledgement
 missing/corrupt files and explicit stop. Only after those pass should the callback
 transport adopt an editor-only silent continuation policy. Audio callback time,
 not producer completion time, chooses decoded/pre-roll/post-roll presentation.
+
+## Current integration and precision follow-up
+
+The lifecycle and native adapter have subsequently been implemented. Confirmed
+historical validation reported by the parent: 3 lifecycle unit tests, 1 real-WAV
+lifecycle test, 1 WAV/playback regression test, 7 audio-stream tests and 1 shell
+adapter test passed. These results belong to the states validated at that time;
+they do not prove the precision follow-up described below.
+
+The new precision follow-up remains **in validation**: model 5 tests, native
+English/French 16 tests and audio-stream 8 tests. Do not record these as passed
+until the parent receives their terminal results.
+
+- Gameplay retains its existing f32 stream-time snapshot contract. A separate
+  editor clock path carries absolute callback time as f64, before casting the
+  compatibility snapshot to f32. No system-wall-time deltas are added by the
+  native transport model.
+- `State::set_decoder_stream_time(generation, valid_at, seconds)` supplies the
+  precision side channel. It applies only to the exact snapshot timestamp and
+  command generation. Non-finite values are ignored. Existing callers without
+  this setter retain their previous f32 path.
+- A real mapped position owns its exact source-time slope for the remainder of
+  that generation. Silent continuation does not compare it for exact equality
+  against a nominal f64 preference: f32 conversion and decoder chunk ratios can
+  produce legitimate differences. Actual rate commands require a fresh issued
+  generation and anchor. New tests exercise 1.1x and 0.8x backend f32 slopes.
+- Long-uptime tests use an absolute stream time of 86400 seconds plus 2 ms. Both
+  values collapse to the same f32 representation, while the f64 path crosses a
+  note-row boundary from the retained fractional mapped position.
+
+## Next reference-backed scrolling increment
+
+Reference `Editor.cs::ProcessInputForMiniMap` (around 3185–3250) and density-graph
+handling (around 3680–3734) implement a distinct gesture policy: if playing when
+drag begins, stop/pause immediately; move the chart position during capture; on
+release restart only when `StopPlaybackWhenDraggingScrollBars` is false. Its
+default is false in `PreferencesScroll.cs` lines 25–26 and stored independently
+from `StopPlaybackWhenScrolling` (lines 141–142). Current Rust scroll preferences
+only model the latter snapped-navigation policy.
+
+A useful next increment is to port this gesture state and preference together
+with an operable compact minimap/density navigation control. In the simplified
+menu, keyboard/pad focus can provide begin/move/release semantics; mouse support
+can use the same state if added. Retain the exact fractional chart/music focus
+when beginning and ending the gesture, reject stale audio snapshots during it,
+and resume through the acknowledged generation mechanism. Tests should cover
+playing/stopped entry, both preference values, cancellation, chart changes,
+negative/pre-roll positions, repeat events and one final resumed start command.
+
+This source review found looping playback in `MusicManager::RenderPreview`
+(selected preview region or dedicated preview file). Normal chart playback does
+not acquire a new general A/B-loop requirement from those functions. Existing
+Rust preview audition already loops; its runtime fidelity should be tested,
+rather than introducing an unrelated chart loop and calling it a port.
+
+The next lot now has isolated, **unconnected and unvalidated** source modules:
+`deadsync-editor/src/minimap_navigation.rs` implements Begin/Move/End and exact
+Pause/Focus/Resume effects; `scroll_preferences/dragging.rs` implements the
+distinct boolean preference. Its isolated `--test minimap_navigation` target
+contains four tests. Existing preferences, edition State and playback files have
+not been changed for this lot. This is preparation for the operable control,
+not completed minimap functionality.
+
+## Implemented continuation and remaining validation
+
+The backend now publishes these acknowledgements and exposes a durable monitor
+through `StreamReady`. `AudioControl` filters it against the synchronous current
+command generation. Failed workers also acknowledge subsequent Seek/Rate/Pitch
+commands as failed rather than leaving them Pending forever. Three lifecycle
+tests passed, including a barrier-controlled failure/new-command race. Both the
+extended real-WAV lifecycle test and the existing PCM playback regression passed
+after this correction.
+
+The editor transport model is connected to its playback state and uses callback
+stream time, with actual consumed-PCM mappings taking priority. Its five model
+tests and sixteen EN/FR native workflows passed. The native tests inject snapshots
+and acknowledgements; they do not prove sound output or operating-system timing.
+
+Ordinary gameplay's clock also reports optimistic startup seeds as mapped. The
+editor must not treat those seeds as proof that a decoder opened. The new
+`MusicClock::snapshot_with_decoded_mapping` explicitly distinguishes consumed PCM
+and exposes an absolute callback clock that advances even if a request beyond
+EOF never emits a first block. `snapshot_for_editor_time` retains precise f64
+seconds before the legacy f32 cast. Eight audio-stream tests passed, preserving
+the gameplay snapshot contract and verifying no-PCM callbacks and submillisecond
+steps after a day. Exact mapped slopes survive nominal-rate rounding at 0.8x/1.1x.
+
+The shell strips seed-only mapping flags exclusively for editor playback. It
+drains pending editor commands before taking another snapshot, and the practice
+adapter skips snapshots when its own update has just emitted a transport command.
+The command-order unit test and the shell clock-adapter test passed, and the
+integrated shell lib-test harness compiled with the f64 bridge. All 161 focused
+theme checks passed in the final affected regression and pagination rerun.
+Output-device failure and callback-stall policy,
+hardware listening, and full runtime/rendering verification remain required.

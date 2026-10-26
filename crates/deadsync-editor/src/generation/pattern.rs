@@ -149,6 +149,7 @@ pub fn generate(
         return invalid("Invalid pattern range or preceding-chart context");
     }
     check_cancel(cancelled)?;
+    super::source::require_reference_layout(&request.layout)?;
     let graph = StepGraph::builtin(&request.layout)?;
     let pad = Pad::builtin(&request.layout)?;
     if request.context.lane_counts.len() != pad.arrows.len() {

@@ -109,6 +109,14 @@ pub struct Grid {
     pub(crate) stepf2: bool,
 }
 
+/// Bounded overview query result. A query is one crossing-sustain lookup or
+/// one track/bin endpoint lookup, independently of how many notes it emits.
+pub struct Overview<'a> {
+    pub notes: Vec<(Position, &'a Note)>,
+    pub queries: usize,
+    pub budget_exhausted: bool,
+}
+
 impl Grid {
     pub fn new(columns: u16, players: u32) -> Result<Self, Error> {
         if columns == 0 || players == 0 {
@@ -200,20 +208,72 @@ impl Grid {
         end: u64,
         bins: usize,
     ) -> Result<Vec<(Position, &Note)>, Error> {
+        self.visible_overview_limited(start, end, bins, usize::MAX)
+    }
+
+    /// Same deterministic track/bin sampling as visible_overview, with an
+    /// explicit output budget. Crossing sustains precede sampled heads
+    /// within their track, and earlier tracks retain their established order.
+    pub fn visible_overview_limited(
+        &self,
+        start: u64,
+        end: u64,
+        bins: usize,
+        limit: usize,
+    ) -> Result<Vec<(Position, &Note)>, Error> {
+        Ok(self.visible_overview_budgeted(start, end, bins, limit, usize::MAX)?.notes)
+    }
+
+    /// Bounds emitted notes and track/bin tree queries separately. Traversal
+    /// keeps the established track/bin order, so truncation is deterministic.
+    pub fn visible_overview_budgeted(
+        &self,
+        start: u64,
+        end: u64,
+        bins: usize,
+        note_limit: usize,
+        query_limit: usize,
+    ) -> Result<Overview<'_>, Error> {
         let bands = crate::projection::RowBands::new(start, end, bins)?;
-        let mut result = Vec::new();
+        let mut result = Overview { notes: Vec::new(), queries: 0, budget_exhausted: false };
+        if note_limit == 0 {
+            result.budget_exhausted = !self.tracks.is_empty();
+            return Ok(result);
+        }
         for (&(player, lane), track) in &self.tracks {
+            if result.queries == query_limit {
+                result.budget_exhausted = true;
+                return Ok(result);
+            }
+            result.queries += 1;
             if let Some((&row, note)) = track.range(..start).next_back()
                 .filter(|(_, note)| note.end.is_some_and(|tail| tail >= start))
             {
-                result.push((Position { player, lane, row }, note));
+                result.notes.push((Position { player, lane, row }, note));
+                if result.notes.len() == note_limit {
+                    result.budget_exhausted = true;
+                    return Ok(result);
+                }
             }
             for (a, b) in bands.clone() {
+                if result.queries == query_limit {
+                    result.budget_exhausted = true;
+                    return Ok(result);
+                }
+                result.queries += 1;
                 let mut range = track.range(a..=b);
                 if let Some((&row, note)) = range.next() {
-                    result.push((Position { player, lane, row }, note));
+                    result.notes.push((Position { player, lane, row }, note));
+                    if result.notes.len() == note_limit {
+                        result.budget_exhausted = true;
+                        return Ok(result);
+                    }
                     if let Some((&row, note)) = range.next_back() {
-                        result.push((Position { player, lane, row }, note));
+                        result.notes.push((Position { player, lane, row }, note));
+                        if result.notes.len() == note_limit {
+                            result.budget_exhausted = true;
+                            return Ok(result);
+                        }
                     }
                 }
             }

@@ -42,17 +42,23 @@ pub enum StreamCommand {
 /// Manager-thread owner of the decoder and its recyclable block writer.
 pub struct MusicStreamRuntime {
     music_stream: Option<MusicStream>,
+    decoder_status: super::lifecycle::DecoderStatusMonitor,
     writer: Option<MusicBlockWriter>,
     output: OutputFormat,
 }
 
 impl MusicStreamRuntime {
-    pub const fn new(writer: MusicBlockWriter, output: OutputFormat) -> Self {
+    pub fn new(writer: MusicBlockWriter, output: OutputFormat) -> Self {
         Self {
             music_stream: None,
+            decoder_status: super::lifecycle::DecoderStatusMonitor::default(),
             writer: Some(writer),
             output,
         }
+    }
+
+    pub fn decoder_status(&self) -> super::lifecycle::DecoderStatusMonitor {
+        self.decoder_status.clone()
     }
 
     pub fn handle(&mut self, command: StreamCommand) {
@@ -120,6 +126,9 @@ impl MusicStreamRuntime {
             },
             true,
         ));
+        if let Some(stream) = &self.music_stream {
+            self.decoder_status.set(stream.status_reader());
+        }
     }
 
     fn stop(&mut self) {
@@ -133,38 +142,47 @@ impl MusicStreamRuntime {
         }
         if let Some(stream) = &self.music_stream {
             let control = &stream.control;
+            control.status.begin(generation, Some(seconds));
             let mut pending = control.seek.lock().unwrap_or_else(|e| e.into_inner());
             *pending = Some(super::SeekRequest {
                 seconds,
                 generation,
             });
             control.seek_serial.store(generation, Ordering::Release);
-            control.generation.store(generation, Ordering::Release);
+            control.generation.store(generation, Ordering::SeqCst);
             drop(pending);
-            control.wake.notify();
+            stream.wake_command(generation);
         }
     }
 
     fn set_rate(&self, rate: f32, generation: u64) {
         if let Some(stream) = &self.music_stream {
             let control = &stream.control;
+            control.status.begin(generation, None);
             control.rate_bits.store(rate.to_bits(), Ordering::Release);
-            control.generation.store(generation, Ordering::Release);
-            control.wake.notify();
+            control.generation.store(generation, Ordering::SeqCst);
+            stream.wake_command(generation);
         }
     }
 
     fn set_preserve_pitch(&self, enabled: bool, generation: u64) {
         if let Some(stream) = &self.music_stream {
             let control = &stream.control;
+            control.status.begin(generation, None);
             control.preserve_pitch.store(enabled, Ordering::Release);
-            control.generation.store(generation, Ordering::Release);
-            control.wake.notify();
+            control.generation.store(generation, Ordering::SeqCst);
+            stream.wake_command(generation);
         }
     }
 
     fn stop_decoder(&mut self) {
         if let Some(old) = self.music_stream.take() {
+            old.control.status.publish(
+                old.control.generation.load(Ordering::Acquire),
+                super::lifecycle::DecoderPhase::Stopped,
+                None,
+                None,
+            );
             old.control.stop_signal.store(true, Ordering::Release);
             old.control.wake.notify();
             match old.thread.join() {
@@ -190,6 +208,7 @@ pub struct StreamReady {
     pub backend_ready: OutputBackendReady,
     pub sfx_sender: SfxSender,
     pub played_map: PlayedMapReader,
+    pub decoder_status: super::lifecycle::DecoderStatusMonitor,
 }
 
 /// Opens output on the manager thread and starts its stream-command queue.
@@ -239,21 +258,22 @@ fn audio_manager_thread(
         sample_rate_hz: ready.device_sample_rate,
         channels: ready.device_channels,
     };
+    let mut music_runtime = MusicStreamRuntime::new(writer, stream_output);
     if ready_sender
         .send(Ok(StreamReady {
             command_sender,
             backend_ready: ready,
             sfx_sender,
             played_map,
+            decoder_status: music_runtime.decoder_status(),
         }))
         .is_err()
     {
         drop(_session);
-        drop(writer);
+        drop(music_runtime);
         return;
     }
 
-    let mut music_runtime = MusicStreamRuntime::new(writer, stream_output);
     while let Ok(command) = command_receiver.recv() {
         music_runtime.handle(command);
     }

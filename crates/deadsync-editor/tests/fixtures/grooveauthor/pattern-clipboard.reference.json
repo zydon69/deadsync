@@ -1,0 +1,24 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sdk": "10.0.403",
+  "scope": "Executed original ActionPasteEvents and ForceAddSideEffect unchanged; original ForceAddEventInternal, CanEventExistAtRow, IsMultiPlayer, Pattern.Definition/Clone/Matches; actual Fumen/SML event comparer. Event-container/base-event clone/input-output/timing-notification adapters. No original GUI, profile observers or timing dependency math.",
+  "extracted_sha256": {
+    "ORIGINAL_DEFINITION": "a30435d571a6168e544d6ea3af50770c35b242ea3533140058b33496d6a021b5",
+    "ORIGINAL_PATTERN_CLONE": "e44a1424587dfe01add96cba8d8fd0b719a8b83ad6ebe4a1531f9e4c76f3ff9a",
+    "ORIGINAL_IS_MULTIPLAYER": "48969315ec833f81a9e2f7dc79b442a179f1285960dd635ded024fea187e83be",
+    "ORIGINAL_CAN_EXIST": "13b3564c1f3e4f72010ea6743c34c741b8e613afcbfa70024925b7d7072eb82f",
+    "ORIGINAL_FORCE_ADD": "415b6795aa9600fc5488b34a0904a9bb6869650fc309c8bac4d1451b393d3cc5"
+  },
+  "sources_sha256": {
+    "OriginalActionPasteEvents.cs": "6ca8aa2239752d891556c5b089edb8d9abdd390c5d37bf340d293ad51c60d33c",
+    "OriginalForceAddSideEffect.cs": "587bd384a4ac235b230540b4013af11f042560d9ac316cd569d7f401c275b3f5",
+    "Adapter.cs": "0f7671cf0c265767912aef1de546bdef0dc830376a7e216b6b661ca04cf8b770"
+  },
+  "adapter_template_sha256": "30332c4d84167463d2825210be6b3d8791f0d3a488e4518de1b483932343a5f1",
+  "program_sha256": "7ab71bf76495b0748f1764e7fc7db4ae493beef507c0fc3c3ed61937c332d5fa",
+  "assembly_sha256": "a15e4e44adb571ccbca2701b734767f1cc527a6d880de557867c910585d2eb9a",
+  "request_sha256": "311f6db1d83fe1777393b78bec3297c1a547c90164f6595e1dc30fa982904e79",
+  "expected_sha256": "47b88f9435ebcb755d08cb19bfd8731f4cd8441231547cea9323f511dcc3f43e"
+}

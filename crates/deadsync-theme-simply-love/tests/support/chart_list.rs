@@ -56,15 +56,23 @@ fn setup(count: usize) -> (tempfile::TempDir, State, Vec<u8>) {
     (dir, state, source.into_bytes())
 }
 fn texts(state: &State) -> String {
-    fn walk(actor: &Actor, out: &mut String) {
+    texts_at_z(state, None)
+}
+fn list_texts(state: &State) -> String {
+    // List text is drawn above the editor at z=8021. Resident chart headers
+    // legitimately remain visible underneath and are not pagination rows.
+    texts_at_z(state, Some(8021))
+}
+fn texts_at_z(state: &State, required_z: Option<i16>) -> String {
+    fn walk(actor: &Actor, out: &mut String, required_z: Option<i16>) {
         match actor {
-            Actor::Text { content, .. } => {
+            Actor::Text { content, z, .. } if required_z.is_none_or(|required| *z == required) => {
                 out.push_str(content);
                 out.push('\n');
             }
             Actor::Frame { children, .. } => {
                 for child in children {
-                    walk(child, out)
+                    walk(child, out, required_z)
                 }
             }
             _ => {}
@@ -74,7 +82,7 @@ fn texts(state: &State) -> String {
     state.actors(&mut actors);
     let mut out = String::new();
     for actor in actors {
-        walk(&actor, &mut out)
+        walk(&actor, &mut out, required_z)
     }
     out
 }
@@ -86,15 +94,15 @@ fn keyboard_list_is_sorted_paginated_and_cancel_does_not_change_active_source() 
     control(&mut state, KeyCode::KeyB);
     assert!(state.process_chart_order(&mut native));
     assert!(texts(&state).contains(&*i18n::tr("Edition", "ChartListTitle")));
-    assert!(texts(&state).contains("> 10/10"));
+    assert!(list_texts(&state).contains("> 10/10"));
     assert_eq!(native.calls, 1);
     press(&mut state, KeyCode::Home);
-    let visible = texts(&state);
+    let visible = list_texts(&state);
     assert!(visible.contains("> 1/10"));
     assert!(visible.contains("Chart9"));
     assert!(!visible.contains("Chart0"));
     press(&mut state, KeyCode::PageDown);
-    assert!(texts(&state).contains("> 9/10"));
+    assert!(list_texts(&state).contains("> 9/10"));
     press(&mut state, KeyCode::Escape);
     assert_eq!(state.workspace().chart(), 1);
     assert_eq!(
