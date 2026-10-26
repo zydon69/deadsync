@@ -8,15 +8,165 @@
         "EditorAttacks": [
           {
             "Row": 0,
-            "Time": 0
+            "Time": 0,
+            "Transport": [
+              {
+                "EndTime": 1,
+                "EndRow": 96,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0.5
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 1
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 2
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 4
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 8
+                  }
+                ]
+              }
+            ]
           },
           {
             "Row": 96,
-            "Time": 1
+            "Time": 1,
+            "Transport": [
+              {
+                "EndTime": 3,
+                "EndRow": 288,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 1
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 3
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 7
+                  }
+                ]
+              },
+              {
+                "EndTime": 4,
+                "EndRow": 384,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 1
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 3
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 7
+                  }
+                ]
+              }
+            ]
           },
           {
             "Row": 264,
-            "Time": 2.75
+            "Time": 2.75,
+            "Transport": [
+              {
+                "EndTime": 2.75,
+                "EndRow": 264,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 1.25
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 5.25
+                  }
+                ]
+              }
+            ]
           }
         ],
         "Attacks": [
@@ -75,15 +225,165 @@
         "EditorAttacks": [
           {
             "Row": 144,
-            "Time": 1.5
+            "Time": 1.5,
+            "Transport": [
+              {
+                "EndTime": 2.5,
+                "EndRow": 192,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0.5
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 5,
+                    "Length": 3.5
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 10,
+                    "Length": 8.5
+                  }
+                ]
+              },
+              {
+                "EndTime": 2.5,
+                "EndRow": 192,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0.5
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 5,
+                    "Length": 3.5
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 10,
+                    "Length": 8.5
+                  }
+                ]
+              }
+            ]
           },
           {
             "Row": 192,
-            "Time": 2
+            "Time": 2,
+            "Transport": [
+              {
+                "EndTime": 3,
+                "EndRow": 192,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 5,
+                    "Length": 3
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 10,
+                    "Length": 8
+                  }
+                ]
+              }
+            ]
           },
           {
             "Row": 312,
-            "Time": 4.25
+            "Time": 4.25,
+            "Transport": [
+              {
+                "EndTime": 5.25,
+                "EndRow": 384,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 5,
+                    "Length": 0.75
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 10,
+                    "Length": 5.75
+                  }
+                ]
+              }
+            ]
           }
         ],
         "Attacks": [
@@ -142,15 +442,129 @@
         "EditorAttacks": [
           {
             "Row": 191,
-            "Time": 1.9895833333333333
+            "Time": 1.9895833333333333,
+            "Transport": [
+              {
+                "EndTime": 2.989583333333333,
+                "EndRow": 574,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0.01041666666666674
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 2,
+                    "Length": 0.01041666666666674
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 4,
+                    "Length": 2.010416666666667
+                  }
+                ]
+              }
+            ]
           },
           {
             "Row": 192,
-            "Time": 2
+            "Time": 2,
+            "Transport": [
+              {
+                "EndTime": 3,
+                "EndRow": 576,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 4,
+                    "Length": 2
+                  }
+                ]
+              }
+            ]
           },
           {
             "Row": 480,
-            "Time": 2.5
+            "Time": 2.5,
+            "Transport": [
+              {
+                "EndTime": 4.5,
+                "EndRow": 864,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 4,
+                    "Length": 1.5
+                  }
+                ]
+              }
+            ]
           }
         ],
         "Attacks": [
@@ -203,15 +617,129 @@
         "EditorAttacks": [
           {
             "Row": 144,
-            "Time": 1.5
+            "Time": 1.5,
+            "Transport": [
+              {
+                "EndTime": 2.5,
+                "EndRow": 336,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0.5
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 3,
+                    "Length": 1.5
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 7.5,
+                    "Length": 6
+                  }
+                ]
+              }
+            ]
           },
           {
             "Row": 192,
-            "Time": 2
+            "Time": 2,
+            "Transport": [
+              {
+                "EndTime": 3,
+                "EndRow": 384,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 3,
+                    "Length": 1
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 7.5,
+                    "Length": 5.5
+                  }
+                ]
+              }
+            ]
           },
           {
             "Row": 384,
-            "Time": 3
+            "Time": 3,
+            "Transport": [
+              {
+                "EndTime": 5,
+                "EndRow": 528,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 3,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 7.5,
+                    "Length": 4.5
+                  }
+                ]
+              }
+            ]
           }
         ],
         "Attacks": [
@@ -264,11 +792,87 @@
         "EditorAttacks": [
           {
             "Row": 192,
-            "Time": 2
+            "Time": 2,
+            "Transport": [
+              {
+                "EndTime": 5,
+                "EndRow": 864,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 4,
+                    "Length": 2
+                  }
+                ]
+              }
+            ]
           },
           {
             "Row": 586,
-            "Time": 2.104166666666666
+            "Time": 2.104166666666666,
+            "Transport": [
+              {
+                "EndTime": 3.104166666666666,
+                "EndRow": 682,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 4,
+                    "Length": 1.895833333333334
+                  }
+                ]
+              }
+            ]
           }
         ],
         "Attacks": [
@@ -309,11 +913,87 @@
         "EditorAttacks": [
           {
             "Row": 0,
-            "Time": 0
+            "Time": 0,
+            "Transport": [
+              {
+                "EndTime": 2,
+                "EndRow": 192,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0.5
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 1
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 2
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 4
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 8
+                  }
+                ]
+              }
+            ]
           },
           {
             "Row": 144,
-            "Time": 1.5
+            "Time": 1.5,
+            "Transport": [
+              {
+                "EndTime": 2.5,
+                "EndRow": 240,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0.5
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 2.5
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 6.5
+                  }
+                ]
+              }
+            ]
           }
         ],
         "Attacks": [
@@ -354,7 +1034,45 @@
         "EditorAttacks": [
           {
             "Row": 96,
-            "Time": 1
+            "Time": 1,
+            "Transport": [
+              {
+                "EndTime": 2,
+                "EndRow": 192,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 1
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 3
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 7
+                  }
+                ]
+              }
+            ]
           }
         ],
         "Attacks": [
@@ -377,7 +1095,45 @@
         "EditorAttacks": [
           {
             "Row": 192,
-            "Time": 1
+            "Time": 1,
+            "Transport": [
+              {
+                "EndTime": 3,
+                "EndRow": 576,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.25,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 2,
+                    "Length": 1
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 4,
+                    "Length": 3
+                  }
+                ]
+              }
+            ]
           }
         ],
         "Attacks": [
@@ -400,7 +1156,45 @@
         "EditorAttacks": [
           {
             "Row": 96,
-            "Time": 1
+            "Time": 1,
+            "Transport": [
+              {
+                "EndTime": 2,
+                "EndRow": 192,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 1
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 3
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 7
+                  }
+                ]
+              }
+            ]
           }
         ],
         "Attacks": [
@@ -429,7 +1223,45 @@
         "EditorAttacks": [
           {
             "Row": 0,
-            "Time": 0
+            "Time": 0,
+            "Transport": [
+              {
+                "EndTime": 1,
+                "EndRow": 96,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0.5
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 1
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 2
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 4,
+                    "Length": 4
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8,
+                    "Length": 8
+                  }
+                ]
+              }
+            ]
           }
         ],
         "Attacks": [
@@ -458,11 +1290,87 @@
         "EditorAttacks": [
           {
             "Row": 240,
-            "Time": 2.25
+            "Time": 2.25,
+            "Transport": [
+              {
+                "EndTime": 4.25,
+                "EndRow": 474,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 3,
+                    "Length": 0.75
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8.333333333333332,
+                    "Length": 6.083333333333332
+                  }
+                ]
+              }
+            ]
           },
           {
             "Row": 600,
-            "Time": 6
+            "Time": 6,
+            "Transport": [
+              {
+                "EndTime": 7,
+                "EndRow": 672,
+                "Cursors": [
+                  {
+                    "Row": 0,
+                    "Time": 0,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 48,
+                    "Time": 0.5,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 96,
+                    "Time": 1,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 192,
+                    "Time": 2,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 384,
+                    "Time": 3,
+                    "Length": 0
+                  },
+                  {
+                    "Row": 768,
+                    "Time": 8.333333333333332,
+                    "Length": 2.333333333333332
+                  }
+                ]
+              }
+            ]
           }
         ],
         "Attacks": [

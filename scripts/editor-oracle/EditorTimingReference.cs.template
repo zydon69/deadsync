@@ -44,6 +44,36 @@ internal class EditorEvent(EditorChart chart, Event data) {
     public void SetIsFakeDueToRow(bool fake) => Fake=fake;
     public void SetRowDependencies(double time,short relative,short denominator,bool fake) {Time=time;Data.TimeSeconds=time;Fake=fake;}
 }
+// The attack UI methods below are injected unchanged from the pinned source.
+// These containers expose their temporal inputs and action result only.
+internal class EditorAttackEvent(EditorChart chart, Attack data, double[] lengths) : EditorEvent(chart,data) {
+    public class EditorModifier { public double LengthSeconds {get;set;} }
+    public EditorModifier[] Modifiers=lengths.Select(length=>new EditorModifier{LengthSeconds=length}).ToArray();
+}
+internal interface IAttackAction { void Apply(); }
+internal class ActionSetObjectFieldOrPropertyValue<T>(object target,string property,T value,bool unused) : IAttackAction {
+    public void Apply()=>target.GetType().GetProperty(property)!.SetValue(target,value);
+}
+internal class ActionQueue {
+    public static readonly ActionQueue Instance=new();
+    public void Do(IAttackAction action)=>action.Apply();
+}
+internal class AttackEditor {
+    internal class Position {public double ChartTime;}
+    public Position Current=new();
+    public Position GetPosition()=>Current;
+    public void SetChartTime(double time)=>Current.ChartTime=time;
+}
+internal class AttackTransportReference {
+    private readonly AttackEditor Editor=new();
+    public double Length(EditorAttackEvent attack,EditorAttackEvent.EditorModifier mod,double cursor) {
+        Editor.Current.ChartTime=cursor;SetModLengthFromCurrentTime(attack,mod);return mod.LengthSeconds;
+    }
+    public double End(EditorAttackEvent attack,EditorAttackEvent.EditorModifier mod) {
+        JumpToModEnd(attack,mod);return Editor.Current.ChartTime;
+    }
+    // ATTACK_METHODS
+}
 internal abstract class EditorPreviewRegionEvent(EditorChart chart, Event data) : EditorEvent(chart,data);
 internal class EditorNoteEvent(EditorChart chart,LaneNote data) : EditorEvent(chart,data) {
     public int Lane => data.Lane;
@@ -280,7 +310,7 @@ internal static class Reference {
                 "fake"=>new EditorFakeSegmentEvent(chart,new FakeSegment(item[2].GetInt32())),
                 "scroll"=>new EditorScrollRateEvent(chart,new ScrollRate(item[2].GetDouble())),
                 "label"=>new EditorEvent(chart,new Label("label")),
-                "attack"=>new EditorEvent(chart,new Attack()),
+                "attack"=>new EditorAttackEvent(chart,new Attack(),item.GetArrayLength()>2 ? item[2].EnumerateArray().Select(length=>length.GetDouble()).ToArray() : []),
                 "tick"=>new EditorEvent(chart,new TickCount(4)),
                 "combo"=>new EditorEvent(chart,new Multipliers(1,1)),
                 "speed"=>new EditorEvent(chart,new ScrollRateInterpolation(1,48,0,false)),
@@ -296,8 +326,25 @@ internal static class Reference {
         }
         if(request.TryGetProperty("Region",out var region)) chart.EditorEvents.Add(new EditorPatternEvent(chart,region[0].GetInt32(),region[1].GetInt32()));
         chart.Refresh();
-        if (request.TryGetProperty("AttackTimesOnly", out var attacksOnly) && attacksOnly.GetBoolean())
-            return chart.EditorEvents.Where(e => e.Data is Attack).Select(e => new { Row = e.GetRow(), Time = e.GetChartTime() }).ToArray();
+        if (request.TryGetProperty("AttackTimesOnly", out var attacksOnly) && attacksOnly.GetBoolean()) {
+            var transport=new AttackTransportReference();
+            return chart.EditorEvents.OfType<EditorAttackEvent>().Select(e => new {
+                Row=e.GetRow(),Time=e.GetChartTime(),
+                Transport=e.Modifiers.Select(mod=> {
+                    var length=mod.LengthSeconds;
+                    var end=transport.End(e,mod);
+                    double? endRow=chart.RateAlteringEvents.Count==0 ? null :
+                        (chart.RateAlteringEvents.LastOrDefault(rate=>rate.GetChartTime()<end)
+                        ?? chart.RateAlteringEvents[0]).GetChartPositionFromTime(end);
+                    var cursors=new[]{0,48,96,192,384,768}.Select(row=> {
+                        double time=0;chart.TryGetTimeFromChartPosition(row,ref time);
+                        return new {Row=row,Time=time,Length=transport.Length(e,mod,time)};
+                    }).ToArray();
+                    mod.LengthSeconds=length;
+                    return new {EndTime=end,EndRow=endRow,Cursors=cursors};
+                }).ToArray()
+            }).ToArray();
+        }
         if (request.TryGetProperty("TempoSummary",out var tempoSummary) && tempoSummary.GetBoolean()) return chart.CaptureTempoSummary();
         if (request.TryGetProperty("SpeedOrigins",out var speedOrigins) && speedOrigins.GetBoolean()) {
             return chart.EditorEvents.Where(e=>e.GetEvent() is ScrollRateInterpolation)

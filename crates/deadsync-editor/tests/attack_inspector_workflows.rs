@@ -119,3 +119,61 @@ fn inspector_preserves_empty_modifiers_and_rejects_foreign_stale_invalid_or_coll
     assert!(reopened.apply(&mut foreign, 0).is_err());
     assert!(reopened.apply(&mut session, 1).is_err());
 }
+
+#[test]
+fn attack_endpoints_and_cursor_lengths_match_unchanged_grooveauthor_ui_methods() {
+    let cases: Value = serde_json::from_str(include_str!(
+        "fixtures/grooveauthor/attack-placement.expected.json"
+    ))
+    .unwrap();
+    let mut comparisons = 0;
+    for (case_index, case) in cases.as_array().unwrap().iter().enumerate() {
+        let format = if case["Format"] == "sm" {
+            Format::Sm
+        } else {
+            Format::Ssc
+        };
+        let session = Session::new(
+            Document::parse(case["Content"].as_str().unwrap().as_bytes(), format).unwrap(),
+        );
+        for (chart_index, chart) in case["Charts"].as_array().unwrap().iter().enumerate() {
+            let scope = if format == Format::Sm {
+                Scope::Song
+            } else {
+                Scope::Chart
+            };
+            let draft = Draft::capture(&session, chart_index, scope).unwrap();
+            for (event_index, event) in chart["EditorAttacks"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .enumerate()
+            {
+                for (modifier, transport) in
+                    event["Transport"].as_array().unwrap().iter().enumerate()
+                {
+                    if let Some(row) = transport["EndRow"].as_f64() {
+                        assert_eq!(
+                            draft.end_row(event_index, modifier).unwrap(),
+                            row.max(0.0).round() as u64,
+                            "case {case_index} chart {chart_index} event {event_index} end"
+                        );
+                        comparisons += 1;
+                    }
+                    for cursor in transport["Cursors"].as_array().unwrap() {
+                        let actual = draft
+                            .length_to_cursor(event_index, cursor["Row"].as_u64().unwrap())
+                            .unwrap();
+                        let expected = cursor["Length"].as_f64().unwrap();
+                        assert!(
+                            (actual - expected).abs() <= 1e-12,
+                            "case {case_index} chart {chart_index} event {event_index}: {actual} != {expected}"
+                        );
+                        comparisons += 1;
+                    }
+                }
+            }
+        }
+    }
+    assert_eq!(comparisons, 168);
+}

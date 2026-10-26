@@ -5566,7 +5566,7 @@ foreign/stale draft rejection. The native attack workflow additionally exercises
 the actual F3/F4/F5 keys through a delay and stop. These additions do not yet
 complete the resident event lifecycle independently of file representability,
 implement miscellaneous-event clipboard, or prove full editor parity. Representable
-tempo/offset transactions are addressed in the following increment. Extended original-C# transport comparisons remain pending.
+tempo/offset transactions are addressed in the following increment. The original-C# transport comparison is recorded in the later proof increment.
 
 Validation for this increment: 312 native edition integration tests across 63
 targets, 24 core tests across four targeted suites, and the theme compilation
@@ -5607,3 +5607,27 @@ Four native timing/attack targets passed 61 tests in EN/FR, and the theme check
 passed. Logs: `/tmp/deadsync-anchoring-all-core.log`,
 `/tmp/deadsync-anchoring-final-core.log`, `/tmp/deadsync-anchoring-native.log`,
 `/tmp/deadsync-anchoring-check.log`. This increment has no physical game run claim.
+
+
+### Original attack UI transport proof
+
+The placement oracle now injects and executes the pinned `UIAttackEvent` methods
+`SetModLengthFromCurrentTime` and `JumpToModEnd` unchanged. Minimal property-action
+and editor-position containers expose their inputs/results. End-row conversion
+uses the original rate methods. The loader adapter applies the original tempo,
+warp and fake clamps and the original song starting-tempo fallback before timing
+refresh, matching the constructor's row-zero-tempo insertion. This corrects an
+oracle omission on files without BPM; no Rust runtime behavior was changed here.
+
+The nine SM/SSC placement cases now carry 168 duration-to-cursor/end-position
+comparisons. `attack_inspector_workflows` checks every comparison against the Rust
+inspector, including stop/delay/warp clocks, offsets and absent BPM. The source,
+method and adapter hashes are recorded in `attack-placement-reference.json`.
+The generator replays three existing timing traces unchanged and verifies 14
+historical source-loading traces, omitting only the later-added PlaybackPositions
+field where historical captures lack it. All prior attack-placement fields remain
+unchanged; the transport outputs are additive. Four targeted
+Rust attack suites passed 21 tests. Logs: `/tmp/deadsync-attack-transport-oracle.log`,
+`/tmp/deadsync-attack-transport-parser.log`, `/tmp/deadsync-attack-transport-core.log`.
+This verifies the temporal inspector behavior on this corpus; it does not prove
+full editor parity or implement resident attacks hidden by newly edited warps.

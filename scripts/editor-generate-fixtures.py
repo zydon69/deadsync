@@ -39,7 +39,9 @@ def prepare_timing_reference(editor):
     density = read("EditorActions/ActionAutoGeneratePatterns.cs")
     deletion = read("EditorActions/ActionDeletePatternNotes.cs")
     pattern_event = read("EditorEvents/EditorPatternEvent.cs")
+    attack_ui = read("UI/UIAttackEvent.cs")
     groups = {
+        "ATTACK_METHODS": [extract_member(attack_ui, r"\tprivate void " + name + r"\(") for name in ["SetModLengthFromCurrentTime", "JumpToModEnd"]],
         "CHART_METHODS": [extract_member(chart, r"\tprivate void " + name + r"\(") for name in ["RefreshEventTimingData", "RefreshRateAlteringEvents"]]
             + [extract_member(chart, r"\tpublic double " + name + r"\(") for name in ["GetStartChartTime", "GetEndChartTime"]]
             + [extract_member(chart, r"\tpublic bool TryGetTimeFromChartPosition\(")],

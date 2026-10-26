@@ -32,6 +32,7 @@ def main():
     if args.placement:
         helpers = runpy.run_path(str(ROOT / "scripts/editor-generate-fixtures.py"))
         timing_hash = helpers["prepare_timing_reference"](args.editor_root)
+        source_hash = helpers["prepare_source_timing_reference"](args.editor_root)
     env = dict(os.environ, DOTNET_NOLOGO="1", DOTNET_CLI_TELEMETRY_OPTOUT="1")
     subprocess.run([args.dotnet, "build", str(project / "EditorOracle.csproj"), "-c", "Release", f"-p:ReferenceRoot={reference}", "--ignore-failed-sources"], check=True, env=env)
     fixtures = ROOT / "crates/deadsync-editor/tests/fixtures/grooveauthor"
@@ -40,6 +41,7 @@ def main():
     result = subprocess.check_output([args.dotnet, str(project / "bin/Release/net10.0/EditorOracle.dll"), str(reference), str(request)], env=env)
     cases = json.loads(result)
     regressions = []
+    source_regressions = []
     if args.placement:
         for name in ["editor-timing-baseline", "editor-timing-warp", "editor-timing-negative-stop-delay"]:
             regression_request = fixtures / (name + ".request.json")
@@ -48,6 +50,17 @@ def main():
             if actual != expected:
                 raise SystemExit(f"Existing original timing trace changed: {name}")
             regressions.append(name)
+        for source_request in sorted(fixtures.glob("source-timing*.request.json")):
+            actual = json.loads(subprocess.check_output([args.dotnet, str(project / "bin/Release/net10.0/EditorOracle.dll"), str(reference), str(source_request)], env=env))
+            expected = json.loads(source_request.with_name(source_request.name.replace(".request.", ".expected.")).read_text())
+            # These older captures predate the additive playback-query field.
+            if isinstance(actual, list) and isinstance(expected, list):
+                for current, historical in zip(actual, expected):
+                    if isinstance(current, dict) and "Editor" in current and "Editor" in historical and "PlaybackPositions" not in historical["Editor"]:
+                        current["Editor"].pop("PlaybackPositions", None)
+            if actual != expected:
+                raise SystemExit(f"Existing source timing fields changed: {source_request.name}")
+            source_regressions.append(source_request.stem.removesuffix(".request"))
     (fixtures / (prefix + ".expected.json")).write_text(json.dumps(cases, indent=2, ensure_ascii=False) + "\n")
     source = reference / "Fumen/Fumen/Converters/SMPropertyParsers.cs"
     manifest = {
@@ -62,7 +75,14 @@ def main():
         manifest["Scope"] = "Unmodified Fumen readers/SetAttackRowsAndTimes followed by original GrooveAuthor timing refresh with event-container adapters"
         manifest["GrooveAuthor"] = helpers["EDITOR_PIN"]
         manifest["UnchangedTimingTraces"] = regressions
+        manifest["UnchangedSourceTimingFields"] = source_regressions
+        manifest["SourceTimingComparison"] = "Historical fields exact; additive PlaybackPositions omitted only when absent in historical capture"
         manifest["EditorTimingMethodsSHA256"] = timing_hash
+        manifest["SourceTimingMethodsSHA256"] = source_hash
+        manifest["SourceTimingAdapterSHA256"] = hashlib.sha256((project / "SourceTimingReference.cs.template").read_bytes()).hexdigest()
+        ui_source = subprocess.check_output(["git", "show", f"{helpers['EDITOR_PIN']}:StepManiaEditor/UI/UIAttackEvent.cs"], cwd=args.editor_root)
+        manifest["AttackUiSourceSHA256"] = hashlib.sha256(ui_source).hexdigest()
+        manifest["TransportScope"] = "Unchanged UIAttackEvent duration-to-cursor and jump-to-end methods; property/action/editor-position containers only"
         manifest["EditorTimingAdapterSHA256"] = hashlib.sha256((project / "EditorTimingReference.cs.template").read_bytes()).hexdigest()
         manifest["LoaderSourcesSHA256"] = {
             name: hashlib.sha256((reference / "Fumen/Fumen/Converters" / name).read_bytes()).hexdigest()

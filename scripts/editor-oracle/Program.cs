@@ -34,22 +34,31 @@ if (operation == "AttackPlacement") {
             Fumen.Converters.Reader reader = format == "sm" ? new Fumen.Converters.SMReader(path) : new Fumen.Converters.SSCReader(path);
             var song = await reader.LoadAsync(CancellationToken.None);
             var charts = new List<object>();
+            var owner = new SourceTimingOracle.EditorSong(song);
             foreach (var attackChart in song.Charts) {
                 var timing = new List<object[]>();
                 foreach (var e in attackChart.Layers[0].Events) {
                     object[]? value = e switch {
-                        Tempo t => [e.IntegerPosition, "tempo", t.TempoBPM],
+                        Tempo t => [e.IntegerPosition, "tempo", SourceTimingOracle.Reference.ClampTempo(t)],
                         Stop t => [e.IntegerPosition, t.IsDelay ? "delay" : "stop", t.LengthSeconds],
-                        Warp t => [e.IntegerPosition, "warp", t.LengthIntegerPosition],
-                        FakeSegment t => [e.IntegerPosition, "fake", t.LengthIntegerPosition],
+                        Warp t => [e.IntegerPosition, "warp", SourceTimingOracle.Reference.ClampWarp(t)],
+                        FakeSegment t => [e.IntegerPosition, "fake", SourceTimingOracle.Reference.ClampFake(t)],
                         TimeSignature t => [e.IntegerPosition, "signature", t.Signature.Numerator, t.Signature.Denominator],
                         ScrollRate t => [e.IntegerPosition, "scroll", t.Rate],
                         ScrollRateInterpolation => [e.IntegerPosition, "speed"],
                         TickCount => [e.IntegerPosition, "tick"], Multipliers => [e.IntegerPosition, "combo"],
-                        Label => [e.IntegerPosition, "label"], Attack => [e.IntegerPosition, "attack"], _ => null,
+                        Label => [e.IntegerPosition, "label"], Attack t => [e.IntegerPosition, "attack", t.Modifiers.Select(m => m.LengthSeconds).ToArray()], _ => null,
                     };
                     if (value != null) timing.Add(value);
                 }
+                // Original EditorChart.Load adds the song's best tempo when row zero lacks one.
+                if (!timing.Any(value => (int)value[0] == 0 && (string)value[1] == "tempo"))
+                    timing.Add([0, "tempo", owner.GetBestChartStartingTempo()]);
+                var initialTempo = (double)timing.Single(value => (int)value[0] == 0 && (string)value[1] == "tempo")[2];
+                if (!owner.Charts.TryGetValue(attackChart.Type, out var priorCharts)) {
+                    priorCharts = []; owner.Charts.Add(attackChart.Type, priorCharts);
+                }
+                priorCharts.Add(new SourceTimingOracle.EditorChart(initialTempo));
                 var noteEvents = attackChart.Layers[0].Events.OfType<LaneNote>().ToArray();
                 var editorNotes = new List<object[]>();
                 foreach (var note in noteEvents.Where(note => note is not LaneHoldEndNote)) {
