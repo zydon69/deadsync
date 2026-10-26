@@ -47,7 +47,7 @@ reviewable and tested.
 | Interface | Editor opened from Practice menu or F2; central chart, compact toolbar, optional tools/help, close confirmation | `edition_workflow` tests real native key adapter and generated actors; hardware input, pointer, complete runtime rendering and navigation verification pending |
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; complete visual scroll/speed simulation, broader legacy normalization and conversion remain pending |
-| Attack events | F10 optional keyboard inspector: song/chart scope, multiple modifiers per instant, name/level/speed/duration, insertion/deletion, move time, cursor/end navigation, transactional history | Executed pinned Fumen parser fixtures plus core/native EN/FR workflows; native widgets and maximum-duration overview shipped; resident row anchoring across timing edits, permissive malformed-input normalization and broader file corpus remain pending |
+| Attack events | F10 optional keyboard inspector, widgets/duration overview, song/chart scope, multiple modifiers, temporal shortcuts and history; exact row model survives timing edits and ambiguous warp/negative-stop export through bound editor metadata | Pinned original parser/clock/UI comparisons, save/recovery/structural/undo tests and native EN/FR workflows; miscellaneous-event clipboard, default-duration/empty-event lifecycle, cross-chart shared-event identity, runtime widget/transport verification, permissive normalization and broader file corpus remain pending |
 | Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, advanced waveform preferences, scrub, loop and audio analysis remain pending |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; layout weight addition/inheritance are connected; library undo/deletion and broader runtime parity remain pending |
@@ -74,9 +74,9 @@ model and GrooveAuthor generation are not limited to RSSP's supported layouts.
 ## Commands to reproduce current checks
 
 ```sh
-cargo test -p deadsync-editor --locked
-cargo test -p deadsync-theme-simply-love --test edition_workflow --test edition_batch_workflow --test edition_pattern_set_workflow --test edition_pattern_set_fr_workflow --test edition_timing_workflow --test edition_timing_fr_workflow --test edition_legacy_timing_workflow --locked
-CARGO_INCREMENTAL=0 cargo check -p deadsync --locked
+cargo test -p deadsync-editor --jobs 2 --locked
+cargo test -p deadsync-theme-simply-love --test edition_workflow --test edition_batch_workflow --test edition_pattern_set_workflow --test edition_pattern_set_fr_workflow --test edition_timing_workflow --test edition_timing_fr_workflow --test edition_legacy_timing_workflow --jobs 2 --locked
+CARGO_INCREMENTAL=0 cargo check -p deadsync --jobs 2 --locked
 ```
 
 Tests use synthetic temporary files. Native screen tests deliver synthetic
@@ -5536,9 +5536,10 @@ The `attack-placement*` fixtures record reader/helper pins and hashes. Validatio
 logs use `/tmp/deadsync-attack-placement-{oracle,core,all-native,check}.log`.
 
 Required parity work remains: the editor still derives these placements from its
-working time-based attack records. Full resident attack state for unrepresentable
-file positions, complete miscellaneous-event selection/clipboard and full
-attack-effect playback preview remain unfinished. Representable tempo/offset
+working time-based attack records. At this stage, resident attack state for
+unrepresentable file positions was still pending; the resident-position increment
+below addresses that case. Complete miscellaneous-event selection/clipboard and
+runtime verification of attack widgets and transport remain unfinished. Representable tempo/offset
 transactions are addressed in the anchoring increment below. Inspector transport alignment
 on irregular clocks is addressed in the increment below. This increment does not claim
 complete attack/editor parity or replace that work with the display snapshot.
@@ -5557,7 +5558,8 @@ resident chart time; F3 measures duration from that start to the cursor. File
 seconds are encoded only on Apply. Original file times are preferred when they
 still decode to the desired rows. The transaction verifies every row and modifier
 by reloading its proposed property before changing the working document.
-Unrepresentable warp-interior positions fail atomically. Empty modifier markers
+At this stage, unrepresentable warp-interior positions failed atomically; the
+resident-position increment below supersedes that restriction. Empty modifier markers
 are retained, and unchanged drafts preserve the original bytes.
 
 `attack_inspector_workflows` covers all nine pinned loader-placement fixture cases,
@@ -5588,10 +5590,10 @@ SSC writes local attack properties for charts whose shared/raw attack times woul
 otherwise move; charts whose positions remain correct retain their existing
 properties. SM retains its single shared attack property and checks candidate
 encodings against every affected chart. A representation that cannot preserve all
-rows is rejected atomically. A newly introduced warp hiding an attack is currently
-one such case: full parity still requires persistent resident miscellaneous-event
-state independent of file representability. This implementation does not claim
-that broader lifecycle or full attack-effect preview is complete.
+rows was rejected atomically at this stage. The resident-position increment below
+adds exact editor positions when the standard file clock is ambiguous. Full
+miscellaneous-event selection/clipboard and runtime widget/transport verification remains separate
+parity work.
 
 `attack_anchoring_workflows` covers tempo/song offset/chart offset in SM and SSC,
 local timing detachment with three charts, save/reopen, exact undo/redo, and
@@ -5630,4 +5632,85 @@ unchanged; the transport outputs are additive. Four targeted
 Rust attack suites passed 21 tests. Logs: `/tmp/deadsync-attack-transport-oracle.log`,
 `/tmp/deadsync-attack-transport-parser.log`, `/tmp/deadsync-attack-transport-core.log`.
 This verifies the temporal inspector behavior on this corpus; it does not prove
-full editor parity or implement resident attacks hidden by newly edited warps.
+full editor parity. The following increment implements the hidden-position case.
+
+
+### Exact resident attack positions through ambiguous file clocks
+
+Attacks hidden inside a newly edited warp now retain their distinct editor rows,
+including multiple rows with the same chart time. Navigation, inspector source
+selection, modifier editing, save/reopen, recovery, duplication, deletion and
+undo/redo consume the same resident row model. Removing the warp re-encodes the
+standard attack property and clears the row metadata when the file clock can
+represent the positions exactly. SM also supports resident positions hidden by
+negative stops; the existing typed SM warp-export restriction remains unchanged.
+
+Standard `ATTACKS` values still contain the complete game effects and durations.
+When their time representation cannot recover the exact editor rows, a versioned
+`DSAttackRows` property stores the local row/modifier list (`DSAttackRowsSong`
+for the shared-property inspector) and binds it to the exact
+bytes and scope of its game property, normalized timing events and effective
+music offset. SSC stores both scopes independently per chart so editing shared effects cannot
+erase active local positions; SM uses
+`DSAttackRowsCHARTdddd`, with duplication/deletion reindexing. A changed external
+attack property or timing invalidates that binding instead of resurrecting stale
+effects. Typed timing edits refresh the binding in the same history gesture.
+The modifier multiset is checked as well. Malformed/future schemas and invalid
+rows are rejected before a timing/inspector transaction changes the document or
+clears redo. The metadata is DeadSync-specific: other editors can read the
+standard attack times, but exact restoration of ambiguous rows requires retaining
+and understanding this metadata.
+
+`attack_resident_workflows` covers coincident-time attacks, Unicode modifier
+edits, exact undo/redo, source invalidation, malformed/future/mismatched metadata,
+SM/SSC duplication/deletion ownership, recovery and atomic disk save. Ten core
+resident workflows are complemented by EN/FR native keyboard tests that apply a
+warp, navigate both attacks, edit the second, save/reopen and undo both gestures.
+
+The two new `attack-resident-*.request.json` traces execute unchanged original
+GrooveAuthor timing/UI methods at the resident rows and the actual Fumen reader
+on an annotated exported file. Fourteen endpoint/duration comparisons match the
+original resident clock; the separate file projection matches Fumen's merged
+standard attack event and every modifier value. The same annotated/plain projections
+are also analyzed by DeadSync's existing RSSP dependency: note statistics, chart
+hash and BPM segments must remain identical. Request/expectation hashes are
+recorded in `attack-placement-reference.json`, and regeneration also verifies the
+previous timing and loading traces. These proofs cover this increment, not full
+editor parity or physical gameplay execution.
+
+Shared and local row stores are isolated within each SSC chart. Stable shared-event
+identity and propagation to other charts' already stored shared row maps remain
+separate parity work; this increment does not certify that cross-chart lifecycle.
+
+Version 1 row metadata has `version`, `local`, `source` (exact property bytes),
+`timing` (normalized row/kind events), `offset` (effective music seconds), and
+`events` (unique ordered rows with name/level/speed/duration modifiers). Decoding
+validates the schema and row/modifier values, then the source/timing/offset
+binding, then the modifier multiset. A stale binding falls back to the ordinary
+file property. Valid active data is rewritten only inside a staged transaction;
+cleared row metadata has an empty property value, preserving exact history.
+
+Reference-scope clarification: the pinned `EditorAttackEvent.Draw` delegates to
+`MiscEditorEventAttackWidget`, and modifier notifications invalidate its caption
+width. The inspected sound/active-chart paths contain selection and authoring
+integration; a StepMania modifier-simulation engine has not been established as
+a GrooveAuthor parity requirement. Earlier notes naming “full effect preview”
+are superseded by the concrete widget/transport runtime-verification requirement.
+This clarification does not certify unexamined reference paths or editor parity.
+
+Two existing attack-inspector semantics still need reference alignment:
+`UIEditEvents.CreateAttackEvent` uses one beat (`MaxValidDenominator`, 48 rows)
+for its default modifier duration, while the current Rust helper uses a measure
+(192 rows). `ActionDeleteModFromAttack.DoImplementation` removes the modifier
+without deleting its event; the current Rust last-modifier helper removes the
+event. These confirmed differences require original-default/action fixtures and
+core/native workflow changes before claiming attack-editor parity.
+
+Final resident-position validation: 521 core tests across 99 suites and 316 native
+edition tests across 63 targets passed. The five focused attack suites passed
+31 tests after the scope-isolation and RSSP checks were added. Theme compilation
+check passed. Logs: `/tmp/deadsync-resident-complete-all-core.log`,
+`/tmp/deadsync-resident-complete-targeted.log`,
+`/tmp/deadsync-resident-final-all-native.log`,
+`/tmp/deadsync-resident-final-check.log`, `/tmp/deadsync-resident-oracle.log`.
+Physical keyboard/pad/GPU gameplay has not been executed for this increment.

@@ -72,7 +72,7 @@ fn resident_inspection_and_edits_preserve_reference_rows_through_save_reopen_and
     }
 }
 #[test]
-fn transport_uses_mapped_start_and_rejects_collisions_or_unrepresentable_warp_rows_atomically() {
+fn transport_uses_mapped_start_and_preserves_warp_rows_through_resident_metadata() {
     let bytes=b"#VERSION:0.83;#BPMS:0=120;#DELAYS:4=1;#STOPS:8=1;#ATTACKS:TIME=5.25:LEN=1:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000,0100;";
     let session = Session::new(Document::parse(bytes.as_slice(), Format::Ssc).unwrap());
     let draft = Draft::capture(&session, 0, Scope::Chart).unwrap();
@@ -86,14 +86,30 @@ fn transport_uses_mapped_start_and_rejects_collisions_or_unrepresentable_warp_ro
     let value = draft.attacks().events()[0].modifiers[0].clone();
     draft.set_at_row(0, 0, 240, value.clone()).unwrap();
     let before = session.serialize().unwrap();
-    assert!(draft.apply(&mut session, 0).is_err());
+    assert!(draft.apply(&mut session, 0).unwrap());
+    assert_eq!(
+        Timeline::capture(&session, 0).unwrap().markers()[0].row,
+        240
+    );
+    assert!(Timeline::capture(&session, 0).unwrap().has_resident_rows());
+    let saved = session.serialize().unwrap();
+    let reopened = Session::new(Document::parse(saved.clone(), Format::Ssc).unwrap());
+    assert_eq!(
+        Timeline::capture(&reopened, 0).unwrap().markers()[0].row,
+        240
+    );
+    session.undo().unwrap();
     assert_eq!(session.serialize().unwrap(), before);
+    session.redo().unwrap();
+    assert_eq!(session.serialize().unwrap(), saved);
+    let mut draft = Draft::capture(&session, 0, Scope::Chart).unwrap();
     draft.set_at_row(0, 0, 384, value).unwrap();
     assert!(draft.apply(&mut session, 0).unwrap());
     assert_eq!(
         Timeline::capture(&session, 0).unwrap().markers()[0].row,
         384
     );
+    assert!(!Timeline::capture(&session, 0).unwrap().has_resident_rows());
 }
 #[test]
 fn inspector_preserves_empty_modifiers_and_rejects_foreign_stale_invalid_or_colliding_drafts() {

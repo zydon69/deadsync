@@ -291,3 +291,71 @@ fn switching_charts_rebuilds_widget_scope_and_opens_the_current_charts_attack() 
     assert_eq!(s.workspace().row(), 48);
     assert!(captions(&s).iter().any(|(text, _)| text.contains("Dizzy")));
 }
+
+#[test]
+fn hidden_attacks_remain_navigable_and_editable_after_keyboard_warp_apply_save_and_reopen() {
+    i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source=b"#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=1:LEN=2:MODS=100% Dizzy:TIME=1.5:LEN=3:MODS=50% Drunk;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    press(&mut s, KeyCode::F10);
+    for _ in 0..3 {
+        press(&mut s, KeyCode::Tab);
+    }
+    for _ in 0..2 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    press(&mut s, KeyCode::Delete);
+    press(&mut s, KeyCode::Digit4);
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::Enter);
+    for _ in 0..5 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    press(&mut s, KeyCode::Enter);
+    let hidden = s.workspace().file().session.serialize().unwrap();
+    assert_ne!(hidden, source);
+    let timeline =
+        deadsync_editor::attacks::placement::Timeline::capture(&s.workspace().file().session, 0)
+            .unwrap();
+    assert!(timeline.has_resident_rows());
+    assert_eq!(
+        timeline.markers().iter().map(|m| m.row).collect::<Vec<_>>(),
+        [96, 144]
+    );
+    assert!(!captions(&s).is_empty());
+    ctrl(&mut s, KeyCode::KeyJ);
+    assert_eq!(s.workspace().row(), 96);
+    ctrl(&mut s, KeyCode::KeyJ);
+    assert_eq!(s.workspace().row(), 144);
+    ctrl(&mut s, KeyCode::Enter);
+    assert!(
+        actors(&s)
+            .iter()
+            .any(|actor| matches!(actor,Actor::Text{content,..} if content.contains("Drunk")))
+    );
+    row(&mut s, 4);
+    ctrl(&mut s, KeyCode::KeyA);
+    assert!(s.text_input("Reverse"));
+    row(&mut s, 12);
+    press(&mut s, KeyCode::Enter);
+    ctrl(&mut s, KeyCode::KeyS);
+    let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    let timeline = deadsync_editor::attacks::placement::Timeline::capture(
+        &reopened.workspace().file().session,
+        0,
+    )
+    .unwrap();
+    assert_eq!(timeline.markers()[0].row, 96);
+    assert_eq!(timeline.markers()[1].row, 144);
+    assert_eq!(timeline.markers()[1].modifiers[0].name, "Reverse");
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), hidden);
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+}

@@ -12,6 +12,18 @@
     "editor-timing-warp",
     "editor-timing-negative-stop-delay"
   ],
+  "ResidentTraces": [
+    {
+      "Name": "attack-resident-clock",
+      "RequestSHA256": "8a6e390dd1a27603706f45890182fdb79e4978cb3b0c6d04e6fe1e482eb3f1ca",
+      "ExpectedSHA256": "d263ef45a3f77e79aa781e1effd1e50a0c13d5c8f42598382b375e0fed0f1d0d"
+    },
+    {
+      "Name": "attack-resident-file",
+      "RequestSHA256": "31e0ea43523c7a98461c67eb1a9876de909ba3be45291a2ef55eedea58e5a195",
+      "ExpectedSHA256": "80b4f7384a91ac4048630228c16f3cdf783a10bb93562b8e64c4178723411f52"
+    }
+  ],
   "UnchangedSourceTimingFields": [
     "source-timing-below-min-bpm",
     "source-timing-display-invalid-range",

@@ -344,10 +344,9 @@ impl Session {
         }
         let changes_clock = properties.iter().any(|(_, name, _)| {
             let name = name.to_ascii_uppercase();
-            matches!(
-                name.as_str(),
-                "BPMS" | "STOPS" | "DELAYS" | "WARPS" | "OFFSET" | "TIMESIGNATURES"
-            ) || name.starts_with("GACHARTDATA")
+            crate::timing_edit::TIMING_TAGS.contains(&name.as_str())
+                || name == "DISPLAYBPM"
+                || name.starts_with("GACHARTDATA")
         });
         // Explicit attack replacements already own their positions. Otherwise
         // timing and derived attack file times form a single reversible gesture.
@@ -664,6 +663,11 @@ impl Session {
         } else {
             (None, format!("CHART{index:04}"))
         };
+        if after.raw_property(scope, &format!("DSAttackRows{suffix}")).is_some() {
+            return Err(Error::InvalidEdit(
+                "Resident attack metadata occupies the new chart index".into(),
+            ));
+        }
         for prefix in ["GAChartDataVersion", "GAChartData"] {
             let name = format!("{prefix}{suffix}");
             if after.raw_property(scope, &name).is_some() {
@@ -717,7 +721,7 @@ impl Session {
             ));
         }
         if self.document.format == crate::document::Format::Sm {
-            for prefix in ["GAChartDataVersion", "GAChartData"] {
+            for prefix in ["GAChartDataVersion", "GAChartData", "DSAttackRows"] {
                 let source = format!("{prefix}CHART{chart:04}");
                 let target = format!("{prefix}CHART{index:04}");
                 if after.raw_property(None, &target).is_some() {

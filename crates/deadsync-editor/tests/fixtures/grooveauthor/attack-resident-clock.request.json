@@ -1,0 +1,37 @@
+{
+  "Operation": "EditorTiming",
+  "Timing": [
+    [
+      0,
+      "tempo",
+      120
+    ],
+    [
+      0,
+      "warp",
+      192
+    ],
+    [
+      96,
+      "attack",
+      [
+        2
+      ]
+    ],
+    [
+      144,
+      "attack",
+      [
+        3
+      ]
+    ]
+  ],
+  "Notes": [
+    [
+      0,
+      0,
+      "1"
+    ]
+  ],
+  "AttackTimesOnly": true
+}

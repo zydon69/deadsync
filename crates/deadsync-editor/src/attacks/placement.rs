@@ -12,8 +12,10 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct Marker {
     pub row: u64,
+    /// File-loader snapped time; for resident-only positions, their editor time.
     pub loaded_time: f64,
     pub chart_time: f64,
+    /// Raw record indices, or resident event indices when row metadata is active.
     pub source_indices: Vec<usize>,
     pub modifiers: Vec<Modifier>,
     /// Overview duration is the maximum modifier duration; details remain in the inspector.
@@ -23,6 +25,7 @@ pub struct Marker {
 pub struct Timeline {
     markers: Vec<Marker>,
     regions: crate::region_index::RegionIndex,
+    resident: bool,
 }
 #[derive(Clone, Copy)]
 struct Input {
@@ -42,6 +45,24 @@ impl Timeline {
         Self::capture_scope(session, chart, scope)
     }
     pub fn capture_scope(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
+        Self::capture_internal(session, chart, scope, true)
+    }
+    pub(crate) fn capture_file_scope(
+        session: &Session,
+        chart: usize,
+        scope: Scope,
+    ) -> Result<Self, Error> {
+        Self::capture_internal(session, chart, scope, false)
+    }
+    pub fn has_resident_rows(&self) -> bool {
+        self.resident
+    }
+    fn capture_internal(
+        session: &Session,
+        chart: usize,
+        scope: Scope,
+        use_resident: bool,
+    ) -> Result<Self, Error> {
         let draft = Draft::capture(session, chart, scope)?;
         let attacks = draft.attacks().events();
         let origin = if scope == Scope::Chart && !draft.inherited() {
@@ -49,6 +70,28 @@ impl Timeline {
         } else {
             None
         };
+        if use_resident {
+            let raw = session
+                .document()
+                .raw_property(origin, "ATTACKS")
+                .unwrap_or_default();
+            if let Some(events) = super::resident::read(session, chart, origin.is_some(), raw)? {
+                let markers = events
+                    .into_iter()
+                    .enumerate()
+                    .map(|(index, event)| Marker {
+                        row: event.row,
+                        loaded_time: 0.0,
+                        chart_time: 0.0,
+                        source_indices: vec![index],
+                        modifiers: event.modifiers,
+                        end_time: 0.0,
+                        end_row: event.row as f64,
+                    })
+                    .collect();
+                return Self::from_grouped(session, chart, markers, true);
+            }
+        }
         let source_order = Attacks::parse_source_order(
             session
                 .document()
@@ -68,6 +111,7 @@ impl Timeline {
             return Ok(Self {
                 markers: Vec::new(),
                 regions: Default::default(),
+                resident: false,
             });
         }
         let input = file_inputs(session, chart)?;
@@ -75,6 +119,7 @@ impl Timeline {
             return Ok(Self {
                 markers: Vec::new(),
                 regions: Default::default(),
+                resident: false,
             });
         }
         let offset =
@@ -124,11 +169,22 @@ impl Timeline {
                 grouped.push(marker);
             }
         }
+        Self::from_grouped(session, chart, grouped, false)
+    }
+    fn from_grouped(
+        session: &Session,
+        chart: usize,
+        mut grouped: Vec<Marker>,
+        resident: bool,
+    ) -> Result<Self, Error> {
         let rows: Vec<_> = grouped.iter().map(|marker| marker.row).collect();
         let clock = Clock::capture_with_attacks(session, chart, &rows)?;
         for (marker, (row, time)) in grouped.iter_mut().zip(clock.attack_times()) {
             debug_assert_eq!(marker.row, row);
             marker.chart_time = time;
+            if resident {
+                marker.loaded_time = time;
+            }
         }
         for marker in &mut grouped {
             let duration = marker
@@ -160,6 +216,7 @@ impl Timeline {
         Ok(Self {
             markers: grouped,
             regions,
+            resident,
         })
     }
     pub fn markers(&self) -> &[Marker] {

@@ -103,6 +103,7 @@ pub(crate) fn prepare(document: &Document, chart: usize) -> Result<Vec<u8>, Erro
             for (prefix, spelling) in [
                 ("GACHARTDATAVERSIONCHART", "GAChartDataVersionCHART"),
                 ("GACHARTDATACHART", "GAChartDataCHART"),
+                ("DSATTACKROWSCHART", "DSAttackRowsCHART"),
             ] {
                 let Some(suffix) = tag.name.strip_prefix(prefix) else {
                     continue;

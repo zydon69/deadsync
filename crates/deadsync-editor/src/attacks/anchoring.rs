@@ -1,14 +1,19 @@
 //! Keep resident attack rows stable across timing/property transactions.
-use super::{Attacks, Event, placement::Timeline};
-use crate::{Error, document::Format, history::Session, playback::Clock};
+use super::{placement::Timeline, resident};
+use crate::{Error, document::Format, history::Session, timing_edit::Scope};
 
 pub(crate) fn preserve(before: &Session, after: &mut Session) -> Result<(), Error> {
+    let scope = if after.document().format == Format::Ssc {
+        Scope::Chart
+    } else {
+        Scope::Song
+    };
     let mut charts = Vec::new();
     for (chart, descriptor) in before.document().charts().iter().enumerate() {
-        let has_attacks = [None, Some(chart)].into_iter().any(|scope| {
+        let has_attacks = [None, Some(chart)].into_iter().any(|origin| {
             before
                 .document()
-                .raw_property(scope, "ATTACKS")
+                .raw_property(origin, "ATTACKS")
                 .is_some_and(|raw| !raw.is_empty())
         });
         if !has_attacks {
@@ -23,43 +28,32 @@ pub(crate) fn preserve(before: &Session, after: &mut Session) -> Result<(), Erro
         if original.markers().is_empty() {
             continue;
         }
-        let current = Timeline::capture(after, chart)?;
-        if same(&original, &current) {
-            charts.push((chart, original, None));
-            continue;
-        }
-        let rows: Vec<_> = original.markers().iter().map(|marker| marker.row).collect();
-        let clock = Clock::capture_with_attacks(after, chart, &rows)?;
-        let offset =
-            crate::chart_properties::Draft::capture(after, chart)?.effective_music_offset();
-        let desired: Vec<_> = clock
-            .attack_times()
-            .map(|(row, time)| (row, time - offset, Vec::new()))
-            .collect();
-        let times = super::placement::encode_times(after, chart, &desired)?;
-        let attacks = Attacks {
-            events: original
-                .markers()
-                .iter()
-                .zip(times)
-                .map(|(marker, time)| Event {
-                    time,
-                    modifiers: marker.modifiers.clone(),
-                })
-                .collect(),
+        let current = Timeline::capture_file_scope(after, chart, scope)?;
+        let events = resident::events(&original);
+        let needs_write = !resident::same(&current, &events) || original.has_resident_rows();
+        let bytes = if needs_write {
+            Some(resident::encode(
+                after,
+                chart,
+                &events,
+                &Default::default(),
+            )?)
+        } else {
+            None
         };
-        charts.push((chart, original, Some(attacks.serialize_preserving_empty()?)));
+        charts.push((chart, events, bytes));
     }
     if after.document().format == Format::Ssc {
-        for (chart, _, bytes) in &charts {
+        for (chart, events, bytes) in &charts {
             if let Some(bytes) = bytes {
                 after.set_property_bytes(Some(*chart), "ATTACKS", bytes.clone().into())?;
+                resident::reconcile(after, *chart, scope, events)?;
             }
         }
     } else if charts.iter().any(|(_, _, bytes)| bytes.is_some()) {
-        // SM has a single shared attack list. Search the per-chart encodings for
-        // a representation valid for every resident chart, including note tails.
-        let mut found = None;
+        // Choose a shared encoding valid for the most charts. Any remaining row
+        // ambiguity is retained per chart in editor metadata, without losing effects.
+        let mut best = None;
         for (_, _, bytes) in &charts {
             let Some(bytes) = bytes else {
                 continue;
@@ -69,35 +63,30 @@ pub(crate) fn preserve(before: &Session, after: &mut Session) -> Result<(), Erro
                 Format::Sm,
             )?);
             candidate.set_property_bytes(None, "ATTACKS", bytes.clone().into())?;
-            if charts.iter().all(|(chart, expected, _)| {
-                Timeline::capture(&candidate, *chart).is_ok_and(|actual| same(expected, &actual))
-            }) {
-                found = Some(bytes.clone());
-                break;
+            let score = charts
+                .iter()
+                .filter(|(chart, events, _)| {
+                    Timeline::capture_file_scope(&candidate, *chart, scope)
+                        .is_ok_and(|actual| resident::same(&actual, events))
+                })
+                .count();
+            if best.as_ref().is_none_or(|(_, old)| score > *old) {
+                best = Some((bytes.clone(), score));
             }
         }
-        let bytes = found.ok_or_else(|| {
-            Error::Unsupported(
-                "Shared SM attacks cannot preserve every chart position; convert to SSC".into(),
-            )
-        })?;
-        after.set_property_bytes(None, "ATTACKS", bytes.into())?;
+        if let Some((bytes, _)) = best {
+            after.set_property_bytes(None, "ATTACKS", bytes.into())?;
+        }
+        for (chart, events, _) in &charts {
+            resident::reconcile(after, *chart, scope, events)?;
+        }
     }
-    for (chart, expected, _) in &charts {
-        let actual = Timeline::capture(after, *chart)?;
-        if !same(expected, &actual) {
+    for (chart, events, _) in &charts {
+        if !resident::same(&Timeline::capture(after, *chart)?, events) {
             return Err(Error::InvalidEdit(
-                "Timing change cannot preserve attack positions through save/reload".into(),
+                "Timing change did not preserve resident attack positions".into(),
             ));
         }
     }
     Ok(())
-}
-fn same(expected: &Timeline, actual: &Timeline) -> bool {
-    expected.markers().len() == actual.markers().len()
-        && expected
-            .markers()
-            .iter()
-            .zip(actual.markers())
-            .all(|(left, right)| left.row == right.row && left.modifiers == right.modifiers)
 }

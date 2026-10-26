@@ -1,5 +1,5 @@
 //! Resident row-bound attack editing. File-time normalization happens only on Apply.
-use super::{Attacks, Draft as FileDraft, Event as FileEvent, Modifier, placement::Timeline};
+use super::{Draft as FileDraft, Modifier, placement::Timeline, resident};
 use crate::{Error, document::Document, history::Session, playback::Clock, timing_edit::Scope};
 use std::collections::BTreeMap;
 #[derive(Clone, Debug, PartialEq)]
@@ -67,7 +67,13 @@ impl Draft {
                     marker
                         .source_indices
                         .iter()
-                        .map(|&index| file.attacks().events()[index].time)
+                        .filter_map(|&index| {
+                            if placed.has_resident_rows() {
+                                None
+                            } else {
+                                file.attacks().events().get(index).map(|event| event.time)
+                            }
+                        })
                         .collect(),
                 )
             })
@@ -286,44 +292,26 @@ impl Draft {
         if !self.has_changes() {
             return Ok(false);
         }
-        let desired: Vec<_> = self
+        let events: Vec<_> = self
             .current
             .events
             .iter()
-            .map(|event| {
-                (
-                    event.row,
-                    event.time,
-                    self.hints.get(&event.row).cloned().unwrap_or_default(),
-                )
+            .map(|event| resident::RowEvent {
+                row: event.row,
+                modifiers: event.modifiers.clone(),
             })
             .collect();
-        let times = super::placement::encode_times(&self.snapshot, chart, &desired)?;
-        let current = Attacks {
-            events: self
-                .current
-                .events
-                .iter()
-                .zip(times)
-                .map(|(event, time)| FileEvent {
-                    time,
-                    modifiers: event.modifiers.clone(),
-                })
-                .collect(),
-        };
-        let bytes = current.serialize_preserving_empty()?;
-        // A row hidden in a warp may share a file time with another position.
-        // Require a faithful reload before accepting a file-format transaction.
-        let mut preview = Session::new(self.snapshot.document().clone());
+        let bytes = resident::encode(&self.snapshot, chart, &events, &self.hints)?;
+        let mut preview = Session::new(Document::parse(
+            self.snapshot.serialize()?,
+            self.snapshot.document().format,
+        )?);
         preview.set_property_bytes(
-            if self.scope() == Scope::Chart {
-                Some(chart)
-            } else {
-                None
-            },
+            (self.scope() == Scope::Chart).then_some(chart),
             "ATTACKS",
             bytes.clone().into(),
         )?;
+        resident::reconcile(&mut preview, chart, self.scope(), &events)?;
         let placed = Timeline::capture_scope(&preview, chart, self.scope())?;
         if placed.markers().len() != self.current.events.len()
             || placed
@@ -346,15 +334,16 @@ impl Draft {
                 "An empty chart attack list would restore song attacks",
             ));
         }
-        session.set_property_bytes(
-            if self.scope() == Scope::Chart {
-                Some(chart)
-            } else {
-                None
-            },
-            "ATTACKS",
-            bytes.into(),
-        )
+        let mut properties = vec![(
+            (self.scope() == Scope::Chart).then_some(chart),
+            "ATTACKS".to_owned(),
+            std::sync::Arc::from(bytes),
+        )];
+        let (scope, name) = resident::tag(session.document(), chart, self.scope() == Scope::Chart)?;
+        if let Some(raw) = preview.document().raw_property(scope, &name) {
+            properties.push((scope, name, std::sync::Arc::from(raw)));
+        }
+        session.set_property_bytes_atomic(&properties, "Edit attacks")
     }
 }
 fn invalid(message: &str) -> Error {

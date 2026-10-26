@@ -3,6 +3,7 @@
 pub mod placement;
 pub mod inspector;
 pub(crate) mod anchoring;
+pub(crate) mod resident;
 use crate::{
     Error,
     document::Format,
@@ -10,7 +11,8 @@ use crate::{
     timing_edit::Scope,
 };
 use std::sync::Arc;
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Modifier {
     pub name: String,
     pub level: f64,
@@ -332,7 +334,7 @@ impl Draft {
         )
     }
 }
-/// UIEditEvents.CreateAttackEvent uses one measure at the active rate.
+/// Current default is one measure; the reference uses one beat (see docs/editor).
 pub fn default_length(session: &Session, chart: usize, row: u64) -> Result<f64, Error> {
     let clock = crate::playback::Clock::capture(session, chart)?;
     let rate = clock

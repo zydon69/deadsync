@@ -42,6 +42,7 @@ def main():
     cases = json.loads(result)
     regressions = []
     source_regressions = []
+    resident_traces = []
     if args.placement:
         for name in ["editor-timing-baseline", "editor-timing-warp", "editor-timing-negative-stop-delay"]:
             regression_request = fixtures / (name + ".request.json")
@@ -61,6 +62,12 @@ def main():
             if actual != expected:
                 raise SystemExit(f"Existing source timing fields changed: {source_request.name}")
             source_regressions.append(source_request.stem.removesuffix(".request"))
+        for resident_request in sorted(fixtures.glob("attack-resident*.request.json")):
+            result_bytes = subprocess.check_output([args.dotnet, str(project / "bin/Release/net10.0/EditorOracle.dll"), str(reference), str(resident_request)], env=env)
+            actual = json.loads(result_bytes)
+            expected_path = resident_request.with_name(resident_request.name.replace(".request.", ".expected."))
+            expected_path.write_text(json.dumps(actual, indent=2, ensure_ascii=False) + "\n")
+            resident_traces.append({"Name": resident_request.stem.removesuffix(".request"), "RequestSHA256": hashlib.sha256(resident_request.read_bytes()).hexdigest(), "ExpectedSHA256": hashlib.sha256(expected_path.read_bytes()).hexdigest()})
     (fixtures / (prefix + ".expected.json")).write_text(json.dumps(cases, indent=2, ensure_ascii=False) + "\n")
     source = reference / "Fumen/Fumen/Converters/SMPropertyParsers.cs"
     manifest = {
@@ -75,6 +82,7 @@ def main():
         manifest["Scope"] = "Unmodified Fumen readers/SetAttackRowsAndTimes followed by original GrooveAuthor timing refresh with event-container adapters"
         manifest["GrooveAuthor"] = helpers["EDITOR_PIN"]
         manifest["UnchangedTimingTraces"] = regressions
+        manifest["ResidentTraces"] = resident_traces
         manifest["UnchangedSourceTimingFields"] = source_regressions
         manifest["SourceTimingComparison"] = "Historical fields exact; additive PlaybackPositions omitted only when absent in historical capture"
         manifest["EditorTimingMethodsSHA256"] = timing_hash

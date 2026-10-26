@@ -95,20 +95,31 @@ fn chart_offset_metadata_preserves_attacks_and_undo_in_both_formats() {
 }
 
 #[test]
-fn unrepresentable_warp_change_preserves_document_and_redo_branch() {
+fn warp_change_preserves_hidden_attack_rows_reopens_and_restores_plain_export_when_removed() {
     use deadsync_editor::timing_edit::region::{Draft, Kind};
-    let mut s = session(Format::Ssc);
-    s.set_text(None, "TITLE", "Undo me").unwrap();
-    s.undo().unwrap();
-    let original = s.serialize().unwrap();
-    let redo = s.redo_label().unwrap().to_owned();
-    let mut draft = Draft::capture(&s, 0, Scope::Song).unwrap();
-    draft.set(Kind::Warp, 0, 192).unwrap();
-    assert!(draft.apply(&mut s, 0).is_err());
-    assert_eq!(s.serialize().unwrap(), original);
-    assert_eq!(s.redo_label(), Some(redo.as_str()));
-    s.redo().unwrap();
-    assert_eq!(s.document().text(None, "TITLE").as_deref(), Some("Undo me"));
+    for format in [Format::Ssc] {
+        let mut s = session(format);
+        let original = s.serialize().unwrap();
+        let mut draft = Draft::capture(&s, 0, Scope::Song).unwrap();
+        draft.set(Kind::Warp, 0, 192).unwrap();
+        assert!(draft.apply(&mut s, 0).unwrap());
+        assert_eq!(rows(&s, 0), [96]);
+        assert!(Timeline::capture(&s, 0).unwrap().has_resident_rows());
+        roundtrip(&s, 0, &[96]);
+        let hidden = s.serialize().unwrap();
+        let mut draft = Draft::capture(&s, 0, Scope::Song).unwrap();
+        draft.remove(Kind::Warp, 0).unwrap();
+        draft.apply(&mut s, 0).unwrap();
+        assert_eq!(rows(&s, 0), [96]);
+        assert!(!Timeline::capture(&s, 0).unwrap().has_resident_rows());
+        roundtrip(&s, 0, &[96]);
+        s.undo().unwrap();
+        assert_eq!(s.serialize().unwrap(), hidden);
+        s.undo().unwrap();
+        assert_eq!(s.serialize().unwrap(), original);
+        s.redo().unwrap();
+        assert_eq!(s.serialize().unwrap(), hidden);
+    }
 }
 #[test]
 fn existing_delays_stops_negative_stops_and_warps_preserve_reference_attack_anchors() {

@@ -10,7 +10,7 @@ use crate::{
 };
 use std::sync::Arc;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum EventKind {
     Tempo(f64),
     Delay(f64),
@@ -28,7 +28,8 @@ pub enum EventKind {
     TrailingMarker,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Event {
     pub row: i64,
     pub kind: EventKind,

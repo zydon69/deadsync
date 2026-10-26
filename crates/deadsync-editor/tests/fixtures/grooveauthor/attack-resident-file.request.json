@@ -1,0 +1,9 @@
+{
+  "Operation": "AttackPlacement",
+  "Cases": [
+    {
+      "Format": "ssc",
+      "Content": "#VERSION:0.83;#BPMS:0=120;#WARPS:0=4;#NOTEDATA:;#STEPSTYPE:dance-single;#ATTACKS:TIME=0:LEN=2:MODS=*1 100% Dizzy:TIME=0:LEN=3:MODS=*1 50% Drunk;#NOTES:1000;#DSAttackRows:{\"version\"\\:1,\"local\"\\:true,\"source\"\\:[84,73,77,69,61,48,58,76,69,78,61,50,58,77,79,68,83,61,42,49,32,49,48,48,37,32,68,105,122,122,121,58,84,73,77,69,61,48,58,76,69,78,61,51,58,77,79,68,83,61,42,49,32,53,48,37,32,68,114,117,110,107],\"events\"\\:[{\"row\"\\:96,\"modifiers\"\\:[{\"name\"\\:\"Dizzy\",\"level\"\\:100.0,\"speed\"\\:1.0,\"length\"\\:2.0}]},{\"row\"\\:144,\"modifiers\"\\:[{\"name\"\\:\"Drunk\",\"level\"\\:50.0,\"speed\"\\:1.0,\"length\"\\:3.0}]}],\"timing\"\\:[{\"row\"\\:0,\"kind\"\\:\"TimeSignature\"},{\"row\"\\:0,\"kind\"\\:{\"Tempo\"\\:120.0}},{\"row\"\\:0,\"kind\"\\:{\"Warp\"\\:192}}],\"offset\"\\:0.0};"
+    }
+  ]
+}
