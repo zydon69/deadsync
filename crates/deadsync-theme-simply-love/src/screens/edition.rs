@@ -251,6 +251,9 @@ pub struct State {
     display_tempo_input: Option<(usize, String)>,
     profile_edit: Option<profile_edit::Draft>,
     profile_saved_choices: Option<profile_edit::Choices>,
+    profile_deletion_preferences: std::collections::BTreeMap<u64, profile_edit::PreferenceChange>,
+    profile_preference_revision: u64,
+    profile_preference_serial: u64,
     profile_history: std::collections::BTreeMap<PathBuf, deadsync_editor::generation::profiles::ProfileFile>,
     text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
     text_clipboard_request: Option<clipboard::Request>,
@@ -393,6 +396,9 @@ impl State {
             display_tempo_draft: None,
             display_tempo_input: None,
             profile_edit: None,
+            profile_deletion_preferences: Default::default(),
+            profile_preference_revision: 0,
+            profile_preference_serial: 0,
             profile_history: Default::default(),
             profile_saved_choices: None,
             text_buffer: None,
@@ -731,6 +737,7 @@ impl State {
             },
         ) {
             Ok(profiles) => {
+                self.profile_preferences_changed();
                 self.generation.profiles = profiles;
                 self.generation.performed_name = performed_name;
                 self.generation.expressed_name = expressed_name;
@@ -1112,6 +1119,7 @@ impl State {
                     % TARGET_LAYOUTS.len()
             }
             1 => {
+                self.profile_preferences_changed();
                 self.generation.preset = (self.generation.preset + if forward { 1 } else { 2 }) % 3;
                 self.generation.profiles.performed = None;
                 self.generation.performed_name = None;
@@ -1296,8 +1304,11 @@ impl State {
     }
 
     fn command(&mut self, command: Command) {
+        let before_revision = self.workspace.file().session.revision();
         match self.workspace.execute(command) {
             Ok(()) => {
+                if matches!(command, Command::Recover) { self.profile_deletion_preferences.clear(); }
+                self.restore_profile_preferences(command, before_revision);
                 self.status = match command {
                     Command::Save => i18n::tr("Edition", "Saved"),
                     Command::SaveRecovery => i18n::tr("Edition", "DraftSaved"),

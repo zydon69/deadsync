@@ -6,6 +6,17 @@ use deadsync_editor::generation::{
     profile_controls::{Control, Editor},
     profiles::{Config, Kind, Profile, TravelSpeed},
 };
+#[derive(Clone)]
+pub(super) struct PreferenceSnapshot {
+    profiles: deadsync_editor::generation::job::ProfileOverrides,
+    performed_name: Option<std::sync::Arc<str>>,
+    expressed_name: Option<std::sync::Arc<str>>,
+    revision: u64,
+}
+pub(super) struct PreferenceChange {
+    before: PreferenceSnapshot,
+    after: PreferenceSnapshot,
+}
 #[derive(Default)]
 pub(super) struct Choices {
     pub pattern: Option<Guid>,
@@ -123,6 +134,49 @@ impl State {
             Err(error) => self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error)]),
         }
     }
+    fn profile_preference_snapshot(&self) -> PreferenceSnapshot {
+        PreferenceSnapshot {
+            profiles: self.generation.profiles.clone(),
+            performed_name: self.generation.performed_name.clone(),
+            expressed_name: self.generation.expressed_name.clone(),
+            revision: self.profile_preference_revision,
+        }
+    }
+    pub(super) fn profile_preferences_changed(&mut self) {
+        self.profile_preference_serial += 1;
+        self.profile_preference_revision = self.profile_preference_serial;
+    }
+    pub(super) fn restore_profile_preferences(
+        &mut self,
+        command: super::Command,
+        before_revision: u64,
+    ) {
+        let revision = self.workspace.file().session.revision();
+        if revision == before_revision {
+            return;
+        }
+        let change = match command {
+            super::Command::Undo => self
+                .profile_deletion_preferences
+                .get(&before_revision)
+                .map(|change| (&change.after, &change.before)),
+            super::Command::Redo => self
+                .profile_deletion_preferences
+                .get(&revision)
+                .map(|change| (&change.before, &change.after)),
+            _ => None,
+        };
+        let Some((expected, restore)) = change else {
+            return;
+        };
+        if self.profile_preference_revision != expected.revision {
+            return;
+        }
+        self.generation.profiles = restore.profiles.clone();
+        self.generation.performed_name = restore.performed_name.clone();
+        self.generation.expressed_name = restore.expressed_name.clone();
+        self.profile_preference_revision = restore.revision;
+    }
     fn open_profile_delete(&mut self) {
         let result: Result<(usize, usize), String> = (|| {
             let draft = self
@@ -195,16 +249,29 @@ impl State {
                             &draft.source,
                         )
                         .map_err(profile_error)?;
+                    let before = self.profile_preference_snapshot();
                     self.workspace
                         .delete_profile(&file)
                         .map_err(profile_error)?;
-                    if self.generation.profiles.performed.as_ref() == Some(&draft.source) {
+                    if draft.kind == Kind::Performed
+                        && self.generation.profiles.performed.as_ref() == Some(&draft.source)
+                    {
                         self.generation.profiles.performed = None;
                         self.generation.performed_name = None;
                     }
-                    if self.generation.profiles.expressed.as_ref() == Some(&draft.source) {
+                    if draft.kind == Kind::Expressed
+                        && self.generation.profiles.expressed.as_ref() == Some(&draft.source)
+                    {
                         self.generation.profiles.expressed = None;
                         self.generation.expressed_name = None;
+                    }
+                    if self.generation.profiles != before.profiles {
+                        self.profile_preferences_changed();
+                        let after = self.profile_preference_snapshot();
+                        self.profile_deletion_preferences.insert(
+                            self.workspace.file().session.revision(),
+                            PreferenceChange { before, after },
+                        );
                     }
                     Ok(())
                 })();

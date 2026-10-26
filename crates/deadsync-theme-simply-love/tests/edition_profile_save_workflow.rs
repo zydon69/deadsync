@@ -339,3 +339,193 @@ fn profile_deletion_confirmation_uses_global_history_and_preserves_song_file() {
     assert_eq!(s.workspace().file().session.serialize().unwrap(), repaired);
     assert_eq!(fs::read(path).unwrap(), source);
 }
+
+fn conversion_selection(s: &mut State, custom: bool) {
+    press(s, KeyCode::F3);
+    for _ in 0..5 {
+        press(s, KeyCode::ArrowDown);
+    }
+    press(s, KeyCode::Enter);
+    finish(s);
+    press(s, KeyCode::ArrowDown);
+    if custom {
+        for _ in 0..20 {
+            if has(s, "Original") {
+                break;
+            }
+            press(s, KeyCode::ArrowRight);
+        }
+        assert!(has(s, "Original"));
+    } else {
+        press(s, KeyCode::ArrowRight);
+    }
+    press(s, KeyCode::ArrowDown);
+    press(s, KeyCode::Enter);
+    press(s, KeyCode::Escape);
+}
+fn expression_summary(s: &mut State) -> String {
+    press(s, KeyCode::F3);
+    let template = i18n::tr("Edition", "GenerationExpressionSummary");
+    let prefix = template.split('{').next().unwrap();
+    let summary = texts(s)
+        .into_iter()
+        .find(|text| text.starts_with(prefix))
+        .unwrap();
+    press(s, KeyCode::Escape);
+    summary
+}
+fn delete_original(s: &mut State) {
+    open(s);
+    press(s, KeyCode::F9);
+    press(s, KeyCode::ArrowDown);
+    press(s, KeyCode::Enter);
+}
+#[test]
+fn deleting_selected_conversion_profile_restores_its_selection_on_global_undo_and_redo() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let profiles = dir.path().join("profiles");
+    let (mut s, file, source) = custom(&path, &profiles);
+    conversion_selection(&mut s, true);
+    assert!(expression_summary(&mut s).contains("Original"));
+    delete_original(&mut s);
+    assert!(!file.exists());
+    let fallback = expression_summary(&mut s);
+    assert!(!fallback.contains("Original"));
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert!(file.exists());
+    assert!(expression_summary(&mut s).contains("Original"));
+    ctrl(&mut s, KeyCode::KeyY);
+    assert!(!file.exists());
+    assert_eq!(expression_summary(&mut s), fallback);
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert!(expression_summary(&mut s).contains("Original"));
+    assert_eq!(fs::read(path).unwrap(), source);
+}
+#[test]
+fn a_later_explicit_conversion_choice_is_not_overwritten_by_deletion_undo() {
+    init();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let profiles = dir.path().join("profiles");
+    let (mut s, file, _) = custom(&path, &profiles);
+    conversion_selection(&mut s, true);
+    delete_original(&mut s);
+    conversion_selection(&mut s, false);
+    let chosen = expression_summary(&mut s);
+    assert!(!chosen.contains("Original"));
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert!(file.exists());
+    assert_eq!(expression_summary(&mut s), chosen);
+    ctrl(&mut s, KeyCode::KeyY);
+    assert!(!file.exists());
+    assert_eq!(expression_summary(&mut s), chosen);
+}
+
+#[test]
+fn equal_guids_in_different_profile_families_restore_only_the_deleted_family() {
+    use deadsync_editor::generation::profiles::{Kind, Profile};
+    for delete_movement in [false, true] {
+        init();
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("song.ssc");
+        let profiles = dir.path().join("profiles");
+        let (mut s, expression_file, source) = custom(&path, &profiles);
+        let movement_json = serde_json::json!({
+            "Guid": "12345678-9abc-4def-8123-456789abcdef", "Name": "Movement",
+            "Config": deadsync_editor::generation::profiles::Config::editor_defaults(Kind::Performed).json().unwrap()
+        });
+        let movement = Profile::parse(
+            Kind::Performed,
+            &serde_json::to_vec(&movement_json).unwrap(),
+        )
+        .unwrap();
+        let movement_file = movement.export_new(&profiles).unwrap().path().to_owned();
+        press(&mut s, KeyCode::F3);
+        for _ in 0..5 {
+            press(&mut s, KeyCode::ArrowDown);
+        }
+        press(&mut s, KeyCode::Enter);
+        finish(&mut s);
+        for _ in 0..20 {
+            if has(&s, "Movement") {
+                break;
+            }
+            press(&mut s, KeyCode::ArrowRight);
+        }
+        assert!(has(&s, "Movement"));
+        press(&mut s, KeyCode::ArrowDown);
+        for _ in 0..20 {
+            if has(&s, "Original") {
+                break;
+            }
+            press(&mut s, KeyCode::ArrowRight);
+        }
+        assert!(has(&s, "Original"));
+        press(&mut s, KeyCode::ArrowDown);
+        press(&mut s, KeyCode::Enter);
+        press(&mut s, KeyCode::Escape);
+        if delete_movement {
+            press(&mut s, KeyCode::F3);
+            for _ in 0..5 {
+                press(&mut s, KeyCode::ArrowDown);
+            }
+            press(&mut s, KeyCode::Enter);
+            finish(&mut s);
+            press(&mut s, KeyCode::KeyE);
+            press(&mut s, KeyCode::F9);
+            press(&mut s, KeyCode::ArrowDown);
+            press(&mut s, KeyCode::Enter);
+        } else {
+            delete_original(&mut s);
+        }
+        assert_eq!(movement_file.exists(), !delete_movement);
+        assert_eq!(expression_file.exists(), delete_movement);
+        press(&mut s, KeyCode::F3);
+        assert_eq!(has(&s, "Movement"), !delete_movement);
+        assert_eq!(has(&s, "Original"), delete_movement);
+        press(&mut s, KeyCode::Escape);
+        ctrl(&mut s, KeyCode::KeyZ);
+        press(&mut s, KeyCode::F3);
+        assert!(has(&s, "Movement"));
+        assert!(has(&s, "Original"));
+        press(&mut s, KeyCode::Escape);
+        ctrl(&mut s, KeyCode::KeyY);
+        press(&mut s, KeyCode::F3);
+        assert_eq!(has(&s, "Movement"), !delete_movement);
+        assert_eq!(has(&s, "Original"), delete_movement);
+        press(&mut s, KeyCode::Escape);
+        if delete_movement {
+            delete_original(&mut s);
+            assert!(!movement_file.exists());
+            assert!(!expression_file.exists());
+            ctrl(&mut s, KeyCode::KeyZ);
+            assert!(expression_summary(&mut s).contains("Original"));
+            assert!(!movement_file.exists());
+            ctrl(&mut s, KeyCode::KeyZ);
+            press(&mut s, KeyCode::F3);
+            assert!(has(&s, "Movement"));
+            assert!(has(&s, "Original"));
+            press(&mut s, KeyCode::Escape);
+            ctrl(&mut s, KeyCode::KeyY);
+            assert!(!movement_file.exists());
+            assert!(expression_file.exists());
+            ctrl(&mut s, KeyCode::KeyY);
+            assert!(!movement_file.exists());
+            assert!(!expression_file.exists());
+            ctrl(&mut s, KeyCode::KeyZ);
+            press(&mut s, KeyCode::F3);
+            press(&mut s, KeyCode::ArrowDown);
+            press(&mut s, KeyCode::ArrowRight);
+            press(&mut s, KeyCode::Escape);
+            ctrl(&mut s, KeyCode::KeyZ);
+            assert!(movement_file.exists());
+            press(&mut s, KeyCode::F3);
+            assert!(!has(&s, "Movement"));
+            assert!(has(&s, "Original"));
+            press(&mut s, KeyCode::Escape);
+        }
+        assert_eq!(fs::read(path).unwrap(), source);
+    }
+}

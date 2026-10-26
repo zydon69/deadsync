@@ -4957,3 +4957,32 @@ passes 11 tests including the additional redo-conflict case in
 `/tmp/deadsync-profile-global-final.log` (27 distinct core tests). Theme compilation
 check passed in `/tmp/deadsync-profile-global-check.log`. All commands used
 `--jobs 2 --locked`.
+
+### Restore temporary conversion selections with deletion history
+
+Native deletion history now also retains the selected conversion-profile GUIDs
+and display names before/after clearing a deleted profile. Successful global
+Undo/Redo restores these alongside the matching disk/song history transition.
+Explicitly staging another conversion choice advances a separate selection
+revision; an older deletion cannot overwrite that later choice. Undo restores
+selection revision ancestry, so sequential deletions can unwind in order without
+confusing a later explicit user selection with a history restoration. Recovery
+clears old deletion-selection records to avoid collisions with a new Session's
+revision IDs. Unrelated profile fields remain selected.
+
+Deleting one profile family now compares both kind and GUID before clearing a
+conversion override. Equal GUIDs in movement and interpretation profiles must not
+clear both families. English/French native tests cover selection/name restoration,
+repeated undo/redo, protection of later explicit choices, and unchanged source-song
+bytes. An additional English workflow exercises equal GUIDs across both families,
+unreferenced movement deletion, and sequential deletion undo/redo. This closes the
+transient-selection limitation recorded in the previous section.
+Choosing a movement preset also advances the selection revision, protecting that
+explicit choice from an older movement-profile deletion undo. The sequential
+same-GUID test covers that case after unwinding a second deletion.
+
+Validation: four selected native profile suites passed all 18 tests in
+`/tmp/deadsync-profile-preference-native.log`, including English/French selection
+restoration and later-choice protection. The theme compilation check passed in
+`/tmp/deadsync-profile-preference-check.log`. Commands used `--jobs 2 --locked`.
+This turn reran these targeted suites, not the entire native integration suite.
