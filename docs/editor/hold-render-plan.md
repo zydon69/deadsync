@@ -1,9 +1,12 @@
 # Main-chart hold/roll renderer increment
 
-Status: isolated helpers and their 20 Rust tests passed central execution; no new
-imports or runtime render calls yet.
-The current runtime receptors workflow passed its five native tests. The hold
-renderer described here is a later increment, not covered by those results.
+Status: isolated helpers passed their 20 Rust tests. After checkpoint
+`ca653d717`, the main renderer bridge was applied and another 16 native tests
+passed central execution: families (2), renderer (3), State holds (3), viewport (3) and
+receptors (5). Another 28 view/focus regressions passed: deletion (3), focus
+(8), view switching (10), multi-view rendering (4), and layout (3). The 21
+renderer unit tests also passed, including shared output-budget checks. These
+checks do not demonstrate physical GPU output or audio/input behavior.
 
 ## Source contracts
 
@@ -76,11 +79,11 @@ executing the unchanged original methods. The Rust comparisons remained intact.
 `hold_render.rs` now emits real original-atlas Sprite actors in body/start/cap/head
 order, including cropped tiles, selected rims, independent fill colors, reverse
 UVs and PIU unflipped arrow caps. `hold_palette.rs` resolves source default
-Dance/SMX and lane/row-based PIU colors. No runtime calls are connected yet.
+Dance/SMX and lane/row-based PIU colors. The focused/inactive note passes now share this renderer.
 
 ## Next integration boundary
 
-A temporary unapplied patch shares the renderer between focused/inactive note
+The applied bridge shares the renderer between focused/inactive note
 passes, preserves each view's selection and participant, and uses the existing
 active/cutoff policy. Its body-strip budget is divided with the existing note
 budget and accumulated across ranges; partial results use the existing visible
@@ -92,7 +95,29 @@ before Draw: tail Y plus capHeight×scale×scrollSign, using half that extent fo
 centered PIU caps (`GetHoldCapHeight`, line 855). The bridge preserves this; a
 simple tailY−headTop would place the cap too early.
 
-Prepared `edition_hold_runtime_workflow` has three State paths for Dance/Couple,
-Routine owners/selection, Solo reverse and PIU. It must run only after applying
-the shared bridge. Shared NoteColor/Options preferences will be injected through
+Validated `edition_hold_runtime_workflow` has three State paths for Dance/Couple,
+Routine owners/selection, Solo reverse and PIU. The selection scenario uses the
+real native Space→Down gesture and asserts its range before checking the original
+selected rim. Couple with multiple streams keeps the source Double palette;
+Routine P1 alone still uses its owner palette, independently of Grid.players().
+The 2 family dispatch and 3 viewport tests prove these source differences and
+compact clipping at top/bottom/left/right, including Pump90 and Solo reverse.
+Sprite crops map world edges back to their rotated local axes while preserving
+the original tile UVs; source geometry oracle cases remain unchanged. Shared NoteColor/Options preferences will be injected through
 media's single core DTO; no second color storage is introduced.
+
+## Selected-player indicator prepared separately
+
+`player_indicator.rs` ports `Editor.DrawPlayerIndicator` (Editor.cs:2833–2876):
+only the focused multiplayer chart, one marker for the selected editing player,
+at the receptor line immediately right of the lanes. Original 40×40 atlas
+fill/rim rectangles and raw XNA player color are used, with native field scale.
+The chart-family gate follows `DefaultNumPlayers > 1`, including Couple and
+Routine independently of currently populated streams. It does not add a badge
+on each note or change the source family palettes.
+
+`edition_player_indicator` has two isolated actor tests prepared; these have not
+yet been run. There is no State hook for this module yet. Earlier owner-colored
+placeholder holds provided a native visual distinction for Couple streams;
+source Couple graphics use the ordinary Double palette, so this distinction is
+not claimed as preserved by a nonexistent source per-note marker.

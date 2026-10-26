@@ -6,7 +6,7 @@ mod atlas;
 pub mod geometry;
 #[path = "hold_graphics.rs"]
 pub mod graphics;
-use deadlib_present::actors::Actor;
+use deadlib_present::actors::{Actor, SizeSpec};
 #[derive(Clone, Copy, Debug)]
 pub struct Colors {
     pub head: [u8; 4],
@@ -27,6 +27,7 @@ pub struct Request<'a> {
 pub struct Output {
     pub actors: Vec<Actor>,
     pub partial: bool,
+    pub body_strips: usize,
 }
 #[derive(Clone, Copy)]
 struct Destination {
@@ -81,6 +82,7 @@ pub fn render(request: Request<'_>) -> Result<Output, &'static str> {
         return Ok(Output {
             actors: Vec::new(),
             partial: false,
+            body_strips: 0,
         });
     }
     let g = request.graphic;
@@ -194,5 +196,161 @@ pub fn render(request: Request<'_>) -> Result<Output, &'static str> {
     Ok(Output {
         actors,
         partial: p.partial,
+        body_strips: p.body.len(),
     })
+}
+
+#[path = "hold_palette.rs"]
+mod palette;
+/// Native projection boundary: note centers become the original extended H.
+pub struct ChartRequest<'a> {
+    pub layout: &'a str,
+    pub row: u64,
+    pub lane: u16,
+    pub player: usize,
+    pub selected: bool,
+    pub roll: bool,
+    pub active: bool,
+    pub center_x: f32,
+    pub head_center: f64,
+    pub tail_center: f64,
+    pub width: f32,
+    pub reverse: bool,
+    pub viewport: [f32; 4],
+    pub cutoff: Option<f64>,
+    pub size_zoom: f64,
+    pub body_budget: usize,
+}
+pub fn chart_render(r: ChartRequest<'_>) -> Result<Output, &'static str> {
+    let [left, top, right, bottom] = r.viewport;
+    if !r.viewport.iter().all(|n| n.is_finite()) || right <= left || bottom <= top {
+        return Err("Invalid hold viewport");
+    }
+    let top = f64::from(top);
+    let graphic = graphics::graphic(r.layout, r.lane, r.selected, r.roll)?;
+    let height = |id: &str| {
+        atlas::rect(id)
+            .map(|r| r[3])
+            .ok_or("Unknown original hold texture")
+    };
+    let arrow_height = height(&graphic.head_rim)?;
+    let body_height = height(&graphic.body_rim)?;
+    let cap_height = height(&graphic.cap_rim)?;
+    let start_height = match &graphic.start_rim {
+        Some(id) => height(id)?,
+        None => 0,
+    };
+    let scale = f64::from(r.width) / 128.0;
+    let head_top = r.head_center - top - f64::from(arrow_height) * scale * 0.5;
+    let cap_extent = f64::from(cap_height) * scale * if graphic.cap_centered { 0.5 } else { 1.0 };
+    let height = r.tail_center - top + cap_extent * if r.reverse { -1.0 } else { 1.0 } - head_top;
+    let fills = palette::palette(
+        r.layout,
+        r.row,
+        r.lane,
+        r.player,
+        r.selected,
+        r.roll,
+        r.active,
+        palette::Options {
+            multiplayer: matches!(r.layout, "dance-routine" | "pump-routine" | "smx-team"),
+            ..Default::default()
+        },
+    )?;
+    let mut output = render(Request {
+        graphic: &graphic,
+        geometry: geometry::Input {
+            head_top,
+            height,
+            scale,
+            arrow_height,
+            body_height,
+            cap_height,
+            start_height,
+            cap_centered: graphic.cap_centered,
+            reverse: r.reverse,
+            screen_height: f64::from(bottom) - top,
+            cutoff: r.cutoff.map(|y| y - top),
+        },
+        center_x: r.center_x,
+        width: r.width,
+        colors: Colors {
+            head: fills.head,
+            start: fills.start,
+            body: fills.body,
+            cap: fills.cap,
+        },
+        alpha: deadsync_editor::receptors::alpha(r.size_zoom)
+            .map_err(|_| "Invalid hold size alpha")?,
+        body_budget: r.body_budget,
+    })?;
+    for actor in &mut output.actors {
+        clip_to_viewport(actor, r.viewport)?;
+    }
+    output
+        .actors
+        .retain(|a| matches!(a, Actor::Sprite { visible: true, .. }));
+    Ok(output)
+}
+fn clip_to_viewport(
+    actor: &mut Actor,
+    [left, top, right, bottom]: [f32; 4],
+) -> Result<(), &'static str> {
+    let Actor::Sprite {
+        offset,
+        size,
+        rot_z_deg,
+        cropleft,
+        cropright,
+        croptop,
+        cropbottom,
+        visible,
+        ..
+    } = actor
+    else {
+        return Err("Unexpected non-sprite hold actor");
+    };
+    offset[1] += top;
+    let width = match size[0] {
+        SizeSpec::Px(n) => n,
+        _ => return Err("Hold sprite width is not explicit"),
+    };
+    let height = match size[1] {
+        SizeSpec::Px(n) => n,
+        _ => return Err("Hold sprite height is not explicit"),
+    };
+    if width <= 0.0 || height <= 0.0 {
+        *visible = false;
+        return Ok(());
+    }
+    let rotation = rot_z_deg.rem_euclid(360.0);
+    let (w, h) = if rotation == 90.0 || rotation == 270.0 {
+        (height, width)
+    } else {
+        (width, height)
+    };
+    let x0 = offset[0] - w * 0.5;
+    let x1 = offset[0] + w * 0.5;
+    let y0 = offset[1] - h * 0.5;
+    let y1 = offset[1] + h * 0.5;
+    if x1 <= left || x0 >= right || y1 <= top || y0 >= bottom {
+        *visible = false;
+        return Ok(());
+    }
+    let l = ((left - x0) / w).clamp(0.0, 1.0);
+    let r = ((x1 - right) / w).clamp(0.0, 1.0);
+    let t = ((top - y0) / h).clamp(0.0, 1.0);
+    let b = ((y1 - bottom) / h).clamp(0.0, 1.0);
+    let [cl, cr, ct, cb] = match rotation {
+        0.0 => [l, r, t, b],
+        90.0 => [t, b, r, l],
+        180.0 => [r, l, b, t],
+        270.0 => [b, t, l, r],
+        _ => return Err("Noncardinal hold sprite rotation"),
+    };
+    *cropleft = cl;
+    *cropright = cr;
+    *croptop = ct;
+    *cropbottom = cb;
+    Ok(())
 }

@@ -29,6 +29,7 @@ mod view_render;
 mod view_render_screen;
 mod receptor_render;
 mod receptor_views;
+mod hold_render;
 mod help;
 pub mod decoder_transport;
 mod attacks;
@@ -2673,7 +2674,9 @@ impl State {
             &self.workspace.file().session.document().charts()[self.workspace.chart()].steps_type
         });
         let policy = self.receptor_policy(geometry.source);
-        let stats = view_render::notes(actors, grid, layout, &projection, geometry, viewport, &ranges, self.zoom.size_zoom() as f32, self.view_note_budget(), policy.as_ref());
+        let padding = lane_width * self.zoom.size_zoom() as f32;
+        let note_ranges = projection.visible_ranges(top-padding,bottom+padding,last_row).unwrap_or_else(|_|ranges.clone());
+        let stats = view_render::notes(actors, grid, layout, &projection, geometry, viewport, &note_ranges, self.zoom.size_zoom() as f32, self.view_note_budget(), policy.as_ref(), self.reverse_display, selection);
         view_render::cursor(actors, geometry, viewport);
         view_render::partial_notice(actors, geometry, viewport, stats);
         self.end_hint_actors(actors, &projection, geometry, viewport);

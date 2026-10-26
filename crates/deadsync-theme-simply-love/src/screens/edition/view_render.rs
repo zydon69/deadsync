@@ -259,6 +259,8 @@ pub(super) fn notes(
     size_zoom: f32,
     note_limit: usize,
     policy: Option<&super::receptor_views::Policy<'_>>,
+    reverse: bool,
+    selection: Option<(u64,u64)>,
 ) -> NoteRenderStats {
     let mut stats = NoteRenderStats::default();
     if note_limit == 0 {
@@ -271,6 +273,7 @@ pub(super) fn notes(
     let bins_per_range = (bins / ranges.len().max(1)).max(1);
     let mut shown = BTreeSet::new();
     let mut queried = 0usize;
+    let mut hold_strips_remaining = note_limit;
     let mut tree_queries = 0usize;
     let tree_limit = note_limit.saturating_mul(4);
     stats.partial = ranges.len() > bins;
@@ -307,22 +310,29 @@ pub(super) fn notes(
             let Some(y) = projection.note_y(position.row) else {
                 continue;
             };
-            let y = if presentation.is_some_and(|presentation| presentation.clip_hold) {
-                viewport.cursor
-            } else {
-                y as f32
-            };
-            let color = player_color(position.player);
             if let Some(tail) = note.end {
-                let a = y.clamp(viewport.top, viewport.bottom);
-                let Some(tail_y) = projection.note_y(tail) else {
-                    continue;
-                };
-                let b = (tail_y as f32).clamp(viewport.top, viewport.bottom);
-                if a != b {
-                    actors.push(act!(quad: xy(x,(a+b)*0.5): zoomto(geometry.lane_width*0.3*size_zoom,(b-a).abs()): diffuse(color[0],color[1],color[2],0.65): z(8003)));
+                let Some(tail_y) = projection.note_y(tail) else { continue; };
+                let selected = selection.is_some_and(|(a,b)|a<=position.row&&position.row<=b);
+                match super::hold_render::chart_render(super::hold_render::ChartRequest {
+                    layout,row:position.row,lane:position.lane,player:position.player as usize,
+                    selected,roll:note.kind==Kind::Roll,
+                    active:presentation.is_some_and(|p|p.active_hold),
+                    center_x:x,head_center:y,tail_center:tail_y,width:geometry.lane_width*size_zoom,
+                    reverse,viewport:[geometry.clip_left,viewport.top,geometry.clip_right,viewport.bottom],
+                    cutoff:presentation.filter(|p|p.clip_hold).map(|_|f64::from(viewport.cursor)),
+                    size_zoom:f64::from(size_zoom),body_budget:hold_strips_remaining,
+                }) {
+                    Ok(output)=>{
+                        hold_strips_remaining=hold_strips_remaining.saturating_sub(output.body_strips);
+                        stats.partial|=output.partial;
+                        actors.extend(output.actors);
+                    }
+                    Err(_)=>{stats.partial=true;}
                 }
+                continue;
             }
+            let y = y as f32;
+            let color = player_color(position.player);
             if y < viewport.top || y > viewport.bottom {
                 continue;
             }
@@ -513,6 +523,8 @@ mod tests {
             ranges,
             1.0,
             limit,
+            None,
+            false,
             None,
         )
     }

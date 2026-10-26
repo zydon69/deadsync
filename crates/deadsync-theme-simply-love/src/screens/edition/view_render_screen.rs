@@ -134,6 +134,8 @@ impl State {
                     ((viewport.bottom - viewport.top).ceil() as usize).clamp(1, 4096),
                 );
                 let policy = self.receptor_policy(geometry.source);
+                let padding = geometry.lane_width * self.zoom.size_zoom() as f32;
+                let note_ranges = projection.visible_ranges(viewport.top-padding, viewport.bottom+padding,last_row)?;
                 let stats = view_render::notes(
                     actors,
                     grid,
@@ -141,10 +143,12 @@ impl State {
                     &projection,
                     geometry,
                     viewport,
-                    &ranges,
+                    &note_ranges,
                     self.zoom.size_zoom() as f32,
                     budget,
                     policy.as_ref(),
+                    self.reverse_display,
+                    self.active_views.as_ref().and_then(|views|views.entries().iter().find(|view|view.source_index()==geometry.source)).and_then(|view|view.selection()),
                 );
                 view_render::cursor(actors, geometry, viewport);
                 view_render::partial_notice(actors, geometry, viewport, stats);

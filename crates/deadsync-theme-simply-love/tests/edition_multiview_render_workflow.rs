@@ -1,7 +1,7 @@
 // Actor geometry uses production keys and Session grids. It does not claim GPU QA.
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
-    actors::Actor,
+    actors::{Actor, SpriteSource},
     space::{Metrics, set_current_metrics},
 };
 use deadsync_editor::{
@@ -62,17 +62,35 @@ struct Glyph {
     y: f32,
     color: [f32; 4],
     z: i16,
+    atlas: bool,
+    uv: Option<[f32; 4]>,
+    crop_top: f32,
 }
 fn glyphs(state: &State) -> Vec<Glyph> {
     fn visit(actor: &Actor, out: &mut Vec<Glyph>) {
         match actor {
             Actor::Sprite {
-                offset, tint, z, ..
+                offset,
+                tint,
+                z,
+                source,
+                uv_rect,
+                croptop,
+                ..
             } if *z == 8004 || *z == 8003 => out.push(Glyph {
                 x: offset[0],
                 y: offset[1],
                 color: *tint,
                 z: *z,
+                atlas: match source {
+                    SpriteSource::TextureStatic(k) => k.ends_with("editor-grooveauthor/atlas.png"),
+                    SpriteSource::Texture(k) | SpriteSource::TextureHandle { key: k, .. } => {
+                        k.ends_with("editor-grooveauthor/atlas.png")
+                    }
+                    _ => false,
+                },
+                uv: *uv_rect,
+                crop_top: *croptop,
             }),
             Actor::Frame { children, .. } => {
                 for child in children {
@@ -98,6 +116,24 @@ fn has(glyphs: &[Glyph], x: f32, y: f32, z: i16) -> bool {
         .iter()
         .any(|glyph| near(glyph.x, x) && near(glyph.y, y) && glyph.z == z)
 }
+fn part(g: &Glyph, [x, y, w, h]: [u32; 4]) -> bool {
+    let Some(uv) = g.uv else {
+        return false;
+    };
+    g.atlas
+        && uv[0] >= x as f32 / 1280.0 - 1e-6
+        && uv[2] <= (x + w) as f32 / 1280.0 + 1e-6
+        && uv[1] >= y as f32 / 1280.0 - 1e-6
+        && uv[3] <= (y + h) as f32 / 1280.0 + 1e-6
+}
+fn atlas_at(glyphs: &[Glyph], x: f32, y: f32, rect: [u32; 4]) -> bool {
+    glyphs
+        .iter()
+        .any(|g| near(g.x, x) && near(g.y, y) && g.z == 8004 && part(g, rect))
+}
+const BODY: [u32; 4] = [1, 457, 128, 128];
+const HEAD: [u32; 4] = [589, 1, 128, 128];
+const CAP: [u32; 4] = [1, 1051, 128, 65];
 #[test]
 fn inactive_and_focused_notes_use_distinct_live_chart_clocks_at_the_same_musical_instant() {
     let _guard = SERIAL.lock().unwrap();
@@ -115,8 +151,18 @@ fn inactive_and_focused_notes_use_distinct_live_chart_clocks_at_the_same_musical
         has(&row, 715.0, 112.0, 8004),
         "inactive Single head {row:?}"
     );
-    assert!(has(&row, 451.0, 172.0, 8003));
-    assert!(has(&row, 715.0, 160.0, 8003));
+    // The source tiles each body upward from its own tail; cap begins at the
+    // tail row and extends65×(48/128)=24.375px beyond it.
+    assert!(atlas_at(&row, 451.0, 124.0, HEAD));
+    assert!(atlas_at(&row, 715.0, 112.0, HEAD));
+    for y in [148.0, 196.0] {
+        assert!(atlas_at(&row, 451.0, y, BODY), "Double body {row:?}");
+    }
+    for y in [136.0, 184.0] {
+        assert!(atlas_at(&row, 715.0, y, BODY), "Single body {row:?}");
+    }
+    assert!(atlas_at(&row, 451.0, 232.1875, CAP));
+    assert!(atlas_at(&row, 715.0, 220.1875, CAP));
     for variable in [false, true] {
         control(&mut state, KeyCode::KeyT, variable);
         let values = glyphs(&state);
@@ -159,8 +205,65 @@ fn couple_and_routine_inactive_views_show_both_participants_and_crossing_sustain
             .iter()
             .find(|glyph| near(glyph.x, 91.0) && near(glyph.y, 112.0) && glyph.z == 8004)
             .unwrap_or_else(|| panic!("missing inactive P2 {layout}: {values:?}"));
-        assert_ne!(p1.color, p2.color);
-        assert!(has(&values, 91.0, 160.0, 8003));
+        let grid = state.workspace().file().session.loaded_grid(2).unwrap();
+        assert_eq!(
+            grid.get(deadsync_editor::notes::Position {
+                player: 0,
+                lane: 5,
+                row: 0
+            })
+            .unwrap()
+            .kind,
+            deadsync_editor::notes::Kind::Tap
+        );
+        assert_eq!(
+            grid.get(deadsync_editor::notes::Position {
+                player: 1,
+                lane: 6,
+                row: 0
+            })
+            .unwrap()
+            .end,
+            Some(96)
+        );
+        if layout == "dance-routine" {
+            assert_ne!(p1.color, p2.color);
+        }
+        let body = values
+            .iter()
+            .find(|g| near(g.x, 91.0) && near(g.y, 136.0) && part(g, BODY))
+            .unwrap();
+        let expected = if layout == "dance-routine" {
+            [28.0 / 255.0, 169.0 / 255.0, 169.0 / 255.0, 1.0]
+        } else {
+            [68.0 / 255.0, 68.0 / 255.0, 68.0 / 255.0, 1.0]
+        };
+        assert_eq!(body.color, expected);
+        assert!(atlas_at(&values, 91.0, 184.0, BODY));
+        assert!(atlas_at(&values, 91.0, 220.1875, CAP));
+        // Advance the focused60BPM chart from row36 to48. The inactive120BPM
+        // sustain now starts above the viewport but still crosses its top edge.
+        press(&mut state, KeyCode::ArrowDown);
+        assert_eq!(state.workspace().row(), 48);
+        let crossing = glyphs(&state);
+        assert!(
+            crossing
+                .iter()
+                .any(|g| near(g.x, 91.0) && near(g.y, 112.0) && part(g, BODY) && g.crop_top > 0.0),
+            "crossing {layout}: {crossing:?}"
+        );
+        assert!(atlas_at(&crossing, 91.0, 196.1875, CAP));
+        let grid = state.workspace().file().session.loaded_grid(2).unwrap();
+        assert_eq!(
+            grid.get(deadsync_editor::notes::Position {
+                player: 1,
+                lane: 6,
+                row: 0
+            })
+            .unwrap()
+            .end,
+            Some(96)
+        );
     }
 }
 #[test]
