@@ -16,6 +16,7 @@ pub(super) enum Target {
     NoteRaw(NoteField),
     NoteReserved,
     Attack(usize),
+    Pack(super::pack_properties::Field),
 }
 impl Target {
     pub(super) fn file_kind(self) -> Option<deadsync_editor::music_file::Kind> {
@@ -43,6 +44,7 @@ impl Target {
     fn key(self) -> &'static str {
         match self {
             Self::Attack(index) => super::attacks::FIELD_KEYS[index],
+            Self::Pack(field) => field.key(),
             Self::Note(NoteField::Head) => "NoteAttributesHead",
             Self::Note(NoteField::Tail) => "NoteAttributesTail",
             Self::NoteReserved => "NoteAttributesReserved",
@@ -92,6 +94,7 @@ impl State {
                 2 => Some(Target::Note(NoteField::Tail)),
                 _ => None,
             },
+            Some(Panel::PackProperties) => super::pack_properties::Field::ALL.get(index).copied().map(Target::Pack),
             Some(Panel::ChartText(_)) => ChartField::ALL.get(index).copied().map(Target::Chart),
             Some(Panel::SongText(_)) => SongField::ALL.get(index).copied().map(Target::Song),
             _ => None,
@@ -99,6 +102,7 @@ impl State {
     }
     fn field_value(&self, target: Target) -> Option<std::borrow::Cow<'_, str>> {
         match target {
+            Target::Pack(field) => self.pack_properties.as_ref().map(|settings| settings.text(field)),
             Target::NoteReserved => self.note_attributes.as_ref()
                 .and_then(|draft| self.note_attribute_inspector.attributes(draft).ok())
                 .map(|attributes| std::borrow::Cow::Owned(attributes.reserved.to_string())),
@@ -110,6 +114,7 @@ impl State {
     }
     fn field_supported(&self, target: Target) -> bool {
         match target {
+            Target::Pack(_) => self.pack_text_current(),
             Target::NoteReserved => self.note_attributes.as_ref()
                 .is_some_and(|draft| self.note_attribute_inspector.attributes(draft).is_ok()),
             Target::Attack(index) => self.attacks.as_ref()
@@ -133,6 +138,10 @@ impl State {
     ) -> Result<(), deadsync_editor::Error> {
         let missing = || deadsync_editor::Error::InvalidEdit("No property draft is active".into());
         match target {
+            Target::Pack(field) => {
+                if !self.pack_text_current() { return Err(missing()); }
+                self.pack_properties.as_mut().ok_or_else(missing)?.set_text(field, value)
+            }
             Target::NoteReserved => self.note_attribute_inspector.set_reserved(
                 self.note_attributes.as_mut().ok_or_else(missing)?, value,
             ),
@@ -155,6 +164,9 @@ impl State {
         }
     }
     pub(super) fn text_target(&self) -> Option<Target> {
+        if matches!(self.panel, Some(Panel::PackProperties)) {
+            return if self.pack_text_current() { self.pack_properties.as_ref()?.field().map(Target::Pack) } else { None };
+        }
         let index = match self.panel {
             Some(Panel::ChartText(i) | Panel::SongText(i) | Panel::NoteAttributes(i) | Panel::Attacks(i)) => i,
             _ => return None,
@@ -210,6 +222,9 @@ impl State {
         if self.set_field_value(target, &value).is_err() {
             self.status = i18n::tr("Edition", if matches!(target, Target::NoteReserved) {
                 "NoteAttributesReservedInvalid"
+            } else if matches!(target, Target::Pack(super::pack_properties::Field::Year)) {
+                "PackInvalidYear"
+            } else if matches!(target, Target::Pack(_)) { "PackInvalidText"
             } else { "ChartTextSingleLine" });
             return false;
         }

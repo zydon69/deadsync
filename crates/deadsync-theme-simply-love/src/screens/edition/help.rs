@@ -12,6 +12,7 @@ impl State {
             "HelpMinimap",
             "HelpChartCopy",
             "HelpEventShift",
+            "PackHelpMenu",
         ] {
             lines.push(i18n::tr("Edition", key).to_string());
         }

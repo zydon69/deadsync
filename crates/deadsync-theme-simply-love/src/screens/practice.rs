@@ -656,6 +656,14 @@ pub fn process_editor_clipboard(
 ) -> bool {
     state.edition.as_mut().is_some_and(|editor| editor.process_text_clipboard(clipboard))
 }
+/// OS close and shell reload share the editor's explicit save/discard guard.
+/// A refusal keeps the editor alive with its confirmation panel visible.
+pub fn request_editor_close(state: &mut State) -> bool {
+    state
+        .edition
+        .as_mut()
+        .is_none_or(|editor| editor.request_close())
+}
 pub fn release_editor_input(state: &mut State) {
     if let Some(editor) = state.edition.as_mut() { editor.release_input(); }
 }

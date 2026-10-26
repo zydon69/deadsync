@@ -7119,11 +7119,30 @@ impl App {
         true
     }
 
+    fn editor_allows_transition(&mut self) -> bool {
+        if self.state.screens.current_screen != CurrentScreen::Practice {
+            return true;
+        }
+        let allowed = self
+            .state
+            .screens
+            .practice_state
+            .as_mut()
+            .is_none_or(screens::practice::request_editor_close);
+        if !allowed && let Some(window) = self.window.clone() {
+            self.request_redraw(&window, "editor_close_confirmation");
+        }
+        allowed
+    }
+
     fn try_practice_reload(&mut self, event_loop: &ActiveEventLoop, label: &str) -> bool {
         if !practice_reload_allowed(
             self.state.screens.current_screen,
             self.state.screens.practice_state.is_some(),
         ) {
+            return false;
+        }
+        if !self.editor_allows_transition() {
             return false;
         }
         let Some((
@@ -8633,8 +8652,10 @@ impl App {
         let logo_held = self.state.shell.interaction.controls().logo();
 
         if raw_key_alt_f4_quit(raw_key.pressed, raw_key.code, alt_held) {
-            info!("Alt+F4 quit shortcut pressed. Shutting down.");
-            event_loop.exit();
+            if self.editor_allows_transition() {
+                info!("Alt+F4 quit shortcut pressed. Shutting down.");
+                event_loop.exit();
+            }
             return true;
         }
 
@@ -11007,8 +11028,10 @@ impl ApplicationHandler<UserEvent> for App {
 
         match event {
             WindowEvent::CloseRequested => {
-                info!("Close requested. Shutting down.");
-                event_loop.exit();
+                if self.editor_allows_transition() {
+                    info!("Close requested. Shutting down.");
+                    event_loop.exit();
+                }
             }
             WindowEvent::Resized(new_size) => {
                 let now = Instant::now();

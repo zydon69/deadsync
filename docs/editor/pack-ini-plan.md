@@ -207,14 +207,13 @@ root expands this scope. The original delete is explicitly confirmed and
 non-undoable; it is not part of initial metadata/save implementation.
 
 
-## Isolated storage increment (validation pending)
+## Integrated storage increment (validated)
 
-`src/pack/storage.rs` and `tests/pack_storage_workflows.rs` are prepared but not
-linked at this point. The proposed public path is `pack::storage`; the shared
-simfile `storage.rs` is unchanged. Thirteen filesystem workflows and six private
-fault/race tests are ready for central validation. They use synthetic temporary
+`src/pack/storage.rs` and `tests/pack_storage_workflows.rs` are integrated. The public path is `pack::storage`; the shared
+simfile `storage.rs` is unchanged. Thirteen filesystem workflows and six private fault/race tests passed central
+validation (the six units in session `84624`). They use synthetic temporary
 directories exclusively. The previously declared metadata model's six tests
-have passed; this does not certify the new filesystem adapter.
+have passed; native UI validation remains separate.
 
 `FileSession::open(pack_root)` is read-only and returns `None` only for absence.
 Malformed, oversized, non-file and dangling-symlink targets are errors. Explicit
@@ -259,8 +258,9 @@ locking, permission bits, symlink preservation/retargeting/dangling targets,
 parent-directory replacement, failures before publication, published durability
 failure/retry, unavailable post-publication path metadata and external edits
 while a receipt is pending. ACLs/ownership beyond std `Permissions`, hostile
-filesystem-wide race resistance, watchers, native Pack UI and shared Save As
-integration remain outside this isolated increment.
+filesystem-wide race resistance, watchers and shared Save As integration remain
+outside this isolated storage increment. The native Pack UI is separately
+implemented and validated in `pack-native-plan.md`.
 
 ## Resumed storage validation
 
@@ -273,5 +273,7 @@ the published payload. Later draft edits remain dirty against that payload.
 
 The API reports `FileAndDirectory` durability on Unix and `FileOnly` elsewhere,
 matching the ordinary storage adapter's directory-sync boundary. The macOS run
-does not validate Windows. Native Pack properties and close guards are being
-implemented separately; these tests do not claim that UI is connected.
+does not validate Windows. Native Pack properties and close guards are integrated separately and passed
+17 native tests (16 EN/FR workflows plus one grouped pending/release/source unit)
+and 39 native regressions (help two + general editor 37). These storage tests
+remain distinct from that UI validation. Shell compilation is in progress.

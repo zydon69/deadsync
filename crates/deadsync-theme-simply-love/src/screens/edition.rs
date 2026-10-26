@@ -20,6 +20,7 @@ mod chart_list_view;
 mod chart_focus;
 mod chart_views;
 mod chart_event_copy;
+mod pack_properties;
 mod end_hint;
 mod minimap;
 mod minimap_settings;
@@ -82,6 +83,7 @@ enum Panel {
     Analysis,
     ChartList,
     ChartEventCopy,
+    PackProperties,
     NewChart(usize),
     DeleteChart(usize),
     EmptyMenu(usize),
@@ -299,6 +301,7 @@ pub struct State {
     chart_list_cache: chart_list::Cache,
     chart_list_selection: chart_list::Selection,
     chart_event_copy: Option<chart_event_copy::Settings>,
+    pack_properties: Option<pack_properties::Settings>,
     attacks: Option<attacks::Settings>,
     event_selection: Option<event_selection::Settings>,
     attack_clipboard: Option<deadsync_editor::attacks::inspector::Clipboard>,
@@ -467,6 +470,7 @@ impl State {
             chart_list_cache: Default::default(),
             chart_list_selection: Default::default(),
             chart_event_copy: None,
+            pack_properties: None,
             attacks: None,
             event_selection: None,
             attack_clipboard: None,
@@ -1427,6 +1431,13 @@ impl State {
     }
 
     fn command(&mut self, command: Command) {
+        if matches!(command, Command::Recover)
+            && (self.pack_has_unsaved_changes() || self.pack_has_pending_durability())
+        {
+            self.open_pack_properties();
+            self.status = i18n::tr("Edition", "PackRecoveryBlocked");
+            return;
+        }
         if matches!(command, Command::Move(_) | Command::Seek(_) | Command::PreviousMeasure | Command::NextMeasure | Command::PreviousLabel | Command::NextLabel | Command::SelectChart(_) | Command::Recover) {
             self.receptor_views.reset();
         }
@@ -1519,7 +1530,7 @@ impl State {
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
         let repeating_text_cursor = matches!(
-            self.panel, Some(Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::Attacks(_) | Panel::ProfileText)
+            self.panel, Some(Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::Attacks(_) | Panel::ProfileText | Panel::PackProperties)
         )
             && matches!(
                 event.code,
@@ -1747,7 +1758,12 @@ impl State {
         false
     }
 
-    fn request_close(&mut self) -> bool {
+    pub(super) fn request_close(&mut self) -> bool {
+        if self.pack_has_unsaved_changes() || self.pack_has_pending_durability() {
+            self.open_pack_properties();
+            self.status = i18n::tr("Edition", "PackCloseGuard");
+            return false;
+        }
         if self.workspace.file().session.is_dirty() {
             self.panel = Some(Panel::Unsaved(0));
             false
@@ -1758,6 +1774,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if matches!(panel, Panel::PackProperties) { self.pack_properties_key(code); return false; }
         if matches!(panel, Panel::ChartEventCopy) { self.chart_event_copy_key(code); return false; }
         if matches!(panel, Panel::ChartList) { self.chart_list_key(code); return false; }
         if matches!(panel, Panel::EventSelection) { self.event_selection_key(code); return false; }
@@ -1880,6 +1897,7 @@ impl State {
             Panel::EventSelection => unreachable!("event selection dispatched above"),
             Panel::ChartList => unreachable!("chart list dispatched above"),
             Panel::ChartEventCopy => unreachable!("chart event copy dispatched above"),
+            Panel::PackProperties => unreachable!("pack properties dispatched above"),
             Panel::NoteAttributes(_) => unreachable!("note inspector dispatched above"),
             Panel::NoteConversion(_) => unreachable!("note conversion dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
@@ -2311,7 +2329,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 18,
+                    Panel::Menu(_) => 19,
                     Panel::Transforms(_) => 12,
                     _ => 3,
                 };
@@ -2391,6 +2409,7 @@ impl State {
                             15 => self.command(Command::DuplicateChart),
                             16 => self.open_chart_list(),
                             17 => self.open_chart_event_copy(),
+                            18 => self.open_pack_properties(),
                             _ => {}
                         }
                     }
@@ -2674,6 +2693,7 @@ impl State {
     }
 
     fn panel_actors(&self, panel: Panel, actors: &mut Vec<Actor>) {
+        if matches!(panel, Panel::PackProperties) { self.pack_properties_actors(actors); return; }
         if let Panel::MinimapSettings(index) = panel { self.minimap_settings_actors(index, actors); return; }
         if matches!(panel, Panel::ChartEventCopy) { self.chart_event_copy_actors(actors); return; }
         if matches!(panel, Panel::ChartList) { self.chart_list_actors(actors); return; }
@@ -2690,9 +2710,9 @@ impl State {
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
-            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::MinimapSettings(_) => &[],
+            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::MinimapSettings(_) => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
-            Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close"],
+            Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close", "PackPropertiesOpen"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
             Panel::Menu(_) => &[
                 "Resume",
@@ -2713,6 +2733,7 @@ impl State {
                 "DuplicateChart",
                 "ChartListOpen",
                 "ChartEventCopyOpen",
+                "PackPropertiesOpen",
             ],
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen", "NoteOwnersOpen", "NoteAttributesOpen"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
