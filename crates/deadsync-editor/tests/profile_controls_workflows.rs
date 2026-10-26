@@ -91,3 +91,32 @@ fn inherited_boolean_cycles_and_nonfinite_numbers_are_not_silently_normalized() 
     editor.set_text(n, "0.125").unwrap();
     assert_eq!(editor.value(n).and_then(Value::as_f64), Some(0.125));
 }
+
+#[test]
+fn explicit_nullable_boolean_values_keep_the_inherit_choice() {
+    let config = Config::Performed(PerformedConfig::balanced());
+    let editor = Editor::new(&config).unwrap();
+    let mut count = 0;
+    for (index, field) in editor
+        .fields()
+        .iter()
+        .enumerate()
+        .filter(|(_, f)| f.name().ends_with("Enabled"))
+    {
+        assert_eq!(
+            field.control,
+            Control::OptionalBoolean,
+            "{:?}",
+            field.path()
+        );
+        let mut copy = Editor::new(&config).unwrap();
+        let before = copy.value(index).cloned();
+        for _ in 0..3 {
+            copy.step(index, true, false).unwrap();
+        }
+        assert_eq!(copy.value(index), before.as_ref());
+        assert_eq!(copy.finish().unwrap(), config);
+        count += 1;
+    }
+    assert_eq!(count, 5);
+}

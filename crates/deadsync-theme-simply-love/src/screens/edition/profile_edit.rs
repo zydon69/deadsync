@@ -4,7 +4,7 @@ use deadlib_platform::input::KeyCode;
 use deadsync_editor::generation::{
     metadata::Guid,
     profile_controls::{Control, Editor},
-    profiles::{Kind, Profile, TravelSpeed},
+    profiles::{Config, Kind, Profile, TravelSpeed},
 };
 #[derive(Default)]
 pub(super) struct Choices {
@@ -46,8 +46,13 @@ pub(super) struct Draft {
     travel_speed: Option<TravelSpeed>,
     travel_editor: Option<TravelSpeed>,
     travel_input: Option<(usize, String)>,
+    reset_return: usize,
+    reset_defaults: bool,
 }
 impl Draft {
+    pub(super) fn action_count(&self) -> usize {
+        if self.supports_travel_speed() { 7 } else { 6 }
+    }
     pub(super) fn supports_travel_speed(&self) -> bool {
         self.kind == Kind::Performed
     }
@@ -103,6 +108,8 @@ impl State {
                 travel_speed: None,
                 travel_editor: None,
                 travel_input: None,
+                reset_return: 0,
+                reset_defaults: false,
             })
         })();
         match result {
@@ -140,7 +147,17 @@ impl State {
             return;
         };
         let count = draft.editor.fields().len();
-        let actions = if draft.supports_travel_speed() { 6 } else { 5 };
+        let actions = draft.action_count();
+        if (index == count + actions - 1 && code == KeyCode::Enter)
+            || (code == KeyCode::F5 && !self.control)
+        {
+            if let Some(draft) = self.profile_edit.as_mut() {
+                draft.reset_return = index;
+            }
+            self.panel = Some(Panel::ProfileDefaults(0));
+            self.status = i18n::tr("Edition", "ProfileDefaultsHelp");
+            return;
+        }
         if code == KeyCode::Escape || (index == count + 1 && code == KeyCode::Enter) {
             let back = draft.back;
             self.profile_edit = None;
@@ -286,6 +303,9 @@ impl State {
                     .as_deref()
                     .ok_or_else(|| i18n::tr("Edition", "ExpressionEditUnavailable").to_string())?;
                 let mut profile = draft.profile.clone();
+                if draft.reset_defaults {
+                    profile.restore_defaults().map_err(profile_error)?;
+                }
                 if let Some(speed) = draft.travel_speed {
                     profile.set_travel_speed(speed).map_err(profile_error)?;
                 }
@@ -314,6 +334,9 @@ impl State {
                     )
                     .map_err(profile_error)?;
                 let mut profile = file.profile().clone();
+                if draft.reset_defaults {
+                    profile.restore_defaults().map_err(profile_error)?;
+                }
                 if let Some(speed) = draft.travel_speed {
                     profile.set_travel_speed(speed).map_err(profile_error)?;
                 }
@@ -843,5 +866,43 @@ impl State {
             _ => return i18n::tr("Edition", key),
         };
         i18n::tr_fmt("Edition", key, &[("value", &value)])
+    }
+}
+
+impl State {
+    pub(super) fn profile_defaults_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::Escape || (index == 1 && code == KeyCode::Enter) {
+            if let Some(draft) = &self.profile_edit {
+                self.panel = Some(Panel::ProfileEdit(draft.reset_return));
+            }
+            self.status = i18n::tr("Edition", "ProfileDefaultsDiscarded");
+            return;
+        }
+        if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
+            self.panel = Some(Panel::ProfileDefaults(1 - index));
+            return;
+        }
+        if index != 0 || code != KeyCode::Enter {
+            return;
+        }
+        let Some(draft) = self.profile_edit.as_mut() else {
+            return;
+        };
+        match Editor::new(&Config::editor_defaults(draft.kind)) {
+            Ok(editor) => {
+                draft.editor = editor;
+                draft.reset_defaults = true;
+                draft.input = None;
+                draft.travel_speed =
+                    (draft.kind == Kind::Performed).then(TravelSpeed::editor_defaults);
+                draft.travel_editor = None;
+                draft.travel_input = None;
+                self.panel = Some(Panel::ProfileEdit(draft.editor.fields().len()));
+                self.status = i18n::tr("Edition", "ProfileDefaultsStaged");
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+            }
+        }
     }
 }

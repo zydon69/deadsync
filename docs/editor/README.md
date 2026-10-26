@@ -4731,3 +4731,51 @@ edits (6), and snapshots (4). Final
 `/tmp/deadsync-travel-speed-all-native.log`,
 `/tmp/deadsync-travel-speed-core.log`, and
 `/tmp/deadsync-travel-speed-check.log`.
+
+### Restore original editor defaults in profile drafts
+
+The profile inspector offers Restore generation defaults (F5), with a small
+stage/cancel confirmation. Restoration affects configuration only; pending names
+and descriptions remain intact. Nothing is written until the parent copy/original
+save action. Cancelling retains the exact prior draft, including an incomplete
+numeric input; confirming can repair that input by replacing the configuration.
+The inspector rebuilds its fields and selects the new save row, so restoration of
+a sparse movement profile to all default arrow-weight layouts stays navigable.
+
+`Config::editor_defaults` distinguishes GrooveAuthor editor defaults from library
+or deserialization defaults: sixteenth-note pattern settings, balanced movement
+settings, and dynamic interpretation with level 7, aggressive fallback enabled
+and thresholds 3/1. Movement restoration also restores the original BPM wrapper
+values (index 3, 125..170). These are family defaults, not a named source preset's
+custom modifications. The catalog now reuses the same movement wrapper defaults,
+retaining its double-stamina override of minimum 99.
+
+`Profile::restore_defaults` preserves GUID, name, description and unknown raw
+members. It reconciles an old PatternType wrapper even if a later Config already
+has the default subdivision. Repeated restoration is a byte-preserving semantic
+no-op. Native save applies restoration before the final staged configuration, so
+later user changes win. The original InitializeWithDefaultValues implementations
+for all three editor profile classes were inspected for this addition.
+
+A related control bug was reproduced: an explicit nullable boolean was treated as
+a plain two-state boolean and lost the Inherit choice. Controls now identify the
+five nullable enabled fields by their typed configuration paths for both explicit
+and null values. Tests check three-state cycles from preset values, preserving the
+finished configuration. The pre-fix failing log is
+`/tmp/deadsync-profile-boolean-red.log`.
+
+Core coverage checks default values against existing reference presets, identity
+and metadata preservation, unknown large literals, persistence, idempotence and
+stale PatternType repair. Native English/French workflows cover confirmation,
+cancel, invalid-input repair, pending metadata retention, copy/original save,
+expanded movement controls and unchanged song bytes. Profile library undo after
+committing saves, deletion and the wider editor backlog remain unfinished. No
+physical app/GPU review or new executable C# differential run is claimed here.
+
+Validation: all 247 native editor integration tests across 45 targets passed.
+The 22 targeted core tests across defaults (3), controls (4), profile edits (6)
+and existing profile workflows (9) passed. Final
+`cargo check -p deadsync-theme-simply-love --jobs 2 --locked` passed. Logs:
+`/tmp/deadsync-profile-defaults-all-native.log`,
+`/tmp/deadsync-profile-defaults-core.log`, and
+`/tmp/deadsync-profile-defaults-check.log`.

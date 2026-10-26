@@ -265,6 +265,18 @@ impl Editor {
         Ok(config)
     }
 }
+fn inherited_boolean(path: &[String]) -> bool {
+    match path {
+        [group, field] if group == "StepTightening" => matches!(
+            field.as_str(),
+            "SpeedTighteningEnabled" | "DistanceTighteningEnabled" | "StretchTighteningEnabled"
+        ),
+        [group, field] => {
+            matches!(group.as_str(), "LateralTightening" | "Transitions") && field == "Enabled"
+        }
+        _ => false,
+    }
+}
 fn collect(value: &Value, path: &mut Vec<String>, fields: &mut Vec<Field>) -> Result<(), Error> {
     match value {
         Value::Object(values) => {
@@ -289,8 +301,10 @@ fn collect(value: &Value, path: &mut Vec<String>, fields: &mut Vec<Field>) -> Re
                 Control::Choice(values)
             } else {
                 match value {
+                    Value::Bool(_) | Value::Null if inherited_boolean(path) => {
+                        Control::OptionalBoolean
+                    }
                     Value::Bool(_) => Control::Boolean,
-                    Value::Null if name.ends_with("Enabled") => Control::OptionalBoolean,
                     Value::Number(number) if number.is_i64() || number.is_u64() => Control::Integer,
                     Value::Number(_) => Control::Number,
                     _ => return Err(invalid(&format!("Unsupported profile control: {name}"))),

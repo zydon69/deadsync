@@ -214,14 +214,12 @@ impl Catalog {
                 .map(|c| super::profiles::Config::Expressed(c.clone())),
         }
         .ok_or_else(|| invalid("Selected preset is missing"))?;
-        let speed = (kind == Kind::Performed).then(|| super::profiles::TravelSpeed {
-            subdivision_index: 3,
-            min_bpm: if builtin_label(kind, id) == Some(BuiltinLabel::StaminaDouble) {
-                99
-            } else {
-                125
-            },
-            max_bpm: 170,
+        let speed = (kind == Kind::Performed).then(|| {
+            let mut speed = super::profiles::TravelSpeed::editor_defaults();
+            if builtin_label(kind, id) == Some(BuiltinLabel::StaminaDouble) {
+                speed.min_bpm = 99;
+            }
+            speed
         });
         super::profiles::Profile::preset(id, config, speed)
     }

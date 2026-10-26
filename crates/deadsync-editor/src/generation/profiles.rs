@@ -71,6 +71,20 @@ impl Config {
             Self::Expressed(_) => Kind::Expressed,
         }
     }
+    /// GrooveAuthor editor defaults, distinct from deserialization/library defaults.
+    pub fn editor_defaults(kind: Kind) -> Self {
+        match kind {
+            Kind::Pattern => Self::Pattern(PatternConfig::sixteenths()),
+            Kind::Performed => Self::Performed(PerformedConfig::balanced()),
+            Kind::Expressed => Self::Expressed(ExpressedConfig {
+                min_level_for_brackets: 7,
+                aggressive_when_uncoverable: true,
+                balanced_bpm_for_aggressive: 3.0,
+                balanced_bpm_for_no_brackets: 1.0,
+                ..ExpressedConfig::default()
+            }),
+        }
+    }
     pub fn json(&self) -> Result<Value, Error> {
         match self {
             Self::Pattern(c) => serde_json::to_value(c),
@@ -137,6 +151,14 @@ impl Default for TravelSpeed {
 }
 impl TravelSpeed {
     pub const SUBDIVISIONS: [u32; 9] = SUBDIVISIONS;
+    pub fn editor_defaults() -> Self {
+        Self {
+            subdivision_index: 3,
+            min_bpm: 125,
+            max_bpm: 170,
+        }
+    }
+
     pub fn intervals(self) -> Result<(f64, f64), Error> {
         if self.subdivision_index >= SUBDIVISIONS.len()
             || !(1..=1000).contains(&self.min_bpm)
@@ -298,6 +320,46 @@ impl Profile {
     }
     pub fn config(&self) -> &Config {
         &self.config
+    }
+    pub fn restore_defaults(&mut self) -> Result<bool, Error> {
+        let mut candidate = self.clone();
+        let mut changed = candidate.set_config(Config::editor_defaults(self.config.kind()))?;
+        if self.config.kind() == Kind::Performed {
+            changed |= candidate.set_travel_speed(TravelSpeed::editor_defaults())?;
+        }
+        if self.config.kind() == Kind::Pattern {
+            let current = candidate
+                .members
+                .0
+                .iter()
+                .rev()
+                .find(|(name, _)| name == "PatternType")
+                .map(|(_, value)| enum_index(value, &SUBDIVISION_NAMES))
+                .transpose()?
+                .unwrap_or(0);
+            if current != 3 {
+                let value = raw(&SUBDIVISION_NAMES[3])?;
+                if let Some((_, old)) = candidate
+                    .members
+                    .0
+                    .iter_mut()
+                    .rev()
+                    .find(|(name, _)| name == "PatternType")
+                {
+                    *old = value;
+                } else {
+                    candidate.members.0.push(("PatternType".into(), value));
+                }
+                let config = candidate.config.clone();
+                install_config(&mut candidate.members, &config)?;
+                candidate = Self::from_members(Kind::Pattern, candidate.members)?;
+                changed = true;
+            }
+        }
+        if changed {
+            *self = candidate;
+        }
+        Ok(changed)
     }
     pub fn travel_speed(&self) -> Option<TravelSpeed> {
         (self.config.kind() == Kind::Performed).then_some(self.travel_speed)

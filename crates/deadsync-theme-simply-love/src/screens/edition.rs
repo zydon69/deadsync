@@ -74,6 +74,7 @@ enum Panel {
     ProfileEdit(usize),
     ProfileText,
     ProfileSpeed(usize),
+    ProfileDefaults(usize),
     ChartText(usize),
     SongText(usize),
     SongProperties(usize),
@@ -1559,6 +1560,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if let Panel::ProfileDefaults(index) = panel { self.profile_defaults_key(index, code); return false; }
         if let Panel::ProfileSpeed(index) = panel { self.profile_speed_key(index, code); return false; }
         if matches!(panel, Panel::ProfileText) { self.profile_text_key(code); return false; }
         if let Panel::ProfileEdit(index) = panel { self.profile_edit_key(index, code); return false; }
@@ -1661,6 +1663,7 @@ impl State {
             return false;
         }
         match panel {
+            Panel::ProfileDefaults(_) => unreachable!("profile defaults dispatched above"),
             Panel::ProfileSpeed(_) => unreachable!("profile speed dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
             Panel::ProfileEdit(_) => unreachable!("expression editing dispatched above"),
@@ -2495,6 +2498,7 @@ impl State {
             let mut keys = vec!["ProfileEditField"; draft.editor.fields().len()];
             keys.extend(["ExpressionEditSaveCopy", "ExpressionEditCancel", "ProfileEditName", "ProfileEditSaveOriginal", "ProfileEditDescription"]);
             if draft.supports_travel_speed() { keys.push("ProfileSpeedOpen"); }
+            keys.push("ProfileRestoreDefaults");
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
@@ -2617,6 +2621,7 @@ impl State {
             ],
             Panel::ProfileEdit(_) => &profile_keys,
             Panel::ProfileText => self.profile_text_keys(),
+            Panel::ProfileDefaults(_) => &["ProfileDefaultsApply", "ProfileDefaultsCancel"],
             Panel::ProfileSpeed(_) => &["ProfileSpeedSubdivision", "ProfileSpeedMin", "ProfileSpeedMax", "ProfileSpeedMinSeconds", "ProfileSpeedMaxSeconds", "ProfileSpeedStage", "ProfileSpeedCancel"],
             Panel::DisplayTempo(_) => &["DisplayTempoMode", "DisplayTempoMin", "DisplayTempoRange", "DisplayTempoMax", "DisplayTempoStage", "DisplayTempoCancel"],
             Panel::ChartProperties(_) => &[
@@ -2662,6 +2667,7 @@ impl State {
             | Panel::Profiles(i)
             | Panel::TimingMigration(i)
             | Panel::Timing(i)
+            | Panel::ProfileDefaults(i)
             | Panel::ProfileSpeed(i)
             | Panel::ProfileEdit(i)
             | Panel::DisplayTempo(i)
