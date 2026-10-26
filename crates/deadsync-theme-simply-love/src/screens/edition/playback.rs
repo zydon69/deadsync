@@ -31,6 +31,7 @@ impl State {
         &mut self,
         path: &std::path::Path,
     ) -> Result<(), deadsync_editor::Error> {
+        let previous_rate = self.audio_preferences.music_rate();
         self.audio_preferences_path = Some(path.to_owned());
         self.audio_preferences_file = None;
         let file = deadsync_editor::audio_preferences::File::open(path)?;
@@ -41,6 +42,9 @@ impl State {
         self.scroll_preferences = file.scroll();
         self.waveform_preferences = file.waveform();
         self.audio_preferences_file = Some(file);
+        if previous_rate != self.audio_preferences.music_rate() {
+            self.apply_playback_rate();
+        }
         self.apply_waveform_preferences();
         Ok(())
     }
@@ -59,7 +63,7 @@ impl State {
         let paused = self.paused_playback.as_ref()?;
         let session = &self.workspace.file().session;
         (Arc::ptr_eq(&paused.source, session.document().source())
-            && paused.revision == session.revision()
+            && paused.revision == session.content_revision()
             && paused.chart == self.workspace.chart()
             && paused.edit_row == self.workspace.row())
         .then_some(paused.position)
@@ -71,7 +75,7 @@ impl State {
         self.paused_playback = if playing.preview.is_some() {
             playing.position.map(|position| Paused {
                 source: Arc::clone(self.workspace.file().session.document().source()),
-                revision: self.workspace.file().session.revision(),
+                revision: self.workspace.file().session.content_revision(),
                 chart: self.workspace.chart(),
                 edit_row: self.workspace.row(),
                 position,
@@ -84,6 +88,19 @@ impl State {
     }
     pub fn is_playing(&self) -> bool {
         self.playback.is_some()
+    }
+    pub(super) fn apply_playback_rate(&mut self) {
+        if let Some(playing) = self
+            .playback
+            .as_mut()
+            .filter(|playing| playing.preview.is_some())
+        {
+            playing.valid_after = Instant::now();
+            playing.mapped = false;
+            self.audio_commands.push(GameplayAudioCommand::SetMusicRate(
+                self.audio_preferences.music_rate() as f32,
+            ));
+        }
     }
     pub fn take_audio_commands(&mut self) -> Vec<GameplayAudioCommand> {
         std::mem::take(&mut self.audio_commands)
@@ -127,7 +144,7 @@ impl State {
                         ..Default::default()
                     },
                     looping: false,
-                    rate: 1.0,
+                    rate: self.audio_preferences.music_rate() as f32,
                 });
                 self.playback = Some(Playing {
                     preview: Some(preview),

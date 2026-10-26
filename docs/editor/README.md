@@ -48,7 +48,7 @@ reviewable and tested.
 | Metadata | Existing and new scoped tags with escaping/history; F7 chart properties; F11 song text/music, SSC preview file, sample region, end hint, global music offset and editor sync | Property and chart-property save/reopen/undo tests; remaining song/chart/pack inspectors pending |
 | Timing/gimmicks | F10 scoped BPM, stop, delay, warp, fake, signature, tick, combo, scroll, speed and label editing; legacy SSC activation; shared revision/inheritance transactions; measure grid and label annotations | Original C# parser, setters, clocks and interpolation comparisons; native constant-time, Reverse and variable displays now share the original rate geometry; physical scroll/speed rendering verification, broader legacy normalization and conversion remain pending |
 | Attack events | F10 optional keyboard inspector, widgets/duration overview, song/chart scope, multiple modifiers, temporal shortcuts and history; exact row model survives timing edits and ambiguous warp/negative-stop export through bound editor metadata | Pinned original parser/clock/UI comparisons, save/recovery/structural/undo tests and native EN/FR workflows; miscellaneous-event clipboard, cross-chart shared-event identity, runtime widget/transport verification, permissive normalization and broader file corpus remain pending |
-| Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, scrub, loop and audio analysis remain pending; persisted waveform visibility, width, density, palette and scroll policies are implemented below |
+| Playback and audio | Enter plays/pauses/resumes native audio at exact mapped positions; persistent 0.25x–4x music rate, Shift+Left/Right shortcuts, live rate commands and global audio-preference undo/redo; all three display modes follow fractional transport positions; F11/F6 edits/auditions samples; W loads and toggles a channel-separated waveform using the playback clock | Core clock, decoded WAV/MP3, native actor geometry/offset tests and basic OpenGL runtime review; other rendering backends, audible playback, decoder lifecycle/EOF, scrub, loop and audio analysis remain pending; persisted waveform visibility, width, density, palette and scroll policies are implemented below |
 | Multi-chart | Switch, duplicate, create and delete charts; structural undo/redo; usable no-active-chart workspace | Lifecycle workflows cover final-chart deletion, recovery, metadata reindexing and persistence; original live chart ordering, complete properties, multi-view comparison and library remain pending |
 | Generation | Original graphs, typed configurations, seeded .NET random, performed-path scoring and pattern search with start/end footing and lookahead | Differential pattern fixtures across all 11 original graph layouts, timing changes, context and seeds; preview/apply/undo/save and cancellation tests. Expressed-chart lane-state preparation and graph candidate matching are compared to the original interpreter across all 11 layouts, including holds, rolls, fake/lift instances and jumps. Interpretation costs, automatic bracket policy selection and mine expression match original chart interpretation; replacement expansion and ranking match the original cache; performed-chart conversion and destination mines compared across Dance/Pump/SMX; automatic fallback selection, file assembly and asynchronous chart-conversion previews are connected; single-region native pattern previews are connected through F4; F8 converts all charts of a selected source type with per-result review and atomic acceptance; F9 regenerates selected/all saved patterns with one preview and history action; native typed controls, copy/name/description edits and guarded in-place saves are connected for all three profile families; BPM/subdivision helpers are connected; layout weight addition/inheritance are connected; profile copy/import/export, deletion/reference repair and global undo are implemented below; scheduled-attack source timing and preservation through chart/pattern generation are connected with pinned file-reader comparisons; multiple-participant source generation and broader runtime parity remain pending |
 | Analysis | F12/F1 snapshot RSSP inspector: counts, NPS, tech, stream breakdown, bounded density graph and interval navigation | RSSP differential/workflow and English/French native tests; original density algorithm/settings equivalence, complete tech/options UI, minimap, pointer interaction and physical rendering remain pending |
@@ -6121,3 +6121,51 @@ synthetic frame/input and actor assertions, not physical-input or GPU checks.
 Existing unclaimed sidecars, including older drafts after a saved-file baseline
 change, remain available for explicit review/replacement rather than being
 automatically deleted. No full-editor regression is claimed for this increment.
+
+### Music rate and audio preference history
+
+The native audio panel now stages music rate alongside sample fades, with the
+original 0.25x–4x bounds. Chart-level Shift+Left/Right follows GrooveAuthor's
+previous/next-tenth shortcuts, including the original one-ULP no-change rules.
+The shared application preferences retain `Audio.MusicRate`; song data is not
+modified. A session without an application preference path supports in-memory
+rate commands and their history.
+
+Chart play/resume uses the accepted rate. A live change emits the existing
+`SetMusicRate` command, retains fractional source position and rejects snapshots
+from before the change while waiting for a new mapping. Sample audition remains
+at unity, matching the original separate preview path. The settings reload path
+also updates an active chart transport. Preferences and undo/redo do not reopen
+the running decoder. Playback uses DeadSync's existing audio stream/DSP; neither
+the C# renderer nor bit-identical PCM output is claimed by this integration.
+
+Audio preferences share global gesture history without dirtying the song.
+Persistent actions own only the fields they changed: undo/redo merge unrelated
+preference fields and groups, reject conflicting owned values, and keep both
+history stacks on a refused write. Preference files still use the existing
+exact-byte conflict guard between their fresh read and atomic save. Song-property
+drafts and paused transport positions bind to content revisions, so an application
+preference action does not invalidate their unchanged song content. Session
+identity and genuine content edits still invalidate those drafts.
+
+`audio-music-rate` fixtures execute the unchanged pinned editor shortcut methods,
+the original MusicManager clamp and the actual pinned Fumen equality helper.
+Their small preference/action adapters do not run the GUI, complete action queue
+or audio renderer. Thirty scenarios compare 880 successive rate values exactly,
+including values adjacent to tenths and both bounds. The dedicated reference
+manifest records method/template/fixture provenance for this generation.
+
+Focused verification: all 36 core tests passed across audio preferences (9),
+editing/storage (13), and song properties (14). All 46 native tests passed across
+the new rate workflows (4 EN + 4 FR), playback (10), fractional transport follow
+(10), song text/sample/preferences (17), and runtime preference loading (1).
+They cover live commands, undo/redo, pause/resume without fractional-position
+loss, typed staging/cancel/save, reload during playback, owned-field conflicts,
+unrelated preference merging, and unity-rate sample audition. Screen tests use
+synthetic input/audio snapshots and actor text, not physical input or sound output.
+
+The existing real-WAV decoder/render integration test also passed after extending
+its cut/fade/channel/map checks to 0.25x and 4x at both 48 kHz and 44.1 kHz, in
+addition to its existing live/loop/seek scenarios. This proves the exercised PCM
+and timing contracts without a hardware audio device; listening and complete
+runtime/large-file review remain pending. No full-editor regression is claimed.

@@ -84,8 +84,10 @@ fn decode(wav: &Wav, cut: Cut, rate: f32, hz: u32) -> (Vec<i16>, Vec<MusicMapSeg
 #[test]
 fn stretched_worker_preserves_cuts_fades_channels_and_timing() {
     // One test owns the process-global callback clock and music gain.
-    let wav = Wav::new(&vec![12_000; 12_000], 48_000);
-    for rate in [0.8, 1.2] {
+    // The editor exposes 0.25x–4x. Keep enough source frames for a 100 ms
+    // output cut at the upper bound as well as ordinary gameplay rates.
+    let wav = Wav::new(&vec![12_000; 24_000], 48_000);
+    for rate in [0.25, 0.8, 1.2, 4.0] {
         for hz in [48_000, 44_100] {
             let cut = Cut {
                 length_sec: 0.1,

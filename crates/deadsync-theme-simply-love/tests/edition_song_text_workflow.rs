@@ -755,7 +755,7 @@ fn application_audio_preferences_reload_and_drive_audition_without_touching_song
 }
 
 #[test]
-fn keyboard_audio_settings_save_reload_cancel_and_drive_audition_without_song_history() {
+fn keyboard_audio_settings_save_reload_cancel_and_drive_audition_without_song_changes() {
     let (dir, mut state, original) = setup(false, false);
     let path = dir.path().join("editor-preferences.json");
     state.configure_audio_preferences(&path).unwrap();
@@ -767,6 +767,7 @@ fn keyboard_audio_settings_save_reload_cancel_and_drive_audition_without_song_hi
     press(&mut state, KeyCode::Digit0);
     assert!(!path.exists());
     assert_eq!(state.audio_preferences().fade_in(), 0.0);
+    press(&mut state, KeyCode::ArrowDown);
     press(&mut state, KeyCode::ArrowDown);
     press(&mut state, KeyCode::ArrowDown);
     press(&mut state, KeyCode::Enter);
@@ -822,7 +823,7 @@ fn keyboard_preference_save_refuses_external_or_future_files_and_keeps_active_se
         if !future {
             fs::write(&path, external).unwrap();
         }
-        for _ in 0..3 {
+        for _ in 0..4 {
             press(&mut state, KeyCode::ArrowDown);
         }
         press(&mut state, KeyCode::Enter);
@@ -852,6 +853,7 @@ fn keyboard_audio_settings_show_fine_steps_restore_defaults_and_cancel_without_c
     press(&mut state, KeyCode::Tab);
     press(&mut state, KeyCode::Digit0);
     assert!(has(&state, "Preview fade out: 0.0000"));
+    press(&mut state, KeyCode::Tab);
     press(&mut state, KeyCode::Tab);
     press(&mut state, KeyCode::Enter);
     assert!(has(&state, "Preview fade in: 0.0000"));

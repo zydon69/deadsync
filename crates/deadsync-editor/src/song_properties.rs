@@ -2,7 +2,7 @@
 use crate::{
     Error,
     document::Document,
-    history::{RevisionToken, Session},
+    history::{ContentToken, Session},
 };
 use serde_json::{Map, Value};
 pub const DEFAULT_SYNC_OFFSET: f64 = 0.009;
@@ -129,7 +129,7 @@ pub struct SampleAudio {
 }
 
 pub struct Draft {
-    token: RevisionToken,
+    token: ContentToken,
     original: f64,
     offset: f64,
     original_music_offset: f64,
@@ -191,7 +191,7 @@ impl Draft {
             None
         };
         Ok(Self {
-            token: session.revision_token(),
+            token: session.content_token(),
             original: offset,
             offset,
             original_music_offset: music_offset,
@@ -243,7 +243,7 @@ impl Draft {
         Ok(())
     }
     pub fn clock(&self, session: &Session, chart: usize) -> Result<crate::playback::Clock, Error> {
-        if !session.accepts_token(&self.token) {
+        if !session.accepts_content_token(&self.token) {
             return invalid("Song properties draft is stale or belongs to another document");
         }
         let chart_properties = crate::chart_properties::Draft::capture(session, chart)?;
@@ -273,7 +273,7 @@ impl Draft {
         chart: usize,
         simfile: &std::path::Path,
     ) -> Result<SampleAudio, Error> {
-        if !session.accepts_token(&self.token) {
+        if !session.accepts_content_token(&self.token) {
             return invalid("Song properties draft is stale or belongs to another document");
         }
         let dedicated = (session.document().format == crate::document::Format::Ssc)
@@ -374,7 +374,7 @@ impl Draft {
         Ok(())
     }
     pub fn apply(&self, session: &mut Session) -> Result<bool, Error> {
-        if !session.accepts_token(&self.token) {
+        if !session.accepts_content_token(&self.token) {
             return invalid("Song properties draft is stale or belongs to another document");
         }
         if !self.has_changes() {

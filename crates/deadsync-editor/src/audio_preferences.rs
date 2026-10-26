@@ -1,6 +1,8 @@
 //! Shared editor application preferences, stored independently of simfiles.
 //! Audio, waveform and zoom groups share conflict-safe atomic persistence.
+pub(crate) mod history;
 use crate::{Error, waveform_preferences::Preferences as Waveform};
+pub use history::Update;
 use serde_json::{Map, Value};
 use std::{
     fs,
@@ -12,16 +14,43 @@ use std::{
 pub struct Audio {
     fade_in: f64,
     fade_out: f64,
+    music_rate: f64,
 }
 impl Default for Audio {
     fn default() -> Self {
         Self {
             fade_in: 0.0,
             fade_out: 1.5,
+            music_rate: 1.0,
         }
     }
 }
 impl Audio {
+    pub fn music_rate(&self) -> f64 {
+        self.music_rate
+    }
+    pub fn set_music_rate(&mut self, rate: f64) -> Result<(), Error> {
+        if !rate.is_finite() {
+            return Err(Error::InvalidEdit("Music rate must be finite".into()));
+        }
+        self.music_rate = rate.clamp(0.25, 4.0);
+        Ok(())
+    }
+    /// Original editor shortcuts advance to the next/previous tenth, using
+    /// Fumen's one-ULP equality when the current rate is already on a tenth.
+    pub fn step_music_rate(&mut self, increase: bool) {
+        let scaled = self.music_rate * 10.0;
+        let mut tenths = scaled as i32;
+        if increase {
+            tenths += 1;
+        } else if (tenths as f64).to_bits().abs_diff(scaled.to_bits()) <= 1 {
+            tenths -= 1;
+        }
+        let next = (tenths as f64 / 10.0).clamp(0.25, 4.0);
+        if next.to_bits().abs_diff(self.music_rate.to_bits()) > 1 {
+            self.music_rate = next;
+        }
+    }
     pub fn fade_in(&self) -> f64 {
         self.fade_in
     }
@@ -61,6 +90,7 @@ struct Settings {
     scroll: crate::scroll_preferences::Preferences,
 }
 
+#[derive(Clone)]
 pub struct File {
     path: PathBuf,
     expected: Option<Vec<u8>>,
@@ -103,6 +133,13 @@ impl File {
             }
         };
         let mut audio = Audio::default();
+        if let Some(value) = audio_fields.get("MusicRate") {
+            audio.set_music_rate(
+                value
+                    .as_f64()
+                    .ok_or_else(|| Error::InvalidFormat("Invalid MusicRate".into()))?,
+            )?;
+        }
         for (name, target) in [
             ("PreviewFadeInTime", &mut audio.fade_in),
             ("PreviewFadeOutTime", &mut audio.fade_out),
@@ -164,6 +201,9 @@ impl File {
     pub fn audio(&self) -> Audio {
         self.settings.audio
     }
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
     pub fn set_audio(&mut self, audio: Audio) {
         self.settings.audio = audio;
     }
@@ -212,6 +252,10 @@ impl File {
             return Err(Error::ExternalChange);
         }
         let mut fields = self.audio_fields.clone();
+        fields.insert(
+            "MusicRate".into(),
+            Value::from(self.settings.audio.music_rate),
+        );
         fields.insert(
             "PreviewFadeInTime".into(),
             Value::from(self.settings.audio.fade_in),

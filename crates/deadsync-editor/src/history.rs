@@ -22,6 +22,7 @@ struct DocumentState {
 
 #[derive(Debug)]
 enum Change {
+    AudioPreferences(Box<crate::audio_preferences::history::Change>),
     Group(Vec<Change>),
     PlayerCount { chart: usize, before: u32, after: u32 },
     ProfileDeletion {
@@ -70,6 +71,12 @@ pub(crate) struct RevisionToken {
     revision: u64,
 }
 
+#[derive(Clone, Debug)]
+pub(crate) struct ContentToken {
+    identity: Arc<()>,
+    revision: u64,
+}
+
 pub struct ChartAddition<'a> {
     pub source_chart: usize,
     pub layout: &'a str,
@@ -77,6 +84,7 @@ pub struct ChartAddition<'a> {
 }
 
 pub struct Session {
+    audio_preferences_update: Option<crate::audio_preferences::Update>,
     identity: Arc<()>,
     allows_external_edits: bool,
     document: Document,
@@ -92,6 +100,7 @@ pub struct Session {
 impl Session {
     pub fn new(document: Document) -> Self {
         Self {
+            audio_preferences_update: None,
             identity: Arc::new(()),
             allows_external_edits: true,
             document,
@@ -123,6 +132,12 @@ impl Session {
             revision: self.revision,
         }
     }
+    pub(crate) fn content_token(&self) -> ContentToken {
+        ContentToken { identity: self.identity.clone(), revision: self.content_revision }
+    }
+    pub(crate) fn accepts_content_token(&self, token: &ContentToken) -> bool {
+        Arc::ptr_eq(&self.identity, &token.identity) && self.content_revision == token.revision
+    }
 
     pub(crate) fn after_profile_creation(&self, token: &RevisionToken) -> Result<RevisionToken, Error> {
         let valid = Arc::ptr_eq(&self.identity, &token.identity)
@@ -150,6 +165,13 @@ impl Session {
     }
     pub fn revision(&self) -> u64 {
         self.revision
+    }
+    pub fn content_revision(&self) -> u64 { self.content_revision }
+    pub fn undo_changes_audio_preferences(&self) -> bool {
+        self.undo.last().is_some_and(|entry| matches!(entry.change, Change::AudioPreferences(_)))
+    }
+    pub fn redo_changes_audio_preferences(&self) -> bool {
+        self.redo.last().is_some_and(|entry| matches!(entry.change, Change::AudioPreferences(_)))
     }
     pub fn undo_label(&self) -> Option<&str> {
         self.undo.last().map(|entry| entry.label.as_str())
@@ -406,7 +428,7 @@ impl Session {
             .collect();
         fn allowed(change: &Change, chart: usize) -> bool {
             match change {
-                Change::DocumentSwap(_) | Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } => false,
+                Change::DocumentSwap(_) | Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } | Change::AudioPreferences(_) => false,
                 Change::Notes { chart: target, .. } | Change::PlayerCount { chart: target, .. } => *target == chart,
                 Change::Group(changes) => changes.iter().all(|change| allowed(change, chart)),
                 _ => true,
@@ -493,6 +515,29 @@ impl Session {
             (original.get(pos) != after).then(|| (pos, after.cloned()))
         }).collect();
         self.edit_notes(chart, label, edits)
+    }
+
+    /// Application preferences share gesture history but do not dirty the song.
+    pub fn set_audio_preferences(
+        &mut self,
+        before: crate::audio_preferences::Audio,
+        after: crate::audio_preferences::Audio,
+        file: Option<&crate::audio_preferences::File>,
+    ) -> Result<bool, Error> {
+        if !self.allows_external_edits {
+            return Err(Error::InvalidEdit("Staged chart edits cannot change audio preferences".into()));
+        }
+        if file.is_some_and(|file| file.audio() != before) {
+            return Err(Error::InvalidEdit("Audio preference snapshot differs from the active settings".into()));
+        }
+        if before == after { return Ok(false); }
+        self.execute("Audio preferences".into(), Change::AudioPreferences(Box::new(
+            crate::audio_preferences::history::Change { before, after, file: file.cloned() }
+        )))?;
+        Ok(true)
+    }
+    pub fn take_audio_preferences_update(&mut self) -> Option<crate::audio_preferences::Update> {
+        self.audio_preferences_update.take()
     }
 
     pub fn undo(&mut self) -> Result<bool, Error> {
@@ -794,7 +839,7 @@ impl Session {
         self.apply(&mut change, true)?;
         fn affects_song(change: &Change) -> bool {
             match change {
-                Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } => false,
+                Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } | Change::AudioPreferences(_) => false,
                 Change::Group(changes) => changes.iter().any(affects_song),
                 _ => true,
             }
@@ -817,6 +862,10 @@ impl Session {
 
     fn apply(&mut self, change: &mut Change, forward: bool) -> Result<(), Error> {
         match change {
+            Change::AudioPreferences(change) => {
+                self.audio_preferences_update = Some(change.apply(forward)?);
+                Ok(())
+            }
             Change::Group(changes) => {
                 let length = changes.len();
                 let index = |offset| if forward { offset } else { length - 1 - offset };

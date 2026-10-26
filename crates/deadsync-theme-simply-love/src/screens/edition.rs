@@ -1354,6 +1354,7 @@ impl State {
         match self.workspace.execute(command) {
             Ok(()) => {
                 if matches!(command, Command::Recover) { self.profile_preference_history.clear(); self.profile_creations.clear(); }
+                self.sync_audio_preferences_history();
                 self.restore_profile_preferences(command, before_revision);
                 self.status = match command {
                     Command::Save => i18n::tr("Edition", "Saved"),
@@ -1429,9 +1430,10 @@ impl State {
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
-            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0 | 1) | Panel::ZoomSettings(0..=2) | Panel::WaveformSettings(2 | 3) | Panel::WaveformColors(1..=13))
+            Some(Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0..=2) | Panel::ZoomSettings(0..=2) | Panel::WaveformSettings(2 | 3) | Panel::WaveformColors(1..=13))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
+            && !(self.panel.is_none() && self.shift && !self.control && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight))
             && !repeating_offset
             && !repeating_label
             && !repeating_text_cursor
@@ -1461,6 +1463,19 @@ impl State {
         }
         if self.shift && !self.control && event.code == KeyCode::KeyS {
             self.open_scroll_settings(); return false;
+        }
+        if self.shift && !self.control && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
+            self.step_music_rate(event.code == KeyCode::ArrowRight);
+            return false;
+        }
+        if self.control {
+            let undo = event.code == KeyCode::KeyZ && !self.shift;
+            let redo = event.code == KeyCode::KeyY || (event.code == KeyCode::KeyZ && self.shift);
+            let session = &self.workspace.file().session;
+            if (undo && session.undo_changes_audio_preferences()) || (redo && session.redo_changes_audio_preferences()) {
+                self.command(if undo { Command::Undo } else { Command::Redo });
+                return false;
+            }
         }
         if !self.workspace.has_chart() {
             self.stop_audio();
@@ -2718,7 +2733,7 @@ impl State {
             Panel::WaveformSettings(_) => &["WaveformSettingShow", "WaveformSettingEnabled", "WaveformSettingWidth", "WaveformSettingDense", "WaveformSettingScroll", "WaveformSettingsDefaults", "WaveformSettingsSave", "WaveformSettingsCancel"],
             Panel::ScrollSettings(_) => &["ScrollStopPlayback", "ScrollSettingsDefaults", "ScrollSettingsSave", "ScrollSettingsCancel"],
             Panel::ZoomSettings(_) => &["ZoomDuration", "ZoomMultiplier", "ZoomSizeCap", "ZoomLimited", "ZoomSettingsDefaults", "ZoomSettingsSave", "ZoomSettingsCancel"],
-            Panel::AudioSettings(_) => &["AudioFadeIn", "AudioFadeOut", "AudioSettingsDefaults", "AudioSettingsApply", "AudioSettingsCancel"],
+            Panel::AudioSettings(_) => &["AudioFadeIn", "AudioFadeOut", "AudioMusicRate", "AudioSettingsDefaults", "AudioSettingsApply", "AudioSettingsCancel"],
             Panel::SongSample(_) => &["SongSampleStart", "SongSampleLength", "SongLastSecondHint", "SongSampleBack"],
             Panel::SongProperties(_) => &[
                 "SongSyncOffset", "SongPropertiesApply", "SongPropertiesCancel", "SongTextOpen", "SongMusicOffset", "SongItgApply",
@@ -3212,7 +3227,7 @@ impl State {
                 self.scroll_settings_label(key)
             } else if matches!(panel, Panel::ZoomSettings(_)) && index < 4 {
                 self.zoom_settings_label(index, key)
-            } else if matches!(panel, Panel::AudioSettings(_)) && index < 2 {
+            } else if matches!(panel, Panel::AudioSettings(_)) && index < 3 {
                 self.audio_settings_label(index, key)
             } else if matches!(panel, Panel::SongSample(_)) && index < 3 {
                 self.song_sample_label(index, key)

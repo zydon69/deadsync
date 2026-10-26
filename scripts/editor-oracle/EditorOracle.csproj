@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="obj/MusicRateReference.cs" />
     <Compile Include="obj/PatternContextReference.cs" />
     <Compile Include="obj/EditorTimingReference.cs" />
     <Compile Include="obj/MetadataReference.cs" />

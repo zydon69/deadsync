@@ -21,6 +21,7 @@ var options = new JsonSerializerOptions
 };
 var request = JsonDocument.Parse(File.ReadAllBytes(args[1])).RootElement;
 var operation = request.GetProperty("Operation").GetString();
+if (operation == "MusicRate") { Console.WriteLine(JsonSerializer.Serialize(MusicRateOracle.Reference.Run(request), options)); return; }
 // File-level attack placement uses the actual pinned readers and SetAttackRowsAndTimes.
 if (operation == "AttackPlacement") {
     System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;

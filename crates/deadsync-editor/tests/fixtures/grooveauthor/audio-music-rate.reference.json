@@ -1,0 +1,36 @@
+{
+  "reference": "https://github.com/PerryAsleep/StepManiaLibrary",
+  "commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "music_rate_methods_sha256": "fb10c60c758b2069a3960263a17755f56572710d8b0b097fbc9d4827283c9a94",
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "editor_timing_adapter_sha256": "457d70fea5dd7a0eb3ec5c916090ab55d7946f017b39855356bcc59dc6243269",
+  "editor_context_methods_sha256": "17ce9943d0cf378618b656422db8b4e6bd9d0dbf5b88b571c61842cb25cf9948",
+  "editor_timing_methods_sha256": "3a2f82ae9e0cd5e1ee25323db5700092dfe899e926e59870d003c4aa57b726d3",
+  "editor_metadata_types_sha256": "537a9f5f4f603ac0b42e3ca813401ccdb48dfb17eaa28e88d66267c4c1a2d671",
+  "editor_profile_setters_sha256": "1fcd1a43c84505b46e6bb1b73da439962480a687c20aab206c8baea963bd95e3",
+  "editor_tempo_methods_sha256": "3cc494c80e02f3c51cfce20965cb69199090cb0f4ec74a40cb53e2fd6da6686f",
+  "editor_pause_methods_sha256": "ac3a685e236cd17e92faf610d344929a8244d09ab246d5f713aac15b662d38e5",
+  "editor_region_methods_sha256": "38720097a075ea8fa3a7913a3ac4bbd736ea44f49e939658ff57e6321d2b05d5",
+  "editor_source_timing_methods_sha256": "68a95cb9d47eef1f424b4b7f4c5fb3959b4e971c8d96728d83863d904a87fffe",
+  "editor_signature_methods_sha256": "620581fd453088f5e7f488bdd516d261d8e272b18183dd089257bfb9a8a64c0c",
+  "editor_scroll_methods_sha256": "136396404403d0285a3f5187dd4f21595152a3950876bee5d6035a30bd50d114",
+  "editor_tick_methods_sha256": "05744171ce45199cb40a2dadfd06b61db18cecdda420d791a2520539fc0f6d70",
+  "editor_combo_methods_sha256": "46c1940a61f6b5971303901b11dd1435c2b9a83f9243ba8952e57898089f0ed9",
+  "editor_speed_methods_sha256": "8b8633aee24017a22b0def838c524cbb7167ee2fc23b97c31e081051014c66f7",
+  "editor_label_methods_sha256": "34fa91e317e6dada4e4373b29bac6dc2e2ab54370c3e3e7c126cd07106f34881",
+  "editor_pattern_navigation_methods_sha256": "8ea77cd2ec413ba1d3c3c09ab938f49c40ad5d080409dc8984bfd639a45a4f7d",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "dotnet_sdk": "10.0.402",
+  "dotnet_runtimes": [
+    "Microsoft.AspNetCore.App 10.0.13",
+    "Microsoft.NETCore.App 10.0.13"
+  ],
+  "sort_source": "https://github.com/dotnet/runtime/blob/v10.0.13/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/ArraySortHelper.cs",
+  "notice": "Expected results come from pinned C# libraries and unchanged GrooveAuthor helper bodies, not from the Rust port. Editor adapters provide explicit input events; they do not run the full editor.",
+  "scope": "audio-music-rate only: unchanged pinned editor increment/decrement methods and MusicManager clamp; real Fumen DoubleEquals. Preference/action queue shells do not run the full editor or audio renderer.",
+  "files": {
+    "scripts/editor-oracle/MusicRateReference.cs.template": "4819b58538f243e16d32f72f285a290feaddd41c2a7099f0aa68372e60587938",
+    "crates/deadsync-editor/tests/fixtures/grooveauthor/audio-music-rate.request.json": "1167a85fa4c6f2e3aa7316000f67cc3992eed559fb2536d9968c096ce903da47",
+    "crates/deadsync-editor/tests/fixtures/grooveauthor/audio-music-rate.expected.json": "82699ef0f518641a440fec563750bbc571d2667406a8706e89e5e27633cda343"
+  }
+}

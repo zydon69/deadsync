@@ -869,6 +869,22 @@ def requests(reference: Path):
     return cases
 
 
+def prepare_music_rate_reference(editor):
+    def read(path):
+        return subprocess.check_output(["git", "show", f"{EDITOR_PIN}:StepManiaEditor/{path}"], cwd=editor).decode("utf-8-sig")
+    source = read("Editor.cs")
+    manager = read("Sound/MusicManager.cs")
+    pieces = {
+        "MUSIC_RATE_SHORTCUTS": "\n".join(extract_member(source, r"\tprivate void " + name + r"\(") for name in ["OnDecreaseMusicRate", "OnIncreaseMusicRate"]),
+        "MUSIC_RATE_CONSTANTS": "\n".join(re.findall(r"public const double (?:Min|Max)MusicRate = [^;]+;", manager)),
+        "MUSIC_RATE_SETTER": extract_member(manager, r"\tpublic void SetMusicRate\("),
+    }
+    template = (ROOT / "scripts/editor-oracle/MusicRateReference.cs.template").read_text()
+    for name, body in pieces.items(): template = template.replace("// " + name, body)
+    (ROOT / "scripts/editor-oracle/obj/MusicRateReference.cs").write_text(template)
+    return hashlib.sha256("\n".join(pieces.values()).encode()).hexdigest()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reference-root", type=Path, required=True)
@@ -896,6 +912,7 @@ def main():
     speed_hash = prepare_speed_reference(args.editor_root.resolve())
     label_hash = prepare_label_reference(args.editor_root.resolve())
     pattern_navigation_hash = prepare_pattern_navigation_reference(args.editor_root.resolve())
+    music_rate_hash = prepare_music_rate_reference(args.editor_root.resolve())
     project = ROOT / "scripts/editor-oracle/EditorOracle.csproj"
     build = subprocess.run([str(args.dotnet), "build", str(project), f"-p:ReferenceRoot={reference}", "-c", "Release"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if build.returncode:
@@ -904,6 +921,11 @@ def main():
     output = ROOT / "crates/deadsync-editor/tests/fixtures/grooveauthor"
     output.mkdir(parents=True, exist_ok=True)
     cases = requests(reference)
+    cases["audio-music-rate"] = {"Operation": "MusicRate", "Cases": [
+        {"Rate": rate, "Directions": directions}
+        for rate in [0.25, 0.26, 0.29999999999999993, 0.3, 0.9999999999999999, 1.0, 1.05, 1.9999999999999998, 3.9999999999999996, 4.0]
+        for directions in [[False] * 42, [True] * 42, [True, False, False, True]]
+    ]}
     for seed in [0, 42, -7, -2147483648, 2147483647]:
         cases[f"random-{seed}"] = {"Operation": "Random", "Seed": seed, "Count": 64}
     for name, request in cases.items():
@@ -920,6 +942,7 @@ def main():
         print(name)
     (output / "provenance.json").write_text(json.dumps({
         "reference": "https://github.com/PerryAsleep/StepManiaLibrary", "commit": commit,
+        "music_rate_methods_sha256": music_rate_hash,
         "editor_commit": EDITOR_PIN, "editor_timing_adapter_sha256": hashlib.sha256((ROOT / "scripts/editor-oracle/EditorTimingReference.cs.template").read_bytes()).hexdigest(), "editor_context_methods_sha256": context_hash, "editor_timing_methods_sha256": timing_hash, "editor_metadata_types_sha256": metadata_hash, "editor_profile_setters_sha256": profiles_hash, "editor_tempo_methods_sha256": tempo_hash, "editor_pause_methods_sha256": pause_hash, "editor_region_methods_sha256": region_hash, "editor_source_timing_methods_sha256": source_timing_hash, "editor_signature_methods_sha256": signature_hash, "editor_scroll_methods_sha256": scroll_hash, "editor_tick_methods_sha256": tick_hash, "editor_combo_methods_sha256": combo_hash, "editor_speed_methods_sha256": speed_hash, "editor_label_methods_sha256": label_hash, "editor_pattern_navigation_methods_sha256": pattern_navigation_hash,
         "fumen_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=reference / "Fumen", text=True).strip(),
         "dotnet_sdk": subprocess.check_output([str(args.dotnet), "--version"], env=env, text=True).strip(),

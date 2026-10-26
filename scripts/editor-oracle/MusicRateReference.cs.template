@@ -1,0 +1,41 @@
+// Unchanged pinned editor shortcut bodies; minimal preference/action adapters.
+using System.Text.Json;
+using Fumen;
+namespace MusicRateOracle;
+internal sealed class PreferencesAudio { public double MusicRate { get; set; } = 1.0; }
+internal sealed class Preferences {
+    public static readonly Preferences Instance = new();
+    public readonly PreferencesAudio PreferencesAudio = new();
+}
+internal sealed class MusicManager {
+    // MUSIC_RATE_CONSTANTS
+    private double MusicRate = 1.0;
+    // MUSIC_RATE_SETTER
+    public double Effective => MusicRate;
+}
+internal interface IAction { void Apply(); }
+internal sealed class ActionSetObjectFieldOrPropertyValue<T>(object owner, string name, T value, bool ignored) : IAction {
+    public void Apply() => owner.GetType().GetProperty(name)!.SetValue(owner, value);
+}
+internal sealed class ActionQueue {
+    public static readonly ActionQueue Instance = new();
+    public void Do(IAction action) => action.Apply();
+}
+internal sealed class Reference {
+    // MUSIC_RATE_SHORTCUTS
+    public static object Run(JsonElement request) {
+        var editor = new Reference();
+        return request.GetProperty("Cases").EnumerateArray().Select(item => {
+            Preferences.Instance.PreferencesAudio.MusicRate = item.GetProperty("Rate").GetDouble();
+            var manager = new MusicManager();
+            var values = new List<double>();
+            foreach (var direction in item.GetProperty("Directions").EnumerateArray()) {
+                if (direction.GetBoolean()) editor.OnIncreaseMusicRate();
+                else editor.OnDecreaseMusicRate();
+                manager.SetMusicRate(Preferences.Instance.PreferencesAudio.MusicRate);
+                values.Add(manager.Effective);
+            }
+            return values;
+        }).ToArray();
+    }
+}

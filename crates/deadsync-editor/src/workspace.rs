@@ -158,6 +158,12 @@ impl Workspace {
     pub fn file(&self) -> &FileSession {
         &self.file
     }
+    pub fn set_audio_preferences(&mut self, before: crate::audio_preferences::Audio, after: crate::audio_preferences::Audio, file: Option<&crate::audio_preferences::File>) -> Result<bool, Error> {
+        self.file.session.set_audio_preferences(before, after, file)
+    }
+    pub fn take_audio_preferences_update(&mut self) -> Option<crate::audio_preferences::Update> {
+        self.file.session.take_audio_preferences_update()
+    }
     pub fn active_chart(&self) -> Option<usize> {
         (self.chart < self.file.session.document().charts().len()).then_some(self.chart)
     }
