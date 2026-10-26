@@ -139,7 +139,7 @@ pub(super) fn actors(
                 visual.brightness,
                 alpha,
             ],
-            8008,
+            8001,
         );
         if visual.rim_alpha > 0.0 {
             sprite(
@@ -259,7 +259,7 @@ mod tests {
                 };
                 assert_eq!(*offset, [355.0 + 48.0 * lane as f32, 160.0]);
                 assert_eq!(*rot_z_deg, [90.0, 0.0, 180.0, 270.0][lane]);
-                assert_eq!(*z, 8008 + layer as i16);
+                assert_eq!(*z, [8001, 8009, 8010][layer]);
                 assert!(
                     uv_rect
                         .unwrap()

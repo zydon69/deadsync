@@ -39,17 +39,29 @@ fn snapshot(time: f64) -> GameplayAudioSnapshot {
     s.stream_clock.music_nanos = (time * 1e9).round() as i64;
     s
 }
-fn arrow(s: &State) -> f64 {
-    let mut a = Vec::new();
-    s.actors(&mut a);
-    a.into_iter()
-        .find_map(|a| match a {
+fn note_positions(s: &State) -> Vec<[f32; 2]> {
+    let mut actors = Vec::new();
+    s.actors(&mut actors);
+    actors
+        .into_iter()
+        .filter_map(|actor| match actor {
             Actor::Sprite {
                 z: 8004, offset, ..
-            } => Some(offset[1] as f64),
+            } => Some(offset),
             _ => None,
         })
-        .expect("visible note")
+        .collect()
+}
+fn arrow(s: &State) -> f64 {
+    note_positions(s).first().expect("visible note")[1] as f64
+}
+fn same_arrow(s: &State, x: f32) -> f64 {
+    // Autoplay hides passed notes; pausing reveals them for editing. Track the
+    // same lane instead of comparing whichever note happens to be first.
+    note_positions(s)
+        .into_iter()
+        .find(|offset| offset[0] == x)
+        .expect("the tracked upcoming note remains visible")[1] as f64
 }
 fn close(a: f64, b: f64) {
     assert!((a - b).abs() < 0.0001, "{a} != {b}");
@@ -162,30 +174,31 @@ fn pause_resume_preserves_exact_position_and_audio_cut_in_every_view_and_directi
             press(&mut s, KeyCode::Enter);
             assert_play_start(&mut s, 0.0);
             s.update_audio(snapshot(0.126));
-            let y = arrow(&s);
+            let [x, y] = *note_positions(&s).first().expect("upcoming note");
+            let y = y as f64;
             let row = s.workspace().row();
             assert_eq!(row, 12);
             press(&mut s, KeyCode::Enter);
             assert!(!s.is_playing());
-            close(arrow(&s), y);
+            close(same_arrow(&s, x), y);
             assert_eq!(
                 s.take_audio_commands(),
                 vec![GameplayAudioCommand::StopMusic]
             );
             s.update_audio(snapshot(9.0));
-            close(arrow(&s), y);
+            close(same_arrow(&s, x), y);
             assert_eq!(s.workspace().row(), row);
             press(&mut s, KeyCode::Enter);
             assert!(s.is_playing());
             assert_play_start(&mut s, 0.126);
-            close(arrow(&s), y); // No snap while the audio engine installs the new mapping.
+            close(same_arrow(&s, x), y); // No snap while the audio engine installs the new mapping.
             press(&mut s, KeyCode::Enter);
             s.take_audio_commands();
-            close(arrow(&s), y);
+            close(same_arrow(&s, x), y);
             press(&mut s, KeyCode::Enter);
             assert_play_start(&mut s, 0.126);
             s.update_audio(snapshot(0.127));
-            assert_ne!(arrow(&s), y);
+            assert_ne!(same_arrow(&s, x), y);
             assert!(!s.workspace().file().session.is_dirty());
             assert_eq!(fs::read(d.path().join("song.ssc")).unwrap(), source);
         }
@@ -237,9 +250,10 @@ fn older_mapped_or_unmapped_snapshots_cannot_rewind_or_stop_current_transport() 
     let mut stale = snapshot(0.1);
     let latest = snapshot(0.126);
     s.update_audio(latest);
-    let y = arrow(&s);
+    let [x, y] = *note_positions(&s).first().expect("upcoming note");
+    let y = y as f64;
     s.update_audio(stale);
-    close(arrow(&s), y);
+    close(same_arrow(&s, x), y);
     assert_eq!(s.workspace().row(), 12);
     stale.stream_clock.has_music_mapping = false;
     s.update_audio(stale);
@@ -249,7 +263,7 @@ fn older_mapped_or_unmapped_snapshots_cannot_rewind_or_stop_current_transport() 
     ended.stream_clock.has_music_mapping = false;
     s.update_audio(ended);
     assert!(!s.is_playing());
-    close(arrow(&s), y);
+    close(same_arrow(&s, x), y);
     s.take_audio_commands();
     press(&mut s, KeyCode::Enter);
     assert_play_start(&mut s, 0.126);

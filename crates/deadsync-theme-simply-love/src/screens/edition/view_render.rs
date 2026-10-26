@@ -258,6 +258,7 @@ pub(super) fn notes(
     ranges: &[(u64, u64)],
     size_zoom: f32,
     note_limit: usize,
+    policy: Option<&super::receptor_views::Policy<'_>>,
 ) -> NoteRenderStats {
     let mut stats = NoteRenderStats::default();
     if note_limit == 0 {
@@ -295,6 +296,10 @@ pub(super) fn notes(
             if !shown.insert(position) {
                 continue;
             }
+            let presentation = policy.and_then(|policy| policy.presentation(position));
+            if presentation.is_some_and(|presentation| presentation.hidden) {
+                continue;
+            }
             let x = geometry.left + (f32::from(position.lane) + 0.5) * geometry.lane_width;
             if !geometry.visible_x(x) {
                 continue;
@@ -302,7 +307,11 @@ pub(super) fn notes(
             let Some(y) = projection.note_y(position.row) else {
                 continue;
             };
-            let y = y as f32;
+            let y = if presentation.is_some_and(|presentation| presentation.clip_hold) {
+                viewport.cursor
+            } else {
+                y as f32
+            };
             let color = player_color(position.player);
             if let Some(tail) = note.end {
                 let a = y.clamp(viewport.top, viewport.bottom);
@@ -504,6 +513,7 @@ mod tests {
             ranges,
             1.0,
             limit,
+            None,
         )
     }
     #[test]

@@ -1,4 +1,4 @@
-# Prepared receptor and autoplay increment
+# Receptor and autoplay increment
 
 ## Source and boundary
 
@@ -6,7 +6,8 @@ Pinned GrooveAuthor: `48e18f71655d0f0d86144c63239331833501fda2`, MIT.
 Core and actor modules are now declared, with five autoplay, four receptor and
 two actor tests passed. Four playback-signal checks also passed: pending, stale,
 failed, rebound, paused and sample states cannot drive autoplay. State/render
-integration remains prepared in a separate unapplied patch. The playback helper
+integration is now applied after checkpoint `543e3d106`; its five native
+workflows await central execution. The playback helper
 records the generation which actually supplied a validated position, preventing
 an older position from passing after a new Opened acknowledgement.
 
@@ -98,9 +99,8 @@ seconds from that view's validated shared clock; use the existing typed chart
 transport to decide whether playback is actually active. Sample audition,
 queued playback and paused transport must not trigger autoplay. Reset all slots
 on stop/seek/content reload, remove closed resident slots, and do not attach
-native editing gestures to inactive charts. Manual lane release support is a
-separate source-backed input transaction; the prepared graphics do not provide
-it. No native integration is claimed by these isolated modules.
+native editing gestures to inactive charts. Manual lane feedback and release are connected in the native bridge below.
+Full press/release note-creation gestures remain a separate source contract.
 
 ## Compile checkpoint after `c9393c835`
 
@@ -108,8 +108,8 @@ The core modules and native actor module are now declared for central compile
 and tests only. `EditorTimeline::timed_events` supplies a crate-private typed
 stream of initialized rows/times and optional head Positions, preserving the
 existing entry order. The candidate index uses this stream rather than
-reconstructing nonlane timing boundaries. Native State is still unchanged:
-no receptor slots, update hooks, playback consumption or actor calls are wired.
+reconstructing nonlane timing boundaries. At that checkpoint Native State remained unchanged; the later bridge below
+connects slots, updates, note-consumption policy and actors.
 The 5+4 core and 2 native unit tests passed central validation.
 
 The ninth candidate sequence proves the
@@ -134,7 +134,7 @@ against `git show` of its recorded commit before compiling. The Fumen tree is
 checked against its own recorded submodule commit. Hash metadata alone is not
 treated as proof that a locally modified source matches the pin.
 
-## Prepared native bridge (not applied during MiniMap/Shift checkpoint)
+## Native bridge applied after `543e3d106`
 
 `edition/receptor_views.rs` prepares one slot per resident GUID with a shared
 immutable clock, bound candidate index, autoplay state and per-lane animation
@@ -144,8 +144,7 @@ rim. Session changes and layout changes reset the appropriate state. Losing
 view focus or receiving key-up clears manual feedback, including after opening
 a panel/modifier. Key repeat does not invent manual presses.
 
-The checked bridge is staged only as a temporary patch outside the repository;
-no State field or hook has been applied yet. It adds validated playback updates,
+The bridge now adds a State field, refresh/update hooks, validated playback updates,
 stop/seek/scroll cancellation, source-layered receptor actors for visible fields,
 and the default hide/hold-cutoff policy shared by focused/inactive note passes.
 Manual feedback is included, but full press/release note-creation gestures are
@@ -155,8 +154,30 @@ graphic increment, rather than approximating it with an invented tint.
 
 Source draw order review (`Editor.cs:2588–2604`) found base receptors must be
 behind note sprites and selection; only rim/glow foreground effects overlay
-them. The prepared bridge corrects the base actor layer to 8001 and retains
-foreground layers 8009/8010. Four native production-flow tests are prepared for
-pending requests, per-view clocks, hold cutoff, fake-note visibility, pause/fade,
-manual release through a panel and focused-only edits. They await connection
-and central execution.
+them. The bridge corrects the base actor layer to 8001 and retains
+foreground layers 8009/8010. Five native production-flow tests cover pending
+requests, per-view clocks, hold cutoff, fake-note visibility, pause/fade, manual
+release through panels/help/focus loss, focused-only edits, and captured digits
+under help/settings/minimap/modifiers. All five passed central execution after
+resumption on 2026-10-26. The two actor unit tests and both renderer-budget
+unit tests also passed after the base-layer correction. These are synthetic
+transport/actor proofs, not hardware audio or GPU-rendering validation.
+
+Key releases are handled before modal routing. Help, settings, minimap focus
+and active Ctrl/Super/Shift/Alt modifiers suppress new manual feedback. Losing
+application input clears tracked modifiers and held manual state. UI animation
+time may fade effects during pause, but never advances chart audio position.
+
+### Transport regression adaptation
+
+The playback-follow regression now tracks the same upcoming lane note across
+pause/resume and end-of-stream. The old helper compared the first visible note,
+which changes identity when autoplay hides a passed note and pausing reveals it
+for editing. Two assertions initially exposed this fixture assumption; all ten
+playback-follow workflows passed after preserving note identity. Exact position,
+requested audio cuts, stale snapshots and unchanged source bytes remain checked.
+
+The resumed checkpoint also passed 82 native regressions: mixed shift ten, help
+two, minimap twenty, playback-follow ten, transport navigation three and general
+editor workflows thirty-seven. The five new receptor workflows and four targeted
+receptor/render-budget units are separate from that regression count.

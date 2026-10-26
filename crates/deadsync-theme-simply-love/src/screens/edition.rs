@@ -27,6 +27,7 @@ mod view_layout;
 mod view_render;
 mod view_render_screen;
 mod receptor_render;
+mod receptor_views;
 mod help;
 pub mod decoder_transport;
 mod attacks;
@@ -269,6 +270,7 @@ pub struct State {
     focus_position: Option<deadsync_editor::chart_focus::Position>,
     active_views: Option<deadsync_editor::chart_views::ActiveChartViews>,
     view_inputs: view_render::Cache,
+    receptor_views: receptor_views::Runtime,
     end_hint: Option<end_hint::Cache>,
     minimap: minimap::Navigation,
     scroll_preferences: deadsync_editor::scroll_preferences::Preferences,
@@ -419,6 +421,7 @@ impl State {
             focus_position: None,
             active_views: None,
             view_inputs: view_render::Cache::default(),
+            receptor_views: receptor_views::Runtime::default(),
             end_hint: None,
             minimap: Default::default(),
             scroll_preferences: Default::default(),
@@ -531,6 +534,7 @@ impl State {
     /// Focus loss cancels transient input state while retaining the editing draft.
     pub fn release_input(&mut self) {
         self.minimap_release_input();
+        self.receptor_views.release_input();
         self.control = false;
         self.control_keys = 0;
         self.shift = false;
@@ -1132,6 +1136,7 @@ impl State {
         }
         self.zoom.update(now.saturating_duration_since(self.zoom_epoch).as_secs_f64())
             .expect("finite monotonic frame clock");
+        self.update_receptors(now.saturating_duration_since(self.zoom_epoch).as_secs_f64());
         self.poll_waveform();
         self.poll_analysis();
         if self.catalog_job.is_some() {
@@ -1324,6 +1329,7 @@ impl State {
     fn refresh(&mut self) {
         self.refresh_chart_views();
         self.prepare_view_render();
+        self.prepare_receptors();
         self.refresh_spacing_cache();
         self.refresh_attack_view();
         self.refresh_waveform();
@@ -1421,6 +1427,9 @@ impl State {
     }
 
     fn command(&mut self, command: Command) {
+        if matches!(command, Command::Move(_) | Command::Seek(_) | Command::PreviousMeasure | Command::NextMeasure | Command::PreviousLabel | Command::NextLabel | Command::SelectChart(_) | Command::Recover) {
+            self.receptor_views.reset();
+        }
         // Explicit edit/cursor intentions reset fractional transport anchors,
         // including Seek(0) when a negative anchor already clamps to row zero.
         // Preference history and generic refresh retain the musical position.
@@ -1456,6 +1465,7 @@ impl State {
     /// this screen is open, so an Escape cannot silently abandon edited data.
     /// Returns true only after an explicit, safe close decision.
     pub fn raw_key(&mut self, event: &RawKeyboardEvent) -> bool {
+        self.receptor_modifiers(event);
         match event.code {
             KeyCode::ControlLeft
             | KeyCode::ControlRight
@@ -1488,6 +1498,7 @@ impl State {
             }
             _ => {}
         }
+        self.receptor_manual_input(event);
         if self.help && self.panel.is_none() {
             self.help_key(event);
             return false;
@@ -1590,6 +1601,7 @@ impl State {
             && !self.control
             && !self.shift
         {
+            self.receptor_views.reset();
             self.toggle_audio();
             return false;
         }
@@ -2507,9 +2519,17 @@ impl State {
                 return;
             }
         };
+        let geometry = view_layout::Geometry {
+            source: self.workspace.chart(), order: 0, focused: true,
+            left, field_width, lane_width,
+            clip_left: 0.0,
+            clip_right: if side_panel { width - 390.0 } else { width },
+        };
+        let viewport = view_render::Viewport { top, bottom, cursor: cursor_y };
         self.waveform_actors(actors, field_center, field_width, top, bottom, &projection);
         self.sample_region_actors(actors, field_center, field_width, top, bottom, &projection);
         self.attack_actors(actors, left, top, bottom, &projection, &ranges);
+        self.receptor_actors(actors, geometry, viewport);
         for lane in 0..=grid.columns() {
             actors.push(act!(quad: xy(left + f32::from(lane) * lane_width, (top + bottom) * 0.5): zoomto(1.0, bottom - top): diffuse(0.12, 0.16, 0.22, 1.0): z(8001)));
         }
@@ -2630,17 +2650,11 @@ impl State {
                 actors.push(act!(quad: xy(field_center, (y1 + y2) * 0.5): zoomto(field_width, (y2 - y1).abs().max(2.0)): diffuse(0.2, 0.6, 0.9, 0.2): z(8002)));
             }
         }
-        let geometry = view_layout::Geometry {
-            source: self.workspace.chart(), order: 0, focused: true,
-            left, field_width, lane_width,
-            clip_left: 0.0,
-            clip_right: if side_panel { width - 390.0 } else { width },
-        };
-        let viewport = view_render::Viewport { top, bottom, cursor: cursor_y };
         let layout = self.preview.as_ref().map(GenerationPreview::layout).unwrap_or_else(|| {
             &self.workspace.file().session.document().charts()[self.workspace.chart()].steps_type
         });
-        let stats = view_render::notes(actors, grid, layout, &projection, geometry, viewport, &ranges, self.zoom.size_zoom() as f32, self.view_note_budget());
+        let policy = self.receptor_policy(geometry.source);
+        let stats = view_render::notes(actors, grid, layout, &projection, geometry, viewport, &ranges, self.zoom.size_zoom() as f32, self.view_note_budget(), policy.as_ref());
         view_render::cursor(actors, geometry, viewport);
         view_render::partial_notice(actors, geometry, viewport, stats);
         self.end_hint_actors(actors, &projection, geometry, viewport);

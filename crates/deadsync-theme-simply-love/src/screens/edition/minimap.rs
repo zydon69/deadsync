@@ -196,6 +196,7 @@ impl State {
         match effect {
             Some(Effect::Pause(_)) => self.pause_for_minimap(),
             Some(Effect::Focus(position)) => {
+                self.receptor_views.reset();
                 let session = &self.workspace.file().session;
                 let focus = match self.active_views.as_ref().and_then(|views| {
                     views

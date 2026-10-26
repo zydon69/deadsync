@@ -24,6 +24,8 @@ pub struct SessionBinding(crate::history::ContentToken);
 impl SessionBinding {
     pub fn capture(session: &Session) -> Self { Self(session.content_token()) }
     pub fn is_current(&self, session: &Session) -> bool { session.accepts_content_token(&self.0) }
+    /// Survive content edits without accepting another song session.
+    pub fn belongs_to(&self, session: &Session) -> bool { session.owns_content_token(&self.0) }
 }
 
 /// Bind a queued native operation to its original live song content and focus.

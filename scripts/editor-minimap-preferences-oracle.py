@@ -18,7 +18,10 @@ def main():
     commit=subprocess.check_output(['git','-C',str(args.reference_root),'rev-parse','HEAD'],text=True).strip()
     if commit != PIN: raise SystemExit('Wrong reference commit')
     source_path=args.reference_root/'StepManiaEditor/Preferences/PreferencesMiniMap.cs'
-    source=source_path.read_text(encoding='utf-8-sig')
+    source_bytes=source_path.read_bytes()
+    pinned=subprocess.check_output(['git','-C',str(args.reference_root),'show',f'{PIN}:StepManiaEditor/Preferences/PreferencesMiniMap.cs'])
+    if source_bytes != pinned: raise SystemExit('Reference working tree differs from pinned source')
+    source=source_bytes.decode('utf-8-sig')
     for name in ['MiniMapVisibleTimeRange','MiniMapVisibleRowRange']:
         if f'[JsonInclude] public uint {name} =' not in source: raise SystemExit('Source declaration changed')
     cases=[{'MiniMapVisibleTimeRange':240,'MiniMapVisibleRowRange':24576},

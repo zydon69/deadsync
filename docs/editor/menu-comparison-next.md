@@ -4,7 +4,7 @@
 
 Comparison at GrooveAuthor `48e18f71655d0f0d86144c63239331833501fda2`.
 This is a bounded review of the main menu's dispatch, selected delegated menus,
-the actual action for the proposed next increment, and current Rust command/API
+the actual action for the completed mixed-shift increment, and current Rust command/API
 paths. It is not a claim that every original window, shortcut or callback was
 fully reviewed. Source references below are relative to `StepManiaEditor/`.
 Rendering/autoplay, minimap and audio remain assigned to the other active lots.
@@ -15,7 +15,7 @@ Rendering/autoplay, minimap and audio remain assigned to the other active lots.
 | --- | --- | --- |
 | File, `Editor.cs:3813–3895`: New/Open/Recent/Reload/Save/SaveAs/SavePack | `storage::FileSession` exposes open/save/external-change/recovery; native editor opens from song selection and has save/close/recovery | In-editor New Song/Open/Recent and Save As have no corresponding Workspace command/native panel. Core disk safety already exists; it must be reused, not described as missing. Pack save belongs to the separate absent pack model. |
 | Advanced Save Options, `Editor.cs:3897–4005`: SM identical-event policy, omit chart timing/custom data, compatibility options | Source-preserving original-format saves; SSC migration and explicit Pump co-op normalization exist | A reviewed export/options plan and Save As path are still absent. Omitting editor metadata is explicitly destructive in the original help; it must not be silently introduced as a default. The original SM policy also confirms that chart-varying timing/attacks cannot be represented independently in SM. |
-| Edit Shift Selected/All, `Editor.cs:4018–4036`, `UI/UIEditEvents.cs:46–119`, `ActiveEditorChart.cs:2544–2563`, whole `ActionShiftSelectionRow.cs` | `transform::apply` selects only `session.grid(chart).iter()` note heads; the mixed picker offers copy/cut/delete but no row-shift | Mixed note+timing+attack+Pattern row shifts are a real absent operation. Existing lane shifts/mirror/flip and note row shifts remain implemented. Proposed next lot below. |
+| Edit Shift Selected/All, `Editor.cs:4018–4036`, `UI/UIEditEvents.cs:46–119`, `ActiveEditorChart.cs:2544–2563`, whole `ActionShiftSelectionRow.cs` | `transform::apply` selects only `session.grid(chart).iter()` note heads; the mixed picker now offers snap-sized earlier/later shifts through `event_shift` | Mixed shifting is implemented and validated: six core workflows, 19 SM/SSC comparisons from 12 original action cases, and ten native EN/FR workflows. Existing notes-only transforms remain separate. |
 | Edit Convert/Swap, `UI/UIEditEvents.cs:126–409` | `Transform::Convert` and participant assignment/swap; native note conversion/owner panels | Warp ↔ negative-stop conversion is exposed in the original (`:295–305`) but not in Rust timing APIs/panels. General pairwise note-kind swaps are also absent from the native conversion choices; do not confuse existing participant swaps with kind swaps. More action-level review is required before implementing either. |
 | Select All, `UI/UIEditEvents.cs:913–1094` | Mixed picker individual choices and all/none in a row interval; separate participant-aware note tools | Original current-player/by-kind/all-chart selection presets have no equivalent picker commands yet. This is an interaction/preset gap, not missing note types or clipboard codecs. |
 | Add Event, `UI/UIEditEvents.cs:1154–1253` | F10 typed timing/attack inspectors, F4/F6 Pattern creation/inspection | Concrete event families are represented; keyboard quick-add shortcuts and collision notices are not certified equivalent. Do not list the whole Add Event menu as absent. |
@@ -25,9 +25,9 @@ Rendering/autoplay, minimap and audio remain assigned to the other active lots.
 | Autogen, `Editor.cs:4162–4227` | Chart conversion, source-type batch, saved-pattern fixed/new seeds, clear/previous/next and profile panels already exist | This dispatch review establishes no newly missing generation feature. Broader original behavioral coverage remains a validation task. Exactly 11 original solo graph layouts are supported; multiplayer generation would be an extension, not an original menu feature. |
 | Layout/Help, `Editor.cs:4236–4270`, key-command registration `:700–800` | Simplified panel layout approved by the user; fixed keyboard adapter and help | Original docking/layout presets are not automatically required as literal copies of MonoGame UI. Configurable shortcut rebinding remains absent; its conflict/modifier/persistence behavior needs a dedicated reference review. Debug/ImGui demo/FMOD splash entries do not create user-facing parity requirements for Rust tooling. |
 
-## Proposed next lot: shift the mixed event selection earlier/later
+## Completed increment: shift the mixed event selection earlier/later
 
-### Evidence of a real gap
+### Original gap and implementation boundary
 
 The menu passes its selected `IEnumerable<EditorEvent>` to the editor, which
 forwards it to `ActiveEditorChart::OnShiftNotesEarlier/Later` and constructs
@@ -54,7 +54,7 @@ cut/paste is not sufficient proof of the original shift contract.
   Undo restores the complete transformable selection. Editor selection widgets
   are separate from persisted file data.
 
-### Small implementation sequence, after approval
+### Implementation sequence used
 
 1. Extend the real development oracle in a **new isolated project** to execute
    the unchanged whole ActionShiftSelectionRow plus real ForceAddSideEffect,
@@ -77,7 +77,10 @@ cut/paste is not sufficient proof of the original shift contract.
    immutable events in EN/FR and verify real native input/actors. Preserve the
    established notes-only transform command rather than silently widening it.
 
-The next lot has been approved for isolated implementation. Its new original
-ActionShiftSelectionRow oracle is being prepared; core/native validation is not
-yet claimed. The current checkpoint regression remains centralized by the parent. This proposal does not claim any remaining menu
-group complete, and does not schedule filesystem pack editing or export work.
+This increment is implemented in `event_shift`, the Workspace bridge and the
+native mixed picker (Ctrl/Cmd+Left/Right). Six core workflows and ten native
+EN/FR workflows passed. The pinned original action supplied 12 cases and
+19 serialized SM/SSC comparisons. These results concern mixed shifting only.
+Pack metadata and its preserving codec separately passed six workflows; pack
+filesystem storage and its native panel are still being implemented. Save As,
+New/Open/Recent and advanced export remain unfinished as described above.

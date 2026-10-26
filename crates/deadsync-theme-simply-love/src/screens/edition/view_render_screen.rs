@@ -123,6 +123,7 @@ impl State {
                     .max(data.last_row());
                 let ranges = projection.visible_ranges(viewport.top, viewport.bottom, last_row)?;
                 view_render::lanes(actors, grid, geometry, viewport);
+                self.receptor_actors(actors, geometry, viewport);
                 view_render::markers(
                     actors,
                     data,
@@ -132,6 +133,7 @@ impl State {
                     &ranges,
                     ((viewport.bottom - viewport.top).ceil() as usize).clamp(1, 4096),
                 );
+                let policy = self.receptor_policy(geometry.source);
                 let stats = view_render::notes(
                     actors,
                     grid,
@@ -142,6 +144,7 @@ impl State {
                     &ranges,
                     self.zoom.size_zoom() as f32,
                     budget,
+                    policy.as_ref(),
                 );
                 view_render::cursor(actors, geometry, viewport);
                 view_render::partial_notice(actors, geometry, viewport, stats);
