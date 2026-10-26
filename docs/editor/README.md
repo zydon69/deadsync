@@ -40,7 +40,7 @@ reviewable and tested.
 | --- | --- | --- |
 | SM/SSC source preservation | Byte spans and explicit replacements; unknown tags, unchanged chart note data, and legacy metadata bytes preserved | `editing_workflows`, `property_workflows`; broader format corpus still required |
 | Notes | Sparse lanes, sustains, rolls, mines, lifts, fakes, keysound and attack attribute preservation; arbitrary existing participants | Round-trip and owner tests; Routine/Team participant changes with atomic metadata/history; raw head/tail attribute inspector shipped; typed note-specific suffix forms and StepF2 conventions pending |
-| Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste uses GrooveAuthor ForceAdd conflict rules; attack inspector has an event clipboard; mixed row-range copy/cut/paste includes typed timing and attacks; arbitrary subsets and pattern-event clipboard parity remain pending |
+| Commands | Gesture undo/redo, selection, cut/copy/paste, automatic advance | Core command workflows; native lane-note paste uses GrooveAuthor ForceAdd conflict rules; attack inspector has an event clipboard; mixed row-range copy/cut/paste includes typed timing and attacks; individual note/timing/attack choices are available in the keyboard picker; pattern and other editor-only event clipboard parity remain pending |
 | Layouts | Reference pad coordinates, starting tiers, ten relationship matrices, mirror/flip mappings | All imported layout definitions validated; original compressed graphs decoded and traversed |
 | Transformations | Mirror, flip, move rows, reassign existing participant, convert note kinds | `selection_workflows`; native panel exposes mirror/flip/row shifts and column shifts with optional wrapping; miscellaneous-event transformations and broader original workflow coverage pending |
 | Native file safety | Atomic same-directory replacement, advisory editor save lock, byte-exact external change check, durable explicit recovery drafts | Save/reopen, concurrent editors, external change and recovery tests; background automatic drafts and conflict review UI pending |
@@ -5859,9 +5859,9 @@ still rejects another chart's note or structural edits. Timing-only batches can
 cross lane layouts; batches containing notes retain the note-layout constraint.
 SSC-only timing families pasted into SM fail atomically until format conversion
 is implemented. The original guard against deleting the final chart attack while song attacks
-exist was replaced by the scoped normalization described below. Arbitrary mixed
-event subsets, pattern clipboard support and clipboard C# differential execution
-remain required before claiming complete GrooveAuthor selection/clipboard parity.
+exist was replaced by the scoped normalization described below. Individual mixed-event choices are added below. Pattern clipboard support and
+clipboard C# differential execution remain required before claiming complete
+GrooveAuthor selection/clipboard parity.
 
 The reference behavior was read in pinned `Editor.cs` (`OnCopy`, `OnCut`,
 `OnPaste`) and `ActionPasteEvents`/`EditorChart.ForceAddEventInternal`. Tests cover
@@ -5969,3 +5969,54 @@ before normalization was added and must not be presented as a full regression of
 this later source. The following broad native phase was deliberately stopped to
 prioritize the targeted normalization checks above; no complete native-regression
 claim is made for it.
+
+### Individual mixed-event picker
+
+Ctrl/Cmd+Shift+E opens an optional event picker for the active chart's selected
+row range, or its cursor row when no range is active. Each note head, typed timing
+node and scheduled attack is an independent choice, including different lanes,
+participants and event types at the same row. Note kinds, players and lanes are
+shown alongside the beat position. The eight-row pages keep the panel bounded.
+Arrow/Page/Home/End keys browse; Space/Enter toggles a checkbox; Ctrl/Cmd+A selects
+all and Ctrl/Cmd+Shift+A clears all. Ctrl/Cmd+C copies, Ctrl/Cmd+X cuts, Delete
+removes without changing the clipboard, and Escape discards the choices. Paste
+in the chart uses Ctrl/Cmd+Shift+V. The panel and its help/status text are localized
+in English/French and use ASCII checkbox marks rather than new font glyphs.
+
+`event_clipboard::Selection` owns snapshot-bound event identities and note-kind
+labels. Copy/cut/delete validate the source session/revision; workspace operations
+also validate the active chart. Empty choices preserve the previous clipboard.
+The detached copied payload keeps only checked note positions, timing kinds/rows
+and attack rows. Its origin is the earliest checked event, including when earlier
+candidates were unchecked. Hold tails follow their selected head. A choice with
+no notes can cross lane layouts, retaining the existing destination clock and
+attack row model. The range clipboard now uses this same selection pipeline with
+all candidates checked instead of maintaining a second removal implementation.
+
+The lane-note clipboard uses one shared filtered-copy implementation for both
+rectangles and explicit positions. Selected timing changes still preserve the
+resident rows of unselected attacks. Empty and protected-initial-node deletions,
+and identical pastes, skip unnecessary attack anchoring when notes/timing did not
+change; they cannot rewrite unrelated resident metadata or clear redo history.
+Initial BPM/signature nodes remain copyable but are not deleted.
+
+Public workflows check precise mixed copy/cut, preserving another note on the
+same row, unrelated stop/BPM nodes and a hold, exact source and undo/reopen,
+stale/foreign selections, invalid checkbox indices, empty/protected-only no-ops
+with resident warp metadata, deleting a stop without moving unselected attacks,
+cross-chart rejection, deletion retaining the previous clipboard, and reanchoring
+a note-free choice across layouts. Native EN/FR tests drive checkbox selection,
+pages, copy/cut/delete/undo/save/reopen, text-input exclusion, empty-choice and
+protected-node handling. Pattern markers and other editor-only event kinds are
+not yet in this picker; their clipboard parity remains pending.
+
+Focused verification: 20 unique core tests passed across explicit event selection
+(6), the mixed clipboard (6), inherited attack clearing (4), and ForceAdd note
+paste (4). The first invocation ran the first five selection cases plus the other
+14 tests (`/tmp/deadsync-event-selection-core.log`); the complete six-case selection
+suite then passed after adding the excluded-earlier-candidates reanchoring case
+(`/tmp/deadsync-event-selection-final-core.log`). Both native event/attack targets
+passed all 28 tests, 14 per language (`/tmp/deadsync-event-selection-native.log`).
+The panel/actor tests prove key dispatch, bounded pagination and localized content;
+they do not prove physical keyboard/pad delivery or GPU/font rendering. No full
+editor-regression claim is made for this increment.

@@ -1,6 +1,7 @@
 //! Typed timing payloads for the mixed event clipboard. All changed timing tags
 //! enter one Target transaction, so attacks are anchored against the final clock.
 use super::{Scope, Target, combo, label, pause, region, scroll, signature, speed, tempo, tick};
+use crate::event_clipboard::{Event, TimingKind};
 use crate::{Error, document::Format, history::Session};
 #[derive(Clone)]
 enum Value {
@@ -15,6 +16,23 @@ enum Value {
     Scroll(f64),
     Speed(speed::Speed),
     Label(String),
+}
+impl Value {
+    fn kind(&self) -> TimingKind {
+        match self {
+            Self::Tempo(_) => TimingKind::Tempo,
+            Self::Stop(_) => TimingKind::Stop,
+            Self::Delay(_) => TimingKind::Delay,
+            Self::Signature(_) => TimingKind::Signature,
+            Self::Tick(_) => TimingKind::Tick,
+            Self::Combo(_) => TimingKind::Combo,
+            Self::Warp(_) => TimingKind::Warp,
+            Self::Fake(_) => TimingKind::Fake,
+            Self::Scroll(_) => TimingKind::Scroll,
+            Self::Speed(_) => TimingKind::Speed,
+            Self::Label(_) => TimingKind::Label,
+        }
+    }
 }
 #[derive(Clone)]
 pub(crate) struct Clipboard {
@@ -106,6 +124,20 @@ impl Models {
     }
 }
 impl Clipboard {
+    pub(crate) fn keys(&self) -> impl Iterator<Item = Event> + '_ {
+        self.events.iter().map(|(row, value)| Event::Timing {
+            row: *row,
+            kind: value.kind(),
+        })
+    }
+    pub(crate) fn retain(&mut self, selected: &std::collections::BTreeSet<Event>) {
+        self.events.retain(|(row, value)| {
+            selected.contains(&Event::Timing {
+                row: *row,
+                kind: value.kind(),
+            })
+        });
+    }
     pub(crate) fn capture(
         session: &Session,
         chart: usize,
@@ -194,9 +226,6 @@ impl Clipboard {
         );
         events.sort_by_key(|(row, _)| *row);
         Ok(Self { events })
-    }
-    pub(crate) fn first_row(&self) -> Option<u64> {
-        self.events.first().map(|e| e.0)
     }
     pub(crate) fn paste(
         &self,

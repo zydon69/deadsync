@@ -1,5 +1,6 @@
 //! Detached mixed selections. Clipboard contents never retain a session token;
 //! cut and paste publish through one atomic chart/history gesture.
+mod selection;
 use crate::{
     Error,
     attacks::inspector::Draft as Attacks,
@@ -8,6 +9,8 @@ use crate::{
     notes::Position,
     timing_edit::{self, Scope, clipboard::Clipboard as Timing},
 };
+pub use selection::{Event, Selection, TimingKind};
+use std::collections::BTreeSet;
 #[derive(Clone)]
 pub struct Clipboard {
     origin: u64,
@@ -35,43 +38,58 @@ impl Clipboard {
         start: u64,
         end: u64,
     ) -> Result<Option<Self>, Error> {
-        if start > end || end > i32::MAX as u64 {
-            return Err(Error::InvalidEdit("Invalid event selection bounds".into()));
-        }
-        let timing = Timing::capture(session, chart, scope(session), start, end)?;
+        Selection::capture(session, chart, start, end)?.copy(session)
+    }
+    fn copy_selected(
+        session: &mut Session,
+        chart: usize,
+        selected: &BTreeSet<Event>,
+    ) -> Result<Option<Self>, Error> {
+        let Some(origin) = selected.iter().map(|event| event.row()).min() else {
+            return Ok(None);
+        };
+        let end = selected
+            .iter()
+            .map(|event| event.row())
+            .max()
+            .expect("Nonempty selection");
+        let mut timing = Timing::capture(session, chart, scope(session), origin, end)?;
+        timing.retain(selected);
         let attacks = Attacks::capture(session, chart, scope(session))?;
         let indices: Vec<_> = attacks
             .attacks()
             .events()
             .iter()
             .enumerate()
-            .filter_map(|(index, event)| (start..=end).contains(&event.row).then_some(index))
-            .collect();
-        let attack_row = indices
-            .first()
-            .map(|&index| attacks.attacks().events()[index].row);
-        let grid = session.grid(chart)?;
-        let note_row = grid
-            .iter()
-            .filter_map(|(position, _)| {
-                (start..=end)
-                    .contains(&position.row)
-                    .then_some(position.row)
+            .filter_map(|(index, event)| {
+                selected
+                    .contains(&Event::Attack { row: event.row })
+                    .then_some(index)
             })
-            .min();
-        let Some(origin) = [timing.first_row(), attack_row, note_row]
-            .into_iter()
-            .flatten()
-            .min()
-        else {
-            return Ok(None);
+            .collect();
+        let attacks = indices
+            .first()
+            .map(|&index| {
+                let row = attacks.attacks().events()[index].row;
+                attacks.copy_events(&indices).map(|clip| (row, clip))
+            })
+            .transpose()?;
+        let positions: BTreeSet<_> = selected
+            .iter()
+            .filter_map(|event| match event {
+                Event::Note(p) => Some(*p),
+                _ => None,
+            })
+            .collect();
+        let notes = if positions.is_empty() {
+            None
+        } else {
+            Some(Notes::copy_positions(
+                session.grid(chart)?,
+                origin,
+                &positions,
+            )?)
         };
-        let notes = note_row
-            .map(|_| Notes::copy(grid, origin, end, None))
-            .transpose()?;
-        let attacks = attack_row
-            .map(|row| attacks.copy_events(&indices).map(|clip| (row, clip)))
-            .transpose()?;
         Ok(Some(Self {
             origin,
             notes,
@@ -91,6 +109,7 @@ impl Clipboard {
         }
         session.edit_chart_atomic(chart, "Paste selected events", |staged| {
             let before = snapshot(staged)?;
+            let revision = staged.revision();
             if let Some(notes) = &self.notes {
                 notes.paste_force(staged, chart, row, player)?;
             }
@@ -98,7 +117,9 @@ impl Clipboard {
                 .paste(staged, chart, scope(staged), self.origin, row)?;
             // Note heads affect the file loader's attack placement around timing
             // phases, so preserve the original resident rows after both edits.
-            crate::attacks::anchoring::preserve(&before, staged)?;
+            if staged.revision() != revision {
+                crate::attacks::anchoring::preserve(&before, staged)?;
+            }
             if let Some((first, clip)) = &self.attacks {
                 let row = row
                     .checked_add(first - self.origin)
@@ -118,37 +139,49 @@ impl Clipboard {
         start: u64,
         end: u64,
     ) -> Result<Option<Self>, Error> {
-        let Some(clipboard) = Self::copy(session, chart, start, end)? else {
-            return Ok(None);
-        };
-        session.edit_chart_atomic(chart, "Cut selected events", |staged| {
+        Selection::capture(session, chart, start, end)?.cut(session)
+    }
+    fn remove_selected(
+        &self,
+        session: &mut Session,
+        chart: usize,
+        selected: &BTreeSet<Event>,
+        label: &str,
+    ) -> Result<bool, Error> {
+        session.edit_chart_atomic(chart, label, |staged| {
             let mut attacks = Attacks::capture(staged, chart, scope(staged))?;
-            let selected: Vec<_> = attacks
+            let attack_indices: Vec<_> = attacks
                 .attacks()
                 .events()
                 .iter()
                 .enumerate()
-                .filter_map(|(index, event)| (start..=end).contains(&event.row).then_some(index))
+                .filter_map(|(index, event)| {
+                    selected
+                        .contains(&Event::Attack { row: event.row })
+                        .then_some(index)
+                })
                 .collect();
-            attacks.remove_events(&selected)?;
+            attacks.remove_events(&attack_indices)?;
             attacks.apply(staged, chart)?;
             let remaining = snapshot(staged)?;
-            let positions: Vec<Position> = staged
-                .grid(chart)?
+            let revision = staged.revision();
+            let positions: Vec<Position> = selected
                 .iter()
-                .filter_map(|(position, _)| {
-                    (start..=end).contains(&position.row).then_some(position)
+                .filter_map(|event| match event {
+                    Event::Note(p) => Some(*p),
+                    _ => None,
                 })
                 .collect();
             staged.edit_notes(
                 chart,
-                "Cut selected notes",
+                "Delete selected notes",
                 positions.into_iter().map(|p| (p, None)),
             )?;
-            clipboard.timing.delete(staged, chart, scope(staged))?;
-            crate::attacks::anchoring::preserve(&remaining, staged)?;
+            self.timing.delete(staged, chart, scope(staged))?;
+            if staged.revision() != revision {
+                crate::attacks::anchoring::preserve(&remaining, staged)?;
+            }
             Ok(())
-        })?;
-        Ok(Some(clipboard))
+        })
     }
 }

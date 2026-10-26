@@ -117,6 +117,29 @@ impl Workspace {
         self.sync_active_chart()?;
         Ok(changed)
     }
+    pub fn event_selection(&mut self) -> Result<crate::event_clipboard::Selection, Error> {
+        let (start, end) = self.selection().unwrap_or((self.row, self.row));
+        crate::event_clipboard::Selection::capture(&mut self.file.session, self.chart, start, end)
+    }
+    fn validate_event_selection(&self, selection: &crate::event_clipboard::Selection) -> Result<(), Error> {
+        if selection.chart() == self.chart { Ok(()) } else { Err(Error::InvalidEdit("Event selection belongs to another chart".into())) }
+    }
+    pub fn copy_event_selection(&mut self, selection: &crate::event_clipboard::Selection) -> Result<(), Error> {
+        self.validate_event_selection(selection)?;
+        if let Some(clipboard) = selection.copy(&mut self.file.session)? { self.event_clipboard = Some(clipboard); }
+        Ok(())
+    }
+    pub fn cut_event_selection(&mut self, selection: &crate::event_clipboard::Selection) -> Result<(), Error> {
+        self.validate_event_selection(selection)?;
+        if let Some(clipboard) = selection.cut(&mut self.file.session)? { self.event_clipboard = Some(clipboard); }
+        self.sync_active_chart()
+    }
+    pub fn delete_event_selection(&mut self, selection: &crate::event_clipboard::Selection) -> Result<bool, Error> {
+        self.validate_event_selection(selection)?;
+        let changed = selection.delete(&mut self.file.session)?;
+        self.sync_active_chart()?;
+        Ok(changed)
+    }
 
     pub fn set_participants(&mut self, count: u32) -> Result<bool, Error> {
         let changed = self.file.session.set_participants(self.chart, count)?;

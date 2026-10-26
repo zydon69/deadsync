@@ -15,6 +15,7 @@ mod profile_edit;
 mod note_conversion;
 mod note_attributes;
 mod attacks;
+mod event_selection;
 mod attack_view;
 mod note_owners;
 mod text_fields;
@@ -68,6 +69,7 @@ enum Panel {
     NoteConversion(usize),
     NoteAttributes(usize),
     Attacks(usize),
+    EventSelection,
     NoteOwners(usize),
     Unsaved(usize),
     ConfirmDiscard,
@@ -263,6 +265,7 @@ pub struct State {
     note_attributes: Option<deadsync_editor::note_attributes::Draft>,
     note_attribute_lane: u16,
     attacks: Option<attacks::Settings>,
+    event_selection: Option<event_selection::Settings>,
     attack_clipboard: Option<deadsync_editor::attacks::inspector::Clipboard>,
     attack_view: Option<attack_view::Cache>,
     note_owners: note_owners::Settings,
@@ -417,6 +420,7 @@ impl State {
             note_attributes: None,
             note_attribute_lane: 0,
             attacks: None,
+            event_selection: None,
             attack_clipboard: None,
             attack_view: None,
             note_owners: Default::default(),
@@ -1437,6 +1441,11 @@ impl State {
         {
             return false;
         }
+        if self.control && self.shift && event.code == KeyCode::KeyE && self.panel.is_none() {
+            self.stop_audio();
+            self.open_event_selection();
+            return false;
+        }
         if self.control && event.code == KeyCode::KeyP
             && matches!(self.panel, None | Some(Panel::Marker(_)))
         {
@@ -1625,6 +1634,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if matches!(panel, Panel::EventSelection) { self.event_selection_key(code); return false; }
         if let Panel::Attacks(index) = panel { self.attacks_key(index, code); return false; }
         if let Panel::NoteAttributes(index) = panel { self.note_attributes_key(index, code); return false; }
         if let Panel::NoteOwners(index) = panel { self.note_owners_key(index, code); return false; }
@@ -1740,6 +1750,7 @@ impl State {
             Panel::ProfileSpeed(_) => unreachable!("profile speed dispatched above"),
             Panel::NoteOwners(_) => unreachable!("note owners dispatched above"),
             Panel::Attacks(_) => unreachable!("attacks dispatched above"),
+            Panel::EventSelection => unreachable!("event selection dispatched above"),
             Panel::NoteAttributes(_) => unreachable!("note inspector dispatched above"),
             Panel::NoteConversion(_) => unreachable!("note conversion dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
@@ -2590,6 +2601,7 @@ impl State {
     }
 
     fn panel_actors(&self, panel: Panel, actors: &mut Vec<Actor>) {
+        if matches!(panel, Panel::EventSelection) { self.event_selection_actors(actors); return; }
         if matches!(panel, Panel::Analysis) {
             self.analysis_actors(actors);
             return;
@@ -2602,7 +2614,7 @@ impl State {
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
-            Panel::Analysis => &[],
+            Panel::Analysis | Panel::EventSelection => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
             Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],

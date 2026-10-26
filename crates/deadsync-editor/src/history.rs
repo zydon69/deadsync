@@ -958,15 +958,20 @@ impl Clipboard {
         if start > end {
             return Err(Error::InvalidEdit("Selection ends before it starts".into()));
         }
+        Self::copy_matching(grid, start, |pos| pos.row >= start && pos.row <= end && player.is_none_or(|player| pos.player == player))
+    }
+    pub(crate) fn copy_positions(grid: &Grid, start: u64, positions: &std::collections::BTreeSet<Position>) -> Result<Self, Error> {
+        if positions.iter().any(|p| p.row < start || grid.get(*p).is_none()) {
+            return Err(Error::InvalidEdit("Invalid clipboard note position".into()));
+        }
+        Self::copy_matching(grid, start, |pos| positions.contains(&pos))
+    }
+    fn copy_matching(grid: &Grid, start: u64, include: impl Fn(Position) -> bool) -> Result<Self, Error> {
         let mut owner = None;
         let mut single_player = true;
         let notes = grid
             .iter()
-            .filter(|(pos, _)| {
-                pos.row >= start
-                    && pos.row <= end
-                    && player.is_none_or(|player| pos.player == player)
-            })
+            .filter(|(pos, _)| include(*pos))
             .map(|(pos, note)| {
                 if let Some(owner) = owner {
                     single_player &= owner == pos.player;

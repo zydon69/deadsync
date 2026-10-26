@@ -775,3 +775,216 @@ fn clearing_last_chart_attack_and_mixed_cut_preserve_other_inherited_and_local_c
     ctrl(&mut s, KeyCode::KeyZ);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
 }
+
+#[test]
+fn individual_event_picker_copies_cuts_and_deletes_only_checked_notes_timing_and_attacks() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    fn modified(s: &mut State, key: KeyCode) {
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::ShiftLeft,
+            pressed: true,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+        ctrl(s, key);
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::ShiftLeft,
+            pressed: false,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+    }
+    fn range(s: &mut State, end: bool) {
+        if s.workspace().selection().is_some() {
+            press(s, KeyCode::Space);
+        }
+        press(s, KeyCode::Home);
+        press(s, KeyCode::Space);
+        if end {
+            press(s, KeyCode::PageDown);
+        }
+    }
+    fn choose_three(s: &mut State) {
+        modified(s, KeyCode::KeyE);
+        modified(s, KeyCode::KeyA);
+        for _ in 0..2 {
+            press(s, KeyCode::ArrowDown);
+        }
+        press(s, KeyCode::Space);
+        for _ in 0..3 {
+            press(s, KeyCode::ArrowDown);
+        }
+        press(s, KeyCode::Space);
+        press(s, KeyCode::ArrowDown);
+        press(s, KeyCode::Space);
+    }
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("individual.ssc");
+    let source=b"#VERSION:0.83;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120,4=180;#STOPS:1=0.5;#LABELS:2=Pick;#ATTACKS:TIME=1.5:LEN=2:MODS=100% Dizzy;#NOTES:1M00,0200,0300;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    range(&mut s, true);
+    choose_three(&mut s);
+    assert!(!s.wants_text_input());
+    assert!(!s.text_input("Unexpected"));
+    let mut actors = Vec::new();
+    s.actors(&mut actors);
+    assert!(actors.iter().any(
+        |a| matches!(a,deadlib_present::actors::Actor::Text{content,..} if content.contains("3/9"))
+    ));
+    ctrl(&mut s, KeyCode::KeyC);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    press(&mut s, KeyCode::Home);
+    press(&mut s, KeyCode::PageDown);
+    press(&mut s, KeyCode::PageDown);
+    modified(&mut s, KeyCode::KeyV);
+    let pasted = s.workspace().file().session.serialize().unwrap();
+    let mut parsed = Session::new(Document::parse(pasted.clone(), Format::Ssc).unwrap());
+    let position = |row, lane| deadsync_editor::notes::Position {
+        row,
+        lane,
+        player: 0,
+    };
+    assert!(parsed.grid(0).unwrap().get(position(384, 0)).is_some());
+    assert!(parsed.grid(0).unwrap().get(position(384, 1)).is_none());
+    assert!(parsed.grid(0).unwrap().get(position(576, 1)).is_none());
+    assert_eq!(
+        parsed.document().text(Some(0), "BPMS").unwrap(),
+        "0=120,4=180"
+    );
+    assert_eq!(parsed.document().text(Some(0), "STOPS").unwrap(), "1=0.5");
+    let attacks = deadsync_editor::attacks::placement::Timeline::capture(&parsed, 0).unwrap();
+    assert_eq!(
+        attacks.markers().iter().map(|m| m.row).collect::<Vec<_>>(),
+        [96, 480]
+    );
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    ctrl(&mut s, KeyCode::KeyY);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), pasted);
+    range(&mut s, true);
+    choose_three(&mut s);
+    ctrl(&mut s, KeyCode::KeyX);
+    let mut cut = Session::new(
+        Document::parse(
+            s.workspace().file().session.serialize().unwrap(),
+            Format::Ssc,
+        )
+        .unwrap(),
+    );
+    assert!(cut.grid(0).unwrap().get(position(0, 0)).is_none());
+    assert_eq!(
+        cut.grid(0).unwrap().get(position(0, 1)).unwrap().kind,
+        deadsync_editor::notes::Kind::Mine
+    );
+    assert_eq!(
+        cut.grid(0).unwrap().get(position(192, 1)).unwrap().end,
+        Some(384)
+    );
+    assert_eq!(
+        deadsync_editor::attacks::placement::Timeline::capture(&cut, 0)
+            .unwrap()
+            .markers()
+            .iter()
+            .map(|m| m.row)
+            .collect::<Vec<_>>(),
+        [480]
+    );
+    assert_eq!(cut.document().text(Some(0), "STOPS").unwrap(), "1=0.5");
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), pasted);
+    range(&mut s, false);
+    modified(&mut s, KeyCode::KeyE);
+    modified(&mut s, KeyCode::KeyA);
+    for _ in 0..3 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
+    press(&mut s, KeyCode::Space);
+    press(&mut s, KeyCode::Delete);
+    let mut deleted = Session::new(
+        Document::parse(
+            s.workspace().file().session.serialize().unwrap(),
+            Format::Ssc,
+        )
+        .unwrap(),
+    );
+    assert!(deleted.grid(0).unwrap().get(position(0, 1)).is_none());
+    assert!(deleted.grid(0).unwrap().get(position(0, 0)).is_some());
+    ctrl(&mut s, KeyCode::KeyZ);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), pasted);
+    press(&mut s, KeyCode::Home);
+    for _ in 0..4 {
+        press(&mut s, KeyCode::PageDown);
+    }
+    modified(&mut s, KeyCode::KeyV);
+    let saved = s.workspace().file().session.serialize().unwrap();
+    let mut parsed = Session::new(Document::parse(saved.clone(), Format::Ssc).unwrap());
+    assert!(parsed.grid(0).unwrap().get(position(768, 0)).is_some());
+    assert!(parsed.grid(0).unwrap().get(position(768, 1)).is_none());
+    ctrl(&mut s, KeyCode::KeyS);
+    let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    assert_eq!(
+        reopened.workspace().file().session.serialize().unwrap(),
+        saved
+    );
+}
+#[test]
+fn individual_picker_pagination_cancel_empty_choices_and_protected_delete_are_safe() {
+    i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    fn modified(s: &mut State, key: KeyCode) {
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::ShiftLeft,
+            pressed: true,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+        ctrl(s, key);
+        s.raw_key(&RawKeyboardEvent {
+            code: KeyCode::ShiftLeft,
+            pressed: false,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+    }
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("choices.ssc");
+    let source=b"#VERSION:0.83;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120,4=180;#STOPS:1=0.5;#LABELS:2=Pick;#ATTACKS:TIME=1.5:LEN=2:MODS=100% Dizzy;#NOTES:1M00,0200,0300;";
+    fs::write(&path, source).unwrap();
+    let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    press(&mut s, KeyCode::Space);
+    press(&mut s, KeyCode::PageDown);
+    modified(&mut s, KeyCode::KeyE);
+    press(&mut s, KeyCode::End);
+    let mut actors = Vec::new();
+    s.actors(&mut actors);
+    assert!(actors.iter().any(
+        |a| matches!(a,deadlib_present::actors::Actor::Text{content,..}if content.contains("2/2"))
+    ));
+    let count=actors.iter().filter(|a|matches!(a,deadlib_present::actors::Actor::Text{content,..}if content.starts_with("[x]"))).count();
+    assert_eq!(count, 1);
+    press(&mut s, KeyCode::Home);
+    modified(&mut s, KeyCode::KeyA);
+    ctrl(&mut s, KeyCode::KeyC);
+    let mut actors = Vec::new();
+    s.actors(&mut actors);
+    assert!(actors.iter().any(|a|matches!(a,deadlib_present::actors::Actor::Text{content,..}if content.contains("Choisir les événements"))));
+    press(&mut s, KeyCode::Escape);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+    modified(&mut s, KeyCode::KeyE);
+    modified(&mut s, KeyCode::KeyA);
+    press(&mut s, KeyCode::Space);
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::Space);
+    press(&mut s, KeyCode::Delete);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+}
