@@ -1,6 +1,7 @@
 //! Commands store only changed notes and tag values. One gesture is one history
 //! entry; failed gestures roll back and never erase the redo branch.
 mod event_properties;
+pub(crate) mod media_relocation;
 
 use crate::{
     Error,
@@ -223,6 +224,7 @@ impl Session {
     pub fn redo_label(&self) -> Option<&str> {
         self.redo.last().map(|entry| entry.label.as_str())
     }
+    pub(crate) fn invalidate_saved_position(&mut self) { self.saved_revision = u64::MAX; }
     pub fn mark_saved(&mut self) {
         self.saved_revision = self.content_revision;
     }
@@ -1111,7 +1113,9 @@ impl Session {
     }
 
     pub fn serialize(&self) -> Result<Vec<u8>, Error> {
-        let mut document = self.document.clone();
+        self.serialize_document(self.document.clone())
+    }
+    fn serialize_document(&self, mut document: Document) -> Result<Vec<u8>, Error> {
         // Merely viewing a chart must never change its source formatting.
         fn collect(change: &Change, charts: &mut std::collections::BTreeSet<usize>) {
             match change {

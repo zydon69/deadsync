@@ -1,6 +1,7 @@
 pub mod metadata;
 pub mod chart_type;
 mod layout_token;
+pub(crate) mod media_relocation;
 use crate::Error;
 use std::{collections::BTreeMap, ops::Range, sync::Arc};
 
