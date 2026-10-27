@@ -11,6 +11,10 @@ impl State {
     }
     pub(super) fn minimap_settings_key(&mut self, index: usize, code: KeyCode) {
         let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
+        if index == 7 && enter {
+            self.open_minimap_options();
+            return;
+        }
         if code == KeyCode::Escape || (index == 6 && enter) {
             self.minimap.draft = None;
             if let Some(file) = self.audio_preferences_file.as_mut() {
@@ -23,7 +27,7 @@ impl State {
         if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
             let backwards = code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift);
             self.panel = Some(Panel::MinimapSettings(
-                (index + if backwards { 6 } else { 1 }) % 7,
+                (index + if backwards { 7 } else { 1 }) % 8,
             ));
             return;
         }
@@ -130,7 +134,7 @@ impl State {
         let x = screen_width() * 0.5;
         let y = screen_height() * 0.5 - 100.0;
         actors.push(
-            act!(quad: xy(x,y+100.0): setsize(560.0,260.0): diffuse(0.04,0.06,0.1,0.98): z(8050)),
+            act!(quad: xy(x,y+100.0): setsize(560.0,290.0): diffuse(0.04,0.06,0.1,0.98): z(8050)),
         );
         for (row, key) in [
             "MinimapVariableAxis",
@@ -140,6 +144,7 @@ impl State {
             "ScrollSettingsDefaults",
             "ScrollSettingsSave",
             "ScrollSettingsCancel",
+            "MinimapAdvanced",
         ]
         .into_iter()
         .enumerate()

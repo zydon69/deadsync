@@ -1,0 +1,60 @@
+{
+  "scope": "Diagnostic theme unit run after NoteColor and lane modifier integration, before minimap position integration",
+  "command": "cargo test --locked --jobs 2 -p deadsync-theme-simply-love --lib -- --test-threads=1",
+  "outcome": {
+    "passed": 1463,
+    "failed": 14,
+    "ignored": 54
+  },
+  "editor_units_passed": [
+    "screens::edition::decoder_transport::tests::backend_float_slopes_survive_differently_rounded_nominal_preferences",
+    "screens::edition::decoder_transport::tests::generations_stale_stamps_nonfinite_and_nominal_rate_hints_are_handled",
+    "screens::edition::decoder_transport::tests::mapped_pcm_wins_and_silent_tail_continues_exact_last_map",
+    "screens::edition::decoder_transport::tests::no_ack_pending_failed_or_stopped_never_invents_silent_success",
+    "screens::edition::decoder_transport::tests::start_beyond_eof_anchors_at_first_acknowledged_stream_observation",
+    "screens::edition::image_previews::tests::gif_frames_follow_reference_global_phase_and_zero_durations",
+    "screens::edition::image_previews::tests::invalid_video_and_oversized_inputs_fail_without_fallback_pixels",
+    "screens::edition::image_previews::tests::missing_created_modified_and_replaced_paths_are_observed",
+    "screens::edition::image_previews::tests::replacement_preserves_old_visual_until_atomic_swap_and_clear_cancels_results",
+    "screens::edition::image_previews::tests::retained_frames_can_be_reuploaded_after_renderer_reset",
+    "screens::edition::image_previews::tests::stable_role_keys_and_path_switches_discard_stale_decode_results",
+    "screens::edition::image_previews::tests::static_preview_is_bounded_preserves_source_size_and_unloads",
+    "screens::edition::minimap::tests::sample_completion_during_capture_cannot_resume_chart_transport",
+    "screens::edition::pack_properties::tests::published_pending_receipt_survives_close_guard_and_reopens_without_republication_en_fr",
+    "screens::edition::pack_song_list::application_preferences::tests::memory_only_application_settings_survive_but_cursor_and_chart_caches_do_not",
+    "screens::edition::pack_song_list::application_preferences::tests::unsaved_note_color_preview_does_not_escape_into_replacement_song",
+    "screens::edition::pack_song_list::tests::stale_source_edit_rejects_background_publication",
+    "screens::edition::pack_song_list::tests::visible_cells_are_unicode_safe_and_bounded",
+    "screens::edition::playback::autoplay_transport_tests::autoplay_transport_accepts_acknowledged_silent_time_but_excludes_pause_and_sample",
+    "screens::edition::playback::autoplay_transport_tests::autoplay_transport_legacy_synthetic_mapping_has_no_generation",
+    "screens::edition::playback::autoplay_transport_tests::autoplay_transport_rebind_rejects_old_position_even_after_new_opened_ack",
+    "screens::edition::playback::autoplay_transport_tests::autoplay_transport_requires_current_opened_generation_and_validated_position",
+    "screens::edition::receptor_render::tests::all_supported_layout_receptor_shapes_resolve_inside_matching_original_atlas",
+    "screens::edition::receptor_render::tests::receptor_actors_keep_lane_rotations_and_separate_foreground_effect_layers",
+    "screens::edition::view_render::tests::padded_sparse_query_keeps_crossing_sprites_without_claiming_partial_output",
+    "screens::edition::view_render::tests::renderer_reports_candidate_limit_and_deterministic_partial_output",
+    "screens::edition::view_render::tests::renderer_reports_query_limit_even_when_all_tracks_are_outside_view"
+  ],
+  "failed_tests": [
+    "screens::components::select_music::select_music_menu::downloads::preview_dataflows::download_projection_preserves_scrolling_counts_and_visible_changes",
+    "screens::components::select_music::select_music_menu::downloads::preview_dataflows::download_projection_reuses_offscreen_updates_but_tracks_global_status",
+    "screens::components::shared::test_input::pipelines_perf::event_rate_summary_allocates_only_its_final_string",
+    "screens::content_browser::detail::detail_facts_perf_tests::detail_facts_remove_label_and_value_copy_allocations",
+    "screens::content_browser::detail::detail_facts_perf_tests::moved_detail_values_preserve_all_labels_layout_and_loading_spinners",
+    "screens::content_browser::render::course_data_perf::browser_chrome_does_not_copy_static_labels",
+    "screens::content_browser::render::doubles_render_perf_tests::doubles_rendering_no_longer_allocates_or_copies_full_column_lists",
+    "screens::content_browser::render::pipelines_perf::reload_dialog_preserves_counts_pluralization_and_all_actor_properties",
+    "screens::content_browser::render::pipelines_perf::reload_dialog_removes_temporary_summary_vectors_and_strings",
+    "screens::content_browser::render::select_data_perf::metadata_avoids_field_vector_and_explanation_copy",
+    "screens::content_browser::render::select_data_perf::metadata_matches_original_for_all_optional_fields_and_boundaries",
+    "screens::content_browser::render::select_data_perf::seven_browser_rows_preserve_the_complete_actor_sequence",
+    "screens::content_browser::render::select_data_perf::visible_queued_and_numeric_badges_need_no_temporary_allocations",
+    "screens::content_browser::rip::tests::landings_are_timed_and_boosters_remembered"
+  ],
+  "limitations": [
+    "No claim of full theme test success.",
+    "Failures are outside edition; pre-existing status has not been proven by a baseline execution.",
+    "No GPU, physical input or live audio verification."
+  ],
+  "raw_local_log": "/tmp/deadsync-theme-lib-serial-20261027.log"
+}

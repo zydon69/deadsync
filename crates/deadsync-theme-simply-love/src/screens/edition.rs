@@ -26,6 +26,10 @@ mod pack_song_load;
 mod pack_song_preference;
 mod end_hint;
 mod minimap;
+mod minimap_mount_layout;
+mod minimap_mount_state;
+mod minimap_options_draft;
+mod minimap_options;
 mod minimap_settings;
 mod minimap_content_scene;
 mod minimap_content_render;
@@ -135,6 +139,7 @@ enum Panel {
     ZoomSettings(usize),
     ScrollSettings(usize),
     MinimapSettings(usize),
+    MinimapOptions(usize),
     ReceptorSettings(usize),
     NoteColorSettings(usize),
     WaveformSettings(usize),
@@ -1583,7 +1588,7 @@ impl State {
         let repeating_note_color=matches!(self.panel,Some(Panel::NoteColorSettings(1..=3))) && self.note_color_draft.as_ref().is_some_and(|d|d.field()<=30) && matches!(event.code,KeyCode::ArrowLeft|KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
-            Some(Panel::MinimapSettings(1 | 2) | Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0..=2) | Panel::ZoomSettings(0..=2) | Panel::WaveformSettings(2 | 3) | Panel::WaveformColors(1..=13))
+            Some(Panel::MinimapSettings(1 | 2) | Panel::MinimapOptions(3..=6 | 8 | 10 | 12) | Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0..=2) | Panel::ZoomSettings(0..=2) | Panel::WaveformSettings(2 | 3) | Panel::WaveformColors(1..=13))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !(self.panel.is_none() && self.shift && !self.control && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight))
@@ -1847,6 +1852,7 @@ impl State {
         }
         if let Panel::NoteColorSettings(index)=panel{self.note_color_settings_key(index,code);return false;}
         if let Panel::ReceptorSettings(index)=panel{self.receptor_settings_key(index,code);return false;}
+        if let Panel::MinimapOptions(index) = panel { self.minimap_options_key(index, code); return false; }
         if let Panel::MinimapSettings(index) = panel { self.minimap_settings_key(index, code); return false; }
         if let Panel::ScrollSettings(index) = panel { self.scroll_settings_key(index, code); return false; }
         if let Panel::ZoomSettings(index) = panel { self.zoom_settings_key(index, code); return false; }
@@ -2007,7 +2013,7 @@ impl State {
             Panel::WaveformColors(_) => unreachable!("waveform colours dispatched above"),
             Panel::WaveformSettings(_) => unreachable!("waveform settings dispatched above"),
             Panel::ScrollSettings(_) => unreachable!("scroll settings dispatched above"),
-            Panel::MinimapSettings(_) => unreachable!("minimap settings dispatched above"),
+            Panel::MinimapOptions(_) | Panel::MinimapSettings(_) => unreachable!("minimap settings dispatched above"),
             Panel::ReceptorSettings(_) => unreachable!("receptor settings dispatched above"),
             Panel::NoteColorSettings(_) => unreachable!("note color settings dispatched above"),
             Panel::ZoomSettings(_) => unreachable!("zoom settings dispatched above"),
@@ -2669,7 +2675,9 @@ impl State {
                 }
             }
         }
-        spacing_view::label_actors(actors, label_candidates, left + field_width + 12.0, width);
+        if let Some(layout) = self.focused_minimap_mount_layout().filter(|layout| layout.misc_end > layout.misc_start) {
+            spacing_view::label_actors(actors, label_candidates, layout.misc_start, layout.misc_end + 12.0);
+        }
         let mut shown_regions = std::collections::BTreeSet::new();
         for &(start, end) in ranges.iter().take(overview_bins) {
             for (a, b) in self
@@ -2763,6 +2771,7 @@ impl State {
         if matches!(panel, Panel::PackProperties) { self.pack_properties_actors(actors); return; }
         if let Panel::NoteColorSettings(index)=panel{self.note_color_settings_actors(index,actors);return;}
         if let Panel::ReceptorSettings(index)=panel{self.receptor_settings_actors(index,actors);return;}
+        if let Panel::MinimapOptions(index) = panel { self.minimap_options_actors(index, actors); return; }
         if let Panel::MinimapSettings(index) = panel { self.minimap_settings_actors(index, actors); return; }
         if matches!(panel, Panel::ChartEventCopy) { self.chart_event_copy_actors(actors); return; }
         if matches!(panel, Panel::ChartList) { self.chart_list_actors(actors); return; }
@@ -2779,7 +2788,7 @@ impl State {
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
-            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::PackSongList | Panel::MinimapSettings(_) | Panel::ReceptorSettings(_) | Panel::NoteColorSettings(_) => &[],
+            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::PackSongList | Panel::MinimapSettings(_) | Panel::MinimapOptions(_) | Panel::ReceptorSettings(_) | Panel::NoteColorSettings(_) => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
             Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close", "PackPropertiesOpen", "PackSongsOpen"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
@@ -2980,6 +2989,7 @@ impl State {
             | Panel::SongProperties(i)
             | Panel::SongSample(i)
             | Panel::ScrollSettings(i)
+            | Panel::MinimapOptions(i)
             | Panel::MinimapSettings(i)
             | Panel::ReceptorSettings(i)
             | Panel::NoteColorSettings(i)

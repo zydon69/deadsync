@@ -1,4 +1,4 @@
-# Minimap mounting: source and pending native bridge
+# Minimap mounting: source and native bridge
 
 Reference: GrooveAuthor `48e18f71655d0f0d86144c63239331833501fda2`.
 
@@ -12,8 +12,9 @@ focus present/absent, three signed offsets and two widths.
 
 The original chart object is replaced with supplied normal/scaled misc-event
 edges. This proves bounds arithmetic, not the original chart/waveform geometry.
-Rust target `minimap_mount` has four tests prepared; Cargo validation is pending.
-`edition_minimap_mesh_budget` has one prepared CPU test for16384 and65536
+Rust target `minimap_mount` passed all four tests in central run91121,
+including the576 differential comparisons. The native position hook is now connected; its workflow checks are recorded below.
+`edition_minimap_mesh_budget` passed its CPU test in central run57250 for16384 and65536
 rectangles, exactly six vertices per rectangle and explicit truncated results.
 It makes no GPU claim.
 
@@ -61,9 +62,9 @@ Recommended integration order:
 
 No shared hooks for this increment have been applied.
 
-## Native layout adaptation prepared
+## Native layout adaptation
 
-`edition/minimap_mount_layout.rs` and its two isolated tests define the native
+`edition/minimap_mount_layout.rs` and its three isolated tests define the native
 allocation explicitly. Waveform samples are currently constrained to each lane
 channel interval in `waveform.rs`, so they add no extra right-hand reservation.
 Native lane centers remain fixed while note/receptor/hold widths change with
@@ -84,3 +85,19 @@ controls into an optional panel, consistent with the user's approved design.
 Changing that allocation is a product-layout choice, not a correction to the
 original bounds oracle. The actual allocation must be tested through actors
 before the integration can claim non-overlap.
+
+Selection mode implementation and its native adaptation are documented
+in `minimap-selection-reference.md`; the latest patch exposes and uses both modes.
+
+## Integration checkpoint — 27 October 2026
+The four-position mounting, two selection modes and 13-field keyboard options
+are connected. Four preference transaction tests, three layout tests, one draft
+test and eight native EN/FR workflows passed. Position and content share the
+existing File transaction; Options is merged once with staged NoteColor values.
+The native label allocation is 96px when space permits, and reserves the actual
+rendered player indicator only for supported multiplayer families. No live GPU
+or physical-input validation is claimed.
+
+Twenty-six existing navigation/content EN/FR workflows also passed after
+connection (run49487). Small implementation files were formatted separately;
+no whole-file formatting was applied to edition.rs/history.rs/workspace.rs.

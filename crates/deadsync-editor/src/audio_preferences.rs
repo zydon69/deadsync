@@ -84,7 +84,7 @@ fn read_bytes(path: &Path) -> Result<Option<Vec<u8>>, Error> {
 }
 #[derive(Clone, PartialEq)]
 struct Settings {
-    note_colors:std::sync::Arc<crate::note_color_preferences::Preferences>,
+    note_colors: std::sync::Arc<crate::note_color_preferences::Preferences>,
     receptors: crate::receptor_preferences::Preferences,
     snap: crate::snap::Preferences,
     audio: Audio,
@@ -92,6 +92,8 @@ struct Settings {
     zoom: crate::zoom_preferences::Preferences,
     scroll: crate::scroll_preferences::Preferences,
     minimap: crate::minimap_preferences::Preferences,
+    minimap_position: crate::minimap_position_preferences::Preferences,
+    minimap_content: crate::minimap_content_preferences::Preferences,
 }
 
 #[derive(Clone)]
@@ -193,18 +195,52 @@ impl File {
                 ));
             }
         };
-        let receptor_fields=match root.get("Receptors") {None=>Map::new(),Some(Value::Object(fields))=>fields.clone(),Some(_)=>return Err(Error::InvalidFormat("Editor Receptors preferences must be an object".into()))};
-        let colors_group=|name:&str|->Result<Map<String,Value>,Error>{match root.get(name){None=>Ok(Map::new()),Some(Value::Object(fields))=>Ok(fields.clone()),Some(_)=>Err(Error::InvalidFormat(format!("Editor {name} preferences must be an object")))}};
-        let note_colors=std::sync::Arc::new(crate::note_color_preferences::Preferences::read(&colors_group("NoteColor")?,&colors_group("Options")?)?);
+        let receptor_fields = match root.get("Receptors") {
+            None => Map::new(),
+            Some(Value::Object(fields)) => fields.clone(),
+            Some(_) => {
+                return Err(Error::InvalidFormat(
+                    "Editor Receptors preferences must be an object".into(),
+                ));
+            }
+        };
+        let colors_group = |name: &str| -> Result<Map<String, Value>, Error> {
+            match root.get(name) {
+                None => Ok(Map::new()),
+                Some(Value::Object(fields)) => Ok(fields.clone()),
+                Some(_) => Err(Error::InvalidFormat(format!(
+                    "Editor {name} preferences must be an object"
+                ))),
+            }
+        };
+        let options_fields = colors_group("Options")?;
+        let note_colors = std::sync::Arc::new(crate::note_color_preferences::Preferences::read(
+            &colors_group("NoteColor")?,
+            &options_fields,
+        )?);
         let settings = Settings {
             note_colors,
             receptors: crate::receptor_preferences::Preferences::read(&receptor_fields)?,
-            snap: if root.contains_key("SnapIndex") || root.contains_key("SnapLockIndex") {crate::snap::Preferences::read(&root)}else{crate::snap::Preferences{level:crate::snap::Level::source(1)?,..Default::default()}},
+            snap: if root.contains_key("SnapIndex") || root.contains_key("SnapLockIndex") {
+                crate::snap::Preferences::read(&root)
+            } else {
+                crate::snap::Preferences {
+                    level: crate::snap::Level::source(1)?,
+                    ..Default::default()
+                }
+            },
             audio,
             waveform: Waveform::read(&waveform_fields)?,
             zoom: crate::zoom_preferences::Preferences::read(&zoom_fields)?,
             scroll: crate::scroll_preferences::Preferences::read(&scroll_fields)?,
             minimap: crate::minimap_preferences::Preferences::read(&minimap_fields)?,
+            minimap_position: crate::minimap_position_preferences::Preferences::read(
+                &minimap_fields,
+            )?,
+            minimap_content: crate::minimap_content_preferences::Preferences::read(
+                &minimap_fields,
+                &options_fields,
+            )?,
         };
         Ok(Self {
             path: path.to_owned(),
@@ -253,27 +289,74 @@ impl File {
     pub fn set_minimap(&mut self, minimap: crate::minimap_preferences::Preferences) {
         self.settings.minimap = minimap;
     }
-    fn group_fields(&self, name: &str) -> Result<serde_json::Map<String, serde_json::Value>, Error> {
+    pub fn minimap_position(&self) -> crate::minimap_position_preferences::Preferences {
+        self.settings.minimap_position
+    }
+    pub fn set_minimap_position(
+        &mut self,
+        preferences: crate::minimap_position_preferences::Preferences,
+    ) {
+        self.settings.minimap_position = preferences;
+    }
+    pub fn set_minimap_content(
+        &mut self,
+        preferences: crate::minimap_content_preferences::Preferences,
+    ) -> Result<(), Error> {
+        let mut minimap = Map::new();
+        let mut options = Map::new();
+        preferences.write(&mut minimap, &mut options)?;
+        self.settings.minimap_content = preferences;
+        Ok(())
+    }
+    fn group_fields(
+        &self,
+        name: &str,
+    ) -> Result<serde_json::Map<String, serde_json::Value>, Error> {
         match self.root.get(name) {
             None => Ok(Default::default()),
             Some(serde_json::Value::Object(fields)) => Ok(fields.clone()),
-            Some(_) => Err(Error::InvalidFormat(format!("Editor {name} preferences must be an object"))),
+            Some(_) => Err(Error::InvalidFormat(format!(
+                "Editor {name} preferences must be an object"
+            ))),
         }
     }
-    pub fn snap(&self)->crate::snap::Preferences {self.settings.snap}
-    pub fn has_snap_preferences(&self)->bool {self.root.contains_key("SnapIndex") || self.root.contains_key("SnapLockIndex")}
-    pub fn set_snap(&mut self,snap:crate::snap::Preferences){self.settings.snap=snap;}
-    pub fn receptors(&self)->crate::receptor_preferences::Preferences {self.settings.receptors}
-    pub fn set_receptors(&mut self,p:crate::receptor_preferences::Preferences){self.settings.receptors=p;}
+    pub fn snap(&self) -> crate::snap::Preferences {
+        self.settings.snap
+    }
+    pub fn has_snap_preferences(&self) -> bool {
+        self.root.contains_key("SnapIndex") || self.root.contains_key("SnapLockIndex")
+    }
+    pub fn set_snap(&mut self, snap: crate::snap::Preferences) {
+        self.settings.snap = snap;
+    }
+    pub fn receptors(&self) -> crate::receptor_preferences::Preferences {
+        self.settings.receptors
+    }
+    pub fn set_receptors(&mut self, p: crate::receptor_preferences::Preferences) {
+        self.settings.receptors = p;
+    }
     /// Shared Options group; no independent preference file or implicit write.
     pub fn opening(&self) -> Result<crate::open_preferences::Preferences, Error> {
         crate::open_preferences::Preferences::read(&self.group_fields("Options")?)
     }
-    pub fn note_colors(&self)->Result<crate::note_color_preferences::Preferences,Error>{Ok(self.settings.note_colors.as_ref().clone())}
-    pub fn note_colors_arc(&self)->std::sync::Arc<crate::note_color_preferences::Preferences>{std::sync::Arc::clone(&self.settings.note_colors)}
-    pub fn set_note_colors(&mut self,p:std::sync::Arc<crate::note_color_preferences::Preferences>)->Result<(),Error>{p.validate()?;self.settings.note_colors=p;Ok(())}
-    pub fn minimap_content(&self) -> Result<crate::minimap_content_preferences::Preferences, Error> {
-        crate::minimap_content_preferences::Preferences::read(&self.minimap_fields, &self.group_fields("Options")?)
+    pub fn note_colors(&self) -> Result<crate::note_color_preferences::Preferences, Error> {
+        Ok(self.settings.note_colors.as_ref().clone())
+    }
+    pub fn note_colors_arc(&self) -> std::sync::Arc<crate::note_color_preferences::Preferences> {
+        std::sync::Arc::clone(&self.settings.note_colors)
+    }
+    pub fn set_note_colors(
+        &mut self,
+        p: std::sync::Arc<crate::note_color_preferences::Preferences>,
+    ) -> Result<(), Error> {
+        p.validate()?;
+        self.settings.note_colors = p;
+        Ok(())
+    }
+    pub fn minimap_content(
+        &self,
+    ) -> Result<crate::minimap_content_preferences::Preferences, Error> {
+        Ok(self.settings.minimap_content)
     }
     pub fn has_changes(&self) -> bool {
         self.settings != self.original || self.settings != self.written
@@ -322,13 +405,21 @@ impl File {
         self.settings.scroll.write(&mut scroll_fields);
         let mut minimap_fields = self.minimap_fields.clone();
         self.settings.minimap.write(&mut minimap_fields);
+        self.settings.minimap_position.write(&mut minimap_fields);
+        let mut options_fields = self.group_fields("Options")?;
+        self.settings
+            .minimap_content
+            .write(&mut minimap_fields, &mut options_fields)?;
         let mut root = self.root.clone();
-        let(mut note_fields,mut options_fields)=(self.group_fields("NoteColor")?,self.group_fields("Options")?);
-        self.settings.note_colors.write(&mut note_fields,&mut options_fields)?;
-        root.insert("NoteColor".into(),Value::Object(note_fields));root.insert("Options".into(),Value::Object(options_fields));
-        let mut receptor_fields=self.group_fields("Receptors")?;
+        let mut note_fields = self.group_fields("NoteColor")?;
+        self.settings
+            .note_colors
+            .write(&mut note_fields, &mut options_fields)?;
+        root.insert("NoteColor".into(), Value::Object(note_fields));
+        root.insert("Options".into(), Value::Object(options_fields));
+        let mut receptor_fields = self.group_fields("Receptors")?;
         self.settings.receptors.write(&mut receptor_fields);
-        root.insert("Receptors".into(),Value::Object(receptor_fields));
+        root.insert("Receptors".into(), Value::Object(receptor_fields));
         self.settings.snap.write(&mut root);
         root.insert("MiniMap".into(), Value::Object(minimap_fields.clone()));
         root.insert("Scroll".into(), Value::Object(scroll_fields.clone()));

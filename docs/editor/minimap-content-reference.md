@@ -11,8 +11,8 @@ the relevant pin, and record complete-file/method hashes and adapter scope.
 
 The native content patch is applied. It preserves the previously validated
 vertical viewport and navigation. Aggregate density drawing has been replaced
-by a lane raster and one retained mesh. The current mounting remains at the
-native right edge; original four-position mounting is a subsequent increment.
+by a lane raster and one retained mesh. Four-position mounting and both selection modes are now connected through
+the documented native layout adaptation in minimap-mount-reference.md.
 No GPU screenshot comparison or manual game session is claimed here.
 
 ## Validated centrally
@@ -30,15 +30,17 @@ All executions below were managed by the parent, with no parallel Cargo process.
 | `minimap_pattern_region` | 1 | start after Tap/Delay; end before equal-row rates |
 | `edition_minimap_content_scene` | 3 | crossing hold/roll, overlays, partial budgets, warp heads |
 | `edition_minimap_raster_mesh` | 2 | merged runs, retained orientations, explicit rectangle limit |
+| `edition_minimap_mesh_budget` | 1 | runtime16,384/module65,536 rectangle limits, six vertices each, explicit partial output (CPU only) |
 | `edition_minimap_content_cache` | 2 | exact current key, binding, failures, source/selection invalidation |
 | `edition_minimap_content_workflow` | 3 | native State English paths |
 | `edition_minimap_content_fr_workflow` | 3 | same native State French paths |
 
-The latest run27299 passed the cache2 and State6 tests. The preceding
-viewport/navigation regression run7744 passed9/10 French cases and stopped on
-an obsolete density-quad assertion; English was not executed in that run.
-The assertion now checks one bounded retained mesh, all4 fixture notes and
-complete query/marker/mesh flags. The20-case rerun is pending. The original integer-preference DTO oracle and its
+Run27299 passed the cache2 and State6 tests. Run99751 then passed all
+20 viewport/navigation regressions (English10 and French10). The obsolete
+density-quad assertion now checks one bounded retained mesh, all4 fixture notes
+and complete query/marker/mesh flags. These are automated source/runtime checks,
+not a GPU screenshot or manual play validation. The original integer-preference
+DTO oracle and its
 fixture remain at
 `crates/deadsync-editor/tests/fixtures/grooveauthor/minimap-preferences.reference.json`.
 That oracle accepts integer uint tokens and rejects decimal tokens; it does not

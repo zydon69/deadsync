@@ -9,7 +9,6 @@ use deadsync_editor::{
 };
 use std::cell::RefCell;
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -65,6 +64,10 @@ mod tests {
 pub(super) struct Navigation {
     focused: bool,
     pub(super) preferences: Preferences,
+    pub(super) position: deadsync_editor::minimap_position_preferences::Preferences,
+    pub(super) options_draft: Option<super::minimap_options_draft::Draft>,
+    selection: deadsync_editor::minimap_select::Capture,
+    pointer_y: Option<i32>,
     pub(super) draft: Option<Preferences>,
     held: u8,
     gesture: Gesture,
@@ -75,9 +78,12 @@ pub(super) struct Navigation {
 impl State {
     /// Compatibility diagnostic: content is now queried exactly, not aggregated.
     pub fn minimap_density_progress(&self) -> Option<(u64, bool)> {
-        self.minimap_content_progress().map(|(count, notes, markers, mesh)| (count as u64, notes && markers && mesh))
+        self.minimap_content_progress()
+            .map(|(count, notes, markers, mesh)| (count as u64, notes && markers && mesh))
     }
-    pub(super) fn minimap_capture_active(&self) -> bool { self.minimap.gesture.active() }
+    pub(super) fn minimap_capture_active(&self) -> bool {
+        self.minimap.gesture.active()
+    }
     pub fn minimap_focused(&self) -> bool {
         self.minimap.focused
     }
@@ -227,12 +233,16 @@ impl State {
         if self.minimap_effect(effect).is_err() {
             self.status = i18n::tr("Edition", "MinimapFailed");
         }
+        self.minimap.selection.clear();
+        self.minimap.pointer_y = None;
         self.minimap.held = 0;
         self.minimap.binding = None;
     }
     pub(super) fn minimap_release_input(&mut self) {
         self.minimap.gesture.clear();
         self.minimap.focused = false;
+        self.minimap.selection.clear();
+        self.minimap.pointer_y = None;
         self.minimap.held = 0;
         self.minimap.binding = None;
     }
@@ -251,7 +261,9 @@ impl State {
                 self.open_minimap_settings();
                 return true;
             }
-            if !self.minimap.content.options.visible { return true; }
+            if !self.minimap.content.options.visible {
+                return true;
+            }
             if self.minimap.focused {
                 self.minimap_end();
             }
@@ -266,13 +278,18 @@ impl State {
             );
             return true;
         }
-        if !self.minimap.content.options.visible { self.minimap_release_input(); return false; }
+        if !self.minimap.content.options.visible {
+            self.minimap_release_input();
+            return false;
+        }
         if !self.minimap.focused {
             return false;
         }
         if self.panel.is_some() || !self.workspace.has_chart() {
             self.minimap.gesture.clear();
             self.minimap.focused = false;
+            self.minimap.selection.clear();
+            self.minimap.pointer_y = None;
             self.minimap.held = 0;
             return false;
         }
@@ -286,6 +303,8 @@ impl State {
             !binding.is_current(&self.workspace.file().session, self.workspace.chart())
         }) {
             self.minimap.gesture.clear();
+            self.minimap.selection.clear();
+            self.minimap.pointer_y = None;
             self.minimap.held = 0;
             self.minimap.binding = None;
         }
@@ -314,7 +333,8 @@ impl State {
             return true;
         }
         let result = (|| -> Result<(), deadsync_editor::Error> {
-            if !self.minimap.gesture.active() {
+            let beginning = !self.minimap.gesture.active();
+            if beginning {
                 let position = self.minimap_position()?;
                 let playing = self.chart_transport_is_playing();
                 let effect = self.minimap.gesture.input(Input::Begin {
@@ -339,6 +359,13 @@ impl State {
             let current = projection.reflect_y(unreflected).ok_or_else(|| {
                 deadsync_editor::Error::InvalidEdit("Minimap pixel overflow".into())
             })?;
+            let current = if self.minimap.position.select_mode
+                == deadsync_editor::minimap_position_preferences::SelectMode::MoveToSelectedArea
+            {
+                self.minimap.pointer_y.unwrap_or(current)
+            } else {
+                current
+            };
             let step = if self.shift { 10 } else { 1 };
             let selected = match event.code {
                 KeyCode::ArrowUp => current.saturating_sub(step),
@@ -349,9 +376,59 @@ impl State {
                 KeyCode::End => projection.bounds_y + projection.visible_height,
                 _ => current,
             };
-            projection.drag(selected).ok_or_else(|| {
-                deadsync_editor::Error::InvalidEdit("Invalid minimap drag".into())
-            })?;
+            if self.minimap.position.select_mode
+                == deadsync_editor::minimap_position_preferences::SelectMode::MoveToSelectedArea
+            {
+                self.minimap.pointer_y = Some(selected);
+                if beginning {
+                    let cursor = projection.editor_start
+                        + (projection.editor_end - projection.editor_start)
+                            * projection.grabbed_percentage;
+                    let target = projection.reflect_y(selected).ok_or_else(|| {
+                        deadsync_editor::Error::InvalidEdit("Minimap pixel overflow".into())
+                    })?;
+                    let relative = f64::from(target) - f64::from(projection.bounds_y);
+                    let inside = relative >= projection.project_editor(projection.editor_start)
+                        && relative <= projection.project_editor(projection.editor_end);
+                    // Small keyboard steps grab the existing editor rectangle at
+                    // the cursor, then move. Distant keys click the chosen area.
+                    let begin_pixel = if inside { current } else { selected };
+                    self.minimap
+                        .selection
+                        .begin(
+                            projection,
+                            begin_pixel,
+                            cursor,
+                            self.minimap.position.select_mode,
+                        )
+                        .ok_or_else(|| {
+                            deadsync_editor::Error::InvalidEdit("Invalid minimap selection".into())
+                        })?;
+                    if inside {
+                        self.minimap
+                            .selection
+                            .move_to(projection, selected)
+                            .ok_or_else(|| {
+                                deadsync_editor::Error::InvalidEdit(
+                                    "Invalid minimap selection motion".into(),
+                                )
+                            })?;
+                    }
+                } else {
+                    self.minimap
+                        .selection
+                        .move_to(projection, selected)
+                        .ok_or_else(|| {
+                            deadsync_editor::Error::InvalidEdit(
+                                "Invalid minimap selection motion".into(),
+                            )
+                        })?;
+                }
+            } else {
+                projection.drag(selected).ok_or_else(|| {
+                    deadsync_editor::Error::InvalidEdit("Invalid minimap drag".into())
+                })?;
+            }
             let position = geometry.position(&clock)?;
             let effect = self.minimap.gesture.input(Input::Move(position));
             self.minimap_effect(effect)
@@ -362,8 +439,12 @@ impl State {
         true
     }
     pub(super) fn minimap_actors(&self, actors: &mut Vec<Actor>) {
-        if self.panel.is_some() || !self.workspace.has_chart() { return; }
-        let Ok((geometry, clock)) = self.minimap_projection() else { return; };
+        if self.panel.is_some() || !self.workspace.has_chart() {
+            return;
+        }
+        let Ok((geometry, clock)) = self.minimap_projection() else {
+            return;
+        };
         self.minimap_content_actors(actors, &geometry, &clock);
     }
 }

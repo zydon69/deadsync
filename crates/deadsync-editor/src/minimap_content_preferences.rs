@@ -31,6 +31,42 @@ impl Default for Preferences {
     }
 }
 impl Preferences {
+    /// Validate and write only fields owned by the source MiniMap/Options groups.
+    pub fn write(
+        self,
+        minimap: &mut Map<String, Value>,
+        options: &mut Map<String, Value>,
+    ) -> Result<(), Error> {
+        let mut fields = Map::new();
+        let mut limits = Map::new();
+        for (key, value) in [
+            ("ShowMiniMap", self.visible),
+            ("ShowPatterns", self.patterns),
+            ("ShowPreview", self.preview),
+            ("ShowLabels", self.labels),
+        ] {
+            fields.insert(key.into(), value.into());
+        }
+        for (key, value) in [
+            ("MiniMapWidth", self.width),
+            ("MiniMapNoteWidth", self.note_width),
+            ("MiniMapNoteSpacing", self.note_spacing),
+            ("PatternsWidth", self.patterns_width),
+            ("PreviewWidth", self.preview_width),
+        ] {
+            fields.insert(key.into(), value.into());
+        }
+        limits.insert(
+            "MiniMapMaxNotesToDraw".into(),
+            u64::try_from(self.max_notes)
+                .map_err(|_| Error::InvalidEdit("Invalid minimap note limit".into()))?
+                .into(),
+        );
+        Self::read(&fields, &limits)?;
+        minimap.extend(fields);
+        options.extend(limits);
+        Ok(())
+    }
     pub fn read(minimap: &Map<String, Value>, options: &Map<String, Value>) -> Result<Self, Error> {
         let mut result = Self::default();
         for (name, target) in [

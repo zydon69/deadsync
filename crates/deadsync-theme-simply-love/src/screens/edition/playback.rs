@@ -51,6 +51,7 @@ impl State {
         self.audio_preferences = file.audio();
         self.scroll_preferences = file.scroll();
         self.configure_minimap_preferences(file.minimap());
+        self.configure_minimap_position_preferences(file.minimap_position());
         self.configure_note_color_arc(note_colors)?;
         self.configure_minimap_content_preferences(minimap_content);
         self.waveform_preferences = file.waveform();

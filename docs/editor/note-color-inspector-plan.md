@@ -91,3 +91,16 @@ serialized execution gave 1463 passed, 14 failed and 54 ignored. The remaining
 failures are in content-browser/download/input tests, with no editor unit
 failure. Full-suite success is not claimed. Detailed local diagnostic log:
 `/tmp/deadsync-theme-lib-serial-20261027.log`.
+
+## Central validation and integration
+
+Integrated by the parent in commits `d4019c1a6` / `065490c1b`:
+10 core workflows, 3 native inspector workflows, 4 existing chart-color
+regressions, the 1 Shift-alias workflow and 27 scoped editor units passed.
+The integration added value equality to the two existing RGB preference DTOs
+and a read-only minimap palette accessor; no writable palette field was exposed.
+
+The separate serialized whole-theme run is not green: 1463 passed, 14 failed,
+54 ignored outside the editor. Parent retained the diagnostic log at
+`/tmp/deadsync-theme-lib-serial-20261027.log`. These counts do not establish that
+the remaining failures are caused by the inspector.

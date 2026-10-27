@@ -111,11 +111,15 @@ impl State {
     ) -> Result<(), deadsync_editor::Error> {
         self.configure_note_color_arc(Arc::new(preferences))
     }
-    pub(super) fn configure_note_color_arc(&mut self,preferences:Arc<NotePreferences>)->Result<(),deadsync_editor::Error>{
+    pub(super) fn configure_note_color_arc(
+        &mut self,
+        preferences: Arc<NotePreferences>,
+    ) -> Result<(), deadsync_editor::Error> {
         preferences.validate()?;
         let palette = Palette::new(&preferences.colors)?;
-        let note_colors=preferences;
-        let hold_colors=deadsync_editor::note_color_palette::Palette::capture(Arc::clone(&note_colors))?;
+        let note_colors = preferences;
+        let hold_colors =
+            deadsync_editor::note_color_palette::Palette::capture(Arc::clone(&note_colors))?;
         self.note_colors = note_colors;
         self.hold_colors = hold_colors;
         self.minimap.content.palette = palette;
@@ -202,7 +206,17 @@ impl State {
             return;
         }
         let width = options.width;
-        let x = (screen_width() - width as f32 - 8.0).max(0.0);
+        let x = match self.minimap_mount_bounds() {
+            Ok(bounds) => bounds.x as f32,
+            Err(error) => {
+                self.minimap_content_error(
+                    actors,
+                    Arc::from(error.to_string()),
+                    screen_width() * 0.5,
+                );
+                return;
+            }
+        };
         let session = &self.workspace.file().session;
         let chart = self.workspace.chart();
         let mut metadata = self.minimap.content.metadata.borrow_mut();
