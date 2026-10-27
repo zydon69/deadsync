@@ -1,6 +1,7 @@
 //! Read-only strict song preparation. Dropping/cancelling never publishes a session.
+use super::pack_song_preference::Prepared;
 use deadsync_editor::{
-    Error, notes, pack::song_list::Row, storage::FileSession, workspace::Workspace,
+    Error, open_preferences::Preferences, pack::song_list::Row, storage::FileSession,
 };
 use std::sync::{
     Arc,
@@ -10,10 +11,10 @@ use std::sync::{
 
 pub(super) struct Job {
     cancelled: Arc<AtomicBool>,
-    receiver: Receiver<Result<Workspace, Error>>,
+    receiver: Receiver<Result<Prepared, Error>>,
 }
 impl Job {
-    pub(super) fn spawn(row: Row) -> Result<Self, Error> {
+    pub(super) fn spawn(row: Row, preferences: Preferences) -> Result<Self, Error> {
         let cancelled = Arc::new(AtomicBool::new(false));
         let signal = cancelled.clone();
         let (sender, receiver) = mpsc::sync_channel(1);
@@ -21,7 +22,7 @@ impl Job {
             .name("editor-pack-song-open".into())
             .spawn(move || {
                 let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    prepare(&row, &signal)
+                    prepare(&row, preferences, &signal)
                 }))
                 .unwrap_or_else(|_| Err(Error::InvalidEdit("Song loading worker failed".into())));
                 let _ = sender.send(result);
@@ -31,7 +32,7 @@ impl Job {
             receiver,
         })
     }
-    pub(super) fn poll(&mut self) -> Option<Result<Workspace, Error>> {
+    pub(super) fn poll(&mut self) -> Option<Result<Prepared, Error>> {
         match self.receiver.try_recv() {
             Ok(value) if !self.cancelled.load(Ordering::Relaxed) => Some(value),
             Ok(_) | Err(TryRecvError::Disconnected) => {
@@ -46,7 +47,7 @@ impl Drop for Job {
         self.cancelled.store(true, Ordering::Relaxed);
     }
 }
-fn prepare(row: &Row, cancelled: &AtomicBool) -> Result<Workspace, Error> {
+fn prepare(row: &Row, preferences: Preferences, cancelled: &AtomicBool) -> Result<Prepared, Error> {
     let check = || -> Result<(), Error> {
         if cancelled.load(Ordering::Relaxed) {
             return Err(Error::InvalidEdit("Song loading cancelled".into()));
@@ -64,14 +65,7 @@ fn prepare(row: &Row, cancelled: &AtomicBool) -> Result<Workspace, Error> {
     if file.path() != row.path || file.has_external_change()? {
         return Err(Error::ExternalChange);
     }
-    let chart = file
-        .session
-        .document()
-        .charts()
-        .iter()
-        .position(|chart| notes::layout_columns(&chart.steps_type).is_some())
-        .unwrap_or(0);
-    let workspace = Workspace::from_file(file, chart)?;
+    let prepared = Prepared::new(file, preferences, cancelled)?;
     check()?;
-    Ok(workspace)
+    Ok(prepared)
 }

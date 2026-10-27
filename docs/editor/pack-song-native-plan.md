@@ -8,8 +8,9 @@ properties16, help2 and layout3. The list fixture corrections preserve the
 existing mandatory Version1 contracts. Typed application-setting inheritance and
 custom preference re-read/retained-path behavior are included in the22 passes.
 Shell ICU wrapper four checks passed in52997, also compiling the production
-shell frame/Practice bridge. Two original units passed; corrected memory-only
-Snapshot unit remains pending run52424. These are automated
+shell frame/Practice bridge. All three pack-list units passed in52424. Checkpoint3fafbc3ba records this
+validated list. A subsequent final-refresh/projection assertion refinement of
+the Snapshot module passed in the 26 editor units in run46215. These are automated
 checks, not a GUI QA claim. Parent owns Cargo/staging/commit. No user files were
 written during development. Core metadata validation is in pack-song-list-plan.md.
 Old applied hook patches are historical integration aids, not pending changes.
@@ -115,7 +116,7 @@ claim of locking arbitrary third-party editors is made.
 - Shell `editor_pack_collation::tests`:1 compares both complete en-US/fr-FR
   orders against the unchanged original C# fixture, recording ICU version.
 
-The22 native workflows above have passed; four shell-wrapper checks passed. Two original units passed; corrected Snapshot unit awaits its current52424 run. The Pack pending
+The22 native workflows above have passed; four shell-wrapper checks passed. all three units passed in52424; the later Snapshot refresh/projection refinement passed in run46215. The Pack pending
 predicate is reused and reviewed; these new list workflows do not inject an
 actual pending Pack receipt. Existing Pack storage and native pending tests are
 separate proof and must not be described as an injected list-path test.
@@ -139,8 +140,12 @@ preferences block publication. The original preferences File is transferred only
 at publication, retaining conflict baseline rather than silently rebasing on a
 fresh disk read. Native EN/FR workflows verify a subsequent rate change writes
 the same custom file, and malformed external preferences preserve the old editor.
-This fix's EN/FR workflows passed in run7306; the corrected memory-only snapshot unit is in current52424.
+This fix's EN/FR workflows passed in run7306; all three units passed in52424. The later final-refresh/projection refinement passed in run46215.
 
 The source preferred-chart difference has a separate prepared follow-up in
-open-preferences-plan.md, with an executed original oracle. It remains unapplied
-while this native list checkpoint is validated.
+open-preferences-plan.md, with an executed original oracle. It is now connected: all 14 preferred-opening EN/FR workflows and the 22
+existing list workflows passed in run5269; four shell ICU checks passed in67976.
+
+Application-setting groups added by subsequent ports must extend the typed
+application Snapshot and its memory-only tests; document caches, chart IDs and
+transport must continue to belong to the newly prepared session.

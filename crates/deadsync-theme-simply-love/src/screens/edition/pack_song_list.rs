@@ -34,6 +34,7 @@ pub(super) struct Settings {
     culture: Option<u64>,
     loading: Option<pack_song_load::Job>,
     candidate: Option<Box<State>>,
+    prepared: Option<super::pack_song_preference::Prepared>,
     mode: Mode,
 }
 impl Settings {
@@ -64,6 +65,7 @@ impl State {
                     culture: None,
                     loading: None,
                     candidate: None,
+                    prepared: None,
                     mode: Mode::List,
                 });
                 self.panel = Some(Panel::PackSongList);
@@ -114,48 +116,62 @@ impl State {
             return;
         };
         self.pack_song_list.as_mut().unwrap().loading = None;
-        let result = result.and_then(|workspace| {
+        match result {
+            Ok(prepared) => self.pack_song_list.as_mut().unwrap().prepared = Some(prepared),
+            Err(error) => self.pack_song_error(error),
+        }
+    }
+    fn complete_pack_song_preference(&mut self, orderer: &mut impl deadsync_editor::chart_order::Orderer) -> bool {
+        let revision = i18n::revision();
+        let Some(settings) = self.pack_song_list.as_ref() else { return false; };
+        if !settings.current(self) { return false; }
+        let Some(prepared) = settings.prepared.as_ref() else { return false; };
+        let selected = prepared.selected(orderer);
+        let Some(settings) = self.pack_song_list.as_ref() else { return false; };
+        if !settings.current(self) || revision != i18n::revision() || !matches!(self.panel, Some(Panel::PackSongList)) { return false; }
+        let prepared = self.pack_song_list.as_mut().unwrap().prepared.take().unwrap();
+        let result = selected.and_then(|chart| prepared.workspace(chart)).and_then(|(workspace, failures)| {
             let mut candidate = State::from_workspace(workspace)?;
+            candidate.song_open_warnings = failures;
             application_preferences::Snapshot::capture(self).install(&mut candidate)?;
             Ok(candidate)
         });
         match result {
-            Ok(mut candidate) => {
-                candidate.profile_directory = self.profile_directory.clone();
+            Ok(candidate) => {
                 self.pack_song_list.as_mut().unwrap().candidate = Some(Box::new(candidate));
                 if self.workspace.file().session.is_dirty() {
                     self.pack_song_list.as_mut().unwrap().mode = Mode::Unsaved(0);
                     self.status = i18n::tr("Edition", "PackSongsUnsaved");
-                } else {
-                    self.publish_pack_song();
-                }
+                } else { self.publish_pack_song(); }
             }
             Err(error) => self.pack_song_error(error),
         }
+        true
     }
     /// Main-thread cultural boundary. Call on frames as well as raw-key dispatch:
     /// directory workers may finish without another keyboard event.
-    pub fn process_pack_song_list(&mut self, orderer: &mut impl Orderer) -> bool {
+    pub fn process_pack_song_list(&mut self, orderer: &mut impl Orderer, chart_orderer: &mut impl deadsync_editor::chart_order::Orderer) -> bool {
         if !matches!(self.panel, Some(Panel::PackSongList)) {
             return false;
         }
         self.poll_pack_song_list();
+        let completed = self.complete_pack_song_preference(chart_orderer);
         let revision = i18n::revision();
         let Some(settings) = self.pack_song_list.as_ref() else {
-            return false;
+            return completed;
         };
         if !settings.current(self)
             || settings.culture == Some(revision)
             || settings.catalog.is_none()
         {
-            return false;
+            return completed;
         }
         let result = settings.catalog.as_ref().unwrap().ordered(orderer);
         let Some(settings) = self.pack_song_list.as_ref() else {
-            return false;
+            return completed;
         };
         if !settings.current(self) || revision != i18n::revision() {
-            return false;
+            return completed;
         }
         let settings = self.pack_song_list.as_mut().unwrap();
         match result {
@@ -244,12 +260,13 @@ impl State {
             }
             Mode::List => {}
         }
-        if code == KeyCode::F5 && settings.scan.is_none() && settings.loading.is_none() {
+        if code == KeyCode::F5 && settings.scan.is_none() && settings.loading.is_none() && settings.prepared.is_none() {
             self.open_pack_song_list();
             return;
         }
         if settings.scan.is_some()
             || settings.loading.is_some()
+            || settings.prepared.is_some()
             || settings.culture != Some(i18n::revision())
         {
             return;
@@ -291,7 +308,11 @@ impl State {
             return;
         };
         // Reopening the active path is explicit refresh, and still uses dirty guards.
-        match pack_song_load::Job::spawn(row) {
+        let preferences = match self.audio_preferences_file.as_ref().map(|file| file.opening()).transpose() {
+            Ok(preferences) => preferences.unwrap_or_default(),
+            Err(error) => { self.pack_song_error(error); return; },
+        };
+        match pack_song_load::Job::spawn(row, preferences) {
             Ok(job) => {
                 self.pack_song_list.as_mut().unwrap().loading = Some(job);
                 self.status = i18n::tr("Edition", "PackSongsOpening");
@@ -358,7 +379,9 @@ impl State {
         // memory-only mode. No fresh read silently rebases external changes.
         next.audio_preferences_file = self.audio_preferences_file.take();
         next.audio_commands.extend(self.take_audio_commands());
-        next.status = i18n::tr("Edition", "PackSongsOpened");
+        next.status = if let Some(first) = next.song_open_warnings.first() {
+            i18n::tr_fmt("Edition", "PackSongsOpenedWarnings", &[("count", &next.song_open_warnings.len().to_string()), ("chart", &(first.source_index + 1).to_string()), ("message", &first.message)])
+        } else { i18n::tr("Edition", "PackSongsOpened") };
         *self = *next;
     }
     pub(super) fn pack_song_list_actors(&self, actors: &mut Vec<Actor>) {

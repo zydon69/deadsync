@@ -2,10 +2,10 @@
 
 ## Status and scope
 
-New shared model, fixtures, modules, tests and integration patches are prepared.
-None of this follow-up has been applied or compiled. The current Pack list's
-application-setting inheritance fix is separate and belongs to its current
-validation; this increment does not hide that correction.
+The model and native Pack list bridge are connected. Seven preferred-selection
+core workflows, seven loadable workflows, and 36 native EN/FR opening/list
+workflows passed. The original selection oracle and cancellation unit passed
+within the 21 editor core units. Source blocks remain intact when a peer fails.
 
 Real .NET10.0.403 executed31 cases in en-US/fr-FR:58 successful selections and
 four expected JSON conversion failures. The oracle compiles unchanged pinned
@@ -159,4 +159,7 @@ selection workflows and six loadable workflows passed. The invalid-clock test
 uses a genuinely nonfinite timing value; unparseable text is skipped by the
 existing compatible loader and does not establish a clock failure. Integration
 tests assert public revisions/GUIDs without exposing internal content tokens.
-Native integration and private oracle/cancellation units are not yet validated.
+The native bridge and private oracle/cancellation units subsequently passed as
+reported in the status above. A chartless regression from Snap restoration was
+fixed by allowing validated SetSnap without an active chart; note operations
+remain guarded.

@@ -61,7 +61,7 @@ music path, palette, note edits, Undo/Redo, save and reopen. Raw unknown propert
 bytes and original alias spelling survive ordinary note edits. The private unit
 covers escaped token spans, comments, Unicode whitespace and empty input.
 
-These Rust checks are prepared, not executed. Music checks validate a synthetic
+These four Rust workflows and the private lexical-span unit passed. Music checks validate a synthetic
 path/clock only, without decoding audio. Core views/palette checks do not claim
 native GUI QA. Explicit layout replacement can replace comments embedded within
 the lexical token itself; surrounding comments and untouched properties remain.
@@ -71,4 +71,4 @@ Semantic canonicalization and raw lexical replacement are applied. Four core
 workflows passed, including all 370 original-reader cases, escaped StepF2
 normalization and SMX team edits/save/reopen. The music-time fixture explicitly
 sets SyncOffset=0 instead of mistaking the normal 9ms default for an alias error.
-The private lexical-span unit is awaiting the central unit run.
+The private lexical-span unit passed in the central unit run.

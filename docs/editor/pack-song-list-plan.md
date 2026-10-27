@@ -17,8 +17,9 @@ indices and provenance hashes are retained in `pack-songs.*.json`.
 It compiles unchanged pinned PackSong.cs against real Fumen. PackLoadTask/UI
 were reviewed, not executed by this harness.
 
-Native list/loading/collation modules and their integration patch are a separate
-increment in preparation; they have not been compiled or applied yet.
+Native list/loading/collation are integrated and compiled. Their targeted
+validation is recorded in pack-song-native-plan.md. Preferred chart selection
+is connected and documented in open-preferences-plan.md.
 
 ## Reviewed source and provenance
 
@@ -174,12 +175,13 @@ positive NaN last. The mixed fixture/unit records and asserts both exact source
 indices and the differing native indices, although integer display coincides.
 No general pathological presentation-order parity is claimed.
 
-## Native boundary being prepared
+## Native boundary
 
-Dedicated native modules prepare a keyboard list, cancellable discovery and
+Dedicated native modules provide a keyboard list, cancellable discovery and
 strict loading, ICU ordering on its owning main thread and deferred candidate
-publication. Shared hooks remain isolated in `pack-song-native-hooks.patch`.
+publication. Parent applied the shared hooks; the old patch is an integration artifact.
 Opening must preserve song dirty state, Pack draft and pending receipts until
 explicit save or discard choices resolve them. Keeping edits cancels opening;
 there is no implicit stash. Failed or stale loads retain the current session.
-Native workflows and actual cultural differential checks remain pending.
+The22 native workflows and four actual shell ICU checks passed; current unit
+status is recorded separately in pack-song-native-plan.md.

@@ -11,6 +11,9 @@ use std::{
     time::{Duration, Instant},
 };
 struct Lexical;
+impl deadsync_editor::chart_order::Orderer for Lexical {
+    fn order(&mut self, snapshot: &deadsync_editor::chart_order::Snapshot) -> Result<Vec<usize>, Error> { snapshot.indices_with(str::cmp) }
+}
 impl Orderer for Lexical {
     fn order(&mut self, keys: &[OrderKey]) -> Result<Vec<usize>, Error> {
         let mut order: Vec<_> = (0..keys.len()).collect();
@@ -64,7 +67,7 @@ fn pump(state: &mut State, predicate: impl Fn(&State) -> bool) {
     let until = Instant::now() + Duration::from_secs(10);
     while !predicate(state) {
         assert!(Instant::now() < until, "Timed out: {}", text(state));
-        state.process_pack_song_list(&mut Lexical);
+        state.process_pack_song_list(&mut Lexical, &mut Lexical);
         std::thread::yield_now();
     }
 }
@@ -136,7 +139,7 @@ fn escape_cancels_background_discovery_without_replacing_session() {
     press(&mut state, KeyCode::Enter);
     press(&mut state, KeyCode::Escape);
     for _ in 0..10 {
-        state.process_pack_song_list(&mut Lexical);
+        state.process_pack_song_list(&mut Lexical, &mut Lexical);
     }
     assert_current(&state, &a);
     assert!(!text(&state).contains(&tr("PackSongsTitle")));
@@ -291,7 +294,7 @@ fn invalid_cultural_permutation_cannot_open_a_row_and_refresh_retries() {
     let until = Instant::now() + Duration::from_secs(10);
     while !text(&state).contains("complete permutation") {
         assert!(Instant::now() < until, "{}", text(&state));
-        state.process_pack_song_list(&mut Invalid);
+        state.process_pack_song_list(&mut Invalid, &mut Lexical);
         std::thread::yield_now();
     }
     press(&mut state, KeyCode::Enter);

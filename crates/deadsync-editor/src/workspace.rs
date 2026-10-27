@@ -316,7 +316,7 @@ impl Workspace {
     }
 
     pub fn execute(&mut self, command: Command) -> Result<(), Error> {
-        if !self.has_chart() && !matches!(command, Command::Undo | Command::Redo | Command::Save | Command::SaveRecovery | Command::Recover | Command::SelectChart(_)) {
+        if !self.has_chart() && !matches!(command, Command::Undo | Command::Redo | Command::Save | Command::SaveRecovery | Command::Recover | Command::SelectChart(_) | Command::SetSnap(_)) {
             return Err(Error::InvalidEdit("No active chart".into()));
         }
         match command {

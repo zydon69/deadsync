@@ -138,3 +138,21 @@ fn checked_preparation_cancellation_never_authorizes_an_empty_fallback() {
     assert_eq!(session.serialize().unwrap(), bytes);
     assert!(!session.is_dirty());
 }
+
+#[test]
+fn unfocused_workspace_restores_snap_without_selecting_an_unavailable_chart() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("unavailable.ssc");
+    let bytes = b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:oops;";
+    fs::write(&path, bytes).unwrap();
+    let mut workspace = Workspace::from_file_unfocused(FileSession::open(&path).unwrap());
+    let revision = workspace.file().session.revision();
+    workspace.execute(deadsync_editor::workspace::Command::SetSnap(9)).unwrap();
+    assert_eq!(workspace.snap(), 9);
+    assert!(!workspace.has_chart());
+    assert_eq!(workspace.file().session.revision(), revision);
+    assert_eq!(workspace.file().session.serialize().unwrap(), bytes);
+    assert!(!workspace.file().session.is_dirty());
+    assert!(workspace.execute(deadsync_editor::workspace::Command::SetSnap(10)).is_err());
+    assert_eq!(workspace.snap(), 9);
+}

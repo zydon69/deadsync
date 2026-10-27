@@ -23,6 +23,7 @@ mod chart_event_copy;
 mod pack_properties;
 mod pack_song_list;
 mod pack_song_load;
+mod pack_song_preference;
 mod end_hint;
 mod minimap;
 mod minimap_settings;
@@ -322,6 +323,7 @@ pub struct State {
     chart_event_copy: Option<chart_event_copy::Settings>,
     pack_properties: Option<pack_properties::Settings>,
     pack_song_list: Option<pack_song_list::Settings>,
+    song_open_warnings: Vec<deadsync_editor::chart_order::loadable::Failure>,
     attacks: Option<attacks::Settings>,
     event_selection: Option<event_selection::Settings>,
     attack_clipboard: Option<deadsync_editor::attacks::inspector::Clipboard>,
@@ -498,6 +500,7 @@ impl State {
             chart_event_copy: None,
             pack_properties: None,
             pack_song_list: None,
+            song_open_warnings: Vec::new(),
             attacks: None,
             event_selection: None,
             attack_clipboard: None,
