@@ -1,4 +1,5 @@
-//! Prepared in-place history migration. Never clones/replays external actions.
+//! In-place history migration. Never clones/replays external actions.
+pub(crate) mod rebind;
 use super::{Change, Entry, Session};
 use crate::{
     Error,

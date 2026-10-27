@@ -1,5 +1,7 @@
 //! Actions shared by the native screen and functional workflow tests. The UI
 //! dispatches these actions instead of mutating notes or file state itself.
+mod save_as;
+pub use save_as::WorkspaceSaveAsReview;
 use crate::{
     Error,
     history::Clipboard,

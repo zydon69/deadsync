@@ -1,5 +1,6 @@
 //! Rate-limited recovery writes. Disk work owns an immutable snapshot and never
 //! borrows the live editor; polling does not wait for the worker.
+mod poll;
 use super::FileSession;
 use crate::{Error, history::RevisionToken};
 use std::{
@@ -79,23 +80,7 @@ impl AutoRecovery {
     /// Returns true when a durable write completed. A clean or unchanged
     /// session does not create a draft, and failures wait for the next interval.
     pub fn update(&mut self, file: &FileSession, now: Instant) -> Result<bool, Error> {
-        let mut completed = false;
-        if let Some(worker) = &self.worker {
-            match worker.try_recv() {
-                Ok(result) => {
-                    self.worker = None;
-                    self.saved = Some(result?);
-                    completed = true;
-                }
-                Err(TryRecvError::Empty) => return Ok(false),
-                Err(TryRecvError::Disconnected) => {
-                    self.worker = None;
-                    return Err(Error::InvalidEdit(
-                        "Recovery worker stopped unexpectedly".into(),
-                    ));
-                }
-            }
-        }
+        let completed = self.poll_pending()?;
         let last = *self.last_attempt.get_or_insert(now);
         if now.saturating_duration_since(last) >= self.interval {
             self.request(file, now)?;

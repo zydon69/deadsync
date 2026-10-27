@@ -2,6 +2,7 @@
 //! atomic replacement succeeds; failures leave the current document editable.
 mod auto_recovery;
 mod save_as;
+pub use save_as::RelocationReceipt;
 pub use save_as::{SaveAsReview,SaveAsOutcome,PendingDurability,PreviousRecovery};
 use crate::{
     Error,

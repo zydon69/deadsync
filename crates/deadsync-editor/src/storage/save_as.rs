@@ -1,5 +1,6 @@
 //! Same-format Save As adapter. Review and output are staged before live mutation.
 use super::{FileSession, sync_directory};
+pub use crate::history::media_relocation::rebind::RelocationReceipt;
 use crate::{
     Error,
     history::{ContentToken, media_relocation::Plan},
@@ -103,6 +104,7 @@ pub struct SaveAsReview {
     parent_id: ParentIdentity,
     expected: Option<Baseline>,
     plan: Plan,
+    relocation: RelocationReceipt,
 }
 /// Old recovery ownership is retained explicitly; no source draft is deleted.
 pub struct PreviousRecovery {
@@ -128,10 +130,12 @@ pub struct PendingDurability {
 pub enum SaveAsOutcome {
     Durable {
         previous_recovery: PreviousRecovery,
+        relocation: RelocationReceipt,
     },
     WrittenPendingDurability {
         receipt: PendingDurability,
         previous_recovery: PreviousRecovery,
+        relocation: RelocationReceipt,
         error: Error,
     },
 }
@@ -139,6 +143,7 @@ impl SaveAsReview {
     pub fn destination(&self) -> &Path {
         &self.destination
     }
+    pub fn relocation(&self) -> &RelocationReceipt { &self.relocation }
     pub fn replaces_existing(&self) -> bool {
         self.expected.is_some()
     }
@@ -156,6 +161,9 @@ impl SaveAsReview {
 }
 impl FileSession {
     pub fn prepare_save_as(&self, destination: &Path) -> Result<SaveAsReview, Error> {
+        self.prepare_save_as_with_revisions(destination,&[])
+    }
+    pub fn prepare_save_as_with_revisions(&self,destination:&Path,extra:&[u64])->Result<SaveAsReview,Error> {
         if !destination.is_absolute() {
             return Err(Error::InvalidEdit(
                 "Save As requires an absolute destination".into(),
@@ -174,7 +182,9 @@ impl FileSession {
         }
         let parent_id = parent_identity(&parent)?;
         let expected = baseline(&destination)?;
-        let plan = Plan::prepare(&self.session, &self.path, &destination)?;
+        let mut plan = Plan::prepare(&self.session, &self.path, &destination)?;
+        plan.include_external_revisions(extra)?;
+        let relocation = plan.rebind_receipt();
         Ok(SaveAsReview {
             source: self.path.clone(),
             source_expected: Arc::clone(&self.expected),
@@ -183,6 +193,7 @@ impl FileSession {
             parent_id,
             expected,
             plan,
+            relocation,
         })
     }
     pub fn save_as(&mut self, review: SaveAsReview) -> Result<SaveAsOutcome, Error> {
@@ -257,6 +268,7 @@ impl FileSession {
             parent,
             plan,
             expected: baseline,
+            relocation,
             ..
         } = review;
         // Holding this borrow prevents an edit between stale checking and commit.
@@ -269,7 +281,7 @@ impl FileSession {
         match sync(&parent) {
             Ok(()) => {
                 self.session.mark_saved();
-                Ok(SaveAsOutcome::Durable { previous_recovery })
+                Ok(SaveAsOutcome::Durable { previous_recovery, relocation })
             }
             Err(error) => {
                 // The rename happened. Publish that truth, but never claim durability.
@@ -277,6 +289,7 @@ impl FileSession {
                 Ok(SaveAsOutcome::WrittenPendingDurability {
                     receipt,
                     previous_recovery,
+                    relocation,
                     error,
                 })
             }
@@ -496,7 +509,7 @@ mod tests {
         let old_receipt = Arc::clone(&file.recovery_receipt);
         let review = file.prepare_save_as(&destination).unwrap();
         let previous = match file.save_as(review).unwrap() {
-            SaveAsOutcome::Durable { previous_recovery } => previous_recovery,
+            SaveAsOutcome::Durable { previous_recovery, .. } => previous_recovery,
             _ => panic!(),
         };
         assert_eq!(previous.path, old_path);

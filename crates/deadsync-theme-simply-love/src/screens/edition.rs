@@ -1,6 +1,7 @@
 //! Compact native editor screen. The document and every edit command live in
 //! deadsync-editor; this module owns presentation, shortcuts, and exit prompts.
 mod analysis_panel;
+mod save_as;
 mod zoom_view;
 mod spacing_view;
 mod zoom_settings;
@@ -107,6 +108,9 @@ enum Panel {
     NewChart(usize),
     DeleteChart(usize),
     EmptyMenu(usize),
+    SaveAsDestination(usize),
+    SaveAsReview(usize),
+    SaveAsPending(usize),
     Menu(usize),
     Transforms(usize),
     NoteConversion(usize),
@@ -383,6 +387,7 @@ pub struct State {
     toolbar: Arc<str>,
     chart_label: Arc<str>,
     auto_recovery: deadsync_editor::storage::AutoRecovery,
+    save_as: save_as::Ui,
 }
 
 impl State {
@@ -564,6 +569,7 @@ impl State {
             toolbar: Arc::from(""),
             chart_label: Arc::from(""),
             auto_recovery: Default::default(),
+            save_as: Default::default(),
         };
         state.refresh();
         if let Some(path) = deadsync_editor::runtime::preferences_path() {
@@ -1175,9 +1181,8 @@ impl State {
     /// Update using the host's monotonic frame clock, also permitting
     /// deterministic animation checks without sleeps or hardware input.
     pub fn update_with_time(&mut self, now: std::time::Instant) {
-        if let Err(error) = self.auto_recovery.update(self.workspace.file(), now) {
-            self.recovery_error(error);
-        }
+        let recovery=if self.save_as_modal() {self.auto_recovery.poll_pending()} else {self.auto_recovery.update(self.workspace.file(), now)};
+        if let Err(error)=recovery {self.recovery_error(error);}
         self.zoom.update(now.saturating_duration_since(self.zoom_epoch).as_secs_f64())
             .expect("finite monotonic frame clock");
         self.update_receptors(now.saturating_duration_since(self.zoom_epoch).as_secs_f64());
@@ -1474,6 +1479,8 @@ impl State {
     }
 
     fn command(&mut self, command: Command) {
+        if self.save_as_modal() && matches!(command,Command::Save|Command::SaveRecovery|Command::Recover) {self.status=i18n::tr("Edition","SaveAsBusy");return;}
+        if matches!(command,Command::Save|Command::SaveRecovery|Command::Recover) && self.save_as_pending_guard() {return;}
         self.lane_entry_command(command);
         if matches!(command, Command::Recover)
             && (self.pack_has_unsaved_changes() || self.pack_has_pending_durability())
@@ -1577,7 +1584,7 @@ impl State {
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
         let repeating_text_cursor = matches!(
-            self.panel, Some(Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::Attacks(_) | Panel::ProfileText | Panel::PackProperties)
+            self.panel, Some(Panel::SaveAsDestination(0) | Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::Attacks(_) | Panel::ProfileText | Panel::PackProperties)
         )
             && matches!(
                 event.code,
@@ -1624,6 +1631,7 @@ impl State {
         if self.panel.is_some() {
             return self.panel_key(event.code);
         }
+        if self.control && event.code == KeyCode::F12 {self.open_save_as();return false;}
         if self.chart_views_key(event.code) { return false; }
         if self.shift && !self.control && event.code == KeyCode::KeyS {
             self.open_scroll_settings(); return false;
@@ -1807,6 +1815,7 @@ impl State {
     }
 
     pub(super) fn request_close(&mut self) -> bool {
+        if self.save_as_pending_guard() {return false;}
         if self.pack_has_unsaved_changes() || self.pack_has_pending_durability() {
             self.open_pack_properties();
             self.status = i18n::tr("Edition", "PackCloseGuard");
@@ -1822,6 +1831,7 @@ impl State {
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if let Panel::SaveAsDestination(index)|Panel::SaveAsReview(index)|Panel::SaveAsPending(index)=panel {self.save_as_key(index,code);return false;}
         if matches!(panel, Panel::PackSongList) { self.pack_song_list_key(code); return false; }
         if matches!(panel, Panel::PackProperties) { self.pack_properties_key(code); return false; }
         if matches!(panel, Panel::ChartEventCopy) { self.chart_event_copy_key(code); return false; }
@@ -2013,6 +2023,7 @@ impl State {
             Panel::WaveformColors(_) => unreachable!("waveform colours dispatched above"),
             Panel::WaveformSettings(_) => unreachable!("waveform settings dispatched above"),
             Panel::ScrollSettings(_) => unreachable!("scroll settings dispatched above"),
+            Panel::SaveAsDestination(_)|Panel::SaveAsReview(_)|Panel::SaveAsPending(_)=>unreachable!("Save As dispatched above"),
             Panel::MinimapOptions(_) | Panel::MinimapSettings(_) => unreachable!("minimap settings dispatched above"),
             Panel::ReceptorSettings(_) => unreachable!("receptor settings dispatched above"),
             Panel::NoteColorSettings(_) => unreachable!("note color settings dispatched above"),
@@ -2384,7 +2395,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 22,
+                    Panel::Menu(_) => 23,
                     Panel::Transforms(_) => 12,
                     _ => 3,
                 };
@@ -2468,6 +2479,7 @@ impl State {
                             19 => self.open_pack_song_list(),
                     20 => self.open_receptor_settings(),
                             21 => self.open_note_color_settings(),
+                            22 => self.open_save_as(),
                             _ => {}
                         }
                     }
@@ -2486,6 +2498,7 @@ impl State {
 
     /// Request a background draft without waiting for disk I/O.
     pub fn autosave(&mut self) {
+        if self.save_as_modal() {self.status=i18n::tr("Edition","SaveAsBusy");return;}
         if let Err(error) = self.auto_recovery.request(self.workspace.file(), std::time::Instant::now()) {
             self.recovery_error(error);
         }
@@ -2767,6 +2780,7 @@ impl State {
     }
 
     fn panel_actors(&self, panel: Panel, actors: &mut Vec<Actor>) {
+        if let Panel::SaveAsDestination(index)|Panel::SaveAsReview(index)|Panel::SaveAsPending(index)=panel {self.save_as_actors(index,actors);return;}
         if matches!(panel, Panel::PackSongList) { self.pack_song_list_actors(actors); return; }
         if matches!(panel, Panel::PackProperties) { self.pack_properties_actors(actors); return; }
         if let Panel::NoteColorSettings(index)=panel{self.note_color_settings_actors(index,actors);return;}
@@ -2788,9 +2802,10 @@ impl State {
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
+            Panel::SaveAsDestination(_)|Panel::SaveAsReview(_)|Panel::SaveAsPending(_)=>&[],
             Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::PackSongList | Panel::MinimapSettings(_) | Panel::MinimapOptions(_) | Panel::ReceptorSettings(_) | Panel::NoteColorSettings(_) => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
-            Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close", "PackPropertiesOpen", "PackSongsOpen"],
+            Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close", "PackPropertiesOpen", "PackSongsOpen", "SaveAsOpen"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
             Panel::Menu(_) => &[
                 "Resume",
@@ -2815,6 +2830,7 @@ impl State {
                 "PackSongsOpen",
                 "ReceptorSettingsOpen",
                 "NoteColorSettingsOpen",
+                "SaveAsOpen",
             ],
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen", "NoteOwnersOpen", "NoteAttributesOpen"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
@@ -2962,7 +2978,8 @@ impl State {
             Panel::GenerationPreview(_) => &["GenerationApply", "GenerationDiscard"],
         };
         let selected = match panel {
-            Panel::EmptyMenu(i)
+            Panel::SaveAsDestination(i)|Panel::SaveAsReview(i)|Panel::SaveAsPending(i)
+            | Panel::EmptyMenu(i)
             | Panel::DeleteChart(i)
             | Panel::NewChart(i)
             | Panel::Menu(i)

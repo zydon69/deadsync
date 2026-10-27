@@ -1,7 +1,7 @@
 # Save As and editor file navigation
 
 Same-format storage/history relocation is connected and validated. The native
-Save As panels and typed view-rebinding extension are the next increments.
+Save As panels and typed view-rebinding extension are connected.
 Reference GrooveAuthor `48e18f71655d0f0d86144c63239331833501fda2`.
 
 The preparatory media-rebasing oracle now executes the complete unchanged
@@ -214,3 +214,16 @@ is prepared in separate patches and not part of these executed proofs. The
 UI/rebinding extensions remain pending, so no end-user Save As completion is
 claimed yet. Unknown/custom media paths and cross-format export remain separate
 contracts.
+
+## Native and view integration checkpoint
+Typed media-only receipts preserve current/fractional warp positions, chart
+GUIDs, view order/dedication/selection, Workspace structural-focus maps and the
+external profile revision maps without changing their separate preference
+serials. All seven new core units passed within 49 editor units.
+
+Ctrl+F12 and the appended F1 action open a keyboard/IME destination panel,
+explicit review and pending-durability resolution. All ten EN/FR State workflows
+and 32 scoped editor units passed; the latter also passed with one test thread
+because language and metrics are process-global test resources. Background
+recovery is polled without starting another write while the modal owns file IO.
+No actual game session or filesystem power-loss simulation is claimed.

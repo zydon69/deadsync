@@ -10,6 +10,7 @@ use deadsync_editor::{
 };
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(super) enum Target {
+    SaveAsDestination,
     Chart(ChartField),
     Song(SongField),
     Note(NoteField),
@@ -43,6 +44,7 @@ impl Target {
     }
     fn key(self) -> &'static str {
         match self {
+            Self::SaveAsDestination=>"SaveAsDestinationValue",
             Self::Attack(index) => super::attacks::FIELD_KEYS[index],
             Self::Pack(field) => field.key(),
             Self::Note(NoteField::Head) => "NoteAttributesHead",
@@ -83,6 +85,7 @@ impl Target {
 impl State {
     fn field_at(&self, index: usize) -> Option<Target> {
         match self.panel {
+            Some(Panel::SaveAsDestination(_)) if index==0=>Some(Target::SaveAsDestination),
             Some(Panel::Attacks(_)) if (3..8).contains(&index) => Some(Target::Attack(index - 3)),
             Some(Panel::NoteAttributes(_)) if self.note_attribute_typed => match index {
                 4 => Some(Target::NoteReserved),
@@ -102,6 +105,7 @@ impl State {
     }
     fn field_value(&self, target: Target) -> Option<std::borrow::Cow<'_, str>> {
         match target {
+            Target::SaveAsDestination=>Some(self.save_as.destination.as_str().into()),
             Target::Pack(field) => self.pack_properties.as_ref().map(|settings| settings.text(field)),
             Target::NoteReserved => self.note_attributes.as_ref()
                 .and_then(|draft| self.note_attribute_inspector.attributes(draft).ok())
@@ -114,6 +118,7 @@ impl State {
     }
     fn field_supported(&self, target: Target) -> bool {
         match target {
+            Target::SaveAsDestination=>matches!(self.panel,Some(Panel::SaveAsDestination(_))),
             Target::Pack(_) => self.pack_text_current(),
             Target::NoteReserved => self.note_attributes.as_ref()
                 .is_some_and(|draft| self.note_attribute_inspector.attributes(draft).is_ok()),
@@ -138,6 +143,10 @@ impl State {
     ) -> Result<(), deadsync_editor::Error> {
         let missing = || deadsync_editor::Error::InvalidEdit("No property draft is active".into());
         match target {
+            Target::SaveAsDestination=>{
+                if value.len()>4096 || value.chars().any(char::is_control) {return Err(deadsync_editor::Error::InvalidEdit("Invalid destination text".into()));}
+                self.save_as.destination=value.to_owned();Ok(())
+            }
             Target::Pack(field) => {
                 if !self.pack_text_current() { return Err(missing()); }
                 self.pack_properties.as_mut().ok_or_else(missing)?.set_text(field, value)
@@ -168,7 +177,7 @@ impl State {
             return if self.pack_text_current() { self.pack_properties.as_ref()?.field().map(Target::Pack) } else { None };
         }
         let index = match self.panel {
-            Some(Panel::ChartText(i) | Panel::SongText(i) | Panel::NoteAttributes(i) | Panel::Attacks(i)) => i,
+            Some(Panel::SaveAsDestination(i) | Panel::ChartText(i) | Panel::SongText(i) | Panel::NoteAttributes(i) | Panel::Attacks(i)) => i,
             _ => return None,
         };
         self.field_at(index)

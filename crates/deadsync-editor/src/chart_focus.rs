@@ -1,5 +1,6 @@
 //! Explicit musical focus transitions for native chart selection. The legacy
 //! SelectChart command retains its row-based behavior for existing callers.
+mod rebind;
 use crate::{
     Error,
     chart_order::{Binding, SessionBinding},

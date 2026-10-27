@@ -45,6 +45,7 @@ impl Settings {
 }
 impl State {
     pub(super) fn open_pack_song_list(&mut self) {
+        if self.save_as_pending_guard() {return;}
         self.stop_audio();
         let source = self.workspace.file().path().to_path_buf();
         let selection = self
@@ -321,6 +322,7 @@ impl State {
         }
     }
     fn publish_pack_song(&mut self) {
+        if self.save_as_pending_guard() {return;}
         if self.pack_has_unsaved_changes() || self.pack_has_pending_durability() {
             self.open_pack_properties();
             self.status = i18n::tr("Edition", "PackSongsPackGuard");
