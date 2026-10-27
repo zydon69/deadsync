@@ -116,7 +116,7 @@ pub(crate) fn require_standard(note: &Note) -> Result<(), Error> {
 /// Detection follows Fumen: X/x/Y/y/Z/z distinguish co-op from normal Pump.
 /// A plain 1 or 2 alone is ambiguous and must keep its standard P1 meaning.
 pub fn is_coop(bytes: &[u8], layout: &str) -> bool {
-    if !matches!(layout, "pump-double" | "pump-routine") {
+    if !matches!(crate::notes::canonical_layout(layout), Some("pump-double" | "pump-routine")) {
         return false;
     }
     let Ok(text) = std::str::from_utf8(bytes) else {
@@ -144,9 +144,9 @@ pub fn parse(bytes: &[u8]) -> Result<Grid, Error> {
 /// note stream in a Routine chart starts with two. Do not infer this minimum
 /// from the effective (promoted) layout.
 pub fn parse_for_layout(bytes: &[u8], layout: &str) -> Result<Grid, Error> {
-    let mut minimum_players = match layout {
-        "pump-double" => 1,
-        "pump-routine" => 2,
+    let mut minimum_players = match crate::notes::canonical_layout(layout) {
+        Some("pump-double") => 1,
+        Some("pump-routine") => 2,
         _ => {
             return Err(Error::Unsupported(
                 "StepF2 co-op decoding requires a Pump Double or Routine source layout".into(),

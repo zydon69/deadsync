@@ -53,6 +53,16 @@ pub fn canonical(value: &str) -> Option<&'static str> {
     if let Ok(index) = value.parse::<usize>() {
         return ALL.get(index).copied();
     }
+    // Fumen uses Enum.TryParse, including comma-separated enum names even
+    // though ChartType is not marked Flags. Restrict members to real names;
+    // aliases and numeric members do not participate in that grammar.
+    if value.contains(',') {
+        let mut combined = 0usize;
+        for member in value.split(',') {
+            combined |= ALL.iter().position(|name| *name == member.trim())?;
+        }
+        return ALL.get(combined).copied();
+    }
     match value.as_str() {
         "smx-double6" => Some("smx-dual"),
         "smx-double10" => Some("smx-full"),

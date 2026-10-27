@@ -1,5 +1,6 @@
 pub mod metadata;
 pub mod chart_type;
+mod layout_token;
 use crate::Error;
 use std::{collections::BTreeMap, ops::Range, sync::Arc};
 
@@ -119,7 +120,7 @@ fn parse_parts(
                 return Err(Error::Unsupported("Metadata chart limit exceeded".into()));
             }
             charts.push(Chart {
-                steps_type: fields[0].clone(),
+                steps_type: chart_type::canonical(&fields[0]).unwrap_or(&fields[0]).to_owned(),
                 description: fields[1].clone(),
                 difficulty: fields[2].clone(),
                 meter: fields[3].clone(),
@@ -134,7 +135,10 @@ fn parse_parts(
             if let Some(index) = chart {
                 let current = &mut charts[index];
                 match name.as_str() {
-                    "STEPSTYPE" => current.steps_type = decode(&source[value.clone()]),
+                    "STEPSTYPE" => {
+                        let value = decode(&source[value.clone()]);
+                        current.steps_type = chart_type::canonical(&value).unwrap_or(&value).to_owned();
+                    },
                     "DESCRIPTION" => current.description = decode(&source[value.clone()]),
                     "DIFFICULTY" => current.difficulty = decode(&source[value.clone()]),
                     "METER" => current.meter = decode(&source[value.clone()]),
@@ -205,22 +209,11 @@ impl Document {
                 tag.value.start..end
             }
         };
-        // Locate the original spelling rather than replacing its surrounding
-        // whitespace/comments. The parsed identifier supplies the exact token.
-        let previous = document.charts[chart].steps_type.as_bytes();
-        let field = &document.source[range.clone()];
-        let offset = field
-            .windows(previous.len())
-            .enumerate()
-            .find_map(|(offset, window)| {
-                (window == previous
-                    && decode(&field[..offset]).is_empty()
-                    && decode(&field[offset + previous.len()..]).is_empty())
-                .then_some(offset)
-            })
-            .ok_or_else(|| Error::InvalidFormat("Chart layout token is ambiguous".into()))?;
+        // Read the lexical token from its source range. The semantic chart type
+        // can be canonical even when its source uses aliases or escaped bytes.
+        let token = layout_token::span(&document.source[range.clone()])?;
         document.replace(
-            range.start + offset..range.start + offset + previous.len(),
+            range.start + token.start..range.start + token.end,
             Some(Arc::from(layout.as_bytes())),
         )?;
         Self::parse(document.serialize(), self.format)

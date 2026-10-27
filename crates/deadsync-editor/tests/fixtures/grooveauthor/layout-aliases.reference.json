@@ -1,0 +1,33 @@
+{
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sdk": "10.0.403",
+  "scope": "Actual Fumen metadata/full readers. Generated temporary simfiles only; no Editor or writers executed.",
+  "source_blobs": {
+    "Fumen/Converters/SMCommon.cs": {
+      "git_blob": "b94d69e27d49b6fe05bb61d459dc853630826733",
+      "sha256": "8517ace018aeb788808be9e584f289620c00f59e94ac114ffec130952f65160a"
+    },
+    "Fumen/Converters/SMPropertyParsers.cs": {
+      "git_blob": "92d1fa479accf237026b88b89b7d43277798679c",
+      "sha256": "64a042d72dd1dfe66a6f13237eb769c0ec219ca745de8af3caaf13050c2bef1e"
+    },
+    "Fumen/Converters/SMReader.cs": {
+      "git_blob": "d9a9656d7918a8812e22d9b478889cd0c31b1893",
+      "sha256": "22e6b561094fbe26642251cee146ca090f3d56ed970b306ae85103c39640bfe0"
+    },
+    "Fumen/Converters/SSCReader.cs": {
+      "git_blob": "d0c30aefa7baf29f424ed23abe7767cf3ea51f0f",
+      "sha256": "7d8fc98ede83f65079270989eb4edcf88ea10dd275f0206eb68e35aa6ffc88e2"
+    },
+    "Fumen/Converters/MSDFile.cs": {
+      "git_blob": "fef795fb7db7c8c7e595a95b57da530281cd28b4",
+      "sha256": "546295523903d29c64dcf0660512091e5d9fb5833185c324799310f7df307d91"
+    }
+  },
+  "program_sha256": "9feef6309654785ec1f54705742c360b1010c4dd44dec7bb100553e2b97b8638",
+  "assembly_sha256": "1f749ea1f005b01c690f948de774eabba07722d66693ea45da9f3fcf7fbf7ec4",
+  "fumen_assembly_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "request_sha256": "db5846ae1074ec9cb8cad1341728537291bad6a1059b38035fa678b55eacfbac",
+  "expected_sha256": "8d04427e2eca473bbbac971350ebd5b7b14e4203755a3ab116dc832701847eed"
+}

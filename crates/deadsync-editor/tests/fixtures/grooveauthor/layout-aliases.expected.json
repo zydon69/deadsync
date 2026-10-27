@@ -1,0 +1,5524 @@
+{
+  "Cases": [
+    {
+      "Name": "type-0-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-0-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-0-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-0-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-0-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-0-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-1-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-1-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-1-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-1-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-1-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-1-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-2-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-couple",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-2-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-couple",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-2-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-couple",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-2-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-couple",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-2-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-couple",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-2-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-couple",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-3-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-solo",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-3-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-solo",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-3-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-solo",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-3-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-solo",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-3-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-solo",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-3-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-solo",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-4-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-threepanel",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-4-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-threepanel",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-4-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-threepanel",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-4-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-threepanel",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-4-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-threepanel",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-4-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-threepanel",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-5-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-routine",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-5-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-routine",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-5-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-routine",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-5-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-routine",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-5-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "dance-routine",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-5-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "dance-routine",
+          "Players": 2,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-6-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-6-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-6-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-6-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-6-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-6-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-7-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-halfdouble",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-7-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-halfdouble",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-7-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-halfdouble",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-7-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-halfdouble",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-7-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-halfdouble",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-7-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-halfdouble",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-8-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-8-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-8-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-8-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-8-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-8-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-9-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-couple",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-9-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-couple",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-9-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-couple",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-9-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-couple",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-9-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-couple",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-9-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-couple",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-10-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-10-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-10-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-10-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-10-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-10-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-11-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "kb7-single",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-11-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "kb7-single",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-11-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "kb7-single",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-11-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "kb7-single",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-11-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "kb7-single",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-11-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "kb7-single",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-12-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "ez2-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-12-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "ez2-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-12-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "ez2-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-12-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "ez2-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-12-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "ez2-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-12-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "ez2-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-13-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "ez2-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-13-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "ez2-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-13-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "ez2-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-13-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "ez2-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-13-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "ez2-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-13-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "ez2-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-14-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "ez2-real",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-14-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "ez2-real",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-14-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "ez2-real",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-14-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "ez2-real",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-14-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "ez2-real",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-14-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "ez2-real",
+          "Players": 1,
+          "Columns": 7,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-15-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "para-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-15-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "para-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-15-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "para-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-15-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "para-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-15-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "para-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-15-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "para-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-16-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "ds3ddx-single",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-16-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "ds3ddx-single",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-16-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "ds3ddx-single",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-16-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "ds3ddx-single",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-16-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "ds3ddx-single",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-16-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "ds3ddx-single",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-17-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-single5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-17-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-single5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-17-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-single5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-17-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-single5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-17-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-single5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-17-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-single5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-18-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-versus5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-18-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-versus5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-18-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-versus5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-18-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-versus5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-18-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-versus5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-18-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-versus5",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-19-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-double5",
+          "Players": 1,
+          "Columns": 12,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-19-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-double5",
+          "Players": 1,
+          "Columns": 12,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-19-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-double5",
+          "Players": 1,
+          "Columns": 12,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-19-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-double5",
+          "Players": 1,
+          "Columns": 12,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-19-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-double5",
+          "Players": 1,
+          "Columns": 12,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-19-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-double5",
+          "Players": 1,
+          "Columns": 12,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-20-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-single7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-20-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-single7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-20-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-single7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-20-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-single7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-20-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-single7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-20-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-single7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-21-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-versus7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-21-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-versus7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-21-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-versus7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-21-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-versus7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-21-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-versus7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-21-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-versus7",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-22-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-double7",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-22-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-double7",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-22-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-double7",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-22-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-double7",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-22-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "bm-double7",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-22-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "bm-double7",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-23-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "maniax-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-23-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "maniax-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-23-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "maniax-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-23-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "maniax-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-23-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "maniax-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-23-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "maniax-single",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-24-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "maniax-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-24-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "maniax-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-24-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "maniax-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-24-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "maniax-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-24-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "maniax-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-24-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "maniax-double",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-25-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-single4",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-25-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-single4",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-25-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-single4",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-25-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-single4",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-25-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-single4",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-25-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-single4",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-26-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-single5",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-26-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-single5",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-26-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-single5",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-26-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-single5",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-26-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-single5",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-26-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-single5",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-27-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-single8",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-27-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-single8",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-27-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-single8",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-27-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-single8",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-27-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-single8",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-27-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-single8",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-28-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-double4",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-28-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-double4",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-28-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-double4",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-28-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-double4",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-28-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-double4",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-28-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-double4",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-29-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-double5",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-29-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-double5",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-29-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-double5",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-29-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-double5",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-29-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-double5",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-29-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-double5",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-30-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-double8",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-30-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-double8",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-30-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-double8",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-30-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-double8",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-30-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "techno-double8",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-30-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "techno-double8",
+          "Players": 1,
+          "Columns": 16,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-31-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "pnm-five",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-31-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "pnm-five",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-31-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "pnm-five",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-31-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "pnm-five",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-31-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "pnm-five",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-31-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "pnm-five",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-32-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "pnm-nine",
+          "Players": 1,
+          "Columns": 9,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-32-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "pnm-nine",
+          "Players": 1,
+          "Columns": 9,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-32-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "pnm-nine",
+          "Players": 1,
+          "Columns": 9,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-32-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "pnm-nine",
+          "Players": 1,
+          "Columns": 9,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-32-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "pnm-nine",
+          "Players": 1,
+          "Columns": 9,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-32-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "pnm-nine",
+          "Players": 1,
+          "Columns": 9,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-33-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "lights-cabinet",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-33-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "lights-cabinet",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-33-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "lights-cabinet",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-33-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "lights-cabinet",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-33-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "lights-cabinet",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-33-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "lights-cabinet",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-34-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-human",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-34-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-human",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-34-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-human",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-34-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-human",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-34-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-human",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-34-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-human",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-35-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-quadarm",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-35-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-quadarm",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-35-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-quadarm",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-35-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-quadarm",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-35-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-quadarm",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-35-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-quadarm",
+          "Players": 1,
+          "Columns": 4,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-36-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-insect",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-36-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-insect",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-36-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-insect",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-36-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-insect",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-36-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-insect",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-36-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-insect",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-37-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-arachnid",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-37-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-arachnid",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-37-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-arachnid",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-37-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-arachnid",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-37-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "kickbox-arachnid",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-37-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "kickbox-arachnid",
+          "Players": 1,
+          "Columns": 8,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-38-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-beginner",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-38-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-beginner",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-38-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-beginner",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-38-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-beginner",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-38-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-beginner",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-38-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-beginner",
+          "Players": 1,
+          "Columns": 3,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-39-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-39-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-39-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-39-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-39-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-39-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-40-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-40-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-40-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-40-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-40-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-40-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-41-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-41-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-41-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-41-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-41-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-41-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-42-canonical-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-42-canonical-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-42-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-42-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-42-numeric-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "type-42-numeric-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-hyphen-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-hyphen-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-padded-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-padded-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-escaped-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-escaped-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-escaped-hyphen-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-escaped-hyphen-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-comments-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double6-comments-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double6-smx_double6-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double6-smx_double6-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double6-smx-double6-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double6-smx-double6-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double6-smx_dual-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double6-smx_dual-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-dual",
+          "Players": 1,
+          "Columns": 6,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-hyphen-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-hyphen-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-padded-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-padded-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-escaped-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-escaped-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-escaped-hyphen-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-escaped-hyphen-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-comments-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_double10-comments-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double10-smx_double10-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double10-smx_double10-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double10-smx-double10-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double10-smx-double10-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double10-smx_full-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_double10-smx_full-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-full",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-hyphen-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-hyphen-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-padded-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-padded-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-escaped-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-escaped-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-escaped-hyphen-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-escaped-hyphen-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-comments-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_couple-comments-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "full-smx_couple-smx_couple-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_couple-smx_couple-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_couple-smx-couple-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_couple-smx-couple-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_couple-smx_team-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_couple-smx_team-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-hyphen-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-hyphen-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-padded-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-padded-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-escaped-underscore-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-escaped-underscore-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-escaped-hyphen-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-escaped-hyphen-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-comments-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "alias-smx_routine-comments-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "full-smx_routine-smx_routine-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_routine-smx_routine-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_routine-smx-routine-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_routine-smx-routine-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_routine-smx_team-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-smx_routine-smx_team-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "smx-team",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 9,
+              "Player": 1
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "edge-unknown-sm",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-unknown-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-upper-sm",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-upper-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-empty-sm",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-empty-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-out-of-range-sm",
+      "Metadata": null,
+      "Full": null,
+      "Error": "IndexOutOfRangeException"
+    },
+    {
+      "Name": "edge-out-of-range-ssc",
+      "Metadata": null,
+      "Full": null,
+      "Error": "IndexOutOfRangeException"
+    },
+    {
+      "Name": "edge-negative-sm",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-negative-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-combination-sm",
+      "Metadata": [
+        {
+          "Layout": "smx-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-combination-ssc",
+      "Metadata": [
+        {
+          "Layout": "smx-single",
+          "Players": 1,
+          "Columns": 5,
+          "Notes": []
+        }
+      ],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-alias-combination-sm",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-alias-combination-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-numeric-combination-sm",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "edge-numeric-combination-ssc",
+      "Metadata": [],
+      "Full": null,
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-canonical-X000000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-canonical-X000000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-canonical-XYZ1000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-canonical-XYZ1000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-underscore-X000000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-underscore-X000000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-underscore-XYZ1000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-underscore-XYZ1000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-numeric-X000000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-numeric-X000000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-numeric-XYZ1000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_double-numeric-XYZ1000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-double",
+          "Players": 1,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-canonical-X000000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-canonical-X000000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-canonical-XYZ1000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-canonical-XYZ1000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-underscore-X000000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-underscore-X000000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-underscore-XYZ1000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-underscore-XYZ1000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-numeric-X000000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-numeric-X000000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-numeric-XYZ1000000-sm",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "full-pump_routine-numeric-XYZ1000000-ssc",
+      "Metadata": [
+        {
+          "Layout": "pump-routine",
+          "Players": 2,
+          "Columns": 10,
+          "Notes": []
+        }
+      ],
+      "Full": [
+        {
+          "Layout": "pump-routine",
+          "Players": 4,
+          "Columns": 10,
+          "Notes": [
+            {
+              "Row": 0,
+              "Lane": 0,
+              "Player": 0
+            },
+            {
+              "Row": 0,
+              "Lane": 1,
+              "Player": 1
+            },
+            {
+              "Row": 0,
+              "Lane": 2,
+              "Player": 2
+            },
+            {
+              "Row": 0,
+              "Lane": 3,
+              "Player": 3
+            }
+          ]
+        }
+      ],
+      "Error": null
+    }
+  ]
+}

@@ -159,11 +159,8 @@ impl Palette {
             .head)
     }
     pub fn mine(&self, layout: &str, player: u32, selected: bool) -> Result<[u8; 4], Error> {
-        if crate::notes::layout_columns(layout).is_none() {
-            return Err(Error::Unsupported(
-                "Unknown large-chart color layout".into(),
-            ));
-        }
+        let layout = crate::notes::canonical_layout(layout)
+            .ok_or_else(|| Error::Unsupported("Unknown large-chart color layout".into()))?;
         let owner = if matches!(layout, "dance-routine" | "pump-routine" | "smx-team") {
             &self.players[player as usize % self.players.len()]
         } else {
@@ -182,6 +179,8 @@ impl Palette {
         active: bool,
         light_holds: bool,
     ) -> Result<Fills, Error> {
+        let layout = crate::notes::canonical_layout(layout)
+            .ok_or_else(|| Error::Unsupported("Unknown large-chart color layout".into()))?;
         let columns = crate::notes::layout_columns(layout)
             .ok_or_else(|| Error::Unsupported("Unknown large-chart color layout".into()))?;
         if lane >= columns {

@@ -667,10 +667,24 @@ fn tokens(line: &str) -> Result<Vec<(char, &str)>, Error> {
 /// layout does not imply that DeadSync can play that layout.
 /// Fumen SMCommon.ChartProperties variable-participant chart families.
 pub fn supports_variable_players(layout: &str) -> bool {
-    matches!(layout, "dance-routine" | "pump-routine" | "smx-team")
+    matches!(canonical_layout(layout), Some("dance-routine" | "pump-routine" | "smx-team"))
 }
 
-pub fn layout_columns(steps_type: &str) -> Option<u16> {
+/// Accept known format aliases without assigning geometry to unknown types.
+/// Canonical native layouts take the allocation-free hot path.
+pub fn canonical_layout(layout: &str) -> Option<&str> {
+    if native_layout_columns(layout).is_some() { return Some(layout); }
+    crate::document::chart_type::canonical(layout)
+        .filter(|layout| native_layout_columns(layout).is_some())
+}
+
+pub fn layout_columns(layout: &str) -> Option<u16> {
+    native_layout_columns(layout).or_else(|| {
+        crate::document::chart_type::canonical(layout).and_then(native_layout_columns)
+    })
+}
+
+fn native_layout_columns(steps_type: &str) -> Option<u16> {
     Some(match steps_type {
         "dance-single" | "pump-halfdouble" => {
             if steps_type == "dance-single" {
