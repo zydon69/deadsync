@@ -374,6 +374,7 @@ impl Timeline {
             let consumed =
                 !head.fake && matches!(head.kind, Kind::Tap | Kind::Lift | Kind::Hold | Kind::Roll);
             Presentation {
+                fake: head.fake,
                 hidden: playing
                     && hide_arrows
                     && consumed
@@ -394,6 +395,8 @@ impl Timeline {
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Presentation {
+    /// Source dependency classification, also available while playback is stopped.
+    pub fake: bool,
     pub hidden: bool,
     pub active_hold: bool,
     pub clip_hold: bool,

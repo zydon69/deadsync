@@ -41,6 +41,7 @@ pub(super) struct Policy<'a> {
     session: &'a Session,
     chart: usize,
     chart_time: f64,
+    playing: bool,
 }
 impl Policy<'_> {
     pub fn presentation(&self, position: Position) -> Option<autoplay::Presentation> {
@@ -50,7 +51,7 @@ impl Policy<'_> {
                 self.chart,
                 position,
                 self.chart_time,
-                true,
+                self.playing,
                 true,
                 true,
             )
@@ -281,13 +282,15 @@ impl Runtime {
         chart: usize,
         transport: Option<(Option<u64>, f64)>,
     ) -> Option<Policy<'a>> {
-        let (_, music) = transport?;
+        let playing = transport.is_some();
+        let music = transport.map_or(0.0, |(_, music)| music);
         let slot = self.slot(session, chart)?;
         Some(Policy {
             timeline: slot.index.as_ref().ok()?,
             session,
             chart,
             chart_time: slot.clock.music_to_chart_time(music).ok()?,
+            playing,
         })
     }
 }
@@ -387,13 +390,13 @@ impl State {
     pub(super) fn receptor_policy(&self, chart: usize) -> Option<Policy<'_>> {
         // A generation change before the next UI update must not consume notes
         // using stale autoplay state or a merely queued play request.
-        if self.preview.is_some() && self.workspace.active_chart() == Some(chart) {
-            return None;
-        }
+        let transport = if self.preview.is_some() && self.workspace.active_chart() == Some(chart) {
+            None
+        } else { self.chart_autoplay_transport() };
         self.receptor_views.policy(
             &self.workspace.file().session,
             chart,
-            self.chart_autoplay_transport(),
+            transport,
         )
     }
     pub(super) fn receptor_actors(

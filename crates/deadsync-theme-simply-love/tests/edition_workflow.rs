@@ -125,14 +125,8 @@ fn participant_shortcut_edits_player_two_and_renders_both_owners() {
             _ => None,
         })
         .collect();
-    assert!(
-        arrows.iter().any(|color| color[2] > color[0]),
-        "P1 blue arrows must be present"
-    );
-    assert!(
-        arrows.iter().any(|color| color[0] > color[2]),
-        "P2 pink arrows must be present"
-    );
+    assert!(arrows.contains(&[181.0/255.0,23.0/255.0,165.0/255.0,1.0]),"P1 source Routine blended quarter-note fill must be present");
+    assert!(arrows.contains(&[39.0/255.0,165.0/255.0,165.0/255.0,1.0]),"P2 source Routine blended quarter-note fill must be present");
     ctrl(&mut screen, KeyCode::KeyS);
     let reopened = State::open(&path, 0).unwrap();
     assert!(

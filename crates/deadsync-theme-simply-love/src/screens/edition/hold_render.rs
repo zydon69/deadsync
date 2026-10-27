@@ -235,14 +235,69 @@ pub fn chart_render(r: ChartRequest<'_>) -> Result<Output, &'static str> {
             ..Default::default()
         },
     )?;
-    chart_render_colors(r, Colors {head:fills.head,start:fills.start,body:fills.body,cap:fills.cap})
+    chart_render_colors(
+        r,
+        Colors {
+            head: fills.head,
+            start: fills.start,
+            body: fills.body,
+            cap: fills.cap,
+        },
+        None,
+    )
 }
-pub fn chart_render_cached(r: ChartRequest<'_>, palette: &deadsync_editor::note_color_palette::Palette, signatures: Option<&deadsync_editor::timing_edit::signature::Signatures>) -> Result<Output, &'static str> {
-    let row=palette.color_row(r.row,signatures).map_err(|_|"Invalid chart note color phase")?;
-    let fills=palette.fills(r.layout,row,r.lane,r.player as u32,r.selected,r.roll,r.active,true).map_err(|_|"Invalid chart note color palette")?;
-    chart_render_colors(r, Colors {head:fills.head,start:fills.start,body:fills.body,cap:fills.cap})
+pub fn chart_render_cached(
+    r: ChartRequest<'_>,
+    palette: &deadsync_editor::note_color_palette::Palette,
+    signatures: Option<&deadsync_editor::timing_edit::signature::Signatures>,
+) -> Result<Output, &'static str> {
+    chart_render_cached_alpha(r, palette, signatures, None)
 }
-fn chart_render_colors(r: ChartRequest<'_>, colors: Colors) -> Result<Output, &'static str> {
+/// IsBeingEdited uses ActiveEditEventAlpha independently of ordinary zoom fading.
+pub fn chart_render_draft(
+    r: ChartRequest<'_>,
+    palette: &deadsync_editor::note_color_palette::Palette,
+    signatures: Option<&deadsync_editor::timing_edit::signature::Signatures>,
+) -> Result<Output, &'static str> {
+    chart_render_cached_alpha(r, palette, signatures, Some(0.8))
+}
+fn chart_render_cached_alpha(
+    r: ChartRequest<'_>,
+    palette: &deadsync_editor::note_color_palette::Palette,
+    signatures: Option<&deadsync_editor::timing_edit::signature::Signatures>,
+    alpha: Option<f32>,
+) -> Result<Output, &'static str> {
+    let row = palette
+        .color_row(r.row, signatures)
+        .map_err(|_| "Invalid chart note color phase")?;
+    let fills = palette
+        .fills(
+            r.layout,
+            row,
+            r.lane,
+            r.player as u32,
+            r.selected,
+            r.roll,
+            r.active,
+            true,
+        )
+        .map_err(|_| "Invalid chart note color palette")?;
+    chart_render_colors(
+        r,
+        Colors {
+            head: fills.head,
+            start: fills.start,
+            body: fills.body,
+            cap: fills.cap,
+        },
+        alpha,
+    )
+}
+fn chart_render_colors(
+    r: ChartRequest<'_>,
+    colors: Colors,
+    alpha: Option<f32>,
+) -> Result<Output, &'static str> {
     let [left, top, right, bottom] = r.viewport;
     if !r.viewport.iter().all(|n| n.is_finite()) || right <= left || bottom <= top {
         return Err("Invalid hold viewport");
@@ -283,8 +338,11 @@ fn chart_render_colors(r: ChartRequest<'_>, colors: Colors) -> Result<Output, &'
         center_x: r.center_x,
         width: r.width,
         colors,
-        alpha: deadsync_editor::receptors::alpha(r.size_zoom)
-            .map_err(|_| "Invalid hold size alpha")?,
+        alpha: match alpha {
+            Some(alpha) => alpha,
+            None => deadsync_editor::receptors::alpha(r.size_zoom)
+                .map_err(|_| "Invalid hold size alpha")?,
+        },
         body_budget: r.body_budget,
     })?;
     for actor in &mut output.actors {
@@ -294,6 +352,18 @@ fn chart_render_colors(r: ChartRequest<'_>, colors: Colors) -> Result<Output, &'
         .actors
         .retain(|a| matches!(a, Actor::Sprite { visible: true, .. }));
     Ok(output)
+}
+/// Adapt world-space short-note and marker actors to the hold viewport clipper.
+pub(super) fn clip_world_sprite(
+    actor: &mut Actor,
+    viewport: [f32; 4],
+) -> Result<bool, &'static str> {
+    let Actor::Sprite { offset, .. } = actor else {
+        return Err("Expected sprite for viewport clipping");
+    };
+    offset[1] -= viewport[1];
+    clip_to_viewport(actor, viewport)?;
+    Ok(matches!(actor, Actor::Sprite { visible: true, .. }))
 }
 pub(super) fn clip_to_viewport(
     actor: &mut Actor,

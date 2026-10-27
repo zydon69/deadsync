@@ -139,7 +139,7 @@ impl Projection<'_> {
         last_row: u64,
     ) -> Result<Vec<(u64, u64)>, deadsync_editor::Error> {
         let spans = match self {
-            Self::Rows(p, _) => return Ok(vec![p.visible_rows()]),
+            Self::Rows(p, _) => return Ok(vec![p.visible_rows_in(f64::from(top), f64::from(bottom))?]),
             Self::Time { cursor, .. } => {
                 cursor.visible_rows(f64::from(top), f64::from(bottom), u64::MAX)?
             }

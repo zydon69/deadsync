@@ -78,6 +78,19 @@ impl RowProjection {
     pub fn clipped_fractional_y(self, row: f64) -> f64 {
         self.fractional_y(row).clamp(self.top, self.bottom)
     }
+    /// Query padded sprite bounds without changing the projection or rounding
+    /// its integer anchor through an absolute floating point row.
+    pub fn visible_rows_in(self, top: f64, bottom: f64) -> Result<(u64, u64), Error> {
+        if !top.is_finite() || !bottom.is_finite() || top > bottom {
+            return Err(Error::InvalidEdit("Invalid row query bounds".into()));
+        }
+        Ok(Self {
+            top,
+            bottom,
+            ..self
+        }
+        .visible_rows())
+    }
     /// Include partially visible rows at both edges. Float-to-integer casts
     /// saturate at zero/u64::MAX; negative lead-in remains available via row_at.
     pub fn visible_rows(self) -> (u64, u64) {

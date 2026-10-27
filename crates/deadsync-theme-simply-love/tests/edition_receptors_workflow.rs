@@ -233,11 +233,15 @@ fn passed_taps_trigger_hit_feedback_while_fake_notes_remain_visible_and_pause_do
             .iter()
             .any(|s| s.z == 8004 && (s.x - 403.0).abs() < 0.01)
     );
-    assert!(
-        actors(&state)
-            .iter()
-            .any(|a| matches!(a,Actor::Text{content,..}if content.as_ref()=="F"))
-    );
+    fn has_fake_marker(actor:&Actor)->bool {
+        match actor {
+            Actor::Sprite{z:8004,uv_rect:Some(uv),visible:true,..} =>
+                uv.iter().zip([523u32,1239,563,1279]).all(|(a,b)|(*a-b as f32/1280.0).abs()<1e-6),
+            Actor::Frame{children,..}=>children.iter().any(has_fake_marker),
+            _=>false,
+        }
+    }
+    assert!(actors(&state).iter().any(has_fake_marker),"fake note survives consumption with its original source marker");
     press(&mut state, KeyCode::Enter);
     let time = state.chart_focus_time().unwrap();
     state.update_with_time(now + Duration::from_secs(5));

@@ -110,3 +110,5 @@ pub mod minimap_pattern_region;
 pub mod note_color_palette;
 
 pub mod snap;
+
+pub mod draft_note_policy;

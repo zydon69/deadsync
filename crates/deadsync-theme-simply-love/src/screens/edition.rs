@@ -36,7 +36,9 @@ mod view_render_screen;
 mod receptor_render;
 mod receptor_views;
 mod hold_render;
+mod short_note_render;
 mod lane_entry;
+mod lane_fake;
 mod help;
 pub mod decoder_transport;
 mod attacks;
@@ -1353,6 +1355,7 @@ impl State {
 
     fn refresh(&mut self) {
         self.lane_entry_reconcile();
+        self.prepare_lane_draft_policy();
         self.refresh_chart_views();
         self.prepare_view_render();
         self.prepare_receptors();
@@ -3428,14 +3431,6 @@ fn player_color(player: u32) -> [f32; 4] {
         [0.3, 1.0, 1.0, 1.0],
     ];
     COLORS[player as usize % COLORS.len()]
-}
-
-fn lane_rotation(layout: &str, lane: u16) -> f32 {
-    if layout.starts_with("pump-") {
-        [135.0, 225.0, 0.0, 45.0, 315.0][usize::from(lane % 5)]
-    } else {
-        [180.0, 90.0, 270.0, 0.0][usize::from(lane % 4)]
-    }
 }
 
 fn lane_for_key(code: KeyCode) -> Option<u16> {

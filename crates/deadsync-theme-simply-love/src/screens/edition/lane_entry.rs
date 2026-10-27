@@ -1,10 +1,9 @@
 //! Native draft ownership for source press/release note entry. State/view hooks
 //! are supplied separately; this module never edits document bytes on key-down.
 use super::{
-    State, lane_for_key, lane_rotation, player_color, spacing_view::Projection, text,
-    view_layout::Geometry, view_render::Viewport,
+    State, lane_for_key, spacing_view::Projection, view_layout::Geometry, view_render::Viewport,
 };
-use crate::{act, i18n};
+use crate::i18n;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::actors::Actor;
 use deadsync_editor::{
@@ -16,6 +15,8 @@ use deadsync_editor::{
 #[derive(Default)]
 pub(super) struct Runtime {
     pub(super) model: Option<Inputs>,
+    pub(super) fake_cache: Option<deadsync_editor::draft_note_policy::Cache>,
+    pub(super) fake_error: Option<String>,
     shift_left: bool,
     alt_keys: u8,
     last_row: Option<f64>,
@@ -76,6 +77,9 @@ impl State {
                 }
             }
             _ => {}
+        }
+        if event.code == KeyCode::ShiftLeft {
+            self.prepare_lane_draft_policy();
         }
         if self.panel.is_some() || self.help || self.minimap_focused() || self.preview.is_some() {
             self.lane_entry_cancel();
@@ -287,6 +291,10 @@ impl State {
         let mut strips = budget;
         let mut partial = false;
         for draft in input.drafts() {
+            let Some(fake) = self.lane_draft_fake(draft) else {
+                partial = true;
+                continue;
+            };
             let x = geometry.left + (f32::from(draft.position.lane) + 0.5) * geometry.lane_width;
             if !geometry.visible_x(x) {
                 continue;
@@ -300,80 +308,116 @@ impl State {
                     partial = true;
                     continue;
                 };
-                match super::hold_render::chart_render_cached(super::hold_render::ChartRequest {
-                    layout,
-                    row: draft.position.row,
-                    lane: draft.position.lane,
-                    player: draft.position.player as usize,
-                    selected: false,
-                    roll: draft.kind == Kind::Roll,
-                    active: false,
-                    center_x: x,
-                    head_center: y,
-                    tail_center: tail_y,
-                    width: geometry.lane_width * size,
-                    reverse: self.reverse_display,
-                    viewport: [
-                        geometry.clip_left,
-                        viewport.top,
-                        geometry.clip_right,
-                        viewport.bottom,
-                    ],
-                    cutoff: None,
-                    size_zoom: self.zoom.size_zoom(),
-                    body_budget: strips,
-                }, &self.hold_colors, self.signatures.as_ref()) {
-                    Ok(output) => {
-                        strips = strips.saturating_sub(output.body_strips);
-                        partial |= output.partial;
-                        for mut actor in output.actors {
-                            actor.mul_alpha(0.8);
-                            actors.push(actor);
-                        }
-                    }
-                    Err(_) => partial = true,
-                }
-            } else {
-                let color = player_color(draft.position.player);
-                if draft.kind == Kind::Mine {
-                    let before = actors.len();
-                    text(
-                        actors,
-                        "M",
-                        x - 6.0 * size,
-                        y as f32 - 9.0 * size,
-                        0.65 * size,
-                        [color[0], color[1], color[2], 0.8],
-                    );
-                    for actor in &mut actors[before..] {
-                        if let Actor::Text { clip, .. } = actor {
-                            *clip = Some([
-                                geometry.clip_left,
-                                viewport.top,
-                                geometry.clip_right - geometry.clip_left,
-                                viewport.bottom - viewport.top,
-                            ]);
-                        }
-                    }
-                } else {
-                    let rotation = lane_rotation(layout, draft.position.lane);
-                    let mut actor = act!(sprite("test_input/highlightarrow.png"): xy(x,y as f32-viewport.top): setsize(geometry.lane_width*0.7*size,geometry.lane_width*0.7*size): rotationz(rotation): diffuse(color[0],color[1],color[2],0.8): z(8004));
-                    match super::hold_render::clip_to_viewport(
-                        &mut actor,
-                        [
+                match super::hold_render::chart_render_draft(
+                    super::hold_render::ChartRequest {
+                        layout,
+                        row: draft.position.row,
+                        lane: draft.position.lane,
+                        player: draft.position.player as usize,
+                        selected: false,
+                        roll: draft.kind == Kind::Roll,
+                        active: false,
+                        center_x: x,
+                        head_center: y,
+                        tail_center: tail_y,
+                        width: geometry.lane_width * size,
+                        reverse: self.reverse_display,
+                        viewport: [
                             geometry.clip_left,
                             viewport.top,
                             geometry.clip_right,
                             viewport.bottom,
                         ],
-                    ) {
-                        Ok(()) => {
-                            if matches!(actor, Actor::Sprite { visible: true, .. }) {
-                                actors.push(actor);
+                        cutoff: None,
+                        size_zoom: self.zoom.size_zoom(),
+                        body_budget: strips,
+                    },
+                    &self.hold_colors,
+                    self.signatures.as_ref(),
+                ) {
+                    Ok(output) => {
+                        strips = strips.saturating_sub(output.body_strips);
+                        partial |= output.partial;
+                        actors.extend(output.actors);
+                        if fake {
+                            match super::short_note_render::fake_marker(
+                                [x, y as f32],
+                                geometry.lane_width * size,
+                                0.8,
+                            ) {
+                                Ok(mut actor) => match super::hold_render::clip_world_sprite(
+                                    &mut actor,
+                                    [
+                                        geometry.clip_left,
+                                        viewport.top,
+                                        geometry.clip_right,
+                                        viewport.bottom,
+                                    ],
+                                ) {
+                                    Ok(true) => actors.push(actor),
+                                    Ok(false) => {}
+                                    Err(_) => partial = true,
+                                },
+                                Err(_) => partial = true,
                             }
                         }
-                        Err(_) => partial = true,
                     }
+                    Err(_) => partial = true,
+                }
+            } else {
+                let color = if draft.kind == Kind::Mine {
+                    self.hold_colors.mine(layout, draft.position.player, false)
+                } else {
+                    self.hold_colors
+                        .color_row(draft.position.row, self.signatures.as_ref())
+                        .and_then(|row| {
+                            self.hold_colors.tap(
+                                layout,
+                                row,
+                                draft.position.lane,
+                                draft.position.player,
+                                false,
+                            )
+                        })
+                };
+                let result = color
+                    .map_err(|_| "Invalid draft note color")
+                    .and_then(|fill| {
+                        super::short_note_render::render(super::short_note_render::Request {
+                            layout,
+                            lane: draft.position.lane,
+                            kind: if draft.kind == Kind::Mine {
+                                super::short_note_render::Kind::Mine
+                            } else {
+                                super::short_note_render::Kind::Tap
+                            },
+                            selected: false,
+                            fake,
+                            center: [x, y as f32],
+                            width: geometry.lane_width * size,
+                            fill,
+                            alpha: 0.8,
+                        })
+                    });
+                match result {
+                    Ok(output) => {
+                        for mut actor in output {
+                            match super::hold_render::clip_world_sprite(
+                                &mut actor,
+                                [
+                                    geometry.clip_left,
+                                    viewport.top,
+                                    geometry.clip_right,
+                                    viewport.bottom,
+                                ],
+                            ) {
+                                Ok(true) => actors.push(actor),
+                                Ok(false) => {}
+                                Err(_) => partial = true,
+                            }
+                        }
+                    }
+                    Err(_) => partial = true,
                 }
             }
         }

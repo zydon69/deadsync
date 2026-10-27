@@ -1,6 +1,6 @@
 //! Per-chart immutable timing inputs and shared lane-note actor construction.
 //! The Session remains the owner of every live note grid, including unsaved edits.
-use super::{lane_rotation, player_color, spacing_view::Projection, text, view_layout::Geometry};
+use super::{player_color, spacing_view::Projection, text, view_layout::Geometry};
 use crate::{act, i18n};
 use deadlib_present::actors::Actor;
 use deadsync_editor::{
@@ -260,8 +260,11 @@ pub(super) fn notes(
     note_limit: usize,
     policy: Option<&super::receptor_views::Policy<'_>>,
     reverse: bool,
-    selection: Option<(u64,u64)>,
-    palette: Option<(&deadsync_editor::note_color_palette::Palette,Option<&Signatures>)>,
+    selection: Option<(u64, u64)>,
+    palette: Option<(
+        &deadsync_editor::note_color_palette::Palette,
+        Option<&Signatures>,
+    )>,
     pending: Option<&deadsync_editor::lane_entry::Inputs>,
 ) -> NoteRenderStats {
     let mut stats = NoteRenderStats::default();
@@ -269,7 +272,18 @@ pub(super) fn notes(
         stats.partial = !ranges.is_empty();
         return stats;
     }
-    let bins = ((viewport.bottom - viewport.top).ceil() as usize)
+    let needs_classification = palette.is_some();
+    stats.partial = needs_classification && policy.is_none();
+    let default_palette = palette.is_none().then(|| {
+        deadsync_editor::note_color_palette::Palette::capture(Default::default())
+            .expect("valid default note colors")
+    });
+    let (note_palette, signatures) =
+        palette.unwrap_or_else(|| (default_palette.as_ref().unwrap(), None));
+    // Callers query beyond both viewport edges for crossing sprites. Allocate
+    // bins for that same padded window, still under the existing hard caps.
+    let padding = geometry.lane_width * size_zoom;
+    let bins = ((viewport.bottom - viewport.top + 2.0 * padding).ceil() as usize)
         .clamp(1, 4096)
         .min(note_limit);
     let bins_per_range = (bins / ranges.len().max(1)).max(1);
@@ -278,7 +292,7 @@ pub(super) fn notes(
     let mut hold_strips_remaining = note_limit;
     let mut tree_queries = 0usize;
     let tree_limit = note_limit.saturating_mul(4);
-    stats.partial = ranges.len() > bins;
+    stats.partial |= ranges.len() > bins;
     for &(start, end) in ranges.iter().take(bins) {
         let remaining = note_limit.saturating_sub(queried);
         if remaining == 0 {
@@ -301,8 +315,12 @@ pub(super) fn notes(
             if !shown.insert(position) {
                 continue;
             }
-            if pending.is_some_and(|input|input.deleted_heads().any(|deleted|deleted==position)){continue;}
+            if pending.is_some_and(|input| input.deleted_heads().any(|deleted| deleted == position))
+            {
+                continue;
+            }
             let presentation = policy.and_then(|policy| policy.presentation(position));
+            stats.partial |= needs_classification && presentation.is_none();
             if presentation.is_some_and(|presentation| presentation.hidden) {
                 continue;
             }
@@ -314,56 +332,149 @@ pub(super) fn notes(
                 continue;
             };
             if let Some(tail) = note.end {
-                let Some(tail_y) = projection.note_y(tail) else { continue; };
-                let selected = selection.is_some_and(|(a,b)|a<=position.row&&position.row<=b);
-                let request=super::hold_render::ChartRequest {
-                    layout,row:position.row,lane:position.lane,player:position.player as usize,
-                    selected,roll:note.kind==Kind::Roll,
-                    active:presentation.is_some_and(|p|p.active_hold),
-                    center_x:x,head_center:y,tail_center:tail_y,width:geometry.lane_width*size_zoom,
-                    reverse,viewport:[geometry.clip_left,viewport.top,geometry.clip_right,viewport.bottom],
-                    cutoff:presentation.filter(|p|p.clip_hold).map(|_|f64::from(viewport.cursor)),
-                    size_zoom:f64::from(size_zoom),body_budget:hold_strips_remaining,
+                let Some(tail_y) = projection.note_y(tail) else {
+                    continue;
                 };
-                let result=match palette {
-                    Some((palette,signatures))=>super::hold_render::chart_render_cached(request,palette,signatures),
-                    None=>super::hold_render::chart_render(request),
+                let selected =
+                    selection.is_some_and(|(a, b)| a <= position.row && position.row <= b);
+                let request = super::hold_render::ChartRequest {
+                    layout,
+                    row: position.row,
+                    lane: position.lane,
+                    player: position.player as usize,
+                    selected,
+                    roll: note.kind == Kind::Roll,
+                    active: presentation.is_some_and(|p| p.active_hold),
+                    center_x: x,
+                    head_center: y,
+                    tail_center: tail_y,
+                    width: geometry.lane_width * size_zoom,
+                    reverse,
+                    viewport: [
+                        geometry.clip_left,
+                        viewport.top,
+                        geometry.clip_right,
+                        viewport.bottom,
+                    ],
+                    cutoff: presentation
+                        .filter(|p| p.clip_hold)
+                        .map(|_| f64::from(viewport.cursor)),
+                    size_zoom: f64::from(size_zoom),
+                    body_budget: hold_strips_remaining,
+                };
+                let result = match palette {
+                    Some((palette, signatures)) => {
+                        super::hold_render::chart_render_cached(request, palette, signatures)
+                    }
+                    None => super::hold_render::chart_render(request),
                 };
                 match result {
-                    Ok(output)=>{
-                        hold_strips_remaining=hold_strips_remaining.saturating_sub(output.body_strips);
-                        stats.partial|=output.partial;
+                    Ok(output) => {
+                        hold_strips_remaining =
+                            hold_strips_remaining.saturating_sub(output.body_strips);
+                        stats.partial |= output.partial;
                         actors.extend(output.actors);
+                        if presentation.is_some_and(|p| p.fake) {
+                            let marker = deadsync_editor::receptors::alpha(f64::from(size_zoom))
+                                .map_err(|_| "Invalid note alpha")
+                                .and_then(|alpha| {
+                                    super::short_note_render::fake_marker(
+                                        [x, y as f32],
+                                        geometry.lane_width * size_zoom,
+                                        alpha,
+                                    )
+                                });
+                            match marker {
+                                Ok(mut actor) => match super::hold_render::clip_world_sprite(
+                                    &mut actor,
+                                    [
+                                        geometry.clip_left,
+                                        viewport.top,
+                                        geometry.clip_right,
+                                        viewport.bottom,
+                                    ],
+                                ) {
+                                    Ok(true) => actors.push(actor),
+                                    Ok(false) => {}
+                                    Err(_) => stats.partial = true,
+                                },
+                                Err(_) => stats.partial = true,
+                            }
+                        }
                     }
-                    Err(_)=>{stats.partial=true;}
+                    Err(_) => {
+                        stats.partial = true;
+                    }
                 }
                 continue;
             }
-            let y = y as f32;
-            let color = player_color(position.player);
-            if y < viewport.top || y > viewport.bottom {
-                continue;
-            }
-            let symbol = match note.kind {
-                Kind::Mine => "M",
-                Kind::Lift => "L",
-                Kind::Fake => "F",
-                Kind::Keysound => "K",
-                Kind::Attack => "A",
-                _ => "",
+            let selected = selection.is_some_and(|(a, b)| a <= position.row && position.row <= b);
+            let kind = match note.kind {
+                Kind::Mine => super::short_note_render::Kind::Mine,
+                Kind::Lift => super::short_note_render::Kind::Lift,
+                Kind::Keysound | Kind::Attack => {
+                    if y >= f64::from(viewport.top) && y <= f64::from(viewport.bottom) {
+                        text(
+                            actors,
+                            if note.kind == Kind::Keysound {
+                                "K"
+                            } else {
+                                "A"
+                            },
+                            x - 6.0 * size_zoom,
+                            y as f32 - 9.0 * size_zoom,
+                            0.65 * size_zoom,
+                            player_color(position.player),
+                        );
+                    }
+                    continue;
+                }
+                _ => super::short_note_render::Kind::Tap,
             };
-            if symbol.is_empty() {
-                let rotation = lane_rotation(layout, position.lane);
-                actors.push(act!(sprite("test_input/highlightarrow.png"): xy(x,y): setsize(geometry.lane_width*0.7*size_zoom,geometry.lane_width*0.7*size_zoom): rotationz(rotation): diffuse(color[0],color[1],color[2],1.0): z(8004)));
+            let color = if note.kind == Kind::Mine {
+                note_palette.mine(layout, position.player, selected)
             } else {
-                text(
-                    actors,
-                    symbol,
-                    x - 6.0 * size_zoom,
-                    y - 9.0 * size_zoom,
-                    0.65 * size_zoom,
-                    color,
-                );
+                note_palette
+                    .color_row(position.row, signatures)
+                    .and_then(|row| {
+                        note_palette.tap(layout, row, position.lane, position.player, selected)
+                    })
+            };
+            let result = color
+                .map_err(|_| "Invalid short-note color")
+                .and_then(|fill| {
+                    super::short_note_render::render(super::short_note_render::Request {
+                        layout,
+                        lane: position.lane,
+                        kind,
+                        selected,
+                        fake: note.kind == Kind::Fake || presentation.is_some_and(|p| p.fake),
+                        center: [x, y as f32],
+                        width: geometry.lane_width * size_zoom,
+                        fill,
+                        alpha: deadsync_editor::receptors::alpha(f64::from(size_zoom))
+                            .map_err(|_| "Invalid note alpha")?,
+                    })
+                });
+            match result {
+                Ok(output) => {
+                    for mut actor in output {
+                        match super::hold_render::clip_world_sprite(
+                            &mut actor,
+                            [
+                                geometry.clip_left,
+                                viewport.top,
+                                geometry.clip_right,
+                                viewport.bottom,
+                            ],
+                        ) {
+                            Ok(true) => actors.push(actor),
+                            Ok(false) => {}
+                            Err(_) => stats.partial = true,
+                        }
+                    }
+                }
+                Err(_) => stats.partial = true,
             }
         }
     }
@@ -502,6 +613,15 @@ mod tests {
     use super::*;
     use deadsync_editor::notes::{Note, Position};
     fn draw(grid: &Grid, ranges: &[(u64, u64)], limit: usize) -> NoteRenderStats {
+        draw_at(grid, ranges, limit, 0, 635.0)
+    }
+    fn draw_at(
+        grid: &Grid,
+        ranges: &[(u64, u64)],
+        limit: usize,
+        anchor: u64,
+        bottom: f32,
+    ) -> NoteRenderStats {
         let geometry = Geometry {
             source: 0,
             order: 0,
@@ -514,11 +634,11 @@ mod tests {
         };
         let viewport = Viewport {
             top: 105.0,
-            bottom: 635.0,
+            bottom,
             cursor: 160.0,
         };
         let projection = Projection::Rows(
-            RowProjection::new(0, 160.0, 1.0, 105.0, 635.0).unwrap(),
+            RowProjection::new(anchor, 160.0, 1.0, 105.0, f64::from(bottom)).unwrap(),
             None,
         );
         notes(
@@ -537,6 +657,25 @@ mod tests {
             None,
             None,
         )
+    }
+    #[test]
+    fn padded_sparse_query_keeps_crossing_sprites_without_claiming_partial_output() {
+        let mut grid = Grid::new(4, 1).unwrap();
+        for row in [0, 240] {
+            grid.set(
+                Position {
+                    player: 0,
+                    lane: 0,
+                    row,
+                },
+                Some(Note::tap()),
+            )
+            .unwrap();
+        }
+        let stats = draw_at(&grid, &[(0, 355)], 1000, 72, 395.0);
+        assert_eq!(stats.candidates, 2);
+        assert!(!stats.partial);
+        assert!(stats.tree_queries <= 4000);
     }
     #[test]
     fn renderer_reports_candidate_limit_and_deterministic_partial_output() {

@@ -1,6 +1,51 @@
 use deadsync_editor::projection::RowProjection;
 
 #[test]
+fn padded_queries_keep_crossing_sprites_in_normal_reverse_and_fractional_views() {
+    let p = RowProjection::new(0, 160.0, 1.0, 105.0, 395.0).unwrap();
+    assert_eq!(p.visible_rows(), (0, 235));
+    assert_eq!(p.visible_rows_in(57.0, 443.0).unwrap(), (0, 283));
+    assert_eq!(
+        p.y(240),
+        400.0,
+        "center below viewport, sprite still crosses it"
+    );
+    let reverse = p.with_reverse(true);
+    assert_eq!(reverse.visible_rows(), (0, 55));
+    assert_eq!(reverse.visible_rows_in(57.0, 443.0).unwrap(), (0, 103));
+    assert_eq!(
+        reverse.y(72),
+        88.0,
+        "center above viewport, sprite still crosses it"
+    );
+    let fractional = p.with_row_offset(0.75).unwrap();
+    assert_eq!(fractional.visible_rows_in(57.0, 443.0).unwrap(), (0, 284));
+    assert_eq!(
+        p.visible_rows(),
+        (0, 235),
+        "query does not move original bounds"
+    );
+}
+
+#[test]
+fn padded_queries_preserve_large_anchor_precision_and_reject_invalid_bounds() {
+    let anchor = u64::MAX - 512;
+    let p = RowProjection::new(anchor, 160.0, 1.0, 105.0, 395.0).unwrap();
+    assert_eq!(
+        p.visible_rows_in(57.0, 443.0).unwrap(),
+        (anchor - 103, anchor + 283)
+    );
+    assert_eq!(
+        p.with_reverse(true).visible_rows_in(57.0, 443.0).unwrap(),
+        (anchor - 283, anchor + 103)
+    );
+    for (top, bottom) in [(f64::NAN, 395.0), (105.0, f64::INFINITY), (396.0, 395.0)] {
+        assert!(p.visible_rows_in(top, bottom).is_err());
+    }
+    assert_eq!(p.visible_rows(), (anchor - 55, anchor + 235));
+}
+
+#[test]
 fn chart_elements_and_waveform_share_inverse_projection_at_every_zoom() {
     for scale in [0.000001, 0.02, 0.5, 1.0, 1.2, 16.0, 1000000.0] {
         let p = RowProjection::new(192, 160.0, scale, 105.0, 635.0).unwrap();

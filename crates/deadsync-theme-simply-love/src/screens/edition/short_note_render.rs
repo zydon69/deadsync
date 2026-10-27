@@ -51,17 +51,27 @@ fn sprite(
 }
 /// Fill, rim, then an unselected and unrotated fake/lift marker. Fake wins over
 /// lift. Source fill alpha is byte-quantized; rim/marker use the float alpha.
-pub fn render(r: Request<'_>) -> Result<Vec<Actor>, &'static str> {
-    if !r
-        .center
-        .into_iter()
-        .chain([r.width, r.alpha])
-        .all(f32::is_finite)
-        || r.width <= 0.0
-        || !(0.0..=1.0).contains(&r.alpha)
+fn validate(center: [f32; 2], width: f32, alpha: f32) -> Result<(), &'static str> {
+    if !center.into_iter().chain([width, alpha]).all(f32::is_finite)
+        || width <= 0.0
+        || !(0.0..=1.0).contains(&alpha)
     {
         return Err("Invalid short-note projection");
     }
+    Ok(())
+}
+pub fn fake_marker(center: [f32; 2], width: f32, alpha: f32) -> Result<Actor, &'static str> {
+    validate(center, width, alpha)?;
+    sprite(
+        "fake-marker",
+        center,
+        width / 128.0,
+        0.0,
+        [1.0, 1.0, 1.0, alpha],
+    )
+}
+pub fn render(r: Request<'_>) -> Result<Vec<Actor>, &'static str> {
+    validate(r.center, r.width, r.alpha)?;
     let graphic = graphics::graphic(r.layout, r.lane, r.selected, false)?;
     if r.alpha == 0.0 {
         return Ok(Vec::new());
