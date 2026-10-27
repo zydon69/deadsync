@@ -17,7 +17,7 @@ pub(super) struct Runtime {
     pub(super) model: Option<Inputs>,
     pub(super) fake_cache: Option<deadsync_editor::draft_note_policy::Cache>,
     pub(super) fake_error: Option<String>,
-    shift_left: bool,
+    shift_keys: u8,
     alt_keys: u8,
     last_row: Option<f64>,
 }
@@ -68,17 +68,23 @@ impl State {
                     self.lane_entry_cancel();
                 }
             }
-            KeyCode::ShiftLeft => {
-                self.lane_input.shift_left = event.pressed;
+            KeyCode::ShiftLeft | KeyCode::ShiftRight => {
+                let bit = if event.code == KeyCode::ShiftLeft { 1 } else { 2 };
+                if event.pressed {
+                    self.lane_input.shift_keys |= bit;
+                } else {
+                    self.lane_input.shift_keys &= !bit;
+                }
+                let modified = self.lane_input.shift_keys != 0;
                 if let Some(input) = self.lane_input.model.as_mut() {
-                    if let Err(e) = input.modifier(&self.workspace.file().session, event.pressed) {
+                    if let Err(e) = input.modifier(&self.workspace.file().session, modified) {
                         self.lane_entry_error(e);
                     }
                 }
             }
             _ => {}
         }
-        if event.code == KeyCode::ShiftLeft {
+        if matches!(event.code, KeyCode::ShiftLeft | KeyCode::ShiftRight) {
             self.prepare_lane_draft_policy();
         }
         if self.panel.is_some() || self.help || self.minimap_focused() || self.preview.is_some() {
@@ -150,7 +156,7 @@ impl State {
         if lane >= self.workspace.grid().columns() {
             return true;
         }
-        if self.lane_input.alt_keys != 0 || self.shift && !self.lane_input.shift_left {
+        if self.lane_input.alt_keys != 0 || self.shift && self.lane_input.shift_keys == 0 {
             return true;
         }
         if event.repeat {
@@ -162,7 +168,7 @@ impl State {
             player: self.workspace.player(),
             row,
             snap_rows: SNAP_ROWS[self.workspace.snap()],
-            modified: self.lane_input.shift_left,
+            modified: self.lane_input.shift_keys != 0,
             playing: self.is_playing(),
             advance_by_snap: self.workspace.auto_advance(),
         };
@@ -227,7 +233,7 @@ impl State {
             return;
         }
         let player = self.workspace.player();
-        let modified = self.lane_input.shift_left;
+        let modified = self.lane_input.shift_keys != 0;
         let result = self
             .lane_input
             .model
