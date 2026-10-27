@@ -1,0 +1,3364 @@
+{
+  "Cases": [
+    {
+      "Name": "dance-routine-p1-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-routine-p1-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-routine-p1-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-routine-p1-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-routine-p1-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-routine-p1-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-routine-p1-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-routine-p1-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-routine-empty-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty2-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty2-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty2-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty2-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty2-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty2-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty2-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty2-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty3-None-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty3-None-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty3-0-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty3-0-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty3-1-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty3-1-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty3-3-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-empty3-3-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "dance-routine-p2-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-routine-p2-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-routine-p2-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-routine-p2-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-routine-p2-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-routine-p2-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-routine-p2-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 4,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-routine-p2-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 4,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-routine-p4-None-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "dance-routine-p4-None-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "dance-routine-p4-0-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "dance-routine-p4-0-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "dance-routine-p4-1-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "dance-routine-p4-1-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "dance-routine-p4-3-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "dance-routine-p4-3-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "pump-routine-p1-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-routine-p1-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-routine-p1-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-routine-p1-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-routine-p1-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-routine-p1-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-routine-p1-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-routine-p1-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-routine-empty-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty2-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty2-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty2-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty2-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty2-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty2-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty2-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty2-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty3-None-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty3-None-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty3-0-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty3-0-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty3-1-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty3-1-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty3-3-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-empty3-3-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "pump-routine-p2-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-routine-p2-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-routine-p2-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-routine-p2-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-routine-p2-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-routine-p2-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-routine-p2-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 4,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-routine-p2-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 4,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-routine-p4-None-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "pump-routine-p4-None-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "pump-routine-p4-0-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "pump-routine-p4-0-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "pump-routine-p4-1-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "pump-routine-p4-1-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "pump-routine-p4-3-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "pump-routine-p4-3-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "smx-team-p1-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "smx-team-p1-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "smx-team-p1-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "smx-team-p1-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "smx-team-p1-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "smx-team-p1-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "smx-team-p1-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "smx-team-p1-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "smx-team-empty-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty2-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty2-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty2-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty2-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty2-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty2-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty2-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty2-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty3-None-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty3-None-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty3-0-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty3-0-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty3-1-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty3-1-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty3-3-sm",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-empty3-3-ssc",
+      "FumenPlayers": 3,
+      "AfterWriterPlayers": 3,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 4,
+      "Owners": []
+    },
+    {
+      "Name": "smx-team-p2-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "smx-team-p2-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "smx-team-p2-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "smx-team-p2-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "smx-team-p2-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "smx-team-p2-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "smx-team-p2-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 4,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "smx-team-p2-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 4,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "smx-team-p4-None-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "smx-team-p4-None-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "smx-team-p4-0-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "smx-team-p4-0-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "smx-team-p4-1-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "smx-team-p4-1-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "smx-team-p4-3-sm",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "smx-team-p4-3-ssc",
+      "FumenPlayers": 4,
+      "AfterWriterPlayers": 4,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 4,
+      "EditorPlayers": 4,
+      "Owners": [
+        3
+      ]
+    },
+    {
+      "Name": "dance-couple-p1-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-couple-p1-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-couple-p1-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-couple-p1-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-couple-p1-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-couple-p1-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-couple-p1-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-couple-p1-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-couple-empty-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty2-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty2-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty2-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty2-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty2-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty2-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty2-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty2-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "dance-couple-empty3-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-empty3-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-empty3-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-empty3-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-empty3-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-empty3-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-empty3-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-empty3-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-p2-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-couple-p2-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-couple-p2-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-couple-p2-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-couple-p2-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-couple-p2-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-couple-p2-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-couple-p2-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "dance-couple-p4-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-p4-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-p4-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-p4-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-p4-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-p4-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-p4-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-couple-p4-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-p1-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-couple-p1-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-couple-p1-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-couple-p1-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-couple-p1-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-couple-p1-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-couple-p1-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-couple-p1-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-couple-empty-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty2-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty2-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty2-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty2-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty2-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty2-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty2-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty2-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 1,
+      "EditorPlayers": 2,
+      "Owners": []
+    },
+    {
+      "Name": "pump-couple-empty3-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-empty3-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-empty3-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-empty3-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-empty3-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-empty3-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-empty3-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-empty3-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-p2-None-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-couple-p2-None-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-couple-p2-0-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-couple-p2-0-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-couple-p2-1-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-couple-p2-1-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-couple-p2-3-sm",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-couple-p2-3-ssc",
+      "FumenPlayers": 2,
+      "AfterWriterPlayers": 2,
+      "DefaultPlayers": 2,
+      "MinimumOwners": 2,
+      "EditorPlayers": 2,
+      "Owners": [
+        1
+      ]
+    },
+    {
+      "Name": "pump-couple-p4-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-p4-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-p4-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-p4-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-p4-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-p4-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-p4-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-couple-p4-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p1-None-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-single-p1-None-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-single-p1-0-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-single-p1-0-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-single-p1-1-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-single-p1-1-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-single-p1-3-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-single-p1-3-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-single-empty-None-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-single-empty-None-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-single-empty-0-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-single-empty-0-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-single-empty-1-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-single-empty-1-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-single-empty-3-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-single-empty-3-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-single-empty2-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty2-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty2-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty2-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty2-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty2-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty2-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty2-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty3-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty3-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty3-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty3-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty3-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty3-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty3-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-empty3-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p2-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p2-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p2-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p2-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p2-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p2-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p2-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p2-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p4-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p4-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p4-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p4-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p4-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p4-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p4-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-single-p4-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p1-None-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-double-p1-None-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-double-p1-0-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-double-p1-0-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-double-p1-1-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-double-p1-1-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-double-p1-3-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-double-p1-3-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "dance-double-empty-None-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-double-empty-None-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-double-empty-0-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-double-empty-0-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-double-empty-1-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-double-empty-1-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-double-empty-3-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-double-empty-3-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "dance-double-empty2-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty2-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty2-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty2-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty2-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty2-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty2-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty2-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty3-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty3-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty3-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty3-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty3-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty3-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty3-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-empty3-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p2-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p2-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p2-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p2-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p2-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p2-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p2-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p2-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p4-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p4-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p4-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p4-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p4-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p4-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p4-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "dance-double-p4-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p1-None-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-single-p1-None-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-single-p1-0-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-single-p1-0-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-single-p1-1-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-single-p1-1-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-single-p1-3-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-single-p1-3-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-single-empty-None-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-single-empty-None-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-single-empty-0-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-single-empty-0-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-single-empty-1-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-single-empty-1-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-single-empty-3-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-single-empty-3-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-single-empty2-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty2-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty2-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty2-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty2-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty2-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty2-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty2-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty3-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty3-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty3-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty3-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty3-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty3-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty3-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-empty3-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p2-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p2-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p2-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p2-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p2-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p2-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p2-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p2-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p4-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p4-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p4-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p4-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p4-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p4-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p4-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-single-p4-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p1-None-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-double-p1-None-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-double-p1-0-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-double-p1-0-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-double-p1-1-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-double-p1-1-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-double-p1-3-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-double-p1-3-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": [
+        0
+      ]
+    },
+    {
+      "Name": "pump-double-empty-None-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-double-empty-None-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-double-empty-0-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-double-empty-0-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-double-empty-1-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-double-empty-1-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-double-empty-3-sm",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-double-empty-3-ssc",
+      "FumenPlayers": 1,
+      "AfterWriterPlayers": 1,
+      "DefaultPlayers": 1,
+      "MinimumOwners": 1,
+      "EditorPlayers": 1,
+      "Owners": []
+    },
+    {
+      "Name": "pump-double-empty2-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty2-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty2-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty2-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty2-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty2-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty2-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty2-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty3-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty3-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty3-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty3-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty3-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty3-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty3-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-empty3-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p2-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p2-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p2-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p2-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p2-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p2-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p2-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p2-3-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p4-None-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p4-None-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p4-0-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p4-0-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p4-1-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p4-1-ssc",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p4-3-sm",
+      "Error": "Reader rejected chart"
+    },
+    {
+      "Name": "pump-double-p4-3-ssc",
+      "Error": "Reader rejected chart"
+    }
+  ]
+}

@@ -235,15 +235,14 @@ impl ChartData {
         }
         let mut data = Self::default();
         if let Some(descriptor) = document.charts().get(chart) {
-            if descriptor.steps_type == "pump-routine" {
-                // Adding unrelated editor metadata must not turn the Routine
-                // default of two players into an explicit one-player choice.
-                // Metadata-only operations also accept opaque note streams:
-                // use the layout default if this codec cannot decode them,
-                // and leave their note bytes untouched when saving metadata.
+            if let Some(default_players) = crate::notes::default_players(&descriptor.steps_type) {
+                // Preserve the native loaded participant count when adding
+                // unrelated metadata, including empty trailing streams. This
+                // metadata-only API remains tolerant of opaque note streams:
+                // use the family default without changing their source bytes.
                 data.max_player_index = crate::notes::Grid::parse_layout(
                     document.value(descriptor.notes.clone()), &descriptor.steps_type,
-                ).map_or(1, |grid| grid.players().max(2) - 1);
+                ).map_or(default_players-1, |grid| grid.players()-1);
             }
         }
         if document.format == Format::Ssc {

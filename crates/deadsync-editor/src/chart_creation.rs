@@ -75,16 +75,10 @@ impl Draft {
                 "New chart settings belong to another document or revision",
             ));
         }
-        let columns =
-            layout_columns(layout).ok_or_else(|| invalid("Unsupported new chart layout"))?;
-        let players = if layout.ends_with("couple")
-            || layout.ends_with("routine")
-            || layout.ends_with("team")
-        {
-            2
-        } else {
-            1
-        };
+        let layout = crate::notes::canonical_layout(layout)
+            .ok_or_else(|| invalid("Unsupported new chart layout"))?;
+        let columns = layout_columns(layout).ok_or_else(|| invalid("Unsupported new chart layout"))?;
+        let players = crate::notes::default_players(layout).ok_or_else(|| invalid("Unknown new chart participants"))?;
         let grid = Grid::new(columns, players)?;
         let notes = grid.serialize()?;
         let mut block = if session.document().format == Format::Ssc {

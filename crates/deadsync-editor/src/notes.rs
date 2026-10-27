@@ -389,7 +389,9 @@ impl Grid {
     pub fn parse_layout(bytes: &[u8], layout: &str) -> Result<Self, Error> {
         if crate::stepf2::is_coop(bytes, layout) { return crate::stepf2::parse_for_layout(bytes, layout); }
         let columns = layout_columns(layout).ok_or_else(|| Error::Unsupported(format!("Unknown chart layout {layout}")))?;
-        Self::parse(bytes, columns)
+        let mut grid = Self::parse(bytes, columns)?;
+        grid.set_players(grid.players().max(default_players(layout).unwrap_or(1)))?;
+        Ok(grid)
     }
 
     pub fn uses_stepf2(&self) -> bool { self.stepf2 }
@@ -666,6 +668,15 @@ fn tokens(line: &str) -> Result<Vec<(char, &str)>, Error> {
 /// Layout inventory follows GrooveAuthor/Fumen chart identifiers. Editing a
 /// layout does not imply that DeadSync can play that layout.
 /// Fumen SMCommon.ChartProperties variable-participant chart families.
+/// Fumen's chart-family creation defaults. Explicit custom metadata may lower
+/// variable families to one participant while retaining all actual note owners.
+pub fn default_players(layout: &str) -> Option<u32> {
+    Some(match canonical_layout(layout)? {
+        "dance-couple" | "pump-couple" | "dance-routine" | "pump-routine" | "smx-team" => 2,
+        _ => 1,
+    })
+}
+
 pub fn supports_variable_players(layout: &str) -> bool {
     matches!(canonical_layout(layout), Some("dance-routine" | "pump-routine" | "smx-team"))
 }

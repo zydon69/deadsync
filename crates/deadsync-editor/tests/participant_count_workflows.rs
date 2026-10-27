@@ -20,7 +20,7 @@ fn participant_addition_metadata_and_empty_blocks_round_trip_and_undo_in_both_fo
     for format in [Format::Sm, Format::Ssc] {
         for layout in ["dance-routine", "pump-routine", "smx-team"] {
             let mut s = session(layout, format);
-            let initial_players = if layout == "pump-routine" { 2 } else { 1 };
+            let initial_players = 2;
             assert_eq!(s.grid(0).unwrap().players(), initial_players);
             let before = s.serialize().unwrap();
             assert!(s.set_participants(0, 3).unwrap());
@@ -67,7 +67,7 @@ fn count_reduction_retains_owners_with_notes_and_can_remove_empty_trailing_playe
     s.undo().unwrap();
     assert!(s.grid(0).unwrap().get(pos).is_none());
     s.undo().unwrap();
-    assert_eq!(s.grid(0).unwrap().players(), 1);
+    assert_eq!(s.grid(0).unwrap().players(), 2);
 }
 #[test]
 fn metadata_declared_empty_players_load_without_rewriting_notes_and_invalid_requests_preserve_redo()
