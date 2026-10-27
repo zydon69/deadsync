@@ -344,7 +344,7 @@ pub(super) fn notes(
                     player: position.player as usize,
                     selected,
                     roll: note.kind == Kind::Roll,
-                    active: presentation.is_some_and(|p| p.active_hold),
+                    active: presentation.is_some_and(|p|p.raw_active_hold),
                     center_x: x,
                     head_center: y,
                     tail_center: tail_y,
@@ -364,7 +364,7 @@ pub(super) fn notes(
                 };
                 let result = match palette {
                     Some((palette, signatures)) => {
-                        super::hold_render::chart_render_cached(request, palette, signatures)
+                        super::hold_render::chart_render_cached_with_options(request,palette,signatures,policy.is_none_or(|p|p.light_holds()))
                     }
                     None => super::hold_render::chart_render(request),
                 };

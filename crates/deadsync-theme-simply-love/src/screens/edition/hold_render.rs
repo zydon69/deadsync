@@ -246,26 +246,21 @@ pub fn chart_render(r: ChartRequest<'_>) -> Result<Output, &'static str> {
         None,
     )
 }
-pub fn chart_render_cached(
-    r: ChartRequest<'_>,
-    palette: &deadsync_editor::note_color_palette::Palette,
-    signatures: Option<&deadsync_editor::timing_edit::signature::Signatures>,
-) -> Result<Output, &'static str> {
-    chart_render_cached_alpha(r, palette, signatures, None)
-}
 /// IsBeingEdited uses ActiveEditEventAlpha independently of ordinary zoom fading.
 pub fn chart_render_draft(
     r: ChartRequest<'_>,
     palette: &deadsync_editor::note_color_palette::Palette,
     signatures: Option<&deadsync_editor::timing_edit::signature::Signatures>,
 ) -> Result<Output, &'static str> {
-    chart_render_cached_alpha(r, palette, signatures, Some(0.8))
+    chart_render_cached_alpha(r, palette, signatures, Some(0.8), true)
 }
+pub fn chart_render_cached_with_options(r: ChartRequest<'_>,palette:&deadsync_editor::note_color_palette::Palette,signatures:Option<&deadsync_editor::timing_edit::signature::Signatures>,light_holds:bool)->Result<Output,&'static str>{chart_render_cached_alpha(r,palette,signatures,None,light_holds)}
 fn chart_render_cached_alpha(
     r: ChartRequest<'_>,
     palette: &deadsync_editor::note_color_palette::Palette,
     signatures: Option<&deadsync_editor::timing_edit::signature::Signatures>,
     alpha: Option<f32>,
+    light_holds:bool,
 ) -> Result<Output, &'static str> {
     let row = palette
         .color_row(r.row, signatures)
@@ -279,7 +274,7 @@ fn chart_render_cached_alpha(
             r.selected,
             r.roll,
             r.active,
-            true,
+            light_holds,
         )
         .map_err(|_| "Invalid chart note color palette")?;
     chart_render_colors(

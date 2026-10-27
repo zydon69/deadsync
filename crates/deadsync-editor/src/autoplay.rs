@@ -373,8 +373,10 @@ impl Timeline {
         Ok(self.heads.get(&position).map(|head| {
             let consumed =
                 !head.fake && matches!(head.kind, Kind::Tap | Kind::Lift | Kind::Hold | Kind::Roll);
+            let raw_active_hold=playing && consumed && head.time < chart_time && head.end_time.is_some_and(|end|end>chart_time);
             Presentation {
                 fake: head.fake,
+                raw_active_hold,
                 hidden: playing
                     && hide_arrows
                     && consumed
@@ -399,5 +401,7 @@ pub struct Presentation {
     pub fake: bool,
     pub hidden: bool,
     pub active_hold: bool,
+    /// Raw active sustain state for source start fill; independent of LightHolds.
+    pub raw_active_hold:bool,
     pub clip_hold: bool,
 }

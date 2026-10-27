@@ -84,6 +84,7 @@ fn read_bytes(path: &Path) -> Result<Option<Vec<u8>>, Error> {
 }
 #[derive(Clone, Copy, PartialEq)]
 struct Settings {
+    receptors: crate::receptor_preferences::Preferences,
     snap: crate::snap::Preferences,
     audio: Audio,
     waveform: Waveform,
@@ -191,7 +192,9 @@ impl File {
                 ));
             }
         };
+        let receptor_fields=match root.get("Receptors") {None=>Map::new(),Some(Value::Object(fields))=>fields.clone(),Some(_)=>return Err(Error::InvalidFormat("Editor Receptors preferences must be an object".into()))};
         let settings = Settings {
+            receptors: crate::receptor_preferences::Preferences::read(&receptor_fields)?,
             snap: if root.contains_key("SnapIndex") || root.contains_key("SnapLockIndex") {crate::snap::Preferences::read(&root)}else{crate::snap::Preferences{level:crate::snap::Level::source(1)?,..Default::default()}},
             audio,
             waveform: Waveform::read(&waveform_fields)?,
@@ -256,6 +259,8 @@ impl File {
     pub fn snap(&self)->crate::snap::Preferences {self.settings.snap}
     pub fn has_snap_preferences(&self)->bool {self.root.contains_key("SnapIndex") || self.root.contains_key("SnapLockIndex")}
     pub fn set_snap(&mut self,snap:crate::snap::Preferences){self.settings.snap=snap;}
+    pub fn receptors(&self)->crate::receptor_preferences::Preferences {self.settings.receptors}
+    pub fn set_receptors(&mut self,p:crate::receptor_preferences::Preferences){self.settings.receptors=p;}
     pub fn note_colors(&self) -> Result<crate::note_color_preferences::Preferences, Error> {
         crate::note_color_preferences::Preferences::read(&self.group_fields("NoteColor")?, &self.group_fields("Options")?)
     }
@@ -310,6 +315,9 @@ impl File {
         let mut minimap_fields = self.minimap_fields.clone();
         self.settings.minimap.write(&mut minimap_fields);
         let mut root = self.root.clone();
+        let mut receptor_fields=self.group_fields("Receptors")?;
+        self.settings.receptors.write(&mut receptor_fields);
+        root.insert("Receptors".into(),Value::Object(receptor_fields));
         self.settings.snap.write(&mut root);
         root.insert("MiniMap".into(), Value::Object(minimap_fields.clone()));
         root.insert("Scroll".into(), Value::Object(scroll_fields.clone()));

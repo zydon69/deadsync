@@ -28,6 +28,7 @@ struct Slot {
 }
 #[derive(Default)]
 pub(super) struct Runtime {
+    preferences: deadsync_editor::receptor_preferences::Preferences,
     slots: BTreeMap<Guid, Slot>,
     owner: Option<SessionBinding>,
     order: Vec<Guid>,
@@ -42,8 +43,10 @@ pub(super) struct Policy<'a> {
     chart: usize,
     chart_time: f64,
     playing: bool,
+    preferences: deadsync_editor::receptor_preferences::Preferences,
 }
 impl Policy<'_> {
+    pub fn light_holds(&self)->bool {self.preferences.light_holds}
     pub fn presentation(&self, position: Position) -> Option<autoplay::Presentation> {
         self.timeline
             .presentation(
@@ -52,8 +55,8 @@ impl Policy<'_> {
                 position,
                 self.chart_time,
                 self.playing,
-                true,
-                true,
+                self.preferences.hide_arrows,
+                self.preferences.light_holds,
             )
             .ok()
             .flatten()
@@ -114,7 +117,7 @@ impl Runtime {
                         action.kind,
                         self.now,
                         0.0,
-                        receptors::Preferences::default(),
+                        self.preferences.animation,
                     );
                 }
                 animations = previous.animations;
@@ -164,7 +167,7 @@ impl Runtime {
             .filter(|slot| slot.binding.is_current(session, chart))
     }
     pub fn reset(&mut self) {
-        let preferences = receptors::Preferences::default();
+        let preferences = self.preferences.animation;
         for slot in self.slots.values_mut() {
             for action in slot.autoplay.reset() {
                 let _ = slot.animations[usize::from(action.lane)].autoplay(
@@ -202,7 +205,7 @@ impl Runtime {
     pub fn release_manual(&mut self) {
         for slot in self.slots.values_mut() {
             for animation in &mut slot.animations {
-                let _ = animation.manual(false, self.now, receptors::Preferences::default());
+                let _ = animation.manual(false, self.now, self.preferences.animation);
             }
         }
     }
@@ -229,7 +232,7 @@ impl Runtime {
         }
         self.now = now;
         self.transport = transport;
-        let preferences = receptors::Preferences::default();
+        let preferences = self.preferences.animation;
         for id in &self.order {
             let Some(slot) = self.slots.get_mut(id) else {
                 continue;
@@ -290,11 +293,14 @@ impl Runtime {
             session,
             chart,
             chart_time: slot.clock.music_to_chart_time(music).ok()?,
+            preferences:self.preferences,
             playing,
         })
     }
 }
 impl State {
+    pub(super) fn configure_receptor_preferences(&mut self,p:deadsync_editor::receptor_preferences::Preferences){self.receptor_views.preferences=p;}
+    pub fn receptor_preferences(&self)->deadsync_editor::receptor_preferences::Preferences {self.receptor_views.preferences}
     pub(super) fn prepare_receptors(&mut self) {
         let session = &self.workspace.file().session;
         let mut sources = Vec::new();
@@ -351,6 +357,7 @@ impl State {
         self.receptor_views.observe_modifier(event);
     }
     pub(super) fn receptor_manual_input(&mut self, event: &RawKeyboardEvent) {
+        let preferences=self.receptor_views.preferences.animation;
         let Some(lane) = lane_for_key(event.code) else {
             return;
         };
@@ -360,7 +367,7 @@ impl State {
         if !event.pressed {
             for slot in self.receptor_views.slots.values_mut() {
                 if let Some(animation) = slot.animations.get_mut(usize::from(lane)) {
-                    let _ = animation.manual(false, now, receptors::Preferences::default());
+                    let _ = animation.manual(false, now, preferences);
                 }
             }
             return;
@@ -383,7 +390,7 @@ impl State {
             .slot_mut(&self.workspace.file().session, chart)
         {
             if let Some(animation) = slot.animations.get_mut(usize::from(lane)) {
-                let _ = animation.manual(true, now, receptors::Preferences::default());
+                let _ = animation.manual(true, now, preferences);
             }
         }
     }

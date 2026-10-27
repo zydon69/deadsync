@@ -231,6 +231,8 @@ impl Workspace {
     pub fn set_audio_preferences(&mut self, before: crate::audio_preferences::Audio, after: crate::audio_preferences::Audio, file: Option<&crate::audio_preferences::File>) -> Result<bool, Error> {
         self.file.session.set_audio_preferences(before, after, file)
     }
+    pub fn set_receptor_preferences(&mut self,before:crate::receptor_preferences::Preferences,after:crate::receptor_preferences::Preferences,file:Option<&crate::audio_preferences::File>)->Result<bool,Error>{self.file.session.set_receptor_preferences(before,after,file)}
+    pub fn take_receptor_preferences_update(&mut self)->Option<crate::receptor_preferences::Update>{self.file.session.take_receptor_preferences_update()}
     pub fn take_audio_preferences_update(&mut self) -> Option<crate::audio_preferences::Update> {
         self.file.session.take_audio_preferences_update()
     }

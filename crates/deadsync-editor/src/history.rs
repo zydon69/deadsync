@@ -26,6 +26,7 @@ struct DocumentState {
 #[derive(Debug)]
 enum Change {
     AudioPreferences(Box<crate::audio_preferences::history::Change>),
+    ReceptorPreferences(Box<crate::receptor_preferences::history::Change>),
     Group(Vec<Change>),
     PlayerCount { chart: usize, before: u32, after: u32 },
     ProfileDeletion {
@@ -104,6 +105,7 @@ pub struct ChartAddition<'a> {
 
 pub struct Session {
     audio_preferences_update: Option<crate::audio_preferences::Update>,
+    receptor_preferences_update: Option<crate::receptor_preferences::Update>,
     identity: Arc<()>,
     allows_external_edits: bool,
     document: Document,
@@ -124,6 +126,7 @@ impl Session {
             .collect();
         Self {
             audio_preferences_update: None,
+            receptor_preferences_update: None,
             identity: Arc::new(()),
             allows_external_edits: true,
             document,
@@ -201,6 +204,8 @@ impl Session {
         self.revision
     }
     pub fn content_revision(&self) -> u64 { self.content_revision }
+    pub fn undo_changes_receptor_preferences(&self)->bool {self.undo.last().is_some_and(|entry|matches!(entry.change,Change::ReceptorPreferences(_)))}
+    pub fn redo_changes_receptor_preferences(&self)->bool {self.redo.last().is_some_and(|entry|matches!(entry.change,Change::ReceptorPreferences(_)))}
     pub fn undo_changes_audio_preferences(&self) -> bool {
         self.undo.last().is_some_and(|entry| matches!(entry.change, Change::AudioPreferences(_)))
     }
@@ -500,7 +505,7 @@ impl Session {
             .collect();
         fn allowed(change: &Change, chart: usize) -> bool {
             match change {
-                Change::DocumentSwap(_) | Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } | Change::AudioPreferences(_) => false,
+                Change::DocumentSwap(_) | Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } | Change::AudioPreferences(_) | Change::ReceptorPreferences(_) => false,
                 Change::Notes { chart: target, .. } | Change::PlayerCount { chart: target, .. } => *target == chart,
                 Change::Group(changes) => changes.iter().all(|change| allowed(change, chart)),
                 _ => true,
@@ -608,6 +613,13 @@ impl Session {
         )))?;
         Ok(true)
     }
+    pub fn set_receptor_preferences(&mut self,before:crate::receptor_preferences::Preferences,after:crate::receptor_preferences::Preferences,file:Option<&crate::audio_preferences::File>)->Result<bool,Error>{
+        if !self.allows_external_edits{return Err(Error::InvalidEdit("Staged chart edits cannot change receptor preferences".into()));}
+        if file.is_some_and(|f|f.receptors()!=before){return Err(Error::InvalidEdit("Receptor preference snapshot differs from active settings".into()));}
+        if before==after{return Ok(false);}
+        self.execute("Receptor preferences".into(),Change::ReceptorPreferences(Box::new(crate::receptor_preferences::history::Change{before,after,file:file.cloned()})))?;Ok(true)
+    }
+    pub fn take_receptor_preferences_update(&mut self)->Option<crate::receptor_preferences::Update>{self.receptor_preferences_update.take()}
     pub fn take_audio_preferences_update(&mut self) -> Option<crate::audio_preferences::Update> {
         self.audio_preferences_update.take()
     }
@@ -946,7 +958,7 @@ impl Session {
         self.apply(&mut change, true)?;
         fn affects_song(change: &Change) -> bool {
             match change {
-                Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } | Change::AudioPreferences(_) => false,
+                Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } | Change::AudioPreferences(_) | Change::ReceptorPreferences(_) => false,
                 Change::Group(changes) => changes.iter().any(affects_song),
                 _ => true,
             }
@@ -969,6 +981,7 @@ impl Session {
 
     fn apply(&mut self, change: &mut Change, forward: bool) -> Result<(), Error> {
         match change {
+            Change::ReceptorPreferences(change)=>{self.receptor_preferences_update=Some(change.apply(forward)?);Ok(())}
             Change::AudioPreferences(change) => {
                 self.audio_preferences_update = Some(change.apply(forward)?);
                 Ok(())

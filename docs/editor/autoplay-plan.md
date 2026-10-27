@@ -181,3 +181,76 @@ The resumed checkpoint also passed 82 native regressions: mixed shift ten, help
 two, minimap twenty, playback-follow ten, transport navigation three and general
 editor workflows thirty-seven. The five new receptor workflows and four targeted
 receptor/render-budget units are separate from that regression count.
+
+## Prepared application receptor preferences
+
+The next isolated patch maps eight fields from pinned
+`Preferences/PreferencesReceptors.cs:14–21,31–38` into the shared application
+file's `Receptors` group: AutoPlayHideArrows, AutoPlayLightHolds,
+AutoPlayRimEffect, AutoPlayGlowEffect, AutoPlayShrinkEffect, TapRimEffect,
+TapShrinkEffect and PulseReceptorsWithTempo. All default to true, as the source.
+Unknown position/drag/window fields are preserved but not applied or advertised
+as supported. No new settings file or duplicate color preference is introduced.
+
+The native Runtime retains this DTO and supplies its animation preferences to
+manual press/release, autoplay transitions, cancellation and visual sampling.
+The raw active sustain state remains available for the source start fill even
+when LightHolds is false; LightHolds only filters body/end lighting. HideArrows
+independently governs passed-note hiding and active hold cutoff. The ordinary
+`chart_render_cached` adapter retains default behavior for isolated callers;
+State rendering calls an explicit option-aware adapter.
+
+Three core preference/persistence tests and three State presentation tests are
+prepared in `receptor_preferences_workflows` and
+`edition_receptor_preferences_workflow`, respectively. They have not been run.
+The patch currently adds read/configure/persistence hooks, without a settings
+panel. Receptor positioning and drag controls remain outside this effect DTO.
+
+### Prepared keyboard settings and global history
+
+`edition/receptor_settings.rs` adds a detached eight-flag draft, Defaults,
+Save and Cancel. Ctrl+Shift+H and an appended F1 menu entry open the panel;
+Up/Down/Tab choose rows, Left/Right/Enter toggle, Home restores one flag, and
+Escape cancels. Defaults changes the draft only. Numeric-key releases and
+focus loss still reach the established input cleanup before modal routing.
+
+Save is one application preference effect in the existing global Session undo
+queue, following AudioPreferences: the song's bytes/content revision/dirty flag
+remain unchanged. No-op Save adds no action. Undo/Redo reopens the shared
+preference file and owns only flags changed by that action. External changes to
+other flags and unknown fields survive; a conflicting change to an owned flag
+aborts without advancing history or replacing the external file.
+
+The source's `ActionRestoreAnimationsPreferenceDefaults` is non-file-affecting
+(`PreferencesReceptors.cs:150–177`), which is the relevant global-history
+contract. Its position/window fields remain unsupported and preserved here;
+this panel restores only the eight implemented effect flags. The native
+Save/Cancel draft UI is the keyboard adaptation of those preferences.
+
+The pending settings patch is separate from the runtime hook patch because the
+short-note renderer bridge must land first. Core receptor preference coverage
+now prepares six tests; native presentation prepares three, and native settings
+prepares three (the first two each exercise English and French). None of this
+new preference/settings lot has been executed yet.
+
+Rebased runtime patch update: the source-compatible existing
+`Presentation.active_hold` remains filtered by LightHolds. A distinct
+`raw_active_hold` supplies the start fill and is false when stopped or fake;
+the view passes LightHolds separately to cached body/end colors. A seventh core
+preference scenario explicitly protects this distinction. The patch preserves
+`Presentation.fake` and `Policy.playing` from the short-note bridge and retains
+the draft sustain's fixed0.8 alpha path.
+
+Both Snap and receptor global preference patches now extend the typed Pack Open
+application Snapshot, including memory-only settings. The native install
+updates the target preference cache consistently before the final refresh;
+chart bindings, cursor, animations and undo history remain owned by the new
+session. Snapshot tests are extended within the pending patches.
+
+## Connected preference checkpoint — 27 October 2026
+Both runtime and keyboard/history patches are applied. Seven core tests passed
+(four runtime/storage and three global-history), plus three native presentation
+and three native settings workflows (settings exercise English and French).
+Five receptor and five short-note regressions passed. Removed the superseded
+unused cached-hold wrapper; production uses the explicit LightHolds adapter.
+These checks concern actor/model workflows, not live GPU/audio/input parity.

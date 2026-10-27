@@ -112,3 +112,5 @@ pub mod note_color_palette;
 pub mod snap;
 
 pub mod draft_note_policy;
+
+pub mod receptor_preferences;

@@ -8,6 +8,7 @@ use deadsync_editor::{
 use std::{path::PathBuf, time::Instant};
 pub(super) struct Snapshot {
     audio: Audio,
+    receptors:deadsync_editor::receptor_preferences::Preferences,
     snap:deadsync_editor::snap::Preferences,
     audio_path: Option<PathBuf>,
     zoom: zoom::Manager,
@@ -26,6 +27,7 @@ impl Snapshot {
     pub(super) fn capture(state: &State) -> Self {
         Self {
             audio: state.audio_preferences,
+            receptors:state.receptor_preferences(),
             snap:deadsync_editor::snap::Preferences{level:deadsync_editor::snap::Level::native(state.workspace.snap()).expect("valid native snap"),lock:state.audio_preferences_file.as_ref().map(|file|file.snap().lock).unwrap_or_default()},
             audio_path: state.audio_preferences_path.clone(),
             zoom: state.zoom.clone(),
@@ -48,6 +50,8 @@ impl Snapshot {
             target.configure_audio_preferences(path)?;
         }
         target.configure_note_color_preferences(self.colors)?;
+        target.configure_receptor_preferences(self.receptors);
+        if let Some(file)=target.audio_preferences_file.as_mut(){file.set_receptors(self.receptors);}
         target.configure_minimap_preferences(self.minimap);
         target.configure_minimap_content_preferences(self.content);
         target.audio_preferences = self.audio;
@@ -87,6 +91,7 @@ mod tests {
         source.audio_preferences_path = None;
         source.audio_preferences_file = None;
         source.audio_preferences.set_music_rate(1.7).unwrap();
+        let mut receptors=source.receptor_preferences();receptors.hide_arrows=false;receptors.animation.pulse=false;source.configure_receptor_preferences(receptors);
         source.scroll_preferences.set_stop_playback(true);
         source.zoom.set_zoom(2.0).unwrap();
         source.zoom.update(1.0).unwrap();
@@ -100,6 +105,7 @@ mod tests {
         let mut target = State::open(&path, 0).unwrap();
         Snapshot::capture(&source).install(&mut target).unwrap();
         assert_eq!(target.audio_preferences.music_rate(), 1.7);
+        assert_eq!(target.receptor_preferences(),receptors);
         assert!(target.scroll_preferences.stop_playback());
         assert_eq!(target.note_colors.colors.subdivisions[0], [0.1, 0.2, 0.3]);
         assert_eq!(target.zoom, source.zoom);

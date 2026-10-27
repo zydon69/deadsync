@@ -36,6 +36,34 @@ reviewable and tested.
 
 ## Current implementation and verification
 
+### Reprise après interruption — 27 octobre 2026
+
+Le portage complet reste en cours sur `edition-mode`, avec trois agents et une
+validation Cargo centralisée. Aucun envoi de PR de l’éditeur n’est prévu avant
+la vérification utilisateur.
+
+Le rendu des holds/rolls utilise les sprites originaux dans les vues actives et
+secondaires : 16 tests ciblés, 28 régressions de vues et 21 unités de rendu ont
+passé. La minimap par pistes est raccordée : huit nouveaux tests et vingt
+régressions EN/FR passent. La saisie native par appui/relâchement passe cinq
+parcours, trois régressions de minimap et les 37 tests généraux de l’éditeur.
+
+Les couleurs partagées passent six tests core et quatre parcours State. Les
+notes courtes et l’indicateur du joueur sont raccordés : cinq parcours des notes
+courtes, deux de l’indicateur et 37 régressions générales passent. Le marqueur
+Fake reste correct à l’arrêt et pendant les gestes détachés ; dix tests de
+projection couvrent notamment la marge de clipping corrigée. Les modèles de montage et sélection
+de minimap passent sept tests, dont 960 comparaisons avec les méthodes C#.
+
+La lecture des métadonnées partage le tokenizer strict sans rendre éditables les
+charts sans NOTES : 17 nouveaux tests et 15 régressions passent. L’ouverture
+bornée passe quatre tests, plus une unité de lecture/cancellation. Le modèle
+Snap Off passe cinq tests core et sept parcours natifs. La liste native des
+chansons est raccordée : 22 parcours EN/FR et quatre contrats ICU passent ; les
+préférences et projections sont rétablies après ouverture. Les effets
+configurables des récepteurs sont en validation. Les documents spécialisés précisent les limites ; ces résultats ne
+prouvent ni le rendu GPU ni les entrées physiques.
+
 ### Continuous viewport, mixed shifting and bounded help
 
 The minimap now uses the actual chart viewport/focal position, supports exact

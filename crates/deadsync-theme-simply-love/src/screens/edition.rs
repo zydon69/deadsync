@@ -36,6 +36,7 @@ mod view_render_screen;
 mod receptor_render;
 mod receptor_views;
 mod hold_render;
+mod receptor_settings;
 mod player_indicator;
 mod snap_controls;
 mod short_note_render;
@@ -132,6 +133,7 @@ enum Panel {
     ZoomSettings(usize),
     ScrollSettings(usize),
     MinimapSettings(usize),
+    ReceptorSettings(usize),
     WaveformSettings(usize),
     WaveformColors(usize),
     Timing(usize),
@@ -286,6 +288,7 @@ pub struct State {
     active_views: Option<deadsync_editor::chart_views::ActiveChartViews>,
     view_inputs: view_render::Cache,
     receptor_views: receptor_views::Runtime,
+    receptor_draft: Option<deadsync_editor::receptor_preferences::Preferences>,
     lane_input: lane_entry::Runtime,
     end_hint: Option<end_hint::Cache>,
     minimap: minimap::Navigation,
@@ -444,6 +447,7 @@ impl State {
             active_views: None,
             view_inputs: view_render::Cache::default(),
             receptor_views: receptor_views::Runtime::default(),
+            receptor_draft: None,
             lane_input: lane_entry::Runtime::default(),
             end_hint: None,
             minimap: Default::default(),
@@ -1484,6 +1488,7 @@ impl State {
             Ok(()) => {
                 if matches!(command, Command::Recover) { self.profile_preference_history.clear(); self.profile_creations.clear(); }
                 self.sync_audio_preferences_history();
+                self.sync_receptor_preferences_history();
                 self.restore_profile_preferences(command, before_revision);
                 self.status = match command {
                     Command::Save => i18n::tr("Edition", "Saved"),
@@ -1616,11 +1621,12 @@ impl State {
             let undo = event.code == KeyCode::KeyZ && !self.shift;
             let redo = event.code == KeyCode::KeyY || (event.code == KeyCode::KeyZ && self.shift);
             let session = &self.workspace.file().session;
-            if (undo && session.undo_changes_audio_preferences()) || (redo && session.redo_changes_audio_preferences()) {
+            if (undo && (session.undo_changes_audio_preferences() || session.undo_changes_receptor_preferences())) || (redo && (session.redo_changes_audio_preferences() || session.redo_changes_receptor_preferences())) {
                 self.command(if undo { Command::Undo } else { Command::Redo });
                 return false;
             }
         }
+        if self.control && self.shift && event.code==KeyCode::KeyH && self.panel.is_none(){self.open_receptor_settings();return false;}
         if self.control && event.code == KeyCode::KeyB {
             self.open_chart_list();
             return false;
@@ -1828,6 +1834,7 @@ impl State {
             self.waveform_settings_key(index, code);
             return false;
         }
+        if let Panel::ReceptorSettings(index)=panel{self.receptor_settings_key(index,code);return false;}
         if let Panel::MinimapSettings(index) = panel { self.minimap_settings_key(index, code); return false; }
         if let Panel::ScrollSettings(index) = panel { self.scroll_settings_key(index, code); return false; }
         if let Panel::ZoomSettings(index) = panel { self.zoom_settings_key(index, code); return false; }
@@ -1989,6 +1996,7 @@ impl State {
             Panel::WaveformSettings(_) => unreachable!("waveform settings dispatched above"),
             Panel::ScrollSettings(_) => unreachable!("scroll settings dispatched above"),
             Panel::MinimapSettings(_) => unreachable!("minimap settings dispatched above"),
+            Panel::ReceptorSettings(_) => unreachable!("receptor settings dispatched above"),
             Panel::ZoomSettings(_) => unreachable!("zoom settings dispatched above"),
             Panel::AudioSettings(_) => unreachable!("audio settings dispatched above"),
             Panel::TimingMigration(index) => self.timing_migration_key(index, code),
@@ -2357,7 +2365,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 20,
+                    Panel::Menu(_) => 21,
                     Panel::Transforms(_) => 12,
                     _ => 3,
                 };
@@ -2439,6 +2447,7 @@ impl State {
                             17 => self.open_chart_event_copy(),
                             18 => self.open_pack_properties(),
                             19 => self.open_pack_song_list(),
+                    20 => self.open_receptor_settings(),
                             _ => {}
                         }
                     }
@@ -2738,6 +2747,7 @@ impl State {
     fn panel_actors(&self, panel: Panel, actors: &mut Vec<Actor>) {
         if matches!(panel, Panel::PackSongList) { self.pack_song_list_actors(actors); return; }
         if matches!(panel, Panel::PackProperties) { self.pack_properties_actors(actors); return; }
+        if let Panel::ReceptorSettings(index)=panel{self.receptor_settings_actors(index,actors);return;}
         if let Panel::MinimapSettings(index) = panel { self.minimap_settings_actors(index, actors); return; }
         if matches!(panel, Panel::ChartEventCopy) { self.chart_event_copy_actors(actors); return; }
         if matches!(panel, Panel::ChartList) { self.chart_list_actors(actors); return; }
@@ -2754,7 +2764,7 @@ impl State {
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
-            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::PackSongList | Panel::MinimapSettings(_) => &[],
+            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::PackSongList | Panel::MinimapSettings(_) | Panel::ReceptorSettings(_) => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
             Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close", "PackPropertiesOpen", "PackSongsOpen"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
@@ -2779,6 +2789,7 @@ impl State {
                 "ChartEventCopyOpen",
                 "PackPropertiesOpen",
                 "PackSongsOpen",
+                "ReceptorSettingsOpen",
             ],
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen", "NoteOwnersOpen", "NoteAttributesOpen"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
@@ -2954,6 +2965,7 @@ impl State {
             | Panel::SongSample(i)
             | Panel::ScrollSettings(i)
             | Panel::MinimapSettings(i)
+            | Panel::ReceptorSettings(i)
             | Panel::ZoomSettings(i)
             | Panel::AudioSettings(i)
             | Panel::WaveformSettings(i)
