@@ -36,6 +36,7 @@ mod view_render_screen;
 mod receptor_render;
 mod receptor_views;
 mod hold_render;
+mod player_indicator;
 mod snap_controls;
 mod short_note_render;
 mod lane_entry;
@@ -2700,6 +2701,16 @@ impl State {
         let layout = self.preview.as_ref().map(GenerationPreview::layout).unwrap_or_else(|| {
             &self.workspace.file().session.document().charts()[self.workspace.chart()].steps_type
         });
+        let indicator_layout=&self.workspace.file().session.document().charts()[self.workspace.chart()].steps_type;
+        let players=&self.note_color_preferences().colors.players;
+        if let Some(rgb)=players.get(self.workspace.player() as usize%players.len()) {
+            if let Ok(mut indicator)=player_indicator::actors(indicator_layout,true,geometry.right(),viewport.cursor,geometry.lane_width*self.zoom.size_zoom() as f32/128.0,*rgb) {
+                for actor in &mut indicator {
+                    let _=hold_render::clip_world_sprite(actor,[geometry.clip_left,viewport.top,geometry.clip_right,viewport.bottom]);
+                }
+                actors.extend(indicator.into_iter().filter(|a|matches!(a,Actor::Sprite{visible:true,..})));
+            }
+        }
         let policy = self.receptor_policy(geometry.source);
         let padding = lane_width * self.zoom.size_zoom() as f32;
         let note_ranges = projection.visible_ranges(top-padding,bottom+padding,last_row).unwrap_or_else(|_|ranges.clone());
