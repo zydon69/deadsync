@@ -1,0 +1,49 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sdk": "10.0.403",
+  "scope": "Unchanged SelectBestChart, DefaultChartListProvider, ChartComparer, supported table and default constants; property-only EditorSong/EditorChart adapters. Actual Fumen enum JSON converter. Sorting is real CurrentCulture. Not full EditorSong loading or native lifecycle.",
+  "source_blobs": {
+    "song": {
+      "path": "StepManiaEditor/EditorSong.cs",
+      "git_blob": "8beeedd2a7649d6da1114cc8cb2a6ba4deaf9c33",
+      "sha256": "066bd606d5138343b444fb0355a125929c7b19baef4832202775eb419a5c60ff"
+    },
+    "chart": {
+      "path": "StepManiaEditor/EditorChart.cs",
+      "git_blob": "617345c45a4066c5b3f40e5426851e27e23126ca",
+      "sha256": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd"
+    },
+    "editor": {
+      "path": "StepManiaEditor/Editor.cs",
+      "git_blob": "cf71d7069f1f8d94135892a478e5812f2edc6fb6",
+      "sha256": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709"
+    },
+    "provider": {
+      "path": "StepManiaEditor/DefaultChartListProvider.cs",
+      "git_blob": "96e0f3a42aee603e477bc8c842afa9bbc00f4181",
+      "sha256": "e284aa67904cdd6dce6c949a3301a9f7593a0a8c4c6ff9638a059ddc512f5a6f"
+    },
+    "interface": {
+      "path": "StepManiaEditor/IActiveChartListProvider.cs",
+      "git_blob": "d9e7bf121b84c5402488d3d49efa6c5d52041f2d",
+      "sha256": "71218eae0b71e1b42f14ce28e11e4e1f7736aba9f694a0af6a155c12d52faf87"
+    },
+    "options": {
+      "path": "StepManiaEditor/Preferences/PreferencesOptions.cs",
+      "git_blob": "587221355d97647e5efe615e49ff79acdd6c7857",
+      "sha256": "cd3ccd5d6b51d13101ea459df7f3ff1cb336c2a1ec886a9eb0dbe241a2d91e46"
+    },
+    "converter": {
+      "path": "Fumen/PermissiveEnumJsonConverterFactory.cs",
+      "git_blob": "7a698f32c27497d6c55a651b707cbb74d5b2465d",
+      "sha256": "5d6323be3b4559885cf696b3ae79cdcd0779bc83d81638e8fa6a69f1672ab1e7"
+    }
+  },
+  "extracted_select_sha256": "f815ee83f8206ce184e87caf26c1cd905b591198f80a7dc7bbbbb37488be066f",
+  "program_sha256": "32066d0f806b979b4eb2fe53d454be6fadd00f5e52ac45ec0c73076b481f0c21",
+  "assembly_sha256": "426e851d63e25283b72fe0d830110fa174a02c77cdd27b4d96f8b9e358eb1276",
+  "request_sha256": "6f3afeba39d0f285c2423159f8b8ac6bfc1c07e5fac2523f9eee8293d8a7dead",
+  "expected_sha256": "f04a3ed03a5ac58f69cb3df9cece2df72824a12fa35ec557105dd7951ec91d5a"
+}

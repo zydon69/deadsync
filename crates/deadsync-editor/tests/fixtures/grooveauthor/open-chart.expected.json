@@ -1,0 +1,748 @@
+{
+  "Results": [
+    {
+      "Culture": "en-US",
+      "Cases": [
+        {
+          "Name": "empty",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [],
+          "Selected": null,
+          "Error": null
+        },
+        {
+          "Name": "preferred-exact",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            0,
+            1,
+            2
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "preferred-difficulty-before-meter",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            1,
+            2,
+            0
+          ],
+          "Selected": 2,
+          "Error": null
+        },
+        {
+          "Name": "paired-dance_single",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            3,
+            1,
+            0
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "paired-dance_double",
+          "Steps": 1,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            3,
+            1,
+            0
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "paired-pump_single",
+          "Steps": 6,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            3,
+            1,
+            0
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "paired-pump_double",
+          "Steps": 8,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            3,
+            1,
+            0
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "no-pair-fallback-type-order",
+          "Steps": 3,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            3,
+            1,
+            0
+          ],
+          "Selected": 2,
+          "Error": null
+        },
+        {
+          "Name": "fallback-does-not-seek-preferred-difficulty",
+          "Steps": 42,
+          "Difficulty": 3,
+          "Order": [
+            1,
+            2,
+            0
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "preferred-unknown-difficulty",
+          "Steps": 0,
+          "Difficulty": 77,
+          "Order": [
+            1,
+            0
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "only-unknown-difficulties",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            1,
+            0
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "unsupported-excluded",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [],
+          "Selected": null,
+          "Error": null
+        },
+        {
+          "Name": "same-difficulty-lowest-meter",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            1,
+            2,
+            0
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "same-meter-cultural-names",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            1,
+            0,
+            3
+          ],
+          "Selected": 2,
+          "Error": null
+        },
+        {
+          "Name": "same-name-description-steps-guid",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            3,
+            2,
+            1,
+            0
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "prefs-missing",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "prefs-names",
+          "Steps": 8,
+          "Difficulty": 1,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 2,
+          "Error": null
+        },
+        {
+          "Name": "prefs-case-space",
+          "Steps": 8,
+          "Difficulty": 3,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "prefs-invalid-text",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-hyphen",
+          "Steps": 0,
+          "Difficulty": 3,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "prefs-numeric-string",
+          "Steps": 8,
+          "Difficulty": 3,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "prefs-numeric-unknown",
+          "Steps": 999,
+          "Difficulty": 77,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-negative-string",
+          "Steps": -1,
+          "Difficulty": -1,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-json-number",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-null",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-boolean",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-enum-combination",
+          "Steps": 7,
+          "Difficulty": 3,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-mixed-numeric-combination",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-overflow",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-nested-object",
+          "Error": "JsonException"
+        },
+        {
+          "Name": "prefs-nested-array",
+          "Error": "JsonException"
+        }
+      ]
+    },
+    {
+      "Culture": "fr-FR",
+      "Cases": [
+        {
+          "Name": "empty",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [],
+          "Selected": null,
+          "Error": null
+        },
+        {
+          "Name": "preferred-exact",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            0,
+            1,
+            2
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "preferred-difficulty-before-meter",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            1,
+            2,
+            0
+          ],
+          "Selected": 2,
+          "Error": null
+        },
+        {
+          "Name": "paired-dance_single",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            3,
+            1,
+            0
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "paired-dance_double",
+          "Steps": 1,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            3,
+            1,
+            0
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "paired-pump_single",
+          "Steps": 6,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            3,
+            1,
+            0
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "paired-pump_double",
+          "Steps": 8,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            3,
+            1,
+            0
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "no-pair-fallback-type-order",
+          "Steps": 3,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            3,
+            1,
+            0
+          ],
+          "Selected": 2,
+          "Error": null
+        },
+        {
+          "Name": "fallback-does-not-seek-preferred-difficulty",
+          "Steps": 42,
+          "Difficulty": 3,
+          "Order": [
+            1,
+            2,
+            0
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "preferred-unknown-difficulty",
+          "Steps": 0,
+          "Difficulty": 77,
+          "Order": [
+            1,
+            0
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "only-unknown-difficulties",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            1,
+            0
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "unsupported-excluded",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [],
+          "Selected": null,
+          "Error": null
+        },
+        {
+          "Name": "same-difficulty-lowest-meter",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            1,
+            2,
+            0
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "same-meter-cultural-names",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            2,
+            1,
+            0,
+            3
+          ],
+          "Selected": 2,
+          "Error": null
+        },
+        {
+          "Name": "same-name-description-steps-guid",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            3,
+            2,
+            1,
+            0
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "prefs-missing",
+          "Steps": 0,
+          "Difficulty": 4,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "prefs-names",
+          "Steps": 8,
+          "Difficulty": 1,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 2,
+          "Error": null
+        },
+        {
+          "Name": "prefs-case-space",
+          "Steps": 8,
+          "Difficulty": 3,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "prefs-invalid-text",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-hyphen",
+          "Steps": 0,
+          "Difficulty": 3,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 1,
+          "Error": null
+        },
+        {
+          "Name": "prefs-numeric-string",
+          "Steps": 8,
+          "Difficulty": 3,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 3,
+          "Error": null
+        },
+        {
+          "Name": "prefs-numeric-unknown",
+          "Steps": 999,
+          "Difficulty": 77,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-negative-string",
+          "Steps": -1,
+          "Difficulty": -1,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-json-number",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-null",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-boolean",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-enum-combination",
+          "Steps": 7,
+          "Difficulty": 3,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-mixed-numeric-combination",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-overflow",
+          "Steps": 0,
+          "Difficulty": 0,
+          "Order": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "Selected": 0,
+          "Error": null
+        },
+        {
+          "Name": "prefs-nested-object",
+          "Error": "JsonException"
+        },
+        {
+          "Name": "prefs-nested-array",
+          "Error": "JsonException"
+        }
+      ]
+    }
+  ]
+}

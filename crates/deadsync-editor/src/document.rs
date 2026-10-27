@@ -1,4 +1,5 @@
 pub mod metadata;
+pub mod chart_type;
 use crate::Error;
 use std::{collections::BTreeMap, ops::Range, sync::Arc};
 

@@ -261,6 +261,10 @@ impl File {
     pub fn set_snap(&mut self,snap:crate::snap::Preferences){self.settings.snap=snap;}
     pub fn receptors(&self)->crate::receptor_preferences::Preferences {self.settings.receptors}
     pub fn set_receptors(&mut self,p:crate::receptor_preferences::Preferences){self.settings.receptors=p;}
+    /// Shared Options group; no independent preference file or implicit write.
+    pub fn opening(&self) -> Result<crate::open_preferences::Preferences, Error> {
+        crate::open_preferences::Preferences::read(&self.group_fields("Options")?)
+    }
     pub fn note_colors(&self) -> Result<crate::note_color_preferences::Preferences, Error> {
         crate::note_color_preferences::Preferences::read(&self.group_fields("NoteColor")?, &self.group_fields("Options")?)
     }

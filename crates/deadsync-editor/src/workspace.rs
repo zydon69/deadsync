@@ -121,7 +121,15 @@ impl Workspace {
             file.session.grid(chart)?;
             chart
         };
-        Ok(Self {
+        Ok(Self::from_file_ready(file, chart))
+    }
+    /// Open a source document without forcing an unavailable chart grid. Source
+    /// blocks and resident identities remain intact; New Chart stays available.
+    pub fn from_file_unfocused(file: FileSession) -> Self {
+        Self::from_file_ready(file, usize::MAX)
+    }
+    fn from_file_ready(file: FileSession, chart: usize) -> Self {
+        Self {
             file,
             chart,
             row: 0,
@@ -134,7 +142,7 @@ impl Workspace {
             clipboard: None,
             event_clipboard: None,
             structural_focus: Default::default(),
-        })
+        }
     }
 
     pub fn can_normalize_stepf2_chart(&self) -> bool {
