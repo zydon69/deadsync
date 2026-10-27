@@ -8,9 +8,11 @@ use crate::{
 };
 use std::path::Path;
 
-pub const SNAP_ROWS: [u64; 9] = [48, 24, 16, 12, 8, 6, 4, 3, 1];
-pub const SNAP_NAMES: [&str; 9] = [
-    "1/4", "1/8", "1/12", "1/16", "1/24", "1/32", "1/48", "1/64", "1/192",
+pub const SNAP_ROWS: [u64; 10] = [48, 24, 16, 12, 8, 6, 4, 3, 1, 0];
+/// Increment for discrete edit tools, distinct from Off measure navigation.
+pub fn snap_edit_rows(index:usize)->u64 { SNAP_ROWS[index].max(1) }
+pub const SNAP_NAMES: [&str; 10] = [
+    "1/4", "1/8", "1/12", "1/16", "1/24", "1/32", "1/48", "1/64", "1/192", "Off",
 ];
 pub const TOOLS: [Kind; 6] = [
     Kind::Tap,
@@ -309,7 +311,10 @@ impl Workspace {
         }
         match command {
             Command::Move(steps) => {
-                let distance = SNAP_ROWS[self.snap]
+                let spacing=if SNAP_ROWS[self.snap]==0 {
+                    crate::timing_edit::signature::Signatures::from_document(self.file.session.document(),self.chart)?.measure_position(self.row)?.rows_per_measure
+                }else{SNAP_ROWS[self.snap]};
+                let distance = spacing
                     .checked_mul(steps.unsigned_abs())
                     .ok_or_else(|| Error::InvalidEdit("Cursor movement overflow".into()))?;
                 self.selection_end = None;
@@ -364,7 +369,7 @@ impl Workspace {
                 }
                 self.selection_end = None;
                 self.snap = snap;
-                self.row -= self.row % SNAP_ROWS[snap];
+                // Choosing a subdivision never seeks the chart (source SnapManager).
             }
             Command::SelectChart(chart) => {
                 let grid = self.file.session.grid(chart)?;
@@ -418,7 +423,7 @@ impl Workspace {
                             self.selection()
                                 .map(|(_, end)| end)
                                 .filter(|&end| end > head_row)
-                                .unwrap_or(head_row.checked_add(SNAP_ROWS[self.snap]).ok_or_else(
+                                .unwrap_or(head_row.checked_add(snap_edit_rows(self.snap)).ok_or_else(
                                     || Error::InvalidEdit("Sustain exceeds row range".into()),
                                 )?),
                         )
@@ -436,7 +441,7 @@ impl Workspace {
                     .edit_notes(self.chart, "Place note", [(position, note)])?;
                 if self.auto_advance {
                     self.selection_end = None;
-                    self.row = self.row.saturating_add(SNAP_ROWS[self.snap]);
+                    self.row = self.row.saturating_add(snap_edit_rows(self.snap));
                 }
             }
             Command::Delete => self.delete_selection()?,

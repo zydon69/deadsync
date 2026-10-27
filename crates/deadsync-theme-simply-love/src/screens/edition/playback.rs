@@ -42,6 +42,7 @@ impl State {
         self.audio_preferences_file = None;
         let file = deadsync_editor::audio_preferences::File::open(path)?;
         let note_colors = file.note_colors()?;
+        if file.has_snap_preferences() {self.command(Command::SetSnap(file.snap().level.native_index()));}
         let minimap_content = file.minimap_content()?;
         let zoom_preferences = file.zoom();
         zoom_preferences.apply(&mut self.zoom)?;
@@ -256,17 +257,15 @@ impl State {
             .playback_position()
             .map_or(self.workspace.row() as f64, |(_, row)| row);
         let result = (|| -> Result<(), deadsync_editor::Error> {
-            let destination = deadsync_editor::scroll_preferences::snap_destination(
-                current,
-                deadsync_editor::workspace::SNAP_ROWS[self.workspace.snap()],
-                later,
-            )?
-            .max(0) as u64;
+            let signatures=self.signatures.as_ref().ok_or_else(||deadsync_editor::Error::InvalidEdit("Missing chart time signatures".into()))?;
+            let exact=deadsync_editor::snap::Level::native(self.workspace.snap())?.navigation(current,later,signatures)?;
+            let focus=deadsync_editor::chart_focus::Position::at_fractional_row(&self.workspace.file().session,self.workspace.chart(),exact)?;
+            let destination=exact.max(0.0).floor() as u64;
             let continuing = self.is_playing() && !self.scroll_preferences.stop_playback();
             // The captured clock and open decoder remain valid after pathname
             // changes; navigation must not re-open or re-parse the track.
             let audio = if continuing {
-                let preview = self
+                let _preview = self
                     .playback
                     .as_ref()
                     .and_then(|playing| playing.preview.as_ref())
@@ -274,15 +273,17 @@ impl State {
                         deadsync_editor::Error::InvalidEdit("No chart playback clock".into())
                     })?;
                 Some(Position {
-                    chart_time: preview.chart_time(destination)?,
-                    row: destination as f64,
-                    music_time: preview.music_time(destination)?,
+                    chart_time: focus.chart_time(),
+                    row: exact,
+                    music_time: focus.music_time(),
                 })
             } else {
                 None
             };
             if !continuing { self.stop_audio(); }
             self.command(Command::Seek(destination));
+            self.focus_position=Some(focus);
+            self.refresh();
             if let Some(position) = audio {
                 self.paused_playback = None;
                 let playing = self.playback.as_mut().expect("continued chart transport");

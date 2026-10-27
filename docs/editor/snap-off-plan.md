@@ -74,3 +74,14 @@ unsnapped discrete edit tools use one row. Missing preference keys preserve the
 existing native quarter-note default; explicitly saved source index0 selects
 Off. Existing files therefore retain their cursor controls until Off is chosen.
 The pure source preference parser itself still normalizes invalid indices to0.
+
+Validation update: the five core `snap_workflows` tests passed centrally in
+session 61352. Checkpoint 8210ee68c declares the core module. The seven native
+workflows and the shared native migration remain pending; the patch now omits
+the already committed module declaration.
+
+## Native integration checkpoint
+The coordinated native bridge is applied. All seven keyboard workflows passed:
+measure navigation, fractional playback seek, negative anchor, detached entry,
+nonzero explicit sustain duration, persistence and conflicting preference save.
+No live audio/device validation is implied.

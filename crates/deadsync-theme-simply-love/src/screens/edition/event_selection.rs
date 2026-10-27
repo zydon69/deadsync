@@ -1,4 +1,4 @@
-use super::{Panel, SNAP_ROWS, State};
+use super::{Panel, State};
 use crate::{act, i18n};
 use deadlib_platform::input::KeyCode;
 use deadlib_present::{
@@ -126,7 +126,7 @@ impl State {
             .map(|event| event.row())
             .max()
             .unwrap_or(start);
-        let rows = SNAP_ROWS[self.workspace.snap()] as i64 * if later { 1 } else { -1 };
+        let rows = deadsync_editor::workspace::snap_edit_rows(self.workspace.snap()) as i64 * if later { 1 } else { -1 };
         match self
             .workspace
             .shift_event_selection(&settings.selection, rows)

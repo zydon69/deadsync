@@ -122,7 +122,7 @@ impl State {
                             let step = if self.shift {
                                 192
                             } else {
-                                SNAP_ROWS[self.workspace.snap()]
+                                deadsync_editor::workspace::snap_edit_rows(self.workspace.snap())
                             };
                             let row = if forward {
                                 row.saturating_add(step).min(i32::MAX as u64)
@@ -231,7 +231,7 @@ impl State {
                                 if self.shift {
                                     1.0 / 48.0
                                 } else {
-                                    SNAP_ROWS[self.workspace.snap()] as f64 / 48.0
+                                    deadsync_editor::workspace::snap_edit_rows(self.workspace.snap()) as f64 / 48.0
                                 }
                             } else if self.shift {
                                 0.001

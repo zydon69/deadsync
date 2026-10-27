@@ -47,7 +47,7 @@ impl State {
                 let (value, count) = match index {
                     0 => (&mut self.note_conversion.from, SOURCES.len()),
                     1 => (&mut self.note_conversion.to, TARGETS.len()),
-                    _ => (&mut self.note_conversion.duration, SNAP_ROWS.len()),
+                    _ => (&mut self.note_conversion.duration, SNAP_ROWS.len()-1),
                 };
                 *value = (*value + if forward { 1 } else { count - 1 }) % count;
             }

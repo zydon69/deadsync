@@ -36,6 +36,7 @@ mod view_render_screen;
 mod receptor_render;
 mod receptor_views;
 mod hold_render;
+mod snap_controls;
 mod short_note_render;
 mod lane_entry;
 mod lane_fake;
@@ -1412,7 +1413,7 @@ impl State {
                     "beat",
                     &format!("{:.3}", self.workspace.row() as f64 / ROWS_PER_BEAT as f64),
                 ),
-                ("snap", SNAP_NAMES[self.workspace.snap()]),
+                ("snap", &if SNAP_ROWS[self.workspace.snap()]==0 {i18n::tr("Edition","SnapOff").to_string()}else{SNAP_NAMES[self.workspace.snap()].to_string()}),
                 ("player", &(self.workspace.player() + 1).to_string()),
                 (
                     "tool",
@@ -1749,12 +1750,8 @@ impl State {
                         .max()
                         .unwrap_or(0),
                 )),
-                KeyCode::ArrowLeft => {
-                    Some(Command::SetSnap(self.workspace.snap().saturating_sub(1)))
-                }
-                KeyCode::ArrowRight => Some(Command::SetSnap(
-                    (self.workspace.snap() + 1).min(SNAP_ROWS.len() - 1),
-                )),
+                KeyCode::ArrowLeft => {self.cycle_snap(false);None}
+                KeyCode::ArrowRight => {self.cycle_snap(true);None}
                 KeyCode::Space => Some(Command::ToggleSelection),
                 KeyCode::Delete | KeyCode::Backspace => Some(Command::Delete),
                 KeyCode::KeyP => Some(Command::SelectPlayer(
@@ -2169,7 +2166,7 @@ impl State {
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(draft) = &mut self.marker {
                         let forward = code == KeyCode::ArrowRight;
-                        let spacing = SNAP_ROWS[self.workspace.snap()];
+                        let spacing = deadsync_editor::workspace::snap_edit_rows(self.workspace.snap());
                         let adjust = |value: u64| {
                             if forward {
                                 value.saturating_add(spacing).min(i32::MAX as u64)
@@ -2401,8 +2398,8 @@ impl State {
                         let transform = match index {
                             0 => Transform::Mirror,
                             1 => Transform::Flip,
-                            2 => Transform::ShiftRows(-(SNAP_ROWS[self.workspace.snap()] as i64)),
-                            3 => Transform::ShiftRows(SNAP_ROWS[self.workspace.snap()] as i64),
+                            2 => Transform::ShiftRows(-(deadsync_editor::workspace::snap_edit_rows(self.workspace.snap()) as i64)),
+                            3 => Transform::ShiftRows(deadsync_editor::workspace::snap_edit_rows(self.workspace.snap()) as i64),
                             4..=7 => Transform::ShiftLanes { right: index % 2 == 1, wrap: index >= 6 },
                             8 => Transform::MirrorAndFlip,
                             _ => unreachable!("bounded transform menu"),

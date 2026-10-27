@@ -8,6 +8,7 @@ use deadsync_editor::{
 use std::{path::PathBuf, time::Instant};
 pub(super) struct Snapshot {
     audio: Audio,
+    snap:deadsync_editor::snap::Preferences,
     audio_path: Option<PathBuf>,
     zoom: zoom::Manager,
     zoom_epoch: Instant,
@@ -25,6 +26,7 @@ impl Snapshot {
     pub(super) fn capture(state: &State) -> Self {
         Self {
             audio: state.audio_preferences,
+            snap:deadsync_editor::snap::Preferences{level:deadsync_editor::snap::Level::native(state.workspace.snap()).expect("valid native snap"),lock:state.audio_preferences_file.as_ref().map(|file|file.snap().lock).unwrap_or_default()},
             audio_path: state.audio_preferences_path.clone(),
             zoom: state.zoom.clone(),
             zoom_epoch: state.zoom_epoch,
@@ -49,6 +51,8 @@ impl Snapshot {
         target.configure_minimap_preferences(self.minimap);
         target.configure_minimap_content_preferences(self.content);
         target.audio_preferences = self.audio;
+        target.workspace.execute(deadsync_editor::workspace::Command::SetSnap(self.snap.level.native_index()))?;
+        if let Some(file)=target.audio_preferences_file.as_mut(){file.set_snap(self.snap);}
         target.audio_preferences_path = self.audio_path;
         target.zoom = self.zoom;
         target.zoom_epoch = self.zoom_epoch;
@@ -92,6 +96,7 @@ mod tests {
         colors.colors.subdivisions[0] = [0.1, 0.2, 0.3];
         source.configure_note_color_preferences(colors).unwrap();
         source.workspace.execute(Command::Seek(192)).unwrap();
+        source.workspace.execute(Command::SetSnap(9)).unwrap();
         let mut target = State::open(&path, 0).unwrap();
         Snapshot::capture(&source).install(&mut target).unwrap();
         assert_eq!(target.audio_preferences.music_rate(), 1.7);
@@ -103,6 +108,7 @@ mod tests {
         assert!(target.audio_preferences_path.is_none());
         assert_eq!(source.workspace.row(), 192);
         assert_eq!(target.workspace.row(), 0);
+        assert_eq!(target.workspace.snap(),9);
         let views = target
             .active_views
             .as_ref()

@@ -84,6 +84,7 @@ fn read_bytes(path: &Path) -> Result<Option<Vec<u8>>, Error> {
 }
 #[derive(Clone, Copy, PartialEq)]
 struct Settings {
+    snap: crate::snap::Preferences,
     audio: Audio,
     waveform: Waveform,
     zoom: crate::zoom_preferences::Preferences,
@@ -191,6 +192,7 @@ impl File {
             }
         };
         let settings = Settings {
+            snap: if root.contains_key("SnapIndex") || root.contains_key("SnapLockIndex") {crate::snap::Preferences::read(&root)}else{crate::snap::Preferences{level:crate::snap::Level::source(1)?,..Default::default()}},
             audio,
             waveform: Waveform::read(&waveform_fields)?,
             zoom: crate::zoom_preferences::Preferences::read(&zoom_fields)?,
@@ -251,6 +253,9 @@ impl File {
             Some(_) => Err(Error::InvalidFormat(format!("Editor {name} preferences must be an object"))),
         }
     }
+    pub fn snap(&self)->crate::snap::Preferences {self.settings.snap}
+    pub fn has_snap_preferences(&self)->bool {self.root.contains_key("SnapIndex") || self.root.contains_key("SnapLockIndex")}
+    pub fn set_snap(&mut self,snap:crate::snap::Preferences){self.settings.snap=snap;}
     pub fn note_colors(&self) -> Result<crate::note_color_preferences::Preferences, Error> {
         crate::note_color_preferences::Preferences::read(&self.group_fields("NoteColor")?, &self.group_fields("Options")?)
     }
@@ -305,6 +310,7 @@ impl File {
         let mut minimap_fields = self.minimap_fields.clone();
         self.settings.minimap.write(&mut minimap_fields);
         let mut root = self.root.clone();
+        self.settings.snap.write(&mut root);
         root.insert("MiniMap".into(), Value::Object(minimap_fields.clone()));
         root.insert("Scroll".into(), Value::Object(scroll_fields.clone()));
         root.insert("Zoom".into(), Value::Object(zoom_fields.clone()));
