@@ -59,6 +59,9 @@ impl Snapshot {
         target.waveform_preferences = self.waveform;
         target.apply_waveform_preferences();
         target.profile_directory = self.profiles;
+        // Rebuild derived presentation inputs for the new document after all
+        // application values are installed; no former chart cache is reused.
+        target.refresh();
         Ok(())
     }
 }
@@ -82,6 +85,7 @@ mod tests {
         source.audio_preferences.set_music_rate(1.7).unwrap();
         source.scroll_preferences.set_stop_playback(true);
         source.zoom.set_zoom(2.0).unwrap();
+        source.zoom.update(1.0).unwrap();
         source.spacing_mode = zoom::SpacingMode::ConstantTime;
         source.reverse_display = true;
         let mut colors = source.note_colors.as_ref().clone();
@@ -119,6 +123,21 @@ mod tests {
             assert!(view.clock(&target.workspace.file().session).is_ok());
             assert!(view.clock(&source.workspace.file().session).is_err());
         }
+        let projection = target.display_projection(0.0, 1000.0, 500.0).unwrap();
+        assert!(matches!(
+            &projection,
+            crate::screens::edition::spacing_view::Projection::Time { .. }
+        ));
+        let cursor = projection.note_y(0).unwrap();
+        let next_beat = projection.note_y(48).unwrap();
+        assert!((cursor - 500.0).abs() < 1e-9);
+        let expected =
+            0.5 * deadsync_editor::spacing::Speeds::default().time * target.zoom.spacing_zoom();
+        assert!((cursor - next_beat - expected).abs() < 1e-9);
+        assert!(
+            next_beat < cursor,
+            "reverse display applies to the new song projection"
+        );
         if let Some(position) = &target.focus_position {
             assert!(position.is_current(&target.workspace));
             assert!(!position.is_current(&source.workspace));
