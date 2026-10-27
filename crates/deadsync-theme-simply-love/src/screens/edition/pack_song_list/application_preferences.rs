@@ -1,0 +1,128 @@
+//! Typed application settings survive document replacement; transport, source
+//! bindings, chart caches, cursor and undo stacks belong to the new document.
+use super::State;
+use deadsync_editor::{
+    Error, audio_preferences::Audio, minimap_content_preferences, minimap_preferences,
+    note_color_preferences, scroll_preferences, waveform_preferences, zoom, zoom_preferences,
+};
+use std::{path::PathBuf, time::Instant};
+pub(super) struct Snapshot {
+    audio: Audio,
+    audio_path: Option<PathBuf>,
+    zoom: zoom::Manager,
+    zoom_epoch: Instant,
+    zoom_preferences: zoom_preferences::Preferences,
+    spacing: zoom::SpacingMode,
+    reverse: bool,
+    scroll: scroll_preferences::Preferences,
+    minimap: minimap_preferences::Preferences,
+    content: minimap_content_preferences::Preferences,
+    colors: note_color_preferences::Preferences,
+    waveform: waveform_preferences::Preferences,
+    profiles: Option<PathBuf>,
+}
+impl Snapshot {
+    pub(super) fn capture(state: &State) -> Self {
+        Self {
+            audio: state.audio_preferences,
+            audio_path: state.audio_preferences_path.clone(),
+            zoom: state.zoom.clone(),
+            zoom_epoch: state.zoom_epoch,
+            zoom_preferences: state.zoom_preferences,
+            spacing: state.spacing_mode,
+            reverse: state.reverse_display,
+            scroll: state.scroll_preferences,
+            minimap: state.minimap.preferences,
+            content: state.minimap.content.options,
+            colors: state.note_colors.as_ref().clone(),
+            waveform: state.waveform_preferences,
+            profiles: state.profile_directory.clone(),
+        }
+    }
+    pub(super) fn install(self, target: &mut State) -> Result<(), Error> {
+        // Read/validate the explicit custom path before any old-state ownership
+        // is taken. A malformed/deleted-parent/directory read must not publish.
+        if let Some(path) = self.audio_path.as_deref() {
+            target.configure_audio_preferences(path)?;
+        }
+        target.configure_note_color_preferences(self.colors)?;
+        target.configure_minimap_preferences(self.minimap);
+        target.configure_minimap_content_preferences(self.content);
+        target.audio_preferences = self.audio;
+        target.audio_preferences_path = self.audio_path;
+        target.zoom = self.zoom;
+        target.zoom_epoch = self.zoom_epoch;
+        target.zoom_preferences = self.zoom_preferences;
+        target.spacing_mode = self.spacing;
+        target.reverse_display = self.reverse;
+        target.scroll_preferences = self.scroll;
+        target.waveform_preferences = self.waveform;
+        target.apply_waveform_preferences();
+        target.profile_directory = self.profiles;
+        Ok(())
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use deadsync_editor::workspace::Command;
+    #[test]
+    fn memory_only_application_settings_survive_but_cursor_and_chart_caches_do_not() {
+        crate::i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("song.ssc");
+        std::fs::write(
+            &path,
+            "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+        )
+        .unwrap();
+        let mut source = State::open(&path, 0).unwrap();
+        source.audio_preferences_path = None;
+        source.audio_preferences_file = None;
+        source.audio_preferences.set_music_rate(1.7).unwrap();
+        source.scroll_preferences.set_stop_playback(true);
+        source.zoom.set_zoom(2.0).unwrap();
+        source.spacing_mode = zoom::SpacingMode::ConstantTime;
+        source.reverse_display = true;
+        let mut colors = source.note_colors.as_ref().clone();
+        colors.colors.subdivisions[0] = [0.1, 0.2, 0.3];
+        source.configure_note_color_preferences(colors).unwrap();
+        source.workspace.execute(Command::Seek(192)).unwrap();
+        let mut target = State::open(&path, 0).unwrap();
+        Snapshot::capture(&source).install(&mut target).unwrap();
+        assert_eq!(target.audio_preferences.music_rate(), 1.7);
+        assert!(target.scroll_preferences.stop_playback());
+        assert_eq!(target.note_colors.colors.subdivisions[0], [0.1, 0.2, 0.3]);
+        assert_eq!(target.zoom, source.zoom);
+        assert_eq!(target.spacing_mode, zoom::SpacingMode::ConstantTime);
+        assert!(target.reverse_display);
+        assert!(target.audio_preferences_path.is_none());
+        assert_eq!(source.workspace.row(), 192);
+        assert_eq!(target.workspace.row(), 0);
+        let views = target
+            .active_views
+            .as_ref()
+            .expect("common constructor creates chart views");
+        assert!(views.belongs_to(&target.workspace.file().session));
+        assert!(!views.belongs_to(&source.workspace.file().session));
+        assert!(!views.entries().is_empty());
+        for view in views.entries() {
+            assert_eq!(
+                Some(view.identity()),
+                target
+                    .workspace
+                    .file()
+                    .session
+                    .chart_ids()
+                    .get(view.source_index())
+            );
+            assert!(view.clock(&target.workspace.file().session).is_ok());
+            assert!(view.clock(&source.workspace.file().session).is_err());
+        }
+        if let Some(position) = &target.focus_position {
+            assert!(position.is_current(&target.workspace));
+            assert!(!position.is_current(&source.workspace));
+            assert_eq!(position.edit_row(), 0);
+        }
+    }
+}

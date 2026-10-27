@@ -94,7 +94,7 @@ impl State {
     pub(super) fn empty_menu_key(&mut self, index: usize, code: KeyCode) -> bool {
         if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
             self.panel = Some(Panel::EmptyMenu(
-                (index + if code == KeyCode::ArrowUp { 7 } else { 1 }) % 8,
+                (index + if code == KeyCode::ArrowUp { 8 } else { 1 }) % 9,
             ));
         } else if matches!(code, KeyCode::Enter | KeyCode::NumpadEnter) {
             self.panel = None;
@@ -106,6 +106,7 @@ impl State {
                 4 => self.command(Command::SaveRecovery),
                 5 => self.command(Command::Recover),
                 7 => self.open_pack_properties(),
+                8 => self.open_pack_song_list(),
                 _ => return self.request_close(),
             }
         }

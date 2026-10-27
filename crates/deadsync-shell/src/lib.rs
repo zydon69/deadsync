@@ -15,6 +15,7 @@ mod window_modifier_fallback;
 mod editor_music_picker;
 mod editor_image_previews;
 mod editor_collation;
+mod editor_pack_collation;
 mod frame_pacing_trace;
 mod frame_stats;
 mod frame_stutter;

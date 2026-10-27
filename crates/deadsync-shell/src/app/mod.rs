@@ -8008,6 +8008,8 @@ impl App {
             }
             CurrentScreen::Practice => {
                 if let Some(ps) = &mut self.state.screens.practice_state {
+                    screens::practice::process_editor_pack_songs(ps, &mut crate::editor_pack_collation::NativePackSongOrder);
+                    screens::practice::flush_editor_audio_commands(ps);
                     screens::components::gameplay::gameplay_stats::refresh_density_graph_meshes(
                         &mut ps.gameplay,
                     );

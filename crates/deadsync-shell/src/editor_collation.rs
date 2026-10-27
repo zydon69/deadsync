@@ -159,7 +159,7 @@ impl Collator {
         };
         Ok(result.cmp(&0))
     }
-    fn sort_key(&self, text: &str) -> Result<Vec<u8>, Error> {
+    pub(crate) fn sort_key(&self, text: &str) -> Result<Vec<u8>, Error> {
         let text = utf16(text)?;
         // SAFETY: ICU's documented preflight uses a null target with capacity 0.
         let required = unsafe {

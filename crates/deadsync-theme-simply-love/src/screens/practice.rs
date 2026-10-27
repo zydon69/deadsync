@@ -644,6 +644,12 @@ pub fn process_editor_music_picker(
 ) -> bool {
     state.edition.as_mut().is_some_and(|editor| editor.process_music_picker(picker))
 }
+pub fn process_editor_pack_songs(
+    state: &mut State,
+    orderer: &mut impl deadsync_editor::pack::song_list::Orderer,
+) -> bool {
+    state.edition.as_mut().is_some_and(|editor| editor.process_pack_song_list(orderer))
+}
 pub fn process_editor_chart_order(
     state: &mut State,
     orderer: &mut impl deadsync_editor::chart_order::Orderer,
