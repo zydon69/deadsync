@@ -82,8 +82,9 @@ fn read_bytes(path: &Path) -> Result<Option<Vec<u8>>, Error> {
         Err(error) => Err(error.into()),
     }
 }
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, PartialEq)]
 struct Settings {
+    note_colors:std::sync::Arc<crate::note_color_preferences::Preferences>,
     receptors: crate::receptor_preferences::Preferences,
     snap: crate::snap::Preferences,
     audio: Audio,
@@ -193,7 +194,10 @@ impl File {
             }
         };
         let receptor_fields=match root.get("Receptors") {None=>Map::new(),Some(Value::Object(fields))=>fields.clone(),Some(_)=>return Err(Error::InvalidFormat("Editor Receptors preferences must be an object".into()))};
+        let colors_group=|name:&str|->Result<Map<String,Value>,Error>{match root.get(name){None=>Ok(Map::new()),Some(Value::Object(fields))=>Ok(fields.clone()),Some(_)=>Err(Error::InvalidFormat(format!("Editor {name} preferences must be an object")))}};
+        let note_colors=std::sync::Arc::new(crate::note_color_preferences::Preferences::read(&colors_group("NoteColor")?,&colors_group("Options")?)?);
         let settings = Settings {
+            note_colors,
             receptors: crate::receptor_preferences::Preferences::read(&receptor_fields)?,
             snap: if root.contains_key("SnapIndex") || root.contains_key("SnapLockIndex") {crate::snap::Preferences::read(&root)}else{crate::snap::Preferences{level:crate::snap::Level::source(1)?,..Default::default()}},
             audio,
@@ -211,8 +215,8 @@ impl File {
             zoom_fields,
             scroll_fields,
             minimap_fields,
-            original: settings,
-            written: settings,
+            original: settings.clone(),
+            written: settings.clone(),
             settings,
         })
     }
@@ -265,9 +269,9 @@ impl File {
     pub fn opening(&self) -> Result<crate::open_preferences::Preferences, Error> {
         crate::open_preferences::Preferences::read(&self.group_fields("Options")?)
     }
-    pub fn note_colors(&self) -> Result<crate::note_color_preferences::Preferences, Error> {
-        crate::note_color_preferences::Preferences::read(&self.group_fields("NoteColor")?, &self.group_fields("Options")?)
-    }
+    pub fn note_colors(&self)->Result<crate::note_color_preferences::Preferences,Error>{Ok(self.settings.note_colors.as_ref().clone())}
+    pub fn note_colors_arc(&self)->std::sync::Arc<crate::note_color_preferences::Preferences>{std::sync::Arc::clone(&self.settings.note_colors)}
+    pub fn set_note_colors(&mut self,p:std::sync::Arc<crate::note_color_preferences::Preferences>)->Result<(),Error>{p.validate()?;self.settings.note_colors=p;Ok(())}
     pub fn minimap_content(&self) -> Result<crate::minimap_content_preferences::Preferences, Error> {
         crate::minimap_content_preferences::Preferences::read(&self.minimap_fields, &self.group_fields("Options")?)
     }
@@ -319,6 +323,9 @@ impl File {
         let mut minimap_fields = self.minimap_fields.clone();
         self.settings.minimap.write(&mut minimap_fields);
         let mut root = self.root.clone();
+        let(mut note_fields,mut options_fields)=(self.group_fields("NoteColor")?,self.group_fields("Options")?);
+        self.settings.note_colors.write(&mut note_fields,&mut options_fields)?;
+        root.insert("NoteColor".into(),Value::Object(note_fields));root.insert("Options".into(),Value::Object(options_fields));
         let mut receptor_fields=self.group_fields("Receptors")?;
         self.settings.receptors.write(&mut receptor_fields);
         root.insert("Receptors".into(),Value::Object(receptor_fields));
@@ -346,7 +353,7 @@ impl File {
             .persist(&self.path)
             .map_err(|error| Error::Io(error.error))?;
         self.expected = Some(bytes);
-        self.written = self.settings;
+        self.written = self.settings.clone();
         self.root = root;
         self.audio_fields = fields;
         self.waveform_fields = waveform_fields;
@@ -354,7 +361,7 @@ impl File {
         self.scroll_fields = scroll_fields;
         self.minimap_fields = minimap_fields;
         crate::storage::sync_directory(parent)?;
-        self.original = self.settings;
+        self.original = self.settings.clone();
         Ok(true)
     }
 }

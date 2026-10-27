@@ -37,6 +37,11 @@ pub(super) struct Content {
     frames: minimap_content_cache::Cache,
     error: RefCell<Option<Arc<str>>>,
 }
+impl Content {
+    pub(super) fn palette(&self) -> &Palette {
+        &self.palette
+    }
+}
 impl Default for Content {
     fn default() -> Self {
         Self {
@@ -99,13 +104,17 @@ impl State {
     pub fn note_color_preferences(&self) -> &NotePreferences {
         &self.note_colors
     }
+    #[cfg(test)]
     pub(super) fn configure_note_color_preferences(
         &mut self,
         preferences: NotePreferences,
     ) -> Result<(), deadsync_editor::Error> {
+        self.configure_note_color_arc(Arc::new(preferences))
+    }
+    pub(super) fn configure_note_color_arc(&mut self,preferences:Arc<NotePreferences>)->Result<(),deadsync_editor::Error>{
         preferences.validate()?;
         let palette = Palette::new(&preferences.colors)?;
-        let note_colors=Arc::new(preferences);
+        let note_colors=preferences;
         let hold_colors=deadsync_editor::note_color_palette::Palette::capture(Arc::clone(&note_colors))?;
         self.note_colors = note_colors;
         self.hold_colors = hold_colors;

@@ -34,7 +34,7 @@ impl ColorMethod {
         Ok((value % 48) as u8)
     }
 }
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Preferences {
     /// Quarter, eighth, twelfth, sixteenth,24th,32nd,48th,64th,192nd.
     pub subdivisions: [Rgb; 9],

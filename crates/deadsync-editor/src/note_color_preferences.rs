@@ -1,11 +1,13 @@
 //! Shared raw note colors and UI/XNA policy, kept in original distinct groups.
 //! Application group names NoteColor/Options map GA's PreferencesNoteColor/Options.
+pub(crate) mod history;
+pub use history::Update;
 use crate::{
     Error,
     minimap_palette::{self, ColorMethod, Palette},
 };
 use serde_json::{Map, Value};
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Preferences {
     pub colors: minimap_palette::Preferences,
     pub selection_multiplier: f32,

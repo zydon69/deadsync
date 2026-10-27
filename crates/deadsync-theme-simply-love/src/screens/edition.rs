@@ -38,6 +38,7 @@ mod receptor_render;
 mod receptor_views;
 mod hold_render;
 mod receptor_settings;
+mod note_color_settings;
 mod player_indicator;
 mod snap_controls;
 mod short_note_render;
@@ -135,6 +136,7 @@ enum Panel {
     ScrollSettings(usize),
     MinimapSettings(usize),
     ReceptorSettings(usize),
+    NoteColorSettings(usize),
     WaveformSettings(usize),
     WaveformColors(usize),
     Timing(usize),
@@ -290,6 +292,7 @@ pub struct State {
     view_inputs: view_render::Cache,
     receptor_views: receptor_views::Runtime,
     receptor_draft: Option<deadsync_editor::receptor_preferences::Preferences>,
+    note_color_draft:Option<deadsync_editor::note_color_inspector::Draft>,
     lane_input: lane_entry::Runtime,
     end_hint: Option<end_hint::Cache>,
     minimap: minimap::Navigation,
@@ -450,6 +453,7 @@ impl State {
             view_inputs: view_render::Cache::default(),
             receptor_views: receptor_views::Runtime::default(),
             receptor_draft: None,
+            note_color_draft:None,
             lane_input: lane_entry::Runtime::default(),
             end_hint: None,
             minimap: Default::default(),
@@ -1492,6 +1496,7 @@ impl State {
                 if matches!(command, Command::Recover) { self.profile_preference_history.clear(); self.profile_creations.clear(); }
                 self.sync_audio_preferences_history();
                 self.sync_receptor_preferences_history();
+                self.sync_note_color_preferences_history();
                 self.restore_profile_preferences(command, before_revision);
                 self.status = match command {
                     Command::Save => i18n::tr("Edition", "Saved"),
@@ -1575,6 +1580,7 @@ impl State {
             );
         let repeating_analysis = matches!(self.panel, Some(Panel::Analysis))
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
+        let repeating_note_color=matches!(self.panel,Some(Panel::NoteColorSettings(1..=3))) && self.note_color_draft.as_ref().is_some_and(|d|d.field()<=30) && matches!(event.code,KeyCode::ArrowLeft|KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
             Some(Panel::MinimapSettings(1 | 2) | Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0..=2) | Panel::ZoomSettings(0..=2) | Panel::WaveformSettings(2 | 3) | Panel::WaveformColors(1..=13))
@@ -1582,6 +1588,7 @@ impl State {
         if event.repeat
             && !(self.panel.is_none() && self.shift && !self.control && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight))
             && !repeating_offset
+            && !repeating_note_color
             && !repeating_label
             && !repeating_text_cursor
             && !repeating_navigation
@@ -1624,12 +1631,13 @@ impl State {
             let undo = event.code == KeyCode::KeyZ && !self.shift;
             let redo = event.code == KeyCode::KeyY || (event.code == KeyCode::KeyZ && self.shift);
             let session = &self.workspace.file().session;
-            if (undo && (session.undo_changes_audio_preferences() || session.undo_changes_receptor_preferences())) || (redo && (session.redo_changes_audio_preferences() || session.redo_changes_receptor_preferences())) {
+            if (undo && (session.undo_changes_audio_preferences() || session.undo_changes_receptor_preferences() || session.undo_changes_note_color_preferences())) || (redo && (session.redo_changes_audio_preferences() || session.redo_changes_receptor_preferences() || session.redo_changes_note_color_preferences())) {
                 self.command(if undo { Command::Undo } else { Command::Redo });
                 return false;
             }
         }
         if self.control && self.shift && event.code==KeyCode::KeyH && self.panel.is_none(){self.open_receptor_settings();return false;}
+        if self.control && self.shift && event.code==KeyCode::KeyU && self.panel.is_none(){self.open_note_color_settings();return false;}
         if self.control && event.code == KeyCode::KeyB {
             self.open_chart_list();
             return false;
@@ -1837,6 +1845,7 @@ impl State {
             self.waveform_settings_key(index, code);
             return false;
         }
+        if let Panel::NoteColorSettings(index)=panel{self.note_color_settings_key(index,code);return false;}
         if let Panel::ReceptorSettings(index)=panel{self.receptor_settings_key(index,code);return false;}
         if let Panel::MinimapSettings(index) = panel { self.minimap_settings_key(index, code); return false; }
         if let Panel::ScrollSettings(index) = panel { self.scroll_settings_key(index, code); return false; }
@@ -2000,6 +2009,7 @@ impl State {
             Panel::ScrollSettings(_) => unreachable!("scroll settings dispatched above"),
             Panel::MinimapSettings(_) => unreachable!("minimap settings dispatched above"),
             Panel::ReceptorSettings(_) => unreachable!("receptor settings dispatched above"),
+            Panel::NoteColorSettings(_) => unreachable!("note color settings dispatched above"),
             Panel::ZoomSettings(_) => unreachable!("zoom settings dispatched above"),
             Panel::AudioSettings(_) => unreachable!("audio settings dispatched above"),
             Panel::TimingMigration(index) => self.timing_migration_key(index, code),
@@ -2368,7 +2378,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 21,
+                    Panel::Menu(_) => 22,
                     Panel::Transforms(_) => 12,
                     _ => 3,
                 };
@@ -2451,6 +2461,7 @@ impl State {
                             18 => self.open_pack_properties(),
                             19 => self.open_pack_song_list(),
                     20 => self.open_receptor_settings(),
+                            21 => self.open_note_color_settings(),
                             _ => {}
                         }
                     }
@@ -2750,6 +2761,7 @@ impl State {
     fn panel_actors(&self, panel: Panel, actors: &mut Vec<Actor>) {
         if matches!(panel, Panel::PackSongList) { self.pack_song_list_actors(actors); return; }
         if matches!(panel, Panel::PackProperties) { self.pack_properties_actors(actors); return; }
+        if let Panel::NoteColorSettings(index)=panel{self.note_color_settings_actors(index,actors);return;}
         if let Panel::ReceptorSettings(index)=panel{self.receptor_settings_actors(index,actors);return;}
         if let Panel::MinimapSettings(index) = panel { self.minimap_settings_actors(index, actors); return; }
         if matches!(panel, Panel::ChartEventCopy) { self.chart_event_copy_actors(actors); return; }
@@ -2767,7 +2779,7 @@ impl State {
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
-            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::PackSongList | Panel::MinimapSettings(_) | Panel::ReceptorSettings(_) => &[],
+            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::PackSongList | Panel::MinimapSettings(_) | Panel::ReceptorSettings(_) | Panel::NoteColorSettings(_) => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
             Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close", "PackPropertiesOpen", "PackSongsOpen"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
@@ -2793,6 +2805,7 @@ impl State {
                 "PackPropertiesOpen",
                 "PackSongsOpen",
                 "ReceptorSettingsOpen",
+                "NoteColorSettingsOpen",
             ],
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen", "NoteOwnersOpen", "NoteAttributesOpen"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
@@ -2969,6 +2982,7 @@ impl State {
             | Panel::ScrollSettings(i)
             | Panel::MinimapSettings(i)
             | Panel::ReceptorSettings(i)
+            | Panel::NoteColorSettings(i)
             | Panel::ZoomSettings(i)
             | Panel::AudioSettings(i)
             | Panel::WaveformSettings(i)

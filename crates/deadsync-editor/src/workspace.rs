@@ -241,6 +241,8 @@ impl Workspace {
     }
     pub fn set_receptor_preferences(&mut self,before:crate::receptor_preferences::Preferences,after:crate::receptor_preferences::Preferences,file:Option<&crate::audio_preferences::File>)->Result<bool,Error>{self.file.session.set_receptor_preferences(before,after,file)}
     pub fn take_receptor_preferences_update(&mut self)->Option<crate::receptor_preferences::Update>{self.file.session.take_receptor_preferences_update()}
+    pub fn set_note_color_preferences(&mut self,before:std::sync::Arc<crate::note_color_preferences::Preferences>,after:std::sync::Arc<crate::note_color_preferences::Preferences>,file:Option<&crate::audio_preferences::File>)->Result<bool,Error>{self.file.session.set_note_color_preferences(before,after,file)}
+    pub fn take_note_color_preferences_update(&mut self)->Option<crate::note_color_preferences::Update>{self.file.session.take_note_color_preferences_update()}
     pub fn take_audio_preferences_update(&mut self) -> Option<crate::audio_preferences::Update> {
         self.file.session.take_audio_preferences_update()
     }

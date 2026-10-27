@@ -19,7 +19,7 @@ pub(super) struct Snapshot {
     scroll: scroll_preferences::Preferences,
     minimap: minimap_preferences::Preferences,
     content: minimap_content_preferences::Preferences,
-    colors: note_color_preferences::Preferences,
+    colors:std::sync::Arc<note_color_preferences::Preferences>,
     waveform: waveform_preferences::Preferences,
     profiles: Option<PathBuf>,
 }
@@ -38,7 +38,7 @@ impl Snapshot {
             scroll: state.scroll_preferences,
             minimap: state.minimap.preferences,
             content: state.minimap.content.options,
-            colors: state.note_colors.as_ref().clone(),
+            colors:state.note_color_draft.as_ref().map(|draft|draft.baseline()).unwrap_or_else(||std::sync::Arc::clone(&state.note_colors)),
             waveform: state.waveform_preferences,
             profiles: state.profile_directory.clone(),
         }
@@ -49,7 +49,8 @@ impl Snapshot {
         if let Some(path) = self.audio_path.as_deref() {
             target.configure_audio_preferences(path)?;
         }
-        target.configure_note_color_preferences(self.colors)?;
+        target.configure_note_color_arc(std::sync::Arc::clone(&self.colors))?;
+        if let Some(file)=target.audio_preferences_file.as_mut(){file.set_note_colors(self.colors)?;}
         target.configure_receptor_preferences(self.receptors);
         if let Some(file)=target.audio_preferences_file.as_mut(){file.set_receptors(self.receptors);}
         target.configure_minimap_preferences(self.minimap);
@@ -156,4 +157,12 @@ mod tests {
             assert_eq!(position.edit_row(), 0);
         }
     }
+    #[test]
+    fn unsaved_note_color_preview_does_not_escape_into_replacement_song(){
+        crate::i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let path=root.path().join("preview.ssc");std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
+        let mut source=State::open(&path,0).unwrap();let baseline=std::sync::Arc::clone(&source.note_colors);
+        let mut draft=deadsync_editor::note_color_inspector::Draft::capture(std::sync::Arc::clone(&baseline)).unwrap();draft.adjust(0,true,false).unwrap();source.configure_note_color_arc(draft.staged()).unwrap();source.note_color_draft=Some(draft);
+        assert_ne!(source.note_colors,baseline);let mut target=State::open(&path,0).unwrap();Snapshot::capture(&source).install(&mut target).unwrap();assert_eq!(target.note_colors,baseline);assert!(target.note_color_draft.is_none());
+    }
+
 }

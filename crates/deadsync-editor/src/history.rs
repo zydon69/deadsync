@@ -25,6 +25,7 @@ struct DocumentState {
 
 #[derive(Debug)]
 enum Change {
+    NoteColorPreferences(Box<crate::note_color_preferences::history::Change>),
     AudioPreferences(Box<crate::audio_preferences::history::Change>),
     ReceptorPreferences(Box<crate::receptor_preferences::history::Change>),
     Group(Vec<Change>),
@@ -104,6 +105,7 @@ pub struct ChartAddition<'a> {
 }
 
 pub struct Session {
+    note_color_preferences_update:Option<crate::note_color_preferences::Update>,
     audio_preferences_update: Option<crate::audio_preferences::Update>,
     receptor_preferences_update: Option<crate::receptor_preferences::Update>,
     identity: Arc<()>,
@@ -126,6 +128,7 @@ impl Session {
             .collect();
         Self {
             audio_preferences_update: None,
+            note_color_preferences_update:None,
             receptor_preferences_update: None,
             identity: Arc::new(()),
             allows_external_edits: true,
@@ -206,6 +209,8 @@ impl Session {
     pub fn content_revision(&self) -> u64 { self.content_revision }
     pub fn undo_changes_receptor_preferences(&self)->bool {self.undo.last().is_some_and(|entry|matches!(entry.change,Change::ReceptorPreferences(_)))}
     pub fn redo_changes_receptor_preferences(&self)->bool {self.redo.last().is_some_and(|entry|matches!(entry.change,Change::ReceptorPreferences(_)))}
+    pub fn undo_changes_note_color_preferences(&self)->bool{self.undo.last().is_some_and(|entry|matches!(entry.change,Change::NoteColorPreferences(_)))}
+    pub fn redo_changes_note_color_preferences(&self)->bool{self.redo.last().is_some_and(|entry|matches!(entry.change,Change::NoteColorPreferences(_)))}
     pub fn undo_changes_audio_preferences(&self) -> bool {
         self.undo.last().is_some_and(|entry| matches!(entry.change, Change::AudioPreferences(_)))
     }
@@ -505,7 +510,7 @@ impl Session {
             .collect();
         fn allowed(change: &Change, chart: usize) -> bool {
             match change {
-                Change::DocumentSwap(_) | Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } | Change::AudioPreferences(_) | Change::ReceptorPreferences(_) => false,
+                Change::DocumentSwap(_) | Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } | Change::AudioPreferences(_) | Change::NoteColorPreferences(_) | Change::ReceptorPreferences(_) => false,
                 Change::Notes { chart: target, .. } | Change::PlayerCount { chart: target, .. } => *target == chart,
                 Change::Group(changes) => changes.iter().all(|change| allowed(change, chart)),
                 _ => true,
@@ -620,6 +625,14 @@ impl Session {
         self.execute("Receptor preferences".into(),Change::ReceptorPreferences(Box::new(crate::receptor_preferences::history::Change{before,after,file:file.cloned()})))?;Ok(true)
     }
     pub fn take_receptor_preferences_update(&mut self)->Option<crate::receptor_preferences::Update>{self.receptor_preferences_update.take()}
+    pub fn set_note_color_preferences(&mut self,before:std::sync::Arc<crate::note_color_preferences::Preferences>,after:std::sync::Arc<crate::note_color_preferences::Preferences>,file:Option<&crate::audio_preferences::File>)->Result<bool,Error>{
+        if !self.allows_external_edits{return Err(Error::InvalidEdit("Staged chart edits cannot change note color preferences".into()));}
+        before.validate()?;after.validate()?;
+        if file.is_some_and(|f|f.note_colors_arc().as_ref()!=before.as_ref()){return Err(Error::InvalidEdit("Note color snapshot differs from active settings".into()));}
+        if before==after{return Ok(false);}
+        self.execute("Note color preferences".into(),Change::NoteColorPreferences(Box::new(crate::note_color_preferences::history::Change{before,after,file:file.cloned()})))?;Ok(true)
+    }
+    pub fn take_note_color_preferences_update(&mut self)->Option<crate::note_color_preferences::Update>{self.note_color_preferences_update.take()}
     pub fn take_audio_preferences_update(&mut self) -> Option<crate::audio_preferences::Update> {
         self.audio_preferences_update.take()
     }
@@ -958,7 +971,7 @@ impl Session {
         self.apply(&mut change, true)?;
         fn affects_song(change: &Change) -> bool {
             match change {
-                Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } | Change::AudioPreferences(_) | Change::ReceptorPreferences(_) => false,
+                Change::ProfileDeletion { .. } | Change::ProfileCreation { .. } | Change::AudioPreferences(_) | Change::NoteColorPreferences(_) | Change::ReceptorPreferences(_) => false,
                 Change::Group(changes) => changes.iter().any(affects_song),
                 _ => true,
             }
@@ -982,6 +995,7 @@ impl Session {
     fn apply(&mut self, change: &mut Change, forward: bool) -> Result<(), Error> {
         match change {
             Change::ReceptorPreferences(change)=>{self.receptor_preferences_update=Some(change.apply(forward)?);Ok(())}
+            Change::NoteColorPreferences(change)=>{self.note_color_preferences_update=Some(change.apply(forward)?);Ok(())}
             Change::AudioPreferences(change) => {
                 self.audio_preferences_update = Some(change.apply(forward)?);
                 Ok(())

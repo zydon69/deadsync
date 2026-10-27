@@ -41,7 +41,7 @@ impl State {
         self.audio_preferences_path = Some(path.to_owned());
         self.audio_preferences_file = None;
         let file = deadsync_editor::audio_preferences::File::open(path)?;
-        let note_colors = file.note_colors()?;
+        let note_colors = file.note_colors_arc();
         self.configure_receptor_preferences(file.receptors());
         if file.has_snap_preferences() {self.command(Command::SetSnap(file.snap().level.native_index()));}
         let minimap_content = file.minimap_content()?;
@@ -51,7 +51,7 @@ impl State {
         self.audio_preferences = file.audio();
         self.scroll_preferences = file.scroll();
         self.configure_minimap_preferences(file.minimap());
-        self.configure_note_color_preferences(note_colors)?;
+        self.configure_note_color_arc(note_colors)?;
         self.configure_minimap_content_preferences(minimap_content);
         self.waveform_preferences = file.waveform();
         self.audio_preferences_file = Some(file);

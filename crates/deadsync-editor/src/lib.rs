@@ -115,3 +115,5 @@ pub mod snap;
 pub mod draft_note_policy;
 
 pub mod receptor_preferences;
+
+pub mod note_color_inspector;
