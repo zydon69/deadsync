@@ -92,7 +92,7 @@ fn play(s: &mut State) -> PathBuf {
 #[test]
 fn picker_and_clear_stage_then_apply_undo_redo_save_and_drive_real_audio_commands() {
     let (dir, mut s) = setup();
-    let base = s.workspace().file().path().parent().unwrap().to_path_buf();
+    let base = s.workspace().file().require_existing_path().unwrap().parent().unwrap().to_path_buf();
     let folder = base.join("audio");
     fs::create_dir(&folder).unwrap();
     let asset = folder.join("Été #50%20.wav");

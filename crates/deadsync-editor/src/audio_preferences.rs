@@ -84,6 +84,7 @@ fn read_bytes(path: &Path) -> Result<Option<Vec<u8>>, Error> {
 }
 #[derive(Clone, PartialEq)]
 struct Settings {
+    recent_songs: crate::recent_song_preferences::Preferences,
     advanced_save: crate::advanced_export::Options,
     key_bindings:std::sync::Arc<crate::key_binding_preferences::Preferences>,
     note_colors: std::sync::Arc<crate::note_color_preferences::Preferences>,
@@ -222,6 +223,7 @@ impl File {
             &options_fields,
         )?);
         let settings = Settings {
+            recent_songs: crate::recent_song_preferences::Preferences::read(&root)?,
             advanced_save: crate::advanced_export::Options::read(&root)?,
             note_colors,
             key_bindings,
@@ -343,6 +345,13 @@ impl File {
         self.settings.receptors = p;
     }
     /// Shared Options group; no independent preference file or implicit write.
+    pub fn new_song_sync_offset(&self) -> Result<f64, Error> {
+        let options=self.group_fields("Options")?;
+        match options.get("NewSongSyncOffset") {
+            None=>Ok(crate::song_properties::DEFAULT_SYNC_OFFSET),
+            Some(value)=>value.as_f64().filter(|value|value.is_finite()).ok_or_else(||Error::InvalidFormat("Invalid NewSongSyncOffset".into())),
+        }
+    }
     pub fn opening(&self) -> Result<crate::open_preferences::Preferences, Error> {
         crate::open_preferences::Preferences::read(&self.group_fields("Options")?)
     }
@@ -366,6 +375,17 @@ impl File {
         &self,
     ) -> Result<crate::minimap_content_preferences::Preferences, Error> {
         Ok(self.settings.minimap_content)
+    }
+    pub fn recent_songs(&self) -> &crate::recent_song_preferences::Preferences {
+        &self.settings.recent_songs
+    }
+    pub fn set_recent_songs(&mut self, preferences: crate::recent_song_preferences::Preferences) -> Result<(), Error> {
+        preferences.validate()?;
+        self.settings.recent_songs = preferences;
+        Ok(())
+    }
+    pub fn record_recent_song(&mut self, song: &crate::recent_songs::Song) -> Result<(), Error> {
+        self.settings.recent_songs.record(song)
     }
     pub fn has_changes(&self) -> bool {
         self.settings != self.original || self.settings != self.written
@@ -419,7 +439,9 @@ impl File {
         self.settings
             .minimap_content
             .write(&mut minimap_fields, &mut options_fields)?;
+        self.settings.recent_songs.write_options(&mut options_fields)?;
         let mut root = self.root.clone();
+        self.settings.recent_songs.write(&mut root);
         if self.settings.advanced_save != self.written.advanced_save { self.settings.advanced_save.write(&mut root); }
         let mut key_fields=self.group_fields("KeyBinds")?;
         self.settings.key_bindings.write(&mut key_fields)?;

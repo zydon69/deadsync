@@ -1,0 +1,42 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sdk": "10.0.403",
+  "scope": "Unchanged full ActionChangeNoteType, fourteen original UI one-way conversion methods and six EventConfig factory bodies. Explicit event/storage/factory-dispatch and inert-clock adapters. Real Fumen SM/SSC serialization and full note readback. No GUI or full EditorChart construction; adapters do not prove attribute preservation or general comparator ties.",
+  "original_sources_sha256": {
+    "UI/UIEditEvents.cs": "08352aa85c8479d41fe6b85b32051249479e3b2425482a7221f52718b3eeecc8",
+    "EditorEvents/EventConfig.cs": "1ce38ee70e2beb234c6badc8e1315ec2e447c23c5f62ceb87d900f1e5e83ed52",
+    "EditorActions/ActionChangeNoteType.cs": "9407a2f3f04a359f98946ddd15b9eeff5a6d733b59f0978db5f083568ef33434"
+  },
+  "swaps_sha256": [
+    "6c2e152484e66cda4b17337a7e2510e3c9169421a1bc312798b341545fd1b18f",
+    "3f166d5f771562a5f744f07b6a5fcab298c768d26479d40090b4cf135bd8a7d4",
+    "ade6181f521e02bba4012636af482d37b153ccc1bf5862fd4c5e7277ac7627e7",
+    "6e22514c181ca0c03afd64e2c1ea42c0e4748093dcd1e469a9d43f3722eaf6b6",
+    "7f29d9368eb6b069cc47f3dc27ad2f02f4a50716f8387737957f01ff2b363187",
+    "9b626c0872be14cf2e2d81e5109182f68f4d533008fc4febc52fd29cf6537085",
+    "1cc263b7d547e0b074f604aed4514884227fd951dd3f1704b68bf90a18eaac0d",
+    "eaf1ded8476d6a618698f9e64ddeab8f63b04ac817c89b96b85a37ecba96c7ad",
+    "1d76607b958eba653e2f95bc958614e1a8e3889b9cda1e7b49c1b05709370ce2",
+    "1fd6f9dd64b065fcdd098ffaa80b9be1b390d8fc574c825b33e3579e73629aac",
+    "7ca43419b53d75b3bff2f90c7894a76aa79748aea7a37ec92471831b7f31d649",
+    "2c71ce3b5a77f5f6b0e03e9bc8fdc41f85917c370a8a3211b630721fc0c0c736",
+    "64f7cb4f4e884260596700bfc7ce1136bccdea3b4105670919006f4d5b3fe9c0",
+    "9905d00b31ca1da20ee7b89a27ed0c855aebbfdaa2c1a1430070f7d895a6feef"
+  ],
+  "factories_sha256": [
+    "560aac03f02ce0f26c5d8eedb501fae5d1dc2681510e4fda8596527062aa8891",
+    "66757670c76dd8c7c2ae18222e6e354cdbde66074e6a0dbde79a781e41a35a65",
+    "1318d490233ce52d7b33787bd3b6def64b35fde387ced87aaf66cb69cf105aad",
+    "ebd0227870b465a3c06768edf1e94e425f2b9a4907c64d83eb5a6cff5b162b34",
+    "7641b3ba89eddd008961e3202420dadda78620a2a1c5c9f9a593db072721a21b",
+    "2136f5d408fb8cf879a0f23906d0b8e3b4d9d371e418c95a7290d3648e4f7641"
+  ],
+  "adapter_template_sha256": "01be5136516b0cc4b49bdd587cce9b39a2cd66b3317f71a94d821548c79b8019",
+  "adapter_sha256": "ddda1b38ad08fb7254039e938860ca80438688073c6c3637e97c76e863ab337a",
+  "program_sha256": "f76e45d757ce6704d62fb6bb30e6e50f1f43e80d4a69e378db43146077d2ce21",
+  "assembly_sha256": "19810631cb320cd188d4b8936eede0b25db3f4ce6253806f1563315ce256046c",
+  "request_sha256": "fb0ba4076ebdc5b0d00b2e1606aa433040379d476defaab770d026fe99b4d4fe",
+  "expected_sha256": "a92833664fe554bd037a39dbd5ad76b4bde3aefbe697e2cb7302b58b1ecce8d0"
+}

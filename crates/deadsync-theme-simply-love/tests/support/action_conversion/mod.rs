@@ -41,7 +41,7 @@ fn unrepresentable_note_swap_is_atomic_and_escape_preserves_redo(){
     let source=b"#VERSION:0.83;#TITLE:Swap;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1200\n0300;";
     fs::write(&path,source).unwrap();let mut s=State::open(&path,0).unwrap();
     open_swap(&mut s,6);press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::Enter);
-    assert_eq!(serialized(&s),source);assert!(text(&s,"NoteSwapFailed"));
+    assert_eq!(serialized(&s),source);assert!(text(&s,"NoteSwapZeroSustain"));
     assert!(!s.workspace().file().session.is_dirty());assert!(s.workspace().file().session.undo_label().is_none());
     press(&mut s,KeyCode::Escape);press(&mut s,KeyCode::Escape);assert_eq!(fs::read(path).unwrap(),source);
 }
@@ -62,10 +62,32 @@ fn timing_collision_requires_individual_acknowledgement_before_deletion(){
     init();let dir=tempfile::tempdir().unwrap();let path=dir.path().join("timing.ssc");
     let source=b"#VERSION:0.83;#TITLE:Timing;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};#BPMS:0=60;#WARPS:4=1,8=1;#STOPS:4=2,8=3;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
     fs::write(&path,source).unwrap();let mut s=State::open(&path,0).unwrap();open_timing(&mut s);
-    press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::Enter);assert_eq!(serialized(&s),source);
+    press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::Enter);assert_eq!(serialized(&s),source);assert!(text(&s,"TimingConversionMissingReview"));
     press(&mut s,KeyCode::ArrowUp);press(&mut s,KeyCode::Enter);press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::Enter);assert_eq!(serialized(&s),source);
     press(&mut s,KeyCode::ArrowUp);press(&mut s,KeyCode::Enter);press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::Enter);
     assert_eq!(s.workspace().file().session.document().text(None,"WARPS").as_deref(),Some(""));
     assert_eq!(s.workspace().file().session.document().text(None,"STOPS").as_deref(),Some("4=2,8=3"));
+    ctrl(&mut s,KeyCode::KeyZ);assert_eq!(serialized(&s),source);
+}
+
+#[test]
+fn zero_stop_refusal_is_localized_and_never_publishes_a_partial_conversion(){
+    init();let dir=tempfile::tempdir().unwrap();let path=dir.path().join("zero.ssc");
+    let source=b"#VERSION:0.83;#TITLE:Timing;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};#BPMS:0=60;#WARPS:1=3,2=1;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path,source).unwrap();let mut s=State::open(&path,0).unwrap();open_timing(&mut s);
+    assert!(text(&s,"TimingConversionZeroStop"));assert_eq!(serialized(&s),source);assert!(!s.workspace().file().session.is_dirty());assert!(s.workspace().file().session.undo_label().is_none());
+    press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::Enter);
+    assert!(text(&s,"TimingConversionPrepareFirst"));assert_eq!(fs::read(path).unwrap(),source);
+}
+#[test]
+fn negative_stop_rounding_uses_original_one_row_warp_constructor_minimum(){
+    init();let dir=tempfile::tempdir().unwrap();let path=dir.path().join("tiny.ssc");
+    let source=b"#VERSION:0.83;#TITLE:Timing;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};#BPMS:0=60;#STOPS:1=-0.00001;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path,source).unwrap();let mut s=State::open(&path,0).unwrap();
+    press(&mut s,KeyCode::F10);press(&mut s,KeyCode::F7);press(&mut s,KeyCode::ArrowRight);
+    press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::ArrowRight);press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::Enter);
+    press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::ArrowDown);press(&mut s,KeyCode::Enter);
+    let warps=deadsync_editor::timing_edit::region::Regions::parse(deadsync_editor::timing_edit::region::Kind::Warp,&s.workspace().file().session.document().text(None,"WARPS").unwrap()).unwrap();assert_eq!(warps.values().get(&48),Some(&1));
+    let after=serialized(&s);ctrl(&mut s,KeyCode::KeyS);let reopened=State::open(&path,0).unwrap();assert_eq!(serialized(&reopened),after);
     ctrl(&mut s,KeyCode::KeyZ);assert_eq!(serialized(&s),source);
 }

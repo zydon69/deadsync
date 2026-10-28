@@ -1,0 +1,31 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "sdk": "10.0.403",
+  "scope": "Five unchanged ActiveEditorChart SelectAll methods, complete original Selection, original IsSelectable methods of nine event classes. Explicit inert event/tree adapters; original menu predicates checked against UI text. This proves additive membership and last-selection behavior, not GUI or Fumen serialization.",
+  "source_sha256": {
+    "ActiveEditorChart.cs": "60bde1681bba77f08a7c4d772c247c0b6725901fd8b0e2225f3e02e5d728ac3a",
+    "Selection.cs": "e7090aab08b8677ee724f0502c520ffebf0c39f7e449cc6f4fd4d53df45ffd46",
+    "UI/UIEditEvents.cs": "5d3efae956507e98594a8885f259a6182d61c0c75722f658a6a0cea1ee91885b",
+    "EditorEvents/EditorTapNoteEvent.cs": "f671f80542f2f23ae51d4c0a242385b66d7ab7252fd7aac6682a0cc92fc29604",
+    "EditorEvents/EditorMineNoteEvent.cs": "c6e7c0c4a70604df04006ef24703254fe5b870a1a1847e00ebfda2bc3546e716",
+    "EditorEvents/EditorFakeNoteEvent.cs": "b5924bec840760118ea84c41d9e3b6ad3c1e47be457ff8af8ae8bd0bfcb8b973",
+    "EditorEvents/EditorLiftNoteEvent.cs": "f64b5343dc40bf2b6902896f73145f9ab2e1fd73b5ed96e7f89a837da75defd6",
+    "EditorEvents/EditorHoldNoteEvent.cs": "f96a616508c6e616cf98a8dbedf2ab8ecbd99b901ddaafae644aa41c61310aab",
+    "EditorEvents/EditorPatternEvent.cs": "c4b41425fb9d78c4030edf3d7a681c44ce3cbd25e0a65c2659b99f1b18989f34",
+    "EditorEvents/EditorTempoEvent.cs": "1a4574baca02a8703320921c0d6f20fd65ae9a382455ec493afb0db33ea4d667",
+    "EditorEvents/EditorStopEvent.cs": "0c24d8f4334c9d6886a5f090aff5acdcb0e210584fdcfcd73a396ed5ba5f5680",
+    "EditorEvents/EditorAttackEvent.cs": "07f72d72d572ecce5751b3e756dc1ebf2a9825e5f9a21d4af66bd79dbf621aba"
+  },
+  "method_sha256": [
+    "31d8cc6fb65bf88b5447b932597fb8e3c527f5ea9f5cdfbebd4876252be09150",
+    "5f8b02aa4e05c500e349b8da57b3d8ab2103d055ef5f5c0b605309a3f3f92f2d",
+    "9ec86acc3634cc2f05f1d5b7e4e7aedf48b91da475a823ed31d23fcf90b5aab6",
+    "947043c8c921cb03e58c19669f58886ef7514fc108e3ebbc0639dc07d1bcbf87",
+    "e89eb6c2991c0552e7beb10da46c9eec78602e34db40423cf9ae50a2bd41a08a"
+  ],
+  "adapter_sha256": "87829288b460bc34549b7c179c1dc6cf0ec842d46230f1f76062c75bb43c7aa5",
+  "program_sha256": "431046dead698606f126fee45e2632cfdbf8a1a267e223dbce4320e48126c27d",
+  "assembly_sha256": "d84741e8fa5ca111fba2084267d9d8e7641317af6a5af76233237c062985353c",
+  "request_sha256": "2aea08e9e1d8b32011cfacb233a0dc60bdfd649b65e59b07d4e0d96f4b51c623",
+  "expected_sha256": "e1827b8447527c192dc427ce137f87f374579aaba8e8ee7496c9ecf7a897b1ff"
+}

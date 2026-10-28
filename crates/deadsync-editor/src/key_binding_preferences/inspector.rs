@@ -97,6 +97,13 @@ impl Draft {
         self.alternative = self.alternative.min(self.alternatives().len() - 1);
         Ok(())
     }
+    /// A preset/import is a detached global draft until its existing Save step.
+    pub fn stage_profile(&mut self, next: Preferences) -> Result<(), Error> {
+        next.validate()?;
+        self.staged = Arc::new(next);
+        self.alternative = 0;
+        Ok(())
+    }
     pub fn replace(&mut self, keys: Vec<String>) -> Result<(), Error> {
         let index = self.alternative;
         self.update(|alternatives| alternatives[index] = keys)
@@ -142,6 +149,27 @@ pub fn merge(
         result
             .commands
             .insert(id.into(), after.commands[id].clone());
+    }
+    if before.source_order != after.source_order
+        || before.source_import_raw != after.source_import_raw
+        || before.source_blockers != after.source_blockers
+    {
+        if current.source_order != before.source_order {
+            return Err(Error::ExternalChange);
+        }
+        result.source_order = after.source_order;
+    }
+    if before.source_import_raw != after.source_import_raw {
+        if current.source_import_raw != before.source_import_raw {
+            return Err(Error::ExternalChange);
+        }
+        result.source_import_raw = after.source_import_raw.clone();
+    }
+    if before.source_blockers != after.source_blockers {
+        if current.source_blockers != before.source_blockers {
+            return Err(Error::ExternalChange);
+        }
+        result.source_blockers = after.source_blockers.clone();
     }
     result.validate()?;
     Ok(result)

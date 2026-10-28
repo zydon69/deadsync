@@ -1,0 +1,16 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "LibraryCommit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourcesSha256": {
+    "UI/UIEditEvents.cs": "5d3efae956507e98594a8885f259a6182d61c0c75722f658a6a0cea1ee91885b",
+    "EditorEvents/EventConfig.cs": "58ca7ecc67ba4ada93df51e4499d2defadf565e7e7934adea484e2d8e5dfb816",
+    "EditorPosition.cs": "67cb938ce0b597bb46d4b1c3c94c735a2a22a6befbfafa8b39d7e8deb2c5f0b3",
+    "EditorEvents/EditorPatternEvent.cs": "c4b41425fb9d78c4030edf3d7a681c44ce3cbd25e0a65c2659b99f1b18989f34",
+    "EditorChart.cs": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd",
+    "AutogenConfig/PatternConfigManager.cs": "0a45b62c9f8ced7daf42ad602ac4b6ef20e97b79f1da7e0d3e04acefcf8717fb",
+    "AutogenConfig/PerformedChartConfigManager.cs": "7633568f44f9f5ffbf70b03be54d6ac5e44e94a9fb9ad60bb9e01a602a3880b8"
+  },
+  "AdapterSha256": "7bd729bb4a2cb2955fda02e027a68a618a41a9f15daf8c3f16b2b21e17530369",
+  "Scope": "Unchanged UI factories, EventConfig factories, nearest row, exact-type collision predicate, and original pattern constructor; Fumen concrete event models; chart ownership/tempo/render adapter only. No writer roundtrip claim."
+}

@@ -1,7 +1,11 @@
 //! Compact native editor screen. The document and every edit command live in
 //! deadsync-editor; this module owns presentation, shortcuts, and exit prompts.
 mod analysis_panel;
+mod file_controller;
+mod file_menu;
+mod file_recent;
 mod save_as;
+mod output_ui;
 mod zoom_view;
 mod spacing_view;
 mod zoom_settings;
@@ -14,6 +18,10 @@ mod chart_rating;
 mod display_tempo;
 mod profile_edit;
 mod note_conversion;
+mod note_operation_review;
+mod shift_all;
+mod quick_add;
+mod selected_transform_review;
 mod timing_conversion;
 mod note_attributes;
 mod note_attributes_typed;
@@ -24,6 +32,7 @@ mod chart_views;
 mod chart_event_copy;
 mod pack_properties;
 mod pack_song_list;
+mod file_open_permit;
 mod pack_song_load;
 mod pack_song_preference;
 mod end_hint;
@@ -103,6 +112,7 @@ use std::{
 
 #[derive(Clone, Copy)]
 enum Panel {
+    FileMenu(usize), FileOpen(usize), FileRecent(usize), FileUnsaved(usize), FileDiscard, FileLoading,
     Analysis,
     ChartList,
     ChartEventCopy,
@@ -111,16 +121,23 @@ enum Panel {
     NewChart(usize),
     DeleteChart(usize),
     EmptyMenu(usize),
+    OutputSettings(usize),
+    OutputLoss(usize),
     SaveAsDestination(usize),
     SaveAsReview(usize),
     SaveAsPending(usize),
     Menu(usize),
     Transforms(usize),
     NoteConversion(usize),
+    NoteOperationReview(usize),
+    ShiftAll(usize),
+    QuickAdd(usize),
+    SelectedTransformReview(usize),
     TimingConversion(usize),
     NoteAttributes(usize),
     Attacks(usize),
     EventSelection,
+    SelectionPresets(usize),
     NoteOwners(usize),
     Unsaved(usize),
     ConfirmDiscard,
@@ -331,6 +348,10 @@ pub struct State {
     display_tempo_input: Option<(usize, String)>,
     profile_edit: Option<profile_edit::Draft>,
     note_conversion: note_conversion::Settings,
+    note_operation_review: note_operation_review::Settings,
+    shift_all: shift_all::Settings,
+    quick_add: quick_add::Settings,
+    selected_transform_review: selected_transform_review::Settings,
     timing_conversion: timing_conversion::Settings,
     note_attributes: Option<deadsync_editor::note_attributes::Draft>,
     note_attribute_lane: u16,
@@ -396,6 +417,8 @@ pub struct State {
     chart_label: Arc<str>,
     auto_recovery: deadsync_editor::storage::AutoRecovery,
     save_as: save_as::Ui,
+    output_ui: output_ui::Ui,
+    file_menu: file_menu::Ui,
 }
 
 impl State {
@@ -513,6 +536,10 @@ impl State {
             display_tempo_input: None,
             profile_edit: None,
             note_conversion: Default::default(),
+            note_operation_review: Default::default(),
+            shift_all: Default::default(),
+            quick_add: Default::default(),
+            selected_transform_review: Default::default(),
             timing_conversion: Default::default(),
             note_attributes: None,
             note_attribute_lane: 0,
@@ -581,6 +608,8 @@ impl State {
             chart_label: Arc::from(""),
             auto_recovery: Default::default(),
             save_as: Default::default(),
+            output_ui: Default::default(),
+            file_menu: Default::default(),
         };
         state.refresh();
         if let Some(path) = deadsync_editor::runtime::preferences_path() {
@@ -1194,7 +1223,7 @@ impl State {
     /// Update using the host's monotonic frame clock, also permitting
     /// deterministic animation checks without sleeps or hardware input.
     pub fn update_with_time(&mut self, now: std::time::Instant) {
-        let recovery=if self.save_as_modal() {self.auto_recovery.poll_pending()} else {self.auto_recovery.update(self.workspace.file(), now)};
+        let recovery=if self.save_as_modal()||self.file_modal() {self.auto_recovery.poll_pending()} else {self.auto_recovery.update(self.workspace.file(), now)};
         if let Err(error)=recovery {self.recovery_error(error);}
         self.zoom.update(now.saturating_duration_since(self.zoom_epoch).as_secs_f64())
             .expect("finite monotonic frame clock");
@@ -1402,8 +1431,8 @@ impl State {
         self.refresh_sample_region();
         if !self.workspace.has_chart() {
             self.saved_regions.clear(); self.region_index=Default::default(); self.labels=None; self.signatures=None; self.marker_cache=None;
-            self.chart_label=i18n::tr("Edition", "NoActiveChart");
-            self.toolbar=i18n::tr_fmt("Edition", "NoChartToolbar", &[("dirty", if self.workspace.file().session.is_dirty(){" *"}else{""})]);
+            self.chart_label=i18n::tr("Edition",if self.workspace.file().requires_save_as(){"FileUntitledNoChart"}else{"NoActiveChart"});
+            self.toolbar=i18n::tr_fmt("Edition", "NoChartToolbar", &[("dirty", if self.workspace.file().has_unsaved_document(){" *"}else{""}),("save_keys",&self.command_binding_label(deadsync_editor::key_binding_preferences::Action::Save)),("undo_keys",&self.command_binding_label(deadsync_editor::key_binding_preferences::Action::Undo)),("new_keys",&self.command_binding_label(deadsync_editor::key_binding_preferences::Action::NewChart))]);
             return;
         }
         let session = &self.workspace.file().session;
@@ -1435,7 +1464,7 @@ impl State {
                 .expect("validated pattern metadata regions");
             self.marker_cache = Some((Arc::clone(source), session.revision(), chart));
         }
-        let dirty = if self.workspace.file().session.is_dirty() {
+        let dirty = if self.workspace.file().has_unsaved_document() {
             " *"
         } else {
             ""
@@ -1444,6 +1473,8 @@ impl State {
             "Edition",
             "Toolbar",
             &[
+                ("save_keys",&self.command_binding_label(deadsync_editor::key_binding_preferences::Action::Save)),
+                ("undo_keys",&self.command_binding_label(deadsync_editor::key_binding_preferences::Action::Undo)),
                 ("dirty", dirty),
                 (
                     "beat",
@@ -1493,8 +1524,10 @@ impl State {
     }
 
     fn command(&mut self, command: Command) {
+        if self.file_io_active() && matches!(command,Command::Save|Command::SaveRecovery|Command::Recover){self.status=i18n::tr("Edition","FileBusy");return;}
         if self.save_as_modal() && matches!(command,Command::Save|Command::SaveRecovery|Command::Recover) {self.status=i18n::tr("Edition","SaveAsBusy");return;}
         if matches!(command,Command::Save|Command::SaveRecovery|Command::Recover) && self.save_as_pending_guard() {return;}
+        if matches!(command,Command::Save) && self.workspace.file().requires_save_as() {self.open_save_as();return;}
         self.lane_entry_command(command);
         if matches!(command, Command::Recover)
             && (self.pack_has_unsaved_changes() || self.pack_has_pending_durability())
@@ -1516,6 +1549,7 @@ impl State {
             self.paste_selected_events();
             return;
         }
+        if matches!(command,Command::Save){self.output_save_current(false);return;}
         let before_revision = self.workspace.file().session.revision();
         match self.workspace.execute(command) {
             Ok(()) => {
@@ -1604,7 +1638,7 @@ impl State {
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
         let repeating_text_cursor = matches!(
-            self.panel, Some(Panel::SaveAsDestination(0) | Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::Attacks(_) | Panel::ProfileText | Panel::PackProperties)
+            self.panel, Some(Panel::FileOpen(0) | Panel::SaveAsDestination(0) | Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::Attacks(_) | Panel::ProfileText | Panel::PackProperties)
         )
             && matches!(
                 event.code,
@@ -1631,15 +1665,6 @@ impl State {
         {
             return false;
         }
-        if self.control && self.shift && event.code == KeyCode::KeyY && self.panel.is_none() {
-            self.open_chart_event_copy();
-            return false;
-        }
-        if self.control && self.shift && event.code == KeyCode::KeyE && self.panel.is_none() {
-            self.stop_audio();
-            self.open_event_selection();
-            return false;
-        }
         if self.control && event.code == KeyCode::KeyP
             && matches!(self.panel, None | Some(Panel::Marker(_)))
         {
@@ -1648,59 +1673,19 @@ impl State {
             return false;
         }
         if self.panel.is_some() {
-            return self.panel_key(event.code);
-        }
-        if self.chart_views_key(event.code) { return false; }
-        if self.shift && !self.control && event.code == KeyCode::KeyS {
-            self.open_scroll_settings(); return false;
+            let close=self.panel_key(event.code);
+            return close || self.take_file_close();
         }
         if !self.workspace.has_chart() {
             self.stop_audio();
             return self.no_chart_key(event.code);
         }
-        if self.shift && !self.control && event.code == KeyCode::KeyZ { self.open_zoom_settings(); return false; }
-        if self.shift && !self.control && event.code == KeyCode::KeyV { self.toggle_reverse_display(); return false; }
-        if self.control && event.code == KeyCode::KeyT { self.toggle_spacing_mode(self.shift); return false; }
-        if self.zoom_key(event) { return false; }
-        if !self.control && matches!(event.code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
-            self.navigate_snap((event.code == KeyCode::ArrowDown) != self.reverse_display);
-            return false;
-        }
         if self.lane_entry_key(event) {return false;}
         self.stop_audio();
-        if self.control && matches!(event.code, KeyCode::Enter | KeyCode::NumpadEnter) {
-            self.open_attack_at_cursor();
-            return false;
-        }
-        if self.control && event.code == KeyCode::KeyJ {
-            self.navigate_attack(!self.shift);
-            return false;
-        }
         if event.code == KeyCode::Escape || event.code == KeyCode::F2 {
             return self.request_close();
         }
-        let command = if self.control {
-            match event.code {
-                KeyCode::KeyC if self.shift => Some(Command::CopyEvents),
-                KeyCode::KeyX if self.shift => Some(Command::CutEvents),
-                KeyCode::KeyV if self.shift => Some(Command::PasteEvents),
-                _ => None,
-            }
-        } else {
-            match event.code {
-                KeyCode::KeyA => Some(Command::ToggleAutoAdvance),
-                KeyCode::Tab => {
-                    let index = TOOLS
-                        .iter()
-                        .position(|&tool| tool == self.workspace.tool())
-                        .unwrap_or(0);
-                    Some(Command::SelectTool(
-                        TOOLS[(index + if self.shift { TOOLS.len() - 1 } else { 1 }) % TOOLS.len()],
-                    ))
-                }
-                code => lane_for_key(code).map(Command::Place),
-            }
-        };
+        let command = if self.control { None } else { lane_for_key(event.code).map(Command::Place) };
         if let Some(command) = command {
             if !event.repeat
                 || matches!(command,
@@ -1715,22 +1700,17 @@ impl State {
     }
 
     pub(super) fn request_close(&mut self) -> bool {
-        if self.save_as_pending_guard() {return false;}
-        if self.pack_has_unsaved_changes() || self.pack_has_pending_durability() {
-            self.open_pack_properties();
-            self.status = i18n::tr("Edition", "PackCloseGuard");
-            return false;
-        }
-        if self.workspace.file().session.is_dirty() {
-            self.panel = Some(Panel::Unsaved(0));
-            false
-        } else {
-            true
-        }
+        if self.save_as_pending_guard(){return false;}
+        if self.pack_has_unsaved_changes()||self.pack_has_pending_durability(){self.open_pack_properties();self.status=i18n::tr("Edition","PackCloseGuard");return false;}
+        self.request_file_close()
     }
 
     fn panel_key(&mut self, code: KeyCode) -> bool {
         let panel = self.panel.unwrap();
+        if matches!(panel, Panel::Transforms(_)) && code == KeyCode::F8 { self.open_selected_transform_review(false); return false; }
+        if let Panel::FileMenu(index)|Panel::FileOpen(index)|Panel::FileRecent(index)|Panel::FileUnsaved(index)=panel{return self.file_menu_key(index,code);}
+        if matches!(panel,Panel::FileDiscard|Panel::FileLoading){return self.file_menu_key(0,code);}
+        if let Panel::OutputSettings(index)|Panel::OutputLoss(index)=panel {self.output_key(index,code);return false;}
         if let Panel::SaveAsDestination(index)|Panel::SaveAsReview(index)|Panel::SaveAsPending(index)=panel {self.save_as_key(index,code);return false;}
         if matches!(panel, Panel::PackSongList) { self.pack_song_list_key(code); return false; }
         if matches!(panel, Panel::PackProperties) { self.pack_properties_key(code); return false; }
@@ -1740,7 +1720,12 @@ impl State {
         if let Panel::Attacks(index) = panel { self.attacks_key(index, code); return false; }
         if let Panel::NoteAttributes(index) = panel { self.note_attributes_key(index, code); return false; }
         if let Panel::NoteOwners(index) = panel { self.note_owners_key(index, code); return false; }
+        if let Panel::SelectionPresets(index) = panel { self.selection_presets_key(index, code); return false; }
         if let Panel::TimingConversion(index) = panel { self.timing_conversion_key(index, code); return false; }
+        if let Panel::SelectedTransformReview(index) = panel { self.selected_transform_review_key(index, code); return false; }
+        if let Panel::QuickAdd(index) = panel { self.quick_add_key(index, code); return false; }
+        if let Panel::ShiftAll(index) = panel { self.shift_all_key(index, code); return false; }
+        if let Panel::NoteOperationReview(index) = panel { self.note_operation_review_key(index, code); return false; }
         if let Panel::NoteConversion(index) = panel { self.note_conversion_key(index, code); return false; }
         if let Panel::ProfileWeights(index) = panel { self.profile_weights_key(index, code); return false; }
         if let Panel::ProfileDelete(index) = panel { self.profile_delete_key(index, code); return false; }
@@ -1861,10 +1846,16 @@ impl State {
             Panel::EventSelection => unreachable!("event selection dispatched above"),
             Panel::ChartList => unreachable!("chart list dispatched above"),
             Panel::ChartEventCopy => unreachable!("chart event copy dispatched above"),
+            Panel::FileMenu(_)|Panel::FileOpen(_)|Panel::FileRecent(_)|Panel::FileUnsaved(_)|Panel::FileDiscard|Panel::FileLoading=>unreachable!("File panels dispatched above"),
             Panel::PackProperties => unreachable!("pack properties dispatched above"),
             Panel::PackSongList => unreachable!("pack song list dispatched above"),
             Panel::NoteAttributes(_) => unreachable!("note inspector dispatched above"),
+            Panel::SelectionPresets(_) => unreachable!("selection presets dispatched above"),
             Panel::TimingConversion(_) => unreachable!("timing conversion dispatched above"),
+            Panel::SelectedTransformReview(_) => unreachable!("selected transform review dispatched above"),
+            Panel::QuickAdd(_) => unreachable!("quick-add dispatched above"),
+            Panel::ShiftAll(_) => unreachable!("quick-add dispatched above"),
+            Panel::NoteOperationReview(_) => unreachable!("note operation review dispatched above"),
             Panel::NoteConversion(_) => unreachable!("note conversion dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
             Panel::ProfileEdit(_) => unreachable!("expression editing dispatched above"),
@@ -1926,7 +1917,7 @@ impl State {
             Panel::WaveformColors(_) => unreachable!("waveform colours dispatched above"),
             Panel::WaveformSettings(_) => unreachable!("waveform settings dispatched above"),
             Panel::ScrollSettings(_) => unreachable!("scroll settings dispatched above"),
-            Panel::SaveAsDestination(_)|Panel::SaveAsReview(_)|Panel::SaveAsPending(_)=>unreachable!("Save As dispatched above"),
+            Panel::OutputSettings(_)|Panel::OutputLoss(_)|Panel::SaveAsDestination(_)|Panel::SaveAsReview(_)|Panel::SaveAsPending(_)=>unreachable!("Save As dispatched above"),
             Panel::MinimapOptions(_) | Panel::MinimapSettings(_) => unreachable!("minimap settings dispatched above"),
             Panel::ReceptorSettings(_) => unreachable!("receptor settings dispatched above"),
             Panel::KeyBindingSettings(_) => unreachable!("key binding settings dispatched above"),
@@ -2299,7 +2290,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 24,
+                    Panel::Menu(_) => 26,
                     Panel::Transforms(_) => 12,
                     _ => 3,
                 };
@@ -2324,25 +2315,19 @@ impl State {
                             return false;
                         }
                         if index == 10 {
-                            self.note_owners.count = self.workspace.grid().players();
-                            self.note_owners.a = self.workspace.player();
-                            self.note_owners.b = (self.workspace.player() + 1) % self.workspace.grid().players();
-                            self.panel = Some(Panel::NoteOwners(0));
-                            self.status = i18n::tr("Edition", "NoteOwnersHelp");
+                            self.command_open_note_owners();
                             return false;
                         }
                         if index == 9 {
-                            self.note_conversion.duration = self.workspace.snap();
-                            self.panel = Some(Panel::NoteConversion(0));
-                            self.status = i18n::tr("Edition", "NoteConversionHelp");
+                            self.command_open_note_conversion();
                             return false;
                         }
                         use deadsync_editor::transform::Transform;
                         let transform = match index {
                             0 => Transform::Mirror,
                             1 => Transform::Flip,
-                            2 => Transform::ShiftRows(-(deadsync_editor::workspace::snap_edit_rows(self.workspace.snap()) as i64)),
-                            3 => Transform::ShiftRows(deadsync_editor::workspace::snap_edit_rows(self.workspace.snap()) as i64),
+                            2 => Transform::ShiftRows(-(deadsync_editor::workspace::snap_shift_rows(self.workspace.snap()) as i64)),
+                            3 => Transform::ShiftRows(deadsync_editor::workspace::snap_shift_rows(self.workspace.snap()) as i64),
                             4..=7 => Transform::ShiftLanes { right: index % 2 == 1, wrap: index >= 6 },
                             8 => Transform::MirrorAndFlip,
                             _ => unreachable!("bounded transform menu"),
@@ -2385,6 +2370,8 @@ impl State {
                             21 => self.open_note_color_settings(),
                             22 => self.open_save_as(),
                             23 => self.open_key_binding_settings(),
+                            24 => self.open_output_settings(),
+                            25 => self.open_file_menu(),
                             _ => {}
                         }
                     }
@@ -2685,6 +2672,9 @@ impl State {
     }
 
     fn panel_actors(&self, panel: Panel, actors: &mut Vec<Actor>) {
+        if let Panel::FileMenu(index)|Panel::FileOpen(index)|Panel::FileRecent(index)|Panel::FileUnsaved(index)=panel{self.file_menu_actors(index,actors);return;}
+        if matches!(panel,Panel::FileDiscard|Panel::FileLoading){self.file_menu_actors(0,actors);return;}
+        if let Panel::OutputSettings(index)|Panel::OutputLoss(index)=panel {self.output_actors(index,actors);return;}
         if let Panel::SaveAsDestination(index)|Panel::SaveAsReview(index)|Panel::SaveAsPending(index)=panel {self.save_as_actors(index,actors);return;}
         if matches!(panel, Panel::PackSongList) { self.pack_song_list_actors(actors); return; }
         if matches!(panel, Panel::PackProperties) { self.pack_properties_actors(actors); return; }
@@ -2708,10 +2698,11 @@ impl State {
             keys
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
-            Panel::SaveAsDestination(_)|Panel::SaveAsReview(_)|Panel::SaveAsPending(_)=>&[],
+            Panel::FileMenu(_)|Panel::FileOpen(_)|Panel::FileRecent(_)|Panel::FileUnsaved(_)|Panel::FileDiscard|Panel::FileLoading=>&[],
+            Panel::OutputSettings(_)|Panel::OutputLoss(_)|Panel::SaveAsDestination(_)|Panel::SaveAsReview(_)|Panel::SaveAsPending(_)=>&[],
             Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::PackSongList | Panel::MinimapSettings(_) | Panel::MinimapOptions(_) | Panel::ReceptorSettings(_) | Panel::NoteColorSettings(_) | Panel::KeyBindingSettings(_) => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
-            Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close", "PackPropertiesOpen", "PackSongsOpen", "SaveAsOpen"],
+            Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close", "PackPropertiesOpen", "PackSongsOpen", "SaveAsOpen", "OutputOpen", "FileMenuTitle"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
             Panel::Menu(_) => &[
                 "Resume",
@@ -2738,6 +2729,8 @@ impl State {
                 "NoteColorSettingsOpen",
                 "SaveAsOpen",
                 "KeyBindingSettingsOpen",
+                "OutputOpen",
+                "FileMenuTitle",
             ],
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen", "NoteOwnersOpen", "NoteAttributesOpen"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
@@ -2801,7 +2794,12 @@ impl State {
             Panel::Attacks(_) => &["AttackScope", "AttackEvent", "AttackModifier", "AttackTime", "AttackName", "AttackLevel", "AttackSpeed", "AttackLength", "AttackAddModifier", "AttackDeleteModifier", "AttackAddEvent", "AttackDeleteEvent", "AttacksApply", "AttacksCancel"],
             Panel::NoteAttributes(_) if self.note_attribute_typed => &["NoteAttributesLane", "NoteAttributesEndpoint", "NoteAttributesVisibility", "NoteAttributesFake", "NoteAttributesReserved", "NoteAttributesRaw", "NoteAttributesApply", "NoteAttributesCancel"],
             Panel::NoteAttributes(_) => &["NoteAttributesLane", "NoteAttributesHead", "NoteAttributesTail", "NoteAttributesApply", "NoteAttributesCancel"],
+            Panel::SelectionPresets(_) => &["SelectionPresetsType", "SelectionPresetsPlayer", "SelectionPresetsMode", "SelectionPresetsApply", "KeepEditing"],
             Panel::TimingConversion(_) => &["TimingConversionDirection", "TimingConversionScope", "TimingConversionReview", "TimingConversionCollision", "TimingConversionApply", "KeepEditing"],
+            Panel::SelectedTransformReview(_) => &["SelectedTransformOperation", "NoteOperationScope", "SelectedTransformPlayerA", "SelectedTransformPlayerB", "SelectedTransformPrepare", "SelectedTransformEffect", "SelectedTransformApply", "KeepEditing"],
+            Panel::QuickAdd(_) => &["QuickAddKind","QuickAddRow","QuickAddPrepare","QuickAddApply","KeepEditing"],
+            Panel::ShiftAll(_) => &["ShiftAllDirection","ShiftAllPrepare","ShiftAllApply","KeepEditing"],
+            Panel::NoteOperationReview(_) => &["NoteOperationKind", "NoteOperationScope", "NoteOperationPrepare", "NoteOperationApply", "KeepEditing"],
             Panel::NoteConversion(_) => &["NoteConversionFrom", "NoteConversionTo", "NoteConversionDuration", "NoteConversionApply", "KeepEditing", "NoteSwapPair", "NoteSwapApply"],
             Panel::ConversionProfiles(_) => &[
                 "GenerationPerformedProfile",
@@ -2886,7 +2884,7 @@ impl State {
             Panel::GenerationPreview(_) => &["GenerationApply", "GenerationDiscard"],
         };
         let selected = match panel {
-            Panel::SaveAsDestination(i)|Panel::SaveAsReview(i)|Panel::SaveAsPending(i)
+            Panel::OutputSettings(i)|Panel::OutputLoss(i)|Panel::SaveAsDestination(i)|Panel::SaveAsReview(i)|Panel::SaveAsPending(i)
             | Panel::EmptyMenu(i)
             | Panel::DeleteChart(i)
             | Panel::NewChart(i)
@@ -2894,7 +2892,12 @@ impl State {
             | Panel::NoteOwners(i)
             | Panel::Attacks(i)
             | Panel::NoteAttributes(i)
+            | Panel::SelectionPresets(i)
             | Panel::TimingConversion(i)
+            | Panel::SelectedTransformReview(i)
+            | Panel::QuickAdd(i)
+            | Panel::ShiftAll(i)
+            | Panel::NoteOperationReview(i)
             | Panel::NoteConversion(i)
             | Panel::Transforms(i)
             | Panel::Unsaved(i)
@@ -3117,8 +3120,18 @@ impl State {
                 self.attack_label(index, key)
             } else if matches!(panel, Panel::NoteAttributes(_)) {
                 self.note_attributes_label(index, key)
+            } else if matches!(panel, Panel::SelectionPresets(_)) {
+                self.selection_presets_label(index, key)
             } else if matches!(panel, Panel::TimingConversion(_)) {
                 self.timing_conversion_label(index, key)
+            } else if matches!(panel, Panel::SelectedTransformReview(_)) {
+                self.selected_transform_review_label(index, key)
+            } else if matches!(panel, Panel::QuickAdd(_)) {
+                self.quick_add_label(index, key)
+            } else if matches!(panel, Panel::ShiftAll(_)) {
+                self.shift_all_label(index, key)
+            } else if matches!(panel, Panel::NoteOperationReview(_)) {
+                self.note_operation_review_label(index, key)
             } else if matches!(panel, Panel::NoteConversion(_)) {
                 self.note_conversion_label(index, key)
             } else if matches!(panel, Panel::ProfileEdit(_)) {

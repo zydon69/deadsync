@@ -112,9 +112,7 @@ impl State {
         let path = self
             .workspace
             .file()
-            .path()
-            .parent()
-            .unwrap_or(std::path::Path::new("."))
+            .resource_base()
             .join(music.replace('\\', "/"));
         if self.waveform.key.as_ref().is_some_and(|key| {
             Arc::ptr_eq(&key.source, document.source())

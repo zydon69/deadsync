@@ -1,0 +1,1510 @@
+{
+  "mac": {
+    "Open": [
+      [
+        "LeftWindows",
+        "O"
+      ]
+    ],
+    "OpenContainingFolder": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "O"
+      ]
+    ],
+    "SaveAs": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "S"
+      ]
+    ],
+    "Save": [
+      [
+        "LeftWindows",
+        "S"
+      ]
+    ],
+    "SavePackFile": [
+      []
+    ],
+    "New": [
+      [
+        "LeftWindows",
+        "N"
+      ]
+    ],
+    "Reload": [
+      [
+        "LeftWindows",
+        "R"
+      ]
+    ],
+    "Close": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "F4"
+      ],
+      [
+        "LeftWindows",
+        "LeftShift",
+        "W"
+      ]
+    ],
+    "Exit": [
+      [
+        "LeftWindows",
+        "Q"
+      ]
+    ],
+    "Undo": [
+      [
+        "LeftWindows",
+        "Z"
+      ]
+    ],
+    "Redo": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "Z"
+      ],
+      [
+        "LeftWindows",
+        "Y"
+      ]
+    ],
+    "SelectRowRange": [
+      [
+        "Tab"
+      ]
+    ],
+    "SelectAllNotes": [
+      [
+        "LeftWindows",
+        "A"
+      ]
+    ],
+    "SelectAllTaps": [
+      []
+    ],
+    "SelectAllMines": [
+      []
+    ],
+    "SelectAllFakes": [
+      []
+    ],
+    "SelectAllLifts": [
+      []
+    ],
+    "SelectAllHolds": [
+      []
+    ],
+    "SelectAllRolls": [
+      []
+    ],
+    "SelectAllHoldsAndRolls": [
+      []
+    ],
+    "SelectAllCurrentPlayerNotes": [
+      []
+    ],
+    "SelectAllCurrentPlayerTaps": [
+      []
+    ],
+    "SelectAllCurrentPlayerMines": [
+      []
+    ],
+    "SelectAllCurrentPlayerFakes": [
+      []
+    ],
+    "SelectAllCurrentPlayerLifts": [
+      []
+    ],
+    "SelectAllCurrentPlayerHolds": [
+      []
+    ],
+    "SelectAllCurrentPlayerRolls": [
+      []
+    ],
+    "SelectAllCurrentPlayerHoldsAndRolls": [
+      []
+    ],
+    "SelectAllMiscEvents": [
+      [
+        "LeftWindows",
+        "LeftAlt",
+        "A"
+      ]
+    ],
+    "SelectAll": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "A"
+      ]
+    ],
+    "SelectAllPatterns": [
+      []
+    ],
+    "Copy": [
+      [
+        "LeftWindows",
+        "C"
+      ]
+    ],
+    "Cut": [
+      [
+        "LeftWindows",
+        "X"
+      ]
+    ],
+    "Paste": [
+      [
+        "LeftWindows",
+        "V"
+      ]
+    ],
+    "TogglePreview": [
+      [
+        "P"
+      ]
+    ],
+    "ToggleAssistTick": [
+      [
+        "A"
+      ]
+    ],
+    "ToggleBeatTick": [
+      [
+        "B"
+      ]
+    ],
+    "DecreaseMusicRate": [
+      [
+        "LeftShift",
+        "Left"
+      ]
+    ],
+    "IncreaseMusicRate": [
+      [
+        "LeftShift",
+        "Right"
+      ]
+    ],
+    "PlayPause": [
+      [
+        "Space"
+      ]
+    ],
+    "CancelGoBack": [
+      [
+        "Escape"
+      ]
+    ],
+    "ToggleNoteEntryMode": [
+      [
+        "M"
+      ]
+    ],
+    "ToggleSpacingMode": [
+      [
+        "S"
+      ]
+    ],
+    "TogglePlayer": [
+      [
+        "OemQuestion"
+      ]
+    ],
+    "SetPlayer1": [
+      []
+    ],
+    "SetPlayer2": [
+      []
+    ],
+    "SetPlayer3": [
+      []
+    ],
+    "SetPlayer4": [
+      []
+    ],
+    "ConvertSelectedNotesToPlayer1": [
+      []
+    ],
+    "ConvertSelectedNotesToPlayer2": [
+      []
+    ],
+    "ConvertSelectedNotesToPlayer3": [
+      []
+    ],
+    "ConvertSelectedNotesToPlayer4": [
+      []
+    ],
+    "SwapSelectedPlayer1And2Notes": [
+      []
+    ],
+    "SwapSelectedPlayer1And3Notes": [
+      []
+    ],
+    "SwapSelectedPlayer1And4Notes": [
+      []
+    ],
+    "SwapSelectedPlayer2And3Notes": [
+      []
+    ],
+    "SwapSelectedPlayer2And4Notes": [
+      []
+    ],
+    "SwapSelectedPlayer3And4Notes": [
+      []
+    ],
+    "OpenPreviousChart": [
+      [
+        "LeftWindows",
+        "LeftAlt",
+        "Left"
+      ]
+    ],
+    "OpenNextChart": [
+      [
+        "LeftWindows",
+        "LeftAlt",
+        "Right"
+      ]
+    ],
+    "CloseFocusedChart": [
+      [
+        "LeftWindows",
+        "F4"
+      ],
+      [
+        "LeftWindows",
+        "W"
+      ]
+    ],
+    "KeepChartOpen": [
+      [
+        "LeftWindows",
+        "LeftAlt",
+        "Home"
+      ]
+    ],
+    "MoveFocusedChartLeft": [
+      [
+        "LeftWindows",
+        "LeftAlt",
+        "PageUp"
+      ]
+    ],
+    "MoveFocusedChartRight": [
+      [
+        "LeftWindows",
+        "LeftAlt",
+        "PageDown"
+      ]
+    ],
+    "FocusPreviousChart": [
+      [
+        "LeftWindows",
+        "PageUp"
+      ]
+    ],
+    "FocusNextChart": [
+      [
+        "LeftWindows",
+        "PageDown"
+      ]
+    ],
+    "DecreaseSnap": [
+      [
+        "Left"
+      ]
+    ],
+    "IncreaseSnap": [
+      [
+        "Right"
+      ]
+    ],
+    "MoveUp": [
+      [
+        "Up"
+      ]
+    ],
+    "MoveDown": [
+      [
+        "Down"
+      ]
+    ],
+    "MoveToPreviousRowWithSteps": [
+      []
+    ],
+    "MoveToNextRowWithSteps": [
+      []
+    ],
+    "MoveToPreviousRowWithEvent": [
+      []
+    ],
+    "MoveToNextRowWithEvent": [
+      []
+    ],
+    "MoveToStartOfStream": [
+      [
+        "LeftWindows",
+        "Up"
+      ]
+    ],
+    "MoveToEndOfStream": [
+      [
+        "LeftWindows",
+        "Down"
+      ]
+    ],
+    "MoveToPreviousMeasure": [
+      [
+        "PageUp"
+      ]
+    ],
+    "MoveToNextMeasure": [
+      [
+        "PageDown"
+      ]
+    ],
+    "MoveToChartStart": [
+      [
+        "Home"
+      ]
+    ],
+    "MoveToChartEnd": [
+      [
+        "End"
+      ]
+    ],
+    "MoveToNextLabel": [
+      [
+        "LeftWindows",
+        "L"
+      ]
+    ],
+    "MoveToPreviousLabel": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "L"
+      ]
+    ],
+    "MoveToNextPattern": [
+      [
+        "LeftWindows",
+        "P"
+      ]
+    ],
+    "MoveToPreviousPattern": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "P"
+      ]
+    ],
+    "RegenerateAllPatternsFixedSeeds": [
+      [
+        "LeftAlt",
+        "P"
+      ]
+    ],
+    "RegenerateAllPatternsNewSeeds": [
+      [
+        "LeftAlt",
+        "LeftShift",
+        "P"
+      ]
+    ],
+    "RegenerateSelectedPatternsFixedSeeds": [
+      [
+        "LeftWindows",
+        "LeftAlt",
+        "P"
+      ]
+    ],
+    "RegenerateSelectedPatternsNewSeeds": [
+      [
+        "LeftWindows",
+        "LeftAlt",
+        "LeftShift",
+        "P"
+      ]
+    ],
+    "Delete": [
+      [
+        "Delete"
+      ]
+    ],
+    "ShiftLeft": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "LeftAlt",
+        "Left"
+      ]
+    ],
+    "ShiftLeftAndWrap": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "Left"
+      ]
+    ],
+    "ShiftRight": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "LeftAlt",
+        "Right"
+      ]
+    ],
+    "ShiftRightAndWrap": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "Right"
+      ]
+    ],
+    "ShiftEarlier": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "Up"
+      ]
+    ],
+    "ShiftLater": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "Down"
+      ]
+    ],
+    "Mirror": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "M"
+      ]
+    ],
+    "Flip": [
+      [
+        "LeftWindows",
+        "LeftShift",
+        "F"
+      ]
+    ],
+    "MirrorAndFlip": [
+      []
+    ],
+    "Arrow0": [
+      [
+        "D1"
+      ]
+    ],
+    "Arrow1": [
+      [
+        "D2"
+      ]
+    ],
+    "Arrow2": [
+      [
+        "D3"
+      ]
+    ],
+    "Arrow3": [
+      [
+        "D4"
+      ]
+    ],
+    "Arrow4": [
+      [
+        "D5"
+      ]
+    ],
+    "Arrow5": [
+      [
+        "D6"
+      ]
+    ],
+    "Arrow6": [
+      [
+        "D7"
+      ]
+    ],
+    "Arrow7": [
+      [
+        "D8"
+      ]
+    ],
+    "Arrow8": [
+      [
+        "D9"
+      ]
+    ],
+    "Arrow9": [
+      [
+        "D0"
+      ]
+    ],
+    "ArrowModification": [
+      [
+        "LeftShift"
+      ]
+    ],
+    "ScrollZoom": [
+      [
+        "LeftWindows"
+      ]
+    ],
+    "ScrollSpacing": [
+      [
+        "LeftShift"
+      ]
+    ],
+    "MouseSelectionControlBehavior": [
+      [
+        "LeftWindows"
+      ]
+    ],
+    "MouseSelectionShiftBehavior": [
+      [
+        "LeftShift"
+      ]
+    ],
+    "MouseSelectionAltBehavior": [
+      [
+        "LeftAlt"
+      ]
+    ],
+    "LockReceptorMoveAxis": [
+      [
+        "LeftShift"
+      ]
+    ],
+    "AddEventTempo": [
+      []
+    ],
+    "AddEventInterpolatedScrollRate": [
+      []
+    ],
+    "AddEventScrollRate": [
+      []
+    ],
+    "AddEventStop": [
+      []
+    ],
+    "AddEventDelay": [
+      []
+    ],
+    "AddEventWarp": [
+      []
+    ],
+    "AddEventFakeRegion": [
+      []
+    ],
+    "AddEventTicks": [
+      []
+    ],
+    "AddEventComboMultipliers": [
+      []
+    ],
+    "AddEventTimeSignature": [
+      []
+    ],
+    "AddEventLabel": [
+      []
+    ],
+    "AddEventAttack": [
+      []
+    ],
+    "AddEventPattern": [
+      []
+    ],
+    "MoveEventPreview": [
+      []
+    ],
+    "MoveEventEndHint": [
+      []
+    ],
+    "ConvertSelectedTapsToMines": [
+      []
+    ],
+    "ConvertSelectedTapsToFakes": [
+      []
+    ],
+    "ConvertSelectedTapsToLifts": [
+      []
+    ],
+    "ConvertSelectedMinesToTaps": [
+      []
+    ],
+    "ConvertSelectedMinesToFakes": [
+      []
+    ],
+    "ConvertSelectedMinesToLifts": [
+      []
+    ],
+    "ConvertSelectedFakesToTaps": [
+      []
+    ],
+    "ConvertSelectedLiftsToTaps": [
+      []
+    ],
+    "ConvertSelectedHoldsToRolls": [
+      []
+    ],
+    "ConvertSelectedHoldsToTaps": [
+      []
+    ],
+    "ConvertSelectedHoldsToMines": [
+      []
+    ],
+    "ConvertSelectedRollsToHolds": [
+      []
+    ],
+    "ConvertSelectedRollsToTaps": [
+      []
+    ],
+    "ConvertSelectedRollsToMines": [
+      []
+    ],
+    "ConvertSelectedWarpsToNegativeStops": [
+      []
+    ],
+    "ConvertSelectedNegativeStopsToWarps": [
+      []
+    ],
+    "SwapSelectedTapsAndMines": [
+      []
+    ],
+    "SwapSelectedTapsAndFakes": [
+      []
+    ],
+    "SwapSelectedTapsAndLifts": [
+      []
+    ],
+    "SwapSelectedMinesAndFakes": [
+      []
+    ],
+    "SwapSelectedMinesAndLifts": [
+      []
+    ],
+    "SwapSelectedHoldsAndRolls": [
+      []
+    ],
+    "SwapSelectedHoldsAndTaps": [
+      []
+    ],
+    "SwapSelectedHoldsAndMines": [
+      []
+    ],
+    "SwapSelectedRollsAndTaps": [
+      []
+    ],
+    "SwapSelectedRollsAndMines": [
+      []
+    ],
+    "SnapToNone": [
+      []
+    ],
+    "SnapToQuarters": [
+      []
+    ],
+    "SnapToEighths": [
+      []
+    ],
+    "SnapToTwelfths": [
+      []
+    ],
+    "SnapToSixteenths": [
+      []
+    ],
+    "SnapToTwentyFourths": [
+      []
+    ],
+    "SnapToThirtySeconds": [
+      []
+    ],
+    "SnapToFortyEighths": [
+      []
+    ],
+    "SnapToSixtyFourths": [
+      []
+    ],
+    "SnapToOneHundredNinetySeconds": [
+      []
+    ],
+    "ToggleWaveForm": [
+      []
+    ],
+    "ToggleDark": [
+      []
+    ],
+    "AutoApplyAllSongAssets": [
+      []
+    ],
+    "AutoApplyUnsetSongAssets": [
+      []
+    ]
+  },
+  "other": {
+    "Open": [
+      [
+        "LeftControl",
+        "O"
+      ]
+    ],
+    "OpenContainingFolder": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "O"
+      ]
+    ],
+    "SaveAs": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "S"
+      ]
+    ],
+    "Save": [
+      [
+        "LeftControl",
+        "S"
+      ]
+    ],
+    "SavePackFile": [
+      []
+    ],
+    "New": [
+      [
+        "LeftControl",
+        "N"
+      ]
+    ],
+    "Reload": [
+      [
+        "LeftControl",
+        "R"
+      ]
+    ],
+    "Close": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "F4"
+      ],
+      [
+        "LeftControl",
+        "LeftShift",
+        "W"
+      ]
+    ],
+    "Exit": [
+      [
+        "LeftAlt",
+        "F4"
+      ]
+    ],
+    "Undo": [
+      [
+        "LeftControl",
+        "Z"
+      ]
+    ],
+    "Redo": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "Z"
+      ],
+      [
+        "LeftControl",
+        "Y"
+      ]
+    ],
+    "SelectRowRange": [
+      [
+        "Tab"
+      ]
+    ],
+    "SelectAllNotes": [
+      [
+        "LeftControl",
+        "A"
+      ]
+    ],
+    "SelectAllTaps": [
+      []
+    ],
+    "SelectAllMines": [
+      []
+    ],
+    "SelectAllFakes": [
+      []
+    ],
+    "SelectAllLifts": [
+      []
+    ],
+    "SelectAllHolds": [
+      []
+    ],
+    "SelectAllRolls": [
+      []
+    ],
+    "SelectAllHoldsAndRolls": [
+      []
+    ],
+    "SelectAllCurrentPlayerNotes": [
+      []
+    ],
+    "SelectAllCurrentPlayerTaps": [
+      []
+    ],
+    "SelectAllCurrentPlayerMines": [
+      []
+    ],
+    "SelectAllCurrentPlayerFakes": [
+      []
+    ],
+    "SelectAllCurrentPlayerLifts": [
+      []
+    ],
+    "SelectAllCurrentPlayerHolds": [
+      []
+    ],
+    "SelectAllCurrentPlayerRolls": [
+      []
+    ],
+    "SelectAllCurrentPlayerHoldsAndRolls": [
+      []
+    ],
+    "SelectAllMiscEvents": [
+      [
+        "LeftControl",
+        "LeftAlt",
+        "A"
+      ]
+    ],
+    "SelectAll": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "A"
+      ]
+    ],
+    "SelectAllPatterns": [
+      []
+    ],
+    "Copy": [
+      [
+        "LeftControl",
+        "C"
+      ]
+    ],
+    "Cut": [
+      [
+        "LeftControl",
+        "X"
+      ]
+    ],
+    "Paste": [
+      [
+        "LeftControl",
+        "V"
+      ]
+    ],
+    "TogglePreview": [
+      [
+        "P"
+      ]
+    ],
+    "ToggleAssistTick": [
+      [
+        "A"
+      ]
+    ],
+    "ToggleBeatTick": [
+      [
+        "B"
+      ]
+    ],
+    "DecreaseMusicRate": [
+      [
+        "LeftShift",
+        "Left"
+      ]
+    ],
+    "IncreaseMusicRate": [
+      [
+        "LeftShift",
+        "Right"
+      ]
+    ],
+    "PlayPause": [
+      [
+        "Space"
+      ]
+    ],
+    "CancelGoBack": [
+      [
+        "Escape"
+      ]
+    ],
+    "ToggleNoteEntryMode": [
+      [
+        "M"
+      ]
+    ],
+    "ToggleSpacingMode": [
+      [
+        "S"
+      ]
+    ],
+    "TogglePlayer": [
+      [
+        "OemQuestion"
+      ]
+    ],
+    "SetPlayer1": [
+      []
+    ],
+    "SetPlayer2": [
+      []
+    ],
+    "SetPlayer3": [
+      []
+    ],
+    "SetPlayer4": [
+      []
+    ],
+    "ConvertSelectedNotesToPlayer1": [
+      []
+    ],
+    "ConvertSelectedNotesToPlayer2": [
+      []
+    ],
+    "ConvertSelectedNotesToPlayer3": [
+      []
+    ],
+    "ConvertSelectedNotesToPlayer4": [
+      []
+    ],
+    "SwapSelectedPlayer1And2Notes": [
+      []
+    ],
+    "SwapSelectedPlayer1And3Notes": [
+      []
+    ],
+    "SwapSelectedPlayer1And4Notes": [
+      []
+    ],
+    "SwapSelectedPlayer2And3Notes": [
+      []
+    ],
+    "SwapSelectedPlayer2And4Notes": [
+      []
+    ],
+    "SwapSelectedPlayer3And4Notes": [
+      []
+    ],
+    "OpenPreviousChart": [
+      [
+        "LeftControl",
+        "LeftAlt",
+        "Left"
+      ]
+    ],
+    "OpenNextChart": [
+      [
+        "LeftControl",
+        "LeftAlt",
+        "Right"
+      ]
+    ],
+    "CloseFocusedChart": [
+      [
+        "LeftControl",
+        "F4"
+      ],
+      [
+        "LeftControl",
+        "W"
+      ]
+    ],
+    "KeepChartOpen": [
+      [
+        "LeftControl",
+        "LeftAlt",
+        "Home"
+      ]
+    ],
+    "MoveFocusedChartLeft": [
+      [
+        "LeftControl",
+        "LeftAlt",
+        "PageUp"
+      ]
+    ],
+    "MoveFocusedChartRight": [
+      [
+        "LeftControl",
+        "LeftAlt",
+        "PageDown"
+      ]
+    ],
+    "FocusPreviousChart": [
+      [
+        "LeftControl",
+        "PageUp"
+      ]
+    ],
+    "FocusNextChart": [
+      [
+        "LeftControl",
+        "PageDown"
+      ]
+    ],
+    "DecreaseSnap": [
+      [
+        "Left"
+      ]
+    ],
+    "IncreaseSnap": [
+      [
+        "Right"
+      ]
+    ],
+    "MoveUp": [
+      [
+        "Up"
+      ]
+    ],
+    "MoveDown": [
+      [
+        "Down"
+      ]
+    ],
+    "MoveToPreviousRowWithSteps": [
+      []
+    ],
+    "MoveToNextRowWithSteps": [
+      []
+    ],
+    "MoveToPreviousRowWithEvent": [
+      []
+    ],
+    "MoveToNextRowWithEvent": [
+      []
+    ],
+    "MoveToStartOfStream": [
+      [
+        "LeftControl",
+        "Up"
+      ]
+    ],
+    "MoveToEndOfStream": [
+      [
+        "LeftControl",
+        "Down"
+      ]
+    ],
+    "MoveToPreviousMeasure": [
+      [
+        "PageUp"
+      ]
+    ],
+    "MoveToNextMeasure": [
+      [
+        "PageDown"
+      ]
+    ],
+    "MoveToChartStart": [
+      [
+        "Home"
+      ]
+    ],
+    "MoveToChartEnd": [
+      [
+        "End"
+      ]
+    ],
+    "MoveToNextLabel": [
+      [
+        "LeftControl",
+        "L"
+      ]
+    ],
+    "MoveToPreviousLabel": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "L"
+      ]
+    ],
+    "MoveToNextPattern": [
+      [
+        "LeftControl",
+        "P"
+      ]
+    ],
+    "MoveToPreviousPattern": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "P"
+      ]
+    ],
+    "RegenerateAllPatternsFixedSeeds": [
+      [
+        "LeftAlt",
+        "P"
+      ]
+    ],
+    "RegenerateAllPatternsNewSeeds": [
+      [
+        "LeftAlt",
+        "LeftShift",
+        "P"
+      ]
+    ],
+    "RegenerateSelectedPatternsFixedSeeds": [
+      [
+        "LeftControl",
+        "LeftAlt",
+        "P"
+      ]
+    ],
+    "RegenerateSelectedPatternsNewSeeds": [
+      [
+        "LeftControl",
+        "LeftAlt",
+        "LeftShift",
+        "P"
+      ]
+    ],
+    "Delete": [
+      [
+        "Delete"
+      ]
+    ],
+    "ShiftLeft": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "LeftAlt",
+        "Left"
+      ]
+    ],
+    "ShiftLeftAndWrap": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "Left"
+      ]
+    ],
+    "ShiftRight": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "LeftAlt",
+        "Right"
+      ]
+    ],
+    "ShiftRightAndWrap": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "Right"
+      ]
+    ],
+    "ShiftEarlier": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "Up"
+      ]
+    ],
+    "ShiftLater": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "Down"
+      ]
+    ],
+    "Mirror": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "M"
+      ]
+    ],
+    "Flip": [
+      [
+        "LeftControl",
+        "LeftShift",
+        "F"
+      ]
+    ],
+    "MirrorAndFlip": [
+      []
+    ],
+    "Arrow0": [
+      [
+        "D1"
+      ]
+    ],
+    "Arrow1": [
+      [
+        "D2"
+      ]
+    ],
+    "Arrow2": [
+      [
+        "D3"
+      ]
+    ],
+    "Arrow3": [
+      [
+        "D4"
+      ]
+    ],
+    "Arrow4": [
+      [
+        "D5"
+      ]
+    ],
+    "Arrow5": [
+      [
+        "D6"
+      ]
+    ],
+    "Arrow6": [
+      [
+        "D7"
+      ]
+    ],
+    "Arrow7": [
+      [
+        "D8"
+      ]
+    ],
+    "Arrow8": [
+      [
+        "D9"
+      ]
+    ],
+    "Arrow9": [
+      [
+        "D0"
+      ]
+    ],
+    "ArrowModification": [
+      [
+        "LeftShift"
+      ]
+    ],
+    "ScrollZoom": [
+      [
+        "LeftControl"
+      ]
+    ],
+    "ScrollSpacing": [
+      [
+        "LeftShift"
+      ]
+    ],
+    "MouseSelectionControlBehavior": [
+      [
+        "LeftControl"
+      ]
+    ],
+    "MouseSelectionShiftBehavior": [
+      [
+        "LeftShift"
+      ]
+    ],
+    "MouseSelectionAltBehavior": [
+      [
+        "LeftAlt"
+      ]
+    ],
+    "LockReceptorMoveAxis": [
+      [
+        "LeftShift"
+      ]
+    ],
+    "AddEventTempo": [
+      []
+    ],
+    "AddEventInterpolatedScrollRate": [
+      []
+    ],
+    "AddEventScrollRate": [
+      []
+    ],
+    "AddEventStop": [
+      []
+    ],
+    "AddEventDelay": [
+      []
+    ],
+    "AddEventWarp": [
+      []
+    ],
+    "AddEventFakeRegion": [
+      []
+    ],
+    "AddEventTicks": [
+      []
+    ],
+    "AddEventComboMultipliers": [
+      []
+    ],
+    "AddEventTimeSignature": [
+      []
+    ],
+    "AddEventLabel": [
+      []
+    ],
+    "AddEventAttack": [
+      []
+    ],
+    "AddEventPattern": [
+      []
+    ],
+    "MoveEventPreview": [
+      []
+    ],
+    "MoveEventEndHint": [
+      []
+    ],
+    "ConvertSelectedTapsToMines": [
+      []
+    ],
+    "ConvertSelectedTapsToFakes": [
+      []
+    ],
+    "ConvertSelectedTapsToLifts": [
+      []
+    ],
+    "ConvertSelectedMinesToTaps": [
+      []
+    ],
+    "ConvertSelectedMinesToFakes": [
+      []
+    ],
+    "ConvertSelectedMinesToLifts": [
+      []
+    ],
+    "ConvertSelectedFakesToTaps": [
+      []
+    ],
+    "ConvertSelectedLiftsToTaps": [
+      []
+    ],
+    "ConvertSelectedHoldsToRolls": [
+      []
+    ],
+    "ConvertSelectedHoldsToTaps": [
+      []
+    ],
+    "ConvertSelectedHoldsToMines": [
+      []
+    ],
+    "ConvertSelectedRollsToHolds": [
+      []
+    ],
+    "ConvertSelectedRollsToTaps": [
+      []
+    ],
+    "ConvertSelectedRollsToMines": [
+      []
+    ],
+    "ConvertSelectedWarpsToNegativeStops": [
+      []
+    ],
+    "ConvertSelectedNegativeStopsToWarps": [
+      []
+    ],
+    "SwapSelectedTapsAndMines": [
+      []
+    ],
+    "SwapSelectedTapsAndFakes": [
+      []
+    ],
+    "SwapSelectedTapsAndLifts": [
+      []
+    ],
+    "SwapSelectedMinesAndFakes": [
+      []
+    ],
+    "SwapSelectedMinesAndLifts": [
+      []
+    ],
+    "SwapSelectedHoldsAndRolls": [
+      []
+    ],
+    "SwapSelectedHoldsAndTaps": [
+      []
+    ],
+    "SwapSelectedHoldsAndMines": [
+      []
+    ],
+    "SwapSelectedRollsAndTaps": [
+      []
+    ],
+    "SwapSelectedRollsAndMines": [
+      []
+    ],
+    "SnapToNone": [
+      []
+    ],
+    "SnapToQuarters": [
+      []
+    ],
+    "SnapToEighths": [
+      []
+    ],
+    "SnapToTwelfths": [
+      []
+    ],
+    "SnapToSixteenths": [
+      []
+    ],
+    "SnapToTwentyFourths": [
+      []
+    ],
+    "SnapToThirtySeconds": [
+      []
+    ],
+    "SnapToFortyEighths": [
+      []
+    ],
+    "SnapToSixtyFourths": [
+      []
+    ],
+    "SnapToOneHundredNinetySeconds": [
+      []
+    ],
+    "ToggleWaveForm": [
+      []
+    ],
+    "ToggleDark": [
+      []
+    ],
+    "AutoApplyAllSongAssets": [
+      []
+    ],
+    "AutoApplyUnsetSongAssets": [
+      []
+    ]
+  }
+}

@@ -1,0 +1,1041 @@
+{
+  "Cases": [
+    {
+      "Method": "CreateAttackEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "Attack",
+        "Row": 192,
+        "Fields": {
+          "Modifiers": [
+            {
+              "Name": "Dizzy",
+              "Level": 100,
+              "Speed": 1,
+              "LengthSeconds": 1
+            }
+          ],
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateComboMultipliersEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "Multipliers",
+        "Row": 192,
+        "Fields": {
+          "HitMultiplier": 1,
+          "MissMultiplier": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateDelayEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "Stop",
+        "Row": 192,
+        "Fields": {
+          "LengthSeconds": 1,
+          "IsDelay": true,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateFakeRegionEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "FakeSegment",
+        "Row": 192,
+        "Fields": {
+          "LengthIntegerPosition": 48,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateInterpolatedScrollRateEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "ScrollRateInterpolation",
+        "Row": 192,
+        "Fields": {
+          "Rate": 1,
+          "PeriodLengthIntegerPosition": 48,
+          "PeriodTimeSeconds": 0,
+          "PreferPeriodAsTime": false,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateLabelEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "Label",
+        "Row": 192,
+        "Fields": {
+          "Text": "New Label",
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreatePatternEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "Pattern",
+        "Row": 192,
+        "Fields": {
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 193990465,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": false
+        }
+      }
+    },
+    {
+      "Method": "CreateScrollRateEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "ScrollRate",
+        "Row": 192,
+        "Fields": {
+          "Rate": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateStopEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "Stop",
+        "Row": 192,
+        "Fields": {
+          "LengthSeconds": 1,
+          "IsDelay": false,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTempoEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "Tempo",
+        "Row": 192,
+        "Fields": {
+          "TempoBPM": 60,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTicksEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "TickCount",
+        "Row": 192,
+        "Fields": {
+          "Ticks": 4,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTimeSignatureEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "TimeSignature",
+        "Row": 192,
+        "Fields": {
+          "Signature": {
+            "Numerator": 4,
+            "Denominator": 4
+          },
+          "Measure": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateWarpEvent",
+      "Bpm": 60,
+      "Event": {
+        "Type": "Warp",
+        "Row": 192,
+        "Fields": {
+          "LengthIntegerPosition": 48,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateAttackEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "Attack",
+        "Row": 192,
+        "Fields": {
+          "Modifiers": [
+            {
+              "Name": "Dizzy",
+              "Level": 100,
+              "Speed": 1,
+              "LengthSeconds": 0.5
+            }
+          ],
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateComboMultipliersEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "Multipliers",
+        "Row": 192,
+        "Fields": {
+          "HitMultiplier": 1,
+          "MissMultiplier": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateDelayEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "Stop",
+        "Row": 192,
+        "Fields": {
+          "LengthSeconds": 0.5,
+          "IsDelay": true,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateFakeRegionEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "FakeSegment",
+        "Row": 192,
+        "Fields": {
+          "LengthIntegerPosition": 48,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateInterpolatedScrollRateEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "ScrollRateInterpolation",
+        "Row": 192,
+        "Fields": {
+          "Rate": 1,
+          "PeriodLengthIntegerPosition": 48,
+          "PeriodTimeSeconds": 0,
+          "PreferPeriodAsTime": false,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateLabelEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "Label",
+        "Row": 192,
+        "Fields": {
+          "Text": "New Label",
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreatePatternEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "Pattern",
+        "Row": 192,
+        "Fields": {
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 1024731710,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": false
+        }
+      }
+    },
+    {
+      "Method": "CreateScrollRateEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "ScrollRate",
+        "Row": 192,
+        "Fields": {
+          "Rate": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateStopEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "Stop",
+        "Row": 192,
+        "Fields": {
+          "LengthSeconds": 0.5,
+          "IsDelay": false,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTempoEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "Tempo",
+        "Row": 192,
+        "Fields": {
+          "TempoBPM": 120,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTicksEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "TickCount",
+        "Row": 192,
+        "Fields": {
+          "Ticks": 4,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTimeSignatureEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "TimeSignature",
+        "Row": 192,
+        "Fields": {
+          "Signature": {
+            "Numerator": 4,
+            "Denominator": 4
+          },
+          "Measure": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateWarpEvent",
+      "Bpm": 120,
+      "Event": {
+        "Type": "Warp",
+        "Row": 192,
+        "Fields": {
+          "LengthIntegerPosition": 48,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateAttackEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "Attack",
+        "Row": 192,
+        "Fields": {
+          "Modifiers": [
+            {
+              "Name": "Dizzy",
+              "Level": 100,
+              "Speed": 1,
+              "LengthSeconds": 0.3333333333333333
+            }
+          ],
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateComboMultipliersEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "Multipliers",
+        "Row": 192,
+        "Fields": {
+          "HitMultiplier": 1,
+          "MissMultiplier": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateDelayEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "Stop",
+        "Row": 192,
+        "Fields": {
+          "LengthSeconds": 0.3333333333333333,
+          "IsDelay": true,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateFakeRegionEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "FakeSegment",
+        "Row": 192,
+        "Fields": {
+          "LengthIntegerPosition": 48,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateInterpolatedScrollRateEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "ScrollRateInterpolation",
+        "Row": 192,
+        "Fields": {
+          "Rate": 1,
+          "PeriodLengthIntegerPosition": 48,
+          "PeriodTimeSeconds": 0,
+          "PreferPeriodAsTime": false,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateLabelEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "Label",
+        "Row": 192,
+        "Fields": {
+          "Text": "New Label",
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreatePatternEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "Pattern",
+        "Row": 192,
+        "Fields": {
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 924012135,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": false
+        }
+      }
+    },
+    {
+      "Method": "CreateScrollRateEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "ScrollRate",
+        "Row": 192,
+        "Fields": {
+          "Rate": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateStopEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "Stop",
+        "Row": 192,
+        "Fields": {
+          "LengthSeconds": 0.3333333333333333,
+          "IsDelay": false,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTempoEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "Tempo",
+        "Row": 192,
+        "Fields": {
+          "TempoBPM": 180,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTicksEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "TickCount",
+        "Row": 192,
+        "Fields": {
+          "Ticks": 4,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTimeSignatureEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "TimeSignature",
+        "Row": 192,
+        "Fields": {
+          "Signature": {
+            "Numerator": 4,
+            "Denominator": 4
+          },
+          "Measure": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateWarpEvent",
+      "Bpm": 180,
+      "Event": {
+        "Type": "Warp",
+        "Row": 192,
+        "Fields": {
+          "LengthIntegerPosition": 48,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateAttackEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "Attack",
+        "Row": 192,
+        "Fields": {
+          "Modifiers": [
+            {
+              "Name": "Dizzy",
+              "Level": 100,
+              "Speed": 1,
+              "LengthSeconds": 0.18000018000017998
+            }
+          ],
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateComboMultipliersEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "Multipliers",
+        "Row": 192,
+        "Fields": {
+          "HitMultiplier": 1,
+          "MissMultiplier": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateDelayEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "Stop",
+        "Row": 192,
+        "Fields": {
+          "LengthSeconds": 0.18000018000017998,
+          "IsDelay": true,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateFakeRegionEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "FakeSegment",
+        "Row": 192,
+        "Fields": {
+          "LengthIntegerPosition": 48,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateInterpolatedScrollRateEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "ScrollRateInterpolation",
+        "Row": 192,
+        "Fields": {
+          "Rate": 1,
+          "PeriodLengthIntegerPosition": 48,
+          "PeriodTimeSeconds": 0,
+          "PreferPeriodAsTime": false,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateLabelEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "Label",
+        "Row": 192,
+        "Fields": {
+          "Text": "New Label",
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreatePatternEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "Pattern",
+        "Row": 192,
+        "Fields": {
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 192,
+          "RandomSeed": 525134997,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": false,
+          "IgnorePrecedingDistribution": false
+        }
+      }
+    },
+    {
+      "Method": "CreateScrollRateEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "ScrollRate",
+        "Row": 192,
+        "Fields": {
+          "Rate": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateStopEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "Stop",
+        "Row": 192,
+        "Fields": {
+          "LengthSeconds": 0.18000018000017998,
+          "IsDelay": false,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTempoEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "Tempo",
+        "Row": 192,
+        "Fields": {
+          "TempoBPM": 333.333,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTicksEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "TickCount",
+        "Row": 192,
+        "Fields": {
+          "Ticks": 4,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateTimeSignatureEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "TimeSignature",
+        "Row": 192,
+        "Fields": {
+          "Signature": {
+            "Numerator": 4,
+            "Denominator": 4
+          },
+          "Measure": 1,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    },
+    {
+      "Method": "CreateWarpEvent",
+      "Bpm": 333.333,
+      "Event": {
+        "Type": "Warp",
+        "Row": 192,
+        "Fields": {
+          "LengthIntegerPosition": 48,
+          "TimeSeconds": 0,
+          "IntegerPosition": 192,
+          "SourceType": null,
+          "DestType": null,
+          "Extras": {}
+        },
+        "Pattern": null
+      }
+    }
+  ],
+  "Positions": [
+    {
+      "Position": -50.5,
+      "Row": 0
+    },
+    {
+      "Position": -0.1,
+      "Row": 0
+    },
+    {
+      "Position": 0,
+      "Row": 0
+    },
+    {
+      "Position": 0.5,
+      "Row": 0
+    },
+    {
+      "Position": 1.5,
+      "Row": 1
+    },
+    {
+      "Position": 1.5000001,
+      "Row": 2
+    },
+    {
+      "Position": 47.5,
+      "Row": 47
+    },
+    {
+      "Position": 47.6,
+      "Row": 48
+    }
+  ],
+  "Collision": {
+    "Empty": true,
+    "Same": false,
+    "Different": true
+  },
+  "Seeds": [
+    106893335,
+    1138314529,
+    203333777,
+    869617594,
+    1929471053,
+    1842368593,
+    1063586183,
+    1057092228,
+    1214844518,
+    1352430042,
+    546552756,
+    1664213024,
+    24813912,
+    693702904,
+    1159583350,
+    1952741161
+  ]
+}

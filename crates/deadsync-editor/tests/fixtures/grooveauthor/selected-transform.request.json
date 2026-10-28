@@ -1,0 +1,722 @@
+{
+  "Cases": [
+    {
+      "Name": "Mirror-exact-peers",
+      "Operation": "Mirror",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Flip-exact-peers",
+      "Operation": "Flip",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "MirrorAndFlip-exact-peers",
+      "Operation": "MirrorAndFlip",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Left-exact-peers",
+      "Operation": "Left",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Right-exact-peers",
+      "Operation": "Right",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "LeftWrap-exact-peers",
+      "Operation": "LeftWrap",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "RightWrap-exact-peers",
+      "Operation": "RightWrap",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "mirror-trims-unselected-hold",
+      "Operation": "Mirror",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 3,
+          "Player": 0,
+          "Selected": false,
+          "End": 96
+        }
+      ]
+    },
+    {
+      "Name": "mirror-hold-removes-unselected-heads",
+      "Operation": "Mirror",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true,
+          "End": 192
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 3,
+          "Player": 0,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "flip-unmapped-threepanel",
+      "Operation": "Flip",
+      "Layout": "dance-threepanel",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "left-boundary-deletes-selected",
+      "Operation": "Left",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "right-boundary-deletes-selected",
+      "Operation": "Right",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "Selected": true,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "routine-cross-owner-conflict",
+      "Operation": "Mirror",
+      "Layout": "dance-routine",
+      "Players": 3,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 7,
+          "Player": 1,
+          "Selected": false,
+          "End": 96
+        }
+      ]
+    },
+    {
+      "Name": "rows--48",
+      "Operation": "Rows",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": false
+        }
+      ],
+      "Rows": -48
+    },
+    {
+      "Name": "rows-48",
+      "Operation": "Rows",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": false
+        }
+      ],
+      "Rows": 48
+    },
+    {
+      "Name": "rows-0",
+      "Operation": "Rows",
+      "Layout": "dance-single",
+      "Players": 1,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "Selected": false
+        }
+      ],
+      "Rows": 0
+    },
+    {
+      "Name": "owner-assign-exact-third-peer",
+      "Operation": "Assign",
+      "Layout": "dance-routine",
+      "Players": 3,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 2,
+          "Player": 2,
+          "Selected": false
+        }
+      ],
+      "PlayerA": 1
+    },
+    {
+      "Name": "owner-swap-three-player",
+      "Operation": "SwapPlayers",
+      "Layout": "dance-routine",
+      "Players": 3,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true,
+          "End": 192
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 2,
+          "Player": 2,
+          "Selected": true
+        }
+      ],
+      "PlayerA": 0,
+      "PlayerB": 1
+    },
+    {
+      "Name": "owner-assignment-duplicate-address",
+      "Operation": "Assign",
+      "Layout": "dance-routine",
+      "Players": 2,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "Selected": false
+        }
+      ],
+      "PlayerA": 1
+    },
+    {
+      "Name": "owner-assignment-selected-duplicate-address",
+      "Operation": "Assign",
+      "Layout": "dance-routine",
+      "Players": 2,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "Selected": true
+        }
+      ],
+      "PlayerA": 1
+    },
+    {
+      "Name": "owner-assignment-overlap-hold",
+      "Operation": "Assign",
+      "Layout": "dance-routine",
+      "Players": 2,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 1,
+          "Selected": false,
+          "End": 96
+        }
+      ],
+      "PlayerA": 1
+    },
+    {
+      "Name": "owner-swap-identical",
+      "Operation": "SwapPlayers",
+      "Layout": "dance-routine",
+      "Players": 2,
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        }
+      ],
+      "PlayerA": 1,
+      "PlayerB": 1
+    }
+  ]
+}

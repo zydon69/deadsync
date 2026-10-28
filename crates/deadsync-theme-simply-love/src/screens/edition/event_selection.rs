@@ -1,3 +1,4 @@
+mod presets;
 use super::{Panel, State};
 use crate::{act, i18n};
 use deadlib_platform::input::KeyCode;
@@ -9,8 +10,9 @@ use deadsync_editor::event_clipboard::{Event, Selection, TimingKind};
 use std::collections::BTreeSet;
 const PAGE: usize = 8;
 pub(super) struct Settings {
-    selection: Selection,
+    pub(super) selection: Selection,
     index: usize,
+    presets: Option<presets::Settings>,
 }
 impl State {
     pub(super) fn open_event_selection(&mut self) {
@@ -22,6 +24,7 @@ impl State {
                 self.event_selection = Some(Settings {
                     selection,
                     index: 0,
+                    presets: None,
                 });
                 self.panel = Some(Panel::EventSelection);
                 self.status = i18n::tr("Edition", "EventSelectionHelp");
@@ -31,7 +34,15 @@ impl State {
             }
         }
     }
+    pub(super) fn prepare_checked_timing_conversion(&self, direction: deadsync_editor::timing_edit::conversion::Direction) -> Result<deadsync_editor::timing_edit::conversion::Plan, deadsync_editor::timing_edit::conversion::Failure> {
+        let selection = &self.event_selection.as_ref().ok_or_else(|| deadsync_editor::Error::InvalidEdit("No checked event selection".into()))?.selection;
+        self.workspace.prepare_selected_timing_conversion(selection, direction)
+    }
     pub(super) fn event_selection_key(&mut self, code: KeyCode) {
+        if code == KeyCode::F9 { self.open_selected_transform_review(true); return; }
+        if code == KeyCode::F7 { self.open_checked_timing_conversion(); return; }
+        if code == KeyCode::F8 { self.open_note_operation_review(true); return; }
+        if code == KeyCode::F3 { self.open_selection_presets(); return; }
         if code == KeyCode::Escape {
             self.event_selection = None;
             self.panel = None;
@@ -126,7 +137,7 @@ impl State {
             .map(|event| event.row())
             .max()
             .unwrap_or(start);
-        let rows = deadsync_editor::workspace::snap_edit_rows(self.workspace.snap()) as i64 * if later { 1 } else { -1 };
+        let rows = deadsync_editor::workspace::snap_shift_rows(self.workspace.snap()) as i64 * if later { 1 } else { -1 };
         match self
             .workspace
             .shift_event_selection(&settings.selection, rows)

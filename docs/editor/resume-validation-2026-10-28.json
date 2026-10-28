@@ -5,27 +5,83 @@
     "participant_count_workflows": 4,
     "layout_alias_workflows": 4,
     "key_commands_workflows": 7,
-    "key_binding_preferences_workflows": 6,
+    "key_binding_preferences_workflows": 9,
     "key_binding_storage_workflows": 3,
     "song_custom_workflows": 3,
     "advanced_export_workflows": 8,
     "advanced_export_writer_workflows": 5,
     "advanced_export_attacks_workflows": 2,
     "advanced_export_chart_metadata_workflows": 2,
-    "edition_key_bindings_workflow": 5
+    "edition_key_bindings_workflow": 5,
+    "core_library_after_untitled_api": 68,
+    "action_conversion_refusal_workflows": 2,
+    "auto_recovery_workflows": 6,
+    "output_policy_workflows": 5,
+    "recent_song_preferences_workflows": 3,
+    "selection_presets_workflows": 4,
+    "timing_conversion_workflows": 3,
+    "timing_conversion_constructor_workflows": 2,
+    "note_swap_workflows": 2,
+    "key_binding_preferences_before_physical": 8,
+    "edition_key_bindings_before_lot4": 8,
+    "edition_action_conversion_before_typed_reasons_en": 4,
+    "edition_action_conversion_before_typed_reasons_fr": 4,
+    "core_library_after_publication_witness": 70,
+    "native_editor_units_before_publication_witness": 67,
+    "key_binding_physical_workflows": 4,
+    "checked_timing_workflows": 3,
+    "new_song_options_workflows": 2,
+    "note_operation_workflows": 4,
+    "selected_transform_workflows": 6,
+    "quick_add_workflows": 5,
+    "shift_all_workflows": 3,
+    "event_shift_workflows": 6,
+    "lane_shift_workflows": 3,
+    "row_shift_workflows": 3,
+    "note_player_swap_workflows": 2,
+    "snap_workflows": 5,
+    "symmetry_workflows": 2,
+    "core_library_after_output_storage": 86,
+    "output_storage_workflows": 6,
+    "media_relocation_workflows": 3,
+    "key_binding_source_profile_workflows": 11,
+    "source_review_bindings_workflows": 2,
+    "native_editor_units_after_output_profiles_and_callbacks": 84
   },
   "pending": [
-    "private song-custom oracle unit",
-    "note swap and timing conversion models",
-    "File New/Open/Recent/Untitled",
-    "Windows adapter compilation/runtime",
-    "export publication with independent output policy",
-    "native key binding units and broader regressions"
+    "EN/FR UI workflows for quick-add, ShiftAll, exact note/timing operations and selected transforms",
+    "broader editor regressions and physical/GPU/audio user verification",
+    "Output UI, MRU/persisted advanced prefs and source profiles/callbacks applied, native tests pending",
+    "Prepared patterns, density, native context migration and file platform/startup follow-ups not yet applied"
   ],
   "limits": [
     "Scoped automated checks only; no physical keyboard/GPU/audio testing performed in this resume",
     "Cross-format output is detached; not connected to durable UI publication",
     "Entire theme suite is not green: see theme-unit-checkpoint-2026-10-27.json",
     "No push or pull request before user testing"
-  ]
+  ],
+  "windows": {
+    "library_check_before_untitled_api": "passed",
+    "full_integration_compilation": "interrupted; incomplete",
+    "runtime": "not executed"
+  },
+  "output_storage_first_run": {
+    "library_passed": 85,
+    "library_failed": 1,
+    "failure": "non_unicode_target_path test attempted a filename rejected by macOS filesystem; codec-only raw path roundtrip correction pending",
+    "integration_targets": "not executed after library failure",
+    "resolution": "Corrected Unix path test to validate codec raw bytes without filesystem creation; full batch passed afterward"
+  },
+  "native_editor_after_output_and_profiles": {
+    "status": "passed after integration fixes",
+    "passed": 84,
+    "other_theme_tests_filtered": 1504,
+    "limits": "Scoped units only; dedicated EN/FR integration targets still pending"
+  },
+  "source_callbacks": {
+    "native_actions": 136,
+    "source_ids_with_native_handler": 89,
+    "source_catalog": 164,
+    "native_handler_runtime": "new reviewed callback unit paths passed; full shortcut integration workflows pending"
+  }
 }

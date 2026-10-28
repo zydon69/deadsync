@@ -1,0 +1,40 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sdk": "10.0.403",
+  "scope": "Whole original spatial and player actions, original ForceAddEvents/ForceAddEventInternal, real SML pad data and Fumen writer/readback. Explicit event container, clone/value adapters and inert timing/notification callbacks. Ownership intentionally uses plain AddEvents and duplicate/overlap readbacks are retained; no GUI or complete EditorChart clock claim.",
+  "sources_sha256": {
+    "EditorChart.cs": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd",
+    "EditorEvents/EditorEvent.cs": "28dbffa43902c9704850bae1fcdaf22b3d29317625ddf82934f71c9fc12eb18c",
+    "EditorEvents/EditorPatternEvent.cs": "c4b41425fb9d78c4030edf3d7a681c44ce3cbd25e0a65c2659b99f1b18989f34",
+    "Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+    "EditorActions/ActionTransformSelectionLanes.cs": "3959932b7ba7f96b5b4287abf1f39e0895198aa10e4defb3de3c9d183bbdaa23",
+    "EditorActions/ActionMirrorSelection.cs": "3e301222ee11f776f5309f6bb29500d32aee6db34ec9803986bc378256a2959a",
+    "EditorActions/ActionFlipSelection.cs": "4a0309c310cb626c52c5e8af6173a44f345e4830b58ea7b3d4d19d7db3ba5d5f",
+    "EditorActions/ActionMirrorAndFlipSelection.cs": "e288c321babe2fccdef3f899bfd6acfd5c2e7504abccc861f71fcacd574c1b11",
+    "EditorActions/ActionShiftSelectionLane.cs": "4a9dc4e656c21f06e6cef158471c9cf95256e67cc6b069947d93c2f3a2482662",
+    "EditorActions/ActionShiftSelectionRow.cs": "d77d9d5c2085fbd957def646bb68093572eb8bf38788b7f37b45de991b14d025",
+    "EditorActions/ActionChangeNotePlayer.cs": "80e85008bca268fce240f090bc5764969d3dbaab3ac7085151b82e5f82a845ec",
+    "EditorActions/ActionSwapNotePlayer.cs": "d2ad187df4616b6ffe8a571222ac93e1e0c014446e4ed9d12ec3074cacbc6be4",
+    "EditorActions/ForceAddSideEffect.cs": "e2e8fc1fc2038e3f93d7208fe9858142271f97d3b54907f0d9618717890adc64"
+  },
+  "pad_data_sha256": {
+    "StepManiaLibrary/dance-routine.json": "07e93ed6a2d7ead4bf83ad3eb3af8b84d20d5fbe3c6066d5e3e1695c9cd5f6b3",
+    "StepManiaLibrary/dance-single.json": "22557c006950899abc3c260396b357b5c18999f021cdfc407ca3983515cd6d09",
+    "StepManiaLibrary/dance-threepanel.json": "d6e5c8ae19ea1064592cc63f9ea45fde8be4a1afbf9992c4fd7b98d99032c8df"
+  },
+  "extracted_sha256": {
+    "ORIGINAL_REPOSITIONABLE": "d117198b450ae28685e7f097c9a598a7d59ebbef5e4a65d5fe925fb9a54814b4",
+    "ORIGINAL_DEFINITION": "a30435d571a6168e544d6ea3af50770c35b242ea3533140058b33496d6a021b5",
+    "ORIGINAL_PATTERN_CLONE": "e44a1424587dfe01add96cba8d8fd0b719a8b83ad6ebe4a1531f9e4c76f3ff9a",
+    "ORIGINAL_IS_MULTIPLAYER": "48969315ec833f81a9e2f7dc79b442a179f1285960dd635ded024fea187e83be",
+    "ORIGINAL_CAN_EXIST": "13b3564c1f3e4f72010ea6743c34c741b8e613afcbfa70024925b7d7072eb82f",
+    "ORIGINAL_FORCE_ADD": "415b6795aa9600fc5488b34a0904a9bb6869650fc309c8bac4d1451b393d3cc5"
+  },
+  "adapter_sha256": "a289f50f42c14cf3a594e3ad3f81d73417b13b7a009f5aae6eeac828fda3a128",
+  "program_sha256": "a07e4491f06af8b73d5918657914021b098f7477c88432c81781233c6c9265ea",
+  "assembly_sha256": "0926235df087c09770a933546cf42e0da380cb347d00fd05b17cb4e402ba106c",
+  "request_sha256": "259af6f41c27d64ab6575a54858a04e1af86aea2a3ec54c5c050abaff20aef92",
+  "expected_sha256": "60d49a1604322da38af5871cd9bef59831e9ae41357ff4a5c0e2a81e2082fbdd"
+}

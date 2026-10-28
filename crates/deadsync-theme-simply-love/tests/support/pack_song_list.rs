@@ -112,7 +112,7 @@ fn choose_target(state: &mut State) {
 }
 fn assert_current(state: &State, path: &Path) {
     assert_eq!(
-        state.workspace().file().path(),
+        state.workspace().file().require_existing_path().unwrap(),
         path.canonicalize().unwrap()
     );
 }
@@ -124,7 +124,7 @@ fn keyboard_list_opens_strict_song_and_preserves_files() {
     open(&mut state, false);
     assert!(text(&state).contains(&tr("PackSongsColumns")));
     choose_target(&mut state);
-    pump(&mut state, |s| s.workspace().file().path() == b);
+    pump(&mut state, |s| s.workspace().file().require_existing_path().unwrap() == b);
     assert_eq!(state.workspace().grid().iter().count(), 1);
     assert_eq!(fs::read(&a).unwrap(), before_a);
     assert_eq!(fs::read(&b).unwrap(), before_b);
@@ -253,7 +253,7 @@ fn chartless_source_can_browse_and_open_chartless_song() {
         fixture(true, "#VERSION:0.83;#TITLE:Target marker;#BPMS:0=120;");
     open(&mut state, true);
     choose_target(&mut state);
-    pump(&mut state, |s| s.workspace().file().path() == b);
+    pump(&mut state, |s| s.workspace().file().require_existing_path().unwrap() == b);
     assert!(!state.workspace().has_chart());
 }
 
@@ -317,7 +317,7 @@ fn custom_preference_path_survives_open_and_invalid_reload_keeps_current_editor(
     state.configure_audio_preferences(&preferences).unwrap();
     open(&mut state, false);
     choose_target(&mut state);
-    pump(&mut state, |s| s.workspace().file().path() == b);
+    pump(&mut state, |s| s.workspace().file().require_existing_path().unwrap() == b);
     assert_eq!(state.audio_preferences().music_rate(), 1.5);
     for pressed in [true, false] {
         state.raw_key(&RawKeyboardEvent {

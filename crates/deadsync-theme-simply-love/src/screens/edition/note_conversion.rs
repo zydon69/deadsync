@@ -38,7 +38,13 @@ impl Default for Settings {
     }
 }
 impl State {
+    pub(super) fn note_conversion_operation(&self, swap: bool) -> deadsync_editor::note_operation::Operation {
+        let settings = &self.note_conversion;
+        if swap { deadsync_editor::note_operation::Operation::Swap(PAIRS[settings.swap]) }
+        else { deadsync_editor::note_operation::Operation::Convert { from: SOURCES[settings.from], to: TARGETS[settings.to], sustain_rows: SNAP_ROWS[settings.duration] } }
+    }
     pub(super) fn note_conversion_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::F8 { self.open_note_operation_review(false); return; }
         match code {
             KeyCode::Escape => self.panel = Some(Panel::Transforms(9)),
             KeyCode::ArrowUp => self.panel = Some(Panel::NoteConversion((index + 6) % 7)),
@@ -60,10 +66,17 @@ impl State {
             }
             KeyCode::Enter if index == 6 => {
                 let pair = PAIRS[self.note_conversion.swap];
-                self.apply_dialog_operation(
-                    |workspace| workspace.swap_note_types(pair).map(|_| ()),
-                    "NoteSwapApplied", "NoteSwapNoChange", "NoteSwapFailed",
-                );
+                match self.workspace.swap_note_types_detailed(pair) {
+                    Ok(changed) => {
+                        if changed { self.panel = None; }
+                        self.status = i18n::tr("Edition", if changed { "NoteSwapApplied" } else { "NoteSwapNoChange" });
+                    }
+                    Err(error) => self.status = i18n::tr("Edition", match error.kind() {
+                        deadsync_editor::note_swap::Refusal::ZeroDurationSustain => "NoteSwapZeroSustain",
+                        deadsync_editor::note_swap::Refusal::Invalid => "NoteSwapFailed",
+                    }),
+                }
+                self.refresh();
             }
             KeyCode::Enter if index == 3 => {
                 let settings = &self.note_conversion;

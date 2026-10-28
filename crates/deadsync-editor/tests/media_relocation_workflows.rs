@@ -1,6 +1,4 @@
-pub use deadsync_editor::Error;
-#[path = "../src/media_relocation.rs"]
-mod media_relocation;
+use deadsync_editor::media_relocation;
 use std::path::Path;
 
 #[test]

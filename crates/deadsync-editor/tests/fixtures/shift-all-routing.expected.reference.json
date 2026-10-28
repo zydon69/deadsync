@@ -1,0 +1,6 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "UIEditEventsSha256": "5d3efae956507e98594a8885f259a6182d61c0c75722f658a6a0cea1ee91885b",
+  "AdapterSha256": "8dc63f3db6e9cc74eda5a9de4ff5c06c7bc28cff9913a89a9b56b2e09f0868ba",
+  "Scope": "Unchanged original menu routing; explicit callback adapters record passed event identities, do not emulate actions. Mirror callbacks consume current selection2, shift callbacks receive event list."
+}

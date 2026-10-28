@@ -5,7 +5,7 @@ use key_commands::{Effect, Key, Registry};
 fn native_defaults_keep_playback_selection_and_player_shortcuts() {
     let p = Preferences::default();
     p.validate().unwrap();
-    assert_eq!(Action::ALL.len(), 47);
+    assert_eq!(Action::ALL.len(), 136);
     assert_eq!(
         p.commands["PlayPause"],
         vec![vec!["Enter"], vec!["NumPadEnter"]]
@@ -20,9 +20,9 @@ fn persisted_remap_drives_real_registry_and_roundtrips_unknown_source_commands()
     let mut fields=serde_json::json!({"Save":[["Ctrl","F13"]],"UnportedSourceAction":[["OemQuestion"]],"Vendor":17}).as_object().unwrap().clone();
     let p = Preferences::read(&fields).unwrap();
     let mut registry = Registry::new(p.bindings());
-    registry.update(0., vec![Key::named("Ctrl")]);
+    registry.update(0., vec![Key::named("LeftControl")]);
     assert_eq!(
-        registry.update(0.1, vec![Key::named("Ctrl"), Key::named("F13")]),
+        registry.update(0.1, vec![Key::named("LeftControl"), Key::named("F13")]),
         vec![Effect::Press("Save".into())]
     );
     p.write(&mut fields).unwrap();
@@ -39,10 +39,10 @@ fn unbinding_is_explicit_and_unsupported_or_duplicate_keys_are_rejected() {
     p.commands.insert("Save".into(), vec![vec![]]);
     p.validate().unwrap();
     let mut registry = Registry::new(p.bindings());
-    registry.update(0., vec![Key::named("Ctrl")]);
+    registry.update(0., vec![Key::named("LeftControl")]);
     assert!(
         registry
-            .update(0.1, vec![Key::named("Ctrl"), Key::named("S")])
+            .update(0.1, vec![Key::named("LeftControl"), Key::named("S")])
             .is_empty()
     );
     for keys in [vec!["Imaginary"], vec!["LeftShift", "RightShift"]] {
@@ -118,10 +118,12 @@ fn reservations_follow_native_modifier_predicates_and_protect_unmigrated_callbac
             .map(|name| (*name).to_owned())
             .collect::<Vec<_>>()
     };
-    for names in [vec!["LeftShift", "S"], vec!["Escape"]] {
+    for names in [vec!["Escape"],vec!["F2"],vec!["Ctrl","P"],vec!["Ctrl","M"]] {
         assert!(reservations::conflicts(&chord(&names)), "{names:?}");
     }
+    assert_eq!(Preferences::default().commands["OpenScrollSettings"],vec![vec!["LeftShift","S"]]);
     for names in [
+        vec!["LeftShift","S"],
         vec!["Ctrl", "S"],
         vec!["Ctrl", "LeftShift", "Z"],
         vec!["P"],
@@ -139,13 +141,6 @@ fn reservations_follow_native_modifier_predicates_and_protect_unmigrated_callbac
 fn second_increment_retains_native_chords_and_source_repeat_policies() {
     let preferences = Preferences::default();
     preferences.validate().unwrap();
-    let mut ambiguous = preferences.clone();
-    ambiguous.commands.insert(
-        "Save".into(),
-        vec![vec!["LeftAlt".into(), "LeftShift".into(), "W".into()]],
-    );
-    // Ctrl+W must still exclusively close a tab even with extra held modifiers.
-    assert!(ambiguous.validate().is_err());
     for (id, keys) in [
         ("DecreaseSnap", vec!["Left"]),
         ("IncreaseSnap", vec!["Right"]),
@@ -181,11 +176,15 @@ fn second_increment_retains_native_chords_and_source_repeat_policies() {
         assert!(!Action::from_id(id).unwrap().repeats());
     }
     let mut registry = Registry::new(preferences.bindings());
-    registry.update(0., vec![Key::named("Ctrl"), Key::named("LeftShift")]);
+    registry.update(0., vec![Key::named("LeftControl"), Key::named("LeftShift")]);
     assert_eq!(
         registry.update(
             0.1,
-            vec![Key::named("Ctrl"), Key::named("LeftShift"), Key::named("L")]
+            vec![
+                Key::named("LeftControl"),
+                Key::named("LeftShift"),
+                Key::named("L")
+            ]
         ),
         vec![Effect::Press("MoveToPreviousLabel".into())]
     );
@@ -204,9 +203,42 @@ fn third_increment_names_file_and_chart_operations_without_aliasing_new_or_reloa
         preferences.commands["RecoverDraft"],
         vec![vec!["Ctrl", "R"]]
     );
-    assert!(Action::from_id("New").is_none());
-    assert!(Action::from_id("Reload").is_none());
+    assert_eq!(Action::from_id("New"), Some(Action::FileNew));
+    assert_eq!(Action::from_id("Reload"), Some(Action::FileReload));
     for action in Action::ALL {
         assert_eq!(Action::from_id(action.id()), Some(action));
     }
+}
+
+#[test]
+fn fourth_increment_uses_real_handlers_keeps_physical_lane_modifiers_reserved() {
+    let p = Preferences::default();
+    p.validate().unwrap();
+    assert_eq!(
+        p.commands["ResetKeyboardZoom"],
+        vec![vec!["Ctrl", "D0"], vec!["Ctrl", "NumPad0"]]
+    );
+    for id in [
+        "OpenNoteConversion",
+        "OpenNoteOwners",
+        "OpenNoteAttributes",
+        "OpenTransforms",
+    ] {
+        assert_eq!(p.commands[id], vec![Vec::<String>::new()]);
+    }
+    for names in [
+        vec!["D1"],
+        vec!["LeftShift", "D1"],
+        vec!["Ctrl", "P"],
+        vec!["Ctrl", "M"],
+        vec!["Escape"],
+        vec!["F2"],
+    ] {
+        assert!(key_binding_preferences::reservations::conflicts(
+            &names.into_iter().map(str::to_owned).collect::<Vec<_>>()
+        ));
+    }
+    assert!(key_binding_preferences::supported_key("NumPad0"));
+    assert!(Action::from_id("ArrowModification").is_none());
+    assert_eq!(Action::from_id("New"), Some(Action::FileNew));
 }

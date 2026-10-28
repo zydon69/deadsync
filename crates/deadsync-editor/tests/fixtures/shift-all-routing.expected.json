@@ -1,0 +1,158 @@
+[
+  {
+    "All": false,
+    "Choice": "Mirror",
+    "Action": "Mirror",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": false,
+    "Choice": "Flip",
+    "Action": "Flip",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": false,
+    "Choice": "Mirror and Flip",
+    "Action": "MirrorAndFlip",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": false,
+    "Choice": "Shift Right",
+    "Action": "Right",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": false,
+    "Choice": "Shift Right and Wrap",
+    "Action": "RightAndWrap",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": false,
+    "Choice": "Shift Left",
+    "Action": "Left",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": false,
+    "Choice": "Shift Left and Wrap",
+    "Action": "LeftAndWrap",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": false,
+    "Choice": "Shift Earlier",
+    "Action": "Earlier",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": false,
+    "Choice": "Shift Later",
+    "Action": "Later",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": true,
+    "Choice": "Mirror",
+    "Action": "Mirror",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": true,
+    "Choice": "Flip",
+    "Action": "Flip",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": true,
+    "Choice": "Mirror and Flip",
+    "Action": "MirrorAndFlip",
+    "Passed": [
+      2
+    ]
+  },
+  {
+    "All": true,
+    "Choice": "Shift Right",
+    "Action": "Right",
+    "Passed": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "All": true,
+    "Choice": "Shift Right and Wrap",
+    "Action": "RightAndWrap",
+    "Passed": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "All": true,
+    "Choice": "Shift Left",
+    "Action": "Left",
+    "Passed": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "All": true,
+    "Choice": "Shift Left and Wrap",
+    "Action": "LeftAndWrap",
+    "Passed": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "All": true,
+    "Choice": "Shift Earlier",
+    "Action": "Earlier",
+    "Passed": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "All": true,
+    "Choice": "Shift Later",
+    "Action": "Later",
+    "Passed": [
+      1,
+      2,
+      3
+    ]
+  }
+]

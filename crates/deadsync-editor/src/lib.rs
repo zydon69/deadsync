@@ -5,6 +5,7 @@
 pub mod scroll_preferences;
 pub mod analysis;
 pub mod advanced_export;
+pub mod output_policy;
 pub mod attacks;
 pub mod audio_preferences;
 pub mod autoplay;
@@ -39,6 +40,8 @@ pub mod generation;
 pub mod history;
 pub mod music_file;
 pub mod notes;
+pub mod selected_transform;
+pub mod note_operation;
 pub mod note_swap;
 pub mod note_attributes;
 pub mod stepf2;
@@ -78,6 +81,7 @@ pub enum Error {
     InvalidEdit(String),
     ExternalChange,
     RecoveryConflict,
+    OutputReviewRequired,
     Io(std::io::Error),
 }
 
@@ -90,6 +94,7 @@ impl fmt::Display for Error {
             Self::ExternalChange => {
                 f.write_str("The simfile changed on disk; reload or save a copy.")
             }
+            Self::OutputReviewRequired => f.write_str("The current output requires a new review before saving."),
             Self::RecoveryConflict => f.write_str("An existing recovery draft changed; recover it or explicitly save a draft before replacing it."),
             Self::Io(error) => error.fmt(f),
         }
@@ -127,3 +132,11 @@ pub mod media_relocation;
 
 pub mod key_commands;
 pub mod key_binding_preferences;
+
+pub mod recent_songs;
+pub mod file_origin;
+pub mod recent_song_preferences;
+
+pub mod quick_add;
+
+pub mod shift_all;

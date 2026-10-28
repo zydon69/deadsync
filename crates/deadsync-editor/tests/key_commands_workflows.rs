@@ -1,5 +1,4 @@
-#[path = "../src/key_commands.rs"]
-mod key_commands;
+use deadsync_editor::key_commands;
 use key_commands::{Binding, Effect, Key, Registry};
 fn keys(names: &[&str]) -> Vec<Key> {
     names.iter().map(|n| Key::named(n)).collect()

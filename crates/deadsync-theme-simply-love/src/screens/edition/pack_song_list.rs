@@ -1,5 +1,6 @@
 //! Modal, keyboard-only browsing. Header discovery never replaces the editor.
-mod application_preferences;
+pub(super) mod file_open;
+pub(super) mod application_preferences;
 use super::{Panel, State, pack_song_load};
 use crate::{act, i18n};
 use deadlib_platform::input::KeyCode;
@@ -39,15 +40,19 @@ pub(super) struct Settings {
 }
 impl Settings {
     fn current(&self, state: &State) -> bool {
-        self.source == state.workspace.file().path()
+        Some(self.source.as_path()) == state.workspace.file().existing_path()
             && self.binding.is_current(&state.workspace.file().session)
     }
 }
 impl State {
+    pub(super) fn pack_file_io_active(&self)->bool {self.pack_song_list.as_ref().is_some_and(|settings|settings.scan.is_some()||settings.loading.is_some()||settings.prepared.is_some()||settings.candidate.is_some())}
     pub(super) fn open_pack_song_list(&mut self) {
         if self.save_as_pending_guard() {return;}
         self.stop_audio();
-        let source = self.workspace.file().path().to_path_buf();
+        let Some(source) = self.workspace.file().existing_path().map(std::path::Path::to_path_buf) else {
+            self.status = i18n::tr("Edition", "FileRequiresSaveAs");
+            return;
+        };
         let selection = self
             .pack_song_list
             .take()
@@ -152,8 +157,9 @@ impl State {
     /// Main-thread cultural boundary. Call on frames as well as raw-key dispatch:
     /// directory workers may finish without another keyboard event.
     pub fn process_pack_song_list(&mut self, orderer: &mut impl Orderer, chart_orderer: &mut impl deadsync_editor::chart_order::Orderer) -> bool {
+        let file_completed=self.process_file_menu(chart_orderer);
         if !matches!(self.panel, Some(Panel::PackSongList)) {
-            return false;
+            return file_completed;
         }
         self.poll_pack_song_list();
         let completed = self.complete_pack_song_preference(chart_orderer);

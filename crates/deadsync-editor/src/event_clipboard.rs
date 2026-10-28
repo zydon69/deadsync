@@ -1,6 +1,7 @@
 //! Detached mixed selections. Clipboard contents never retain a session token;
 //! cut and paste publish through one atomic chart/history gesture.
 mod selection;
+pub use selection::presets;
 mod patterns;
 use crate::{
     Error,

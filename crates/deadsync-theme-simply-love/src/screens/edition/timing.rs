@@ -15,6 +15,9 @@ pub(super) struct Settings {
     pub(super) pending: bool,
 }
 impl Settings {
+    pub(super) fn has_changes(&self) -> bool {
+        self.pending || self.draft.has_changes()
+    }
     pub(super) fn is_label(&self) -> bool {
         self.draft.kind() == EventKind::Label
     }
@@ -91,6 +94,7 @@ impl State {
         self.open_attacks(scope);
     }
     pub(super) fn timing_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::F5 { self.open_quick_add(); return; }
         if code == KeyCode::F7 {
             if self.timing.as_ref().is_some_and(|settings| settings.pending || settings.draft.has_changes()) {
                 self.status = i18n::tr("Edition", "TimingConversionPending");

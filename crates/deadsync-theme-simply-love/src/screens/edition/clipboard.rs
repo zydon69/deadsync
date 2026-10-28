@@ -12,14 +12,21 @@ pub(super) struct Request {
 enum ClipboardTarget {
     Property(Target),
     ProfileText(super::profile_edit::TextField),
+    KeyProfileImport,
 }
 enum Operation {
     Copy(String),
     Cut(String),
     Paste,
+    ImportKeyProfile(std::sync::Arc<deadsync_editor::key_binding_preferences::Preferences>),
 }
 impl State {
     fn clipboard_target(&self) -> Option<ClipboardTarget> {
+        if matches!(self.panel, Some(Panel::KeyBindingSettings(_)))
+            && self.key_binding_draft.is_some()
+        {
+            return Some(ClipboardTarget::KeyProfileImport);
+        }
         if matches!(self.panel, Some(Panel::ProfileText)) {
             self.profile_edit.as_ref()?.text_buffer.as_ref()?;
             Some(ClipboardTarget::ProfileText(
@@ -79,6 +86,21 @@ impl State {
             operation,
         });
     }
+    pub(super) fn queue_key_profile_import(&mut self) {
+        let Some(settings) = self.key_binding_draft.as_ref() else {
+            return;
+        };
+        let expected = settings.draft.staged();
+        if !self.key_profile_import_matches(&expected) {
+            return;
+        }
+        self.text_clipboard_request = Some(Request {
+            serial: self.text_edit_serial,
+            field: ClipboardTarget::KeyProfileImport,
+            operation: Operation::ImportKeyProfile(expected),
+        });
+        self.status = i18n::tr("Edition", "KeyProfileClipboardRequested");
+    }
     /// Only called by the shell after raw key dispatch. No OS access occurs on
     /// focus changes, redraws or ordinary typing. Stale requests never touch IO.
     pub fn process_text_clipboard(&mut self, clipboard: &mut impl TextClipboard) -> bool {
@@ -91,7 +113,17 @@ impl State {
         {
             return false;
         }
+        if let Operation::ImportKeyProfile(expected) = &request.operation {
+            // No OS read after close/reopen, draft replacement or capture entry.
+            if !self.key_profile_import_matches(expected) {
+                return false;
+            }
+        }
         let result = match request.operation {
+            Operation::ImportKeyProfile(_) => clipboard.read_text().map(|text| {
+                self.key_profile_import_text(&text);
+                None
+            }),
             Operation::Copy(text) => clipboard
                 .write_text(&text)
                 .map(|()| Some("ClipboardCopied")),

@@ -275,7 +275,7 @@ impl State {
     pub(super) fn pack_text_current(&self) -> bool {
         self.pack_properties.as_ref().is_some_and(|settings| {
             settings.can_edit()
-                && settings.source == self.workspace.file().path()
+                && Some(settings.source.as_path()) == self.workspace.file().existing_path()
                 && settings.binding.belongs_to(&self.workspace.file().session)
         })
     }
@@ -283,7 +283,10 @@ impl State {
         if self.is_generating() {
             return;
         }
-        let source = self.workspace.file().path().to_path_buf();
+        let Some(source) = self.workspace.file().existing_path().map(std::path::Path::to_path_buf) else {
+            self.status = i18n::tr("Edition", "FileRequiresSaveAs");
+            return;
+        };
         if let Some(settings) = &self.pack_properties {
             if settings.source == source
                 && settings.binding.belongs_to(&self.workspace.file().session)
@@ -355,7 +358,7 @@ impl State {
             self.close_pack_panel();
             return;
         }
-        if settings.source != self.workspace.file().path()
+        if Some(settings.source.as_path()) != self.workspace.file().existing_path()
             || !settings.binding.belongs_to(&self.workspace.file().session)
         {
             let settings = self.pack_properties.as_mut().unwrap();

@@ -1,3 +1,4 @@
+pub mod presets;
 use super::{Attacks, Clipboard, Timing, scope};
 use crate::{
     Error,
@@ -162,6 +163,26 @@ impl Selection {
                 "Event selection belongs to another session or revision".into(),
             ))
         }
+    }
+    pub fn prepare_note_operation(&self, session: &mut Session, operation: crate::note_operation::Operation) -> Result<crate::note_operation::Plan, crate::note_operation::Failure> {
+        self.validate(session)?;
+        let heads = self.selected.iter().filter_map(|event| match event { Event::Note(position) => Some(*position), _ => None }).collect();
+        crate::note_operation::Plan::prepare(session, self.chart, crate::note_operation::Scope::Heads(heads), operation)
+    }
+    pub fn prepare_timing_conversion(&self, session: &Session, direction: crate::timing_edit::conversion::Direction) -> Result<crate::timing_edit::conversion::Plan, crate::timing_edit::conversion::Failure> {
+        use crate::timing_edit::conversion::{Direction, Plan, Failure};
+        self.validate(session).map_err(|_| Failure::stale())?;
+        let rows: Vec<_> = self.selected.iter().filter_map(|event| match (direction, event) {
+            (Direction::WarpsToNegativeStops, Event::Timing { row, kind: TimingKind::Warp })
+            | (Direction::NegativeStopsToWarps, Event::Timing { row, kind: TimingKind::Stop }) => Some(*row),
+            _ => None,
+        }).collect();
+        Plan::prepare_detailed(session, self.chart, direction, Some(&rows))
+    }
+    pub fn prepare_transform(&self, session: &mut Session, transform: crate::transform::Transform) -> Result<crate::selected_transform::Plan, crate::selected_transform::Failure> {
+        self.validate(session).map_err(|_| crate::selected_transform::Failure::stale())?;
+        let heads = self.selected.iter().filter_map(|event| match event { Event::Note(position) => Some(*position), _ => None }).collect();
+        crate::selected_transform::Plan::prepare(session, self.chart, crate::note_operation::Scope::Heads(heads), transform)
     }
     pub fn copy(&self, session: &mut Session) -> Result<Option<Clipboard>, Error> {
         self.validate(session)?;

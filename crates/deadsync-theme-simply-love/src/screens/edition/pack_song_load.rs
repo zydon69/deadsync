@@ -15,12 +15,14 @@ pub(super) struct Job {
 }
 impl Job {
     pub(super) fn spawn(row: Row, preferences: Preferences) -> Result<Self, Error> {
+        let permit = super::file_open_permit::Permit::acquire()?;
         let cancelled = Arc::new(AtomicBool::new(false));
         let signal = cancelled.clone();
         let (sender, receiver) = mpsc::sync_channel(1);
         std::thread::Builder::new()
             .name("editor-pack-song-open".into())
             .spawn(move || {
+                let _permit = permit;
                 let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                     prepare(&row, preferences, &signal)
                 }))
@@ -62,7 +64,7 @@ fn prepare(row: &Row, preferences: Preferences, cancelled: &AtomicBool) -> Resul
     // Cancellation brackets its synchronous parser; it cannot interrupt parsing.
     let file = FileSession::open_bounded(&row.logical_path, 16 * 1024 * 1024, cancelled)?;
     check()?;
-    if file.path() != row.path || file.has_external_change()? {
+    if file.require_existing_path()? != row.path || file.has_external_change()? {
         return Err(Error::ExternalChange);
     }
     let prepared = Prepared::new(file, preferences, cancelled)?;

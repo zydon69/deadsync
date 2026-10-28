@@ -36,28 +36,30 @@ mod tests {
     fn snapshot_captured_before_normal_save_cannot_publish_after_it() {
         let (_dir, mut file) = file();
         file.session.set_text(None, "TITLE", "First").unwrap();
-        let pending = file.recovery_snapshot().unwrap();
+        let pending = file.recovery_snapshot().unwrap().unwrap();
         file.session.set_text(None, "TITLE", "Second").unwrap();
         file.save().unwrap();
         assert!(matches!(pending.write(true), Err(Error::ExternalChange)));
-        assert!(!file.recovery_path().exists());
+        assert!(!file.recovery_path().unwrap().exists());
     }
     #[test]
     fn older_snapshot_cannot_replace_a_new_explicit_draft() {
         let (_dir, mut file) = file();
         file.session.set_text(None, "TITLE", "First").unwrap();
         file.save_recovery().unwrap();
-        let pending = file.recovery_snapshot().unwrap();
+        let pending = file.recovery_snapshot().unwrap().unwrap();
         file.session.set_text(None, "TITLE", "Second").unwrap();
         file.save_recovery().unwrap();
-        let expected = fs::read(file.recovery_path()).unwrap();
+        let expected = fs::read(file.recovery_path().unwrap()).unwrap();
         assert!(matches!(pending.write(true), Err(Error::RecoveryConflict)));
-        assert_eq!(fs::read(file.recovery_path()).unwrap(), expected);
+        assert_eq!(fs::read(file.recovery_path().unwrap()).unwrap(), expected);
     }
 }
 struct Receipt {
+    policy_revision: u64,
+    publication_revision:u64,
     token: RevisionToken,
-    baseline: Arc<[u8]>,
+    baseline: Option<Arc<[u8]>>,
 }
 impl Default for AutoRecovery {
     fn default() -> Self {
@@ -96,13 +98,18 @@ impl AutoRecovery {
         self.last_attempt = Some(now);
         if !file.session.is_dirty()
             || self.saved.as_ref().is_some_and(|receipt| {
-                file.session.accepts_token(&receipt.token) && receipt.baseline == file.expected
+                file.session.accepts_token(&receipt.token)
+                    && receipt.baseline == file.expected
+                    && receipt.policy_revision == file.output_policy_revision()
+                    && receipt.publication_revision==file.publication_revision
             })
         {
             return Ok(());
         }
-        let snapshot = file.recovery_snapshot()?;
+        let Some(snapshot) = file.recovery_snapshot()? else { return Ok(()); };
         let receipt = Receipt {
+            policy_revision: file.output_policy_revision(),
+            publication_revision:file.publication_revision,
             token: file.session.revision_token(),
             baseline: file.expected.clone(),
         };

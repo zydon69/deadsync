@@ -1,0 +1,507 @@
+{
+  "Cases": [
+    {
+      "Name": "Notes-None-False",
+      "Selected": [
+        "Fake-0",
+        "Fake-1",
+        "Hold-0",
+        "Hold-1",
+        "Lift-0",
+        "Lift-1",
+        "Mine-0",
+        "Mine-1",
+        "Roll-0",
+        "Roll-1",
+        "Tap-0",
+        "Tap-1"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "Notes-None-True",
+      "Selected": [
+        "Fake-0",
+        "Fake-1",
+        "Hold-0",
+        "Hold-1",
+        "Lift-0",
+        "Lift-1",
+        "Mine-0",
+        "Mine-1",
+        "Roll-0",
+        "Roll-1",
+        "Tap-0",
+        "Tap-1",
+        "Tempo"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "Notes-0-False",
+      "Selected": [
+        "Fake-0",
+        "Hold-0",
+        "Lift-0",
+        "Mine-0",
+        "Roll-0",
+        "Tap-0"
+      ],
+      "Last": "Roll-0"
+    },
+    {
+      "Name": "Notes-0-True",
+      "Selected": [
+        "Fake-0",
+        "Hold-0",
+        "Lift-0",
+        "Mine-0",
+        "Roll-0",
+        "Tap-0",
+        "Tempo"
+      ],
+      "Last": "Roll-0"
+    },
+    {
+      "Name": "Notes-1-False",
+      "Selected": [
+        "Fake-1",
+        "Hold-1",
+        "Lift-1",
+        "Mine-1",
+        "Roll-1",
+        "Tap-1"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "Notes-1-True",
+      "Selected": [
+        "Fake-1",
+        "Hold-1",
+        "Lift-1",
+        "Mine-1",
+        "Roll-1",
+        "Tap-1",
+        "Tempo"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "Taps-None-False",
+      "Selected": [
+        "Tap-0",
+        "Tap-1"
+      ],
+      "Last": "Tap-1"
+    },
+    {
+      "Name": "Taps-None-True",
+      "Selected": [
+        "Tap-0",
+        "Tap-1",
+        "Tempo"
+      ],
+      "Last": "Tap-1"
+    },
+    {
+      "Name": "Taps-0-False",
+      "Selected": [
+        "Tap-0"
+      ],
+      "Last": "Tap-0"
+    },
+    {
+      "Name": "Taps-0-True",
+      "Selected": [
+        "Tap-0",
+        "Tempo"
+      ],
+      "Last": "Tap-0"
+    },
+    {
+      "Name": "Taps-1-False",
+      "Selected": [
+        "Tap-1"
+      ],
+      "Last": "Tap-1"
+    },
+    {
+      "Name": "Taps-1-True",
+      "Selected": [
+        "Tap-1",
+        "Tempo"
+      ],
+      "Last": "Tap-1"
+    },
+    {
+      "Name": "Mines-None-False",
+      "Selected": [
+        "Mine-0",
+        "Mine-1"
+      ],
+      "Last": "Mine-1"
+    },
+    {
+      "Name": "Mines-None-True",
+      "Selected": [
+        "Mine-0",
+        "Mine-1",
+        "Tempo"
+      ],
+      "Last": "Mine-1"
+    },
+    {
+      "Name": "Mines-0-False",
+      "Selected": [
+        "Mine-0"
+      ],
+      "Last": "Mine-0"
+    },
+    {
+      "Name": "Mines-0-True",
+      "Selected": [
+        "Mine-0",
+        "Tempo"
+      ],
+      "Last": "Mine-0"
+    },
+    {
+      "Name": "Mines-1-False",
+      "Selected": [
+        "Mine-1"
+      ],
+      "Last": "Mine-1"
+    },
+    {
+      "Name": "Mines-1-True",
+      "Selected": [
+        "Mine-1",
+        "Tempo"
+      ],
+      "Last": "Mine-1"
+    },
+    {
+      "Name": "Fakes-None-False",
+      "Selected": [
+        "Fake-0",
+        "Fake-1"
+      ],
+      "Last": "Fake-1"
+    },
+    {
+      "Name": "Fakes-None-True",
+      "Selected": [
+        "Fake-0",
+        "Fake-1",
+        "Tempo"
+      ],
+      "Last": "Fake-1"
+    },
+    {
+      "Name": "Fakes-0-False",
+      "Selected": [
+        "Fake-0"
+      ],
+      "Last": "Fake-0"
+    },
+    {
+      "Name": "Fakes-0-True",
+      "Selected": [
+        "Fake-0",
+        "Tempo"
+      ],
+      "Last": "Fake-0"
+    },
+    {
+      "Name": "Fakes-1-False",
+      "Selected": [
+        "Fake-1"
+      ],
+      "Last": "Fake-1"
+    },
+    {
+      "Name": "Fakes-1-True",
+      "Selected": [
+        "Fake-1",
+        "Tempo"
+      ],
+      "Last": "Fake-1"
+    },
+    {
+      "Name": "Lifts-None-False",
+      "Selected": [
+        "Lift-0",
+        "Lift-1"
+      ],
+      "Last": "Lift-1"
+    },
+    {
+      "Name": "Lifts-None-True",
+      "Selected": [
+        "Lift-0",
+        "Lift-1",
+        "Tempo"
+      ],
+      "Last": "Lift-1"
+    },
+    {
+      "Name": "Lifts-0-False",
+      "Selected": [
+        "Lift-0"
+      ],
+      "Last": "Lift-0"
+    },
+    {
+      "Name": "Lifts-0-True",
+      "Selected": [
+        "Lift-0",
+        "Tempo"
+      ],
+      "Last": "Lift-0"
+    },
+    {
+      "Name": "Lifts-1-False",
+      "Selected": [
+        "Lift-1"
+      ],
+      "Last": "Lift-1"
+    },
+    {
+      "Name": "Lifts-1-True",
+      "Selected": [
+        "Lift-1",
+        "Tempo"
+      ],
+      "Last": "Lift-1"
+    },
+    {
+      "Name": "Holds-None-False",
+      "Selected": [
+        "Hold-0",
+        "Hold-1"
+      ],
+      "Last": "Hold-1"
+    },
+    {
+      "Name": "Holds-None-True",
+      "Selected": [
+        "Hold-0",
+        "Hold-1",
+        "Tempo"
+      ],
+      "Last": "Hold-1"
+    },
+    {
+      "Name": "Holds-0-False",
+      "Selected": [
+        "Hold-0"
+      ],
+      "Last": "Hold-0"
+    },
+    {
+      "Name": "Holds-0-True",
+      "Selected": [
+        "Hold-0",
+        "Tempo"
+      ],
+      "Last": "Hold-0"
+    },
+    {
+      "Name": "Holds-1-False",
+      "Selected": [
+        "Hold-1"
+      ],
+      "Last": "Hold-1"
+    },
+    {
+      "Name": "Holds-1-True",
+      "Selected": [
+        "Hold-1",
+        "Tempo"
+      ],
+      "Last": "Hold-1"
+    },
+    {
+      "Name": "Rolls-None-False",
+      "Selected": [
+        "Roll-0",
+        "Roll-1"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "Rolls-None-True",
+      "Selected": [
+        "Roll-0",
+        "Roll-1",
+        "Tempo"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "Rolls-0-False",
+      "Selected": [
+        "Roll-0"
+      ],
+      "Last": "Roll-0"
+    },
+    {
+      "Name": "Rolls-0-True",
+      "Selected": [
+        "Roll-0",
+        "Tempo"
+      ],
+      "Last": "Roll-0"
+    },
+    {
+      "Name": "Rolls-1-False",
+      "Selected": [
+        "Roll-1"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "Rolls-1-True",
+      "Selected": [
+        "Roll-1",
+        "Tempo"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "HoldsAndRolls-None-False",
+      "Selected": [
+        "Hold-0",
+        "Hold-1",
+        "Roll-0",
+        "Roll-1"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "HoldsAndRolls-None-True",
+      "Selected": [
+        "Hold-0",
+        "Hold-1",
+        "Roll-0",
+        "Roll-1",
+        "Tempo"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "HoldsAndRolls-0-False",
+      "Selected": [
+        "Hold-0",
+        "Roll-0"
+      ],
+      "Last": "Roll-0"
+    },
+    {
+      "Name": "HoldsAndRolls-0-True",
+      "Selected": [
+        "Hold-0",
+        "Roll-0",
+        "Tempo"
+      ],
+      "Last": "Roll-0"
+    },
+    {
+      "Name": "HoldsAndRolls-1-False",
+      "Selected": [
+        "Hold-1",
+        "Roll-1"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "HoldsAndRolls-1-True",
+      "Selected": [
+        "Hold-1",
+        "Roll-1",
+        "Tempo"
+      ],
+      "Last": "Roll-1"
+    },
+    {
+      "Name": "Miscellaneous-None-False",
+      "Selected": [
+        "Attack",
+        "Pattern",
+        "Stop",
+        "Tempo"
+      ],
+      "Last": "Attack"
+    },
+    {
+      "Name": "Miscellaneous-None-True",
+      "Selected": [
+        "Attack",
+        "Pattern",
+        "Stop",
+        "Tempo"
+      ],
+      "Last": "Attack"
+    },
+    {
+      "Name": "NotesAndMiscellaneous-None-False",
+      "Selected": [
+        "Attack",
+        "Fake-0",
+        "Fake-1",
+        "Hold-0",
+        "Hold-1",
+        "Lift-0",
+        "Lift-1",
+        "Mine-0",
+        "Mine-1",
+        "Pattern",
+        "Roll-0",
+        "Roll-1",
+        "Stop",
+        "Tap-0",
+        "Tap-1",
+        "Tempo"
+      ],
+      "Last": "Attack"
+    },
+    {
+      "Name": "NotesAndMiscellaneous-None-True",
+      "Selected": [
+        "Attack",
+        "Fake-0",
+        "Fake-1",
+        "Hold-0",
+        "Hold-1",
+        "Lift-0",
+        "Lift-1",
+        "Mine-0",
+        "Mine-1",
+        "Pattern",
+        "Roll-0",
+        "Roll-1",
+        "Stop",
+        "Tap-0",
+        "Tap-1",
+        "Tempo"
+      ],
+      "Last": "Attack"
+    },
+    {
+      "Name": "Patterns-None-False",
+      "Selected": [
+        "Pattern"
+      ],
+      "Last": "Pattern"
+    },
+    {
+      "Name": "Patterns-None-True",
+      "Selected": [
+        "Pattern",
+        "Tempo"
+      ],
+      "Last": "Pattern"
+    }
+  ]
+}

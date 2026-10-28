@@ -1,0 +1,5566 @@
+{
+  "Cases": [
+    {
+      "Name": "Notes-None-False",
+      "Preset": "Notes",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Notes-None-True",
+      "Preset": "Notes",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Notes-0-False",
+      "Preset": "Notes",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Notes-0-True",
+      "Preset": "Notes",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Notes-1-False",
+      "Preset": "Notes",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Notes-1-True",
+      "Preset": "Notes",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Taps-None-False",
+      "Preset": "Taps",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Taps-None-True",
+      "Preset": "Taps",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Taps-0-False",
+      "Preset": "Taps",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Taps-0-True",
+      "Preset": "Taps",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Taps-1-False",
+      "Preset": "Taps",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Taps-1-True",
+      "Preset": "Taps",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Mines-None-False",
+      "Preset": "Mines",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Mines-None-True",
+      "Preset": "Mines",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Mines-0-False",
+      "Preset": "Mines",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Mines-0-True",
+      "Preset": "Mines",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Mines-1-False",
+      "Preset": "Mines",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Mines-1-True",
+      "Preset": "Mines",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Fakes-None-False",
+      "Preset": "Fakes",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Fakes-None-True",
+      "Preset": "Fakes",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Fakes-0-False",
+      "Preset": "Fakes",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Fakes-0-True",
+      "Preset": "Fakes",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Fakes-1-False",
+      "Preset": "Fakes",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Fakes-1-True",
+      "Preset": "Fakes",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Lifts-None-False",
+      "Preset": "Lifts",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Lifts-None-True",
+      "Preset": "Lifts",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Lifts-0-False",
+      "Preset": "Lifts",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Lifts-0-True",
+      "Preset": "Lifts",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Lifts-1-False",
+      "Preset": "Lifts",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Lifts-1-True",
+      "Preset": "Lifts",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Holds-None-False",
+      "Preset": "Holds",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Holds-None-True",
+      "Preset": "Holds",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Holds-0-False",
+      "Preset": "Holds",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Holds-0-True",
+      "Preset": "Holds",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Holds-1-False",
+      "Preset": "Holds",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Holds-1-True",
+      "Preset": "Holds",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Rolls-None-False",
+      "Preset": "Rolls",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Rolls-None-True",
+      "Preset": "Rolls",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Rolls-0-False",
+      "Preset": "Rolls",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Rolls-0-True",
+      "Preset": "Rolls",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Rolls-1-False",
+      "Preset": "Rolls",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Rolls-1-True",
+      "Preset": "Rolls",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "HoldsAndRolls-None-False",
+      "Preset": "HoldsAndRolls",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "HoldsAndRolls-None-True",
+      "Preset": "HoldsAndRolls",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "HoldsAndRolls-0-False",
+      "Preset": "HoldsAndRolls",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "HoldsAndRolls-0-True",
+      "Preset": "HoldsAndRolls",
+      "Player": 0,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "HoldsAndRolls-1-False",
+      "Preset": "HoldsAndRolls",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "HoldsAndRolls-1-True",
+      "Preset": "HoldsAndRolls",
+      "Player": 1,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Miscellaneous-None-False",
+      "Preset": "Miscellaneous",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Miscellaneous-None-True",
+      "Preset": "Miscellaneous",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "NotesAndMiscellaneous-None-False",
+      "Preset": "NotesAndMiscellaneous",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "NotesAndMiscellaneous-None-True",
+      "Preset": "NotesAndMiscellaneous",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Patterns-None-False",
+      "Preset": "Patterns",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": false
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "Patterns-None-True",
+      "Preset": "Patterns",
+      "Player": null,
+      "Events": [
+        {
+          "Kind": "Tap",
+          "Player": 0,
+          "Id": "Tap-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 0,
+          "Id": "Mine-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 0,
+          "Id": "Fake-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 0,
+          "Id": "Lift-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 0,
+          "Id": "Hold-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 0,
+          "Id": "Roll-0",
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Player": 1,
+          "Id": "Tap-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Player": 1,
+          "Id": "Mine-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Player": 1,
+          "Id": "Fake-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Player": 1,
+          "Id": "Lift-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Player": 1,
+          "Id": "Hold-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Player": 1,
+          "Id": "Roll-1",
+          "Selected": false
+        },
+        {
+          "Kind": "Tempo",
+          "Player": 0,
+          "Id": "Tempo",
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Player": 0,
+          "Id": "Stop",
+          "Selected": false
+        },
+        {
+          "Kind": "Pattern",
+          "Player": 0,
+          "Id": "Pattern",
+          "Selected": false
+        },
+        {
+          "Kind": "Attack",
+          "Player": 0,
+          "Id": "Attack",
+          "Selected": false
+        }
+      ]
+    }
+  ]
+}

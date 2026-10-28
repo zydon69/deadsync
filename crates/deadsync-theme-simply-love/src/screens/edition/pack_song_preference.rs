@@ -1,6 +1,7 @@
 //! Candidate preparation is independent of the active editor. The worker owns
 //! its FileSession and builds existing comparison keys; cultural sorting stays
 //! on the main thread before publication.
+mod recent;
 use deadsync_editor::{
     Error,
     chart_order::{Orderer, Snapshot, loadable::Failure},

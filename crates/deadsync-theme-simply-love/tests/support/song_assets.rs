@@ -165,7 +165,7 @@ fn all_media_paths_use_typed_picker_stage_apply_undo_save_and_reopen() {
         ctrl(&mut s, KeyCode::KeyY);
         assert_eq!(s.workspace().file().session.serialize().unwrap(), changed);
         ctrl(&mut s, KeyCode::KeyS);
-        let reopened = FileSession::open(s.workspace().file().path()).unwrap();
+        let reopened = FileSession::open(s.workspace().file().require_existing_path().unwrap()).unwrap();
         let text = Text::read(reopened.session.document());
         for (target, name, path) in selected {
             assert_eq!(text.get(target), name);
@@ -261,7 +261,7 @@ fn automatic_media_search_stages_real_images_and_lyrics_and_preserves_missing_pa
         ctrl(&mut s, KeyCode::KeyY);
         assert_eq!(s.workspace().file().session.serialize().unwrap(), changed);
         ctrl(&mut s, KeyCode::KeyS);
-        let reopened = FileSession::open(s.workspace().file().path()).unwrap();
+        let reopened = FileSession::open(s.workspace().file().require_existing_path().unwrap()).unwrap();
         assert_eq!(reopened.session.serialize().unwrap(), changed);
     }
 }

@@ -32,6 +32,17 @@ pub struct Report {
     pub overlaps: BTreeSet<u64>,
     pub selection_after: Vec<u64>,
 }
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Refusal { ZeroDurationStop, TargetFormat, CollisionReview, Stale, Invalid }
+#[derive(Debug)]
+pub struct Failure { kind: Refusal, error: Error }
+impl Failure {
+    pub fn kind(&self) -> Refusal { self.kind }
+    pub(crate) fn stale() -> Self { Self::new(Refusal::Stale, "Timing conversion belongs to another active chart") }
+    fn new(kind: Refusal, message: &str) -> Self { Self { kind, error: invalid(message) } }
+}
+impl From<Error> for Failure { fn from(error: Error) -> Self { Self { kind: Refusal::Invalid, error } } }
+impl From<Failure> for Error { fn from(failure: Failure) -> Self { failure.error } }
 pub struct Plan {
     target: Target,
     chart: usize,
@@ -48,6 +59,14 @@ impl Plan {
         direction: Direction,
         selected: Option<&[u64]>,
     ) -> Result<Self, Error> {
+        Self::prepare_detailed(session, chart, direction, selected).map_err(Into::into)
+    }
+    pub fn prepare_detailed(session: &Session, chart: usize, direction: Direction, selected: Option<&[u64]>) -> Result<Self, Failure> {
+        let mut reason = None;
+        Self::prepare_inner(session, chart, direction, selected, &mut reason)
+            .map_err(|error| Failure { kind: reason.unwrap_or(Refusal::Invalid), error })
+    }
+    fn prepare_inner(session: &Session, chart: usize, direction: Direction, selected: Option<&[u64]>, reason: &mut Option<Refusal>) -> Result<Self, Error> {
         let document = session.document();
         let scope = if super::uses_chart_timing(document, chart) {
             Scope::Chart
@@ -101,6 +120,7 @@ impl Plan {
             && !rows.is_empty()
             && document.format == Format::Sm
         {
+            *reason = Some(Refusal::TargetFormat);
             return Err(invalid(
                 "Warp results require SSC; convert the file format explicitly before applying this timing conversion",
             ));
@@ -150,6 +170,7 @@ impl Plan {
                         .ok_or_else(|| invalid("Warp end exceeds row range"))?;
                     let seconds = -(current.position_time(end)? - start);
                     if seconds == 0.0 || crate::number::reference_equal(seconds, 0.0) {
+                        *reason = Some(Refusal::ZeroDurationStop);
                         return Err(invalid(
                             "Conversion would create a zero-length Stop that cannot survive save/reopen; the original Warp and history were preserved",
                         ));
@@ -192,6 +213,18 @@ impl Plan {
         session: &mut Session,
         acknowledged_collisions: &BTreeSet<u64>,
     ) -> Result<bool, Error> {
+        self.apply_detailed(session, acknowledged_collisions).map_err(Into::into)
+    }
+    pub fn apply_detailed(&self, session: &mut Session, acknowledged_collisions: &BTreeSet<u64>) -> Result<bool, Failure> {
+        if acknowledged_collisions != &self.report.deleted_on_collision {
+            return Err(Failure::new(Refusal::CollisionReview, "Review every collision deletion before applying"));
+        }
+        if !session.accepts_token(&self.target.token) {
+            return Err(Failure::new(Refusal::Stale, "Timing review belongs to another session or revision"));
+        }
+        self.apply_inner(session, acknowledged_collisions).map_err(Into::into)
+    }
+    fn apply_inner(&self, session: &mut Session, acknowledged_collisions: &BTreeSet<u64>) -> Result<bool, Error> {
         if acknowledged_collisions != &self.report.deleted_on_collision {
             return Err(invalid(
                 "Review every timing original deleted by an opposite-kind collision before applying",

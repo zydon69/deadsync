@@ -40,7 +40,7 @@ impl super::State {
         }
         let fields = [Field::Banner, Field::CdTitle];
         let committed = Text::read(self.workspace.file().session.document());
-        let directory = self.workspace.file().path().parent()?;
+        let directory = self.workspace.file().resource_base();
         let paths = fields.map(|field| {
             let value = self
                 .song_properties

@@ -209,10 +209,10 @@ impl State {
         let resume = self.paused_position().or_else(|| self.focus_position.as_ref()
             .filter(|position| position.is_current(&self.workspace))
             .map(|position| Position { music_time: position.music_time(), chart_time: position.chart_time(), row: position.row() }));
-        let result = Preview::capture(
+        let result = Preview::capture_from_directory(
             &self.workspace.file().session,
             self.workspace.chart(),
-            self.workspace.file().path(),
+            self.workspace.file().resource_base(),
         )
         .and_then(|preview| {
             let time = if let Some(position) = resume {
@@ -319,10 +319,10 @@ impl State {
             .as_ref()
             .ok_or_else(|| deadsync_editor::Error::InvalidEdit("No song draft".into()))
             .and_then(|draft| {
-                draft.sample_audio(
+                draft.sample_audio_from_directory(
                     &self.workspace.file().session,
                     self.workspace.chart(),
-                    self.workspace.file().path(),
+                    self.workspace.file().resource_base(),
                 )
             });
         match result {

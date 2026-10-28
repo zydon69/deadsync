@@ -1,9 +1,10 @@
 //! Selection transforms preserve owners, sustain tails, and note attributes.
 //! Refer to GrooveAuthor EditorActions/Action*Selection*.cs (MIT).
+pub(crate) mod preview;
 use crate::{
     Error,
     history::Session,
-    notes::{Kind, Note, Position},
+    notes::{Kind, Position},
     pad::Pad,
 };
 use std::collections::{BTreeMap, BTreeSet};
@@ -27,172 +28,30 @@ pub enum Transform {
     },
 }
 
-pub fn apply(
-    session: &mut Session,
-    chart: usize,
-    start: u64,
-    end: u64,
-    player: Option<u32>,
-    transform: Transform,
-) -> Result<bool, Error> {
-    if start > end {
-        return Err(Error::InvalidEdit("Selection ends before it starts".into()));
+pub fn apply(session: &mut Session, chart: usize, start: u64, end: u64, player: Option<u32>, transform: Transform) -> Result<bool, Error> {
+    if start > end { return Err(Error::InvalidEdit("Selection ends before it starts".into())); }
+    let heads = session.grid(chart)?.iter().filter(|(position, _)| (start..=end).contains(&position.row) && player.is_none_or(|p| p == position.player)).map(|(position, _)| position).collect();
+    apply_positions(session, chart, &heads, transform)
+}
+/// Same native reference engine for exact checked heads. Spatial ForceInsert and
+/// strict ownership collision contracts remain separate inside the preview.
+pub fn apply_positions(session: &mut Session, chart: usize, heads: &BTreeSet<Position>, transform: Transform) -> Result<bool, Error> {
+    if let Transform::Convert { from, to, sustain_rows } = transform {
+        let grid = session.grid(chart)?;
+        let mut edits = BTreeMap::new();
+        for (position, note) in grid.iter().filter(|(position, note)| heads.contains(position) && note.kind == from) {
+            edits.insert(position, Some(crate::note_operation::convert_note(note, position.row, to, sustain_rows, grid.uses_stepf2())?));
+        }
+        return session.edit_notes(chart, format!("{transform:?}"), edits);
     }
-    if matches!(
-        transform,
-        Transform::ShiftLanes { .. }
-            | Transform::ShiftRows(_)
-            | Transform::Mirror
-            | Transform::Flip
-            | Transform::MirrorAndFlip
-    ) {
-        let pad = if matches!(
-            transform,
-            Transform::Mirror | Transform::Flip | Transform::MirrorAndFlip
-        ) {
-            let layout = &session
-                .document()
-                .charts()
-                .get(chart)
-                .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?
-                .steps_type;
-            Some(Pad::builtin(layout)?)
-        } else {
-            None
-        };
-        let original = session.grid(chart)?;
-        let mut staged = original.clone();
-        let mut selected: Vec<_> = original
-            .iter()
-            .filter(|(pos, _)| {
-                pos.row >= start
-                    && pos.row <= end
-                    && player.is_none_or(|p| pos.player == p)
-                    && pad.is_none_or(|pad| symmetry_lane(pad, pos.lane, transform).is_some())
-            })
-            .map(|(pos, note)| (pos, note.clone()))
-            .collect();
-        selected.sort_by_key(|(pos, _)| (pos.row, pos.lane, pos.player));
-        for (pos, _) in &selected {
-            staged.set(*pos, None)?;
-        }
-        for (mut pos, mut note) in selected {
-            match transform {
-                Transform::Mirror | Transform::Flip | Transform::MirrorAndFlip => {
-                    pos.lane = symmetry_lane(pad.unwrap(), pos.lane, transform).unwrap();
-                }
-                Transform::ShiftLanes { right, wrap } => {
-                    let lane = if right {
-                        pos.lane
-                            .checked_add(1)
-                            .filter(|lane| *lane < staged.columns())
-                    } else {
-                        pos.lane.checked_sub(1)
-                    };
-                    pos.lane = match lane {
-                        Some(lane) => lane,
-                        None if wrap => {
-                            if right {
-                                0
-                            } else {
-                                staged.columns() - 1
-                            }
-                        }
-                        None => continue,
-                    };
-                }
-                Transform::ShiftRows(delta) => {
-                    if delta < 0 && pos.row < delta.unsigned_abs() {
-                        continue;
-                    }
-                    pos.row = shift(pos.row, delta)?;
-                    note.end = note.end.map(|end| shift(end, delta)).transpose()?;
-                }
-                _ => unreachable!("staged shift"),
-            }
-            staged.force_insert(pos, note)?;
-        }
-        let label = if matches!(transform, Transform::ShiftRows(_)) {
-            "Shift note rows"
-        } else if matches!(transform, Transform::ShiftLanes { .. }) {
-            "Shift note columns"
-        } else {
-            "Transform note lanes"
-        };
-        return session.apply_grid_delta(chart, &staged, label);
-    }
-    let grid = session.grid(chart)?;
-    if let Transform::SwapPlayers(a, b) = transform {
-        if a >= grid.players() || b >= grid.players() {
-            return Err(Error::InvalidEdit(
-                "Player swap targets must exist in this chart".into(),
-            ));
-        }
-    }
-    let selected: Vec<_> = grid
-        .iter()
-        .filter(|(pos, _)| {
-            pos.row >= start && pos.row <= end && player.is_none_or(|player| pos.player == player)
-        })
-        .map(|(pos, note)| (pos, note.clone()))
-        .collect();
-    let sources: BTreeSet<_> = selected.iter().map(|(pos, _)| *pos).collect();
-    let mut edits: BTreeMap<Position, Option<Note>> =
-        sources.iter().map(|&pos| (pos, None)).collect();
-    let mut targets = BTreeSet::new();
-    for (mut pos, mut note) in selected {
-        match transform {
-            Transform::Mirror | Transform::Flip | Transform::MirrorAndFlip => {
-                unreachable!("symmetry handled above")
-            }
-            Transform::ShiftLanes { .. } => unreachable!("lane shift handled above"),
-            Transform::ShiftRows(_) => unreachable!("row shift handled above"),
-            Transform::AssignPlayer(owner) => pos.player = owner,
-            Transform::SwapPlayers(a, b) => {
-                if pos.player == a {
-                    pos.player = b;
-                } else if pos.player == b {
-                    pos.player = a;
-                }
-            }
-            Transform::Convert {
-                from,
-                to,
-                sustain_rows,
-            } => {
-                if note.kind == from {
-                    if matches!(to, Kind::Keysound | Kind::Attack) {
-                        return Err(Error::Unsupported(
-                            "Conversion to an attributed note needs explicit attributes".into(),
-                        ));
-                    }
-                    if grid.uses_stepf2() {
-                        crate::stepf2::change_kind(&mut note, to)?;
-                    } else {
-                        note.kind = to;
-                    }
-                    note.end = if matches!(to, Kind::Hold | Kind::Roll) {
-                        Some(match note.end {
-                            Some(end) => end,
-                            None => pos.row.checked_add(sustain_rows).ok_or_else(|| {
-                                Error::InvalidEdit("Sustain exceeds row range".into())
-                            })?,
-                        })
-                    } else {
-                        note.tail_attributes = "".into();
-                        None
-                    };
-                }
-            }
-        }
-        if !targets.insert(pos) || (grid.get(pos).is_some() && !sources.contains(&pos)) {
-            return Err(Error::InvalidEdit(
-                "Transformation would overwrite an unselected note".into(),
-            ));
-        }
-        edits.insert(pos, Some(note));
-    }
-    session.edit_notes(chart, format!("{transform:?}"), edits)
+    let prepared = preview::positions(session, chart, heads, transform).map_err(|failure| failure.error)?;
+    let label = match transform {
+        Transform::ShiftRows(_) => "Shift note rows".into(),
+        Transform::ShiftLanes { .. } => "Shift note columns".into(),
+        Transform::Mirror | Transform::Flip | Transform::MirrorAndFlip => "Transform note lanes".into(),
+        _ => format!("{transform:?}"),
+    };
+    session.apply_grid_delta(chart, &prepared.grid, &label)
 }
 
 fn symmetry_lane(pad: &Pad, lane: u16, transform: Transform) -> Option<u16> {

@@ -11,6 +11,7 @@ use deadsync_editor::{
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(super) enum Target {
     SaveAsDestination,
+    FileOpenPath,
     Chart(ChartField),
     Song(SongField),
     Note(NoteField),
@@ -44,6 +45,7 @@ impl Target {
     }
     fn key(self) -> &'static str {
         match self {
+            Self::FileOpenPath=>"FileOpenPath",
             Self::SaveAsDestination=>"SaveAsDestinationValue",
             Self::Attack(index) => super::attacks::FIELD_KEYS[index],
             Self::Pack(field) => field.key(),
@@ -85,6 +87,7 @@ impl Target {
 impl State {
     fn field_at(&self, index: usize) -> Option<Target> {
         match self.panel {
+            Some(Panel::FileOpen(_)) if index==0=>Some(Target::FileOpenPath),
             Some(Panel::SaveAsDestination(_)) if index==0=>Some(Target::SaveAsDestination),
             Some(Panel::Attacks(_)) if (3..8).contains(&index) => Some(Target::Attack(index - 3)),
             Some(Panel::NoteAttributes(_)) if self.note_attribute_typed => match index {
@@ -105,6 +108,7 @@ impl State {
     }
     fn field_value(&self, target: Target) -> Option<std::borrow::Cow<'_, str>> {
         match target {
+            Target::FileOpenPath=>Some(self.file_menu.destination.as_str().into()),
             Target::SaveAsDestination=>Some(self.save_as.destination.as_str().into()),
             Target::Pack(field) => self.pack_properties.as_ref().map(|settings| settings.text(field)),
             Target::NoteReserved => self.note_attributes.as_ref()
@@ -118,6 +122,7 @@ impl State {
     }
     fn field_supported(&self, target: Target) -> bool {
         match target {
+            Target::FileOpenPath=>matches!(self.panel,Some(Panel::FileOpen(_))),
             Target::SaveAsDestination=>matches!(self.panel,Some(Panel::SaveAsDestination(_))),
             Target::Pack(_) => self.pack_text_current(),
             Target::NoteReserved => self.note_attributes.as_ref()
@@ -143,6 +148,10 @@ impl State {
     ) -> Result<(), deadsync_editor::Error> {
         let missing = || deadsync_editor::Error::InvalidEdit("No property draft is active".into());
         match target {
+            Target::FileOpenPath=>{
+                if value.len()>4096||value.chars().any(char::is_control){return Err(deadsync_editor::Error::InvalidEdit("Invalid open path text".into()));}
+                self.file_menu.destination=value.to_owned();Ok(())
+            }
             Target::SaveAsDestination=>{
                 if value.len()>4096 || value.chars().any(char::is_control) {return Err(deadsync_editor::Error::InvalidEdit("Invalid destination text".into()));}
                 self.save_as.destination=value.to_owned();Ok(())
@@ -177,7 +186,7 @@ impl State {
             return if self.pack_text_current() { self.pack_properties.as_ref()?.field().map(Target::Pack) } else { None };
         }
         let index = match self.panel {
-            Some(Panel::SaveAsDestination(i) | Panel::ChartText(i) | Panel::SongText(i) | Panel::NoteAttributes(i) | Panel::Attacks(i)) => i,
+            Some(Panel::FileOpen(i) | Panel::SaveAsDestination(i) | Panel::ChartText(i) | Panel::SongText(i) | Panel::NoteAttributes(i) | Panel::Attacks(i)) => i,
             _ => return None,
         };
         self.field_at(index)

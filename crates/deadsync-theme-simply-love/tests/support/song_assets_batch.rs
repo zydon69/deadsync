@@ -103,7 +103,7 @@ fn batch_search_respects_pending_paths_and_overwrite_is_one_reversible_saved_cha
                 changed
             );
             ctrl(&mut state, KeyCode::KeyS);
-            let reopened = FileSession::open(state.workspace().file().path()).unwrap();
+            let reopened = FileSession::open(state.workspace().file().require_existing_path().unwrap()).unwrap();
             assert_eq!(reopened.session.serialize().unwrap(), changed);
             for (name, bytes) in media_bytes {
                 assert_eq!(fs::read(dir.path().join(name)).unwrap(), bytes);

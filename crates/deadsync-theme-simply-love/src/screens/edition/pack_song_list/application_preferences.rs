@@ -6,7 +6,8 @@ use deadsync_editor::{
     note_color_preferences, scroll_preferences, waveform_preferences, zoom, zoom_preferences,
 };
 use std::{path::PathBuf, time::Instant};
-pub(super) struct Snapshot {
+pub(in crate::screens::edition) struct Snapshot {
+    recent: deadsync_editor::recent_song_preferences::Preferences,
     keys:std::sync::Arc<deadsync_editor::key_binding_preferences::Preferences>,
     audio: Audio,
     receptors: deadsync_editor::receptor_preferences::Preferences,
@@ -26,8 +27,9 @@ pub(super) struct Snapshot {
     profiles: Option<PathBuf>,
 }
 impl Snapshot {
-    pub(super) fn capture(state: &State) -> Self {
+    pub(in crate::screens::edition) fn capture(state: &State) -> Self {
         Self {
+            recent: state.audio_preferences_file.as_ref().map(|file|file.recent_songs().clone()).unwrap_or_default(),
             keys:std::sync::Arc::clone(&state.command_bindings.preferences),
             audio: state.audio_preferences,
             receptors: state.receptor_preferences(),
@@ -59,7 +61,7 @@ impl Snapshot {
             profiles: state.profile_directory.clone(),
         }
     }
-    pub(super) fn install(self, target: &mut State) -> Result<(), Error> {
+    pub(in crate::screens::edition) fn install(self, target: &mut State) -> Result<(), Error> {
         // Read/validate the explicit custom path before any old-state ownership
         // is taken. A malformed/deleted-parent/directory read must not publish.
         if let Some(path) = self.audio_path.as_deref() {
@@ -68,6 +70,7 @@ impl Snapshot {
         target.configure_note_color_arc(std::sync::Arc::clone(&self.colors))?;
         if let Some(file) = target.audio_preferences_file.as_mut() {
             file.set_note_colors(self.colors)?;
+            file.set_recent_songs(self.recent)?;
         }
         target.configure_key_binding_preferences(std::sync::Arc::clone(&self.keys));
         if let Some(file)=target.audio_preferences_file.as_mut(){file.set_key_bindings(self.keys)?;}

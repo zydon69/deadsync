@@ -3,7 +3,7 @@ use super::profile_edit::save_as::ProfileHistoryRelocation;
 use super::*;
 use deadsync_editor::{
     Error,
-    storage::{PendingDurability, PreviousRecovery, SaveAsOutcome},
+    storage::{PendingDurability, PreviousRecovery, SaveAsOutcome, SaveAttempt},
     workspace::WorkspaceSaveAsReview,
 };
 #[derive(Default)]
@@ -61,6 +61,7 @@ impl Pending {
 }
 struct Review {
     presentation: PresentationGuard,
+    preferences:super::file_menu::PublishedPreferences,
     file: WorkspaceSaveAsReview,
     profiles: ProfileHistoryRelocation,
     views: Option<deadsync_editor::chart_views::ActiveChartViews>,
@@ -114,10 +115,11 @@ impl State {
     pub(super) fn save_as_modal(&self) -> bool {
         matches!(
             self.panel,
-            Some(Panel::SaveAsDestination(_) | Panel::SaveAsReview(_) | Panel::SaveAsPending(_))
+            Some(Panel::OutputSettings(_) | Panel::OutputLoss(_) | Panel::SaveAsDestination(_) | Panel::SaveAsReview(_) | Panel::SaveAsPending(_))
         )
     }
-    fn save_as_guard(&mut self) -> bool {
+    pub(super) fn save_as_guard(&mut self) -> bool {
+        if self.file_io_active()||self.pack_file_io_active()||self.analysis_job.is_some(){self.status=i18n::tr("Edition","FileBusy");return false;}
         if self.pack_has_unsaved_changes() || self.pack_has_pending_durability() {
             self.open_pack_properties();
             self.status = i18n::tr("Edition", "SaveAsPackGuard");
@@ -139,7 +141,9 @@ impl State {
         }
         true
     }
-    pub(super) fn open_save_as(&mut self) {
+    pub(super) fn open_save_as(&mut self) {self.open_save_as_impl(false);}
+    pub(super) fn open_save_as_for_output(&mut self) {self.open_save_as_impl(true);}
+    fn open_save_as_impl(&mut self,preserve_output:bool) {
         if self.save_as_pending() {
             self.panel = Some(Panel::SaveAsPending(0));
             return;
@@ -147,6 +151,7 @@ impl State {
         if !self.save_as_guard() {
             return;
         }
+        if !preserve_output {self.output_clear();}
         let presented = self.playback_position();
         let music_time = self.chart_focus_time().ok();
         let exact = self
@@ -170,7 +175,9 @@ impl State {
         }
         self.minimap_release_input();
         self.lane_entry_reconcile();
-        self.save_as.destination = self.workspace.file().path().to_string_lossy().into_owned();
+        self.save_as.destination = self.workspace.file().existing_path()
+            .map(|path| path.to_string_lossy().into_owned())
+            .unwrap_or_default();
         self.save_as.review = None;
         self.panel = Some(Panel::SaveAsDestination(0));
         self.focus_text();
@@ -184,7 +191,8 @@ impl State {
             let stamps = self.save_as_profile_stamps();
             let file = self
                 .workspace
-                .prepare_save_as_with_revisions(Path::new(&self.save_as.destination), &stamps)?;
+                .prepare_save_as_with_policy_and_revisions(Path::new(&self.save_as.destination),self.output_candidate_policy()?, &stamps)?;
+            let preferences=self.prepare_published_preferences(file.destination(),self.output_global_options())?;
             let receipt = file.relocation();
             let focus = self
                 .focus_position
@@ -206,6 +214,7 @@ impl State {
             let profiles = ProfileHistoryRelocation::capture(self, receipt)?;
             Ok(Review {
                 presentation: self.save_as_presentation_guard(),
+                preferences,
                 file,
                 profiles,
                 focus,
@@ -217,13 +226,16 @@ impl State {
                 self.save_as.review = Some(review);
                 self.text_buffer = None;
                 self.label_preedit.clear();
-                self.panel = Some(Panel::SaveAsReview(1));
-                self.status = i18n::tr("Edition", "SaveAsReviewHelp");
+                if !self.save_as_issues().is_empty(){self.output_review_save_as();}else{
+                    self.output_ui.acknowledged.clear();
+                    self.panel = Some(Panel::SaveAsReview(1));
+                    self.status = i18n::tr("Edition", "SaveAsReviewHelp");
+                }
             }
             Err(error) => self.save_as_error(error),
         }
     }
-    fn save_as_error(&mut self, error: impl std::fmt::Display) {
+    pub(super) fn save_as_error(&mut self, error: impl std::fmt::Display) {
         log::warn!("Editor Save As: {error}");
         self.status = i18n::tr("Edition", "SaveAsFailed");
     }
@@ -244,7 +256,7 @@ impl State {
             self.save_as_error("Editor presentation changed since review");
             return;
         }
-        match self.workspace.save_as(review.file) {
+        match self.workspace.save_as_reviewed(review.file,&self.output_ui.acknowledged) {
             Err(error) => {
                 self.panel = Some(Panel::SaveAsDestination(0));
                 self.focus_text();
@@ -266,6 +278,9 @@ impl State {
                         (relocation, previous_recovery, Some(Pending::Core(receipt)))
                     }
                 };
+                self.output_clear();
+                self.publish_output_preferences(review.preferences);
+                self.file_action_written(&relocation);
                 // These prevalidated media-only proofs preserve exact row/time,
                 // GUID/order/dedication/selection. They never replay history.
                 let session = &self.workspace.file().session;
@@ -294,7 +309,7 @@ impl State {
                     }
                 }
                 review.profiles.publish(self);
-                self.save_as.previous.push(previous);
+                if let Some(previous)=previous {self.save_as.previous.push(previous);}
                 self.save_as.pending = pending;
                 self.text_buffer = None;
                 self.label_preedit.clear();
@@ -310,6 +325,7 @@ impl State {
                 self.refresh();
                 if self.save_as.published_issue {
                     self.panel = Some(Panel::SaveAsPending(2));
+                    self.file_save_cancelled();
                     self.status = i18n::tr("Edition", "SaveAsRebindFailed");
                 } else if self.save_as_pending() {
                     self.panel = Some(Panel::SaveAsPending(0));
@@ -317,8 +333,21 @@ impl State {
                 } else {
                     self.panel = None;
                     self.status = i18n::tr("Edition", "SaveAsSaved");
+                    self.file_action_saved();
                 }
             }
+        }
+    }
+    pub(super) fn save_as_review_destination(&self)->Option<&Path>{self.save_as.review.as_ref().map(|review|review.file.destination())}
+    pub(super) fn save_as_review_policy(&self)->Option<&deadsync_editor::output_policy::OutputPolicy>{self.save_as.review.as_ref().map(|review|review.file.output_policy())}
+    pub(super) fn save_as_issues(&self)->&[deadsync_editor::advanced_export::Issue]{self.save_as.review.as_ref().map(|review|review.file.issues()).unwrap_or(&[])}
+    pub(super) fn save_as_cancel_output_review(&mut self){self.save_as.review=None;self.text_buffer=None;self.label_preedit.clear();}
+    pub(super) fn save_as_back_to_destination(&mut self){self.save_as.review=None;self.output_ui.acknowledged.clear();self.panel=Some(Panel::SaveAsDestination(0));self.focus_text();}
+    pub(super) fn save_output_completed(&mut self,attempt:SaveAttempt){
+        match attempt{
+            SaveAttempt::Saved=>{self.save_as.pending=None;self.panel=None;self.refresh();self.status=i18n::tr("Edition","Saved");self.file_action_saved();},
+            SaveAttempt::WrittenPendingDurability{receipt,error}=>{log::warn!("Editor output awaits directory sync: {error}");self.save_as.pending=Some(Pending::Core(receipt));self.panel=Some(Panel::SaveAsPending(0));self.refresh();self.status=i18n::tr("Edition","SaveAsWrittenPending");},
+            SaveAttempt::NeedsReview(review)=>self.output_save_attempt(SaveAttempt::NeedsReview(review)),
         }
     }
     pub(super) fn save_as_pending_guard(&mut self) -> bool {
@@ -346,7 +375,9 @@ impl State {
         let destination = matches!(self.panel, Some(Panel::SaveAsDestination(_)));
         let pending = matches!(self.panel, Some(Panel::SaveAsPending(_)));
         if code == KeyCode::Escape {
+            self.file_save_cancelled();
             self.save_as.review = None;
+            self.output_clear();
             self.text_buffer = None;
             self.label_preedit.clear();
             self.panel = None;
@@ -392,6 +423,8 @@ impl State {
                 self.panel = None;
                 self.text_buffer = None;
                 self.save_as.review = None;
+                self.output_clear();
+                self.file_save_cancelled();
                 self.status = i18n::tr("Edition", "SaveAsCancelled");
             }
         } else if pending {
@@ -408,21 +441,15 @@ impl State {
                             self.panel = None;
                             self.refresh();
                             self.status = i18n::tr("Edition", self.save_as_output_notice());
+                            self.file_action_saved();
                         }
                         Some(Err(error)) => self.save_as_error(error),
                         None => {}
                     }
                 }
-                1 => match self.workspace.execute(Command::Save) {
-                    Ok(()) => {
-                        self.save_as.pending = None;
-                        self.panel = None;
-                        self.refresh();
-                        self.status = i18n::tr("Edition", "SaveAsSaved");
-                    }
-                    Err(error) => self.save_as_error(error),
-                },
+                1 => self.output_save_current(false),
                 _ => {
+                    self.file_save_cancelled();
                     let notice = self.save_as_output_notice();
                     self.save_as.published_issue = false;
                     self.panel = None;
@@ -439,8 +466,10 @@ impl State {
                 }
                 _ => {
                     self.save_as.review = None;
+                    self.output_clear();
                     self.panel = None;
-                    self.status = i18n::tr("Edition", "SaveAsCancelled");
+                    self.file_save_cancelled();
+                self.status = i18n::tr("Edition", "SaveAsCancelled");
                 }
             }
         }
@@ -484,7 +513,7 @@ impl State {
         } else if review {
             "SaveAsWillCreate"
         } else {
-            "SaveAsSameFormatOnly"
+            "OutputDestinationNotice"
         };
         actors.push(act!(text: font("miso"): settext(i18n::tr("Edition",notice)): align(0.0,0.5): xy(x-300.0,y+43.0): zoom(0.55): maxwidth(600.0): diffuse(1.0,0.85,0.4,1.0): z(8051)));
         let keys = if destination_panel {
@@ -526,7 +555,7 @@ mod tests {
         // Real rename/sync/dirty correctness belongs to storage tests.
         for language in ["en", "fr"] {
             let (_root, mut state) = state(language);
-            let source = state.workspace.file().path().to_owned();
+            let source = state.workspace.file().require_existing_path().unwrap().to_owned();
             let bytes = std::fs::read(&source).unwrap();
             let calls = std::sync::Arc::new(std::sync::Mutex::new(PendingBoundary {
                 calls: 0,
@@ -571,7 +600,7 @@ mod tests {
             assert!(!state.recovery_pending());
             state.update_with_time(std::time::Instant::now() + std::time::Duration::from_secs(90));
             assert!(!state.recovery_pending());
-            assert!(!state.workspace.file().recovery_path().exists());
+            assert!(!state.workspace.file().recovery_path().unwrap().exists());
             state.save_as_key(0, KeyCode::Escape);
             std::fs::write(
                 _root.path().join("Pack.ini"),
@@ -590,7 +619,7 @@ mod tests {
     fn successful_durability_retry_does_not_claim_new_working_edits_were_saved_en_fr() {
         for language in ["en", "fr"] {
             let (_root, mut state) = state(language);
-            let source = state.workspace.file().path().to_owned();
+            let source = state.workspace.file().require_existing_path().unwrap().to_owned();
             let original = std::fs::read(&source).unwrap();
             state.workspace.execute(Command::Place(1)).unwrap();
             let calls = std::sync::Arc::new(std::sync::Mutex::new(PendingBoundary::default()));

@@ -1,6 +1,5 @@
 //! Unmigrated native shortcuts. Conditions mirror State's chart keyboard routes,
 //! chart_views_key, zoom_key and minimap_key, independent of translated labels.
-use crate::key_commands::Key;
 use std::collections::BTreeSet;
 #[derive(Clone, Debug)]
 pub struct Reservation {
@@ -22,15 +21,6 @@ fn modifier(key: &str) -> bool {
             | "RightAlt"
     )
 }
-fn canonical(key: &str) -> String {
-    match Key::named(key).name() {
-        "LeftControl" | "LeftWindows" => "Ctrl".into(),
-        other => other.into(),
-    }
-}
-fn set(keys: &[String]) -> BTreeSet<String> {
-    keys.iter().map(|key| canonical(key)).collect()
-}
 pub fn legacy() -> Vec<Reservation> {
     let mut result = Vec::new();
     let mut add = |keys: &[&str], forbid_control, forbid_shift| {
@@ -43,34 +33,11 @@ pub fn legacy() -> Vec<Reservation> {
     for name in ["Escape", "F2"] {
         add(&[name], false, false);
     }
-    for name in ["Tab", "A", "Up", "Down"] {
-        add(&[name], true, false);
-    }
-    for name in ["Left", "Right"] {
-        add(&["Ctrl", "LeftShift", name], false, false);
-    }
-    for name in [
-        "P",
-        "W",
-        "T",
-        "M",
-        "J",
-        "Up",
-        "Down",
-        "D0",
-        "Enter",
-        "NumPadEnter",
-    ] {
+    // Marker navigation remains modal as well as global; minimap commands
+    // share their focus context. Their migration needs a contextual registry.
+    for name in ["P", "M"] {
         add(&["Ctrl", name], false, false);
     }
-    for name in ["Y", "E", "C", "X", "V"] {
-        add(&["Ctrl", "LeftShift", name], false, false);
-    }
-    for name in ["S", "Z", "V"] {
-        add(&["LeftShift", name], true, false);
-    }
-    add(&["Ctrl", "LeftShift", "W"], false, false);
-    add(&["Ctrl", "LeftShift", "B"], false, false);
     drop(add);
     for digit in 0..=9 {
         result.push(Reservation {
@@ -87,32 +54,39 @@ pub fn conflicts(keys: &[String]) -> bool {
     let Some(final_key) = keys.last() else {
         return false;
     };
-    let candidate = set(keys);
-    for reserved in legacy() {
-        if reserved.keys.last() != Some(final_key) {
-            continue;
+    for candidate in super::physical::expand(keys) {
+        let candidate: BTreeSet<String> =
+            candidate.iter().map(|key| key.name().to_owned()).collect();
+        let control = candidate.contains("LeftControl") || candidate.contains("LeftWindows");
+        for reserved in legacy() {
+            if reserved.keys.last() != Some(final_key)
+                || reserved.forbid_control && control
+                || reserved.forbid_shift && candidate.contains("LeftShift")
+            {
+                continue;
+            }
+            for required in super::physical::expand(&reserved.keys) {
+                let required: BTreeSet<String> =
+                    required.iter().map(|key| key.name().to_owned()).collect();
+                // A reservation requiring physical Control cannot collide with
+                // a Super-only chord, or conversely, unless both are required.
+                let required_control = required.contains("LeftControl");
+                let required_super = required.contains("LeftWindows");
+                if required_control
+                    && !candidate.contains("LeftControl")
+                    && candidate.contains("LeftWindows")
+                    || required_super
+                        && !candidate.contains("LeftWindows")
+                        && candidate.contains("LeftControl")
+                {
+                    continue;
+                }
+                if candidate.len() < required.len() && candidate.is_subset(&required) {
+                    continue;
+                }
+                return true;
+            }
         }
-        if (reserved.forbid_control && candidate.contains("Ctrl"))
-            || (reserved.forbid_shift && candidate.contains("LeftShift"))
-        {
-            continue;
-        }
-        let required = set(&reserved.keys);
-        // Waveform settings (Shift+W) is now executable. Ctrl+W still owns
-        // closing tabs; its explicit Ctrl+Shift+W blocker suppresses both
-        // migrated waveform commands before that legacy callback runs.
-        if final_key == "W"
-            && candidate.len() == 2
-            && !candidate.contains("Ctrl")
-            && candidate.contains("LeftShift")
-            && required.contains("Ctrl")
-        {
-            continue;
-        }
-        if candidate.len() < required.len() && candidate.is_subset(&required) {
-            continue;
-        }
-        return true;
     }
     false
 }

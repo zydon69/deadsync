@@ -275,12 +275,14 @@ impl Draft {
         self.set_sample_length((seconds.max(0.0) - self.sample_start()).max(0.0))
     }
     /// Resolve preview media and raw audio-file cut without applying chart offsets.
-    pub fn sample_audio(
-        &self,
-        session: &Session,
-        chart: usize,
-        simfile: &std::path::Path,
-    ) -> Result<SampleAudio, Error> {
+    pub fn sample_audio(&self,session:&Session,chart:usize,simfile:&std::path::Path)->Result<SampleAudio,Error> {
+        self.sample_audio_at_directory(session,chart,simfile.parent().unwrap_or(std::path::Path::new(".")))
+    }
+    pub fn sample_audio_from_directory(&self,session:&Session,chart:usize,directory:&std::path::Path)->Result<SampleAudio,Error> {
+        if !directory.is_absolute(){return invalid("Preview requires an absolute resource directory");}
+        self.sample_audio_at_directory(session,chart,directory)
+    }
+    fn sample_audio_at_directory(&self,session:&Session,chart:usize,directory:&std::path::Path)->Result<SampleAudio,Error> {
         if !session.accepts_content_token(&self.token) {
             return invalid("Song properties draft is stale or belongs to another document");
         }
@@ -304,9 +306,7 @@ impl Draft {
         if name.is_empty() {
             return invalid("No preview music selected");
         }
-        let path = simfile
-            .parent()
-            .unwrap_or(std::path::Path::new("."))
+        let path = directory
             .join(name.replace('\\', "/"));
         if !path.is_file() {
             return invalid("Preview music file not found");

@@ -14,6 +14,9 @@ impl State {
             "HelpMinimap",
             "HelpChartCopy",
             "HelpEventShift",
+            "HelpShiftAll",
+            "HelpQuickAdd",
+            "HelpSelectedTransform",
             "PackHelpMenu",
             "PackSongsHelpMenu",
         ] {

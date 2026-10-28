@@ -2,10 +2,9 @@
 //! editing are implemented here; simultaneous lane rendering is a later step.
 use super::State;
 use crate::{act, i18n};
-use deadlib_platform::input::KeyCode;
 use deadlib_present::{actors::Actor, space::screen_width};
 use deadsync_editor::{Error, chart_views::ActiveChartViews, generation::metadata::Guid};
-enum ViewAction {
+pub(super) enum ViewAction {
     Pin,
     Close,
     Focus(bool),
@@ -30,29 +29,10 @@ impl State {
             self.active_views = Some(views);
         }
     }
-    pub(super) fn chart_views_key(&mut self, code: KeyCode) -> bool {
-        if !self.control {
-            return false;
-        }
-        let pin = self.shift && code == KeyCode::KeyB;
-        let close = code == KeyCode::KeyW;
-        let move_view = self.shift && matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
-        if !(pin || close || move_view) {
-            return false;
-        }
-        self.chart_views_apply(if pin {
-            ViewAction::Pin
-        } else if close {
-            ViewAction::Close
-        } else {
-            ViewAction::Move(code == KeyCode::ArrowRight)
-        });
-        true
-    }
     pub(super) fn chart_views_focus(&mut self, previous: bool) {
         self.chart_views_apply(ViewAction::Focus(previous));
     }
-    fn chart_views_apply(&mut self, action: ViewAction) {
+    pub(super) fn chart_views_apply(&mut self, action: ViewAction) {
         self.stop_audio();
         self.refresh_chart_views();
         let Some(mut next) = self.active_views.clone() else {

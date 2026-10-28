@@ -39,9 +39,7 @@ impl State {
         let directory = self
             .workspace
             .file()
-            .path()
-            .parent()
-            .unwrap_or(std::path::Path::new("."));
+            .resource_base();
         let assets = match song_assets::files(directory) {
             Ok(files) => song_assets::Assets::discover(directory, &files, |path| {
                 let (width, height) = image::image_dimensions(path).ok()?;
@@ -81,9 +79,7 @@ impl State {
         let directory = self
             .workspace
             .file()
-            .path()
-            .parent()
-            .unwrap_or(std::path::Path::new("."));
+            .resource_base();
         let found = song_assets::files(directory).ok().and_then(|files| {
             if let Some(kind) = kind {
                 song_assets::find_image(kind, directory, &files, |path| {
@@ -125,14 +121,12 @@ impl State {
             directory: self
                 .workspace
                 .file()
-                .path()
-                .parent()
-                .unwrap_or(std::path::Path::new("."))
+                .resource_base()
                 .to_path_buf(),
             current,
         };
         let result = picker.choose(&browse).and_then(|path| {
-            path.map(|path| music_file::selected_path(self.workspace.file().path(), &path))
+            path.map(|path| music_file::selected_path_from_directory(self.workspace.file().resource_base(), &path))
                 .transpose()
         });
         match result {
@@ -176,5 +170,50 @@ impl State {
             }
         }
         true
+    }
+}
+
+#[cfg(test)]
+mod untitled_resources_tests {
+    use super::*;
+    fn state(base: &std::path::Path) -> State {
+        State::from_workspace(deadsync_editor::workspace::Workspace::new_song(base, 0.009).unwrap()).unwrap()
+    }
+    #[test]
+    fn untitled_pack_operations_need_first_save_and_create_no_placeholder() {
+        crate::i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let mut state = state(root.path());
+        state.open_pack_song_list();
+        assert!(state.pack_song_list.is_none());
+        state.open_pack_properties();
+        assert!(state.pack_properties.is_none());
+        assert!(state.workspace.file().existing_path().is_none());
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
+    }
+    #[test]
+    fn untitled_save_as_starts_with_an_explicit_empty_destination() {
+        crate::i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let mut state = state(root.path());
+        state.open_save_as();
+        assert!(matches!(state.panel, Some(super::super::Panel::SaveAsDestination(_))));
+        assert!(state.save_as.destination.is_empty());
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
+    }
+    #[test]
+    fn untitled_banner_preview_uses_real_resource_directory() {
+        crate::i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let mut state = state(root.path());
+        let mut draft = state.workspace.song_properties().unwrap();
+        draft.set_text(deadsync_editor::song_text::Field::Banner, "art/banner.png").unwrap();
+        state.song_properties = Some(draft);
+        state.panel = Some(super::super::Panel::SongText(0));
+        let preview = state.image_preview_request().unwrap();
+        assert_eq!(preview.paths[0], Some(root.path().canonicalize().unwrap().join("art/banner.png")));
+        assert!(preview.paths[1].is_none());
+        assert!(state.workspace.file().existing_path().is_none());
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
     }
 }

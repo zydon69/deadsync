@@ -134,7 +134,7 @@ fn default_open_selects_source_default_single_challenge_not_first_chart() {
     let (_root, _source, target, mut state) = fixture(None, false);
     open_target(&mut state);
     pump(&mut state, NativeFake, |s| {
-        s.workspace().file().path() == target
+        s.workspace().file().require_existing_path().unwrap() == target
     });
     assert_eq!(state.workspace().chart(), 2);
 }
@@ -149,7 +149,7 @@ fn common_options_preferred_layout_and_difficulty_are_used_and_preserved() {
     let bytes = fs::read(root.path().join("preferences.json")).unwrap();
     open_target(&mut state);
     pump(&mut state, NativeFake, |s| {
-        s.workspace().file().path() == target
+        s.workspace().file().require_existing_path().unwrap() == target
     });
     assert_eq!(state.workspace().chart(), 5);
     assert_eq!(
@@ -165,7 +165,7 @@ fn missing_preferred_type_uses_original_single_double_pair_fallback() {
     );
     open_target(&mut state);
     pump(&mut state, NativeFake, |s| {
-        s.workspace().file().path() == target
+        s.workspace().file().require_existing_path().unwrap() == target
     });
     assert_eq!(state.workspace().chart(), 4);
 }
@@ -182,9 +182,9 @@ fn invalid_native_chart_order_keeps_original_editor() {
     pump(&mut state, Invalid, |s| {
         text(s).contains("Open chart order is not an exhaustive source permutation")
     });
-    assert_eq!(state.workspace().file().path(), source);
+    assert_eq!(state.workspace().file().require_existing_path().unwrap(), source);
     press(&mut state, KeyCode::Escape);
-    assert_eq!(state.workspace().file().path(), source);
+    assert_eq!(state.workspace().file().require_existing_path().unwrap(), source);
 }
 #[test]
 fn unselected_invalid_peer_is_reported_and_preserved_without_blocking_default() {
@@ -195,7 +195,7 @@ fn unselected_invalid_peer_is_reported_and_preserved_without_blocking_default() 
     fs::write(&target, &bytes).unwrap();
     open_target(&mut state);
     pump(&mut state, NativeFake, |s| {
-        s.workspace().file().path() == target
+        s.workspace().file().require_existing_path().unwrap() == target
     });
     assert_eq!(state.workspace().chart(), 2);
     assert_eq!(state.song_open_warnings().len(), 1);
@@ -225,7 +225,7 @@ fn unavailable_preferred_chart_falls_back_to_loadable_hard_without_erasing_peer(
     fs::write(&target, &bytes).unwrap();
     open_target(&mut state);
     pump(&mut state, NativeFake, |s| {
-        s.workspace().file().path() == target
+        s.workspace().file().require_existing_path().unwrap() == target
     });
     assert_eq!(state.workspace().chart(), 3);
     assert_eq!(state.song_open_warnings().len(), 1);
@@ -246,7 +246,7 @@ fn no_loadable_chart_opens_unfocused_with_diagnostics_and_original_blocks() {
     fs::write(&target, &bytes).unwrap();
     open_target(&mut state);
     pump(&mut state, NativeFake, |s| {
-        s.workspace().file().path() == target
+        s.workspace().file().require_existing_path().unwrap() == target
     });
     assert!(!state.workspace().has_chart());
     assert_eq!(state.song_open_warnings().len(), 7);

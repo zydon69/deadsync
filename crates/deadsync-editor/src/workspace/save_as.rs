@@ -10,6 +10,9 @@ pub struct WorkspaceSaveAsReview {
     focus: BTreeMap<u64, StructuralFocus>,
 }
 impl WorkspaceSaveAsReview {
+    pub fn issues(&self)->&[crate::advanced_export::Issue]{self.file.issues()}
+    pub fn output_policy(&self)->&crate::output_policy::OutputPolicy{self.file.output_policy()}
+
     pub fn destination(&self) -> &Path {
         self.file.destination()
     }
@@ -32,13 +35,17 @@ impl Workspace {
         destination: &Path,
         extra: &[u64],
     ) -> Result<WorkspaceSaveAsReview, Error> {
+        self.prepare_save_as_with_policy_and_revisions(destination,self.file.output_policy().clone(),extra)
+    }
+    pub fn prepare_save_as_with_policy(&self,destination:&Path,policy:crate::output_policy::OutputPolicy)->Result<WorkspaceSaveAsReview,Error>{self.prepare_save_as_with_policy_and_revisions(destination,policy,&[])}
+    pub fn prepare_save_as_with_policy_and_revisions(&self,destination:&Path,policy:crate::output_policy::OutputPolicy,extra:&[u64])->Result<WorkspaceSaveAsReview,Error>{
         let mut stamps = extra.to_vec();
         for (stamp, value) in &self.structural_focus {
             stamps.extend([*stamp, value.before_revision]);
         }
         let file = self
             .file
-            .prepare_save_as_with_revisions(destination, &stamps)?;
+            .prepare_save_as_with_policy_and_revisions(destination,policy,&stamps)?;
         let mut focus = BTreeMap::new();
         for (stamp, value) in &self.structural_focus {
             let after = file.relocation().remap_revision(*stamp).ok_or_else(|| {
@@ -66,6 +73,13 @@ impl Workspace {
         self.structural_focus = review.focus;
         Ok(result)
     }
+    pub fn save_as_reviewed(&mut self,review:WorkspaceSaveAsReview,acknowledged:&std::collections::BTreeSet<usize>)->Result<SaveAsOutcome,Error>{
+        let result=self.file.save_as_reviewed(review.file,acknowledged)?;self.structural_focus=review.focus;Ok(result)
+    }
+    pub fn prepare_save(&mut self)->Result<crate::storage::SaveReview,Error>{self.file.prepare_save()}
+    pub fn prepare_save_with_policy(&mut self,policy:crate::output_policy::OutputPolicy)->Result<crate::storage::SaveReview,Error>{self.file.prepare_save_with_policy(policy)}
+    pub fn save_or_review(&mut self)->Result<crate::storage::SaveAttempt,Error>{self.file.save_or_review()}
+    pub fn save_reviewed(&mut self,review:crate::storage::SaveReview,acknowledged:&std::collections::BTreeSet<usize>)->Result<crate::storage::SaveAttempt,Error>{self.file.save_reviewed(review,acknowledged)}
     pub fn retry_save_as_durability(&mut self, receipt: &PendingDurability) -> Result<(), Error> {
         receipt.retry(&mut self.file)
     }
@@ -172,7 +186,7 @@ mod tests {
     #[test]
     fn recovered_dirty_workspace_save_as_durably_saves_without_losing_guid_or_cursor() {
         let (root, original, destination) = workspace();
-        let path = original.file.path().to_path_buf();
+        let path = original.file.require_existing_path().unwrap().to_path_buf();
         drop(original);
         let mut file = FileSession::open(&path).unwrap();
         file.session = crate::history::Session::recovered(file.session.document().clone());

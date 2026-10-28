@@ -336,3 +336,113 @@ fn third_increment_remapped_menu_and_save_as_open_existing_panels_only_once() {
         assert_eq!(visible(&mut s), texts);
     }
 }
+
+#[test]
+fn fourth_increment_navigation_and_zoom_remap_without_replaying_physical_arrows() {
+    let _g = SERIAL.lock().unwrap();
+    for locale in ["en", "fr"] {
+        let mut prefs = Preferences::default();
+        prefs
+            .commands
+            .insert("MoveDown".into(), vec![vec!["F13".into()]]);
+        prefs
+            .commands
+            .insert("IncreaseKeyboardZoom".into(), vec![vec!["F14".into()]]);
+        let (_d, mut s, _, _) = open(locale, prefs);
+        press(&mut s, KeyCode::ArrowDown);
+        assert_eq!(s.workspace().row(), 0);
+        press(&mut s, KeyCode::F13);
+        let row = s.workspace().row();
+        assert!(row > 0);
+        ctrl(&mut s, KeyCode::ArrowUp, false);
+        let time = Instant::now() + Duration::from_secs(1);
+        s.update_with_time(time);
+        assert!((s.spacing_zoom() - 1.0).abs() < 0.0001);
+        event(&mut s, KeyCode::F14, true, false, time);
+        event(&mut s, KeyCode::F14, false, false, time);
+        s.update_with_time(time + Duration::from_millis(200));
+        assert!(s.spacing_zoom() > 1.0);
+        assert_eq!(s.workspace().row(), row);
+        assert!(!s.workspace().file().session.is_dirty());
+    }
+}
+#[test]
+fn fourth_increment_existing_conversion_panel_is_bindable_but_unbound_by_default() {
+    use deadlib_present::actors::Actor;
+    fn texts(actor: &Actor, out: &mut Vec<String>) {
+        match actor {
+            Actor::Text { content, .. } => out.push(content.as_str().to_owned()),
+            Actor::Frame { children, .. } => children.iter().for_each(|a| texts(a, out)),
+            _ => {}
+        }
+    }
+    let _g = SERIAL.lock().unwrap();
+    for locale in ["en", "fr"] {
+        let mut prefs = Preferences::default();
+        prefs
+            .commands
+            .insert("OpenNoteConversion".into(), vec![vec!["F15".into()]]);
+        let (_d, mut s, _, _) = open(locale, prefs);
+        let source = s.workspace().file().session.serialize().unwrap();
+        press(&mut s, KeyCode::F15);
+        let mut actors = Vec::new();
+        s.actors(&mut actors);
+        let mut all = Vec::new();
+        for actor in actors {
+            texts(&actor, &mut all);
+        }
+        let expected = i18n::tr("Edition", "NoteConversionHelp").to_string();
+        assert!(all.iter().any(|t| t == &expected), "{all:?}");
+        assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
+        press(&mut s, KeyCode::Escape);
+    }
+}
+#[test]
+fn fourth_increment_ctrl_shift_w_closes_tab_without_opening_waveform_preferences() {
+    use deadlib_present::actors::Actor;
+    fn contains(actor: &Actor, text: &str) -> bool {
+        match actor {
+            Actor::Text { content, .. } => content.as_str() == text,
+            Actor::Frame { children, .. } => children.iter().any(|a| contains(a, text)),
+            _ => false,
+        }
+    }
+    let _g = SERIAL.lock().unwrap();
+    for locale in ["en", "fr"] {
+        let (_d, mut s, _, _) = open(locale, Preferences::default());
+        ctrl(&mut s, KeyCode::KeyW, true);
+        assert!(!s.workspace().has_chart());
+        let mut actors = Vec::new();
+        s.actors(&mut actors);
+        let expected = i18n::tr("Edition", "WaveformSettingsHelp");
+        assert!(!actors.iter().any(|a| contains(a, &expected)));
+        assert!(!s.workspace().file().session.is_dirty());
+    }
+}
+
+#[test]
+fn semantic_file_new_is_a_guarded_untitled_song_not_a_new_chart() {
+    let _g = SERIAL.lock().unwrap();
+    for locale in ["en", "fr"] {
+        let mut prefs = Preferences::default();
+        prefs
+            .commands
+            .insert("New".into(), vec![vec!["F19".into()]]);
+        let (_d, mut s, _, _) = open(locale, prefs);
+        press(&mut s, KeyCode::Digit1);
+        assert!(s.workspace().file().has_unsaved_document());
+        let ids = s.workspace().file().session.chart_ids().to_vec();
+        press(&mut s, KeyCode::F19);
+        assert!(s.workspace().has_chart());
+        assert_eq!(s.workspace().file().session.chart_ids(), ids.as_slice());
+        press(&mut s, KeyCode::Escape);
+        assert!(s.workspace().file().has_unsaved_document());
+        ctrl(&mut s, KeyCode::KeyZ, false);
+        assert!(!s.workspace().file().has_unsaved_document());
+        press(&mut s, KeyCode::F19);
+        assert!(!s.workspace().has_chart());
+        assert!(s.workspace().file().requires_save_as());
+        assert!(s.workspace().file().existing_path().is_none());
+        assert!(s.workspace().file().session.document().charts().is_empty());
+    }
+}

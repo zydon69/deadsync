@@ -1,0 +1,3084 @@
+{
+  "Cases": [
+    {
+      "Name": "ConvertTapsToMines-all",
+      "Method": "ConvertTapsToMines",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertTapsToMines-subset",
+      "Method": "ConvertTapsToMines",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertTapsToMines-reversed",
+      "Method": "ConvertTapsToMines",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertTapsToMines-none",
+      "Method": "ConvertTapsToMines",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertTapsToFakes-all",
+      "Method": "ConvertTapsToFakes",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertTapsToFakes-subset",
+      "Method": "ConvertTapsToFakes",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertTapsToFakes-reversed",
+      "Method": "ConvertTapsToFakes",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertTapsToFakes-none",
+      "Method": "ConvertTapsToFakes",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertTapsToLifts-all",
+      "Method": "ConvertTapsToLifts",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertTapsToLifts-subset",
+      "Method": "ConvertTapsToLifts",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertTapsToLifts-reversed",
+      "Method": "ConvertTapsToLifts",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertTapsToLifts-none",
+      "Method": "ConvertTapsToLifts",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToTaps-all",
+      "Method": "ConvertMinesToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToTaps-subset",
+      "Method": "ConvertMinesToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToTaps-reversed",
+      "Method": "ConvertMinesToTaps",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToTaps-none",
+      "Method": "ConvertMinesToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToFakes-all",
+      "Method": "ConvertMinesToFakes",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToFakes-subset",
+      "Method": "ConvertMinesToFakes",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToFakes-reversed",
+      "Method": "ConvertMinesToFakes",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToFakes-none",
+      "Method": "ConvertMinesToFakes",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToLifts-all",
+      "Method": "ConvertMinesToLifts",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToLifts-subset",
+      "Method": "ConvertMinesToLifts",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToLifts-reversed",
+      "Method": "ConvertMinesToLifts",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertMinesToLifts-none",
+      "Method": "ConvertMinesToLifts",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertFakesToTaps-all",
+      "Method": "ConvertFakesToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertFakesToTaps-subset",
+      "Method": "ConvertFakesToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertFakesToTaps-reversed",
+      "Method": "ConvertFakesToTaps",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertFakesToTaps-none",
+      "Method": "ConvertFakesToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertLiftsToTaps-all",
+      "Method": "ConvertLiftsToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertLiftsToTaps-subset",
+      "Method": "ConvertLiftsToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertLiftsToTaps-reversed",
+      "Method": "ConvertLiftsToTaps",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertLiftsToTaps-none",
+      "Method": "ConvertLiftsToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToRolls-all",
+      "Method": "ConvertHoldsToRolls",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToRolls-subset",
+      "Method": "ConvertHoldsToRolls",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToRolls-reversed",
+      "Method": "ConvertHoldsToRolls",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToRolls-none",
+      "Method": "ConvertHoldsToRolls",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToTaps-all",
+      "Method": "ConvertHoldsToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToTaps-subset",
+      "Method": "ConvertHoldsToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToTaps-reversed",
+      "Method": "ConvertHoldsToTaps",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToTaps-none",
+      "Method": "ConvertHoldsToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToMines-all",
+      "Method": "ConvertHoldsToMines",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToMines-subset",
+      "Method": "ConvertHoldsToMines",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToMines-reversed",
+      "Method": "ConvertHoldsToMines",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertHoldsToMines-none",
+      "Method": "ConvertHoldsToMines",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToHolds-all",
+      "Method": "ConvertRollsToHolds",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToHolds-subset",
+      "Method": "ConvertRollsToHolds",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToHolds-reversed",
+      "Method": "ConvertRollsToHolds",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToHolds-none",
+      "Method": "ConvertRollsToHolds",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToTaps-all",
+      "Method": "ConvertRollsToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToTaps-subset",
+      "Method": "ConvertRollsToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToTaps-reversed",
+      "Method": "ConvertRollsToTaps",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToTaps-none",
+      "Method": "ConvertRollsToTaps",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToMines-all",
+      "Method": "ConvertRollsToMines",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToMines-subset",
+      "Method": "ConvertRollsToMines",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToMines-reversed",
+      "Method": "ConvertRollsToMines",
+      "Events": [
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": true
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": true
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": true
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "ConvertRollsToMines-none",
+      "Method": "ConvertRollsToMines",
+      "Events": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Fake",
+          "Row": 240,
+          "Lane": 2,
+          "Player": 0,
+          "Selected": false
+        },
+        {
+          "Kind": "Lift",
+          "Row": 336,
+          "Lane": 3,
+          "Player": 1,
+          "Selected": false
+        },
+        {
+          "Kind": "Hold",
+          "Row": 432,
+          "Lane": 4,
+          "Player": 0,
+          "End": 480,
+          "Selected": false
+        },
+        {
+          "Kind": "Roll",
+          "Row": 528,
+          "Lane": 5,
+          "Player": 1,
+          "End": 576,
+          "Selected": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3493 @@
+{
+  "Cases": [
+    {
+      "Name": "Mirror-exact-peers",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjAxMDEKMDAwMQowMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAowTTAxCjAwMDEKMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "M"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Flip-exact-peers",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjExMDAKMDAwMQowMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAoxTTAwCjAwMDEKMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "M"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "MirrorAndFlip-exact-peers",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjAxMDEKMDAwMQowMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAowTTAxCjAwMDEKMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "M"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Left-exact-peers",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjAxMDAKMDAwMQowMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAowTTAwCjAwMDEKMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "M"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Right-exact-peers",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjAxMDAKMDAwMQowMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAowMTAwCjAwMDEKMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "LeftWrap-exact-peers",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjAxMDEKMDAwMQowMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAowTTAxCjAwMDEKMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "M"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "RightWrap-exact-peers",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjAxMDAKMDAwMQowMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAowMTAwCjAwMDEKMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "mirror-trims-unselected-hold",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 3,
+          "Player": 0,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 3,
+          "Player": 0,
+          "End": 36
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 3,
+          "Player": 0,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 3,
+          "Player": 0,
+          "End": 36
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAyCjAwMDAKMDAwMAowMDAzCjAwMDEKMDAwMAowMDAwCjAwMDAKMDAwMAowMDAwCjAwMDAKMDAwMAowMDAwCjAwMDAKMDAwMAowMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 0,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "2"
+                },
+                {
+                  "Row": 36,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "3"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMgowMDAwCjAwMDAKMDAwMwowMDAxCjAwMDAKMDAwMAowMDAwCjAwMDAKMDAwMAowMDAwCjAwMDAKMDAwMAowMDAwCjAwMDAKMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 0,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "2"
+                },
+                {
+                  "Row": 36,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "3"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "mirror-hold-removes-unselected-heads",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": 192
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": 192
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": 192
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 144,
+          "Lane": 3,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": 192
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": 192
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjAwMDIKMDAwMAowMDAwCiwKMDAwMwowMDAwCjAwMDAKMDAwMAo7Cg==",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "2"
+                },
+                {
+                  "Row": 192,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAowMDAyCjAwMDAKMDAwMAosCjAwMDMKMDAwMAowMDAwCjAwMDAKOwoK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "2"
+                },
+                {
+                  "Row": 192,
+                  "Lane": 3,
+                  "Player": 0,
+                  "Source": "3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "flip-unmapped-threepanel",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2UtdGhyZWVwYW5lbCAtIC0tLS0tLS0tLS0tLS0tLS0KI05PVEVTOgogICAgIGRhbmNlLXRocmVlcGFuZWw6CiAgICAgOgogICAgIEhhcmQ6CiAgICAgOToKICAgICA6CjAwMAowMTAKMDAwCjAwMAo7Cg==",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS10aHJlZXBhbmVsIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URURBVEE6OwojQ0hBUlROQU1FOjsKI1NURVBTVFlQRTpkYW5jZS10aHJlZXBhbmVsOwojREVTQ1JJUFRJT046OwojQ0hBUlRTVFlMRTo7CiNESUZGSUNVTFRZOkhhcmQ7CiNNRVRFUjo5OwojUkFEQVJWQUxVRVM6OwojQ1JFRElUOjsKI09GRlNFVDowLjAwMDAwMDsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojQVRUQUNLUzo7CiNESVNQTEFZQlBNOjsKI05PVEVTOgowMDAKMDEwCjAwMAowMDAKOwoK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "left-boundary-deletes-selected",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 2,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 2,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 2,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 2,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjAwMTAKMDAwMAowMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 2,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAowMDEwCjAwMDAKMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 2,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "right-boundary-deletes-selected",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Roll",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": 96
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Roll",
+          "Row": 48,
+          "Lane": 3,
+          "Player": 0,
+          "End": 96
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjEwMDAKMDAwMAowMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAoxMDAwCjAwMDAKMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "routine-cross-owner-conflict",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 7,
+          "Player": 1,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 7,
+          "Player": 1,
+          "End": 36
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 7,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 7,
+          "Player": 1,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 7,
+          "Player": 1,
+          "End": 36
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 7,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 7,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utcm91dGluZSAtIC0tLS0tLS0tLS0tLS0tLS0KI05PVEVTOgogICAgIGRhbmNlLXJvdXRpbmU6CiAgICAgOgogICAgIEhhcmQ6CiAgICAgOToKICAgICA6CjAwMDAwMDAwCjAwMDAwMDAxCjAwMDAwMDAwCjAwMDAwMDAwCiYNCjAwMDAwMDAyCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAzCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCiYNCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 3,
+              "Notes": [
+                {
+                  "Row": 0,
+                  "Lane": 7,
+                  "Player": 1,
+                  "Source": "2"
+                },
+                {
+                  "Row": 36,
+                  "Lane": 7,
+                  "Player": 1,
+                  "Source": "3"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 7,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1yb3V0aW5lIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URURBVEE6OwojQ0hBUlROQU1FOjsKI1NURVBTVFlQRTpkYW5jZS1yb3V0aW5lOwojREVTQ1JJUFRJT046OwojQ0hBUlRTVFlMRTo7CiNESUZGSUNVTFRZOkhhcmQ7CiNNRVRFUjo5OwojUkFEQVJWQUxVRVM6OwojQ1JFRElUOjsKI09GRlNFVDowLjAwMDAwMDsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojQVRUQUNLUzo7CiNESVNQTEFZQlBNOjsKI05PVEVTOgowMDAwMDAwMAowMDAwMDAwMQowMDAwMDAwMAowMDAwMDAwMAomDQowMDAwMDAwMgowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMwowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAomDQowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 3,
+              "Notes": [
+                {
+                  "Row": 0,
+                  "Lane": 7,
+                  "Player": 1,
+                  "Source": "2"
+                },
+                {
+                  "Row": 36,
+                  "Lane": 7,
+                  "Player": 1,
+                  "Source": "3"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 7,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "rows--48",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjAxMDAKMDAwMAowMTAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 144,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAowMTAwCjAwMDAKMDEwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 144,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "rows-48",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgowMDAwCjEwMDAKMDAwMAowMTAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 144,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMDAwMAoxMDAwCjAwMDAKMDEwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 144,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "rows-0",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utc2luZ2xlIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URVM6CiAgICAgZGFuY2Utc2luZ2xlOgogICAgIDoKICAgICBIYXJkOgogICAgIDk6CiAgICAgOgoxMDAwCjAwMDAKMDEwMAowMTAwCjsK",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 0,
+                  "Lane": 0,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 144,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1zaW5nbGUgLSAtLS0tLS0tLS0tLS0tLS0tCiNOT1RFREFUQTo7CiNDSEFSVE5BTUU6OwojU1RFUFNUWVBFOmRhbmNlLXNpbmdsZTsKI0RFU0NSSVBUSU9OOjsKI0NIQVJUU1RZTEU6OwojRElGRklDVUxUWTpIYXJkOwojTUVURVI6OTsKI1JBREFSVkFMVUVTOjsKI0NSRURJVDo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNCUE1TOjAuMDAwMDAwPTEyMC4wMDAwMDA7CiNTVE9QUzo7CiNERUxBWVM6OwojV0FSUFM6OwojVElNRVNJR05BVFVSRVM6OwojVElDS0NPVU5UUzo7CiNDT01CT1M6OwojU1BFRURTOjsKI1NDUk9MTFM6OwojRkFLRVM6OwojTEFCRUxTOjsKI0FUVEFDS1M6OwojRElTUExBWUJQTTo7CiNOT1RFUzoKMTAwMAowMDAwCjAxMDAKMDEwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 1,
+              "Notes": [
+                {
+                  "Row": 0,
+                  "Lane": 0,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 144,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "owner-assign-exact-third-peer",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 1,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 2,
+          "Player": 2,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 1,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 2,
+          "Player": 2,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 1,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 2,
+          "Player": 2,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 1,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 96,
+          "Lane": 2,
+          "Player": 2,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Hold",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": 96
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utcm91dGluZSAtIC0tLS0tLS0tLS0tLS0tLS0KI05PVEVTOgogICAgIGRhbmNlLXJvdXRpbmU6CiAgICAgOgogICAgIEhhcmQ6CiAgICAgOToKICAgICA6CjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCiYNCjAwMDAwMDAwCjIxMDAwMDAwCjMwMDAwMDAwCjAwMDAwMDAwCiYNCjAwMDAwMDAwCjAwMDAwMDAwCjAwMTAwMDAwCjAwMDAwMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 3,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 1,
+                  "Source": "2"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 1,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 0,
+                  "Player": 1,
+                  "Source": "3"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 2,
+                  "Player": 2,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1yb3V0aW5lIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URURBVEE6OwojQ0hBUlROQU1FOjsKI1NURVBTVFlQRTpkYW5jZS1yb3V0aW5lOwojREVTQ1JJUFRJT046OwojQ0hBUlRTVFlMRTo7CiNESUZGSUNVTFRZOkhhcmQ7CiNNRVRFUjo5OwojUkFEQVJWQUxVRVM6OwojQ1JFRElUOjsKI09GRlNFVDowLjAwMDAwMDsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojQVRUQUNLUzo7CiNESVNQTEFZQlBNOjsKI05PVEVTOgowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAomDQowMDAwMDAwMAoyMTAwMDAwMAozMDAwMDAwMAowMDAwMDAwMAomDQowMDAwMDAwMAowMDAwMDAwMAowMDEwMDAwMAowMDAwMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 3,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 1,
+                  "Source": "2"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 1,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 0,
+                  "Player": 1,
+                  "Source": "3"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 2,
+                  "Player": 2,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "owner-swap-three-player",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Hold",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 1,
+          "End": 192
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 2,
+          "Player": 2,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        },
+        {
+          "Kind": "Hold",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": 192
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 2,
+          "Player": 2,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Hold",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 1,
+          "End": 192
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 2,
+          "Player": 2,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        },
+        {
+          "Kind": "Hold",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": 192
+        },
+        {
+          "Kind": "Tap",
+          "Row": 144,
+          "Lane": 2,
+          "Player": 2,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        },
+        {
+          "Kind": "Hold",
+          "Row": 96,
+          "Lane": 1,
+          "Player": 0,
+          "End": 192
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utcm91dGluZSAtIC0tLS0tLS0tLS0tLS0tLS0KI05PVEVTOgogICAgIGRhbmNlLXJvdXRpbmU6CiAgICAgOgogICAgIEhhcmQ6CiAgICAgOToKICAgICA6CjAwMDAwMDAwCjAwMDAwMDAwCjAyMDAwMDAwCjAwMDAwMDAwCiwKMDMwMDAwMDAKMDAwMDAwMDAKMDAwMDAwMDAKMDAwMDAwMDAKJg0KMDAwMDAwMDAKMTAwMDAwMDAKMDAwMDAwMDAKMDAwMDAwMDAKJg0KMDAwMDAwMDAKMDAwMDAwMDAKMDAwMDAwMDAKMDAxMDAwMDAKOwo=",
+          "Charts": [
+            {
+              "Players": 3,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 1,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "2"
+                },
+                {
+                  "Row": 144,
+                  "Lane": 2,
+                  "Player": 2,
+                  "Source": "1"
+                },
+                {
+                  "Row": 192,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1yb3V0aW5lIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URURBVEE6OwojQ0hBUlROQU1FOjsKI1NURVBTVFlQRTpkYW5jZS1yb3V0aW5lOwojREVTQ1JJUFRJT046OwojQ0hBUlRTVFlMRTo7CiNESUZGSUNVTFRZOkhhcmQ7CiNNRVRFUjo5OwojUkFEQVJWQUxVRVM6OwojQ1JFRElUOjsKI09GRlNFVDowLjAwMDAwMDsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojQVRUQUNLUzo7CiNESVNQTEFZQlBNOjsKI05PVEVTOgowMDAwMDAwMAowMDAwMDAwMAowMjAwMDAwMAowMDAwMDAwMAosCjAzMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCiYNCjAwMDAwMDAwCjEwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCiYNCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMTAwMDAwCjsKCg==",
+          "Charts": [
+            {
+              "Players": 3,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 1,
+                  "Source": "1"
+                },
+                {
+                  "Row": 96,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "2"
+                },
+                {
+                  "Row": 144,
+                  "Lane": 2,
+                  "Player": 2,
+                  "Source": "1"
+                },
+                {
+                  "Row": 192,
+                  "Lane": 1,
+                  "Player": 0,
+                  "Source": "3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "owner-assignment-duplicate-address",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utcm91dGluZSAtIC0tLS0tLS0tLS0tLS0tLS0KI05PVEVTOgogICAgIGRhbmNlLXJvdXRpbmU6CiAgICAgOgogICAgIEhhcmQ6CiAgICAgOToKICAgICA6CjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCiYNCjAwMDAwMDAwCjEwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 2,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 1,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1yb3V0aW5lIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URURBVEE6OwojQ0hBUlROQU1FOjsKI1NURVBTVFlQRTpkYW5jZS1yb3V0aW5lOwojREVTQ1JJUFRJT046OwojQ0hBUlRTVFlMRTo7CiNESUZGSUNVTFRZOkhhcmQ7CiNNRVRFUjo5OwojUkFEQVJWQUxVRVM6OwojQ1JFRElUOjsKI09GRlNFVDowLjAwMDAwMDsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojQVRUQUNLUzo7CiNESVNQTEFZQlBNOjsKI05PVEVTOgowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAomDQowMDAwMDAwMAoxMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 2,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 1,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "owner-assignment-selected-duplicate-address",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Mine",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utcm91dGluZSAtIC0tLS0tLS0tLS0tLS0tLS0KI05PVEVTOgogICAgIGRhbmNlLXJvdXRpbmU6CiAgICAgOgogICAgIEhhcmQ6CiAgICAgOToKICAgICA6CjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCiYNCjAwMDAwMDAwCjEwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 2,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 1,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1yb3V0aW5lIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URURBVEE6OwojQ0hBUlROQU1FOjsKI1NURVBTVFlQRTpkYW5jZS1yb3V0aW5lOwojREVTQ1JJUFRJT046OwojQ0hBUlRTVFlMRTo7CiNESUZGSUNVTFRZOkhhcmQ7CiNNRVRFUjo5OwojUkFEQVJWQUxVRVM6OwojQ1JFRElUOjsKI09GRlNFVDowLjAwMDAwMDsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojQVRUQUNLUzo7CiNESVNQTEFZQlBNOjsKI05PVEVTOgowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAomDQowMDAwMDAwMAoxMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 2,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 1,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "owner-assignment-overlap-hold",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 1,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 1,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 1,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Hold",
+          "Row": 0,
+          "Lane": 0,
+          "Player": 1,
+          "End": 96
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utcm91dGluZSAtIC0tLS0tLS0tLS0tLS0tLS0KI05PVEVTOgogICAgIGRhbmNlLXJvdXRpbmU6CiAgICAgOgogICAgIEhhcmQ6CiAgICAgOToKICAgICA6CjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCiYNCjIwMDAwMDAwCjEwMDAwMDAwCjMwMDAwMDAwCjAwMDAwMDAwCjsK",
+          "Charts": []
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1yb3V0aW5lIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URURBVEE6OwojQ0hBUlROQU1FOjsKI1NURVBTVFlQRTpkYW5jZS1yb3V0aW5lOwojREVTQ1JJUFRJT046OwojQ0hBUlRTVFlMRTo7CiNESUZGSUNVTFRZOkhhcmQ7CiNNRVRFUjo5OwojUkFEQVJWQUxVRVM6OwojQ1JFRElUOjsKI09GRlNFVDowLjAwMDAwMDsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojQVRUQUNLUzo7CiNESVNQTEFZQlBNOjsKI05PVEVTOgowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAomDQoyMDAwMDAwMAoxMDAwMDAwMAozMDAwMDAwMAowMDAwMDAwMAo7Cgo=",
+          "Charts": []
+        }
+      ]
+    },
+    {
+      "Name": "owner-swap-identical",
+      "Before": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 0,
+          "Player": 0,
+          "End": null
+        },
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Tap",
+          "Row": 48,
+          "Lane": 1,
+          "Player": 1,
+          "End": null
+        }
+      ],
+      "Serialized": [
+        {
+          "Format": "sm",
+          "Saved": true,
+          "Bytes": "I1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojQ1JFRElUOjsKI0JBTk5FUjo7CiNCQUNLR1JPVU5EOjsKI0xZUklDU1BBVEg6OwojQ0RUSVRMRTo7CiNNVVNJQzo7CiNPRkZTRVQ6MC4wMDAwMDA7CiNTQU1QTEVTVEFSVDowLjAwMDAwMDsKI1NBTVBMRUxFTkdUSDowLjAwMDAwMDsKI1NFTEVDVEFCTEU6OwojQlBNUzowLjAwMDAwMD0xMjAuMDAwMDAwOwojU1RPUFM6OwojREVMQVlTOjsKI1RJTUVTSUdOQVRVUkVTOjsKI1RJQ0tDT1VOVFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKCi8vLS0tLS0tLS0tLS0tLS0tZGFuY2Utcm91dGluZSAtIC0tLS0tLS0tLS0tLS0tLS0KI05PVEVTOgogICAgIGRhbmNlLXJvdXRpbmU6CiAgICAgOgogICAgIEhhcmQ6CiAgICAgOToKICAgICA6CjAwMDAwMDAwCjEwMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCiYNCjAwMDAwMDAwCjAxMDAwMDAwCjAwMDAwMDAwCjAwMDAwMDAwCjsK",
+          "Charts": [
+            {
+              "Players": 2,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 1,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Format": "ssc",
+          "Saved": true,
+          "Bytes": "I1ZFUlNJT046MC44MzsKI1RJVExFOlRyYW5zZm9ybTsKI1NVQlRJVExFOjsKI0FSVElTVDo7CiNUSVRMRVRSQU5TTElUOjsKI1NVQlRJVExFVFJBTlNMSVQ6OwojQVJUSVNUVFJBTlNMSVQ6OwojR0VOUkU6OwojT1JJR0lOOjsKI0NSRURJVDo7CiNCQU5ORVI6OwojQkFDS0dST1VORDo7CiNQUkVWSUVXVklEOjsKI0pBQ0tFVDo7CiNDRElNQUdFOjsKI0RJU0NJTUFHRTo7CiNMWVJJQ1NQQVRIOjsKI0NEVElUTEU6OwojTVVTSUM6OwojT0ZGU0VUOjAuMDAwMDAwOwojU0FNUExFU1RBUlQ6MC4wMDAwMDA7CiNTQU1QTEVMRU5HVEg6MC4wMDAwMDA7CiNTRUxFQ1RBQkxFOjsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojS0VZU09VTkRTOjsKI0FUVEFDS1M6OwoKLy8tLS0tLS0tLS0tLS0tLS1kYW5jZS1yb3V0aW5lIC0gLS0tLS0tLS0tLS0tLS0tLQojTk9URURBVEE6OwojQ0hBUlROQU1FOjsKI1NURVBTVFlQRTpkYW5jZS1yb3V0aW5lOwojREVTQ1JJUFRJT046OwojQ0hBUlRTVFlMRTo7CiNESUZGSUNVTFRZOkhhcmQ7CiNNRVRFUjo5OwojUkFEQVJWQUxVRVM6OwojQ1JFRElUOjsKI09GRlNFVDowLjAwMDAwMDsKI0JQTVM6MC4wMDAwMDA9MTIwLjAwMDAwMDsKI1NUT1BTOjsKI0RFTEFZUzo7CiNXQVJQUzo7CiNUSU1FU0lHTkFUVVJFUzo7CiNUSUNLQ09VTlRTOjsKI0NPTUJPUzo7CiNTUEVFRFM6OwojU0NST0xMUzo7CiNGQUtFUzo7CiNMQUJFTFM6OwojQVRUQUNLUzo7CiNESVNQTEFZQlBNOjsKI05PVEVTOgowMDAwMDAwMAoxMDAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAomDQowMDAwMDAwMAowMTAwMDAwMAowMDAwMDAwMAowMDAwMDAwMAo7Cgo=",
+          "Charts": [
+            {
+              "Players": 2,
+              "Notes": [
+                {
+                  "Row": 48,
+                  "Lane": 0,
+                  "Player": 0,
+                  "Source": "1"
+                },
+                {
+                  "Row": 48,
+                  "Lane": 1,
+                  "Player": 1,
+                  "Source": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ShiftSteps": [
+    {
+      "SnapRows": 48,
+      "ShiftRows": 48
+    },
+    {
+      "SnapRows": 24,
+      "ShiftRows": 24
+    },
+    {
+      "SnapRows": 16,
+      "ShiftRows": 16
+    },
+    {
+      "SnapRows": 12,
+      "ShiftRows": 12
+    },
+    {
+      "SnapRows": 8,
+      "ShiftRows": 8
+    },
+    {
+      "SnapRows": 6,
+      "ShiftRows": 6
+    },
+    {
+      "SnapRows": 4,
+      "ShiftRows": 4
+    },
+    {
+      "SnapRows": 3,
+      "ShiftRows": 3
+    },
+    {
+      "SnapRows": 1,
+      "ShiftRows": 1
+    },
+    {
+      "SnapRows": 0,
+      "ShiftRows": 48
+    }
+  ]
+}

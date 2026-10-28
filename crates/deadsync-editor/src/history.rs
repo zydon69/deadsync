@@ -1,6 +1,8 @@
 //! Commands store only changed notes and tag values. One gesture is one history
 //! entry; failed gestures roll back and never erase the redo branch.
 mod event_properties;
+mod output_snapshot;
+pub mod file_intent;
 pub(crate) mod media_relocation;
 
 use crate::{

@@ -1,6 +1,6 @@
 //! Relocate known song media and native chart MUSIC overrides without parsing a new Document or changing spans.
 use super::{Document, decode, escape_text};
-use crate::Error;
+use crate::{Error,media_relocation::SourceBase};
 use std::{ops::Range, path::Path, sync::Arc};
 pub(crate) fn is_media(chart: Option<usize>, name: &str) -> bool {
     name == "MUSIC"
@@ -25,16 +25,16 @@ pub(crate) fn range_is_media(document: &Document, range: &Range<usize>) -> bool 
         .iter()
         .any(|tag| tag.value == *range && is_media(tag.chart, &tag.name))
 }
-fn rebase_bytes(bytes: &[u8], old: &Path, new: &Path) -> Result<Option<Arc<[u8]>>, Error> {
+fn rebase_bytes(bytes: &[u8], old: SourceBase<'_>, new: &Path) -> Result<Option<Arc<[u8]>>, Error> {
     let text = decode(bytes);
-    let rebased = crate::media_relocation::rebase(Some(old), new, &text)?;
+    let rebased = old.rebase(new, &text)?;
     Ok((rebased != text).then(|| Arc::from(escape_text(&rebased))))
 }
 pub(crate) fn replacement(
     document: &Document,
     range: &Range<usize>,
     value: &Option<Arc<[u8]>>,
-    old: &Path,
+    old: SourceBase<'_>,
     new: &Path,
 ) -> Result<Option<Arc<[u8]>>, Error> {
     let bytes = value
@@ -44,7 +44,7 @@ pub(crate) fn replacement(
 }
 pub(crate) fn added(
     value: &Option<Arc<[u8]>>,
-    old: &Path,
+    old: SourceBase<'_>,
     new: &Path,
 ) -> Result<Option<Arc<[u8]>>, Error> {
     value
@@ -52,7 +52,7 @@ pub(crate) fn added(
         .map(|bytes| Ok(rebase_bytes(bytes, old, new)?.unwrap_or_else(|| Arc::clone(bytes))))
         .transpose()
 }
-pub(crate) fn document(source: &Document, old: &Path, new: &Path) -> Result<Document, Error> {
+pub(crate) fn document(source: &Document, old: SourceBase<'_>, new: &Path) -> Result<Document, Error> {
     let mut result = source.clone();
     for tag in &source.tags {
         if is_media(tag.chart, &tag.name) {

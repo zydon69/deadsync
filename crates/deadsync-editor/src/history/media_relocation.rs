@@ -4,6 +4,7 @@ use super::{Change, Entry, Session};
 use crate::{
     Error,
     document::{Document, media_relocation as media},
+    media_relocation::SourceBase,
 };
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -42,6 +43,7 @@ struct Guard {
     redo: usize,
 }
 pub(crate) struct Plan {
+    published:Arc<std::sync::atomic::AtomicBool>,
     guard: Guard,
     current: Document,
     slots: Vec<Slot>,
@@ -65,16 +67,27 @@ impl Plan {
             revision: self.stamps[&self.guard.content],
         }
     }
+    #[cfg(test)]
     pub(crate) fn prepare(session: &Session, old: &Path, new: &Path) -> Result<Self, Error> {
+        Self::prepare_from_source(session,SourceBase::ExistingFile(old),new,session.document.format)
+    }
+    pub(crate) fn prepare_for_output(session:&Session,old:SourceBase<'_>,new:&Path,target:crate::document::Format)->Result<Self,Error> {
+        Self::prepare_from_source(session,old,new,target)
+    }
+    pub(crate) fn detached_output_snapshot(&self,session:&Session)->Result<Session,Error>{
+        self.validate(session)?;
+        session.detached_output_snapshot(Document::parse(Arc::<[u8]>::from(self.bytes.as_slice()),session.document.format)?)
+    }
+    fn prepare_from_source(session:&Session,old:SourceBase<'_>,new:&Path,target:crate::document::Format)->Result<Self,Error> {
         if !old.is_absolute()
             || !new.is_absolute()
             || !new
                 .extension()
                 .and_then(|ext| ext.to_str())
-                .is_some_and(|ext| ext.eq_ignore_ascii_case(session.document.format.extension()))
+                .is_some_and(|ext| ext.eq_ignore_ascii_case(target.extension()))
         {
             return Err(Error::Unsupported(
-                "Relocation requires absolute same-format simfile paths".into(),
+                "Relocation requires absolute paths matching the selected output format".into(),
             ));
         }
         let current = media::document(&session.document, old, new)?;
@@ -125,6 +138,7 @@ impl Plan {
         }
         let bytes = session.serialize_document(current.clone())?;
         Ok(Self {
+            published:Arc::new(std::sync::atomic::AtomicBool::new(false)),
             guard: Guard {
                 identity: Arc::clone(&session.identity),
                 next: session.next_revision,
@@ -170,7 +184,7 @@ fn walk(
     change: &Change,
     context: &mut Document,
     forward: bool,
-    old: &Path,
+    old: SourceBase<'_>,
     new: &Path,
     stack: Stack,
     entry: usize,
@@ -317,6 +331,7 @@ impl Publication<'_> {
             remap(&mut session.saved_revision);
         }
         session.next_revision = plan.next;
+        plan.published.store(true,std::sync::atomic::Ordering::Release);
     }
 }
 fn remap_entry(entry: &mut Entry, remap: &impl Fn(&mut u64)) {

@@ -13,6 +13,8 @@ use std::path::Path;
 pub const SNAP_ROWS: [u64; 10] = [48, 24, 16, 12, 8, 6, 4, 3, 1, 0];
 /// Increment for discrete edit tools, distinct from Off measure navigation.
 pub fn snap_edit_rows(index:usize)->u64 { SNAP_ROWS[index].max(1) }
+/// Source Editor.GetShiftNotesRows: Off shifts one beat; insertion keeps its own minimum.
+pub fn snap_shift_rows(index:usize)->u64 { if SNAP_ROWS[index] == 0 { crate::notes::ROWS_PER_BEAT } else { SNAP_ROWS[index] } }
 pub const SNAP_NAMES: [&str; 10] = [
     "1/4", "1/8", "1/12", "1/16", "1/24", "1/32", "1/48", "1/64", "1/192", "Off",
 ];
@@ -105,6 +107,10 @@ impl Workspace {
         crate::chart_order::Snapshot::resident(&mut self.file.session)
     }
 
+    pub fn new_song(resource_base: &Path, sync_offset: f64) -> Result<Self, Error> {
+        let candidate=crate::file_origin::NewSong::prepare(resource_base,sync_offset)?;
+        Ok(Self::from_file_unfocused(FileSession::from_new(candidate)?))
+    }
     pub fn open(path: &Path, chart: usize) -> Result<Self, Error> {
         Self::from_file(FileSession::open(path)?, chart)
     }
@@ -165,15 +171,21 @@ impl Workspace {
     }
     /// Simultaneously swaps both kinds over the selected heads, for all players.
     pub fn swap_note_types(&mut self, pair: crate::note_swap::Pair) -> Result<bool, Error> {
+        self.swap_note_types_detailed(pair).map_err(Into::into)
+    }
+    pub fn swap_note_types_detailed(&mut self, pair: crate::note_swap::Pair) -> Result<bool, crate::note_swap::Failure> {
         let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No active chart".into()))?;
         let (start, end) = self.selection().unwrap_or((self.row, self.row));
         let selected = self.file.session.grid(chart)?.iter()
             .filter(|(position, _)| position.row >= start && position.row <= end)
             .map(|(position, _)| position).collect();
-        crate::note_swap::apply(&mut self.file.session, chart, &selected, pair)
+        crate::note_swap::apply_detailed(&mut self.file.session, chart, &selected, pair)
     }
     /// Prepares against the effective clock; None selection means all events.
     pub fn prepare_timing_conversion(&self, direction: crate::timing_edit::conversion::Direction, all: bool) -> Result<crate::timing_edit::conversion::Plan, Error> {
+        self.prepare_timing_conversion_detailed(direction, all).map_err(Into::into)
+    }
+    pub fn prepare_timing_conversion_detailed(&self, direction: crate::timing_edit::conversion::Direction, all: bool) -> Result<crate::timing_edit::conversion::Plan, crate::timing_edit::conversion::Failure> {
         use crate::generation::timing::{GenerationTiming, EventKind};
         use crate::timing_edit::conversion::{Direction, Plan};
         let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No active chart".into()))?;
@@ -185,13 +197,48 @@ impl Workspace {
                 Direction::NegativeStopsToWarps => matches!(event.kind, EventKind::Stop(value) if value < 0.0),
             }
         }).map(|event| event.row as u64).collect();
-        Plan::prepare(&self.file.session, chart, direction, if all { None } else { Some(&selected) })
+        Plan::prepare_detailed(&self.file.session, chart, direction, if all { None } else { Some(&selected) })
     }
     pub fn apply_timing_conversion(&mut self, plan: &crate::timing_edit::conversion::Plan, acknowledged: &std::collections::BTreeSet<u64>) -> Result<bool, Error> {
-        if self.active_chart() != Some(plan.chart()) { return Err(Error::InvalidEdit("Timing conversion belongs to another active chart".into())); }
-        let changed = plan.apply(&mut self.file.session, acknowledged)?;
+        self.apply_timing_conversion_detailed(plan, acknowledged).map_err(Into::into)
+    }
+    pub fn apply_timing_conversion_detailed(&mut self, plan: &crate::timing_edit::conversion::Plan, acknowledged: &std::collections::BTreeSet<u64>) -> Result<bool, crate::timing_edit::conversion::Failure> {
+        if self.active_chart() != Some(plan.chart()) { return Err(crate::timing_edit::conversion::Failure::stale()); }
+        let changed = plan.apply_detailed(&mut self.file.session, acknowledged)?;
         self.sync_active_chart()?;
         Ok(changed)
+    }
+    pub fn expand_event_selection(&mut self, selection: &crate::event_clipboard::Selection) -> Result<crate::event_clipboard::Selection, Error> {
+        self.validate_event_selection(selection)?;
+        selection.expand_to_chart(&mut self.file.session)
+    }
+    pub fn prepare_note_operation(&mut self, scope: crate::note_operation::Scope, operation: crate::note_operation::Operation) -> Result<crate::note_operation::Plan, crate::note_operation::Failure> {
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No chart for note operation".into()))?;
+        crate::note_operation::Plan::prepare(&mut self.file.session, chart, scope, operation)
+    }
+    pub fn prepare_selected_note_operation(&mut self, selection: &crate::event_clipboard::Selection, operation: crate::note_operation::Operation) -> Result<crate::note_operation::Plan, crate::note_operation::Failure> {
+        self.validate_event_selection(selection)?;
+        selection.prepare_note_operation(&mut self.file.session, operation)
+    }
+    pub fn apply_note_operation(&mut self, plan: &crate::note_operation::Plan) -> Result<bool, crate::note_operation::Failure> {
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No chart for note operation".into()))?;
+        plan.apply(&mut self.file.session, chart)
+    }
+    pub fn prepare_selected_timing_conversion(&self, selection: &crate::event_clipboard::Selection, direction: crate::timing_edit::conversion::Direction) -> Result<crate::timing_edit::conversion::Plan, crate::timing_edit::conversion::Failure> {
+        self.validate_event_selection(selection).map_err(|_| crate::timing_edit::conversion::Failure::stale())?;
+        selection.prepare_timing_conversion(&self.file.session, direction)
+    }
+    pub fn prepare_selected_transform(&mut self, selection: &crate::event_clipboard::Selection, transform: crate::transform::Transform) -> Result<crate::selected_transform::Plan, crate::selected_transform::Failure> {
+        self.validate_event_selection(selection).map_err(|_| crate::selected_transform::Failure::stale())?;
+        selection.prepare_transform(&mut self.file.session, transform)
+    }
+    pub fn prepare_transform_scope(&mut self, scope: crate::note_operation::Scope, transform: crate::transform::Transform) -> Result<crate::selected_transform::Plan, crate::selected_transform::Failure> {
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No chart to transform".into()))?;
+        crate::selected_transform::Plan::prepare(&mut self.file.session, chart, scope, transform)
+    }
+    pub fn apply_selected_transform(&mut self, plan: &crate::selected_transform::Plan, acknowledged: &std::collections::BTreeSet<crate::selected_transform::Impact>) -> Result<bool, crate::selected_transform::Failure> {
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No chart to transform".into()))?;
+        plan.apply(&mut self.file.session, chart, acknowledged)
     }
     pub fn event_selection(&mut self) -> Result<crate::event_clipboard::Selection, Error> {
         let (start, end) = self.selection().unwrap_or((self.row, self.row));
@@ -264,6 +311,18 @@ impl Workspace {
     pub fn release_lane_input(&mut self,input:&mut crate::lane_entry::Inputs,lane:u16)->Result<bool,Error>{
         if self.active_chart()!=Some(input.chart()){return Err(Error::InvalidEdit("Lane input chart lost focus".into()));}
         input.release(&mut self.file.session,lane)
+    }
+    pub fn prepare_quick_add(&self, kind:crate::quick_add::Kind)->Result<crate::quick_add::Plan,crate::quick_add::Failure>{
+        crate::quick_add::Plan::prepare(&self.file.session,self.chart(),kind,self.row() as f64)
+    }
+    pub fn apply_quick_add(&mut self,plan:&crate::quick_add::Plan)->Result<bool,crate::quick_add::Failure>{
+        let chart=self.chart();plan.apply(&mut self.file.session,chart)
+    }
+    pub fn prepare_shift_all(&mut self,later:bool)->Result<crate::shift_all::Plan,crate::shift_all::Failure>{
+        let rows=snap_shift_rows(self.snap()) as i64*if later{1}else{-1};let chart=self.chart();crate::shift_all::Plan::prepare(&mut self.file.session,chart,rows)
+    }
+    pub fn apply_shift_all(&mut self,plan:crate::shift_all::Plan,review:&crate::event_shift::Report)->Result<crate::event_shift::Report,crate::shift_all::Failure>{
+        let chart=self.chart();plan.apply(&mut self.file.session,chart,review)
     }
     pub fn file(&self) -> &FileSession {
         &self.file

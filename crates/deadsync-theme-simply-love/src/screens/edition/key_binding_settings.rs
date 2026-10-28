@@ -6,17 +6,15 @@ pub(super) struct Settings {
     pub(super) draft: Draft,
     capture: Option<Capture>,
     conflicts: Vec<String>,
+    profile_report: Option<deadsync_editor::key_binding_preferences::source_profile::Report>,
+    profile_page: usize,
 }
 impl Settings {
     fn refresh_conflicts(&mut self) {
-        let registry = deadsync_editor::key_commands::Registry::new(self.draft.staged().bindings());
-        let chord = &self.draft.alternatives()[self.draft.alternative];
-        self.conflicts = registry.conflicts(
+        self.conflicts = deadsync_editor::key_binding_preferences::physical::conflicts(
+            &self.draft.staged(),
             self.draft.action().id(),
-            &chord
-                .iter()
-                .map(|key| deadsync_editor::key_commands::Key::named(key))
-                .collect::<Vec<_>>(),
+            &self.draft.alternatives()[self.draft.alternative],
         );
     }
     pub(super) fn release_input(&mut self) {
@@ -43,6 +41,8 @@ impl State {
                     draft,
                     capture: None,
                     conflicts: Vec::new(),
+                    profile_report: None,
+                    profile_page: 0,
                 });
                 self.key_binding_draft.as_mut().unwrap().refresh_conflicts();
                 self.panel = Some(Panel::KeyBindingSettings(0));
@@ -95,11 +95,173 @@ impl State {
         capture.observe(&keys);
         true
     }
+    pub(super) fn key_profile_import_matches(
+        &self,
+        expected: &Arc<deadsync_editor::key_binding_preferences::Preferences>,
+    ) -> bool {
+        matches!(self.panel, Some(Panel::KeyBindingSettings(_)))
+            && self.key_binding_draft.as_ref().is_some_and(|settings| {
+                settings.capture.is_none() && Arc::ptr_eq(&settings.draft.staged(), expected)
+            })
+    }
+    fn key_profile_review_status(&mut self) {
+        let Some(settings) = self.key_binding_draft.as_ref() else {
+            return;
+        };
+        let Some(report) = settings.profile_report.as_ref() else {
+            return;
+        };
+        let mut details = Vec::new();
+        for (key, ids) in [
+            ("KeyProfileAvailable", &report.applied),
+            ("KeyProfileUnavailable", &report.unavailable_commands),
+            ("KeyProfileBlocked", &report.blocked_unavailable),
+            ("KeyProfileNativeContext", &report.retained_native_contexts),
+            ("KeyProfileModifierOnly", &report.retained_modifiers),
+            ("KeyProfileUnknown", &report.retained_unknown),
+            ("KeyProfileDisabled", &report.neutralized_native_extensions),
+            ("KeyProfileRescue", &report.rescue_commands),
+        ] {
+            for id in ids {
+                details.push(format!("{}: {}", i18n::tr("Edition", key), id));
+            }
+        }
+        for rejected in &report.rejected {
+            let reason = match rejected.reason {
+                "Expected an alternatives array" => "KeyProfileReasonArray",
+                "Too many alternatives" => "KeyProfileReasonAlternatives",
+                "Expected an ordered key array" => "KeyProfileReasonChord",
+                "Chord exceeds native key limit" => "KeyProfileReasonLength",
+                "Source key has no supported native mapping" => "KeyProfileReasonKey",
+                "Duplicate modifier/key after physical alias normalization" => {
+                    "KeyProfileReasonDuplicate"
+                }
+                "Native dispatch requires modifiers then one final ordinary key" => {
+                    "KeyProfileReasonPrefix"
+                }
+                _ => "KeyProfileReasonReserved",
+            };
+            let alternative = rejected
+                .alternative
+                .map(|i| format!(" #{}", i + 1))
+                .unwrap_or_default();
+            details.push(format!(
+                "{}: {}{}: {}",
+                i18n::tr("Edition", "KeyProfileRejected"),
+                rejected.id,
+                alternative,
+                i18n::tr("Edition", reason)
+            ));
+        }
+        let count = details.len().max(1);
+        let detail = details
+            .get(settings.profile_page % count)
+            .map(String::as_str)
+            .unwrap_or("");
+        self.status = i18n::tr_fmt(
+            "Edition",
+            "KeyProfileReview",
+            &[
+                ("available", &report.applied.len().to_string()),
+                (
+                    "unavailable",
+                    &report.unavailable_commands.len().to_string(),
+                ),
+                (
+                    "disabled",
+                    &report.neutralized_native_extensions.len().to_string(),
+                ),
+                ("rejected", &report.rejected.len().to_string()),
+                ("item", detail),
+            ],
+        );
+    }
+    fn key_profile_stage(
+        &mut self,
+        prepared: deadsync_editor::key_binding_preferences::source_profile::Prepared,
+    ) {
+        let Some(settings) = self.key_binding_draft.as_mut() else {
+            return;
+        };
+        match settings.draft.stage_profile(prepared.preferences) {
+            Ok(()) => {
+                settings.profile_report = Some(prepared.report);
+                settings.profile_page = 0;
+                settings.refresh_conflicts();
+                self.key_profile_review_status();
+            }
+            Err(error) => self.key_binding_error(error),
+        }
+    }
+    pub(super) fn key_profile_import_text(&mut self, text: &str) {
+        let Some(settings) = self.key_binding_draft.as_ref() else {
+            return;
+        };
+        let result = deadsync_editor::key_binding_preferences::source_profile::import(
+            &settings.draft.staged(),
+            text,
+            deadsync_editor::key_binding_preferences::source_profile::Platform::current(),
+        );
+        match result {
+            Ok(prepared) => self.key_profile_stage(prepared),
+            Err(error) => self.key_binding_error(error),
+        }
+    }
     pub(super) fn key_binding_settings_key(&mut self, index: usize, code: KeyCode) {
         let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
         if code == KeyCode::Escape || (index == 7 && enter) {
             self.key_binding_draft = None;
             self.panel = None;
+            return;
+        }
+        if matches!(
+            code,
+            KeyCode::F5 | KeyCode::F6 | KeyCode::F7 | KeyCode::F8 | KeyCode::F9
+        ) {
+            if code == KeyCode::F7 {
+                self.queue_key_profile_import();
+                return;
+            }
+            let Some(settings) = self.key_binding_draft.as_mut() else {
+                return;
+            };
+            match code {
+                KeyCode::F5 => {
+                    let next =
+                        deadsync_editor::key_binding_preferences::source_profile::native_defaults(
+                            &settings.draft.staged(),
+                        );
+                    match settings.draft.stage_profile(next) {
+                        Ok(()) => {
+                            settings.profile_report = None;
+                            settings.profile_page = 0;
+                            settings.refresh_conflicts();
+                            self.status = i18n::tr("Edition", "KeyProfileNativeStaged");
+                        }
+                        Err(error) => self.key_binding_error(error),
+                    }
+                }
+                KeyCode::F6 => {
+                    let result = deadsync_editor::key_binding_preferences::source_profile::preset(
+                        &settings.draft.staged(),
+                        deadsync_editor::key_binding_preferences::source_profile::Platform::current(
+                        ),
+                    );
+                    match result {
+                        Ok(prepared) => self.key_profile_stage(prepared),
+                        Err(error) => self.key_binding_error(error),
+                    }
+                }
+                KeyCode::F8 | KeyCode::F9 => {
+                    if code == KeyCode::F8 {
+                        settings.profile_page = settings.profile_page.saturating_sub(1);
+                    } else {
+                        settings.profile_page = settings.profile_page.saturating_add(1);
+                    }
+                    self.key_profile_review_status();
+                }
+                _ => {}
+            }
             return;
         }
         if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
@@ -227,12 +389,20 @@ impl State {
                     "commands",
                     &conflicts
                         .iter()
-                        .map(|id| i18n::tr("Edition", &format!("KeyBindingAction{id}")))
+                        .map(|id| {
+                            if let Some(source) = deadsync_editor::key_binding_preferences::source_profile::blocker_source(id) {
+                                i18n::tr_fmt("Edition", "KeyProfileUnavailableActivation", &[("command", source)])
+                            } else { i18n::tr("Edition", &format!("KeyBindingAction{id}")) }
+                        })
                         .collect::<Vec<_>>()
                         .join(", "),
                 )],
             );
             actors.push(act!(text:font("miso"):settext(warning):xy(x,top+240.):zoom(0.5):maxwidth(580.):diffuse(1.,0.7,0.2,1.):z(8052)));
+        }
+        if settings.capture.is_none() {
+            let help = i18n::tr("Edition", "KeyProfileControls");
+            actors.push(act!(text:font("miso"):settext(help):xy(x,top+285.):zoom(0.45):maxwidth(580.):maxheight(32.):z(8052)));
         }
         if let Some(capture) = &settings.capture {
             let help = i18n::tr_fmt(

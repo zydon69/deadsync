@@ -134,6 +134,7 @@ impl Plan {
             report,
         })
     }
+    pub fn report(&self) -> &Report { &self.report }
     pub fn apply(self, session: &mut Session) -> Result<Report, Error> {
         if !session.accepts_token(&self.token) {
             return Err(invalid(

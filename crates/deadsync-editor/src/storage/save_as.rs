@@ -1,5 +1,22 @@
-//! Same-format Save As adapter. Review and output are staged before live mutation.
-use super::{FileSession, sync_directory};
+//! Reviewed Save As adapter. Review and output are staged before live mutation.
+#[cfg(test)]
+mod untitled_tests;
+use super::FileSession;
+#[cfg(windows)]
+mod windows_identity;
+#[cfg(windows)]
+mod windows_publish;
+
+fn sync_save_as_directory(path: &std::path::Path) -> Result<(), crate::Error> {
+    #[cfg(unix)]
+    { super::sync_directory(path) }
+    #[cfg(not(unix))]
+    {
+        let _ = path;
+        Err(crate::Error::Unsupported(
+            "Save As directory durability is not implemented on this platform".into()))
+    }
+}
 pub use crate::history::media_relocation::rebind::RelocationReceipt;
 use crate::{
     Error,
@@ -16,7 +33,7 @@ use std::{
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct ParentIdentity {
     device: u64,
-    inode: u64,
+    inode: u128,
 }
 fn parent_identity(path: &Path) -> Result<ParentIdentity, Error> {
     #[cfg(unix)]
@@ -29,10 +46,15 @@ fn parent_identity(path: &Path) -> Result<ParentIdentity, Error> {
         }
         Ok(ParentIdentity {
             device: metadata.dev(),
-            inode: metadata.ino(),
+            inode: u128::from(metadata.ino()),
         })
     }
-    #[cfg(not(unix))]
+    #[cfg(windows)]
+    {
+        let id = windows_identity::directory(path)?;
+        Ok(ParentIdentity { device: id.volume, inode: id.file })
+    }
+    #[cfg(not(any(unix, windows)))]
     {
         let _ = path;
         Err(Error::Unsupported(
@@ -51,10 +73,15 @@ fn file_identity(file: &fs::File) -> Result<ParentIdentity, Error> {
         let metadata = file.metadata()?;
         Ok(ParentIdentity {
             device: metadata.dev(),
-            inode: metadata.ino(),
+            inode: u128::from(metadata.ino()),
         })
     }
-    #[cfg(not(unix))]
+    #[cfg(windows)]
+    {
+        let id = windows_identity::file(file)?;
+        Ok(ParentIdentity { device: id.volume, inode: id.file })
+    }
+    #[cfg(not(any(unix, windows)))]
     {
         let _ = file;
         Err(Error::Unsupported(
@@ -97,8 +124,15 @@ fn baseline(path: &Path) -> Result<Option<Baseline>, Error> {
 /// Exact destination baseline to display for overwrite review before commit.
 /// This object alone does not write or authorize another destination later.
 pub struct SaveAsReview {
-    source: PathBuf,
-    source_expected: Arc<[u8]>,
+    source: crate::file_origin::Origin,
+    source_expected: Option<Arc<[u8]>>,
+    previous_policy: crate::output_policy::OutputPolicy,
+    policy_revision:u64,
+    publication_revision:u64,
+    candidate:crate::history::Session,
+    output:crate::output_policy::PreparedOutput,
+    generated:Option<crate::output_policy::Output>,
+    maximum_bytes:usize,
     destination: PathBuf,
     parent: PathBuf,
     parent_id: ParentIdentity,
@@ -120,6 +154,9 @@ impl PreviousRecovery {
     }
 }
 pub struct PendingDurability {
+    policy:crate::output_policy::OutputPolicy,
+    policy_revision:u64,
+    publication_revision:u64,
     destination: PathBuf,
     parent: PathBuf,
     parent_id: ParentIdentity,
@@ -129,17 +166,23 @@ pub struct PendingDurability {
 }
 pub enum SaveAsOutcome {
     Durable {
-        previous_recovery: PreviousRecovery,
+        previous_recovery: Option<PreviousRecovery>,
         relocation: RelocationReceipt,
     },
     WrittenPendingDurability {
         receipt: PendingDurability,
-        previous_recovery: PreviousRecovery,
+        previous_recovery: Option<PreviousRecovery>,
         relocation: RelocationReceipt,
         error: Error,
     },
 }
 impl SaveAsReview {
+    pub fn issues(&self)->&[crate::advanced_export::Issue]{self.output.issues()}
+    pub fn output_policy(&self)->&crate::output_policy::OutputPolicy{self.output.policy()}
+    fn generate_output(&mut self,acknowledged:&std::collections::BTreeSet<usize>)->Result<(),Error>{
+        self.generated=Some(self.output.generate(&self.candidate,acknowledged,self.maximum_bytes,&std::sync::atomic::AtomicBool::new(false))?);Ok(())
+    }
+
     pub fn destination(&self) -> &Path {
         &self.destination
     }
@@ -164,6 +207,12 @@ impl FileSession {
         self.prepare_save_as_with_revisions(destination,&[])
     }
     pub fn prepare_save_as_with_revisions(&self,destination:&Path,extra:&[u64])->Result<SaveAsReview,Error> {
+        self.prepare_save_as_with_policy_and_revisions(destination,self.output_policy.clone(),extra)
+    }
+    pub fn prepare_save_as_with_policy(&self,destination:&Path,policy:crate::output_policy::OutputPolicy)->Result<SaveAsReview,Error>{
+        self.prepare_save_as_with_policy_and_revisions(destination,policy,&[])
+    }
+    pub fn prepare_save_as_with_policy_and_revisions(&self,destination:&Path,policy:crate::output_policy::OutputPolicy,extra:&[u64])->Result<SaveAsReview,Error> {
         if !destination.is_absolute() {
             return Err(Error::InvalidEdit(
                 "Save As requires an absolute destination".into(),
@@ -177,17 +226,25 @@ impl FileSession {
             .ok_or_else(|| Error::InvalidEdit("Save As destination has no parent".into()))?
             .canonicalize()?;
         let destination = parent.join(name);
-        if destination == self.path {
+        if self.existing_path() == Some(destination.as_path()) {
             return Err(Error::InvalidEdit("Use Save for the current file".into()));
         }
         let parent_id = parent_identity(&parent)?;
         let expected = baseline(&destination)?;
-        let mut plan = Plan::prepare(&self.session, &self.path, &destination)?;
+        let target=super::save_output::policy_format(&policy,self.session.document().format);
+        let source=if let Some(old)=self.existing_path(){crate::media_relocation::SourceBase::ExistingFile(old)}else{crate::media_relocation::SourceBase::ResourceDirectory(self.resource_base())};
+        let mut plan=Plan::prepare_for_output(&self.session,source,&destination,target)?;
+        let mut candidate=plan.detached_output_snapshot(&self.session)?;
+        let limits=super::save_output::limits_for(&policy);
+        let output=policy.prepare_output(&mut candidate,limits,&std::sync::atomic::AtomicBool::new(false))?;
         plan.include_external_revisions(extra)?;
-        let relocation = plan.rebind_receipt();
+        let mut relocation = plan.rebind_receipt();
+        relocation.bind_output_policy(self.policy_revision,self.next_policy_revision(&policy)?);
         Ok(SaveAsReview {
-            source: self.path.clone(),
-            source_expected: Arc::clone(&self.expected),
+            source: self.origin.clone(),
+            source_expected: self.expected.clone(),
+            previous_policy:self.output_policy.clone(),policy_revision:self.policy_revision,publication_revision:self.publication_revision,
+            candidate,output,generated:None,maximum_bytes:limits.bytes,
             destination,
             parent,
             parent_id,
@@ -196,8 +253,25 @@ impl FileSession {
             relocation,
         })
     }
+    pub fn save_as_reviewed(&mut self,mut review:SaveAsReview,acknowledged:&std::collections::BTreeSet<usize>)->Result<SaveAsOutcome,Error>{
+        review.plan.validate(&self.session)?;
+        if self.origin!=review.source||self.expected!=review.source_expected||self.output_policy!=review.previous_policy||self.policy_revision!=review.policy_revision||self.publication_revision!=review.publication_revision{return Err(Error::InvalidEdit("Save As source policy changed since review".into()));}
+        review.generate_output(acknowledged)?;self.save_as(review)
+    }
     pub fn save_as(&mut self, review: SaveAsReview) -> Result<SaveAsOutcome, Error> {
-        self.save_as_with_sync(review, sync_directory)
+        #[cfg(windows)]
+        {
+            // The successful persist callback includes the Windows namespace
+            // WRITE_THROUGH barrier. No Unix-style directory fsync is assumed.
+            self.save_as_with_io(review, |_| Ok(()), |pending, destination, absent| {
+                windows_publish::publish(pending, destination, absent)?;
+                Ok(())
+            })
+        }
+        #[cfg(not(windows))]
+        {
+            self.save_as_with_sync(review, sync_save_as_directory)
+        }
     }
     fn save_as_with_sync(
         &mut self,
@@ -219,16 +293,24 @@ impl FileSession {
     }
     fn save_as_with_io(
         &mut self,
-        review: SaveAsReview,
+        mut review: SaveAsReview,
         sync: impl FnOnce(&Path) -> Result<(), Error>,
         persist: impl FnOnce(tempfile::NamedTempFile, &Path, bool) -> Result<(), Error>,
     ) -> Result<SaveAsOutcome, Error> {
-        if self.path != review.source || self.expected != review.source_expected {
+        if self.origin != review.source || self.expected != review.source_expected || self.output_policy!=review.previous_policy || self.policy_revision!=review.policy_revision||self.publication_revision!=review.publication_revision {
             return Err(Error::InvalidEdit(
                 "Save As source changed since review".into(),
             ));
         }
         review.plan.validate(&self.session)?;
+        if review.generated.is_none(){
+            if !review.issues().is_empty(){return Err(Error::OutputReviewRequired);}
+            review.generate_output(&std::collections::BTreeSet::new())?;
+        }
+        let output=review.generated.as_ref().ok_or_else(||Error::InvalidEdit("Missing generated output".into()))?;
+        if !output.is_current(&review.candidate){return Err(Error::InvalidEdit("Generated output became stale".into()));}
+        let policy=output.policy().clone();let next_policy=self.next_policy_revision(&policy)?;let next_publication=self.next_publication_revision()?;
+        let expected: Arc<[u8]> = output.bytes().to_vec().into();
         let mut lock_name = std::ffi::OsString::from(".");
         lock_name.push(review.destination.file_name().unwrap());
         lock_name.push(".deadsync-save-lock");
@@ -240,11 +322,12 @@ impl FileSession {
             .open(review.parent.join(lock_name))?;
         lock.try_lock().map_err(std::io::Error::other)?;
         review.validate_target()?;
-        let expected: Arc<[u8]> = review.plan.bytes().to_vec().into();
-        let previous_recovery = PreviousRecovery {
-            path: self.recovery_path(),
-            receipt: Arc::clone(&self.recovery_receipt),
+        let previous_recovery = match self.persisted() {
+            Some(persisted)=>Some(PreviousRecovery {path:self.sidecar_path(".deadsync-recovery")?,receipt:Arc::clone(persisted.recovery)}),
+            None=>None,
         };
+        let new_origin=crate::file_origin::Origin::Existing(review.destination.clone());
+        let new_resource_base=review.parent.clone();
         let new_recovery = Arc::new(Mutex::new(None));
         let mut pending = tempfile::NamedTempFile::new_in(&review.parent)?;
         if review.expected.is_some() {
@@ -255,6 +338,7 @@ impl FileSession {
         pending.write_all(&expected)?;
         pending.as_file().sync_all()?;
         let receipt = PendingDurability {
+            policy:policy.clone(),policy_revision:next_policy,publication_revision:next_publication,
             destination: review.destination.clone(),
             parent: review.parent.clone(),
             parent_id: review.parent_id,
@@ -275,9 +359,11 @@ impl FileSession {
         let publication = plan.publication(&mut self.session)?;
         persist(pending, &destination, baseline.is_none())?;
         publication.commit();
-        self.path = destination;
-        self.expected = expected;
-        self.recovery_receipt = new_recovery;
+        self.output_policy=policy;self.policy_revision=next_policy;self.publication_revision=next_publication;self.publication_epoch.store(next_publication,std::sync::atomic::Ordering::Release);
+        self.origin = new_origin;
+        self.resource_base = new_resource_base;
+        self.expected = Some(expected);
+        self.recovery_receipt = Some(new_recovery);
         match sync(&parent) {
             Ok(()) => {
                 self.session.mark_saved();
@@ -297,12 +383,15 @@ impl FileSession {
     }
 }
 impl PendingDurability {
+    pub(super) fn for_output(destination:&Path,parent:&Path,expected:Arc<[u8]>,pending:&fs::File,content:ContentToken,policy:crate::output_policy::OutputPolicy,policy_revision:u64,publication_revision:u64)->Result<Self,Error>{
+        Ok(Self{destination:destination.to_owned(),parent:parent.to_owned(),parent_id:parent_identity(parent)?,expected,identity:file_identity(pending)?,content,policy,policy_revision,publication_revision})
+    }
     pub fn destination(&self) -> &Path {
         &self.destination
     }
     pub fn retry(&self, file: &mut FileSession) -> Result<(), Error> {
-        if file.path != self.destination
-            || file.expected != self.expected
+        if file.output_policy!=self.policy || file.policy_revision!=self.policy_revision || file.publication_revision!=self.publication_revision || file.existing_path() != Some(self.destination.as_path())
+            || file.expected.as_ref() != Some(&self.expected)
             || parent_identity(&self.parent)? != self.parent_id
             || baseline(&self.destination)?
                 .as_ref()
@@ -312,7 +401,7 @@ impl PendingDurability {
         {
             return Err(Error::ExternalChange);
         }
-        sync_directory(&self.parent)?;
+        sync_save_as_directory(&self.parent)?;
         if !file.session.accepts_content_token(&self.content) {
             return Err(Error::InvalidEdit(
                 "Song changed after Save As output; save current edits".into(),
@@ -340,9 +429,25 @@ mod tests {
         (root, file, new.join("copy.ssc"), bytes)
     }
     #[test]
+    fn advanced_policy_is_installed_after_namespace_publication_even_when_directory_sync_fails(){
+        let (_root,mut file,destination,original)=file();let old=file.require_existing_path().unwrap().to_owned();
+        let policy=crate::output_policy::OutputPolicy::Advanced{format:crate::document::Format::Ssc,options:Default::default(),timing_chart:file.session.chart_ids()[0].clone()};
+        let review=file.prepare_save_as_with_policy(&destination,policy.clone()).unwrap();assert!(review.issues().is_empty(),"{:?}",review.issues());
+        let receipt=match file.save_as_with_sync(review,|_|Err(Error::Io(std::io::Error::other("injected directory sync")))).unwrap(){SaveAsOutcome::WrittenPendingDurability{receipt,relocation,..}=>{assert!(relocation.validate_after(&file.session).is_ok());receipt},_=>panic!("expected pending namespace output")};
+        assert_eq!(file.output_policy(),&policy);assert_eq!(file.existing_path(),Some(destination.as_path()));assert_eq!(fs::read(old).unwrap(),original);assert!(file.session.is_dirty());let bytes=fs::read(&destination).unwrap();receipt.retry(&mut file).unwrap();assert!(!file.session.is_dirty());assert_eq!(fs::read(destination).unwrap(),bytes);
+    }
+    #[test]
+    fn failed_advanced_namespace_publication_preserves_source_policy_history_and_inactive_receipt(){
+        let (_root,mut file,destination,_)=file();let before=file.session.serialize().unwrap();let ids=file.session.chart_ids().to_vec();let path=file.require_existing_path().unwrap().to_owned();
+        let policy=crate::output_policy::OutputPolicy::Advanced{format:crate::document::Format::Ssc,options:Default::default(),timing_chart:file.session.chart_ids()[0].clone()};
+        let review=file.prepare_save_as_with_policy(&destination,policy).unwrap();assert!(review.issues().is_empty(),"{:?}",review.issues());let receipt=review.relocation().clone();
+        assert!(file.save_as_with_io(review,|_|Ok(()),|_pending,_destination,_absent|Err(Error::Io(std::io::Error::other("injected namespace failure")))).is_err());
+        assert!(!destination.exists());assert!(matches!(file.output_policy(),crate::output_policy::OutputPolicy::NativeLossless));assert_eq!(file.require_existing_path().unwrap(),path);assert_eq!(file.session.serialize().unwrap(),before);assert_eq!(file.session.chart_ids(),ids);assert!(receipt.validate_after(&file.session).is_err());
+    }
+    #[test]
     fn durable_save_as_preserves_source_history_chart_music_and_supports_next_save() {
         let (_root, mut file, destination, original) = file();
-        let source = file.path.clone();
+        let source = file.require_existing_path().unwrap().to_owned();
         file.session
             .set_text(None, "TITLE", "Working edit")
             .unwrap();
@@ -357,7 +462,7 @@ mod tests {
         ));
         assert_eq!(fs::read(&source).unwrap(), original);
         assert_eq!(fs::read(&destination).unwrap(), bytes);
-        assert_eq!(file.path(), destination);
+        assert_eq!(file.require_existing_path().unwrap(), destination);
         assert!(!file.session.is_dirty());
         assert_eq!(file.session.chart_ids(), ids);
         assert_eq!(
@@ -381,7 +486,7 @@ mod tests {
         file.session.undo().unwrap();
         assert!(file.save_as(review).is_err());
         assert!(!destination.exists());
-        assert_eq!(fs::read(file.path()).unwrap(), original);
+        assert_eq!(fs::read(file.require_existing_path().unwrap()).unwrap(), original);
         let review = file.prepare_save_as(&destination).unwrap();
         fs::write(&destination, b"appeared after review").unwrap();
         assert!(file.save_as(review).is_err());
@@ -398,7 +503,7 @@ mod tests {
     #[test]
     fn external_source_change_can_be_rescued_without_writing_or_readopting_old_source() {
         let (_root, mut file, destination, _original) = file();
-        let source = file.path.clone();
+        let source = file.require_existing_path().unwrap().to_owned();
         file.session
             .set_text(None, "TITLE", "Rescue working copy")
             .unwrap();
@@ -414,7 +519,7 @@ mod tests {
     fn clean_source_late_sync_failure_publishes_written_state_but_keeps_dirty_and_retries_without_rewrite()
      {
         let (_root, mut file, destination, original) = file();
-        let source = file.path.clone();
+        let source = file.require_existing_path().unwrap().to_owned();
         assert!(!file.session.is_dirty());
         let review = file.prepare_save_as(&destination).unwrap();
         let receipt = match file
@@ -426,7 +531,7 @@ mod tests {
             SaveAsOutcome::WrittenPendingDurability { receipt, .. } => receipt,
             _ => panic!("Expected pending durability"),
         };
-        assert_eq!(file.path(), destination);
+        assert_eq!(file.require_existing_path().unwrap(), destination);
         assert!(file.session.is_dirty());
         assert_eq!(fs::read(source).unwrap(), original);
         let before = fs::metadata(&destination).unwrap();
@@ -504,29 +609,29 @@ mod tests {
         let (_root, mut file, destination, _) = file();
         file.session.set_text(None, "TITLE", "Draft").unwrap();
         file.save_recovery().unwrap();
-        let old_path = file.recovery_path();
+        let old_path = file.recovery_path().unwrap();
         let old_bytes = fs::read(&old_path).unwrap();
-        let old_receipt = Arc::clone(&file.recovery_receipt);
+        let old_receipt = Arc::clone(file.recovery_receipt.as_ref().unwrap());
         let review = file.prepare_save_as(&destination).unwrap();
         let previous = match file.save_as(review).unwrap() {
-            SaveAsOutcome::Durable { previous_recovery, .. } => previous_recovery,
+            SaveAsOutcome::Durable { previous_recovery, .. } => previous_recovery.unwrap(),
             _ => panic!(),
         };
         assert_eq!(previous.path, old_path);
         assert!(previous.has_owned_receipt());
         assert!(Arc::ptr_eq(&previous.receipt, &old_receipt));
-        assert!(!Arc::ptr_eq(&file.recovery_receipt, &old_receipt));
+        assert!(!Arc::ptr_eq(file.recovery_receipt.as_ref().unwrap(), &old_receipt));
         assert_eq!(fs::read(&old_path).unwrap(), old_bytes);
         file.session.set_text(None, "TITLE", "New draft").unwrap();
         file.save_recovery().unwrap();
-        assert!(file.recovery_path().exists());
+        assert!(file.recovery_path().unwrap().exists());
         assert_eq!(fs::read(old_path).unwrap(), old_bytes);
     }
     #[test]
     fn symlinks_same_file_and_changed_parent_are_rejected_before_publication() {
         let (root, mut file, destination, original) = file();
-        assert!(file.prepare_save_as(file.path()).is_err());
-        std::os::unix::fs::symlink(file.path(), &destination).unwrap();
+        assert!(file.prepare_save_as(file.require_existing_path().unwrap()).is_err());
+        std::os::unix::fs::symlink(file.require_existing_path().unwrap(), &destination).unwrap();
         assert!(file.prepare_save_as(&destination).is_err());
         fs::remove_file(&destination).unwrap();
         let review = file.prepare_save_as(&destination).unwrap();
@@ -538,7 +643,7 @@ mod tests {
         fs::create_dir(destination.parent().unwrap()).unwrap();
         assert!(file.save_as(review).is_err());
         assert!(!destination.exists());
-        assert_eq!(fs::read(file.path()).unwrap(), original);
+        assert_eq!(fs::read(file.require_existing_path().unwrap()).unwrap(), original);
     }
     #[test]
     fn same_format_sm_save_as_preserves_notes_unknowns_and_undo() {
@@ -589,7 +694,7 @@ mod tests {
     fn failed_atomic_publication_leaves_source_live_history_and_destination_baseline_untouched() {
         for existing in [false, true] {
             let (_root, mut file, destination, original) = file();
-            let source = file.path.clone();
+            let source = file.require_existing_path().unwrap().to_owned();
             if existing {
                 fs::write(&destination, b"reviewed target").unwrap();
             }
@@ -611,7 +716,7 @@ mod tests {
                 },
             );
             assert!(result.is_err());
-            assert_eq!(file.path(), source);
+            assert_eq!(file.require_existing_path().unwrap(), source);
             assert_eq!(file.session.revision(), revision);
             assert_eq!(file.session.serialize().unwrap(), live);
             assert!(file.session.is_dirty());
@@ -623,4 +728,15 @@ mod tests {
             }
         }
     }
+}
+
+// Ordinary Save uses the same Windows namespace barrier as Save As. Unix keeps
+// publication and parent-directory sync separate to retain a pending receipt.
+pub(super) fn persist_output(pending:tempfile::NamedTempFile,destination:&Path)->Result<(),Error>{
+    #[cfg(windows)] {windows_publish::publish(pending,destination,false)?;Ok(())}
+    #[cfg(not(windows))] {pending.persist(destination).map_err(|error|Error::Io(error.error))?;Ok(())}
+}
+pub(super) fn sync_output_directory(parent:&Path)->Result<(),Error>{
+    #[cfg(windows)] {let _=parent;Ok(())}
+    #[cfg(not(windows))] {sync_save_as_directory(parent)}
 }

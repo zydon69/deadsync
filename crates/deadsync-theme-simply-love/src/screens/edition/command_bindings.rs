@@ -11,6 +11,8 @@ use std::{collections::BTreeSet, sync::Arc, time::Instant};
 pub(super) struct Runtime {
     pub(super) preferences: Arc<Preferences>,
     registry: Registry,
+    source_blockers: Vec<Binding>,
+    effects: deadsync_editor::key_binding_preferences::physical::Effects,
     down: BTreeSet<KeyCode>,
     quarantine: BTreeSet<KeyCode>,
     alt: u8,
@@ -21,6 +23,10 @@ impl Default for Runtime {
         let preferences = Arc::new(Preferences::default());
         Self {
             registry: native_registry(&preferences),
+            source_blockers: deadsync_editor::key_binding_preferences::source_profile::blockers(
+                &preferences,
+            ),
+            effects: Default::default(),
             preferences,
             down: BTreeSet::new(),
             quarantine: BTreeSet::new(),
@@ -60,7 +66,7 @@ fn native_registry(preferences: &Preferences) -> Registry {
     }
     bindings.extend(legacy.into_iter().map(|chord| Binding {
         id: legacy_id(&chord),
-        alternatives: vec![chord.iter().map(|key| Key::named(key)).collect()],
+        alternatives: deadsync_editor::key_binding_preferences::physical::expand(&chord),
         repeat: false,
         blocks: true,
     }));
@@ -83,6 +89,8 @@ fn name(code: KeyCode) -> Option<String> {
     let fixed = match code {
         KeyCode::Enter => "Enter",
         KeyCode::NumpadEnter => "NumPadEnter",
+        KeyCode::Numpad0 => "NumPad0",
+        KeyCode::Slash => "OemQuestion",
         KeyCode::Space => "Space",
         KeyCode::Escape => "Escape",
         KeyCode::Tab => "Tab",
@@ -123,6 +131,26 @@ fn name(code: KeyCode) -> Option<String> {
     None
 }
 impl Runtime {
+    fn source_blocks_final(&self, key: &str) -> bool {
+        self.preferences.source_order
+            && self.source_blockers.iter().any(|binding| {
+                self.registry.is_active(&binding.id)
+                    && binding
+                        .alternatives
+                        .iter()
+                        .any(|keys| keys.last().is_some_and(|last| last.name() == key))
+            })
+    }
+    fn source_blocks_action(&self, action: Action) -> bool {
+        self.preferences.commands[action.id()]
+            .iter()
+            .any(|keys| keys.last().is_some_and(|key| self.source_blocks_final(key)))
+    }
+
+    fn evaluate(&mut self, time: f64, keys: Vec<Key>) -> Vec<Effect> {
+        let raw = self.registry.update(time, keys);
+        self.effects.coalesce(&self.registry, raw)
+    }
     fn observe(&mut self, event: &RawKeyboardEvent) {
         if matches!(event.code, KeyCode::AltLeft | KeyCode::AltRight) {
             let bit = if event.code == KeyCode::AltLeft { 1 } else { 2 };
@@ -150,8 +178,11 @@ impl Runtime {
             .iter()
             .filter_map(|code| name(*code).map(|n| Key::named(&n)))
             .collect();
-        if control != 0 {
-            keys.push(Key::named("Ctrl"));
+        if control & 3 != 0 {
+            keys.push(Key::named("LeftControl"));
+        }
+        if control & 12 != 0 {
+            keys.push(Key::named("LeftWindows"));
         }
         if shift != 0 {
             keys.push(Key::named("LeftShift"));
@@ -164,16 +195,17 @@ impl Runtime {
     pub(super) fn capture_snapshot(&self, control: u8, shift: u8) -> Vec<String> {
         self.snapshot(control, shift)
             .into_iter()
-            .filter(|key| !matches!(key.name(), "LeftControl" | "LeftWindows"))
             .map(|key| key.name().to_owned())
             .collect()
     }
     fn suspend(&mut self) {
-        self.registry.cancel();
+        let raw = self.registry.cancel();
+        self.effects.coalesce(&self.registry, raw);
         self.quarantine.extend(self.down.iter().copied());
     }
     pub(super) fn release_input(&mut self) {
-        self.registry.cancel();
+        let raw = self.registry.cancel();
+        self.effects.coalesce(&self.registry, raw);
         self.down.clear();
         self.quarantine.clear();
         self.alt = 0;
@@ -187,13 +219,17 @@ impl State {
         self.command_bindings.down = held.clone();
         self.command_bindings.quarantine = held;
         self.command_bindings.registry = native_registry(&preferences);
+        self.command_bindings.source_blockers =
+            deadsync_editor::key_binding_preferences::source_profile::blockers(&preferences);
         self.command_bindings.preferences = preferences;
+        // Cached toolbar labels must follow the newly installed binding Arc.
+        self.refresh();
     }
     pub(super) fn command_bindings_observe(&mut self, event: &RawKeyboardEvent) {
         self.command_bindings.observe(event);
     }
     fn command_bindings_allowed(&self) -> bool {
-        self.panel.is_none()
+        (self.panel.is_none() || matches!(self.panel, Some(super::Panel::EventSelection)))
             && !self.help
             && !self.minimap_focused()
             && self.preview.is_none()
@@ -203,14 +239,35 @@ impl State {
             && !self.wants_text_input()
             && self.label_preedit.is_empty()
     }
-    fn command_binding_dispatch(&mut self, effects: Vec<Effect>) {
+    fn command_binding_dispatch(&mut self, effects: Vec<Effect>, now: Instant) -> bool {
+        let mut dispatched = false;
         for effect in effects {
             let (Effect::Press(id) | Effect::Repeat(id)) = effect else {
                 continue;
             };
+            if let Some(source) =
+                deadsync_editor::key_binding_preferences::source_profile::blocker_source(&id)
+            {
+                if self.panel.is_some() {
+                    continue;
+                }
+                self.status = crate::i18n::tr_fmt(
+                    "Edition",
+                    "KeyProfileUnavailableActivation",
+                    &[("command", source)],
+                );
+                dispatched = true;
+                continue;
+            }
             let Some(action) = Action::from_id(&id) else {
                 continue;
             };
+            if self.panel.is_some() && !action.is_selected_review() {
+                continue;
+            }
+            if self.command_bindings.source_blocks_action(action) {
+                continue;
+            }
             if !self.command_bindings_allowed() {
                 break;
             }
@@ -234,12 +291,473 @@ impl State {
                         | Action::OpenKeyBindings
                         | Action::OpenReceptors
                         | Action::OpenNoteColors
+                        | Action::CloseTab
+                        | Action::KeepTab
+                        | Action::MoveTabLeft
+                        | Action::MoveTabRight
+                        | Action::OpenScrollSettings
+                        | Action::FileNew
+                        | Action::FileOpen
+                        | Action::FileReload
+                        | Action::FileRecent
                 )
             {
                 self.status = crate::i18n::tr("Edition", "NoChartHelp");
                 continue;
             }
+            dispatched = true;
             let command = match action {
+                Action::AddEventTempo => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Tempo);
+                    continue;
+                }
+                Action::AddEventInterpolatedScrollRate => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Speed);
+                    continue;
+                }
+                Action::AddEventScrollRate => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Scroll);
+                    continue;
+                }
+                Action::AddEventStop => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Stop);
+                    continue;
+                }
+                Action::AddEventDelay => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Delay);
+                    continue;
+                }
+                Action::AddEventWarp => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Warp);
+                    continue;
+                }
+                Action::AddEventFakeRegion => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Fake);
+                    continue;
+                }
+                Action::AddEventTicks => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Ticks);
+                    continue;
+                }
+                Action::AddEventComboMultipliers => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Combo);
+                    continue;
+                }
+                Action::AddEventTimeSignature => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Signature);
+                    continue;
+                }
+                Action::AddEventLabel => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Label);
+                    continue;
+                }
+                Action::AddEventAttack => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Attack);
+                    continue;
+                }
+                Action::AddEventPattern => {
+                    self.stop_audio();
+                    self.command_quick_add_review(deadsync_editor::quick_add::Kind::Pattern);
+                    continue;
+                }
+                Action::Mirror => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::Mirror,
+                    );
+                    continue;
+                }
+                Action::Flip => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::Flip,
+                    );
+                    continue;
+                }
+                Action::MirrorAndFlip => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::MirrorAndFlip,
+                    );
+                    continue;
+                }
+                Action::ShiftLeft => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::ShiftLanes {
+                            right: false,
+                            wrap: false,
+                        },
+                    );
+                    continue;
+                }
+                Action::ShiftRight => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::ShiftLanes {
+                            right: true,
+                            wrap: false,
+                        },
+                    );
+                    continue;
+                }
+                Action::ShiftLeftAndWrap => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::ShiftLanes {
+                            right: false,
+                            wrap: true,
+                        },
+                    );
+                    continue;
+                }
+                Action::ShiftRightAndWrap => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::ShiftLanes {
+                            right: true,
+                            wrap: true,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedNotesToPlayer1 => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::AssignPlayer(0),
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedNotesToPlayer2 => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::AssignPlayer(1),
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedNotesToPlayer3 => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::AssignPlayer(2),
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedNotesToPlayer4 => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::AssignPlayer(3),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedPlayer1And2Notes => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::SwapPlayers(0, 1),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedPlayer1And3Notes => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::SwapPlayers(0, 2),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedPlayer1And4Notes => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::SwapPlayers(0, 3),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedPlayer2And3Notes => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::SwapPlayers(1, 2),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedPlayer2And4Notes => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::SwapPlayers(1, 3),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedPlayer3And4Notes => {
+                    self.stop_audio();
+                    self.command_selected_transform_review(
+                        deadsync_editor::transform::Transform::SwapPlayers(2, 3),
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedTapsToMines => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Tap,
+                            to: deadsync_editor::notes::Kind::Mine,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedTapsToFakes => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Tap,
+                            to: deadsync_editor::notes::Kind::Fake,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedTapsToLifts => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Tap,
+                            to: deadsync_editor::notes::Kind::Lift,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedMinesToTaps => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Mine,
+                            to: deadsync_editor::notes::Kind::Tap,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedMinesToFakes => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Mine,
+                            to: deadsync_editor::notes::Kind::Fake,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedMinesToLifts => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Mine,
+                            to: deadsync_editor::notes::Kind::Lift,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedFakesToTaps => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Fake,
+                            to: deadsync_editor::notes::Kind::Tap,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedLiftsToTaps => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Lift,
+                            to: deadsync_editor::notes::Kind::Tap,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedHoldsToRolls => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Hold,
+                            to: deadsync_editor::notes::Kind::Roll,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedHoldsToTaps => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Hold,
+                            to: deadsync_editor::notes::Kind::Tap,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedHoldsToMines => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Hold,
+                            to: deadsync_editor::notes::Kind::Mine,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedRollsToHolds => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Roll,
+                            to: deadsync_editor::notes::Kind::Hold,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedRollsToTaps => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Roll,
+                            to: deadsync_editor::notes::Kind::Tap,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::ConvertSelectedRollsToMines => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Convert {
+                            from: deadsync_editor::notes::Kind::Roll,
+                            to: deadsync_editor::notes::Kind::Mine,
+                            sustain_rows: 0,
+                        },
+                    );
+                    continue;
+                }
+                Action::SwapSelectedTapsAndMines => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Swap(
+                            deadsync_editor::note_swap::Pair::TapsMines,
+                        ),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedTapsAndFakes => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Swap(
+                            deadsync_editor::note_swap::Pair::TapsFakes,
+                        ),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedTapsAndLifts => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Swap(
+                            deadsync_editor::note_swap::Pair::TapsLifts,
+                        ),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedMinesAndFakes => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Swap(
+                            deadsync_editor::note_swap::Pair::MinesFakes,
+                        ),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedMinesAndLifts => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Swap(
+                            deadsync_editor::note_swap::Pair::MinesLifts,
+                        ),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedHoldsAndRolls => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Swap(
+                            deadsync_editor::note_swap::Pair::HoldsRolls,
+                        ),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedHoldsAndTaps => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Swap(
+                            deadsync_editor::note_swap::Pair::HoldsTaps,
+                        ),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedHoldsAndMines => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Swap(
+                            deadsync_editor::note_swap::Pair::HoldsMines,
+                        ),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedRollsAndTaps => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Swap(
+                            deadsync_editor::note_swap::Pair::RollsTaps,
+                        ),
+                    );
+                    continue;
+                }
+                Action::SwapSelectedRollsAndMines => {
+                    self.stop_audio();
+                    self.command_note_operation_review(
+                        deadsync_editor::note_operation::Operation::Swap(
+                            deadsync_editor::note_swap::Pair::RollsMines,
+                        ),
+                    );
+                    continue;
+                }
+                Action::ShiftAllEarlier => {
+                    self.stop_audio();
+                    self.command_shift_all_review(false);
+                    continue;
+                }
+                Action::ShiftAllLater => {
+                    self.stop_audio();
+                    self.command_shift_all_review(true);
+                    continue;
+                }
+
                 Action::Save => Command::Save,
                 Action::Undo => Command::Undo,
                 Action::Redo => Command::Redo,
@@ -383,6 +901,134 @@ impl State {
                 Action::SaveRecovery => Command::SaveRecovery,
                 Action::RecoverDraft => Command::Recover,
                 Action::DuplicateChart => Command::DuplicateChart,
+                Action::CopyEvents => Command::CopyEvents,
+                Action::CutEvents => Command::CutEvents,
+                Action::PasteEvents => Command::PasteEvents,
+                Action::OpenEventSelection => {
+                    self.stop_audio();
+                    self.open_event_selection();
+                    continue;
+                }
+                Action::OpenChartEventCopy => {
+                    self.open_chart_event_copy();
+                    continue;
+                }
+                Action::InspectAttack => {
+                    self.stop_audio();
+                    self.open_attack_at_cursor();
+                    continue;
+                }
+                Action::PreviousAttack => {
+                    self.stop_audio();
+                    self.navigate_attack(false);
+                    continue;
+                }
+                Action::NextAttack => {
+                    self.stop_audio();
+                    self.navigate_attack(true);
+                    continue;
+                }
+                Action::OpenScrollSettings => {
+                    self.open_scroll_settings();
+                    continue;
+                }
+                Action::OpenZoomSettings => {
+                    self.open_zoom_settings();
+                    continue;
+                }
+                Action::ToggleReverse => {
+                    self.toggle_reverse_display();
+                    continue;
+                }
+                Action::ToggleSpacing => {
+                    self.toggle_spacing_mode(false);
+                    continue;
+                }
+                Action::ToggleVariableSpacing => {
+                    self.toggle_spacing_mode(true);
+                    continue;
+                }
+                Action::ZoomIn => {
+                    self.command_zoom(Some(1.0), now);
+                    continue;
+                }
+                Action::ZoomOut => {
+                    self.command_zoom(Some(-1.0), now);
+                    continue;
+                }
+                Action::ResetZoom => {
+                    self.command_zoom(None, now);
+                    continue;
+                }
+                Action::ToggleAutoAdvance => Command::ToggleAutoAdvance,
+                Action::NextTool => {
+                    self.command_cycle_tool(false);
+                    continue;
+                }
+                Action::PreviousTool => {
+                    self.command_cycle_tool(true);
+                    continue;
+                }
+                Action::MoveUp => {
+                    self.navigate_snap(self.reverse_display);
+                    continue;
+                }
+                Action::MoveDown => {
+                    self.navigate_snap(!self.reverse_display);
+                    continue;
+                }
+                Action::CloseTab => {
+                    self.chart_views_apply(super::chart_views::ViewAction::Close);
+                    continue;
+                }
+                Action::KeepTab => {
+                    self.chart_views_apply(super::chart_views::ViewAction::Pin);
+                    continue;
+                }
+                Action::MoveTabLeft => {
+                    self.chart_views_apply(super::chart_views::ViewAction::Move(false));
+                    continue;
+                }
+                Action::MoveTabRight => {
+                    self.chart_views_apply(super::chart_views::ViewAction::Move(true));
+                    continue;
+                }
+                Action::OpenNoteAttributes => {
+                    self.stop_audio();
+                    self.open_note_attributes();
+                    continue;
+                }
+                Action::OpenNoteConversion => {
+                    self.stop_audio();
+                    self.command_open_note_conversion();
+                    continue;
+                }
+                Action::OpenNoteOwners => {
+                    self.stop_audio();
+                    self.command_open_note_owners();
+                    continue;
+                }
+                Action::OpenTransforms => {
+                    self.stop_audio();
+                    self.panel = Some(super::Panel::Transforms(0));
+                    continue;
+                }
+                Action::FileNew => {
+                    self.command_file_new();
+                    break;
+                }
+                Action::FileOpen => {
+                    self.command_file_open();
+                    break;
+                }
+                Action::FileReload => {
+                    self.command_file_reload();
+                    break;
+                }
+                Action::FileRecent => {
+                    self.command_file_recent();
+                    break;
+                }
                 Action::PlayPause => {
                     self.receptor_views.reset();
                     self.toggle_audio();
@@ -397,6 +1043,7 @@ impl State {
                 break;
             }
         }
+        dispatched
     }
     /// Called after global modifier bits are updated, before modal early returns.
     /// Releases are observed even when a panel owns the keyboard.
@@ -408,18 +1055,24 @@ impl State {
         let keys = self
             .command_bindings
             .snapshot(self.control_keys, self.shift_keys);
+        let selection_context = matches!(self.panel, Some(super::Panel::EventSelection));
         let final_key = name(event.code);
-        let consumes = final_key.is_some_and(|key| {
+        let consumes = final_key.as_ref().is_some_and(|key| {
             self.command_bindings
                 .preferences
                 .commands
-                .values()
-                .flatten()
-                .any(|chord| chord.last() == Some(&key))
+                .iter()
+                .filter(|(id, _)| {
+                    !selection_context
+                        || Action::from_id(id).is_some_and(Action::is_selected_review)
+                })
+                .flat_map(|(_, alternatives)| alternatives)
+                .any(|chord| chord.last() == Some(key))
         });
         if !self.command_bindings.quarantine.is_empty() {
             return consumes;
         }
+        let mut dispatched = false;
         // OS repeat cannot feed the source timer a second callback path.
         if !event.repeat {
             let elapsed = event
@@ -427,14 +1080,24 @@ impl State {
                 .checked_duration_since(self.command_bindings.origin)
                 .unwrap_or_default()
                 .as_secs_f64();
-            let effects = self.command_bindings.registry.update(elapsed, keys);
-            self.command_binding_dispatch(effects);
+            let effects = self.command_bindings.evaluate(elapsed, keys);
+            dispatched = self.command_binding_dispatch(effects, event.timestamp);
+        }
+        if selection_context {
+            return dispatched && consumes;
+        }
+        if final_key
+            .as_deref()
+            .is_some_and(|key| self.command_bindings.source_blocks_final(key))
+        {
+            return true;
         }
         consumes
-            && !self
-                .command_bindings
-                .registry
-                .is_active_prefix("__native_reserved_")
+            && (dispatched
+                || !self
+                    .command_bindings
+                    .registry
+                    .is_active_prefix("__native_reserved_"))
     }
     pub(super) fn command_bindings_update(&mut self, now: Instant) {
         if !self.command_bindings_allowed() {
@@ -451,8 +1114,8 @@ impl State {
         let keys = self
             .command_bindings
             .snapshot(self.control_keys, self.shift_keys);
-        let effects = self.command_bindings.registry.update(elapsed, keys);
-        self.command_binding_dispatch(effects);
+        let effects = self.command_bindings.evaluate(elapsed, keys);
+        self.command_binding_dispatch(effects, now);
     }
 }
 
@@ -460,25 +1123,25 @@ impl State {
 mod tests {
     use super::*;
     fn keys(names: &[&str]) -> Vec<Key> {
-        names.iter().map(|name| Key::named(name)).collect()
+        names
+            .iter()
+            .map(|name| Key::named(if *name == "Ctrl" { "LeftControl" } else { name }))
+            .collect()
     }
     #[test]
-    fn legacy_siblings_preempt_subset_actions_without_dispatching_save_or_copy() {
-        for (key, action, _index) in [("C", "Copy", 1), ("X", "Cut", 2), ("V", "Paste", 3)] {
+    fn migrated_mixed_clipboard_commands_preempt_plain_clipboard_actions() {
+        for (key, action, plain) in [
+            ("C", "CopySelectedEvents", "Copy"),
+            ("X", "CutSelectedEvents", "Cut"),
+            ("V", "PasteSelectedEvents", "Paste"),
+        ] {
             let mut registry = native_registry(&Preferences::default());
             registry.update(0., keys(&["Ctrl", "LeftShift"]));
-            let effects = registry.update(0.1, keys(&["Ctrl", "LeftShift", key]));
             assert_eq!(
-                effects,
-                vec![Effect::Press(legacy_id(&[
-                    "Ctrl".into(),
-                    "LeftShift".into(),
-                    key.into()
-                ]))]
+                registry.update(0.1, keys(&["Ctrl", "LeftShift", key])),
+                vec![Effect::Press(action.into())]
             );
-            assert!(!registry.is_active(action));
-            registry.update(0.2, keys(&[key]));
-            assert!(!registry.is_active(action));
+            assert!(!registry.is_active(plain));
         }
     }
     #[test]
@@ -506,7 +1169,7 @@ mod tests {
             pressed.push("W");
             let effects = registry.update(0.1, keys(&pressed));
             assert_eq!(effects.len(), 1, "{effects:?}");
-            assert!(registry.is_active_prefix("__native_reserved_"));
+            assert!(registry.is_active("CloseFocusedChart"));
             assert!(!registry.is_active("ToggleWaveForm"));
             assert!(!registry.is_active("OpenWaveformSettings"));
         }
@@ -516,7 +1179,10 @@ mod tests {
             let mut pressed = held;
             pressed.push("Right");
             registry.update(0.1, keys(&pressed));
-            assert!(registry.is_active_prefix("__native_reserved_"));
+            assert!(
+                registry.is_active_prefix("__native_reserved_")
+                    || registry.is_active("MoveFocusedChartRight")
+            );
             assert!(!registry.is_active("IncreaseSnap"));
             assert!(!registry.is_active("IncreaseMusicRate"));
         }
@@ -559,8 +1225,124 @@ mod tests {
         registry.update(0., keys(&["Ctrl", "LeftShift"]));
         let effects = registry.update(0.1, keys(&["Ctrl", "LeftShift", "B"]));
         assert_eq!(effects.len(), 1);
-        assert!(registry.is_active_prefix("__native_reserved_"));
+        assert!(registry.is_active("KeepChartOpen"));
         assert!(!registry.is_active("OpenChartList"));
+    }
+    #[test]
+    fn fourth_increment_modifiers_preempt_navigation_without_doubling_enter_or_waveform() {
+        for (held, key, expected) in [
+            (vec!["Ctrl"], "Up", "IncreaseKeyboardZoom"),
+            (vec!["Ctrl"], "Down", "DecreaseKeyboardZoom"),
+            (vec!["Ctrl"], "NumPad0", "ResetKeyboardZoom"),
+            (vec!["LeftShift"], "Tab", "PreviousNoteTool"),
+            (vec!["Ctrl", "LeftShift"], "T", "ToggleVariableDisplay"),
+            (vec!["Ctrl", "LeftShift"], "Enter", "InspectAttackAtCursor"),
+            (
+                vec!["Ctrl", "LeftShift"],
+                "NumPadEnter",
+                "InspectAttackAtCursor",
+            ),
+            (vec!["Ctrl", "LeftShift"], "W", "CloseFocusedChart"),
+        ] {
+            let mut registry = native_registry(&Preferences::default());
+            registry.update(0., keys(&held));
+            let mut pressed = held;
+            pressed.push(key);
+            assert_eq!(
+                registry.update(0.1, keys(&pressed)),
+                vec![Effect::Press(expected.into())]
+            );
+        }
+    }
+    #[test]
+    fn an_executed_panel_callback_consumes_enter_even_with_an_equal_ignored_modifier_blocker() {
+        crate::i18n::init_for_tests();
+        let dir = tempfile::tempdir().unwrap();
+        let song = dir.path().join("dispatch.ssc");
+        std::fs::write(
+            &song,
+            b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;",
+        )
+        .unwrap();
+        let mut state = State::open(&song, 0).unwrap();
+        let mut prefs = Preferences::default();
+        prefs.commands.insert(
+            "OpenEditorMenu".into(),
+            vec![vec!["LeftAlt".into(), "Enter".into()]],
+        );
+        prefs.validate().unwrap();
+        state.configure_key_binding_preferences(Arc::new(prefs));
+        for code in [KeyCode::ShiftRight, KeyCode::AltLeft, KeyCode::Enter] {
+            state.raw_key(&RawKeyboardEvent {
+                code,
+                pressed: true,
+                repeat: false,
+                timestamp: Instant::now(),
+                host_nanos: 0,
+            });
+        }
+        // The opening Enter must not be reused to activate the menu's first row.
+        assert!(matches!(state.panel, Some(super::super::Panel::Menu(0))));
+    }
+    #[test]
+    fn physical_control_and_super_sides_coalesce_and_release_individually() {
+        crate::i18n::init_for_tests();
+        let dir = tempfile::tempdir().unwrap();
+        let song = dir.path().join("sides.ssc");
+        std::fs::write(
+            &song,
+            b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;",
+        )
+        .unwrap();
+        let mut state = State::open(&song, 0).unwrap();
+        let mut prefs = Preferences::default();
+        prefs.commands.insert(
+            "SelectRowRange".into(),
+            vec![vec!["Ctrl".into(), "F13".into()]],
+        );
+        state.configure_key_binding_preferences(Arc::new(prefs));
+        fn raw(s: &mut State, code: KeyCode, pressed: bool) {
+            s.raw_key(&RawKeyboardEvent {
+                code,
+                pressed,
+                repeat: false,
+                timestamp: Instant::now(),
+                host_nanos: 0,
+            });
+        }
+        for code in [
+            KeyCode::ControlLeft,
+            KeyCode::ControlRight,
+            KeyCode::SuperLeft,
+            KeyCode::SuperRight,
+            KeyCode::F13,
+        ] {
+            raw(&mut state, code, true);
+        }
+        assert_eq!(state.workspace.selection(), Some((0, 0)));
+        assert!(state.command_bindings.effects.is_active("SelectRowRange"));
+        for code in [
+            KeyCode::ControlLeft,
+            KeyCode::ControlRight,
+            KeyCode::SuperLeft,
+        ] {
+            raw(&mut state, code, false);
+            assert!(state.command_bindings.effects.is_active("SelectRowRange"));
+        }
+        raw(&mut state, KeyCode::SuperRight, false);
+        assert!(!state.command_bindings.effects.is_active("SelectRowRange"));
+        assert_eq!(state.workspace.selection(), Some((0, 0)));
+        raw(&mut state, KeyCode::F13, false);
+        raw(&mut state, KeyCode::ControlRight, true);
+        raw(&mut state, KeyCode::SuperRight, true);
+        raw(&mut state, KeyCode::F13, true);
+        assert!(state.command_bindings.effects.is_active("SelectRowRange"));
+        raw(&mut state, KeyCode::F1, true);
+        state.update_with_time(Instant::now());
+        assert!(!state.command_bindings.effects.is_active("SelectRowRange"));
+        assert!(state.command_bindings.quarantine.contains(&KeyCode::F13));
+        state.release_input();
+        assert!(!state.command_bindings.effects.is_active("SelectRowRange"));
     }
     #[test]
     fn physical_names_preserve_key_identity_without_mapping_text_characters() {
@@ -568,7 +1350,304 @@ mod tests {
         assert_eq!(name(KeyCode::Digit1).as_deref(), Some("D1"));
         assert_eq!(name(KeyCode::NumpadEnter).as_deref(), Some("NumPadEnter"));
         assert_eq!(name(KeyCode::F24).as_deref(), Some("F24"));
+        assert_eq!(name(KeyCode::Numpad0).as_deref(), Some("NumPad0"));
         assert_eq!(name(KeyCode::AudioVolumeUp), None);
+    }
+    #[test]
+    fn unavailable_markers_filter_equal_callbacks_and_only_their_active_final() {
+        use deadsync_editor::key_binding_preferences::source_profile::{self, Platform};
+        let prefs = source_profile::import(&Preferences::default(), r#"{"New":[["LeftControl","F13"]],"Close":[["LeftControl","F13"],["LeftControl","F14"]]}"#, Platform::Other).unwrap().preferences;
+        let mut runtime = Runtime::default();
+        runtime.registry = native_registry(&prefs);
+        runtime.source_blockers = source_profile::blockers(&prefs);
+        runtime.preferences = Arc::new(prefs);
+        // Source accepts terminal first, then modifiers. Filtering observes the
+        // complete registry state before dispatch, including equal chords.
+        runtime.evaluate(0., keys(&["F13"]));
+        runtime.evaluate(0.1, keys(&["LeftControl", "F13"]));
+        assert!(runtime.source_blocks_action(Action::FileNew));
+        assert!(runtime.source_blocks_final("F13"));
+        assert!(!runtime.source_blocks_final("F14"));
+        assert!(!runtime.source_blocks_final("D1"));
+        runtime.evaluate(1., keys(&["LeftControl", "F13"]));
+        assert!(runtime.source_blocks_action(Action::FileNew));
+        runtime.evaluate(1.1, vec![]);
+        assert!(!runtime.source_blocks_final("F13"));
+    }
+    #[test]
+    fn unavailable_chord_is_consumed_without_callback_and_f1_rescue_remains_usable() {
+        use deadsync_editor::key_binding_preferences::source_profile::{self, Platform};
+        crate::i18n::init_for_tests();
+        let dir = tempfile::tempdir().unwrap();
+        let song = dir.path().join("blocked.ssc");
+        std::fs::write(
+            &song,
+            b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;",
+        )
+        .unwrap();
+        let mut state = State::open(&song, 0).unwrap();
+        let prefs = source_profile::import(
+            &Preferences::default(),
+            r#"{"Close":[["F13"]],"New":[["F1"]]}"#,
+            Platform::Other,
+        )
+        .unwrap()
+        .preferences;
+        state.configure_key_binding_preferences(Arc::new(prefs));
+        let event = RawKeyboardEvent {
+            code: KeyCode::F13,
+            pressed: true,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        };
+        state.command_bindings.observe(&event);
+        assert!(state.command_bindings_key(&event));
+        assert!(state.status.contains("Close"));
+        assert!(state.panel.is_none());
+        let release = RawKeyboardEvent {
+            pressed: false,
+            ..event
+        };
+        state.command_bindings.observe(&release);
+        state.command_bindings_key(&release);
+        state.raw_key(&RawKeyboardEvent {
+            code: KeyCode::F1,
+            pressed: true,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+        assert!(matches!(state.panel, Some(super::super::Panel::Menu(0))));
+    }
+    #[test]
+    fn preset_blockers_do_not_disable_reserved_native_routes() {
+        use deadsync_editor::key_binding_preferences::source_profile::{self, Platform};
+        let prefs = source_profile::preset(&Preferences::default(), Platform::Other)
+            .unwrap()
+            .preferences;
+        let mut runtime = Runtime::default();
+        runtime.registry = native_registry(&prefs);
+        runtime.source_blockers = source_profile::blockers(&prefs);
+        runtime.preferences = Arc::new(prefs);
+        for chord in [
+            vec!["D1"],
+            vec!["LeftShift", "D2"],
+            vec!["Ctrl", "P"],
+            vec!["Ctrl", "M"],
+            vec!["Escape"],
+            vec!["F2"],
+        ] {
+            runtime.evaluate(0., vec![]);
+            runtime.evaluate(0.1, keys(&chord));
+            assert!(!runtime.source_blocks_final(chord.last().unwrap()));
+        }
+    }
+    fn reviewed_test_state() -> (tempfile::TempDir, State) {
+        crate::i18n::init_for_tests();
+        let dir = tempfile::tempdir().unwrap();
+        let song = dir.path().join("review.ssc");
+        std::fs::write(&song, b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1100\n0000\n0000\n0000;").unwrap();
+        let state = State::open(&song, 0).unwrap();
+        (dir, state)
+    }
+    fn reviewed_bytes(state: &State) -> Vec<u8> {
+        state.workspace.file().session.serialize().unwrap()
+    }
+    #[test]
+    fn every_quick_add_source_callback_prepares_without_mutation_then_explicit_apply_is_undoable() {
+        for action in Action::ALL
+            .into_iter()
+            .filter(|action| action.id().starts_with("AddEvent"))
+        {
+            let (_dir, mut state) = reviewed_test_state();
+            state.command(Command::Seek(48));
+            let before = reviewed_bytes(&state);
+            assert!(
+                state.command_binding_dispatch(
+                    vec![Effect::Press(action.id().into())],
+                    Instant::now()
+                )
+            );
+            assert!(
+                matches!(state.panel, Some(super::super::Panel::QuickAdd(2))),
+                "{}",
+                action.id()
+            );
+            assert_eq!(
+                reviewed_bytes(&state),
+                before,
+                "{} changed before review",
+                action.id()
+            );
+            state.quick_add_key(3, KeyCode::Enter);
+            assert!(state.panel.is_none(), "{}: {}", action.id(), state.status);
+            assert_ne!(reviewed_bytes(&state), before, "{}", action.id());
+            state.command(Command::Undo);
+            assert_eq!(reviewed_bytes(&state), before, "{}", action.id());
+        }
+    }
+    #[test]
+    fn selected_source_callbacks_require_checked_selection_and_never_default_to_all_or_row_range() {
+        for action in Action::ALL
+            .into_iter()
+            .filter(|action| action.is_selected_review())
+        {
+            let (_dir, mut state) = reviewed_test_state();
+            let before = reviewed_bytes(&state);
+            state.command_binding_dispatch(vec![Effect::Press(action.id().into())], Instant::now());
+            assert!(state.panel.is_none(), "{}", action.id());
+            assert_eq!(
+                state.status,
+                crate::i18n::tr("Edition", "NoteOperationMissingSelection")
+            );
+            assert_eq!(reviewed_bytes(&state), before);
+        }
+    }
+    #[test]
+    fn selected_mirror_and_convert_use_the_checked_heads_and_defer_changes_until_apply() {
+        use deadsync_editor::{
+            event_clipboard::Event,
+            notes::{Kind, Position},
+        };
+        for action in [Action::Mirror, Action::ConvertSelectedTapsToMines] {
+            let (_dir, mut state) = reviewed_test_state();
+            let target = Position {
+                row: 0,
+                lane: 0,
+                player: 0,
+            };
+            state.open_event_selection();
+            let selection = &mut state.event_selection.as_mut().unwrap().selection;
+            selection.select_all(false);
+            let index = selection
+                .events()
+                .iter()
+                .position(|event| matches!(event,Event::Note(position) if *position == target))
+                .unwrap();
+            selection.set_selected(index, true).unwrap();
+            let before = reviewed_bytes(&state);
+            state.command_binding_dispatch(vec![Effect::Press(action.id().into())], Instant::now());
+            assert_eq!(reviewed_bytes(&state), before);
+            if action == Action::Mirror {
+                assert!(matches!(
+                    state.panel,
+                    Some(super::super::Panel::SelectedTransformReview(4))
+                ));
+                state.selected_transform_review_key(6, KeyCode::Enter);
+                assert!(state.workspace.grid().get(target).is_none());
+                assert!(
+                    state
+                        .workspace
+                        .grid()
+                        .get(Position { lane: 3, ..target })
+                        .is_some()
+                );
+            } else {
+                assert!(matches!(
+                    state.panel,
+                    Some(super::super::Panel::NoteOperationReview(2))
+                ));
+                state.note_operation_review_key(3, KeyCode::Enter);
+                assert_eq!(state.workspace.grid().get(target).unwrap().kind, Kind::Mine);
+            }
+            assert_eq!(
+                state
+                    .workspace
+                    .grid()
+                    .get(Position { lane: 1, ..target })
+                    .unwrap()
+                    .kind,
+                Kind::Tap
+            );
+            state.command(Command::Undo);
+            assert_eq!(reviewed_bytes(&state), before);
+        }
+    }
+    #[test]
+    fn native_shift_all_callbacks_keep_their_direction_and_do_not_mutate_before_review() {
+        for (action, later) in [
+            (Action::ShiftAllEarlier, false),
+            (Action::ShiftAllLater, true),
+        ] {
+            let (_dir, mut state) = reviewed_test_state();
+            let before = reviewed_bytes(&state);
+            state.command_binding_dispatch(vec![Effect::Press(action.id().into())], Instant::now());
+            assert!(matches!(
+                state.panel,
+                Some(super::super::Panel::ShiftAll(1))
+            ));
+            assert_eq!(reviewed_bytes(&state), before);
+            let text = state.shift_all_label(0, "ShiftAllDirection");
+            assert!(
+                text.contains(
+                    crate::i18n::tr(
+                        "Edition",
+                        if later {
+                            "ShiftAllLater"
+                        } else {
+                            "ShiftAllEarlier"
+                        }
+                    )
+                    .as_ref()
+                )
+            );
+        }
+    }
+    #[test]
+    fn checked_selection_accepts_configured_source_review_keys_but_keeps_local_space_navigation() {
+        let (_dir, mut state) = reviewed_test_state();
+        let mut prefs = Preferences::default();
+        prefs
+            .commands
+            .insert("Flip".into(), vec![vec!["F13".into()]]);
+        prefs
+            .commands
+            .insert("PlayPause".into(), vec![vec!["Space".into()]]);
+        state.configure_key_binding_preferences(Arc::new(prefs));
+        state.open_event_selection();
+        state
+            .event_selection
+            .as_mut()
+            .unwrap()
+            .selection
+            .select_all(false);
+        let before = reviewed_bytes(&state);
+        for (code, pressed) in [(KeyCode::Space, true), (KeyCode::Space, false)] {
+            state.raw_key(&RawKeyboardEvent {
+                code,
+                pressed,
+                repeat: false,
+                timestamp: Instant::now(),
+                host_nanos: 0,
+            });
+        }
+        assert!(matches!(
+            state.panel,
+            Some(super::super::Panel::EventSelection)
+        ));
+        assert_eq!(
+            state
+                .event_selection
+                .as_ref()
+                .unwrap()
+                .selection
+                .selected_count(),
+            1
+        );
+        assert_eq!(reviewed_bytes(&state), before);
+        state.raw_key(&RawKeyboardEvent {
+            code: KeyCode::F13,
+            pressed: true,
+            repeat: false,
+            timestamp: Instant::now(),
+            host_nanos: 0,
+        });
+        assert!(matches!(
+            state.panel,
+            Some(super::super::Panel::SelectedTransformReview(4))
+        ));
+        assert_eq!(reviewed_bytes(&state), before);
     }
 }
 
@@ -580,10 +1659,14 @@ pub(super) fn chord_label(keys: &[String]) -> String {
         .map(|key| {
             let localized = match key.as_str() {
                 "Ctrl" => Some("Ctrl"),
+                "LeftControl" | "RightControl" => Some("Control"),
+                "LeftWindows" | "RightWindows" => Some("Super"),
+                "OemQuestion" => Some("OemQuestion"),
                 "LeftShift" | "RightShift" => Some("Shift"),
                 "LeftAlt" | "RightAlt" => Some("Alt"),
                 "Enter" => Some("Enter"),
                 "NumPadEnter" => Some("NumPadEnter"),
+                "NumPad0" => Some("NumPad0"),
                 "Space" => Some("Space"),
                 "Back" => Some("Back"),
                 "Delete" => Some("Delete"),
@@ -594,22 +1677,27 @@ pub(super) fn chord_label(keys: &[String]) -> String {
                 _ => None,
             };
             localized
-                .map(|suffix| crate::i18n::tr("Edition", &format!("KeyBindingKey{suffix}")).to_string())
+                .map(|suffix| {
+                    crate::i18n::tr("Edition", &format!("KeyBindingKey{suffix}")).to_string()
+                })
                 .unwrap_or_else(|| key.clone())
         })
         .collect::<Vec<_>>()
         .join(" + ")
 }
 impl State {
+    pub(super) fn command_binding_label(&self, action: Action) -> String {
+        self.command_bindings.preferences.commands[action.id()]
+            .iter()
+            .map(|chord| chord_label(chord))
+            .collect::<Vec<_>>()
+            .join(" / ")
+    }
     pub(super) fn key_binding_help_lines(&self) -> Vec<String> {
         Action::ALL
             .into_iter()
             .map(|action| {
-                let alternatives = self.command_bindings.preferences.commands[action.id()]
-                    .iter()
-                    .map(|chord| chord_label(chord))
-                    .collect::<Vec<_>>()
-                    .join(" / ");
+                let alternatives = self.command_binding_label(action);
                 crate::i18n::tr_fmt(
                     "Edition",
                     "KeyBindingHelpBinding",
@@ -623,8 +1711,33 @@ impl State {
                             ),
                         ),
                     ],
-                ).to_string()
+                )
+                .to_string()
             })
             .collect()
+    }
+}
+
+impl State {
+    fn command_cycle_tool(&mut self, previous: bool) {
+        let index = super::TOOLS
+            .iter()
+            .position(|&tool| tool == self.workspace.tool())
+            .unwrap_or(0);
+        let next = (index + if previous { super::TOOLS.len() - 1 } else { 1 }) % super::TOOLS.len();
+        self.stop_audio();
+        self.command(Command::SelectTool(super::TOOLS[next]));
+    }
+    pub(super) fn command_open_note_conversion(&mut self) {
+        self.note_conversion.duration = self.workspace.snap();
+        self.panel = Some(super::Panel::NoteConversion(0));
+        self.status = crate::i18n::tr("Edition", "NoteConversionHelp");
+    }
+    pub(super) fn command_open_note_owners(&mut self) {
+        self.note_owners.count = self.workspace.grid().players();
+        self.note_owners.a = self.workspace.player();
+        self.note_owners.b = (self.workspace.player() + 1) % self.workspace.grid().players();
+        self.panel = Some(super::Panel::NoteOwners(0));
+        self.status = crate::i18n::tr("Edition", "NoteOwnersHelp");
     }
 }

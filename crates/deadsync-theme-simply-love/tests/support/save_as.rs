@@ -47,7 +47,7 @@ fn confirm(state: &mut State) {
 #[test]
 fn unicode_ime_destination_review_and_cancel_never_write_or_close() {
     let (_root, mut state, destination, bytes) = setup();
-    let source = state.workspace().file().path().to_owned();
+    let source = state.workspace().file().require_existing_path().unwrap().to_owned();
     open(&mut state);
     state.text_preedit("été");
     assert!(state.wants_text_input());
@@ -55,7 +55,7 @@ fn unicode_ime_destination_review_and_cancel_never_write_or_close() {
     type_destination(&mut state, &destination);
     press(&mut state, KeyCode::Enter);
     assert!(!destination.exists());
-    assert_eq!(state.workspace().file().path(), source);
+    assert_eq!(state.workspace().file().require_existing_path().unwrap(), source);
     press(&mut state, KeyCode::Escape);
     assert!(!destination.exists());
     assert_eq!(fs::read(source).unwrap(), bytes);
@@ -64,7 +64,7 @@ fn unicode_ime_destination_review_and_cancel_never_write_or_close() {
 #[test]
 fn explicit_overwrite_review_publishes_same_session_and_preserves_undo() {
     let (_root, mut state, destination, bytes) = setup();
-    let source = state.workspace().file().path().to_owned();
+    let source = state.workspace().file().require_existing_path().unwrap().to_owned();
     fs::write(&destination, b"reviewed existing target").unwrap();
     press(&mut state, KeyCode::Digit2);
     let ids = state.workspace().file().session.chart_ids().to_vec();
@@ -74,7 +74,7 @@ fn explicit_overwrite_review_publishes_same_session_and_preserves_undo() {
     press(&mut state, KeyCode::Enter);
     assert_eq!(fs::read(&destination).unwrap(), b"reviewed existing target");
     confirm(&mut state);
-    assert_eq!(state.workspace().file().path(), destination);
+    assert_eq!(state.workspace().file().require_existing_path().unwrap(), destination);
     assert_eq!(fs::read(source).unwrap(), bytes);
     assert!(!state.workspace().file().session.is_dirty());
     assert_eq!(state.workspace().file().session.chart_ids(), ids);
@@ -86,14 +86,14 @@ fn explicit_overwrite_review_publishes_same_session_and_preserves_undo() {
 #[test]
 fn changed_overwrite_target_keeps_working_song_open_and_requires_new_review() {
     let (_root, mut state, destination, bytes) = setup();
-    let source = state.workspace().file().path().to_owned();
+    let source = state.workspace().file().require_existing_path().unwrap().to_owned();
     fs::write(&destination, b"first baseline").unwrap();
     open(&mut state);
     type_destination(&mut state, &destination);
     press(&mut state, KeyCode::Enter);
     fs::write(&destination, b"new external baseline").unwrap();
     confirm(&mut state);
-    assert_eq!(state.workspace().file().path(), source);
+    assert_eq!(state.workspace().file().require_existing_path().unwrap(), source);
     assert_eq!(fs::read(source).unwrap(), bytes);
     assert_eq!(fs::read(destination).unwrap(), b"new external baseline");
     assert!(state.wants_text_input());

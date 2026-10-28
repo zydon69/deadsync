@@ -38,13 +38,20 @@ pub trait Picker {
 }
 /// Store a portable relative path, including ../ for files outside the song.
 /// Different filesystem roots retain an absolute path. No file is copied.
-pub fn selected_path(simfile: &Path, selected: &Path) -> Result<String, Error> {
+pub fn selected_path(simfile:&Path,selected:&Path)->Result<String,Error> {
+    selected_path_at_directory(simfile.parent().unwrap_or(Path::new(".")),selected)
+}
+pub fn selected_path_from_directory(directory:&Path,selected:&Path)->Result<String,Error> {
+    if !directory.is_absolute(){return Err(Error::InvalidEdit("Media selection requires an absolute resource directory".into()));}
+    selected_path_at_directory(directory,selected)
+}
+fn selected_path_at_directory(directory:&Path,selected:&Path)->Result<String,Error> {
     if !selected.is_file() {
         return Err(Error::InvalidEdit(
             "Selected music file does not exist".into(),
         ));
     }
-    relative_path(simfile.parent().unwrap_or(Path::new(".")), selected)
+    relative_path(directory, selected)
 }
 /// Lexical relative-path conversion, independent of file existence.
 pub fn relative_path(directory: &Path, selected: &Path) -> Result<String, Error> {

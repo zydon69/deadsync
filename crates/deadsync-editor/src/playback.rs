@@ -23,6 +23,13 @@ pub struct Clock {
 }
 impl Preview {
     pub fn capture(session: &Session, chart: usize, simfile: &Path) -> Result<Self, Error> {
+        Self::capture_at_directory(session,chart,simfile.parent().unwrap_or(Path::new(".")))
+    }
+    pub fn capture_from_directory(session:&Session,chart:usize,directory:&Path)->Result<Self,Error> {
+        if !directory.is_absolute(){return Err(Error::InvalidEdit("Playback requires an absolute resource directory".into()));}
+        Self::capture_at_directory(session,chart,directory)
+    }
+    fn capture_at_directory(session:&Session,chart:usize,directory:&Path)->Result<Self,Error> {
         let document = session.document();
         if chart >= document.charts().len() {
             return Err(Error::InvalidEdit("Invalid playback chart".into()));
@@ -33,9 +40,7 @@ impl Preview {
             .or_else(|| document.text(None, "MUSIC"))
             .filter(|name| !name.trim().is_empty())
             .ok_or_else(|| Error::InvalidEdit("No music file selected for this chart".into()))?;
-        let music = simfile
-            .parent()
-            .unwrap_or(Path::new("."))
+        let music = directory
             .join(name.replace('\\', "/"));
         if !music.is_file() {
             return Err(Error::InvalidEdit(format!(

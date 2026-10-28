@@ -34,7 +34,7 @@ fn frame_updates_write_recoverable_drafts_and_preserve_foreign_drafts_in_both_la
         screen.update_with_time(start);
         press(&mut screen, KeyCode::Digit2);
         let expected = screen.workspace().file().session.serialize().unwrap();
-        let recovery = screen.workspace().file().recovery_path();
+        let recovery = screen.workspace().file().recovery_path().unwrap();
         screen.update_with_time(start + Duration::from_secs(29));
         assert!(!recovery.exists());
         let now = start + Duration::from_secs(30);

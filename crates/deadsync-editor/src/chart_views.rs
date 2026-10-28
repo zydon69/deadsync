@@ -2,6 +2,7 @@
 //! Mirrors GrooveAuthor Editor.cs open/dedicated/focus/close semantics (MIT,
 //! 48e18f71655d0f0d86144c63239331833501fda2). No document or history is copied.
 mod rebind;
+mod recent;
 use crate::{
     Error,
     chart_focus::Position,

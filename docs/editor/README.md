@@ -43,24 +43,34 @@ Le checkpoint `resume-validation-2026-10-28.json` distingue résultats vérifié
 travaux en attente. Le portage complet reste en cours ; aucune PR de l’éditeur
 n’a été envoyée.
 
-Les défauts multijoueurs passent 12 tests ciblés. Le noyau des commandes
-configurables passe 16 tests (registre, inspecteur, réservations, persistance et
-historique) ; le premier raccordement natif est appliqué mais sa validation est
-encore en cours. Le catalogue des 164 callbacks source ne signifie pas que tous
-sont exécutables dans l’interface native : le premier lot expose 13 commandes.
+Les défauts multijoueurs passent 12 tests ciblés. Le registre natif expose
+136 actions, dont 89 identifiants des 164 callbacks source. Les onze tests du
+profil source/import et les deux tests des callbacks de revue passent, ainsi
+que les préférences, touches physiques, registre et persistance. Les commandes
+sans handler restent signalées indisponibles ; les accords indisponibles ne
+peuvent pas déclencher par erreur un accord plus court.
 
-La préparation d’export détachée et les alias de métadonnées passent 20 tests.
-Les avertissements distinguent les pertes de portée locale, de musique, de
-notes et d’attaques. Les résultats de référence incluent 60 écritures Fumen,
-128 cas de métadonnées et 24 résolutions d’alias ; l’unité privée des 24 alias
-reste à exécuter. Cette préparation ne publie aucun fichier et ne raccorde pas
-encore la conversion de format à Enregistrer sous.
+Les 86 unités du noyau passent après le raccordement de la politique de sortie,
+de la récupération V2 sans perte et des preuves de publication. Les vingt
+parcours ciblés récupération, médias et politique de sortie passent également.
+La garde de publication empêche une ancienne récupération de remplacer un état
+plus récent même si un export anonymisé produit exactement les mêmes octets.
 
-Les conversions de notes/timing, les fichiers sans titre, Nouveau/Ouvrir/Récents,
-les commandes configurables suivantes et la politique de format de sortie sont
-en préparation dans des lots séparés. Les 14 échecs de la suite générale du
-thème consignés au checkpoint du 27 octobre ne sont pas déclarés résolus.
-Ces vérifications ciblées ne certifient pas le rendu GPU ou les entrées physiques.
+Nouveau/Ouvrir/Récents/Recharger, les fichiers sans titre, la sauvegarde avancée
+avec consentement par perte et la mise à jour des récents sont raccordés.
+Les 84 unités ciblées de l’interface passent, dont les nouveaux parcours de
+revue source et l’export EN/FR. Les 57 tests ciblés de notes, timing, ajout rapide, déplacement global,
+clavier et options Nouveau passent. Leurs
+exécutables d’intégration EN/FR distincts restent à exécuter.
+
+La régénération des motifs sélectionnés/tous avec nouveaux seeds, le graphique
+de densité configurable et les derniers contextes clavier restent préparés dans
+des lots séparés, non encore appliqués. Les écarts File/export supplémentaires
+sont consignés dans `remaining-confirmed-2026-10-28.md`.
+
+Les 14 échecs de la suite générale du thème consignés au checkpoint du 27 octobre
+ne sont pas déclarés résolus. Ces vérifications ciblées ne certifient pas le rendu
+GPU, les entrées physiques ou l’audio. Aucune PR de l’éditeur n’est envoyée.
 
 Les sous-sections suivantes conservent les checkpoints historiques ; leurs
 mentions de modules non raccordés décrivent l’état au moment indiqué.

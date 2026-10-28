@@ -1,4 +1,8 @@
 //! Lexical media-reference relocation; no filesystem access or save publication.
+mod directory;
+mod source;
+pub(crate) use source::SourceBase;
+pub use directory::rebase_from_directory;
 use crate::Error;
 use std::path::{Component, Path, PathBuf};
 
@@ -20,6 +24,10 @@ pub fn rebase(old_file: Option<&Path>, new_file: &Path, media: &str) -> Result<S
     } else {
         return Ok(media.to_owned());
     };
+    relative_target(&new_parent, &target)
+}
+
+fn relative_target(new_parent: &Path, target: &Path) -> Result<String, Error> {
     let base: Vec<_> = new_parent.components().collect();
     let target: Vec<_> = target.components().collect();
     if base.first() != target.first() {

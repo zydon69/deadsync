@@ -41,6 +41,13 @@ impl Pair {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Refusal { ZeroDurationSustain, Invalid }
+#[derive(Debug)]
+pub struct Failure { kind: Refusal, error: Error }
+impl Failure { pub fn kind(&self) -> Refusal { self.kind } }
+impl From<Error> for Failure { fn from(error: Error) -> Self { Self { kind: Refusal::Invalid, error } } }
+impl From<Failure> for Error { fn from(failure: Failure) -> Self { failure.error } }
 /// Swaps only selected heads, preserving the existing native decoration policy.
 /// No force-insertion, invented duration, or intermediate converted state.
 pub fn apply(
@@ -49,6 +56,9 @@ pub fn apply(
     selected: &BTreeSet<Position>,
     pair: Pair,
 ) -> Result<bool, Error> {
+    apply_detailed(session, chart, selected, pair).map_err(Into::into)
+}
+pub fn apply_detailed(session: &mut Session, chart: usize, selected: &BTreeSet<Position>, pair: Pair) -> Result<bool, Failure> {
     let (a, b) = pair.kinds();
     let grid = session.grid(chart)?;
     let mut edits = BTreeMap::new();
@@ -65,18 +75,10 @@ pub fn apply(
         };
         let mut note = original.clone();
         if matches!(destination, Kind::Hold | Kind::Roll) && note.end.is_none() {
-            return Err(Error::InvalidEdit("Swap would create a zero-length hold or roll. Use note conversion with an explicit sustain duration.".into()));
+            return Err(Failure {kind: Refusal::ZeroDurationSustain, error: Error::InvalidEdit("Swap would create a zero-length hold or roll. Use note conversion with an explicit sustain duration.".into())});
         }
-        if grid.uses_stepf2() {
-            crate::stepf2::change_kind(&mut note, destination)?;
-        } else {
-            note.kind = destination;
-        }
-        if !matches!(destination, Kind::Hold | Kind::Roll) {
-            note.end = None;
-            note.tail_attributes = "".into();
-        }
+        note = crate::note_operation::convert_note(&note, position.row, destination, 0, grid.uses_stepf2())?;
         edits.insert(position, Some(note));
     }
-    session.edit_notes(chart, format!("Swap note types: {pair:?}"), edits)
+    session.edit_notes(chart, format!("Swap note types: {pair:?}"), edits).map_err(Into::into)
 }
