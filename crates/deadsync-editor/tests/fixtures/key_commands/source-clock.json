@@ -1,0 +1,79 @@
+{
+  "commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "path": "StepManiaEditor/KeyCommandManager.cs",
+  "sha256": "592d0bd8f812e3d0ccbb2e276d413bbb3d9cd450800e1f2f86080a9022bffd62",
+  "method": "Unmodified complete class; keyboard/preferences/observer host stubs only",
+  "cases": [
+    {
+      "scenario": "final-before-modifier",
+      "effects": [
+        "press"
+      ]
+    },
+    {
+      "scenario": "equal-chords",
+      "conflicts": [
+        "play"
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "Enter"
+          ],
+          "effects": [
+            "save",
+            "play"
+          ]
+        },
+        {
+          "time": 0.6,
+          "down": [
+            "Enter"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.601,
+          "down": [
+            "Enter"
+          ],
+          "effects": [
+            "save",
+            "play"
+          ]
+        },
+        {
+          "time": 0.62,
+          "down": [
+            "Enter"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.621,
+          "down": [
+            "Enter"
+          ],
+          "effects": [
+            "save",
+            "play"
+          ]
+        },
+        {
+          "time": 0.7,
+          "down": [],
+          "effects": [
+            "save:release",
+            "play:release"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -131,7 +131,7 @@ pub(crate) fn prepare(document: &Document, chart: usize) -> Result<Vec<u8>, Erro
     }
     if let Some(value) = crate::song_properties::after_chart_deletion(document, chart)? {
         let tag = document
-            .tag(None, "GASongData")
+            .tag(None, &crate::song_properties::custom_data_key(document))
             .ok_or_else(|| invalid("Missing song metadata"))?;
         edits.push((tag.value.clone(), crate::document::escape_text(&value)));
     }

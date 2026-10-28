@@ -1,0 +1,64 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "editor_source_blobs": {
+    "StepManiaEditor/Editor.cs": {
+      "git_blob": "cf71d7069f1f8d94135892a478e5812f2edc6fb6",
+      "sha256": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709"
+    },
+    "StepManiaEditor/EditorSong.cs": {
+      "git_blob": "8beeedd2a7649d6da1114cc8cb2a6ba4deaf9c33",
+      "sha256": "066bd606d5138343b444fb0355a125929c7b19baef4832202775eb419a5c60ff"
+    },
+    "StepManiaEditor/EditorChart.cs": {
+      "git_blob": "617345c45a4066c5b3f40e5426851e27e23126ca",
+      "sha256": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd"
+    },
+    "StepManiaEditor/Preferences/Preferences.cs": {
+      "git_blob": "b601c8b4aaa1124380bc5788f61e5835673d62b1",
+      "sha256": "91d06e059a3c54fb945edadf5af55c948f3e226f4cec8d28258698f82c281523"
+    }
+  },
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sdk": "10.0.403",
+  "scope": "Actual Fumen metadata reader custom properties. Raw effective extras and V1 SyncOffset projection; GA constructor and writes not executed.",
+  "source_blobs": {
+    "Fumen/Converters/SMCommon.cs": {
+      "git_blob": "b94d69e27d49b6fe05bb61d459dc853630826733",
+      "sha256": "8517ace018aeb788808be9e584f289620c00f59e94ac114ffec130952f65160a"
+    },
+    "Fumen/Converters/SMPropertyParsers.cs": {
+      "git_blob": "92d1fa479accf237026b88b89b7d43277798679c",
+      "sha256": "64a042d72dd1dfe66a6f13237eb769c0ec219ca745de8af3caaf13050c2bef1e"
+    },
+    "Fumen/Converters/SMReader.cs": {
+      "git_blob": "d9a9656d7918a8812e22d9b478889cd0c31b1893",
+      "sha256": "22e6b561094fbe26642251cee146ca090f3d56ed970b306ae85103c39640bfe0"
+    },
+    "Fumen/Converters/SSCReader.cs": {
+      "git_blob": "d0c30aefa7baf29f424ed23abe7767cf3ea51f0f",
+      "sha256": "7d8fc98ede83f65079270989eb4edcf88ea10dd275f0206eb68e35aa6ffc88e2"
+    },
+    "Fumen/Converters/MSDFile.cs": {
+      "git_blob": "fef795fb7db7c8c7e595a95b57da530281cd28b4",
+      "sha256": "546295523903d29c64dcf0660512091e5d9fb5833185c324799310f7df307d91"
+    },
+    "Fumen/Converters/SMWriter.cs": {
+      "git_blob": "0eec72fa85164ffcd78807ad6fa4ea4845757b68",
+      "sha256": "1fdab8aa9eec45ee3cb1805f5e5ed2503f6558dfab1456d193bf307b0e84f254"
+    },
+    "Fumen/Converters/SSCWriter.cs": {
+      "git_blob": "89ca80fe79df74960ca1cf7da48a73790e73f74e",
+      "sha256": "131b2ca345c6d4d1a0b14b3a36980715babde3ffd92206907e47be927f6b47c4"
+    },
+    "Fumen/Converters/SMWriterBase.cs": {
+      "git_blob": "6a93d9b5758a3528b1c0dc3b36b4fd9eb405f235",
+      "sha256": "6f71f40e60c0c0b213281fc54c9520fefcc2387c40783aa46b1069562119eb30"
+    }
+  },
+  "program_sha256": "65975364194ff9d75b6836cdfe5f77bd5a8a31df61af1dca2d6ce15295677b7f",
+  "assembly_sha256": "3dc1759044edd22d175a5828a33ec0025a7fe456fe47fa5c91517dfab66571ec",
+  "fumen_assembly_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "request_sha256": "f30cea769bd9a27a2fd7e325f00f6e8275036fa8e97d9e7abd8177edde77aaf1",
+  "expected_sha256": "4af56cfd57280b8226ff23a1ebf2a9243034aa11515265a42b715b024c061708"
+}

@@ -1,0 +1,1858 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "property_count": 170,
+  "registered_callback_count": 164,
+  "native_implementation_status": "Not classified by this source-only inventory",
+  "bindings": [
+    {
+      "id": "Open",
+      "property_line": 351,
+      "default_expression": "[[Ctrl, Keys.O]]",
+      "default_line": 168,
+      "callback": {
+        "category_variable": "fileIo",
+        "label": "Open",
+        "line": 621
+      }
+    },
+    {
+      "id": "OpenContainingFolder",
+      "property_line": 362,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.O]]",
+      "default_line": 169,
+      "callback": {
+        "category_variable": "fileIo",
+        "label": "Open Containing Folder",
+        "line": 622
+      }
+    },
+    {
+      "id": "SaveAs",
+      "property_line": 373,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.S]]",
+      "default_line": 170,
+      "callback": {
+        "category_variable": "fileIo",
+        "label": "Save As",
+        "line": 623
+      }
+    },
+    {
+      "id": "Save",
+      "property_line": 384,
+      "default_expression": "[[Ctrl, Keys.S]]",
+      "default_line": 171,
+      "callback": {
+        "category_variable": "fileIo",
+        "label": "Save",
+        "line": 624
+      }
+    },
+    {
+      "id": "SavePackFile",
+      "property_line": 395,
+      "default_expression": "[[]]",
+      "default_line": 172,
+      "callback": {
+        "category_variable": "fileIo",
+        "label": "Save Pack",
+        "line": 625
+      }
+    },
+    {
+      "id": "New",
+      "property_line": 406,
+      "default_expression": "[[Ctrl, Keys.N]]",
+      "default_line": 173,
+      "callback": {
+        "category_variable": "fileIo",
+        "label": "New",
+        "line": 626
+      }
+    },
+    {
+      "id": "Reload",
+      "property_line": 417,
+      "default_expression": "[[Ctrl, Keys.R]]",
+      "default_line": 174,
+      "callback": {
+        "category_variable": "fileIo",
+        "label": "Reload",
+        "line": 627
+      }
+    },
+    {
+      "id": "Close",
+      "property_line": 428,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.F4], [Ctrl, Keys.LeftShift, Keys.W]]",
+      "default_line": 175,
+      "callback": {
+        "category_variable": "fileIo",
+        "label": "Close",
+        "line": 628
+      }
+    },
+    {
+      "id": "Exit",
+      "property_line": 439,
+      "default_expression": "RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? [[Ctrl, Keys.Q]] : [[Keys.LeftAlt, Keys.F4]]",
+      "default_line": 176,
+      "callback": {
+        "category_variable": "general",
+        "label": "Exit",
+        "line": 679
+      }
+    },
+    {
+      "id": "Undo",
+      "property_line": 450,
+      "default_expression": "[[Ctrl, Keys.Z]]",
+      "default_line": 177,
+      "callback": {
+        "category_variable": "undo",
+        "label": "Undo",
+        "line": 631
+      }
+    },
+    {
+      "id": "Redo",
+      "property_line": 461,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.Z], [Ctrl, Keys.Y]]",
+      "default_line": 178,
+      "callback": {
+        "category_variable": "undo",
+        "label": "Redo",
+        "line": 632
+      }
+    },
+    {
+      "id": "SelectRowRange",
+      "property_line": 472,
+      "default_expression": "[[Keys.Tab]]",
+      "default_line": 179,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select Row Range",
+        "line": 641
+      }
+    },
+    {
+      "id": "SelectAllNotes",
+      "property_line": 483,
+      "default_expression": "[[Ctrl, Keys.A]]",
+      "default_line": 180,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select All Notes",
+        "line": 642
+      }
+    },
+    {
+      "id": "SelectAllTaps",
+      "property_line": 494,
+      "default_expression": "[[]]",
+      "default_line": 181,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select All Taps",
+        "line": 643
+      }
+    },
+    {
+      "id": "SelectAllMines",
+      "property_line": 505,
+      "default_expression": "[[]]",
+      "default_line": 182,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select All Mines",
+        "line": 644
+      }
+    },
+    {
+      "id": "SelectAllFakes",
+      "property_line": 516,
+      "default_expression": "[[]]",
+      "default_line": 183,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select All Fakes",
+        "line": 645
+      }
+    },
+    {
+      "id": "SelectAllLifts",
+      "property_line": 527,
+      "default_expression": "[[]]",
+      "default_line": 184,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select All Lifts",
+        "line": 646
+      }
+    },
+    {
+      "id": "SelectAllHolds",
+      "property_line": 538,
+      "default_expression": "[[]]",
+      "default_line": 185,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select All Holds",
+        "line": 647
+      }
+    },
+    {
+      "id": "SelectAllRolls",
+      "property_line": 549,
+      "default_expression": "[[]]",
+      "default_line": 186,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select All Rolls",
+        "line": 648
+      }
+    },
+    {
+      "id": "SelectAllHoldsAndRolls",
+      "property_line": 560,
+      "default_expression": "[[]]",
+      "default_line": 187,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select All Holds and Rolls",
+        "line": 649
+      }
+    },
+    {
+      "id": "SelectAllCurrentPlayerNotes",
+      "property_line": 571,
+      "default_expression": "[[]]",
+      "default_line": 188,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Select All Current Player Notes",
+        "line": 733
+      }
+    },
+    {
+      "id": "SelectAllCurrentPlayerTaps",
+      "property_line": 582,
+      "default_expression": "[[]]",
+      "default_line": 189,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Select All Current Player Taps",
+        "line": 734
+      }
+    },
+    {
+      "id": "SelectAllCurrentPlayerMines",
+      "property_line": 593,
+      "default_expression": "[[]]",
+      "default_line": 190,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Select All Current Player Mines",
+        "line": 735
+      }
+    },
+    {
+      "id": "SelectAllCurrentPlayerFakes",
+      "property_line": 604,
+      "default_expression": "[[]]",
+      "default_line": 191,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Select All Current Player Fakes",
+        "line": 736
+      }
+    },
+    {
+      "id": "SelectAllCurrentPlayerLifts",
+      "property_line": 615,
+      "default_expression": "[[]]",
+      "default_line": 192,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Select All Current Player Lifts",
+        "line": 737
+      }
+    },
+    {
+      "id": "SelectAllCurrentPlayerHolds",
+      "property_line": 626,
+      "default_expression": "[[]]",
+      "default_line": 193,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Select All Current Player Holds",
+        "line": 738
+      }
+    },
+    {
+      "id": "SelectAllCurrentPlayerRolls",
+      "property_line": 637,
+      "default_expression": "[[]]",
+      "default_line": 194,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Select All Current Player Rolls",
+        "line": 739
+      }
+    },
+    {
+      "id": "SelectAllCurrentPlayerHoldsAndRolls",
+      "property_line": 648,
+      "default_expression": "[[]]",
+      "default_line": 195,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Select All Current Player Holds and Rolls",
+        "line": 740
+      }
+    },
+    {
+      "id": "SelectAllMiscEvents",
+      "property_line": 659,
+      "default_expression": "[[Ctrl, Keys.LeftAlt, Keys.A]]",
+      "default_line": 196,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select All Misc. Events",
+        "line": 650
+      }
+    },
+    {
+      "id": "SelectAll",
+      "property_line": 670,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.A]]",
+      "default_line": 197,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select All",
+        "line": 651
+      }
+    },
+    {
+      "id": "SelectAllPatterns",
+      "property_line": 681,
+      "default_expression": "[[]]",
+      "default_line": 198,
+      "callback": {
+        "category_variable": "selection",
+        "label": "Select All Patterns",
+        "line": 652
+      }
+    },
+    {
+      "id": "Copy",
+      "property_line": 692,
+      "default_expression": "[[Ctrl, Keys.C]]",
+      "default_line": 199,
+      "callback": {
+        "category_variable": "copyPaste",
+        "label": "Copy",
+        "line": 655
+      }
+    },
+    {
+      "id": "Cut",
+      "property_line": 703,
+      "default_expression": "[[Ctrl, Keys.X]]",
+      "default_line": 200,
+      "callback": {
+        "category_variable": "copyPaste",
+        "label": "Cut",
+        "line": 656
+      }
+    },
+    {
+      "id": "Paste",
+      "property_line": 714,
+      "default_expression": "[[Ctrl, Keys.V]]",
+      "default_line": 201,
+      "callback": {
+        "category_variable": "copyPaste",
+        "label": "Paste",
+        "line": 657
+      }
+    },
+    {
+      "id": "TogglePreview",
+      "property_line": 725,
+      "default_expression": "[[Keys.P]]",
+      "default_line": 202,
+      "callback": {
+        "category_variable": "sound",
+        "label": "Toggle Preview",
+        "line": 664
+      }
+    },
+    {
+      "id": "ToggleAssistTick",
+      "property_line": 736,
+      "default_expression": "[[Keys.A]]",
+      "default_line": 203,
+      "callback": {
+        "category_variable": "sound",
+        "label": "Toggle Assist Tick",
+        "line": 665
+      }
+    },
+    {
+      "id": "ToggleBeatTick",
+      "property_line": 747,
+      "default_expression": "[[Keys.B]]",
+      "default_line": 204,
+      "callback": {
+        "category_variable": "sound",
+        "label": "Toggle Beat Tick",
+        "line": 666
+      }
+    },
+    {
+      "id": "DecreaseMusicRate",
+      "property_line": 758,
+      "default_expression": "[[Keys.LeftShift, Keys.Left]]",
+      "default_line": 205,
+      "callback": {
+        "category_variable": "sound",
+        "label": "Decrease Music Rate",
+        "line": 667
+      }
+    },
+    {
+      "id": "IncreaseMusicRate",
+      "property_line": 769,
+      "default_expression": "[[Keys.LeftShift, Keys.Right]]",
+      "default_line": 206,
+      "callback": {
+        "category_variable": "sound",
+        "label": "Increase Music Rate",
+        "line": 668
+      }
+    },
+    {
+      "id": "PlayPause",
+      "property_line": 780,
+      "default_expression": "[[Keys.Space]]",
+      "default_line": 207,
+      "callback": {
+        "category_variable": "general",
+        "label": "Play / Pause",
+        "line": 671
+      }
+    },
+    {
+      "id": "CancelGoBack",
+      "property_line": 791,
+      "default_expression": "[[Keys.Escape]]",
+      "default_line": 208,
+      "callback": {
+        "category_variable": "general",
+        "label": "Cancel / Go Back",
+        "line": 672
+      }
+    },
+    {
+      "id": "ToggleNoteEntryMode",
+      "property_line": 802,
+      "default_expression": "[[Keys.M]]",
+      "default_line": 209,
+      "callback": {
+        "category_variable": "general",
+        "label": "Toggle Note Entry Mode",
+        "line": 673
+      }
+    },
+    {
+      "id": "ToggleSpacingMode",
+      "property_line": 813,
+      "default_expression": "[[Keys.S]]",
+      "default_line": 210,
+      "callback": {
+        "category_variable": "general",
+        "label": "Toggle Spacing Mode",
+        "line": 674
+      }
+    },
+    {
+      "id": "TogglePlayer",
+      "property_line": 824,
+      "default_expression": "[[Keys.OemQuestion]]",
+      "default_line": 211,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Toggle Player",
+        "line": 728
+      }
+    },
+    {
+      "id": "SetPlayer1",
+      "property_line": 835,
+      "default_expression": "[[]]",
+      "default_line": 212,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Set Player 1",
+        "line": 729
+      }
+    },
+    {
+      "id": "SetPlayer2",
+      "property_line": 846,
+      "default_expression": "[[]]",
+      "default_line": 213,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Set Player 2",
+        "line": 730
+      }
+    },
+    {
+      "id": "SetPlayer3",
+      "property_line": 857,
+      "default_expression": "[[]]",
+      "default_line": 214,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Set Player 3",
+        "line": 731
+      }
+    },
+    {
+      "id": "SetPlayer4",
+      "property_line": 868,
+      "default_expression": "[[]]",
+      "default_line": 215,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Set Player 4",
+        "line": 732
+      }
+    },
+    {
+      "id": "ConvertSelectedNotesToPlayer1",
+      "property_line": 879,
+      "default_expression": "[[]]",
+      "default_line": 216,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Convert Selected Notes to Player 1",
+        "line": 741
+      }
+    },
+    {
+      "id": "ConvertSelectedNotesToPlayer2",
+      "property_line": 890,
+      "default_expression": "[[]]",
+      "default_line": 217,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Convert Selected Notes to Player 2",
+        "line": 742
+      }
+    },
+    {
+      "id": "ConvertSelectedNotesToPlayer3",
+      "property_line": 901,
+      "default_expression": "[[]]",
+      "default_line": 218,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Convert Selected Notes to Player 3",
+        "line": 743
+      }
+    },
+    {
+      "id": "ConvertSelectedNotesToPlayer4",
+      "property_line": 912,
+      "default_expression": "[[]]",
+      "default_line": 219,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Convert Selected Notes to Player 4",
+        "line": 744
+      }
+    },
+    {
+      "id": "SwapSelectedPlayer1And2Notes",
+      "property_line": 923,
+      "default_expression": "[[]]",
+      "default_line": 220,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Swap Selected Player 1 and Player 2 Notes",
+        "line": 745
+      }
+    },
+    {
+      "id": "SwapSelectedPlayer1And3Notes",
+      "property_line": 935,
+      "default_expression": "[[]]",
+      "default_line": 221,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Swap Selected Player 1 and Player 3 Notes",
+        "line": 746
+      }
+    },
+    {
+      "id": "SwapSelectedPlayer1And4Notes",
+      "property_line": 947,
+      "default_expression": "[[]]",
+      "default_line": 222,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Swap Selected Player 1 and Player 4 Notes",
+        "line": 747
+      }
+    },
+    {
+      "id": "SwapSelectedPlayer2And3Notes",
+      "property_line": 959,
+      "default_expression": "[[]]",
+      "default_line": 223,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Swap Selected Player 2 and Player 3 Notes",
+        "line": 748
+      }
+    },
+    {
+      "id": "SwapSelectedPlayer2And4Notes",
+      "property_line": 971,
+      "default_expression": "[[]]",
+      "default_line": 224,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Swap Selected Player 2 and Player 4 Notes",
+        "line": 749
+      }
+    },
+    {
+      "id": "SwapSelectedPlayer3And4Notes",
+      "property_line": 983,
+      "default_expression": "[[]]",
+      "default_line": 225,
+      "callback": {
+        "category_variable": "routine",
+        "label": "Swap Selected Player 3 and Player 4 Notes",
+        "line": 750
+      }
+    },
+    {
+      "id": "OpenPreviousChart",
+      "property_line": 994,
+      "default_expression": "[[Ctrl, Keys.LeftAlt, Keys.Left]]",
+      "default_line": 226,
+      "callback": {
+        "category_variable": "chartSelection",
+        "label": "Open Previous Chart",
+        "line": 682
+      }
+    },
+    {
+      "id": "OpenNextChart",
+      "property_line": 1005,
+      "default_expression": "[[Ctrl, Keys.LeftAlt, Keys.Right]]",
+      "default_line": 227,
+      "callback": {
+        "category_variable": "chartSelection",
+        "label": "Open Next Chart",
+        "line": 683
+      }
+    },
+    {
+      "id": "CloseFocusedChart",
+      "property_line": 1016,
+      "default_expression": "[[Ctrl, Keys.F4], [Ctrl, Keys.W]]",
+      "default_line": 228,
+      "callback": {
+        "category_variable": "chartSelection",
+        "label": "Close Focused Chart",
+        "line": 684
+      }
+    },
+    {
+      "id": "KeepChartOpen",
+      "property_line": 1027,
+      "default_expression": "[[Ctrl, Keys.LeftAlt, Keys.Home]]",
+      "default_line": 229,
+      "callback": {
+        "category_variable": "chartSelection",
+        "label": "Keep Chart Open",
+        "line": 685
+      }
+    },
+    {
+      "id": "MoveFocusedChartLeft",
+      "property_line": 1038,
+      "default_expression": "[[Ctrl, Keys.LeftAlt, Keys.PageUp]]",
+      "default_line": 230,
+      "callback": {
+        "category_variable": "chartSelection",
+        "label": "Move Focused Chart Left",
+        "line": 686
+      }
+    },
+    {
+      "id": "MoveFocusedChartRight",
+      "property_line": 1049,
+      "default_expression": "[[Ctrl, Keys.LeftAlt, Keys.PageDown]]",
+      "default_line": 231,
+      "callback": {
+        "category_variable": "chartSelection",
+        "label": "Move Focused Chart Right",
+        "line": 687
+      }
+    },
+    {
+      "id": "FocusPreviousChart",
+      "property_line": 1060,
+      "default_expression": "[[Ctrl, Keys.PageUp]]",
+      "default_line": 232,
+      "callback": {
+        "category_variable": "chartSelection",
+        "label": "Focus Previous Chart",
+        "line": 688
+      }
+    },
+    {
+      "id": "FocusNextChart",
+      "property_line": 1071,
+      "default_expression": "[[Ctrl, Keys.PageDown]]",
+      "default_line": 233,
+      "callback": {
+        "category_variable": "chartSelection",
+        "label": "Focus Next Chart",
+        "line": 689
+      }
+    },
+    {
+      "id": "DecreaseSnap",
+      "property_line": 1082,
+      "default_expression": "[[Keys.Left]]",
+      "default_line": 234,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Decrease Snap",
+        "line": 714
+      }
+    },
+    {
+      "id": "IncreaseSnap",
+      "property_line": 1093,
+      "default_expression": "[[Keys.Right]]",
+      "default_line": 235,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Increase Snap",
+        "line": 715
+      }
+    },
+    {
+      "id": "MoveUp",
+      "property_line": 1104,
+      "default_expression": "[[Keys.Up]]",
+      "default_line": 236,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move Up",
+        "line": 696
+      }
+    },
+    {
+      "id": "MoveDown",
+      "property_line": 1115,
+      "default_expression": "[[Keys.Down]]",
+      "default_line": 237,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move Down",
+        "line": 698
+      }
+    },
+    {
+      "id": "MoveToPreviousRowWithSteps",
+      "property_line": 1126,
+      "default_expression": "[[]]",
+      "default_line": 238,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To Previous Row With Steps",
+        "line": 700
+      }
+    },
+    {
+      "id": "MoveToNextRowWithSteps",
+      "property_line": 1137,
+      "default_expression": "[[]]",
+      "default_line": 239,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To Next Row With Steps",
+        "line": 701
+      }
+    },
+    {
+      "id": "MoveToPreviousRowWithEvent",
+      "property_line": 1148,
+      "default_expression": "[[]]",
+      "default_line": 240,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To Previous Row With Events",
+        "line": 702
+      }
+    },
+    {
+      "id": "MoveToNextRowWithEvent",
+      "property_line": 1159,
+      "default_expression": "[[]]",
+      "default_line": 241,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To Next Row With Events",
+        "line": 703
+      }
+    },
+    {
+      "id": "MoveToStartOfStream",
+      "property_line": 1170,
+      "default_expression": "[[Ctrl, Keys.Up]]",
+      "default_line": 242,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To Start of Stream",
+        "line": 704
+      }
+    },
+    {
+      "id": "MoveToEndOfStream",
+      "property_line": 1181,
+      "default_expression": "[[Ctrl, Keys.Down]]",
+      "default_line": 243,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To End of Stream",
+        "line": 705
+      }
+    },
+    {
+      "id": "MoveToPreviousMeasure",
+      "property_line": 1192,
+      "default_expression": "[[Keys.PageUp]]",
+      "default_line": 244,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To Previous Measure",
+        "line": 706
+      }
+    },
+    {
+      "id": "MoveToNextMeasure",
+      "property_line": 1203,
+      "default_expression": "[[Keys.PageDown]]",
+      "default_line": 245,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To Next Measure",
+        "line": 707
+      }
+    },
+    {
+      "id": "MoveToChartStart",
+      "property_line": 1214,
+      "default_expression": "[[Keys.Home]]",
+      "default_line": 246,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To Chart Start",
+        "line": 708
+      }
+    },
+    {
+      "id": "MoveToChartEnd",
+      "property_line": 1225,
+      "default_expression": "[[Keys.End]]",
+      "default_line": 247,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To Chart End",
+        "line": 709
+      }
+    },
+    {
+      "id": "MoveToNextLabel",
+      "property_line": 1236,
+      "default_expression": "[[Ctrl, Keys.L]]",
+      "default_line": 248,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To Next Label",
+        "line": 710
+      }
+    },
+    {
+      "id": "MoveToPreviousLabel",
+      "property_line": 1247,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.L]]",
+      "default_line": 249,
+      "callback": {
+        "category_variable": "navigation",
+        "label": "Move To Previous Label",
+        "line": 711
+      }
+    },
+    {
+      "id": "MoveToNextPattern",
+      "property_line": 1258,
+      "default_expression": "[[Ctrl, Keys.P]]",
+      "default_line": 250,
+      "callback": {
+        "category_variable": "patterns",
+        "label": "Move To Next Pattern",
+        "line": 753
+      }
+    },
+    {
+      "id": "MoveToPreviousPattern",
+      "property_line": 1269,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.P]]",
+      "default_line": 251,
+      "callback": {
+        "category_variable": "patterns",
+        "label": "Move To Previous Pattern",
+        "line": 754
+      }
+    },
+    {
+      "id": "RegenerateAllPatternsFixedSeeds",
+      "property_line": 1280,
+      "default_expression": "[[Keys.LeftAlt, Keys.P]]",
+      "default_line": 252,
+      "callback": {
+        "category_variable": "patterns",
+        "label": "Regenerate All Patterns (Fixed Seeds)",
+        "line": 755
+      }
+    },
+    {
+      "id": "RegenerateAllPatternsNewSeeds",
+      "property_line": 1291,
+      "default_expression": "[[Keys.LeftAlt, Keys.LeftShift, Keys.P]]",
+      "default_line": 253,
+      "callback": {
+        "category_variable": "patterns",
+        "label": "Regenerate All Patterns (New Seeds)",
+        "line": 756
+      }
+    },
+    {
+      "id": "RegenerateSelectedPatternsFixedSeeds",
+      "property_line": 1302,
+      "default_expression": "[[Ctrl, Keys.LeftAlt, Keys.P]]",
+      "default_line": 254,
+      "callback": {
+        "category_variable": "patterns",
+        "label": "Regenerate Selected Patterns (Fixed Seeds)",
+        "line": 757
+      }
+    },
+    {
+      "id": "RegenerateSelectedPatternsNewSeeds",
+      "property_line": 1313,
+      "default_expression": "[[Ctrl, Keys.LeftAlt, Keys.LeftShift, Keys.P]]",
+      "default_line": 255,
+      "callback": {
+        "category_variable": "patterns",
+        "label": "Regenerate Selected Patterns (New Seeds)",
+        "line": 758
+      }
+    },
+    {
+      "id": "Delete",
+      "property_line": 1324,
+      "default_expression": "[[Keys.Delete]]",
+      "default_line": 256,
+      "callback": {
+        "category_variable": "editSelection",
+        "label": "Delete",
+        "line": 761
+      }
+    },
+    {
+      "id": "ShiftLeft",
+      "property_line": 1335,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.LeftAlt, Keys.Left]]",
+      "default_line": 257,
+      "callback": {
+        "category_variable": "editSelection",
+        "label": "Shift Left",
+        "line": 765
+      }
+    },
+    {
+      "id": "ShiftLeftAndWrap",
+      "property_line": 1346,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.Left]]",
+      "default_line": 258,
+      "callback": {
+        "category_variable": "editSelection",
+        "label": "Shift Left And Wrap",
+        "line": 766
+      }
+    },
+    {
+      "id": "ShiftRight",
+      "property_line": 1357,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.LeftAlt, Keys.Right]]",
+      "default_line": 259,
+      "callback": {
+        "category_variable": "editSelection",
+        "label": "Shift Right",
+        "line": 767
+      }
+    },
+    {
+      "id": "ShiftRightAndWrap",
+      "property_line": 1368,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.Right]]",
+      "default_line": 260,
+      "callback": {
+        "category_variable": "editSelection",
+        "label": "Shift Right And Wrap",
+        "line": 768
+      }
+    },
+    {
+      "id": "ShiftEarlier",
+      "property_line": 1379,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.Up]]",
+      "default_line": 261,
+      "callback": {
+        "category_variable": "editSelection",
+        "label": "Shift Earlier",
+        "line": 769
+      }
+    },
+    {
+      "id": "ShiftLater",
+      "property_line": 1390,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.Down]]",
+      "default_line": 262,
+      "callback": {
+        "category_variable": "editSelection",
+        "label": "Shift Later",
+        "line": 770
+      }
+    },
+    {
+      "id": "Mirror",
+      "property_line": 1401,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.M]]",
+      "default_line": 263,
+      "callback": {
+        "category_variable": "editSelection",
+        "label": "Mirror",
+        "line": 762
+      }
+    },
+    {
+      "id": "Flip",
+      "property_line": 1412,
+      "default_expression": "[[Ctrl, Keys.LeftShift, Keys.F]]",
+      "default_line": 264,
+      "callback": {
+        "category_variable": "editSelection",
+        "label": "Flip",
+        "line": 763
+      }
+    },
+    {
+      "id": "MirrorAndFlip",
+      "property_line": 1423,
+      "default_expression": "[[]]",
+      "default_line": 265,
+      "callback": {
+        "category_variable": "editSelection",
+        "label": "Mirror and Flip",
+        "line": 764
+      }
+    },
+    {
+      "id": "Arrow0",
+      "property_line": 1434,
+      "default_expression": "[[Keys.D1]]",
+      "default_line": 266,
+      "callback": {
+        "category_variable": "noteEntry",
+        "label": "Lane 01",
+        "line": 820
+      }
+    },
+    {
+      "id": "Arrow1",
+      "property_line": 1445,
+      "default_expression": "[[Keys.D2]]",
+      "default_line": 267,
+      "callback": {
+        "category_variable": "noteEntry",
+        "label": "Lane 02",
+        "line": 821
+      }
+    },
+    {
+      "id": "Arrow2",
+      "property_line": 1456,
+      "default_expression": "[[Keys.D3]]",
+      "default_line": 268,
+      "callback": {
+        "category_variable": "noteEntry",
+        "label": "Lane 03",
+        "line": 822
+      }
+    },
+    {
+      "id": "Arrow3",
+      "property_line": 1467,
+      "default_expression": "[[Keys.D4]]",
+      "default_line": 269,
+      "callback": {
+        "category_variable": "noteEntry",
+        "label": "Lane 04",
+        "line": 823
+      }
+    },
+    {
+      "id": "Arrow4",
+      "property_line": 1478,
+      "default_expression": "[[Keys.D5]]",
+      "default_line": 270,
+      "callback": {
+        "category_variable": "noteEntry",
+        "label": "Lane 05",
+        "line": 824
+      }
+    },
+    {
+      "id": "Arrow5",
+      "property_line": 1489,
+      "default_expression": "[[Keys.D6]]",
+      "default_line": 271,
+      "callback": {
+        "category_variable": "noteEntry",
+        "label": "Lane 06",
+        "line": 825
+      }
+    },
+    {
+      "id": "Arrow6",
+      "property_line": 1500,
+      "default_expression": "[[Keys.D7]]",
+      "default_line": 272,
+      "callback": {
+        "category_variable": "noteEntry",
+        "label": "Lane 07",
+        "line": 826
+      }
+    },
+    {
+      "id": "Arrow7",
+      "property_line": 1511,
+      "default_expression": "[[Keys.D8]]",
+      "default_line": 273,
+      "callback": {
+        "category_variable": "noteEntry",
+        "label": "Lane 08",
+        "line": 827
+      }
+    },
+    {
+      "id": "Arrow8",
+      "property_line": 1522,
+      "default_expression": "[[Keys.D9]]",
+      "default_line": 274,
+      "callback": {
+        "category_variable": "noteEntry",
+        "label": "Lane 09",
+        "line": 828
+      }
+    },
+    {
+      "id": "Arrow9",
+      "property_line": 1533,
+      "default_expression": "[[Keys.D0]]",
+      "default_line": 275,
+      "callback": {
+        "category_variable": "noteEntry",
+        "label": "Lane 10",
+        "line": 829
+      }
+    },
+    {
+      "id": "ArrowModification",
+      "property_line": 1544,
+      "default_expression": "[[Keys.LeftShift]]",
+      "default_line": 276,
+      "callback": {
+        "category_variable": "noteEntry",
+        "label": "Switch Note to Mine / Roll",
+        "line": 830
+      }
+    },
+    {
+      "id": "ScrollZoom",
+      "property_line": 1555,
+      "default_expression": "[[Ctrl]]",
+      "default_line": 277,
+      "callback": null
+    },
+    {
+      "id": "ScrollSpacing",
+      "property_line": 1566,
+      "default_expression": "[[Keys.LeftShift]]",
+      "default_line": 278,
+      "callback": null
+    },
+    {
+      "id": "MouseSelectionControlBehavior",
+      "property_line": 1577,
+      "default_expression": "[[Ctrl]]",
+      "default_line": 279,
+      "callback": null
+    },
+    {
+      "id": "MouseSelectionShiftBehavior",
+      "property_line": 1588,
+      "default_expression": "[[Keys.LeftShift]]",
+      "default_line": 280,
+      "callback": null
+    },
+    {
+      "id": "MouseSelectionAltBehavior",
+      "property_line": 1599,
+      "default_expression": "[[Keys.LeftAlt]]",
+      "default_line": 281,
+      "callback": null
+    },
+    {
+      "id": "LockReceptorMoveAxis",
+      "property_line": 1610,
+      "default_expression": "[[Keys.LeftShift]]",
+      "default_line": 282,
+      "callback": null
+    },
+    {
+      "id": "AddEventTempo",
+      "property_line": 1621,
+      "default_expression": "[[]]",
+      "default_line": 283,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Tempo",
+        "line": 803
+      }
+    },
+    {
+      "id": "AddEventInterpolatedScrollRate",
+      "property_line": 1632,
+      "default_expression": "[[]]",
+      "default_line": 284,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Interpolated Scroll Rate",
+        "line": 804
+      }
+    },
+    {
+      "id": "AddEventScrollRate",
+      "property_line": 1643,
+      "default_expression": "[[]]",
+      "default_line": 285,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Scroll Rate",
+        "line": 805
+      }
+    },
+    {
+      "id": "AddEventStop",
+      "property_line": 1654,
+      "default_expression": "[[]]",
+      "default_line": 286,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Stop",
+        "line": 806
+      }
+    },
+    {
+      "id": "AddEventDelay",
+      "property_line": 1665,
+      "default_expression": "[[]]",
+      "default_line": 287,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Delay",
+        "line": 807
+      }
+    },
+    {
+      "id": "AddEventWarp",
+      "property_line": 1676,
+      "default_expression": "[[]]",
+      "default_line": 288,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Warp",
+        "line": 808
+      }
+    },
+    {
+      "id": "AddEventFakeRegion",
+      "property_line": 1687,
+      "default_expression": "[[]]",
+      "default_line": 289,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Fake Region",
+        "line": 809
+      }
+    },
+    {
+      "id": "AddEventTicks",
+      "property_line": 1698,
+      "default_expression": "[[]]",
+      "default_line": 290,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Ticks",
+        "line": 810
+      }
+    },
+    {
+      "id": "AddEventComboMultipliers",
+      "property_line": 1709,
+      "default_expression": "[[]]",
+      "default_line": 291,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Combo Multipliers",
+        "line": 811
+      }
+    },
+    {
+      "id": "AddEventTimeSignature",
+      "property_line": 1720,
+      "default_expression": "[[]]",
+      "default_line": 292,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Time Signature",
+        "line": 812
+      }
+    },
+    {
+      "id": "AddEventLabel",
+      "property_line": 1731,
+      "default_expression": "[[]]",
+      "default_line": 293,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Label",
+        "line": 813
+      }
+    },
+    {
+      "id": "AddEventAttack",
+      "property_line": 1742,
+      "default_expression": "[[]]",
+      "default_line": 294,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Attack",
+        "line": 814
+      }
+    },
+    {
+      "id": "AddEventPattern",
+      "property_line": 1753,
+      "default_expression": "[[]]",
+      "default_line": 295,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Add Pattern",
+        "line": 815
+      }
+    },
+    {
+      "id": "MoveEventPreview",
+      "property_line": 1764,
+      "default_expression": "[[]]",
+      "default_line": 296,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Move Music Preview",
+        "line": 816
+      }
+    },
+    {
+      "id": "MoveEventEndHint",
+      "property_line": 1775,
+      "default_expression": "[[]]",
+      "default_line": 297,
+      "callback": {
+        "category_variable": "eventEntry",
+        "label": "Move End Hint",
+        "line": 817
+      }
+    },
+    {
+      "id": "ConvertSelectedTapsToMines",
+      "property_line": 1786,
+      "default_expression": "[[]]",
+      "default_line": 298,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Taps to Mines",
+        "line": 773
+      }
+    },
+    {
+      "id": "ConvertSelectedTapsToFakes",
+      "property_line": 1797,
+      "default_expression": "[[]]",
+      "default_line": 299,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Taps to Fakes",
+        "line": 774
+      }
+    },
+    {
+      "id": "ConvertSelectedTapsToLifts",
+      "property_line": 1808,
+      "default_expression": "[[]]",
+      "default_line": 300,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Taps to Lifts",
+        "line": 775
+      }
+    },
+    {
+      "id": "ConvertSelectedMinesToTaps",
+      "property_line": 1819,
+      "default_expression": "[[]]",
+      "default_line": 301,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Mines to Taps",
+        "line": 776
+      }
+    },
+    {
+      "id": "ConvertSelectedMinesToFakes",
+      "property_line": 1830,
+      "default_expression": "[[]]",
+      "default_line": 302,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Mines to Fakes",
+        "line": 777
+      }
+    },
+    {
+      "id": "ConvertSelectedMinesToLifts",
+      "property_line": 1841,
+      "default_expression": "[[]]",
+      "default_line": 303,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Mines to Lifts",
+        "line": 778
+      }
+    },
+    {
+      "id": "ConvertSelectedFakesToTaps",
+      "property_line": 1852,
+      "default_expression": "[[]]",
+      "default_line": 304,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Fakes to Taps",
+        "line": 779
+      }
+    },
+    {
+      "id": "ConvertSelectedLiftsToTaps",
+      "property_line": 1863,
+      "default_expression": "[[]]",
+      "default_line": 305,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Lifts to Taps",
+        "line": 780
+      }
+    },
+    {
+      "id": "ConvertSelectedHoldsToRolls",
+      "property_line": 1874,
+      "default_expression": "[[]]",
+      "default_line": 306,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Holds to Rolls",
+        "line": 781
+      }
+    },
+    {
+      "id": "ConvertSelectedHoldsToTaps",
+      "property_line": 1885,
+      "default_expression": "[[]]",
+      "default_line": 307,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Holds to Taps",
+        "line": 782
+      }
+    },
+    {
+      "id": "ConvertSelectedHoldsToMines",
+      "property_line": 1896,
+      "default_expression": "[[]]",
+      "default_line": 308,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Holds to Mines",
+        "line": 783
+      }
+    },
+    {
+      "id": "ConvertSelectedRollsToHolds",
+      "property_line": 1907,
+      "default_expression": "[[]]",
+      "default_line": 309,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Rolls to Holds",
+        "line": 784
+      }
+    },
+    {
+      "id": "ConvertSelectedRollsToTaps",
+      "property_line": 1918,
+      "default_expression": "[[]]",
+      "default_line": 310,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Rolls to Taps",
+        "line": 785
+      }
+    },
+    {
+      "id": "ConvertSelectedRollsToMines",
+      "property_line": 1929,
+      "default_expression": "[[]]",
+      "default_line": 311,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Rolls to Mines",
+        "line": 786
+      }
+    },
+    {
+      "id": "ConvertSelectedWarpsToNegativeStops",
+      "property_line": 1940,
+      "default_expression": "[[]]",
+      "default_line": 312,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Warps to Negative Stops",
+        "line": 787
+      }
+    },
+    {
+      "id": "ConvertSelectedNegativeStopsToWarps",
+      "property_line": 1951,
+      "default_expression": "[[]]",
+      "default_line": 313,
+      "callback": {
+        "category_variable": "convertSelection",
+        "label": "Negative Stops to Warps",
+        "line": 788
+      }
+    },
+    {
+      "id": "SwapSelectedTapsAndMines",
+      "property_line": 1962,
+      "default_expression": "[[]]",
+      "default_line": 314,
+      "callback": {
+        "category_variable": "swapSelection",
+        "label": "Taps and Mines",
+        "line": 791
+      }
+    },
+    {
+      "id": "SwapSelectedTapsAndFakes",
+      "property_line": 1973,
+      "default_expression": "[[]]",
+      "default_line": 315,
+      "callback": {
+        "category_variable": "swapSelection",
+        "label": "Taps and Fakes",
+        "line": 792
+      }
+    },
+    {
+      "id": "SwapSelectedTapsAndLifts",
+      "property_line": 1984,
+      "default_expression": "[[]]",
+      "default_line": 316,
+      "callback": {
+        "category_variable": "swapSelection",
+        "label": "Taps and Lifts",
+        "line": 793
+      }
+    },
+    {
+      "id": "SwapSelectedMinesAndFakes",
+      "property_line": 1995,
+      "default_expression": "[[]]",
+      "default_line": 317,
+      "callback": {
+        "category_variable": "swapSelection",
+        "label": "Mines and Fakes",
+        "line": 794
+      }
+    },
+    {
+      "id": "SwapSelectedMinesAndLifts",
+      "property_line": 2006,
+      "default_expression": "[[]]",
+      "default_line": 318,
+      "callback": {
+        "category_variable": "swapSelection",
+        "label": "Mines and Lifts",
+        "line": 795
+      }
+    },
+    {
+      "id": "SwapSelectedHoldsAndRolls",
+      "property_line": 2017,
+      "default_expression": "[[]]",
+      "default_line": 319,
+      "callback": {
+        "category_variable": "swapSelection",
+        "label": "Holds and Rolls",
+        "line": 796
+      }
+    },
+    {
+      "id": "SwapSelectedHoldsAndTaps",
+      "property_line": 2028,
+      "default_expression": "[[]]",
+      "default_line": 320,
+      "callback": {
+        "category_variable": "swapSelection",
+        "label": "Holds and Taps",
+        "line": 797
+      }
+    },
+    {
+      "id": "SwapSelectedHoldsAndMines",
+      "property_line": 2039,
+      "default_expression": "[[]]",
+      "default_line": 321,
+      "callback": {
+        "category_variable": "swapSelection",
+        "label": "Holds and Mines",
+        "line": 798
+      }
+    },
+    {
+      "id": "SwapSelectedRollsAndTaps",
+      "property_line": 2050,
+      "default_expression": "[[]]",
+      "default_line": 322,
+      "callback": {
+        "category_variable": "swapSelection",
+        "label": "Rolls and Taps",
+        "line": 799
+      }
+    },
+    {
+      "id": "SwapSelectedRollsAndMines",
+      "property_line": 2061,
+      "default_expression": "[[]]",
+      "default_line": 323,
+      "callback": {
+        "category_variable": "swapSelection",
+        "label": "Rolls and Mines",
+        "line": 800
+      }
+    },
+    {
+      "id": "SnapToNone",
+      "property_line": 2072,
+      "default_expression": "[[]]",
+      "default_line": 324,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Snap to None",
+        "line": 716
+      }
+    },
+    {
+      "id": "SnapToQuarters",
+      "property_line": 2083,
+      "default_expression": "[[]]",
+      "default_line": 325,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Snap to 1/4",
+        "line": 717
+      }
+    },
+    {
+      "id": "SnapToEighths",
+      "property_line": 2094,
+      "default_expression": "[[]]",
+      "default_line": 326,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Snap to 1/8",
+        "line": 718
+      }
+    },
+    {
+      "id": "SnapToTwelfths",
+      "property_line": 2105,
+      "default_expression": "[[]]",
+      "default_line": 327,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Snap to 1/12",
+        "line": 719
+      }
+    },
+    {
+      "id": "SnapToSixteenths",
+      "property_line": 2116,
+      "default_expression": "[[]]",
+      "default_line": 328,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Snap to 1/16",
+        "line": 720
+      }
+    },
+    {
+      "id": "SnapToTwentyFourths",
+      "property_line": 2127,
+      "default_expression": "[[]]",
+      "default_line": 329,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Snap to 1/24",
+        "line": 721
+      }
+    },
+    {
+      "id": "SnapToThirtySeconds",
+      "property_line": 2138,
+      "default_expression": "[[]]",
+      "default_line": 330,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Snap to 1/32",
+        "line": 722
+      }
+    },
+    {
+      "id": "SnapToFortyEighths",
+      "property_line": 2149,
+      "default_expression": "[[]]",
+      "default_line": 331,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Snap to 1/48",
+        "line": 723
+      }
+    },
+    {
+      "id": "SnapToSixtyFourths",
+      "property_line": 2160,
+      "default_expression": "[[]]",
+      "default_line": 332,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Snap to 1/64",
+        "line": 724
+      }
+    },
+    {
+      "id": "SnapToOneHundredNinetySeconds",
+      "property_line": 2171,
+      "default_expression": "[[]]",
+      "default_line": 333,
+      "callback": {
+        "category_variable": "snap",
+        "label": "Snap to 1/192",
+        "line": 725
+      }
+    },
+    {
+      "id": "ToggleWaveForm",
+      "property_line": 2182,
+      "default_expression": "[[]]",
+      "default_line": 334,
+      "callback": {
+        "category_variable": "general",
+        "label": "Toggle Waveform",
+        "line": 675
+      }
+    },
+    {
+      "id": "ToggleDark",
+      "property_line": 2193,
+      "default_expression": "[[]]",
+      "default_line": 335,
+      "callback": {
+        "category_variable": "general",
+        "label": "Toggle Dark",
+        "line": 676
+      }
+    },
+    {
+      "id": "AutoApplyAllSongAssets",
+      "property_line": 2204,
+      "default_expression": "[[]]",
+      "default_line": 336,
+      "callback": {
+        "category_variable": "song",
+        "label": "Automatically Apply All Song Assets",
+        "line": 660
+      }
+    },
+    {
+      "id": "AutoApplyUnsetSongAssets",
+      "property_line": 2215,
+      "default_expression": "[[]]",
+      "default_line": 337,
+      "callback": {
+        "category_variable": "song",
+        "label": "Automatically Apply Unset Song Assets",
+        "line": 661
+      }
+    }
+  ],
+  "verified_source_sha256": {
+    "StepManiaEditor/Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+    "StepManiaEditor/Preferences/PreferencesKeyBinds.cs": "2d73bb9f272a805745319e156bf8e30088cf67201617083729a515a74d7bbc56"
+  }
+}

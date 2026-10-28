@@ -1,0 +1,30 @@
+{
+  "branch": "edition-mode",
+  "validated": {
+    "player_default_workflows": 4,
+    "participant_count_workflows": 4,
+    "layout_alias_workflows": 4,
+    "key_commands_workflows": 7,
+    "key_binding_preferences_workflows": 6,
+    "key_binding_storage_workflows": 3,
+    "song_custom_workflows": 3,
+    "advanced_export_workflows": 8,
+    "advanced_export_writer_workflows": 5,
+    "advanced_export_attacks_workflows": 2,
+    "advanced_export_chart_metadata_workflows": 2
+  },
+  "pending": [
+    "native key bindings",
+    "private song-custom oracle unit",
+    "note swap and timing conversion models",
+    "File New/Open/Recent/Untitled",
+    "Windows adapter compilation/runtime",
+    "export publication with independent output policy"
+  ],
+  "limits": [
+    "Scoped automated checks only; no physical keyboard/GPU/audio testing performed in this resume",
+    "Cross-format output is detached; not connected to durable UI publication",
+    "Entire theme suite is not green: see theme-unit-checkpoint-2026-10-27.json",
+    "No push or pull request before user testing"
+  ]
+}

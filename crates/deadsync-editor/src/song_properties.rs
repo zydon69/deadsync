@@ -1,4 +1,5 @@
 //! GrooveAuthor song-level editor metadata. SyncOffset affects preview only.
+mod custom;
 use crate::{
     Error,
     document::Document,
@@ -10,7 +11,7 @@ const VERSION: &str = "GASongDataVersion";
 const DATA: &str = "GASongData";
 
 fn read(document: &Document) -> Result<(Map<String, Value>, f64), Error> {
-    let fields = match (document.text(None, VERSION), document.text(None, DATA)) {
+    let fields = match (custom::text(document, VERSION), custom::text(document, DATA)) {
         (None, None) => return Ok((Map::new(), DEFAULT_SYNC_OFFSET)),
         (Some(version), Some(data)) if version.trim().parse::<i32>().ok() == Some(1) => {
             let data = crate::generation::jsonc::strip_comments(data.as_bytes())?;
@@ -50,7 +51,7 @@ pub(crate) fn after_chart_deletion(
     document: &Document,
     deleted: usize,
 ) -> Result<Option<String>, Error> {
-    if document.text(None, DATA).is_none() && document.text(None, VERSION).is_none() {
+    if custom::text(document, DATA).is_none() && custom::text(document, VERSION).is_none() {
         return Ok(None);
     }
     let (mut fields, _) = read(document)?;
@@ -433,10 +434,10 @@ impl Draft {
             fields.insert("SyncOffset".into(), Value::from(self.offset));
             let json =
                 serde_json::to_string(&fields).map_err(|e| Error::InvalidFormat(e.to_string()))?;
-            properties.push((None, VERSION.to_owned(), std::sync::Arc::from(&b"1"[..])));
+            properties.push((None, custom::key(session.document(), VERSION), std::sync::Arc::from(&b"1"[..])));
             properties.push((
                 None,
-                DATA.to_owned(),
+                custom::key(session.document(), DATA),
                 std::sync::Arc::from(crate::document::escape_text(&json)),
             ));
         }
@@ -475,3 +476,7 @@ impl Draft {
 fn invalid<T>(message: &str) -> Result<T, Error> {
     Err(Error::InvalidEdit(message.into()))
 }
+
+/// Effective source spelling for structural chart deletion; no other alias is removed.
+pub(crate) fn custom_data_key(document: &Document) -> String { custom::key(document, DATA) }
+pub(crate) fn custom_property_key(document: &Document, name: &str) -> String { custom::key(document, name) }

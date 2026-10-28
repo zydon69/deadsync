@@ -4,6 +4,7 @@
 //! leaving unknown tags, comments, encodings, and unedited charts intact.
 pub mod scroll_preferences;
 pub mod analysis;
+pub mod advanced_export;
 pub mod attacks;
 pub mod audio_preferences;
 pub mod autoplay;
@@ -122,3 +123,6 @@ pub mod receptor_preferences;
 pub mod note_color_inspector;
 
 pub mod media_relocation;
+
+pub mod key_commands;
+pub mod key_binding_preferences;

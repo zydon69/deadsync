@@ -1,0 +1,172 @@
+{
+  "Cases": [
+    {
+      "Name": "none-sm",
+      "Version": null,
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "none-ssc",
+      "Version": null,
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "plain-sm",
+      "Version": "1",
+      "Data": "{\"SyncOffset\":0.1,\"Future\":{\"Keep\":true}}",
+      "Offset": 0.1,
+      "Error": null
+    },
+    {
+      "Name": "plain-ssc",
+      "Version": "1",
+      "Data": "{\"SyncOffset\":0.1,\"Future\":{\"Keep\":true}}",
+      "Offset": 0.1,
+      "Error": null
+    },
+    {
+      "Name": "marked-sm",
+      "Version": "1",
+      "Data": "{\"SyncOffset\":0.2,\"Future\":{\"Keep\":true}}",
+      "Offset": 0.2,
+      "Error": null
+    },
+    {
+      "Name": "marked-ssc",
+      "Version": null,
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "plain-then-marked-sm",
+      "Version": "1",
+      "Data": "{\"SyncOffset\":0.2,\"Future\":{\"Keep\":true}}",
+      "Offset": 0.2,
+      "Error": null
+    },
+    {
+      "Name": "plain-then-marked-ssc",
+      "Version": "1",
+      "Data": "{\"SyncOffset\":0.1,\"Future\":{\"Keep\":true}}",
+      "Offset": 0.1,
+      "Error": null
+    },
+    {
+      "Name": "marked-then-plain-sm",
+      "Version": "1",
+      "Data": "{\"SyncOffset\":0.1,\"Future\":{\"Keep\":true}}",
+      "Offset": 0.1,
+      "Error": null
+    },
+    {
+      "Name": "marked-then-plain-ssc",
+      "Version": "1",
+      "Data": "{\"SyncOffset\":0.1,\"Future\":{\"Keep\":true}}",
+      "Offset": 0.1,
+      "Error": null
+    },
+    {
+      "Name": "marked-duplicate-sm",
+      "Version": "1",
+      "Data": "{\"SyncOffset\":0.3,\"Future\":{\"Keep\":true}}",
+      "Offset": 0.3,
+      "Error": null
+    },
+    {
+      "Name": "marked-duplicate-ssc",
+      "Version": null,
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "mixed-version-sm",
+      "Version": "99",
+      "Data": "{\"SyncOffset\":0.2,\"Future\":{\"Keep\":true}}",
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "mixed-version-ssc",
+      "Version": "99",
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "mixed-data-sm",
+      "Version": "1",
+      "Data": "{\"SyncOffset\":0.4}",
+      "Offset": 0.4,
+      "Error": null
+    },
+    {
+      "Name": "mixed-data-ssc",
+      "Version": null,
+      "Data": "{\"SyncOffset\":0.4}",
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "lower-marked-sm",
+      "Version": null,
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "lower-marked-ssc",
+      "Version": null,
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "lower-base-sm",
+      "Version": null,
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "lower-base-ssc",
+      "Version": null,
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "version-only-sm",
+      "Version": "1",
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "version-only-ssc",
+      "Version": null,
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "marked-old-sm",
+      "Version": "99",
+      "Data": "{\"SyncOffset\":0.2,\"Future\":{\"Keep\":true}}",
+      "Offset": null,
+      "Error": null
+    },
+    {
+      "Name": "marked-old-ssc",
+      "Version": null,
+      "Data": null,
+      "Offset": null,
+      "Error": null
+    }
+  ]
+}

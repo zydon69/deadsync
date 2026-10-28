@@ -245,7 +245,7 @@ fn walk(
         }
         // Exhaustive on purpose: adding a history variant requires an explicit
         // decision, rather than accidentally executing a persisted side effect.
-        Change::ReceptorPreferences(_) | Change::NoteColorPreferences(_) | Change::AudioPreferences(_)
+        Change::ReceptorPreferences(_) | Change::KeyBindingPreferences(_) | Change::NoteColorPreferences(_) | Change::AudioPreferences(_)
         | Change::ProfileCreation { .. }
         | Change::ProfileDeletion { .. }
         | Change::PlayerCount { .. }

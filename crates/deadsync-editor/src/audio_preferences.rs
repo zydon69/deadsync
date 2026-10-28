@@ -84,6 +84,8 @@ fn read_bytes(path: &Path) -> Result<Option<Vec<u8>>, Error> {
 }
 #[derive(Clone, PartialEq)]
 struct Settings {
+    advanced_save: crate::advanced_export::Options,
+    key_bindings:std::sync::Arc<crate::key_binding_preferences::Preferences>,
     note_colors: std::sync::Arc<crate::note_color_preferences::Preferences>,
     receptors: crate::receptor_preferences::Preferences,
     snap: crate::snap::Preferences,
@@ -214,12 +216,15 @@ impl File {
             }
         };
         let options_fields = colors_group("Options")?;
-        let note_colors = std::sync::Arc::new(crate::note_color_preferences::Preferences::read(
+        let key_bindings=std::sync::Arc::new(crate::key_binding_preferences::Preferences::read(&colors_group("KeyBinds")?)?);
+        let note_colors= std::sync::Arc::new(crate::note_color_preferences::Preferences::read(
             &colors_group("NoteColor")?,
             &options_fields,
         )?);
         let settings = Settings {
+            advanced_save: crate::advanced_export::Options::read(&root)?,
             note_colors,
+            key_bindings,
             receptors: crate::receptor_preferences::Preferences::read(&receptor_fields)?,
             snap: if root.contains_key("SnapIndex") || root.contains_key("SnapLockIndex") {
                 crate::snap::Preferences::read(&root)
@@ -320,6 +325,8 @@ impl File {
             ))),
         }
     }
+    pub fn advanced_save(&self) -> crate::advanced_export::Options { self.settings.advanced_save }
+    pub fn set_advanced_save(&mut self, options: crate::advanced_export::Options) { self.settings.advanced_save = options; }
     pub fn snap(&self) -> crate::snap::Preferences {
         self.settings.snap
     }
@@ -339,6 +346,8 @@ impl File {
     pub fn opening(&self) -> Result<crate::open_preferences::Preferences, Error> {
         crate::open_preferences::Preferences::read(&self.group_fields("Options")?)
     }
+    pub fn key_bindings(&self)->std::sync::Arc<crate::key_binding_preferences::Preferences>{std::sync::Arc::clone(&self.settings.key_bindings)}
+    pub fn set_key_bindings(&mut self,p:std::sync::Arc<crate::key_binding_preferences::Preferences>)->Result<(),Error>{p.validate()?;self.settings.key_bindings=p;Ok(())}
     pub fn note_colors(&self) -> Result<crate::note_color_preferences::Preferences, Error> {
         Ok(self.settings.note_colors.as_ref().clone())
     }
@@ -411,6 +420,10 @@ impl File {
             .minimap_content
             .write(&mut minimap_fields, &mut options_fields)?;
         let mut root = self.root.clone();
+        if self.settings.advanced_save != self.written.advanced_save { self.settings.advanced_save.write(&mut root); }
+        let mut key_fields=self.group_fields("KeyBinds")?;
+        self.settings.key_bindings.write(&mut key_fields)?;
+        root.insert("KeyBinds".into(),Value::Object(key_fields));
         let mut note_fields = self.group_fields("NoteColor")?;
         self.settings
             .note_colors
