@@ -91,6 +91,14 @@ impl State {
         self.open_attacks(scope);
     }
     pub(super) fn timing_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::F7 {
+            if self.timing.as_ref().is_some_and(|settings| settings.pending || settings.draft.has_changes()) {
+                self.status = i18n::tr("Edition", "TimingConversionPending");
+            } else {
+                self.open_timing_conversion();
+            }
+            return;
+        }
         if code == KeyCode::F6 {
             self.timing_attacks();
             return;

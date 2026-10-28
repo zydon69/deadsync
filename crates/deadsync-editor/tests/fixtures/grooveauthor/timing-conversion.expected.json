@@ -1,0 +1,2679 @@
+{
+  "Cases": [
+    {
+      "Name": "warp-none",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        }
+      ],
+      "SelectedAfter": [],
+      "SelectedRedone": []
+    },
+    {
+      "Name": "warp-simple",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 4
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": -1,
+          "Time": 4
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 4
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": -1,
+          "Time": 4
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": -1,
+          "Time": 4
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": -1,
+          "Time": 4
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": -1,
+          "Time": 4
+        }
+      ]
+    },
+    {
+      "Name": "warp-stop-collision-deletes-original",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": 4,
+          "Time": 4
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 8
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": 4,
+          "Time": 4
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": 4,
+          "Time": 4
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 8
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": 4,
+          "Time": 4
+        }
+      ],
+      "SelectedAfter": [],
+      "SelectedRedone": []
+    },
+    {
+      "Name": "warp-overlap",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 96,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 96,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -1,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 96,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 96,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -1,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -1,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -1,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -1,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "warp-tempo-inside",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Time": 1
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Value": 120,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Value": 120,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Time": 1
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Value": 120,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Value": 120,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "warp-delay-48",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Delay",
+          "Row": 48,
+          "Value": 0.25,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1.25
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Delay",
+          "Row": 48,
+          "Value": 0.25,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1.25
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Delay",
+          "Row": 48,
+          "Value": 0.25,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1.25
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Delay",
+          "Row": 48,
+          "Value": 0.25,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1.25
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1.25
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1.25
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1.25
+        }
+      ]
+    },
+    {
+      "Name": "warp-delay-72",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 72,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1.25,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 72,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 72,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1.25,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 72,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1.25,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1.25,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1.25,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "warp-delay-96",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 96,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 96,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 96,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 96,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "warp-selected-inside-unselected",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 48,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": 0,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 48,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": 0,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": 0,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": 0,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": 0,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "warp-selected-reversed",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 96,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 96,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -3,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 96,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 96,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -3,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -3,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -3,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -3,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "stop-none",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        }
+      ],
+      "SelectedAfter": [],
+      "SelectedRedone": []
+    },
+    {
+      "Name": "stop-positive-unchanged",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": 1,
+          "Time": 4
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": 1,
+          "Time": 4
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": 1,
+          "Time": 4
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": 1,
+          "Time": 4
+        }
+      ],
+      "SelectedAfter": [],
+      "SelectedRedone": []
+    },
+    {
+      "Name": "stop-simple",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": -1,
+          "Time": 4
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 4
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": -1,
+          "Time": 4
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 4
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 4
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 4
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 4
+        }
+      ]
+    },
+    {
+      "Name": "stop-warp-collision-deletes-original",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": -1,
+          "Time": 4
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 4
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 4
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": -1,
+          "Time": 4
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 4
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Time": 4
+        }
+      ],
+      "SelectedAfter": [],
+      "SelectedRedone": []
+    },
+    {
+      "Name": "stop-overlap",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -1,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 96,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 96,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -1,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 96,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 96,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 96,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 96,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 96,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 96,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 96,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 96,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "stop-tempo-inside",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Value": 120,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Time": 1
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Value": 120,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Value": 120,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Time": 1
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Value": 120,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "stop-delay-48",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Delay",
+          "Row": 48,
+          "Value": 0.25,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1.25
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Delay",
+          "Row": 48,
+          "Value": 0.25,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1.25
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Delay",
+          "Row": 48,
+          "Value": 0.25,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1.25
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Delay",
+          "Row": 48,
+          "Value": 0.25,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1.25
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1.25
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1.25
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1.25
+        }
+      ]
+    },
+    {
+      "Name": "stop-delay-72",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 72,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 36,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 72,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 72,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 36,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 72,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 36,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 36,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 36,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "stop-delay-96",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 96,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 96,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 96,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1
+        },
+        {
+          "Kind": "Delay",
+          "Row": 96,
+          "Value": 0.25,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "stop-tiny-clamps-one",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -0.0001,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 1,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -0.0001,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 1,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 1,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 1,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 1,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "stop-half-row-even",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -0.010416666666666666,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 1,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -0.010416666666666666,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 1,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 1,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 1,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 1,
+          "Time": 1
+        }
+      ]
+    },
+    {
+      "Name": "stop-one-half-even",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 49,
+          "Value": -0.03125,
+          "Time": 1.0208333333333333
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 49,
+          "Value": 1,
+          "Time": 1.0208333333333333
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 49,
+          "Value": -0.03125,
+          "Time": 1.0208333333333333
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 49,
+          "Value": 1,
+          "Time": 1.0208333333333333
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Warp",
+          "Row": 49,
+          "Value": 1,
+          "Time": 1.0208333333333333
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Warp",
+          "Row": 49,
+          "Value": 1,
+          "Time": 1.0208333333333333
+        },
+        {
+          "Kind": "Warp",
+          "Row": 49,
+          "Value": 1,
+          "Time": 1.0208333333333333
+        }
+      ]
+    },
+    {
+      "Name": "stop-selected-reversed",
+      "Before": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -1,
+          "Time": 1
+        }
+      ],
+      "After": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 97,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 1,
+          "Time": 1
+        }
+      ],
+      "Undone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Time": 1
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -1,
+          "Time": 1
+        }
+      ],
+      "Redone": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Time": 0
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Time": 0
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 97,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 1,
+          "Time": 1
+        }
+      ],
+      "SelectedAfter": [
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 1,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 97,
+          "Time": 1
+        }
+      ],
+      "SelectedRedone": [
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 1,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 97,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 1,
+          "Time": 1
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 97,
+          "Time": 1
+        }
+      ]
+    }
+  ]
+}

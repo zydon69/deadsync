@@ -39,6 +39,7 @@ pub mod generation;
 pub mod history;
 pub mod music_file;
 pub mod notes;
+pub mod note_swap;
 pub mod note_attributes;
 pub mod stepf2;
 mod number;

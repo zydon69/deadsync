@@ -234,3 +234,105 @@ fn paged_help_uses_configured_binding_in_both_languages() {
         );
     }
 }
+
+#[test]
+fn second_increment_remapped_snap_and_end_do_not_keep_old_dispatch_routes() {
+    let _g = SERIAL.lock().unwrap();
+    for locale in ["en", "fr"] {
+        let mut prefs = Preferences::default();
+        prefs
+            .commands
+            .insert("IncreaseSnap".into(), vec![vec!["F13".into()]]);
+        prefs
+            .commands
+            .insert("MoveToChartEnd".into(), vec![vec!["F14".into()]]);
+        let (_d, mut s, _, _) = open(locale, prefs);
+        let snap = s.workspace().snap();
+        press(&mut s, KeyCode::ArrowRight);
+        assert_eq!(s.workspace().snap(), snap);
+        press(&mut s, KeyCode::F13);
+        assert_ne!(s.workspace().snap(), snap);
+        press(&mut s, KeyCode::PageDown);
+        let last_row = s.workspace().row();
+        assert!(last_row > 0);
+        press(&mut s, KeyCode::Digit1);
+        press(&mut s, KeyCode::Home);
+        press(&mut s, KeyCode::End);
+        assert_eq!(s.workspace().row(), 0);
+        press(&mut s, KeyCode::F14);
+        assert_eq!(s.workspace().row(), last_row);
+    }
+}
+
+#[test]
+fn second_increment_rate_remapping_keeps_playback_settings_semantic() {
+    let _g = SERIAL.lock().unwrap();
+    for locale in ["en", "fr"] {
+        let mut prefs = Preferences::default();
+        prefs
+            .commands
+            .insert("IncreaseMusicRate".into(), vec![vec!["F15".into()]]);
+        let (_d, mut s, _, _) = open(locale, prefs);
+        let baseline = s.audio_preferences().music_rate();
+        key(&mut s, KeyCode::ShiftLeft, true);
+        press(&mut s, KeyCode::ArrowRight);
+        key(&mut s, KeyCode::ShiftLeft, false);
+        assert_eq!(s.audio_preferences().music_rate(), baseline);
+        press(&mut s, KeyCode::F15);
+        assert!(s.audio_preferences().music_rate() > baseline);
+        let changed = s.audio_preferences().music_rate();
+        key(&mut s, KeyCode::ControlLeft, true);
+        key(&mut s, KeyCode::ShiftRight, true);
+        press(&mut s, KeyCode::ArrowRight);
+        key(&mut s, KeyCode::ShiftRight, false);
+        key(&mut s, KeyCode::ControlLeft, false);
+        assert_eq!(s.audio_preferences().music_rate(), changed);
+    }
+}
+
+#[test]
+fn third_increment_remapped_menu_and_save_as_open_existing_panels_only_once() {
+    use deadlib_present::actors::Actor;
+    fn all_texts(actor: &Actor, out: &mut Vec<String>) {
+        match actor {
+            Actor::Text { content, .. } => out.push(content.as_str().to_owned()),
+            Actor::Frame { children, .. } => {
+                children.iter().for_each(|child| all_texts(child, out))
+            }
+            _ => {}
+        }
+    }
+    fn visible(s: &mut State) -> Vec<String> {
+        let mut actors = Vec::new();
+        s.actors(&mut actors);
+        let mut out = Vec::new();
+        for actor in actors {
+            all_texts(&actor, &mut out);
+        }
+        out
+    }
+    let _g = SERIAL.lock().unwrap();
+    for locale in ["en", "fr"] {
+        let mut prefs = Preferences::default();
+        prefs
+            .commands
+            .insert("OpenEditorMenu".into(), vec![vec!["F13".into()]]);
+        prefs
+            .commands
+            .insert("SaveAs".into(), vec![vec!["F14".into()]]);
+        let (_d, mut s, _, _) = open(locale, prefs);
+        let baseline = visible(&mut s);
+        press(&mut s, KeyCode::F1);
+        assert_eq!(visible(&mut s), baseline);
+        press(&mut s, KeyCode::F13);
+        assert_ne!(visible(&mut s), baseline);
+        press(&mut s, KeyCode::Escape);
+        press(&mut s, KeyCode::F14);
+        let texts = visible(&mut s);
+        let expected = i18n::tr("Edition", "SaveAsDestinationHelp").to_string();
+        assert!(texts.iter().any(|s| s == &expected), "{texts:?}");
+        // Modal entry quarantines the opener and never creates a second panel.
+        event(&mut s, KeyCode::F14, true, true, Instant::now());
+        assert_eq!(visible(&mut s), texts);
+    }
+}

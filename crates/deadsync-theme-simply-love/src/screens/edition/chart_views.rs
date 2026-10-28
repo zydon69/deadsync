@@ -5,6 +5,12 @@ use crate::{act, i18n};
 use deadlib_platform::input::KeyCode;
 use deadlib_present::{actors::Actor, space::screen_width};
 use deadsync_editor::{Error, chart_views::ActiveChartViews, generation::metadata::Guid};
+enum ViewAction {
+    Pin,
+    Close,
+    Focus(bool),
+    Move(bool),
+}
 impl State {
     pub fn open_chart_views(&self) -> Option<&ActiveChartViews> {
         self.active_views.as_ref()
@@ -30,42 +36,51 @@ impl State {
         }
         let pin = self.shift && code == KeyCode::KeyB;
         let close = code == KeyCode::KeyW;
-        let cycle = matches!(code, KeyCode::PageUp | KeyCode::PageDown);
         let move_view = self.shift && matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
-        if !(pin || close || cycle || move_view) {
+        if !(pin || close || move_view) {
             return false;
         }
+        self.chart_views_apply(if pin {
+            ViewAction::Pin
+        } else if close {
+            ViewAction::Close
+        } else {
+            ViewAction::Move(code == KeyCode::ArrowRight)
+        });
+        true
+    }
+    pub(super) fn chart_views_focus(&mut self, previous: bool) {
+        self.chart_views_apply(ViewAction::Focus(previous));
+    }
+    fn chart_views_apply(&mut self, action: ViewAction) {
         self.stop_audio();
         self.refresh_chart_views();
         let Some(mut next) = self.active_views.clone() else {
-            return true;
+            return;
         };
         let Some(focused) = next.focused() else {
-            return true;
+            return;
         };
         let id: Guid = focused.identity().clone();
         let chart = focused.source_index();
         let dedicated = focused.dedicated();
         let session = &self.workspace.file().session;
-        let result = if pin {
-            next.set_dedicated(session, chart, !dedicated)
-        } else if close {
-            next.close(session, &id)
-        } else if cycle {
-            next.cycle_focus(session, code == KeyCode::PageUp)
-        } else {
-            next.move_view(session, &id, code == KeyCode::ArrowRight)
+        let result = match action {
+            ViewAction::Pin => next.set_dedicated(session, chart, !dedicated),
+            ViewAction::Close => next.close(session, &id),
+            ViewAction::Focus(previous) => next.cycle_focus(session, previous),
+            ViewAction::Move(right) => next.move_view(session, &id, right),
         };
         if result.is_err() {
             self.status = i18n::tr("Edition", "ChartOrderFailed");
-            return true;
+            return;
         }
         if let Some(focused) = next.focused() {
             let target = focused.source_index();
             if self.workspace.active_chart() != Some(target)
                 && !self.focus_chart_at_time(target, next.music_time())
             {
-                return true;
+                return;
             }
         } else {
             self.workspace.clear_active_chart();
@@ -74,7 +89,6 @@ impl State {
         self.active_views = Some(next);
         self.refresh();
         self.status = i18n::tr("Edition", "ChartViewsHelp");
-        true
     }
     pub(super) fn chart_views_actors(&self, actors: &mut Vec<Actor>) {
         let Some(views) = self.active_views.as_ref() else {

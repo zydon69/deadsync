@@ -1,0 +1,29 @@
+// Storage and note-event host only. Original action, menu conversion lambdas and
+// EventConfig factory bodies are inserted unchanged. Timing callbacks are inert.
+using System.Text.Json;
+using Fumen;
+using Fumen.ChartDefinition;
+using Fumen.Converters;
+using static Fumen.Converters.SMCommon;
+namespace StepManiaEditor;
+abstract class UndoableAction(bool a,bool b){public abstract bool AffectsFile();protected abstract void DoImplementation();protected abstract void UndoImplementation();public void Do()=>DoImplementation();public void Undo()=>UndoImplementation();}
+class Editor{public object[] Selected=[];public void OnNoteTransformationBegin(){}public void OnNoteTransformationEnd(List<EditorEvent> events){Selected=events.Select(e=>e.Project()).ToArray();}}
+class ActionQueue{public static ActionQueue Instance=new();public UndoableAction Last;public void Do(UndoableAction action){Last=action;action.Do();}}
+class Menu(Editor editor){readonly Editor Editor=editor;
+// ORIGINAL_SWAPS
+public void Invoke(string name,EditorChart chart,IEnumerable<EditorEvent> events){GetType().GetMethod(name,System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(this,[chart,events]);}}
+class EventConfig{public enum SpecialType{None}public readonly EditorChart EditorChart;public readonly Event ChartEvent;public readonly Event AdditionalChartEvent;
+public EventConfig(EditorChart chart,Event value,bool a=false,double b=0,double c=0,SpecialType d=SpecialType.None,bool e=false,bool f=false,Event extra=null,int g=0,int h=4,bool i=false){EditorChart=chart;ChartEvent=value;AdditionalChartEvent=extra;}
+// ORIGINAL_FACTORIES
+}
+class EditorEvent{public Event Value;protected Event Tail;protected EditorChart Chart;public EditorEvent(Event value,EditorChart chart,Event tail=null){Value=value;Chart=chart;Tail=tail;}public int GetRow()=>Value.IntegerPosition;public int GetLane()=>Value is LaneNote n?n.Lane:-1;public int GetPlayer()=>Value is LaneNote n?n.Player:0;public int GetEndRow()=>Tail?.IntegerPosition??GetRow();public int GetRowDuration()=>GetEndRow()-GetRow();public EditorChart GetEditorChart()=>Chart;public double GetChartTime()=>0;public int GetRowRelativeToMeasureStart()=>GetRow()%192;public int GetTimeSignatureDenominator()=>4;public bool IsFakeDueToRow()=>false;
+public virtual string Kind=>"Tempo";public object Project()=>new{Kind,Row=GetRow(),Lane=GetLane(),Player=GetPlayer(),End=Tail?.IntegerPosition};public IEnumerable<Event> Events(){yield return Value;if(Tail!=null)yield return Tail;}
+public static EditorEvent CreateEvent(EventConfig c){c.ChartEvent.DestType=c.ChartEvent.SourceType;if(c.AdditionalChartEvent!=null)c.AdditionalChartEvent.DestType=c.AdditionalChartEvent.SourceType;return c.AdditionalChartEvent!=null?new EditorHoldNoteEvent(c.ChartEvent,c.EditorChart,c.AdditionalChartEvent):c.ChartEvent.SourceType switch{"M"=>new EditorMineNoteEvent(c.ChartEvent,c.EditorChart),"F"=>new EditorFakeNoteEvent(c.ChartEvent,c.EditorChart),"L"=>new EditorLiftNoteEvent(c.ChartEvent,c.EditorChart),_=>new EditorTapNoteEvent(c.ChartEvent,c.EditorChart)};}
+public static EditorEvent Read(JsonElement v,EditorChart chart){var kind=v.GetProperty("Kind").GetString();var row=v.GetProperty("Row").GetInt32();var lane=v.TryGetProperty("Lane",out var l)?l.GetInt32():0;var player=v.TryGetProperty("Player",out var p)?p.GetInt32():0;if(kind=="Tempo")return new EditorEvent(new Tempo(120){IntegerPosition=row},chart);if(kind is "Hold"or"Roll")return CreateEvent(EventConfig.CreateHoldConfig(chart,row,lane,player,v.GetProperty("End").GetInt32()-row,kind=="Roll"));Event value=kind=="Mine"?new LaneNote():new LaneTapNote();value.IntegerPosition=row;value.SourceType=kind switch{"Tap"=>"1","Mine"=>"M","Fake"=>"F","Lift"=>"L",_=>throw new Exception()};((LaneNote)value).Lane=lane;((LaneNote)value).Player=player;return CreateEvent(new EventConfig(chart,value));}}
+class EditorTapNoteEvent(Event value,EditorChart chart):EditorEvent(value,chart){public override string Kind=>"Tap";}
+class EditorMineNoteEvent(Event value,EditorChart chart):EditorEvent(value,chart){public override string Kind=>"Mine";}
+class EditorFakeNoteEvent(Event value,EditorChart chart):EditorEvent(value,chart){public override string Kind=>"Fake";}
+class EditorLiftNoteEvent(Event value,EditorChart chart):EditorEvent(value,chart){public override string Kind=>"Lift";}
+class EditorHoldNoteEvent(Event value,EditorChart chart,Event tail):EditorEvent(value,chart,tail){public bool IsRoll()=>Value.SourceType=="4";public override string Kind=>IsRoll()?"Roll":"Hold";}
+class EditorChart{public readonly List<EditorEvent> Values=[];public void AddEvents(List<EditorEvent> values)=>Values.AddRange(values);public void DeleteEvents(List<EditorEvent> values){foreach(var value in values)Values.Remove(value);}public object[] Project()=>Values.OrderBy(e=>e.GetRow()).ThenBy(e=>e.GetLane()).ThenBy(e=>e.GetPlayer()).Select(e=>e.Project()).ToArray();
+public Song Song(){var song=new Song{SourceType=FileFormatType.SSC,Extras=new Extras(),Title="Swap"};var chart=new Chart{Type="dance-routine",NumInputs=8,NumPlayers=2,DifficultyType="Hard",DifficultyRating=9,Extras=new Extras()};chart.Layers.Add(new Layer{Events=Values.SelectMany(e=>e.Events()).OrderBy(e=>e,new SMEventComparer(StepManiaLibrary.EventOrder.Order)).ToList()});song.Charts.Add(chart);return song;}}

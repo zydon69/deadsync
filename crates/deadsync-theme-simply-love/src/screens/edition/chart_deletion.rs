@@ -64,27 +64,10 @@ impl State {
         )
     }
     pub(super) fn no_chart_key(&mut self, code: KeyCode) -> bool {
-        if self.control {
-            let command = match code {
-                KeyCode::KeyN => {
-                    self.open_new_chart();
-                    return false;
-                }
-                KeyCode::KeyS if self.shift => Some(Command::SaveRecovery),
-                KeyCode::KeyR => Some(Command::Recover),
-                _ => None,
-            };
-            if let Some(command) = command {
-                self.command(command);
-            }
-        } else {
-            match code {
-                KeyCode::F1 => self.panel = Some(Panel::EmptyMenu(0)),
-                KeyCode::F11 => self.open_song_properties(),
-                KeyCode::Escape | KeyCode::F2 => return self.request_close(),
-                _ => self.status = i18n::tr("Edition", "NoChartHelp"),
-            }
+        if !self.control && matches!(code,KeyCode::Escape | KeyCode::F2) {
+            return self.request_close();
         }
+        self.status = i18n::tr("Edition", "NoChartHelp");
         false
     }
     pub(super) fn empty_menu_key(&mut self, index: usize, code: KeyCode) -> bool {

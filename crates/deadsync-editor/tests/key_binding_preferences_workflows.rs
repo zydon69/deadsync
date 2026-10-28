@@ -1,11 +1,11 @@
-use deadsync_editor::{key_commands,key_binding_preferences};
+use deadsync_editor::{key_binding_preferences, key_commands};
 use key_binding_preferences::{Action, Preferences};
 use key_commands::{Effect, Key, Registry};
 #[test]
 fn native_defaults_keep_playback_selection_and_player_shortcuts() {
     let p = Preferences::default();
     p.validate().unwrap();
-    assert_eq!(Action::ALL.len(), 13);
+    assert_eq!(Action::ALL.len(), 47);
     assert_eq!(
         p.commands["PlayPause"],
         vec![vec!["Enter"], vec!["NumPadEnter"]]
@@ -118,15 +118,7 @@ fn reservations_follow_native_modifier_predicates_and_protect_unmigrated_callbac
             .map(|name| (*name).to_owned())
             .collect::<Vec<_>>()
     };
-    for names in [
-        vec!["F12"],
-        vec!["Ctrl", "F12"],
-        vec!["Ctrl", "N"],
-        vec!["Ctrl", "LeftShift", "S"],
-        vec!["LeftShift", "S"],
-        vec!["Escape"],
-        vec!["Ctrl", "LeftShift", "K"],
-    ] {
+    for names in [vec!["LeftShift", "S"], vec!["Escape"]] {
         assert!(reservations::conflicts(&chord(&names)), "{names:?}");
     }
     for names in [
@@ -139,6 +131,82 @@ fn reservations_follow_native_modifier_predicates_and_protect_unmigrated_callbac
     ] {
         assert!(!reservations::conflicts(&chord(&names)), "{names:?}");
     }
-    assert!(reservations::conflicts(&chord(&["LeftAlt", "N"])));
+    assert!(reservations::conflicts(&chord(&["LeftAlt", "M"])));
     assert!(!reservations::simple_chord(&chord(&["A", "F13"])));
+}
+
+#[test]
+fn second_increment_retains_native_chords_and_source_repeat_policies() {
+    let preferences = Preferences::default();
+    preferences.validate().unwrap();
+    let mut ambiguous = preferences.clone();
+    ambiguous.commands.insert(
+        "Save".into(),
+        vec![vec!["LeftAlt".into(), "LeftShift".into(), "W".into()]],
+    );
+    // Ctrl+W must still exclusively close a tab even with extra held modifiers.
+    assert!(ambiguous.validate().is_err());
+    for (id, keys) in [
+        ("DecreaseSnap", vec!["Left"]),
+        ("IncreaseSnap", vec!["Right"]),
+        ("MoveToChartEnd", vec!["End"]),
+        ("MoveToPreviousLabel", vec!["Ctrl", "LeftShift", "L"]),
+        ("FocusNextChart", vec!["Ctrl", "PageDown"]),
+        ("OpenPreviousChart", vec!["Ctrl", "LeftShift", "Tab"]),
+        ("ToggleWaveForm", vec!["W"]),
+        ("OpenWaveformSettings", vec!["LeftShift", "W"]),
+        ("IncreaseMusicRate", vec!["LeftShift", "Right"]),
+    ] {
+        assert_eq!(preferences.commands[id], vec![keys]);
+    }
+    for id in [
+        "DecreaseSnap",
+        "IncreaseSnap",
+        "MoveToPreviousLabel",
+        "MoveToNextLabel",
+        "FocusPreviousChart",
+        "FocusNextChart",
+        "DecreaseMusicRate",
+        "IncreaseMusicRate",
+    ] {
+        assert!(Action::from_id(id).unwrap().repeats());
+    }
+    for id in [
+        "OpenPreviousChart",
+        "OpenNextChart",
+        "MoveToChartEnd",
+        "ToggleWaveForm",
+        "OpenWaveformSettings",
+    ] {
+        assert!(!Action::from_id(id).unwrap().repeats());
+    }
+    let mut registry = Registry::new(preferences.bindings());
+    registry.update(0., vec![Key::named("Ctrl"), Key::named("LeftShift")]);
+    assert_eq!(
+        registry.update(
+            0.1,
+            vec![Key::named("Ctrl"), Key::named("LeftShift"), Key::named("L")]
+        ),
+        vec![Effect::Press("MoveToPreviousLabel".into())]
+    );
+}
+
+#[test]
+fn third_increment_names_file_and_chart_operations_without_aliasing_new_or_reload() {
+    let preferences = Preferences::default();
+    preferences.validate().unwrap();
+    assert_eq!(preferences.commands["SaveAs"], vec![vec!["Ctrl", "F12"]]);
+    assert_eq!(
+        preferences.commands["CreateEmptyChart"],
+        vec![vec!["Ctrl", "N"]]
+    );
+    assert_eq!(
+        preferences.commands["RecoverDraft"],
+        vec![vec!["Ctrl", "R"]]
+    );
+    assert!(Action::from_id("New").is_none());
+    assert!(Action::from_id("Reload").is_none());
+    for action in Action::ALL {
+        assert_eq!(Action::from_id(action.id()), Some(action));
+    }
 }

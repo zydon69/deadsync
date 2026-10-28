@@ -1,0 +1,19 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sdk": "10.0.403",
+  "scope": "Two complete unchanged original actions and original RefreshEventTimingData/RefreshRateAlteringEvents plus row/time mapping bodies reused from the existing original timing oracle. Explicit storage/tree-search/factory and inert-render adapters; unchanged original Warp constructor body enforces minimum-one clamp (host signature/render/assert adapted). No full GUI, original writer or file format roundtrip executed.",
+  "timing_methods_sha256": "3a2f82ae9e0cd5e1ee25323db5700092dfe899e926e59870d003c4aa57b726d3",
+  "original_actions_sha256": {
+    "ActionChangeWarpsToNegativeStops": "3ced8e8e4e0c71b5d57b28a719124f3c46adaa87853da4ba510ad1af1cb22aa2",
+    "ActionChangeNegativeStopsToWarps": "9b1512a5982efa84bc48eb3b53c8fc0687802b9dd327b112cc0ec886d47aec34"
+  },
+  "original_chart_sha256": "b363bce0c00072e72a5e75dd5f80aa0de30fde10e3a83e806310e305f6d3f2eb",
+  "original_warp_sha256": "e3b29a237769fd2a3abdc427aa8d28985aa69901da36644147563ee56d21bd96",
+  "adapter_sha256": "886046063c9f25bd56f6d681cc1294f5dd70dba836c9f53f6544ea3cfa488179",
+  "program_sha256": "8ae4d102b00042582a3f163be827125cabab0ed9922b7de29d6e8ba22e42a97f",
+  "assembly_sha256": "f06c5db60966bc42e23334c3814f5618e9e3c19e0aad47754885bed2214d6733",
+  "request_sha256": "4179f38291615944d9ff24e5c8310cd5b21c0637e0562808d7db5b49e16d04fe",
+  "expected_sha256": "be31261c71bff498d6a03645cfd5aa942341de8966dc6a4fcbc90433f7bf320c"
+}

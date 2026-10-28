@@ -40,48 +40,37 @@ pub fn legacy() -> Vec<Reservation> {
             forbid_shift,
         })
     };
-    for name in [
-        "Escape", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
-    ] {
+    for name in ["Escape", "F2"] {
         add(&[name], false, false);
     }
-    for name in ["Tab", "End", "A", "Up", "Down"] {
+    for name in ["Tab", "A", "Up", "Down"] {
         add(&[name], true, false);
     }
     for name in ["Left", "Right"] {
-        add(&[name], true, true);
-        add(&["LeftShift", name], true, false);
         add(&["Ctrl", "LeftShift", name], false, false);
     }
     for name in [
-        "Tab",
         "P",
         "W",
-        "B",
         "T",
         "M",
         "J",
-        "N",
-        "R",
-        "D",
-        "L",
         "Up",
         "Down",
         "D0",
-        "PageUp",
-        "PageDown",
         "Enter",
         "NumPadEnter",
     ] {
         add(&["Ctrl", name], false, false);
     }
-    for name in ["Y", "E", "U", "H", "K", "S", "C", "X", "V", "Back"] {
+    for name in ["Y", "E", "C", "X", "V"] {
         add(&["Ctrl", "LeftShift", name], false, false);
     }
     for name in ["S", "Z", "V"] {
         add(&["LeftShift", name], true, false);
     }
-    add(&["W"], true, false);
+    add(&["Ctrl", "LeftShift", "W"], false, false);
+    add(&["Ctrl", "LeftShift", "B"], false, false);
     drop(add);
     for digit in 0..=9 {
         result.push(Reservation {
@@ -109,6 +98,17 @@ pub fn conflicts(keys: &[String]) -> bool {
             continue;
         }
         let required = set(&reserved.keys);
+        // Waveform settings (Shift+W) is now executable. Ctrl+W still owns
+        // closing tabs; its explicit Ctrl+Shift+W blocker suppresses both
+        // migrated waveform commands before that legacy callback runs.
+        if final_key == "W"
+            && candidate.len() == 2
+            && !candidate.contains("Ctrl")
+            && candidate.contains("LeftShift")
+            && required.contains("Ctrl")
+        {
+            continue;
+        }
         if candidate.len() < required.len() && candidate.is_subset(&required) {
             continue;
         }

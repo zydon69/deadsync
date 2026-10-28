@@ -163,6 +163,36 @@ impl Workspace {
         self.sync_active_chart()?;
         Ok(changed)
     }
+    /// Simultaneously swaps both kinds over the selected heads, for all players.
+    pub fn swap_note_types(&mut self, pair: crate::note_swap::Pair) -> Result<bool, Error> {
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No active chart".into()))?;
+        let (start, end) = self.selection().unwrap_or((self.row, self.row));
+        let selected = self.file.session.grid(chart)?.iter()
+            .filter(|(position, _)| position.row >= start && position.row <= end)
+            .map(|(position, _)| position).collect();
+        crate::note_swap::apply(&mut self.file.session, chart, &selected, pair)
+    }
+    /// Prepares against the effective clock; None selection means all events.
+    pub fn prepare_timing_conversion(&self, direction: crate::timing_edit::conversion::Direction, all: bool) -> Result<crate::timing_edit::conversion::Plan, Error> {
+        use crate::generation::timing::{GenerationTiming, EventKind};
+        use crate::timing_edit::conversion::{Direction, Plan};
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No active chart".into()))?;
+        let timing = GenerationTiming::from_document(self.file.session.document(), chart)?;
+        let (start, end) = self.selection().unwrap_or((self.row, self.row));
+        let selected: Vec<_> = timing.editor_events().iter().filter(|event| {
+            event.row >= 0 && (start..=end).contains(&(event.row as u64)) && match direction {
+                Direction::WarpsToNegativeStops => matches!(event.kind, EventKind::Warp(_)),
+                Direction::NegativeStopsToWarps => matches!(event.kind, EventKind::Stop(value) if value < 0.0),
+            }
+        }).map(|event| event.row as u64).collect();
+        Plan::prepare(&self.file.session, chart, direction, if all { None } else { Some(&selected) })
+    }
+    pub fn apply_timing_conversion(&mut self, plan: &crate::timing_edit::conversion::Plan, acknowledged: &std::collections::BTreeSet<u64>) -> Result<bool, Error> {
+        if self.active_chart() != Some(plan.chart()) { return Err(Error::InvalidEdit("Timing conversion belongs to another active chart".into())); }
+        let changed = plan.apply(&mut self.file.session, acknowledged)?;
+        self.sync_active_chart()?;
+        Ok(changed)
+    }
     pub fn event_selection(&mut self) -> Result<crate::event_clipboard::Selection, Error> {
         let (start, end) = self.selection().unwrap_or((self.row, self.row));
         self.event_selection_between(start, end)

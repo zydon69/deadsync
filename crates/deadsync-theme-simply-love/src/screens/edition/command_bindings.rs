@@ -39,6 +39,9 @@ fn native_registry(preferences: &Preferences) -> Registry {
     // an explicit custom assignment can take one of these formerly unused chords.
     for chord in [
         vec!["Ctrl", "Home"],
+        vec!["Ctrl", "End"],
+        vec!["Ctrl", "Left"],
+        vec!["Ctrl", "Right"],
         vec!["Ctrl", "Delete"],
         vec!["Ctrl", "Back"],
         vec!["Ctrl", "Space"],
@@ -212,7 +215,26 @@ impl State {
                 break;
             }
             if !self.workspace.has_chart()
-                && !matches!(action, Action::Save | Action::Undo | Action::Redo)
+                && !matches!(
+                    action,
+                    Action::Save
+                        | Action::Undo
+                        | Action::Redo
+                        | Action::DecreaseRate
+                        | Action::IncreaseRate
+                        | Action::PreviousTab
+                        | Action::NextTab
+                        | Action::SaveAs
+                        | Action::OpenMenu
+                        | Action::OpenSongProperties
+                        | Action::NewChart
+                        | Action::SaveRecovery
+                        | Action::RecoverDraft
+                        | Action::OpenChartList
+                        | Action::OpenKeyBindings
+                        | Action::OpenReceptors
+                        | Action::OpenNoteColors
+                )
             {
                 self.status = crate::i18n::tr("Edition", "NoChartHelp");
                 continue;
@@ -232,6 +254,135 @@ impl State {
                     (self.workspace.player() + 1) % self.workspace.grid().players(),
                 ),
                 Action::ChartStart => Command::Seek(0),
+                Action::ChartEnd => Command::Seek(
+                    self.workspace
+                        .grid()
+                        .iter()
+                        .map(|(pos, note)| note.end.unwrap_or(pos.row))
+                        .max()
+                        .unwrap_or(0),
+                ),
+                Action::PreviousLabel => Command::PreviousLabel,
+                Action::NextLabel => Command::NextLabel,
+                Action::DecreaseSnap | Action::IncreaseSnap => {
+                    self.stop_audio();
+                    self.cycle_snap(action == Action::IncreaseSnap);
+                    continue;
+                }
+                Action::PreviousChart | Action::NextChart => {
+                    self.stop_audio();
+                    self.queue_chart_order(action == Action::PreviousChart);
+                    continue;
+                }
+                Action::PreviousTab | Action::NextTab => {
+                    self.chart_views_focus(action == Action::PreviousTab);
+                    continue;
+                }
+                Action::ToggleWaveform => {
+                    self.toggle_waveform();
+                    continue;
+                }
+                Action::WaveformSettings => {
+                    self.open_waveform_settings();
+                    continue;
+                }
+                Action::DecreaseRate | Action::IncreaseRate => {
+                    self.step_music_rate(action == Action::IncreaseRate);
+                    continue;
+                }
+                Action::SaveAs => {
+                    self.open_save_as();
+                    continue;
+                }
+                Action::OpenMenu => {
+                    self.stop_audio();
+                    self.panel = Some(if self.workspace.has_chart() {
+                        super::Panel::Menu(0)
+                    } else {
+                        super::Panel::EmptyMenu(0)
+                    });
+                    continue;
+                }
+                Action::OpenAnalysis => {
+                    self.stop_audio();
+                    self.open_analysis();
+                    continue;
+                }
+                Action::OpenSongProperties => {
+                    self.stop_audio();
+                    self.open_song_properties();
+                    continue;
+                }
+                Action::OpenTiming => {
+                    self.stop_audio();
+                    self.open_timing();
+                    continue;
+                }
+                Action::OpenPatternSet => {
+                    self.stop_audio();
+                    self.open_pattern_set();
+                    continue;
+                }
+                Action::OpenBatch => {
+                    self.stop_audio();
+                    self.open_batch();
+                    continue;
+                }
+                Action::OpenChartProperties => {
+                    self.stop_audio();
+                    self.open_chart_properties();
+                    continue;
+                }
+                Action::OpenMarker => {
+                    self.stop_audio();
+                    self.open_marker();
+                    continue;
+                }
+                Action::RegeneratePattern => {
+                    self.stop_audio();
+                    self.regenerate_saved_pattern();
+                    continue;
+                }
+                Action::OpenPattern => {
+                    self.stop_audio();
+                    self.open_pattern();
+                    continue;
+                }
+                Action::OpenGeneration => {
+                    self.stop_audio();
+                    self.panel = Some(super::Panel::Generation(0));
+                    self.status = crate::i18n::tr("Edition", "GenerationOptionsHelp");
+                    continue;
+                }
+                Action::NewChart => {
+                    self.stop_audio();
+                    self.open_new_chart();
+                    continue;
+                }
+                Action::DeleteChart => {
+                    self.stop_audio();
+                    self.open_chart_deletion();
+                    continue;
+                }
+                Action::OpenChartList => {
+                    self.open_chart_list();
+                    continue;
+                }
+                Action::OpenKeyBindings => {
+                    self.open_key_binding_settings();
+                    continue;
+                }
+                Action::OpenReceptors => {
+                    self.open_receptor_settings();
+                    continue;
+                }
+                Action::OpenNoteColors => {
+                    self.open_note_color_settings();
+                    continue;
+                }
+                Action::SaveRecovery => Command::SaveRecovery,
+                Action::RecoverDraft => Command::Recover,
+                Action::DuplicateChart => Command::DuplicateChart,
                 Action::PlayPause => {
                     self.receptor_views.reset();
                     self.toggle_audio();
@@ -313,12 +464,7 @@ mod tests {
     }
     #[test]
     fn legacy_siblings_preempt_subset_actions_without_dispatching_save_or_copy() {
-        for (key, action, _index) in [
-            ("S", "Save", 0),
-            ("C", "Copy", 1),
-            ("X", "Cut", 2),
-            ("V", "Paste", 3),
-        ] {
+        for (key, action, _index) in [("C", "Copy", 1), ("X", "Cut", 2), ("V", "Paste", 3)] {
             let mut registry = native_registry(&Preferences::default());
             registry.update(0., keys(&["Ctrl", "LeftShift"]));
             let effects = registry.update(0.1, keys(&["Ctrl", "LeftShift", key]));
@@ -334,6 +480,87 @@ mod tests {
             registry.update(0.2, keys(&[key]));
             assert!(!registry.is_active(action));
         }
+    }
+    #[test]
+    fn second_increment_longer_native_siblings_suppress_only_migrated_subsets() {
+        for (held, final_key, active) in [
+            (vec!["LeftShift"], "W", "OpenWaveformSettings"),
+            (vec!["LeftShift"], "Right", "IncreaseMusicRate"),
+            (vec!["Ctrl", "LeftShift"], "L", "MoveToPreviousLabel"),
+            (vec!["Ctrl", "LeftShift"], "Tab", "OpenPreviousChart"),
+            (vec!["Ctrl"], "PageDown", "FocusNextChart"),
+        ] {
+            let mut registry = native_registry(&Preferences::default());
+            registry.update(0., keys(&held));
+            let mut pressed = held;
+            pressed.push(final_key);
+            assert_eq!(
+                registry.update(0.1, keys(&pressed)),
+                vec![Effect::Press(active.into())]
+            );
+        }
+        for held in [vec!["Ctrl"], vec!["Ctrl", "LeftShift"]] {
+            let mut registry = native_registry(&Preferences::default());
+            registry.update(0., keys(&held));
+            let mut pressed = held;
+            pressed.push("W");
+            let effects = registry.update(0.1, keys(&pressed));
+            assert_eq!(effects.len(), 1, "{effects:?}");
+            assert!(registry.is_active_prefix("__native_reserved_"));
+            assert!(!registry.is_active("ToggleWaveForm"));
+            assert!(!registry.is_active("OpenWaveformSettings"));
+        }
+        for held in [vec!["Ctrl"], vec!["Ctrl", "LeftShift"]] {
+            let mut registry = native_registry(&Preferences::default());
+            registry.update(0., keys(&held));
+            let mut pressed = held;
+            pressed.push("Right");
+            registry.update(0.1, keys(&pressed));
+            assert!(registry.is_active_prefix("__native_reserved_"));
+            assert!(!registry.is_active("IncreaseSnap"));
+            assert!(!registry.is_active("IncreaseMusicRate"));
+        }
+    }
+    #[test]
+    fn second_increment_rate_repeats_from_source_timer_not_os_repeat() {
+        let mut registry = native_registry(&Preferences::default());
+        registry.update(0., keys(&["LeftShift"]));
+        let pressed = keys(&["LeftShift", "Right"]);
+        assert_eq!(
+            registry.update(0.1, pressed.clone()),
+            vec![Effect::Press("IncreaseMusicRate".into())]
+        );
+        assert!(registry.update(0.6, pressed.clone()).is_empty());
+        assert_eq!(
+            registry.update(0.601, pressed),
+            vec![Effect::Repeat("IncreaseMusicRate".into())]
+        );
+    }
+    #[test]
+    fn third_increment_save_as_recovery_and_chart_list_preserve_longer_siblings() {
+        for (held, key, expected) in [
+            (vec!["Ctrl"], "F12", "SaveAs"),
+            (vec![], "F12", "OpenChartAnalysis"),
+            (vec!["Ctrl", "LeftShift"], "S", "SaveRecoveryDraft"),
+            (vec!["Ctrl"], "N", "CreateEmptyChart"),
+            (vec!["Ctrl"], "B", "OpenChartList"),
+            (vec!["Ctrl", "LeftShift"], "Back", "DeleteCurrentChart"),
+        ] {
+            let mut registry = native_registry(&Preferences::default());
+            registry.update(0., keys(&held));
+            let mut pressed = held;
+            pressed.push(key);
+            assert_eq!(
+                registry.update(0.1, keys(&pressed)),
+                vec![Effect::Press(expected.into())]
+            );
+        }
+        let mut registry = native_registry(&Preferences::default());
+        registry.update(0., keys(&["Ctrl", "LeftShift"]));
+        let effects = registry.update(0.1, keys(&["Ctrl", "LeftShift", "B"]));
+        assert_eq!(effects.len(), 1);
+        assert!(registry.is_active_prefix("__native_reserved_"));
+        assert!(!registry.is_active("OpenChartList"));
     }
     #[test]
     fn physical_names_preserve_key_identity_without_mapping_text_characters() {

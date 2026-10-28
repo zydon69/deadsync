@@ -14,6 +14,7 @@ mod chart_rating;
 mod display_tempo;
 mod profile_edit;
 mod note_conversion;
+mod timing_conversion;
 mod note_attributes;
 mod note_attributes_typed;
 pub mod chart_list;
@@ -116,6 +117,7 @@ enum Panel {
     Menu(usize),
     Transforms(usize),
     NoteConversion(usize),
+    TimingConversion(usize),
     NoteAttributes(usize),
     Attacks(usize),
     EventSelection,
@@ -329,6 +331,7 @@ pub struct State {
     display_tempo_input: Option<(usize, String)>,
     profile_edit: Option<profile_edit::Draft>,
     note_conversion: note_conversion::Settings,
+    timing_conversion: timing_conversion::Settings,
     note_attributes: Option<deadsync_editor::note_attributes::Draft>,
     note_attribute_lane: u16,
     note_attribute_inspector: note_attributes_typed::Inspector,
@@ -510,6 +513,7 @@ impl State {
             display_tempo_input: None,
             profile_edit: None,
             note_conversion: Default::default(),
+            timing_conversion: Default::default(),
             note_attributes: None,
             note_attribute_lane: 0,
             note_attribute_inspector: Default::default(),
@@ -1595,10 +1599,8 @@ impl State {
         if !self.label_preedit.is_empty() {
             return false;
         }
-        let repeating_navigation = self.control
-            && ((event.code == KeyCode::KeyL && self.panel.is_none())
-                || (event.code == KeyCode::KeyP
-                    && matches!(self.panel, None | Some(Panel::Marker(_)))));
+        let repeating_navigation = self.control && event.code == KeyCode::KeyP
+            && matches!(self.panel, None | Some(Panel::Marker(_)));
         let repeating_label = self.wants_text_input()
             && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
         let repeating_text_cursor = matches!(
@@ -1616,7 +1618,6 @@ impl State {
             Some(Panel::MinimapSettings(1 | 2) | Panel::MinimapOptions(3..=6 | 8 | 10 | 12) | Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0..=2) | Panel::ZoomSettings(0..=2) | Panel::WaveformSettings(2 | 3) | Panel::WaveformColors(1..=13))
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
-            && !(self.panel.is_none() && self.shift && !self.control && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight))
             && !repeating_offset
             && !repeating_note_color
             && !repeating_label
@@ -1649,21 +1650,9 @@ impl State {
         if self.panel.is_some() {
             return self.panel_key(event.code);
         }
-        if self.control && event.code == KeyCode::F12 {self.open_save_as();return false;}
         if self.chart_views_key(event.code) { return false; }
         if self.shift && !self.control && event.code == KeyCode::KeyS {
             self.open_scroll_settings(); return false;
-        }
-        if self.shift && !self.control && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
-            self.step_music_rate(event.code == KeyCode::ArrowRight);
-            return false;
-        }
-        if self.control && self.shift && event.code==KeyCode::KeyK && self.panel.is_none(){self.open_key_binding_settings();return false;}
-        if self.control && self.shift && event.code==KeyCode::KeyH && self.panel.is_none(){self.open_receptor_settings();return false;}
-        if self.control && self.shift && event.code==KeyCode::KeyU && self.panel.is_none(){self.open_note_color_settings();return false;}
-        if self.control && event.code == KeyCode::KeyB {
-            self.open_chart_list();
-            return false;
         }
         if !self.workspace.has_chart() {
             self.stop_audio();
@@ -1673,10 +1662,6 @@ impl State {
         if self.shift && !self.control && event.code == KeyCode::KeyV { self.toggle_reverse_display(); return false; }
         if self.control && event.code == KeyCode::KeyT { self.toggle_spacing_mode(self.shift); return false; }
         if self.zoom_key(event) { return false; }
-        if event.code == KeyCode::KeyW && !self.control {
-            if self.shift { self.open_waveform_settings(); } else { self.toggle_waveform(); }
-            return false;
-        }
         if !self.control && matches!(event.code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
             self.navigate_snap((event.code == KeyCode::ArrowDown) != self.reverse_display);
             return false;
@@ -1691,90 +1676,18 @@ impl State {
             self.navigate_attack(!self.shift);
             return false;
         }
-        if self.control && self.shift && event.code == KeyCode::Backspace {
-            self.open_chart_deletion();
-            return false;
-        }
-        if self.control && event.code == KeyCode::KeyN {
-            self.open_new_chart();
-            return false;
-        }
-        if event.code == KeyCode::F12 {
-            self.open_analysis();
-            return false;
-        }
-        if event.code == KeyCode::F11 {
-            self.open_song_properties();
-            return false;
-        }
         if event.code == KeyCode::Escape || event.code == KeyCode::F2 {
             return self.request_close();
         }
-        if event.code == KeyCode::F10 {
-            self.open_timing();
-            return false;
-        }
-        if event.code == KeyCode::F9 {
-            self.open_pattern_set();
-            return false;
-        }
-        if event.code == KeyCode::F8 {
-            self.open_batch();
-            return false;
-        }
-        if event.code == KeyCode::F7 {
-            self.open_chart_properties();
-            return false;
-        }
-        if event.code == KeyCode::F6 {
-            self.open_marker();
-            return false;
-        }
-        if event.code == KeyCode::F5 {
-            self.regenerate_saved_pattern();
-            return false;
-        }
-        if event.code == KeyCode::F4 {
-            self.open_pattern();
-            return false;
-        }
-        if event.code == KeyCode::F3 {
-            self.panel = Some(Panel::Generation(0));
-            self.status = i18n::tr("Edition", "GenerationOptionsHelp");
-            return false;
-        }
-        if event.code == KeyCode::F1 {
-            self.panel = Some(Panel::Menu(0));
-            return false;
-        }
         let command = if self.control {
             match event.code {
-                KeyCode::KeyS if self.shift => Some(Command::SaveRecovery),
                 KeyCode::KeyC if self.shift => Some(Command::CopyEvents),
                 KeyCode::KeyX if self.shift => Some(Command::CutEvents),
                 KeyCode::KeyV if self.shift => Some(Command::PasteEvents),
-                KeyCode::KeyR => Some(Command::Recover),
-                KeyCode::KeyD => Some(Command::DuplicateChart),
-                KeyCode::KeyL if self.shift => Some(Command::PreviousLabel),
-                KeyCode::KeyL => Some(Command::NextLabel),
-                KeyCode::Tab => {
-                    self.queue_chart_order(self.shift);
-                    None
-                }
                 _ => None,
             }
         } else {
             match event.code {
-                KeyCode::End => Some(Command::Seek(
-                    self.workspace
-                        .grid()
-                        .iter()
-                        .map(|(pos, note)| note.end.unwrap_or(pos.row))
-                        .max()
-                        .unwrap_or(0),
-                )),
-                KeyCode::ArrowLeft => {self.cycle_snap(false);None}
-                KeyCode::ArrowRight => {self.cycle_snap(true);None}
                 KeyCode::KeyA => Some(Command::ToggleAutoAdvance),
                 KeyCode::Tab => {
                     let index = TOOLS
@@ -1827,6 +1740,7 @@ impl State {
         if let Panel::Attacks(index) = panel { self.attacks_key(index, code); return false; }
         if let Panel::NoteAttributes(index) = panel { self.note_attributes_key(index, code); return false; }
         if let Panel::NoteOwners(index) = panel { self.note_owners_key(index, code); return false; }
+        if let Panel::TimingConversion(index) = panel { self.timing_conversion_key(index, code); return false; }
         if let Panel::NoteConversion(index) = panel { self.note_conversion_key(index, code); return false; }
         if let Panel::ProfileWeights(index) = panel { self.profile_weights_key(index, code); return false; }
         if let Panel::ProfileDelete(index) = panel { self.profile_delete_key(index, code); return false; }
@@ -1950,6 +1864,7 @@ impl State {
             Panel::PackProperties => unreachable!("pack properties dispatched above"),
             Panel::PackSongList => unreachable!("pack song list dispatched above"),
             Panel::NoteAttributes(_) => unreachable!("note inspector dispatched above"),
+            Panel::TimingConversion(_) => unreachable!("timing conversion dispatched above"),
             Panel::NoteConversion(_) => unreachable!("note conversion dispatched above"),
             Panel::ProfileText => unreachable!("profile name dispatched above"),
             Panel::ProfileEdit(_) => unreachable!("expression editing dispatched above"),
@@ -2886,7 +2801,8 @@ impl State {
             Panel::Attacks(_) => &["AttackScope", "AttackEvent", "AttackModifier", "AttackTime", "AttackName", "AttackLevel", "AttackSpeed", "AttackLength", "AttackAddModifier", "AttackDeleteModifier", "AttackAddEvent", "AttackDeleteEvent", "AttacksApply", "AttacksCancel"],
             Panel::NoteAttributes(_) if self.note_attribute_typed => &["NoteAttributesLane", "NoteAttributesEndpoint", "NoteAttributesVisibility", "NoteAttributesFake", "NoteAttributesReserved", "NoteAttributesRaw", "NoteAttributesApply", "NoteAttributesCancel"],
             Panel::NoteAttributes(_) => &["NoteAttributesLane", "NoteAttributesHead", "NoteAttributesTail", "NoteAttributesApply", "NoteAttributesCancel"],
-            Panel::NoteConversion(_) => &["NoteConversionFrom", "NoteConversionTo", "NoteConversionDuration", "NoteConversionApply", "KeepEditing"],
+            Panel::TimingConversion(_) => &["TimingConversionDirection", "TimingConversionScope", "TimingConversionReview", "TimingConversionCollision", "TimingConversionApply", "KeepEditing"],
+            Panel::NoteConversion(_) => &["NoteConversionFrom", "NoteConversionTo", "NoteConversionDuration", "NoteConversionApply", "KeepEditing", "NoteSwapPair", "NoteSwapApply"],
             Panel::ConversionProfiles(_) => &[
                 "GenerationPerformedProfile",
                 "GenerationExpressionProfile",
@@ -2978,6 +2894,7 @@ impl State {
             | Panel::NoteOwners(i)
             | Panel::Attacks(i)
             | Panel::NoteAttributes(i)
+            | Panel::TimingConversion(i)
             | Panel::NoteConversion(i)
             | Panel::Transforms(i)
             | Panel::Unsaved(i)
@@ -3200,6 +3117,8 @@ impl State {
                 self.attack_label(index, key)
             } else if matches!(panel, Panel::NoteAttributes(_)) {
                 self.note_attributes_label(index, key)
+            } else if matches!(panel, Panel::TimingConversion(_)) {
+                self.timing_conversion_label(index, key)
             } else if matches!(panel, Panel::NoteConversion(_)) {
                 self.note_conversion_label(index, key)
             } else if matches!(panel, Panel::ProfileEdit(_)) {

@@ -1,0 +1,713 @@
+{
+  "Cases": [
+    {
+      "Name": "warp-none",
+      "Direction": "WarpToStop",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "warp-simple",
+      "Direction": "WarpToStop",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "warp-stop-collision-deletes-original",
+      "Direction": "WarpToStop",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": 4,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "warp-overlap",
+      "Direction": "WarpToStop",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 96,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 96,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "warp-tempo-inside",
+      "Direction": "WarpToStop",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Value": 120,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "warp-delay-48",
+      "Direction": "WarpToStop",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Selected": true
+        },
+        {
+          "Kind": "Delay",
+          "Row": 48,
+          "Value": 0.25,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "warp-delay-72",
+      "Direction": "WarpToStop",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Selected": true
+        },
+        {
+          "Kind": "Delay",
+          "Row": 72,
+          "Value": 0.25,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "warp-delay-96",
+      "Direction": "WarpToStop",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 48,
+          "Selected": true
+        },
+        {
+          "Kind": "Delay",
+          "Row": 96,
+          "Value": 0.25,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "warp-selected-inside-unselected",
+      "Direction": "WarpToStop",
+      "All": false,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Selected": false
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 48,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "warp-selected-reversed",
+      "Direction": "WarpToStop",
+      "All": false,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 96,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 96,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-none",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-positive-unchanged",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": 1,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-simple",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": -1,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-warp-collision-deletes-original",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 192,
+          "Value": -1,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 192,
+          "Value": 48,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-overlap",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -1,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-tempo-inside",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Value": 120,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-delay-48",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Selected": true
+        },
+        {
+          "Kind": "Delay",
+          "Row": 48,
+          "Value": 0.25,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-delay-72",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Selected": true
+        },
+        {
+          "Kind": "Delay",
+          "Row": 72,
+          "Value": 0.25,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-delay-96",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1,
+          "Selected": true
+        },
+        {
+          "Kind": "Delay",
+          "Row": 96,
+          "Value": 0.25,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-tiny-clamps-one",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -0.0001,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-half-row-even",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -0.010416666666666666,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-one-half-even",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 49,
+          "Value": -0.03125,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-selected-reversed",
+      "Direction": "StopToWarp",
+      "All": false,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 96,
+          "Value": -1,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -2,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "warp-covering-all",
+      "Direction": "WarpToStop",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 48,
+          "Value": 144,
+          "Selected": true
+        },
+        {
+          "Kind": "Warp",
+          "Row": 96,
+          "Value": 48,
+          "Selected": true
+        }
+      ]
+    },
+    {
+      "Name": "stop-tiny-source-constructor",
+      "Direction": "StopToWarp",
+      "All": true,
+      "Events": [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "Value": 0,
+          "Selected": true
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Value": 60,
+          "Selected": true
+        },
+        {
+          "Kind": "Stop",
+          "Row": 48,
+          "Value": -1e-05,
+          "Selected": true
+        }
+      ]
+    }
+  ]
+}
