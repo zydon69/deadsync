@@ -43,6 +43,8 @@ mod receptor_render;
 mod receptor_views;
 mod hold_render;
 mod receptor_settings;
+mod command_bindings;
+mod key_binding_settings;
 mod note_color_settings;
 mod player_indicator;
 mod snap_controls;
@@ -145,6 +147,7 @@ enum Panel {
     MinimapSettings(usize),
     MinimapOptions(usize),
     ReceptorSettings(usize),
+    KeyBindingSettings(usize),
     NoteColorSettings(usize),
     WaveformSettings(usize),
     WaveformColors(usize),
@@ -376,6 +379,8 @@ pub struct State {
     profile_selection: Option<ProfileSettings>,
     preview: Option<GenerationPreview>,
     label_preedit: String,
+    command_bindings:command_bindings::Runtime,
+    key_binding_draft:Option<key_binding_settings::Settings>,
     control: bool,
     control_keys: u8,
     shift: bool,
@@ -558,6 +563,8 @@ impl State {
             preview: None,
             workspace,
             label_preedit: String::new(),
+            command_bindings:Default::default(),
+            key_binding_draft:None,
             control: false,
             control_keys: 0,
             shift: false,
@@ -582,6 +589,8 @@ impl State {
 
     /// Focus loss cancels transient input state while retaining the editing draft.
     pub fn release_input(&mut self) {
+        self.command_bindings.release_input();
+        if let Some(settings)=self.key_binding_draft.as_mut(){settings.release_input();}
         self.minimap_release_input();
         self.receptor_views.release_input();
         self.lane_entry_release_input();
@@ -1186,6 +1195,7 @@ impl State {
         self.zoom.update(now.saturating_duration_since(self.zoom_epoch).as_secs_f64())
             .expect("finite monotonic frame clock");
         self.update_receptors(now.saturating_duration_since(self.zoom_epoch).as_secs_f64());
+        self.command_bindings_update(now);
         self.poll_pack_song_list();
         self.poll_waveform();
         self.poll_analysis();
@@ -1509,6 +1519,7 @@ impl State {
                 self.sync_audio_preferences_history();
                 self.sync_receptor_preferences_history();
                 self.sync_note_color_preferences_history();
+                self.sync_key_binding_preferences_history();
                 self.restore_profile_preferences(command, before_revision);
                 self.status = match command {
                     Command::Save => i18n::tr("Edition", "Saved"),
@@ -1529,6 +1540,7 @@ impl State {
     /// this screen is open, so an Escape cannot silently abandon edited data.
     /// Returns true only after an explicit, safe close decision.
     pub fn raw_key(&mut self, event: &RawKeyboardEvent) -> bool {
+        self.command_bindings_observe(event);
         self.receptor_modifiers(event);
         self.receptor_manual_input(event);
         if self.lane_entry_before_key(event) {return false;}
@@ -1550,6 +1562,8 @@ impl State {
                     self.control_keys &= !bit;
                 }
                 self.control = self.control_keys != 0;
+                self.command_bindings_key(event);
+                self.key_binding_capture_event(event);
                 return false;
             }
             KeyCode::ShiftLeft | KeyCode::ShiftRight => {
@@ -1560,10 +1574,14 @@ impl State {
                     self.shift_keys &= !bit;
                 }
                 self.shift = self.shift_keys != 0;
+                self.command_bindings_key(event);
+                self.key_binding_capture_event(event);
                 return false;
             }
             _ => {}
         }
+        let binding_consumed=self.command_bindings_key(event);
+        if self.key_binding_capture_event(event)||binding_consumed{return false;}
         if self.help && self.panel.is_none() {
             self.help_key(event);
             return false;
@@ -1640,15 +1658,7 @@ impl State {
             self.step_music_rate(event.code == KeyCode::ArrowRight);
             return false;
         }
-        if self.control {
-            let undo = event.code == KeyCode::KeyZ && !self.shift;
-            let redo = event.code == KeyCode::KeyY || (event.code == KeyCode::KeyZ && self.shift);
-            let session = &self.workspace.file().session;
-            if (undo && (session.undo_changes_audio_preferences() || session.undo_changes_receptor_preferences() || session.undo_changes_note_color_preferences())) || (redo && (session.redo_changes_audio_preferences() || session.redo_changes_receptor_preferences() || session.redo_changes_note_color_preferences())) {
-                self.command(if undo { Command::Undo } else { Command::Redo });
-                return false;
-            }
-        }
+        if self.control && self.shift && event.code==KeyCode::KeyK && self.panel.is_none(){self.open_key_binding_settings();return false;}
         if self.control && self.shift && event.code==KeyCode::KeyH && self.panel.is_none(){self.open_receptor_settings();return false;}
         if self.control && self.shift && event.code==KeyCode::KeyU && self.panel.is_none(){self.open_note_color_settings();return false;}
         if self.control && event.code == KeyCode::KeyB {
@@ -1665,14 +1675,6 @@ impl State {
         if self.zoom_key(event) { return false; }
         if event.code == KeyCode::KeyW && !self.control {
             if self.shift { self.open_waveform_settings(); } else { self.toggle_waveform(); }
-            return false;
-        }
-        if matches!(event.code, KeyCode::Enter | KeyCode::NumpadEnter)
-            && !self.control
-            && !self.shift
-        {
-            self.receptor_views.reset();
-            self.toggle_audio();
             return false;
         }
         if !self.control && matches!(event.code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
@@ -1748,16 +1750,9 @@ impl State {
         let command = if self.control {
             match event.code {
                 KeyCode::KeyS if self.shift => Some(Command::SaveRecovery),
-                KeyCode::KeyS => Some(Command::Save),
-                KeyCode::KeyZ if self.shift => Some(Command::Redo),
-                KeyCode::KeyZ => Some(Command::Undo),
-                KeyCode::KeyY => Some(Command::Redo),
                 KeyCode::KeyC if self.shift => Some(Command::CopyEvents),
                 KeyCode::KeyX if self.shift => Some(Command::CutEvents),
                 KeyCode::KeyV if self.shift => Some(Command::PasteEvents),
-                KeyCode::KeyC => Some(Command::Copy),
-                KeyCode::KeyX => Some(Command::Cut),
-                KeyCode::KeyV => Some(Command::Paste),
                 KeyCode::KeyR => Some(Command::Recover),
                 KeyCode::KeyD => Some(Command::DuplicateChart),
                 KeyCode::KeyL if self.shift => Some(Command::PreviousLabel),
@@ -1770,9 +1765,6 @@ impl State {
             }
         } else {
             match event.code {
-                KeyCode::PageUp => Some(Command::PreviousMeasure),
-                KeyCode::PageDown => Some(Command::NextMeasure),
-                KeyCode::Home => Some(Command::Seek(0)),
                 KeyCode::End => Some(Command::Seek(
                     self.workspace
                         .grid()
@@ -1783,11 +1775,6 @@ impl State {
                 )),
                 KeyCode::ArrowLeft => {self.cycle_snap(false);None}
                 KeyCode::ArrowRight => {self.cycle_snap(true);None}
-                KeyCode::Space => Some(Command::ToggleSelection),
-                KeyCode::Delete | KeyCode::Backspace => Some(Command::Delete),
-                KeyCode::KeyP => Some(Command::SelectPlayer(
-                    (self.workspace.player() + 1) % self.workspace.grid().players(),
-                )),
                 KeyCode::KeyA => Some(Command::ToggleAutoAdvance),
                 KeyCode::Tab => {
                     let index = TOOLS
@@ -1861,6 +1848,7 @@ impl State {
             return false;
         }
         if let Panel::NoteColorSettings(index)=panel{self.note_color_settings_key(index,code);return false;}
+        if let Panel::KeyBindingSettings(index)=panel{self.key_binding_settings_key(index,code);return false;}
         if let Panel::ReceptorSettings(index)=panel{self.receptor_settings_key(index,code);return false;}
         if let Panel::MinimapOptions(index) = panel { self.minimap_options_key(index, code); return false; }
         if let Panel::MinimapSettings(index) = panel { self.minimap_settings_key(index, code); return false; }
@@ -2026,6 +2014,7 @@ impl State {
             Panel::SaveAsDestination(_)|Panel::SaveAsReview(_)|Panel::SaveAsPending(_)=>unreachable!("Save As dispatched above"),
             Panel::MinimapOptions(_) | Panel::MinimapSettings(_) => unreachable!("minimap settings dispatched above"),
             Panel::ReceptorSettings(_) => unreachable!("receptor settings dispatched above"),
+            Panel::KeyBindingSettings(_) => unreachable!("key binding settings dispatched above"),
             Panel::NoteColorSettings(_) => unreachable!("note color settings dispatched above"),
             Panel::ZoomSettings(_) => unreachable!("zoom settings dispatched above"),
             Panel::AudioSettings(_) => unreachable!("audio settings dispatched above"),
@@ -2395,7 +2384,7 @@ impl State {
             }
             Panel::Menu(index) | Panel::Transforms(index) | Panel::Unsaved(index) => {
                 let count = match panel {
-                    Panel::Menu(_) => 23,
+                    Panel::Menu(_) => 24,
                     Panel::Transforms(_) => 12,
                     _ => 3,
                 };
@@ -2480,6 +2469,7 @@ impl State {
                     20 => self.open_receptor_settings(),
                             21 => self.open_note_color_settings(),
                             22 => self.open_save_as(),
+                            23 => self.open_key_binding_settings(),
                             _ => {}
                         }
                     }
@@ -2784,6 +2774,7 @@ impl State {
         if matches!(panel, Panel::PackSongList) { self.pack_song_list_actors(actors); return; }
         if matches!(panel, Panel::PackProperties) { self.pack_properties_actors(actors); return; }
         if let Panel::NoteColorSettings(index)=panel{self.note_color_settings_actors(index,actors);return;}
+        if let Panel::KeyBindingSettings(index)=panel{self.key_binding_settings_actors(index,actors);return;}
         if let Panel::ReceptorSettings(index)=panel{self.receptor_settings_actors(index,actors);return;}
         if let Panel::MinimapOptions(index) = panel { self.minimap_options_actors(index, actors); return; }
         if let Panel::MinimapSettings(index) = panel { self.minimap_settings_actors(index, actors); return; }
@@ -2803,7 +2794,7 @@ impl State {
         }).unwrap_or_default();
         let keys: &[&str] = match panel {
             Panel::SaveAsDestination(_)|Panel::SaveAsReview(_)|Panel::SaveAsPending(_)=>&[],
-            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::PackSongList | Panel::MinimapSettings(_) | Panel::MinimapOptions(_) | Panel::ReceptorSettings(_) | Panel::NoteColorSettings(_) => &[],
+            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::PackSongList | Panel::MinimapSettings(_) | Panel::MinimapOptions(_) | Panel::ReceptorSettings(_) | Panel::NoteColorSettings(_) | Panel::KeyBindingSettings(_) => &[],
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
             Panel::EmptyMenu(_) => &["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close", "PackPropertiesOpen", "PackSongsOpen", "SaveAsOpen"],
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
@@ -2831,6 +2822,7 @@ impl State {
                 "ReceptorSettingsOpen",
                 "NoteColorSettingsOpen",
                 "SaveAsOpen",
+                "KeyBindingSettingsOpen",
             ],
             Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen", "NoteOwnersOpen", "NoteAttributesOpen"],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
@@ -3008,6 +3000,7 @@ impl State {
             | Panel::ScrollSettings(i)
             | Panel::MinimapOptions(i)
             | Panel::MinimapSettings(i)
+            | Panel::KeyBindingSettings(i)
             | Panel::ReceptorSettings(i)
             | Panel::NoteColorSettings(i)
             | Panel::ZoomSettings(i)

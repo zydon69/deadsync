@@ -71,10 +71,6 @@ impl State {
                     return false;
                 }
                 KeyCode::KeyS if self.shift => Some(Command::SaveRecovery),
-                KeyCode::KeyS => Some(Command::Save),
-                KeyCode::KeyZ if self.shift => Some(Command::Redo),
-                KeyCode::KeyZ => Some(Command::Undo),
-                KeyCode::KeyY => Some(Command::Redo),
                 KeyCode::KeyR => Some(Command::Recover),
                 _ => None,
             };

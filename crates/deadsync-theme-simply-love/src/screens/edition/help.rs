@@ -7,7 +7,9 @@ impl State {
             .filter(|line| !line.trim().is_empty())
             .map(str::to_owned)
             .collect();
+        lines.extend(self.key_binding_help_lines());
         for key in [
+            "KeyBindingSettingsOpen",
             "HelpViews",
             "HelpMinimap",
             "HelpChartCopy",

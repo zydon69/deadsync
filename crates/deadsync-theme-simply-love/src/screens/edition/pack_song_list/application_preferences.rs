@@ -7,6 +7,7 @@ use deadsync_editor::{
 };
 use std::{path::PathBuf, time::Instant};
 pub(super) struct Snapshot {
+    keys:std::sync::Arc<deadsync_editor::key_binding_preferences::Preferences>,
     audio: Audio,
     receptors: deadsync_editor::receptor_preferences::Preferences,
     snap: deadsync_editor::snap::Preferences,
@@ -27,6 +28,7 @@ pub(super) struct Snapshot {
 impl Snapshot {
     pub(super) fn capture(state: &State) -> Self {
         Self {
+            keys:std::sync::Arc::clone(&state.command_bindings.preferences),
             audio: state.audio_preferences,
             receptors: state.receptor_preferences(),
             snap: deadsync_editor::snap::Preferences {
@@ -67,6 +69,8 @@ impl Snapshot {
         if let Some(file) = target.audio_preferences_file.as_mut() {
             file.set_note_colors(self.colors)?;
         }
+        target.configure_key_binding_preferences(std::sync::Arc::clone(&self.keys));
+        if let Some(file)=target.audio_preferences_file.as_mut(){file.set_key_bindings(self.keys)?;}
         target.configure_receptor_preferences(self.receptors);
         if let Some(file) = target.audio_preferences_file.as_mut() {
             file.set_receptors(self.receptors);
@@ -219,4 +223,10 @@ mod tests {
         assert_eq!(target.note_colors, baseline);
         assert!(target.note_color_draft.is_none());
     }
+    #[test]
+    fn memory_key_bindings_survive_document_replacement_without_preview_or_runtime(){
+        crate::i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let path=root.path().join("keys.ssc");std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;").unwrap();
+        let mut source=State::open(&path,0).unwrap();let mut preferences=deadsync_editor::key_binding_preferences::Preferences::default();preferences.commands.insert("Save".into(),vec![vec!["F12".into()]]);let preferences=std::sync::Arc::new(preferences);source.configure_key_binding_preferences(std::sync::Arc::clone(&preferences));let mut target=State::open(&path,0).unwrap();Snapshot::capture(&source).install(&mut target).unwrap();assert_eq!(target.command_bindings.preferences,preferences);assert!(target.key_binding_draft.is_none());
+    }
+
 }

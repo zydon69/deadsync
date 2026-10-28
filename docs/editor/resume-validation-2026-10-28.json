@@ -11,15 +11,16 @@
     "advanced_export_workflows": 8,
     "advanced_export_writer_workflows": 5,
     "advanced_export_attacks_workflows": 2,
-    "advanced_export_chart_metadata_workflows": 2
+    "advanced_export_chart_metadata_workflows": 2,
+    "edition_key_bindings_workflow": 5
   },
   "pending": [
-    "native key bindings",
     "private song-custom oracle unit",
     "note swap and timing conversion models",
     "File New/Open/Recent/Untitled",
     "Windows adapter compilation/runtime",
-    "export publication with independent output policy"
+    "export publication with independent output policy",
+    "native key binding units and broader regressions"
   ],
   "limits": [
     "Scoped automated checks only; no physical keyboard/GPU/audio testing performed in this resume",

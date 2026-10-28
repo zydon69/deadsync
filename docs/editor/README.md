@@ -36,6 +36,35 @@ reviewable and tested.
 
 ## Current implementation and verification
 
+### Reprise après interruption — 28 octobre 2026
+
+La reprise utilise trois agents, avec une seule validation Cargo à la fois.
+Le checkpoint `resume-validation-2026-10-28.json` distingue résultats vérifiés et
+travaux en attente. Le portage complet reste en cours ; aucune PR de l’éditeur
+n’a été envoyée.
+
+Les défauts multijoueurs passent 12 tests ciblés. Le noyau des commandes
+configurables passe 16 tests (registre, inspecteur, réservations, persistance et
+historique) ; le premier raccordement natif est appliqué mais sa validation est
+encore en cours. Le catalogue des 164 callbacks source ne signifie pas que tous
+sont exécutables dans l’interface native : le premier lot expose 13 commandes.
+
+La préparation d’export détachée et les alias de métadonnées passent 20 tests.
+Les avertissements distinguent les pertes de portée locale, de musique, de
+notes et d’attaques. Les résultats de référence incluent 60 écritures Fumen,
+128 cas de métadonnées et 24 résolutions d’alias ; l’unité privée des 24 alias
+reste à exécuter. Cette préparation ne publie aucun fichier et ne raccorde pas
+encore la conversion de format à Enregistrer sous.
+
+Les conversions de notes/timing, les fichiers sans titre, Nouveau/Ouvrir/Récents,
+les commandes configurables suivantes et la politique de format de sortie sont
+en préparation dans des lots séparés. Les 14 échecs de la suite générale du
+thème consignés au checkpoint du 27 octobre ne sont pas déclarés résolus.
+Ces vérifications ciblées ne certifient pas le rendu GPU ou les entrées physiques.
+
+Les sous-sections suivantes conservent les checkpoints historiques ; leurs
+mentions de modules non raccordés décrivent l’état au moment indiqué.
+
 ### Reprise après interruption — 27 octobre 2026
 
 Le portage complet reste en cours sur `edition-mode`, avec trois agents et une

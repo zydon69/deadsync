@@ -50,6 +50,7 @@ impl State {
         self.zoom_preferences = zoom_preferences;
         self.audio_preferences = file.audio();
         self.scroll_preferences = file.scroll();
+        self.configure_key_binding_preferences(file.key_bindings());
         self.configure_minimap_preferences(file.minimap());
         self.configure_minimap_position_preferences(file.minimap_position());
         self.configure_note_color_arc(note_colors)?;
