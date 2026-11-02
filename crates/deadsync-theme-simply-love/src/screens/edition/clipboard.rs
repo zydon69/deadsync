@@ -108,6 +108,7 @@ mod physical_modifier_tests {
 }
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum ClipboardTarget {
+    Assistant,
     Log,
     Property(Target),
     ProfileText(super::profile_edit::TextField),
@@ -121,6 +122,11 @@ enum Operation {
 }
 impl State {
     fn clipboard_target(&self) -> Option<ClipboardTarget> {
+        if self.assistant.open {
+            return self
+                .assistant_accepts_input()
+                .then_some(ClipboardTarget::Assistant);
+        }
         if matches!(self.panel, Some(Panel::Log)) {
             return Some(ClipboardTarget::Log);
         }
@@ -156,6 +162,15 @@ impl State {
         matches!(self.panel, Some(Panel::ProfileText)) || self.sync_text()
     }
 
+    pub(super) fn queue_assistant_clipboard_paste(&mut self) {
+        if self.clipboard_target() == Some(ClipboardTarget::Assistant) {
+            self.text_clipboard_request = Some(Request {
+                serial: self.text_edit_serial,
+                field: ClipboardTarget::Assistant,
+                operation: Operation::Paste,
+            });
+        }
+    }
     pub(super) fn queue_log_clipboard(&mut self, text: String) {
         self.text_clipboard_request = Some(Request {
             serial: self.text_edit_serial,
@@ -247,6 +262,16 @@ impl State {
                 self.clipboard_sync().then_some("ClipboardCut")
             }),
             Operation::Paste => clipboard.read_text().map(|text| {
+                if request.field == ClipboardTarget::Assistant {
+                    if request.serial != self.text_edit_serial || !self.assistant_accepts_input() {
+                        return Some("ClipboardNoChange");
+                    }
+                    return Some(if self.assistant_text(&text) {
+                        "ClipboardPasted"
+                    } else {
+                        "ClipboardNoChange"
+                    });
+                }
                 if text.is_empty() || text.chars().all(char::is_control) {
                     return Some("ClipboardNoChange");
                 }

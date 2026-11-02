@@ -324,6 +324,17 @@ impl State {
     pub(super) fn command_bindings_observe(&mut self, event: &RawKeyboardEvent) {
         self.command_bindings.observe(event);
     }
+    pub(super) fn physical_clipboard_modifier_down(&self) -> bool {
+        self.command_bindings.physical_down.iter().any(|code| {
+            matches!(
+                code,
+                KeyCode::ControlLeft
+                    | KeyCode::ControlRight
+                    | KeyCode::SuperLeft
+                    | KeyCode::SuperRight
+            )
+        })
+    }
     pub(super) fn publish_note_entry_mode(&mut self) {
         let mode = if self.workspace.auto_advance() {
             deadsync_editor::lane_entry::Mode::AdvanceBySnap

@@ -62,6 +62,19 @@ pub struct Job {
     child: Arc<Mutex<Option<Child>>>,
 }
 impl Job {
+    /// Pending worker channel for host-input tests; does not start a process.
+    #[cfg(any(test, feature = "test-support"))]
+    pub fn pending_for_test() -> (Self, mpsc::Sender<Event>) {
+        let (sender, receiver) = mpsc::channel();
+        (
+            Self {
+                receiver,
+                cancelled: Arc::new(AtomicBool::new(false)),
+                child: Arc::new(Mutex::new(None)),
+            },
+            sender,
+        )
+    }
     pub fn start(workspace: &Workspace, prompt: String) -> Result<Self, Error> {
         Self::start_with_draft(workspace, prompt, None)
     }

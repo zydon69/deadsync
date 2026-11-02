@@ -1,6 +1,7 @@
 //! Keyboard-only host for isolated assistant proposals.
 use super::*;
 use deadsync_editor::assistant::agent::{Draft, Event, Job};
+const INPUT_BYTE_LIMIT: usize = 8192;
 #[derive(Default)]
 pub(super) struct Ui {
     pub(super) open: bool,
@@ -39,15 +40,44 @@ impl State {
             Err(e) => self.assistant.transcript.push_str(&format!("\nMCP: {e}\n")),
         }
     }
+    pub(super) fn assistant_accepts_input(&self) -> bool {
+        self.assistant.open && self.assistant.job.is_none() && !self.assistant.preview_open
+    }
     pub(super) fn assistant_text(&mut self, text: &str) -> bool {
-        if self.assistant.job.is_some() || text.chars().all(char::is_control) {
+        // Even a clipboard containing only filtered controls must have bounded
+        // UI-thread work. Twice the normalized bound accommodates CRLF input.
+        if !self.assistant_accepts_input() || text.is_empty() || text.len() > INPUT_BYTE_LIMIT * 2 {
             return false;
         }
-        let text: String = text.chars().filter(|c| !c.is_control()).collect();
-        if self.assistant.input.len() + text.len() > 8192 {
+        // Preserve paragraphs and indentation without admitting native control
+        // bytes such as NUL. Normalize pasted Windows and legacy Mac line ends.
+        let remaining = INPUT_BYTE_LIMIT.saturating_sub(self.assistant.input.len());
+        let mut normalized = String::with_capacity(text.len().min(remaining));
+        let mut after_carriage_return = false;
+        for mut character in text.chars() {
+            if character == '\r' {
+                character = '\n';
+                after_carriage_return = true;
+            } else {
+                let paired_line_feed = after_carriage_return && character == '\n';
+                after_carriage_return = false;
+                if paired_line_feed {
+                    continue;
+                }
+            }
+            if character.is_control() && !matches!(character, '\n' | '\t') {
+                continue;
+            }
+            if normalized.len() + character.len_utf8() > remaining {
+                return false;
+            }
+            normalized.push(character);
+        }
+        if normalized.is_empty() {
             return false;
         }
-        self.assistant.input.push_str(&text);
+        self.assistant.input.push_str(&normalized);
+        self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
         true
     }
     fn assistant_prepare_preview(&mut self) {
@@ -91,6 +121,12 @@ impl State {
             }
             return;
         }
+        if event.code == KeyCode::KeyV && self.physical_clipboard_modifier_down() {
+            if !event.repeat {
+                self.queue_assistant_clipboard_paste();
+            }
+            return;
+        }
         match event.code {
             KeyCode::F5 if self.assistant.preview.is_some() => {
                 self.assistant.preview_open = true;
@@ -104,7 +140,9 @@ impl State {
                 }
             }
             KeyCode::Backspace if self.assistant.job.is_none() => {
-                self.assistant.input.pop();
+                if self.assistant.input.pop().is_some() {
+                    self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
+                }
             }
             KeyCode::PageUp => {
                 self.assistant.scroll = self.assistant.scroll.saturating_add(8);
@@ -451,5 +489,193 @@ mod tests {
         key(&mut state, KeyCode::KeyZ, false);
         key(&mut state, KeyCode::ControlLeft, false);
         assert_eq!(state.workspace.file().session.document().charts().len(), 1);
+    }
+
+    #[derive(Default)]
+    struct Clipboard {
+        text: String,
+        reads: usize,
+    }
+    impl deadsync_editor::clipboard::TextClipboard for Clipboard {
+        fn read_text(&mut self) -> Result<String, deadsync_editor::clipboard::Error> {
+            self.reads += 1;
+            Ok(self.text.clone())
+        }
+        fn write_text(&mut self, _: &str) -> Result<(), deadsync_editor::clipboard::Error> {
+            panic!("Assistant paste must not overwrite the system clipboard")
+        }
+    }
+    fn input_fixture() -> (tempfile::TempDir, State) {
+        crate::i18n::init_for_tests();
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("clipboard.ssc");
+        std::fs::write(
+            &path,
+            b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+        )
+        .unwrap();
+        let mut state = State::open(&path, 0).unwrap();
+        state.open_assistant();
+        assert!(state.assistant.open);
+        (directory, state)
+    }
+    fn paste_chord(state: &mut State, modifier: KeyCode) {
+        key(state, modifier, true);
+        key(state, KeyCode::KeyV, true);
+        key(state, KeyCode::KeyV, false);
+        key(state, modifier, false);
+    }
+    fn song_bytes(state: &State) -> Vec<u8> {
+        state.workspace.file().session.serialize().unwrap()
+    }
+    #[test]
+    fn assistant_native_paste_preserves_unicode_paragraphs_and_indentation_without_editing_song() {
+        for modifier in [
+            KeyCode::ControlLeft,
+            KeyCode::ControlRight,
+            KeyCode::SuperLeft,
+            KeyCode::SuperRight,
+        ] {
+            let (_directory, mut state) = input_fixture();
+            let before = song_bytes(&state);
+            assert!(state.text_input("Demande : "));
+            let mut clipboard = Clipboard {
+                text: "Été 日本語 🎵\r\n\tDeuxième ligne\rTroisième\0\u{1b}".into(),
+                ..Default::default()
+            };
+            paste_chord(&mut state, modifier);
+            assert!(state.process_text_clipboard(&mut clipboard));
+            assert_eq!(clipboard.reads, 1);
+            assert_eq!(
+                state.assistant.input,
+                "Demande : Été 日本語 🎵\n\tDeuxième ligne\nTroisième"
+            );
+            assert!(state.assistant.job.is_none());
+            assert!(state.assistant.bridge.is_none());
+            assert!(!state.assistant.preview_open);
+            assert_eq!(song_bytes(&state), before);
+            assert!(!state.workspace.file().session.is_dirty());
+            assert!(!state.process_text_clipboard(&mut clipboard));
+            assert_eq!(clipboard.reads, 1);
+        }
+    }
+    #[test]
+    fn assistant_paste_limit_counts_utf8_bytes_and_rejects_overflow_atomically() {
+        let (_directory, mut state) = input_fixture();
+        let before = song_bytes(&state);
+        state.assistant.input = "é".repeat(4095);
+        let mut clipboard = Clipboard {
+            text: "é".into(),
+            ..Default::default()
+        };
+        paste_chord(&mut state, KeyCode::SuperLeft);
+        assert!(state.process_text_clipboard(&mut clipboard));
+        assert_eq!(state.assistant.input.len(), 8192);
+        let full = state.assistant.input.clone();
+        for text in [
+            "日本語".to_owned(),
+            "a".repeat(1_000_000),
+            "\0\u{1b}".into(),
+        ] {
+            clipboard.text = text;
+            paste_chord(&mut state, KeyCode::SuperLeft);
+            assert!(state.process_text_clipboard(&mut clipboard));
+            assert_eq!(state.assistant.input, full);
+        }
+        state.assistant.input.clear();
+        clipboard.text = "\0".repeat(1_000_000);
+        paste_chord(&mut state, KeyCode::SuperLeft);
+        assert!(state.process_text_clipboard(&mut clipboard));
+        assert!(state.assistant.input.is_empty());
+        assert_eq!(song_bytes(&state), before);
+    }
+    #[test]
+    fn assistant_busy_job_rejects_queued_and_new_pastes_before_reading_clipboard() {
+        let (_directory, mut state) = input_fixture();
+        let before = song_bytes(&state);
+        state.assistant.input = "Pending request".into();
+        let mut clipboard = Clipboard {
+            text: "must not be read".into(),
+            ..Default::default()
+        };
+        paste_chord(&mut state, KeyCode::SuperLeft);
+        let (job, _worker) = Job::pending_for_test();
+        state.assistant.job = Some(job);
+        assert!(!state.process_text_clipboard(&mut clipboard));
+        paste_chord(&mut state, KeyCode::ControlLeft);
+        assert!(!state.process_text_clipboard(&mut clipboard));
+        assert!(!state.text_input("typed while busy"));
+        assert_eq!(clipboard.reads, 0);
+        assert_eq!(state.assistant.input, "Pending request");
+        assert_eq!(song_bytes(&state), before);
+        state.assistant.job = None;
+        assert!(!state.process_text_clipboard(&mut clipboard));
+        paste_chord(&mut state, KeyCode::SuperRight);
+        assert!(state.process_text_clipboard(&mut clipboard));
+        assert_eq!(clipboard.reads, 1);
+    }
+    #[test]
+    fn assistant_preview_modal_rejects_text_and_queued_paste_without_applying_a_chart_change() {
+        let (_directory, mut state) = input_fixture();
+        let before = song_bytes(&state);
+        state.assistant.input = "Keep prompt".into();
+        state.assistant.preview = Some((
+            "dance-single".into(),
+            deadsync_editor::notes::Grid::new(4, 1).unwrap(),
+        ));
+        let mut clipboard = Clipboard {
+            text: "blocked".into(),
+            ..Default::default()
+        };
+        paste_chord(&mut state, KeyCode::SuperLeft);
+        key(&mut state, KeyCode::F5, true);
+        key(&mut state, KeyCode::F5, false);
+        assert!(state.assistant.preview_open);
+        assert!(!state.process_text_clipboard(&mut clipboard));
+        assert!(!state.text_input("blocked typing"));
+        paste_chord(&mut state, KeyCode::ControlLeft);
+        assert!(!state.process_text_clipboard(&mut clipboard));
+        key(&mut state, KeyCode::F2, true);
+        key(&mut state, KeyCode::F2, false);
+        assert_eq!(clipboard.reads, 0);
+        assert_eq!(state.assistant.input, "Keep prompt");
+        assert_eq!(song_bytes(&state), before);
+        assert!(!state.workspace.file().session.is_dirty());
+        key(&mut state, KeyCode::Escape, true);
+        key(&mut state, KeyCode::Escape, false);
+        assert!(state.assistant.open);
+        assert!(!state.assistant.preview_open);
+        paste_chord(&mut state, KeyCode::SuperLeft);
+        assert!(state.process_text_clipboard(&mut clipboard));
+        assert_eq!(clipboard.reads, 1);
+        assert_eq!(song_bytes(&state), before);
+    }
+    #[test]
+    fn assistant_paste_is_not_replayed_after_intervening_text_or_close_and_reopen() {
+        let (_directory, mut state) = input_fixture();
+        let before = song_bytes(&state);
+        let mut clipboard = Clipboard {
+            text: "stale".into(),
+            ..Default::default()
+        };
+        paste_chord(&mut state, KeyCode::SuperLeft);
+        assert!(state.text_input("newer text"));
+        assert!(!state.process_text_clipboard(&mut clipboard));
+        assert_eq!(clipboard.reads, 0);
+        paste_chord(&mut state, KeyCode::SuperLeft);
+        key(&mut state, KeyCode::Backspace, true);
+        key(&mut state, KeyCode::Backspace, false);
+        assert_eq!(state.assistant.input, "newer tex");
+        assert!(!state.process_text_clipboard(&mut clipboard));
+        assert_eq!(clipboard.reads, 0);
+        paste_chord(&mut state, KeyCode::SuperLeft);
+        key(&mut state, KeyCode::Escape, true);
+        key(&mut state, KeyCode::Escape, false);
+        assert!(!state.assistant.open);
+        state.open_assistant();
+        assert!(!state.process_text_clipboard(&mut clipboard));
+        assert_eq!(clipboard.reads, 0);
+        assert_eq!(state.assistant.input, "newer tex");
+        assert_eq!(song_bytes(&state), before);
     }
 }

@@ -6,6 +6,7 @@ license = "GPL-3.0"
 description = "Lossless chart editing and GrooveAuthor functionality for DeadSync"
 
 [features]
+test-support = []
 assistant-audio = ["dep:deadsync-audio-analysis"]
 
 [dependencies]
