@@ -3943,8 +3943,6 @@ unsafe extern "system" fn vulkan_debug_callback(
         error!("Vulkan validation {message_type:?}: {msg}");
     } else if message_severity.contains(vk::DebugUtilsMessageSeverityFlagsEXT::WARNING) {
         warn!("Vulkan validation {message_type:?}: {msg}");
-    } else if message_severity.contains(vk::DebugUtilsMessageSeverityFlagsEXT::INFO) {
-        debug!("Vulkan validation {message_type:?}: {msg}");
     } else {
         debug!("Vulkan validation {message_type:?}: {msg}");
     }

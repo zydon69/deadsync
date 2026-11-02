@@ -11,7 +11,16 @@ pub const MAX_FRAME: usize = 1024 * 1024;
 
 pub fn tools() -> Value {
     let empty = json!({"type":"object","properties":{},"additionalProperties":false});
-    let chart = json!({"type":"object","properties":{"chart":{"type":"integer","minimum":0}},"additionalProperties":false});
+    let chart = json!({
+        "type": "object",
+        "properties": {
+            "chart": {
+                "type": "integer",
+                "minimum": 0
+            }
+        },
+        "additionalProperties": false
+    });
     let mut tools = Vec::new();
     for (name, description, schema, read_only) in [
         (
@@ -23,7 +32,54 @@ pub fn tools() -> Value {
         (
             "inspect_chart",
             "Read a bounded page of note heads with attributes",
-            json!({"type":"object","properties":{"chart":{"type":"integer","minimum":0},"start_row":{"type":"integer","minimum":0},"cursor":{"type":"object","properties":{"row":{"type":"integer","minimum":0},"lane":{"type":"integer","minimum":0,"maximum":65535},"player":{"type":"integer","minimum":0,"maximum":4294967295u64}},"required":["row","lane","player"],"additionalProperties":false},"limit":{"type":"integer","minimum":1,"maximum":1000}},"additionalProperties":false}),
+            json!({
+                "type": "object",
+                "properties": {
+                    "chart": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "start_row": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "end_row": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "cursor": {
+                        "type": "object",
+                        "properties": {
+                            "row": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "lane": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 65535
+                            },
+                            "player": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 4294967295u64
+                            }
+                        },
+                        "required": [
+                            "row",
+                            "lane",
+                            "player"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000
+                    }
+                },
+                "additionalProperties": false
+            }),
             true,
         ),
         (
@@ -35,13 +91,94 @@ pub fn tools() -> Value {
         (
             "generate_chart",
             "Prepare GrooveAuthor generation from an existing chart; does not apply or save",
-            json!({"type":"object","properties":{"chart":{"type":"integer","minimum":0},"target_layout":{"type":"string"},"seed":{"type":"integer"}},"additionalProperties":false}),
+            json!({
+                "type": "object",
+                "properties": {
+                    "chart": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "target_layout": {
+                        "type": "string"
+                    },
+                    "seed": {
+                        "type": "integer"
+                    }
+                },
+                "additionalProperties": false
+            }),
             false,
         ),
         (
             "preview_note_edits",
             "Validate and preview an atomic list of note edits; kind:null deletes a note",
-            json!({"type":"object","properties":{"chart":{"type":"integer","minimum":0},"edits":{"type":"array","minItems":1,"maxItems":10000,"items":{"type":"object","properties":{"row":{"type":"integer","minimum":0},"lane":{"type":"integer","minimum":0},"player":{"type":"integer","minimum":0},"kind":{"enum":["tap","hold","roll","mine","lift","fake",null]},"end_row":{"type":["integer","null"],"minimum":0},"attributes":{"type":"string"},"tail_attributes":{"type":"string"}},"required":["row","lane","kind"],"additionalProperties":false}}},"required":["edits"],"additionalProperties":false}),
+            json!({
+                "type": "object",
+                "properties": {
+                    "chart": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "edits": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 10000,
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "row": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                "lane": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                "player": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                "kind": {
+                                    "enum": [
+                                        "tap",
+                                        "hold",
+                                        "roll",
+                                        "mine",
+                                        "lift",
+                                        "fake",
+                                        "keysound",
+                                        "attack",
+                                        null
+                                    ]
+                                },
+                                "end_row": {
+                                    "type": [
+                                        "integer",
+                                        "null"
+                                    ],
+                                    "minimum": 0
+                                },
+                                "attributes": {
+                                    "type": "string"
+                                },
+                                "tail_attributes": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "row",
+                                "lane",
+                                "kind"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "edits"
+                ],
+                "additionalProperties": false
+            }),
             false,
         ),
         (
@@ -53,7 +190,18 @@ pub fn tools() -> Value {
         (
             "apply_preview",
             "Apply a current preview by its exact id to undoable memory; does not save",
-            json!({"type":"object","properties":{"preview_id":{"type":"string"}},"required":["preview_id"],"additionalProperties":false}),
+            json!({
+                "type": "object",
+                "properties": {
+                    "preview_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "preview_id"
+                ],
+                "additionalProperties": false
+            }),
             false,
         ),
         (
@@ -81,22 +229,168 @@ pub fn tools() -> Value {
             false,
         ),
     ] {
-        tools.push(json!({"name":name,"description":description,"inputSchema":schema,"annotations":{"readOnlyHint":read_only,"destructiveHint":name=="save_chart","openWorldHint":false}}));
+        tools.push(json!({
+            "name": name,
+            "description": description,
+            "inputSchema": schema,
+            "annotations": {
+                "readOnlyHint": read_only,
+                "destructiveHint": name == "save_chart",
+                "openWorldHint": false
+            }
+        }));
     }
     let scope = json!({"enum":["song","chart"]});
-    tools.push(json!({"name":"inspect_timing","description":"Inspect scoped tempo nodes and inherited timing","inputSchema":{"type":"object","properties":{"chart":{"type":"integer","minimum":0},"scope":scope},"additionalProperties":false},"annotations":{"readOnlyHint":true,"openWorldHint":false}}));
-    tools.push(json!({"name":"preview_tempo_edits","description":"Prepare scoped BPM node edits; null removes a node. Song scope may affect multiple charts.","inputSchema":{"type":"object","properties":{"chart":{"type":"integer","minimum":0},"scope":scope,"nodes":{"type":"array","minItems":1,"maxItems":10000,"items":{"type":"object","properties":{"row":{"type":"integer","minimum":0,"maximum":2147483647},"bpm":{"type":["number","null"],"minimum":0.000001,"maximum":10000}},"required":["row","bpm"],"additionalProperties":false}}},"required":["scope","nodes"],"additionalProperties":false},"annotations":{"readOnlyHint":false,"destructiveHint":false,"openWorldHint":false}}));
+    tools.push(json!({
+        "name": "inspect_timing",
+        "description": "Inspect scoped tempo nodes and inherited timing",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "chart": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "scope": scope
+            },
+            "additionalProperties": false
+        },
+        "annotations": {
+            "readOnlyHint": true,
+            "openWorldHint": false
+        }
+    }));
+    tools.push(json!({
+        "name": "preview_tempo_edits",
+        "description": "Prepare scoped BPM node edits; null removes a node. Song scope may affect multiple charts.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "chart": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "scope": scope,
+                "nodes": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 10000,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "row": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 2147483647
+                            },
+                            "bpm": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ],
+                                "minimum": 0.000001,
+                                "maximum": 10000
+                            }
+                        },
+                        "required": [
+                            "row",
+                            "bpm"
+                        ],
+                        "additionalProperties": false
+                    }
+                }
+            },
+            "required": [
+                "scope",
+                "nodes"
+            ],
+            "additionalProperties": false
+        },
+        "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+        }
+    }));
     #[cfg(feature = "assistant-audio")]
     {
-        tools.push(json!({"name":"analyze_audio","description":"Estimate constant tempo, phase and onset count from the song audio; local signal processing, no audio upload","inputSchema":empty_schema(),"annotations":{"readOnlyHint":true,"openWorldHint":false}}));
-        tools.push(json!({"name":"generate_audio_chart","description":"Prepare a new SSC chart from audio onsets and GrooveAuthor footwork; inspect tempo confidence before applying","inputSchema":{"type":"object","properties":{"bpm":{"type":"number","minimum":40,"maximum":300},"beat_offset_seconds":{"type":"number","minimum":0},"max_nps":{"type":"number","minimum":0.5,"maximum":30},"subdivision":{"enum":[1,2,3,4,6,8,12,16]},"target_layout":{"type":"string"},"seed":{"type":"integer"},"meter":{"type":"integer","minimum":1,"maximum":99}},"additionalProperties":false},"annotations":{"readOnlyHint":false,"destructiveHint":false,"openWorldHint":false}}));
+        tools.push(json!({
+            "name": "analyze_audio",
+            "description": "Estimate constant tempo, phase and onset count from the song audio; local signal processing, no audio upload",
+            "inputSchema": empty_schema(),
+            "annotations": {
+                "readOnlyHint": true,
+                "openWorldHint": false
+            }
+        }));
+        tools.push(json!({
+            "name": "generate_audio_chart",
+            "description": "Prepare a new SSC chart from audio onsets and GrooveAuthor footwork; inspect tempo confidence before applying",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "bpm": {
+                        "type": "number",
+                        "minimum": 40,
+                        "maximum": 300
+                    },
+                    "beat_offset_seconds": {
+                        "type": "number",
+                        "minimum": 0
+                    },
+                    "max_nps": {
+                        "type": "number",
+                        "minimum": 0.5,
+                        "maximum": 30
+                    },
+                    "subdivision": {
+                        "enum": [
+                            1,
+                            2,
+                            3,
+                            4,
+                            6,
+                            8,
+                            12,
+                            16
+                        ]
+                    },
+                    "target_layout": {
+                        "type": "string"
+                    },
+                    "seed": {
+                        "type": "integer"
+                    },
+                    "meter": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 99
+                    }
+                },
+                "additionalProperties": false
+            },
+            "annotations": {
+                "readOnlyHint": false,
+                "destructiveHint": false,
+                "openWorldHint": false
+            }
+        }));
     }
     for tool in &mut tools {
         if matches!(
             tool["name"].as_str(),
             Some("generate_chart" | "generate_audio_chart")
         ) {
-            tool["inputSchema"]["properties"]["profile"] = json!({"enum":["balanced","stamina_single","stamina_double","no_candles","no_inward","no_transition_limit"]});
+            tool["inputSchema"]["properties"]["profile"] = json!({
+                "enum": [
+                    "balanced",
+                    "stamina_single",
+                    "stamina_double",
+                    "no_candles",
+                    "no_inward",
+                    "no_transition_limit"
+                ]
+            });
             tool["inputSchema"]["properties"]["brackets"] = json!({"enum":["balanced","none"]});
         }
     }

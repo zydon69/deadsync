@@ -1,6 +1,15 @@
 use super::*;
 use crate::{document::Format, history::Session, notes::Grid};
 
+// One bounded entry per toolbox avoids retaining decoded PCM or unbounded song
+// histories. Changes to the canonical path, length or modification time invalidate it.
+pub(super) struct AnalysisCache {
+    path: std::path::PathBuf,
+    length: u64,
+    modified: Option<std::time::SystemTime>,
+    rhythm: deadsync_audio_analysis::rhythm::Rhythm,
+}
+
 pub(super) struct Preview {
     token: RevisionToken,
     grid: Grid,
@@ -48,8 +57,37 @@ impl Toolbox {
         if !path.starts_with(&base) {
             return invalid("Assistant audio must be inside the song directory");
         }
-        let rhythm = deadsync_audio_analysis::rhythm::analyze_file(&path, cancelled)
-            .map_err(Error::InvalidEdit)?;
+        let metadata = std::fs::metadata(&path)?;
+        let modified = metadata.modified().ok();
+        let reusable = modified.is_some()
+            && self.audio_cache.as_ref().is_some_and(|cached| {
+                cached.path == path
+                    && cached.length == metadata.len()
+                    && cached.modified == modified
+            });
+        if !reusable {
+            let rhythm = deadsync_audio_analysis::rhythm::analyze_file(&path, cancelled)
+                .map_err(Error::InvalidEdit)?;
+            if cancelled.load(Ordering::Acquire) {
+                return invalid("Assistant request cancelled");
+            }
+            // Never cache analysis if the source changed during decoding.
+            let after = std::fs::metadata(&path)?;
+            if after.len() != metadata.len() || after.modified().ok() != modified {
+                return invalid("Audio changed during analysis; retry the request");
+            }
+            self.audio_cache = Some(AnalysisCache {
+                path,
+                length: metadata.len(),
+                modified,
+                rhythm,
+            });
+        }
+        let rhythm = &self
+            .audio_cache
+            .as_ref()
+            .expect("analysis cache populated")
+            .rhythm;
         let mut description = json!({"duration_seconds":rhythm.duration_seconds,"estimated_bpm":rhythm.bpm,
             "beat_offset_seconds":rhythm.beat_offset_seconds,"tempo_confidence":rhythm.confidence,
             "detected_onsets":rhythm.onsets.len(),"timing_warning":"Constant-tempo estimate; verify tempo, phase, meter and musical phrasing before saving."});
@@ -171,4 +209,69 @@ fn number(args: &Value, key: &str, default: f64, min: f64, max: f64) -> Result<f
         .map_or(Some(default), Value::as_f64)
         .filter(|v| v.is_finite() && *v >= min && *v <= max);
     v.ok_or_else(|| Error::InvalidEdit(format!("Invalid {key}; expected {min}..{max}")))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::file_origin::{NewSong, Origin};
+    use crate::storage::FileSession;
+
+    #[test]
+    fn audio_analysis_reuses_the_same_source_and_invalidates_replaced_bytes() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("music.wav");
+        // Invalid audio deliberately proves that a matching cached analysis is
+        // returned without reopening the decoder.
+        std::fs::write(&path, b"not audio").unwrap();
+        let metadata = std::fs::metadata(&path).unwrap();
+        let document = crate::document::Document::parse(
+            Arc::<[u8]>::from(b"#VERSION:0.83;#MUSIC:music.wav;#BPMS:0=120;".as_slice()),
+            Format::Ssc,
+        )
+        .unwrap();
+        let file = FileSession::from_new(NewSong {
+            origin: Origin::Untitled {
+                resource_base: directory.path().to_owned(),
+            },
+            session: Session::new(document),
+        })
+        .unwrap();
+        let mut workspace = Workspace::from_file_unfocused(file);
+        let mut toolbox = Toolbox::default();
+        toolbox.audio_cache = Some(AnalysisCache {
+            path: path.canonicalize().unwrap(),
+            length: metadata.len(),
+            modified: metadata.modified().ok(),
+            rhythm: deadsync_audio_analysis::rhythm::Rhythm {
+                duration_seconds: 10.0,
+                bpm: 120.0,
+                beat_offset_seconds: 0.0,
+                confidence: 0.75,
+                onsets: vec![(1.0, 1.0)],
+                sections: vec![],
+            },
+        });
+        let response = toolbox
+            .audio(
+                &mut workspace,
+                "analyze_audio",
+                &json!({}),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+        assert_eq!(response["estimated_bpm"], 120.0);
+        assert_eq!(response["detected_onsets"], 1);
+        std::fs::write(&path, b"different invalid audio bytes").unwrap();
+        assert!(
+            toolbox
+                .audio(
+                    &mut workspace,
+                    "analyze_audio",
+                    &json!({}),
+                    &AtomicBool::new(false)
+                )
+                .is_err()
+        );
+    }
 }

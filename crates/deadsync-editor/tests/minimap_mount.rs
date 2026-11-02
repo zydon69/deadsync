@@ -1,4 +1,3 @@
-use deadsync_editor::Error;
 use deadsync_editor::minimap_mount;
 use deadsync_editor::minimap_position_preferences;
 use minimap_mount::{Bounds, FocusEdges, Input, Padding, Rect};

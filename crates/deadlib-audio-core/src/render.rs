@@ -1,11 +1,11 @@
 use crate::ring::{AudioRenderHandle, MusicBlock};
 use crate::{
     ActiveSfx, CallbackClockSource, MAX_ACTIVE_SFX, MixControls, MusicMapSeg, QueuedSfx,
-    f32_to_i16, i16_to_f32, mark_music_track_started, mix_active_sfx, music_asset_epoch,
+    f32_to_i16, i16_to_f32, mark_music_track_started, music_asset_epoch,
     music_gain_snap_generation, music_map_generation, music_pause_epoch, music_target_gain,
     music_total_frames, music_track_active_relaxed, music_track_has_started, music_track_paused,
     music_track_start_frame, note_timing_diag_callback_gap, publish_callback_window_end,
-    publish_callback_window_start_nanos, push_queued_sfx, seeded_music_position,
+    publish_callback_window_start_nanos, seeded_music_position,
 };
 use std::sync::Arc;
 

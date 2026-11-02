@@ -37,10 +37,18 @@ The assistant uses Codex App Server and its experimental dynamic tool interface.
 The adapter accepts only the verified CLI version 0.163.0-alpha.11.1. A future
 version is refused until its built-in tool set and protocol have been reviewed;
 a denylist alone is not treated as a forward-compatible security boundary.
+Updating ChatGPT can also replace its bundled CLI and temporarily disable the
+assistant. Use `DEADSYNC_CODEX_PATH` with the supported CLI installation, or update
+DeadSync once its adapter supports the new version. Never bypass the version
+check merely to restore availability. Adapter maintainers must review protocol
+and tool-isolation changes before approving each supported runtime version.
 
 A private temporary Codex home copies the existing file-backed `auth.json` sign-in.
 After the child exits, a refreshed credential is atomically retained only if the
-original login is unchanged. Concurrent DeadSync refreshes are serialized, and a
+original login is unchanged. The empty `auth.deadsync-lock` file is intentionally
+retained beside the login: deleting it could allow processes to lock different
+inodes and refresh the same credentials concurrently. It contains no credentials.
+Concurrent DeadSync refreshes are serialized, and a
 concurrent external account change is detected rather than overwritten. Shell,
 apps, multi-agent and web search tools are disabled; repository instructions and
 other configured MCP servers are not inherited. This authentication adapter
@@ -84,7 +92,9 @@ or secret. `apply_preview`, `undo` and `redo` offer a proposal to the native pan
 **F2 in the game** is still required to publish it. A pending native proposal is
 never replaced by an external proposal. The bounded proposal mailbox returns a
 recoverable tool error before changing history when full. Clients can retry after
-review. Bridge connections cannot save files.
+review. Rejecting with **F3** also resets detached client drafts, including requests
+already in progress, so rejected edits cannot reappear. Bridge connections cannot
+save files.
 
 Up to eight request workers are active at once; slow audio processing in one
 client does not block another client. The helper permits up to one hour per
@@ -93,8 +103,10 @@ returned as MCP errors rather than terminating the stdio helper. The helper rere
 discovery per request, so enabling a replacement bridge does not require restarting
 its stdio process. Stale previews must be regenerated after an editor change.
 
-`inspect_chart` pages in `(player, lane, row)` order. Send `next_cursor` back as
-`cursor`, keep the same `start_row`, and restart pagination if `revision` changes.
+`inspect_chart` pages chronologically in `(row, lane, player)` order. Optional
+`start_row` and `end_row` bounds are inclusive. Send `next_cursor` back as `cursor`,
+keep the same row bounds, and restart pagination if `revision` changes. Note kinds
+use the lowercase spellings accepted by `preview_note_edits`.
 
 The helper can alternatively open an explicitly selected song without a running
 game:
@@ -117,7 +129,7 @@ The helper emits newline-delimited JSON-RPC only on stdout; diagnostics use stde
 | `inspect_timing` | Chart/song BPM nodes and inherited timing |
 | `analyze_chart` | RSSP analysis of unsaved chart data |
 | `generate_chart` | GrooveAuthor conversion from an existing chart |
-| `preview_note_edits` | Validate a batch of taps, holds, rolls, mines, lifts, fakes or deletions |
+| `preview_note_edits` | Validate a batch of notes, attributes or deletions |
 | `preview_tempo_edits` | Prepare scoped BPM node changes |
 | `analyze_audio` | Local constant-tempo, phase and onset estimate |
 | `generate_audio_chart` | New SSC chart from local onsets plus GrooveAuthor footwork |

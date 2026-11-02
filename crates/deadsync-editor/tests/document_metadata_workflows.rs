@@ -81,7 +81,7 @@ fn malformed_sm_header_and_syntax_are_not_accepted_by_readonly_mode() {
     for source in [
         "#TITLE:X;#NOTES:dance-single::Hard;",
         "#BAD-NAME:x;",
-        "#TITLE:unterminated",
+        "#TITLE",
     ] {
         assert_eq!(
             Document::parse(source.as_bytes(), Format::Sm)
@@ -132,4 +132,60 @@ fn hashes_inside_sm_chart_descriptions_are_plain_characters() {
     let document = Document::parse(source.as_slice(), Format::Sm).unwrap();
     assert_eq!(document.charts()[0].description, "C# exercise");
     assert_eq!(document.serialize(), source);
+}
+
+#[test]
+fn final_unterminated_values_and_notes_match_msd_without_rewriting_source() {
+    for (format, source) in [
+        (Format::Sm, "#TITLE:Final # value"),
+        (Format::Ssc, "#TITLE:Final # value"),
+        (
+            Format::Sm,
+            "#TITLE:Final;#NOTES:dance-single::Hard:9::1000\n0000",
+        ),
+        (
+            Format::Ssc,
+            "#TITLE:Final;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000",
+        ),
+    ] {
+        let document = Document::parse(source.as_bytes(), format).unwrap();
+        let metadata = Metadata::parse(source.as_bytes(), format).unwrap();
+        assert_eq!(document.serialize(), source.as_bytes());
+        assert_eq!(metadata.text("TITLE"), document.text(None, "TITLE"));
+        for chart in document.charts() {
+            assert_eq!(document.value(chart.notes.clone()), b"1000\n0000");
+        }
+    }
+}
+
+#[test]
+fn sm_chart_without_final_semicolon_can_be_duplicated_and_undone() {
+    use deadsync_editor::{
+        file_origin::{NewSong, Origin},
+        history::Session,
+        storage::FileSession,
+        workspace::{Command, Workspace},
+    };
+    let source = b"#TITLE:Final;#NOTES:dance-single::Hard:9::1000\n0000";
+    let document = Document::parse(source.as_slice(), Format::Sm).unwrap();
+    let file = FileSession::from_new(NewSong {
+        origin: Origin::Untitled {
+            resource_base: std::env::temp_dir(),
+        },
+        session: Session::new(document),
+    })
+    .unwrap();
+    let mut workspace = Workspace::from_file(file, 0).unwrap();
+    workspace.execute(Command::DuplicateChart).unwrap();
+    assert_eq!(workspace.file().session.document().charts().len(), 2);
+    let serialized = workspace.file().session.serialize().unwrap();
+    assert_eq!(
+        Document::parse(serialized, Format::Sm)
+            .unwrap()
+            .charts()
+            .len(),
+        2
+    );
+    workspace.execute(Command::Undo).unwrap();
+    assert_eq!(workspace.file().session.serialize().unwrap(), source);
 }

@@ -193,7 +193,7 @@ fn selected_ssc_reader_failure_never_falls_back_to_sm() {
     let dir = root.path().join("Broken");
     fs::create_dir(&dir).unwrap();
     fs::write(dir.join("song.sm"), sm("Must not be shown")).unwrap();
-    fs::write(dir.join("song.ssc"), "#TITLE:Unterminated").unwrap();
+    fs::write(dir.join("song.ssc"), "#TITLE").unwrap();
     let catalog = run(&source, Limits::default()).unwrap();
     assert_eq!(catalog.rows.len(), 1);
     assert!(catalog.issues.iter().any(|v|matches!(v.kind,IssueKind::MetadataFailed(_))&&v.path.ends_with("song.ssc")));

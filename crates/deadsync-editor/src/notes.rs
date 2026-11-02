@@ -287,6 +287,60 @@ impl Grid {
             })
     }
 
+    /// Merge bounded lane scans in (row, lane, player) order. Pagination only
+    /// visits the requested row interval and never scans preceding note heads.
+    pub fn iter_heads_row_order(
+        &self,
+        start: u64,
+        end: u64,
+        cursor: Option<Position>,
+    ) -> impl Iterator<Item = (Position, &Note)> {
+        use std::ops::Bound::{Excluded, Included};
+        let mut tracks: Vec<_> = self
+            .tracks
+            .iter()
+            .map(|(&(player, lane), track)| {
+                let lower = match cursor {
+                    Some(p) if p.row >= start && (lane, player) <= (p.lane, p.player) => {
+                        Excluded(p.row)
+                    }
+                    Some(p) if p.row >= start => Included(p.row),
+                    _ => Included(start),
+                };
+                // Empty ranges avoid BTreeMap's panic when a cursor lies past end.
+                let lower = match lower {
+                    Included(row) if row > end => Excluded(end),
+                    Excluded(row) if row > end => Excluded(end),
+                    other => other,
+                };
+                (player, lane, track.range((lower, Included(end))).peekable())
+            })
+            .collect();
+        std::iter::from_fn(move || {
+            let index = tracks
+                .iter_mut()
+                .enumerate()
+                .filter_map(|(index, (player, lane, notes))| {
+                    notes
+                        .peek()
+                        .map(|entry| ((*entry.0, *lane, *player), index))
+                })
+                .min_by_key(|(key, _)| *key)?
+                .1;
+            let (player, lane, notes) = &mut tracks[index];
+            notes.next().map(|(&row, note)| {
+                (
+                    Position {
+                        row,
+                        lane: *lane,
+                        player: *player,
+                    },
+                    note,
+                )
+            })
+        })
+    }
+
     /// Only query the visible interval of each lane. Include a sustain whose
     /// head precedes the viewport and whose tail is still visible.
     pub fn visible(&self, start: u64, end: u64) -> impl Iterator<Item = (Position, &Note)> {

@@ -64,6 +64,8 @@ struct Preview {
 #[derive(Default)]
 pub struct Toolbox {
     preview: Option<Preview>,
+    #[cfg(feature = "assistant-audio")]
+    audio_cache: Option<audio::AnalysisCache>,
 }
 
 impl Toolbox {
@@ -116,6 +118,10 @@ impl Toolbox {
             }
             "inspect_chart" => {
                 let start = unsigned(&arguments, "start_row", 0)?;
+                let end = unsigned(&arguments, "end_row", u64::MAX)?;
+                if end < start {
+                    return invalid("end_row must be at least start_row");
+                }
                 let limit = unsigned(&arguments, "limit", 100)?.min(MAX_PAGE as u64) as usize;
                 let cursor = arguments
                     .get("cursor")
@@ -129,8 +135,7 @@ impl Toolbox {
                     .transpose()?;
                 let grid = workspace.assistant_session().grid(chart)?;
                 let page: Vec<_> = grid
-                    .iter_heads_after(cursor)
-                    .filter(|(p, _)| p.row >= start)
+                    .iter_heads_row_order(start, end, cursor)
                     .take(limit + 1)
                     .collect();
                 let next = if page.len() > limit {
@@ -140,7 +145,7 @@ impl Toolbox {
                     None
                 };
                 let notes: Vec<_> = page.into_iter().take(limit).map(|(p,n)|
-                    json!({"row":p.row,"lane":p.lane,"player":p.player,"kind":format!("{:?}",n.kind),"end_row":n.end,
+                    json!({"row":p.row,"lane":p.lane,"player":p.player,"kind":note_kind(n.kind),"end_row":n.end,
                         "attributes":n.attributes.as_ref(),"tail_attributes":n.tail_attributes.as_ref()})).collect();
                 Ok(
                     json!({"chart":chart,"columns":grid.columns(),"players":grid.players(),"notes":notes,"total_notes":grid.head_count(),"next_cursor":next,"revision":workspace.file().session.revision()}),
@@ -206,6 +211,8 @@ impl Toolbox {
                                 "mine" => Kind::Mine,
                                 "lift" => Kind::Lift,
                                 "fake" => Kind::Fake,
+                                "keysound" => Kind::Keysound,
+                                "attack" => Kind::Attack,
                                 _ => return invalid("Unsupported assistant note kind"),
                             },
                             end: e.end_row.map(u64::from),
@@ -347,12 +354,15 @@ impl Toolbox {
                 )
             }
             "undo" | "redo" => {
-                self.discard();
+                let before_revision = workspace.file().session.revision();
                 workspace.execute(if name == "undo" {
                     Command::Undo
                 } else {
                     Command::Redo
                 })?;
+                if workspace.file().session.revision() != before_revision {
+                    self.discard();
+                }
                 Ok(
                     json!({"revision":workspace.file().session.revision(),"dirty":workspace.file().session.is_dirty()}),
                 )
@@ -498,4 +508,17 @@ fn generation_options(
         options.expressed.bracket_parsing_determination = BracketDetermination::UseDefaultMethod;
     }
     Ok(options)
+}
+
+fn note_kind(kind: Kind) -> &'static str {
+    match kind {
+        Kind::Tap => "tap",
+        Kind::Hold => "hold",
+        Kind::Roll => "roll",
+        Kind::Mine => "mine",
+        Kind::Lift => "lift",
+        Kind::Fake => "fake",
+        Kind::Keysound => "keysound",
+        Kind::Attack => "attack",
+    }
 }

@@ -20,26 +20,6 @@ pub(in crate::screens::edition) struct Job {
     receiver: Receiver<Result<Prepared, Error>>,
 }
 impl Job {
-    pub(in crate::screens::edition) fn spawn(
-        path: PathBuf,
-        preferences: Preferences,
-    ) -> Result<Self, Error> {
-        Self::spawn_with_profiles(
-            path,
-            preferences,
-            deadsync_editor::runtime::configs_dir().map(Path::to_path_buf),
-        )
-    }
-    pub(in crate::screens::edition) fn spawn_published(
-        witness: deadsync_editor::storage::PublishedOpenWitness,
-        preferences: Preferences,
-    ) -> Result<Self, Error> {
-        Self::spawn_published_with_profiles(
-            witness,
-            preferences,
-            deadsync_editor::runtime::configs_dir().map(Path::to_path_buf),
-        )
-    }
     pub(in crate::screens::edition) fn spawn_with_profiles(
         path: PathBuf,
         preferences: Preferences,
@@ -124,6 +104,7 @@ impl Drop for Job {
         self.cancelled.store(true, Ordering::Relaxed);
     }
 }
+#[cfg(test)]
 fn prepare(
     path: &Path,
     preferences: Preferences,

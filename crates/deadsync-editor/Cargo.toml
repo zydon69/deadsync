@@ -11,6 +11,7 @@ assistant-audio = ["dep:deadsync-audio-analysis"]
 
 [dependencies]
 deadsync-audio-analysis = { path = "../deadsync-audio-analysis", optional = true }
+subtle = "2.6.1"
 unicode-segmentation = "1.13.3"
 tempfile = "3.27.0"
 serde = { version = "1.0.229", features = ["derive"] }

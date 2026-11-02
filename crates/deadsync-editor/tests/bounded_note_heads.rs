@@ -43,3 +43,55 @@ fn resumed_head_chunks_equal_complete_track_order_without_duplicates() {
         .is_none()
     );
 }
+
+#[test]
+fn chronological_chunks_include_all_lanes_and_players_without_duplicates() {
+    use deadsync_editor::notes::Note;
+    let mut grid = Grid::new(4, 2).unwrap();
+    for row in [0, 48, 96, 192] {
+        for player in 0..2 {
+            for lane in 0..4 {
+                grid.set(Position { row, lane, player }, Some(Note::tap()))
+                    .unwrap();
+            }
+        }
+    }
+    let mut expected: Vec<_> = grid
+        .iter()
+        .map(|(p, _)| p)
+        .filter(|p| (48..=96).contains(&p.row))
+        .collect();
+    expected.sort_by_key(|p| (p.row, p.lane, p.player));
+    for chunk in 1..10 {
+        let mut actual = Vec::new();
+        let mut cursor = None;
+        loop {
+            let next: Vec<_> = grid
+                .iter_heads_row_order(48, 96, cursor)
+                .take(chunk)
+                .map(|(p, _)| p)
+                .collect();
+            if next.is_empty() {
+                break;
+            }
+            cursor = next.last().copied();
+            actual.extend(next);
+            assert!(actual.len() <= expected.len());
+        }
+        assert_eq!(actual, expected);
+    }
+    assert!(
+        grid.iter_heads_row_order(
+            48,
+            96,
+            Some(Position {
+                row: u64::MAX,
+                lane: 0,
+                player: 0
+            })
+        )
+        .next()
+        .is_none()
+    );
+    assert!(grid.iter_heads_row_order(96, 48, None).next().is_none());
+}

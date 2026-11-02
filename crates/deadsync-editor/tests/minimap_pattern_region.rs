@@ -1,9 +1,8 @@
 use deadsync_editor::minimap_pattern_region;
 use deadsync_editor::{
-    Error,
     document::{Document, Format},
     history::Session,
-    minimap_event_policy, playback,
+    playback,
 };
 #[test]
 fn source_pattern_start_after_tap_and_end_before_equal_row_delay_stop_and_tempo() {

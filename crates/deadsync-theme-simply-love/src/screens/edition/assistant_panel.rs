@@ -161,6 +161,13 @@ impl State {
                 }
             }
             KeyCode::F3 if self.assistant.job.is_none() => {
+                if let Some(bridge) = &self.assistant.bridge {
+                    if let Err(error) = bridge.discard_proposals() {
+                        self.assistant
+                            .transcript
+                            .push_str(&format!("\nMCP: {error}\n"));
+                    }
+                }
                 self.assistant.draft = None;
                 self.assistant.preview = None;
             }
@@ -281,12 +288,23 @@ impl State {
                             self.assistant
                                 .conversation
                                 .push_str(&format!("Assistant: {}\n", draft.message));
-                            self.assistant.draft = Some(draft);
-                            self.assistant_prepare_preview();
-                            self.assistant.transcript.push_str(&format!(
-                                "\n{}\n",
-                                i18n::tr("Edition", "AssistantReady")
-                            ));
+                            match draft.has_changes(&self.workspace) {
+                                Ok(true) => {
+                                    self.assistant.draft = Some(draft);
+                                    self.assistant_prepare_preview();
+                                    self.assistant.transcript.push_str(&format!(
+                                        "\n{}\n",
+                                        i18n::tr("Edition", "AssistantReady")
+                                    ));
+                                }
+                                Ok(false) => {
+                                    self.assistant.draft = None;
+                                    self.assistant.preview = None;
+                                }
+                                Err(error) => {
+                                    self.assistant.transcript.push_str(&format!("\n{error}\n"));
+                                }
+                            }
                         }
                         Err(error) => self.assistant.transcript.push_str(&format!("\n{error}\n")),
                     }
@@ -528,6 +546,111 @@ mod tests {
     fn song_bytes(state: &State) -> Vec<u8> {
         state.workspace.file().session.serialize().unwrap()
     }
+    #[test]
+    fn conversational_completion_has_no_proposal_or_apply_status() {
+        let (_directory, mut state) = input_fixture();
+        let before = song_bytes(&state);
+        let mut draft = Draft::from_bytes_for_test(&state.workspace, before.clone());
+        draft.message = "Timing explanation without edits.".into();
+        let (job, worker) = Job::pending_for_test();
+        state.assistant.job = Some(job);
+        worker.send(Event::Finished(Ok(draft))).unwrap();
+        state.poll_assistant();
+        assert!(state.assistant.job.is_none());
+        assert!(state.assistant.draft.is_none());
+        assert!(state.assistant.preview.is_none());
+        assert!(
+            state
+                .assistant
+                .conversation
+                .contains("Timing explanation without edits.")
+        );
+        assert!(
+            !state
+                .assistant
+                .transcript
+                .contains(i18n::tr("Edition", "AssistantReady").as_ref())
+        );
+        key(&mut state, KeyCode::F2, true);
+        key(&mut state, KeyCode::F2, false);
+        assert!(
+            !state
+                .assistant
+                .transcript
+                .contains(i18n::tr("Edition", "AssistantApplied").as_ref())
+        );
+        assert_eq!(song_bytes(&state), before);
+    }
+
+    #[test]
+    fn conversational_followup_retains_previous_unapplied_edits() {
+        let (directory, mut state) = input_fixture();
+        let before = song_bytes(&state);
+        let mut detached = Workspace::open(&directory.path().join("clipboard.ssc"), 0).unwrap();
+        detached.execute(Command::DuplicateChart).unwrap();
+        let edited = detached.file().session.serialize().unwrap();
+        state.assistant.draft = Some(Draft::from_bytes_for_test(&state.workspace, edited.clone()));
+        let mut answer = Draft::from_bytes_for_test(&state.workspace, edited.clone());
+        answer.message = "Explanation of the previous edit.".into();
+        let (job, worker) = Job::pending_for_test();
+        state.assistant.job = Some(job);
+        worker.send(Event::Finished(Ok(answer))).unwrap();
+        state.poll_assistant();
+        assert!(state.assistant.draft.is_some());
+        assert!(
+            state
+                .assistant
+                .transcript
+                .contains(i18n::tr("Edition", "AssistantReady").as_ref())
+        );
+        assert_eq!(song_bytes(&state), before);
+        assert_eq!(state.assistant.draft.as_ref().unwrap().bytes(), edited);
+        key(&mut state, KeyCode::F2, true);
+        key(&mut state, KeyCode::F2, false);
+        let expected = deadsync_editor::document::Document::parse(
+            edited.as_slice(),
+            deadsync_editor::document::Format::Ssc,
+        )
+        .unwrap();
+        let applied = state.workspace.file().session.document();
+        assert_eq!(applied.charts().len(), 2);
+        for (wanted, actual) in expected.charts().iter().zip(applied.charts()) {
+            assert_eq!(actual.steps_type, wanted.steps_type);
+            assert_eq!(actual.description, wanted.description);
+            assert_eq!(actual.difficulty, wanted.difficulty);
+            assert_eq!(actual.meter, wanted.meter);
+            assert_eq!(
+                applied.value(actual.notes.clone()),
+                expected.value(wanted.notes.clone())
+            );
+        }
+        // Publication materializes the existing song timing choice in GA song
+        // metadata. Every supplied tag, including notes and BPMs, must survive
+        // exactly; only that owned metadata may be added by the host.
+        let tag_values = |document: &deadsync_editor::document::Document| {
+            document
+                .tags()
+                .iter()
+                .filter(|tag| !matches!(tag.name.as_str(), "GASONGDATA" | "GASONGDATAVERSION"))
+                .map(|tag| {
+                    (
+                        tag.chart,
+                        tag.name.clone(),
+                        document.value(tag.value.clone()).to_vec(),
+                    )
+                })
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(tag_values(applied), tag_values(&expected));
+        assert_eq!(state.workspace.active_chart(), Some(1));
+        assert!(
+            state
+                .assistant
+                .transcript
+                .contains(i18n::tr("Edition", "AssistantApplied").as_ref())
+        );
+    }
+
     #[test]
     fn assistant_native_paste_preserves_unicode_paragraphs_and_indentation_without_editing_song() {
         for modifier in [

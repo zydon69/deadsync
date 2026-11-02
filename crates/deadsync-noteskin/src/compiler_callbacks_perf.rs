@@ -1,5 +1,6 @@
 use super::*;
 use crate::resource_perf_support as support;
+#[cfg(windows)]
 use std::hint::black_box;
 
 #[path = "compiler_callbacks_before.rs"]

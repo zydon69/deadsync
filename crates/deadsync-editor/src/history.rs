@@ -2657,6 +2657,27 @@ impl Session {
 }
 
 impl Session {
+    /// Capture editable state without formatting or reparsing the song on the
+    /// UI thread. Only modified grids are copied; immutable source bytes are
+    /// shared. Materialization belongs to the requesting assistant worker.
+    pub(crate) fn deferred_snapshot(
+        &self,
+    ) -> impl FnOnce() -> Result<Document, Error> + Send + 'static {
+        let document = self.document.clone();
+        let grids: Vec<_> = self
+            .touched_grids
+            .iter()
+            .map(|&chart| (chart, self.grids[&chart].clone()))
+            .collect();
+        move || {
+            let mut session = Self::new(document);
+            for (chart, grid) in grids {
+                session.grids.insert(chart, grid);
+                session.touched_grids.insert(chart);
+            }
+            session.snapshot_document()
+        }
+    }
     pub fn snapshot_document(&self) -> Result<Document, Error> {
         self.document.reparse(self.serialize()?)
     }

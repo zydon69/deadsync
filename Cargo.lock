@@ -1651,6 +1651,7 @@ dependencies = [
  "rssp",
  "serde",
  "serde_json",
+ "subtle",
  "tempfile",
  "unicode-segmentation",
  "uuid",

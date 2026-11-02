@@ -23,6 +23,15 @@ pub struct Draft {
     pub message: String,
 }
 impl Draft {
+    /// Detached result fixture for host UI tests; never starts an assistant.
+    #[cfg(any(test, feature = "test-support"))]
+    pub fn from_bytes_for_test(workspace: &Workspace, bytes: Vec<u8>) -> Self {
+        Self {
+            token: workspace.file().session.revision_token(),
+            bytes,
+            message: String::new(),
+        }
+    }
     /// Select a changed chart for a detached visual review. No editor mutation.
     pub fn preview_grid(
         &self,
@@ -48,6 +57,10 @@ impl Draft {
     }
     pub fn is_current(&self, workspace: &Workspace) -> bool {
         workspace.file().session.accepts_token(&self.token)
+    }
+    /// Whether this result proposes a material edit rather than just an answer.
+    pub fn has_changes(&self, workspace: &Workspace) -> Result<bool, Error> {
+        Ok(self.bytes != workspace.file().session.serialize()?)
     }
     pub fn bytes(&self) -> &[u8] {
         &self.bytes
@@ -186,6 +199,9 @@ fn run(
     // A private copy permits atomic auth refresh without replacing a symlink.
     let home = tempfile::tempdir().map_err(|e| e.to_string())?;
     let auth = codex_auth_path()?;
+    // Keep this file after releasing the lease: unlinking it would let a
+    // waiting process lock the old inode while a new process locks a new one.
+    // It stores no credentials and consumes only an empty directory entry.
     let lock = std::fs::OpenOptions::new()
         .create(true)
         .truncate(false)
@@ -624,6 +640,26 @@ mod tests {
         original.execute(Command::Redo).unwrap();
         assert_eq!(original.active_chart(), Some(1));
         assert_eq!(original.file().session.document().charts().len(), 2);
+    }
+    #[test]
+    fn conversational_answer_is_not_a_proposal_but_retained_edits_are() {
+        let original = workspace();
+        let before = original.file().session.serialize().unwrap();
+        let answer = Draft {
+            token: original.file().session.revision_token(),
+            bytes: before.clone(),
+            message: "Here is an explanation without editing.".into(),
+        };
+        assert!(!answer.has_changes(&original).unwrap());
+        let mut shadow = workspace();
+        shadow.execute(Command::DuplicateChart).unwrap();
+        let edited = Draft {
+            token: original.file().session.revision_token(),
+            bytes: shadow.file().session.serialize().unwrap(),
+            message: "An explanation following the existing edit.".into(),
+        };
+        assert!(edited.has_changes(&original).unwrap());
+        assert_eq!(original.file().session.serialize().unwrap(), before);
     }
     #[test]
     fn changed_song_rejects_assistant_publication_without_mutation() {

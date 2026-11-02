@@ -890,8 +890,9 @@ impl Draft {
                 report.push(Item {
                     source_token: None,
                     path: format!("{source_name}.{source_key}"),
-                    disposition: if source_name=="PreferencesReceptors"&&matches!(key.as_str(),"PositionX"|"PositionY"|"AllowChartMoveWhenPositionLocked"){Disposition::Adapted}
-                    else if fields.contains_key(key) && key.starts_with("Show") && key.ends_with("Window") {
+                    disposition: if (source_name == "PreferencesReceptors"
+                        && matches!(key.as_str(), "PositionX" | "PositionY" | "AllowChartMoveWhenPositionLocked"))
+                        || (fields.contains_key(key) && key.starts_with("Show") && key.ends_with("Window")) {
                         Disposition::Adapted
                     } else if fields.contains_key(key) {
                         Disposition::Applied

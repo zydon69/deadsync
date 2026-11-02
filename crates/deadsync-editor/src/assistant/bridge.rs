@@ -7,14 +7,35 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
     path::{Path, PathBuf},
-    sync::{Mutex, atomic::AtomicUsize},
+    sync::{Mutex, OnceLock, atomic::AtomicUsize},
     time::Duration,
 };
+type Materializer = Box<dyn FnOnce() -> Result<crate::document::Document, Error> + Send>;
+struct DeferredDocument {
+    source: Mutex<Option<Materializer>>,
+    document: OnceLock<Result<crate::document::Document, String>>,
+}
+impl DeferredDocument {
+    fn resolve(&self) -> Result<&crate::document::Document, String> {
+        self.document
+            .get_or_init(|| {
+                let materialize = self
+                    .source
+                    .lock()
+                    .map_err(|_| "Snapshot unavailable")?
+                    .take()
+                    .ok_or("Snapshot already consumed")?;
+                materialize().map_err(|error| error.to_string())
+            })
+            .as_ref()
+            .map_err(Clone::clone)
+    }
+}
 #[derive(Clone)]
 struct Snapshot {
     epoch: Arc<()>,
     token: RevisionToken,
-    document: crate::document::Document,
+    document: Arc<DeferredDocument>,
     base: PathBuf,
     chart: Option<usize>,
 }
@@ -24,7 +45,10 @@ impl Snapshot {
         Ok(Self {
             epoch: Arc::new(()),
             token: session.revision_token(),
-            document: session.document().reparse(session.serialize()?)?,
+            document: Arc::new(DeferredDocument {
+                source: Mutex::new(Some(Box::new(session.deferred_snapshot()))),
+                document: OnceLock::new(),
+            }),
             base: workspace.file().resource_base().to_owned(),
             chart: workspace.active_chart(),
         })
@@ -34,13 +58,19 @@ impl Snapshot {
             origin: crate::file_origin::Origin::Untitled {
                 resource_base: self.base.clone(),
             },
-            session: crate::history::Session::new(self.document.clone()),
+            session: crate::history::Session::new(
+                self.document.resolve().map_err(Error::InvalidEdit)?.clone(),
+            ),
         })?;
         match self.chart {
             Some(chart) => Workspace::from_file(file, chart),
             None => Ok(Workspace::from_file_unfocused(file)),
         }
     }
+}
+struct Proposal {
+    epoch: Arc<()>,
+    draft: Draft,
 }
 struct Client {
     epoch: Arc<()>,
@@ -52,7 +82,8 @@ pub struct Bridge {
     secret: String,
     cancelled: Arc<AtomicBool>,
     host: Arc<Mutex<Snapshot>>,
-    draft: Arc<Mutex<Option<Draft>>>,
+    draft: Arc<Mutex<Option<Proposal>>>,
+    failure: Arc<Mutex<Option<String>>>,
 }
 fn registry_lock(path: &Path) -> std::io::Result<std::fs::File> {
     let mut options = std::fs::OpenOptions::new();
@@ -93,14 +124,18 @@ impl Bridge {
         drop(lock);
         let cancelled = Arc::new(AtomicBool::new(false));
         let draft = Arc::new(Mutex::new(None));
+        let failure = Arc::new(Mutex::new(None));
         let bridge = Self {
             registry,
             secret: secret.clone(),
             cancelled: cancelled.clone(),
             host: host.clone(),
             draft: draft.clone(),
+            failure: failure.clone(),
         };
         let server = Server {
+            registry: bridge.registry.clone(),
+            failure,
             host,
             draft,
             cancelled,
@@ -115,6 +150,11 @@ impl Bridge {
     }
     /// Refresh on host revision/focus changes without changing address or token.
     pub fn synchronize(&self, workspace: &Workspace) -> Result<(), Error> {
+        if let Ok(failure) = self.failure.try_lock() {
+            if let Some(error) = failure.as_ref() {
+                return Err(Error::InvalidEdit(error.clone()));
+            }
+        }
         let mut host = self
             .host
             .lock()
@@ -127,16 +167,38 @@ impl Bridge {
         }
         Ok(())
     }
+    /// Reject every detached client draft, including an in-flight publication.
+    /// Advancing the epoch prevents the rejected edit from resurfacing later.
+    pub fn discard_proposals(&self) -> Result<(), Error> {
+        let mut host = self
+            .host
+            .lock()
+            .map_err(|_| Error::InvalidEdit("Host snapshot unavailable".into()))?;
+        host.epoch = Arc::new(());
+        // A worker can hold the mailbox during generation. Never wait for it
+        // on the UI thread: epoch checks reject both queued and in-flight work.
+        if let Ok(mut draft) = self.draft.try_lock() {
+            *draft = None;
+        }
+        Ok(())
+    }
     pub fn discovery_path(&self) -> PathBuf {
         self.registry.clone()
     }
     pub fn poll(&self) -> Option<Result<Draft, String>> {
-        self.draft.try_lock().ok()?.take().map(Ok)
+        if let Some(error) = self.failure.try_lock().ok()?.take() {
+            return Some(Err(error));
+        }
+        let proposal = self.draft.try_lock().ok()?.take()?;
+        let host = self.host.lock().ok()?;
+        Arc::ptr_eq(&proposal.epoch, &host.epoch).then_some(Ok(proposal.draft))
     }
 }
 struct Server {
+    registry: PathBuf,
+    failure: Arc<Mutex<Option<String>>>,
     host: Arc<Mutex<Snapshot>>,
-    draft: Arc<Mutex<Option<Draft>>>,
+    draft: Arc<Mutex<Option<Proposal>>>,
     cancelled: Arc<AtomicBool>,
     secret: String,
     clients: Mutex<HashMap<String, Arc<Mutex<Client>>>>,
@@ -158,7 +220,11 @@ impl Server {
                     std::thread::sleep(Duration::from_millis(25));
                     continue;
                 }
-                Err(_) => break,
+                Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+                Err(error) => {
+                    server.listener_failed(error);
+                    break;
+                }
             };
             if server.active.load(Ordering::Acquire) >= 8 {
                 continue;
@@ -189,6 +255,15 @@ impl Server {
             }
         }
     }
+    fn listener_failed(&self, error: std::io::Error) {
+        self.cancelled.store(true, Ordering::Release);
+        if let Ok(mut failure) = self.failure.lock() {
+            *failure = Some(format!(
+                "MCP listener stopped: {error}. Toggle MCP off and on to restart."
+            ));
+        }
+        remove_owned_registry(&self.registry, &self.secret);
+    }
     fn serve(&self, mut stream: TcpStream) {
         let result = (|| -> Result<(), String> {
             // BSD/macOS accepts inherit the listener's nonblocking flag. A
@@ -202,7 +277,7 @@ impl Server {
                 .set_write_timeout(Some(Duration::from_secs(3)))
                 .map_err(|e| e.to_string())?;
             let envelope = read_frame(&mut BufReader::new(&stream))?;
-            if envelope["token"].as_str() != Some(self.secret.as_str()) {
+            if !valid_token(envelope["token"].as_str(), &self.secret) {
                 return Err("Invalid bridge token".into());
             }
             let request = &envelope["request"];
@@ -249,6 +324,18 @@ impl Server {
             .clone();
         let client = self.client(envelope["client"].as_str().unwrap_or("legacy"), &snapshot)?;
         let mut client = client.lock().map_err(|_| "Client state unavailable")?;
+        if !Arc::ptr_eq(
+            &self
+                .host
+                .lock()
+                .map_err(|_| "Host snapshot unavailable")?
+                .epoch,
+            &snapshot.epoch,
+        ) {
+            return Err(
+                "Host changed or proposal was discarded; retry against the current song".into(),
+            );
+        }
         if !Arc::ptr_eq(&client.epoch, &snapshot.epoch) {
             *client = Client::new(&snapshot)?;
         }
@@ -267,6 +354,14 @@ impl Server {
         } else {
             None
         };
+        if let Some(slot) = publication.as_mut() {
+            if slot
+                .as_ref()
+                .is_some_and(|proposal| !Arc::ptr_eq(&proposal.epoch, &snapshot.epoch))
+            {
+                **slot = None;
+            }
+        }
         if publication.as_ref().is_some_and(|slot| slot.is_some()) {
             return Err(
                 "Review or discard the pending MCP proposal before publishing another".into(),
@@ -298,7 +393,19 @@ impl Server {
                 message: "MCP proposal".into(),
             };
             if let Some(slot) = publication.as_mut() {
-                **slot = Some(proposal);
+                // Host lock is acquired only after the potentially long tool
+                // call. Rejection/focus/edit invalidation wins over old work.
+                let host = self.host.lock().map_err(|_| "Host snapshot unavailable")?;
+                if !Arc::ptr_eq(&host.epoch, &snapshot.epoch) {
+                    return Err(
+                        "Host changed or proposal was discarded; retry against the current song"
+                            .into(),
+                    );
+                }
+                **slot = Some(Proposal {
+                    epoch: snapshot.epoch.clone(),
+                    draft: proposal,
+                });
             }
         }
         Ok(response)
@@ -322,16 +429,25 @@ fn tool_error(request: &Value, message: &str) -> Value {
 impl Drop for Bridge {
     fn drop(&mut self) {
         self.cancelled.store(true, Ordering::Release);
-        if let Ok(_lock) = registry_lock(&self.registry) {
-            let owned = std::fs::read(&self.registry)
-                .ok()
-                .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok())
-                .is_some_and(|v| v["token"].as_str() == Some(self.secret.as_str()));
-            if owned {
-                let _ = std::fs::remove_file(&self.registry);
-            }
+        remove_owned_registry(&self.registry, &self.secret);
+    }
+}
+fn remove_owned_registry(registry: &Path, secret: &str) {
+    if let Ok(_lock) = registry_lock(registry) {
+        let owned = std::fs::read(registry)
+            .ok()
+            .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok())
+            .is_some_and(|value| valid_token(value["token"].as_str(), secret));
+        if owned {
+            let _ = std::fs::remove_file(registry);
         }
     }
+}
+fn valid_token(candidate: Option<&str>, secret: &str) -> bool {
+    // Length is public (UUID). subtle prevents optimizer-induced short-circuit
+    // comparisons of the fixed-length secret bytes.
+    use subtle::ConstantTimeEq;
+    candidate.is_some_and(|candidate| bool::from(candidate.as_bytes().ct_eq(secret.as_bytes())))
 }
 fn read_frame(input: &mut impl BufRead) -> Result<Value, String> {
     let mut bytes = Vec::new();
@@ -360,7 +476,29 @@ pub fn connect(path: &Path, mut input: impl BufRead, mut output: impl Write) -> 
         if input.fill_buf().map_err(|e| e.to_string())?.is_empty() {
             return Ok(());
         }
-        let request = read_frame(&mut input)?;
+        let mut frame = Vec::new();
+        std::io::Read::take(&mut input, (protocol::MAX_FRAME + 1) as u64)
+            .read_until(b'\n', &mut frame)
+            .map_err(|e| e.to_string())?;
+        if frame.len() > protocol::MAX_FRAME {
+            return Err("Invalid bridge frame size".into());
+        }
+        if frame.iter().all(u8::is_ascii_whitespace) {
+            continue;
+        }
+        let request: Value = match serde_json::from_slice(&frame) {
+            Ok(request) => request,
+            Err(_) => {
+                write_frame(
+                    &mut output,
+                    &json!({
+                        "jsonrpc": "2.0", "id": null,
+                        "error": { "code": -32700, "message": "Invalid JSON" }
+                    }),
+                )?;
+                continue;
+            }
+        };
         if request.get("id").is_none() {
             continue;
         }
@@ -429,7 +567,10 @@ mod tests {
         Snapshot {
             epoch: Arc::new(()),
             token: crate::history::Session::new(document.clone()).revision_token(),
-            document,
+            document: Arc::new(DeferredDocument {
+                source: Mutex::new(Some(Box::new(move || Ok(document)))),
+                document: OnceLock::new(),
+            }),
             base: std::env::temp_dir(),
             chart: Some(0),
         }
@@ -571,5 +712,189 @@ mod tests {
             false
         );
         assert!(start.elapsed() < Duration::from_secs(2));
+    }
+    #[test]
+    fn rejected_proposal_is_not_reintroduced_by_the_next_edit() {
+        let home = tempfile::tempdir().unwrap();
+        let path = home.path().join("connection.json");
+        let mut host = workspace();
+        let bridge = Bridge::start_at(&host, path.clone()).unwrap();
+        let publish = |row| {
+            let preview = request(
+                &path,
+                "preview_note_edits",
+                json!({
+                    "chart":0, "edits":[{"row":row,"lane":1,"kind":"tap"}]
+                }),
+            )["result"]["structuredContent"]["preview_id"]
+                .clone();
+            assert_eq!(
+                request(&path, "apply_preview", json!({"preview_id":preview}))["result"]["isError"],
+                false
+            );
+        };
+        publish(48);
+        assert!(bridge.poll().is_some());
+        bridge.discard_proposals().unwrap();
+        publish(96);
+        assert_eq!(
+            request(&path, "inspect_chart", json!({"chart":0}))["result"]["structuredContent"]["total_notes"],
+            2
+        );
+        let draft = bridge.poll().unwrap().unwrap();
+        draft.apply(&mut host).unwrap();
+        let rows: Vec<_> = host
+            .grid()
+            .iter()
+            .map(|(position, _)| position.row)
+            .collect();
+        assert_eq!(rows, vec![0, 96]);
+        assert_eq!(host.active_chart(), Some(0));
+        host.execute(Command::Undo).unwrap();
+        assert_eq!(host.grid().iter().count(), 1);
+        assert_eq!(host.active_chart(), Some(0));
+        host.execute(Command::Redo).unwrap();
+        let rows: Vec<_> = host
+            .grid()
+            .iter()
+            .map(|(position, _)| position.row)
+            .collect();
+        assert_eq!(rows, vec![0, 96]);
+        assert_eq!(host.active_chart(), Some(0));
+    }
+    #[test]
+    fn same_chart_count_proposal_keeps_a_closed_chart_unfocused_through_history() {
+        let mut host = workspace();
+        host.clear_active_chart();
+        // Global SSC metadata must precede the first #NOTEDATA block.
+        let mut bytes = b"#TITLE:Assistant metadata edit;".to_vec();
+        bytes.extend(host.file().session.serialize().unwrap());
+        let draft = Draft {
+            token: host.file().session.revision_token(),
+            bytes,
+            message: String::new(),
+        };
+        draft.apply(&mut host).unwrap();
+        assert_eq!(host.active_chart(), None);
+        assert_eq!(
+            host.file().session.document().text(None, "TITLE"),
+            Some("Assistant metadata edit".into())
+        );
+        host.execute(Command::Undo).unwrap();
+        assert_eq!(host.active_chart(), None);
+        assert_eq!(host.file().session.document().text(None, "TITLE"), None);
+        host.execute(Command::Redo).unwrap();
+        assert_eq!(host.active_chart(), None);
+        assert_eq!(
+            host.file().session.document().text(None, "TITLE"),
+            Some("Assistant metadata edit".into())
+        );
+    }
+    #[test]
+    fn rejecting_does_not_wait_for_an_inflight_worker_or_publish_its_old_epoch() {
+        let home = tempfile::tempdir().unwrap();
+        let bridge = Bridge::start_at(&workspace(), home.path().join("connection.json")).unwrap();
+        let epoch = bridge.host.lock().unwrap().epoch.clone();
+        let mut publication = bridge.draft.lock().unwrap();
+        bridge.discard_proposals().unwrap();
+        *publication = Some(Proposal {
+            epoch,
+            draft: Draft {
+                token: workspace().file().session.revision_token(),
+                bytes: vec![],
+                message: String::new(),
+            },
+        });
+        drop(publication);
+        assert!(bridge.poll().is_none());
+    }
+    #[test]
+    fn host_synchronization_defers_materialization_and_shares_it_between_clients() {
+        let home = tempfile::tempdir().unwrap();
+        let mut host = workspace();
+        let bridge = Bridge::start_at(&host, home.path().join("connection.json")).unwrap();
+        assert!(
+            bridge
+                .host
+                .lock()
+                .unwrap()
+                .document
+                .document
+                .get()
+                .is_none()
+        );
+        host.execute(Command::DuplicateChart).unwrap();
+        bridge.synchronize(&host).unwrap();
+        let snapshot = bridge.host.lock().unwrap().clone();
+        assert!(snapshot.document.document.get().is_none());
+        let first = snapshot.workspace().unwrap();
+        assert_eq!(first.file().session.document().charts().len(), 2);
+        assert!(snapshot.document.document.get().is_some());
+        assert!(Arc::ptr_eq(
+            &snapshot.document,
+            &bridge.host.lock().unwrap().document
+        ));
+    }
+    #[test]
+    fn deferred_snapshot_keeps_edited_notes_isolated_from_later_host_changes() {
+        let mut host = workspace();
+        host.execute(Command::Seek(48)).unwrap();
+        host.execute(Command::Place(1)).unwrap();
+        let snapshot = Snapshot::capture(&host).unwrap();
+        host.execute(Command::Seek(96)).unwrap();
+        host.execute(Command::Place(1)).unwrap();
+        let detached = snapshot.workspace().unwrap();
+        let rows: Vec<_> = detached
+            .grid()
+            .iter()
+            .map(|(position, _)| position.row)
+            .collect();
+        assert_eq!(rows, vec![0, 48]);
+        assert_eq!(host.grid().iter().count(), 3);
+    }
+    #[test]
+    fn listener_failure_is_reported_and_removes_only_its_discovery() {
+        let home = tempfile::tempdir().unwrap();
+        let path = home.path().join("connection.json");
+        let host = workspace();
+        let bridge = Bridge::start_at(&host, path.clone()).unwrap();
+        let server = Server {
+            registry: path.clone(),
+            secret: bridge.secret.clone(),
+            host: bridge.host.clone(),
+            draft: bridge.draft.clone(),
+            cancelled: bridge.cancelled.clone(),
+            failure: bridge.failure.clone(),
+            clients: Mutex::new(HashMap::new()),
+            active: Arc::new(AtomicUsize::new(0)),
+        };
+        server.listener_failed(std::io::Error::other("injected accept failure"));
+        assert!(!path.exists());
+        assert!(
+            bridge
+                .synchronize(&host)
+                .unwrap_err()
+                .to_string()
+                .contains("injected accept failure")
+        );
+        assert!(
+            matches!(bridge.poll(), Some(Err(error)) if error.contains("injected accept failure"))
+        );
+    }
+    #[test]
+    fn token_verification_rejects_prefixes_and_equal_length_mismatches() {
+        let token = "ab4a67f0-4c8c-47dd-a3f7-ebc125d503a9";
+        assert!(valid_token(Some(token), token));
+        for position in 0..token.len() {
+            let mut changed = token.as_bytes().to_vec();
+            changed[position] ^= 1;
+            assert!(!valid_token(
+                Some(std::str::from_utf8(&changed).unwrap()),
+                token
+            ));
+        }
+        assert!(!valid_token(None, token));
+        assert!(!valid_token(Some(&token[..35]), token));
+        assert!(!valid_token(Some(&format!("{token}x")), token));
     }
 }

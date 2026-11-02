@@ -1852,6 +1852,11 @@ impl Workspace {
                 },
             );
             self.execute(Command::SelectChart(chart))?;
+        } else if before_chart != usize::MAX {
+            // DocumentSwap invalidates lazy grids even when chart count stays
+            // unchanged. Preserve the active workspace's readable-grid
+            // invariant before returning to native or external callers.
+            self.sync_active_chart()?;
         }
         Ok(())
     }

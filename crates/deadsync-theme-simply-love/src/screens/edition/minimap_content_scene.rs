@@ -52,6 +52,7 @@ pub struct Scene {
 }
 /// Build the note/marker foreground using supplied source UI colors. Full
 /// UpdateBegin background/rim/fade composition is intentionally still separate.
+#[cfg(test)]
 pub fn build(
     grid: &Grid,
     clock: &Clock,

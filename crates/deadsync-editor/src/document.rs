@@ -94,8 +94,9 @@ fn parse_parts(
             return Err(Error::Unsupported("Metadata tag limit exceeded".into()));
         }
         let value_start = pos + 1;
-        pos = delimiter(&source, value_start, b';')
-            .ok_or_else(|| Error::InvalidFormat(format!("Unterminated {name} tag")))?;
+        // MSD accepts the last value without a terminating semicolon.
+        // Keep its exact source span so opening and saving remains lossless.
+        pos = delimiter(&source, value_start, b';').unwrap_or(source.len());
         let mut value_end = pos;
         if source.get(pos) == Some(&b'#') {
             while value_end > value_start && source[value_end - 1].is_ascii_whitespace() {
@@ -397,7 +398,7 @@ impl Document {
                     tag.chart == Some(chart) && matches!(tag.name.as_str(), "NOTES" | "NOTES2")
                 })
                 .ok_or_else(|| Error::InvalidFormat("Source chart has no NOTES marker".into()))?;
-            (self.marker_start(marker), marker.value.end + 1)
+            (self.marker_start(marker), self.tag_marker_range(marker).end)
         };
         Ok(start..end)
     }
@@ -481,7 +482,8 @@ impl Document {
     }
 
     pub(crate) fn tag_marker_range(&self, tag: &Tag) -> Range<usize> {
-        self.marker_start(tag)..tag.value.end + 1
+        self.marker_start(tag)
+            ..tag.value.end + usize::from(self.source.get(tag.value.end) == Some(&b';'))
     }
 
     fn marker_start(&self, tag: &Tag) -> usize {
