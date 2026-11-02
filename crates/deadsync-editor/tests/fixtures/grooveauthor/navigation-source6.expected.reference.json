@@ -1,0 +1,18 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "LibraryCommit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourcesSha256": {
+    "Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+    "EditorEvents/Containers/EventTree.cs": "154d1e307368636752879e0f9123af67f43c8c4a6eac6950f5b9159a75cfd94f",
+    "EditorEvents/Containers/EventTreeUtils.cs": "debc87e321265b4b694fe902cb9147e66804e75669fef7a842830a925a6ecdee",
+    "EditorEvents/EditorEvent.cs": "28dbffa43902c9704850bae1fcdaf22b3d29317625ddf82934f71c9fc12eb18c",
+    "EditorEvents/EditorTapNoteEvent.cs": "f671f80542f2f23ae51d4c0a242385b66d7ab7252fd7aac6682a0cc92fc29604",
+    "EditorEvents/EditorFakeNoteEvent.cs": "b5924bec840760118ea84c41d9e3b6ad3c1e47be457ff8af8ae8bd0bfcb8b973",
+    "EditorEvents/EditorLiftNoteEvent.cs": "f64b5343dc40bf2b6902896f73145f9ab2e1fd73b5ed96e7f89a837da75defd6",
+    "EditorEvents/EditorHoldNoteEvent.cs": "f96a616508c6e616cf98a8dbedf2ab8ecbd99b901ddaafae644aa41c61310aab"
+  },
+  "AdapterSha256": "5c2c4a1c84b57c9d7a0c28614a2fbf689990449c5a251d9501de515d9ec6ba44",
+  "AssemblySha256": "ab5417acb51f730d7452877757e97c0e09f780e68f2c4421e3d6a795f67e85d1",
+  "Scope": "Six original Editor callbacks and MoveToStreamBoundary, original EventTree find methods, EventTreeUtils and EditorEvent.CompareTo, genuine pinned Fumen RedBlackTree and SM comparer/EventOrder. Adapter supplies initialized event positions/IsStep booleans and records target position; chart loading, UI, timing initialization and selection movement are not executed."
+}

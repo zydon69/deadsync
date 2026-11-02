@@ -40,7 +40,7 @@ impl Orderer for Native {
         snapshot.indices_with(str::cmp)
     }
 }
-fn setup() -> (tempfile::TempDir, State, Vec<u8>) {
+fn setup() -> (tempfile::TempDir, State, Vec<u8>,u64) {
     i18n::init(deadsync_assets::language::load_for_tests(LANGUAGE));
     i18n::set_locale(deadsync_assets::language::load_for_tests(LANGUAGE));
     deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
@@ -63,8 +63,9 @@ fn setup() -> (tempfile::TempDir, State, Vec<u8>) {
         );
     }
     fs::write(&path, &source).unwrap();
-    let state = State::open(&path, 1).unwrap();
-    (dir, state, source.into_bytes())
+    let mut state = State::open(&path, 1).unwrap();
+    let owner=publish_audio_fixture(&mut state);
+    (dir, state, source.into_bytes(),owner)
 }
 fn texts(state: &State) -> String {
     fn walk(actor: &Actor, out: &mut String) {
@@ -108,7 +109,7 @@ fn pin(state: &mut State) {
 #[test]
 fn keyboard_headers_pin_temporary_replacement_focus_and_moving_match_resident_ids() {
     let _guard = SERIAL.lock().unwrap();
-    let (dir, mut state, source) = setup();
+    let (dir, mut state, source,owner)=setup();
     let source_ids = state.workspace().file().session.chart_ids().to_vec();
     let mut native = Native { calls: 0 };
     assert_eq!(state.open_chart_views().unwrap().entries().len(), 1);
@@ -154,7 +155,7 @@ fn keyboard_headers_pin_temporary_replacement_focus_and_moving_match_resident_id
 #[test]
 fn closing_focus_prefers_right_then_left_and_last_close_keeps_song_available_for_reopening() {
     let _guard = SERIAL.lock().unwrap();
-    let (_dir, mut state, source) = setup();
+    let (_dir, mut state, source,owner)=setup();
     let mut native = Native { calls: 0 };
     pin(&mut state);
     next(&mut state, &mut native);
@@ -203,7 +204,7 @@ fn closing_focus_prefers_right_then_left_and_last_close_keeps_song_available_for
 #[test]
 fn draft_panels_protect_view_commands_and_no_focus_list_requests_reject_panel_changes() {
     let _guard = SERIAL.lock().unwrap();
-    let (_dir, mut state, _source) = setup();
+    let (_dir, mut state, _source,owner)=setup();
     let mut native = Native { calls: 0 };
     press(&mut state, KeyCode::F11);
     control(&mut state, KeyCode::KeyW, false);
@@ -226,7 +227,7 @@ fn draft_panels_protect_view_commands_and_no_focus_list_requests_reject_panel_ch
 #[test]
 fn closing_final_view_retains_exact_musical_instant_without_claiming_continued_playback() {
     let _guard = SERIAL.lock().unwrap();
-    let (_dir, mut state, source) = setup();
+    let (_dir, mut state, source,owner)=setup();
     let mut native = Native { calls: 0 };
     press(&mut state, KeyCode::Enter);
     state.take_audio_commands();
@@ -241,7 +242,7 @@ fn closing_final_view_retains_exact_musical_instant_without_claiming_continued_p
     assert!((state.chart_focus_time().unwrap() - 1.01).abs() < 1e-10);
     assert_eq!(
         state.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
+        vec![GameplayAudioCommand::EditorStopMusic{owner}]
     );
     control(&mut state, KeyCode::KeyB, false);
     assert!(state.process_chart_order(&mut native));
@@ -252,7 +253,7 @@ fn closing_final_view_retains_exact_musical_instant_without_claiming_continued_p
     assert!((state.chart_focus_time().unwrap() - 1.01).abs() < 1e-10);
     press(&mut state, KeyCode::Enter);
     assert!(
-        matches!(&state.take_audio_commands()[..],[GameplayAudioCommand::PlayMusic{cut,..}] if (cut.start_sec-1.01).abs()<1e-10)
+        matches!(&state.take_audio_commands()[..],[GameplayAudioCommand::EditorPlayMusic{owner:actual,cut,..}] if *actual==owner && (cut.start_sec-1.01).abs()<1e-10)
     );
     assert_eq!(
         state.workspace().file().session.serialize().unwrap(),
@@ -263,7 +264,7 @@ fn closing_final_view_retains_exact_musical_instant_without_claiming_continued_p
 #[test]
 fn real_note_history_on_closed_view_does_not_reopen_it_or_take_another_views_focus() {
     let _guard = SERIAL.lock().unwrap();
-    let (_dir, mut state, before) = setup();
+    let (_dir, mut state, before,owner)=setup();
     let mut native = Native { calls: 0 };
     press(&mut state, KeyCode::Digit2);
     let after = state.workspace().file().session.serialize().unwrap();
@@ -291,4 +292,15 @@ fn real_note_history_on_closed_view_does_not_reopen_it_or_take_another_views_foc
         state.workspace().file().session.serialize().unwrap(),
         before
     );
+}
+
+
+fn publish_audio_fixture(state:&mut State)->u64 {
+    let commands=state.take_audio_commands();
+    let owners:Vec<_>=commands.iter().filter_map(|c|match c{deadsync_gameplay::GameplayAudioCommand::EditorBeginAudio{owner,..}=>Some(*owner),_=>None}).collect();
+    assert_eq!(owners.len(),1,"one published lazy session");
+    assert_ne!(owners[0],0);
+    state.update_audio(deadsync_gameplay::GameplayAudioSnapshot::default());
+    assert!(!state.take_audio_commands().iter().any(|c|matches!(c,deadsync_gameplay::GameplayAudioCommand::EditorInitializeOutput{..})),"unavailable command-only host needs no DSP request");
+    owners[0]
 }

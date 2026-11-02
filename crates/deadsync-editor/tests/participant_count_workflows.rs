@@ -100,6 +100,50 @@ fn metadata_declared_empty_players_load_without_rewriting_notes_and_invalid_requ
 }
 
 #[test]
+fn declared_empty_participants_keep_original_note_bytes_after_note_and_count_undo() {
+    for format in [Format::Sm, Format::Ssc] {
+        for layout in ["dance-routine", "pump-routine", "smx-team"] {
+            for players in [1, 3] {
+                let mut original = session(layout, format);
+                ChartData {
+                    max_player_index: players - 1,
+                    ..Default::default()
+                }.save(&mut original, 0).unwrap();
+                let bytes = original.serialize().unwrap();
+                let mut resident = Session::new(
+                    Document::parse(Arc::<[u8]>::from(bytes.clone()), format).unwrap(),
+                );
+                assert_eq!(resident.grid(0).unwrap().players(), players);
+                assert_eq!(resident.serialize().unwrap(), bytes);
+                let position = Position { player: players - 1, lane: 0, row: 48 };
+                resident.edit_notes(0, "Temporary note", [(position, Some(Note::tap()))]).unwrap();
+                let edited = resident.serialize().unwrap();
+                let mut reopened = Session::new(
+                    Document::parse(Arc::<[u8]>::from(edited.clone()), format).unwrap(),
+                );
+                assert_eq!(reopened.grid(0).unwrap().get(position), Some(&Note::tap()));
+                assert_eq!(reopened.grid(0).unwrap().players(), players);
+                resident.undo().unwrap();
+                assert_eq!(resident.serialize().unwrap(), bytes);
+                resident.redo().unwrap();
+                assert_eq!(resident.serialize().unwrap(), edited);
+                resident.undo().unwrap();
+                resident.set_participants(0, players + 1).unwrap();
+                let expanded = resident.serialize().unwrap();
+                let mut reopened = Session::new(
+                    Document::parse(Arc::<[u8]>::from(expanded.clone()), format).unwrap(),
+                );
+                assert_eq!(reopened.grid(0).unwrap().players(), players + 1);
+                resident.undo().unwrap();
+                assert_eq!(resident.serialize().unwrap(), bytes);
+                resident.redo().unwrap();
+                assert_eq!(resident.serialize().unwrap(), expanded);
+            }
+        }
+    }
+}
+
+#[test]
 fn ownership_failure_rolls_back_participant_addition_and_metadata_in_the_public_workspace() {
     use deadsync_editor::{
         transform::Transform,

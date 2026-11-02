@@ -1,0 +1,522 @@
+[
+  {
+    "Name": "uniform-and-break",
+    "Events": [
+      {
+        "Position": 0,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 12,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 24,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 36,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 60,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 72,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      }
+    ],
+    "Positions": [
+      -1,
+      0,
+      0.5,
+      7,
+      7.25,
+      12,
+      12.5,
+      18,
+      24,
+      24.5,
+      36,
+      47.5,
+      48,
+      60,
+      72,
+      100
+    ]
+  },
+  {
+    "Name": "chords-and-zero-spacing",
+    "Events": [
+      {
+        "Position": 0,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 0,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 1,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 12,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 24,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 24,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 1,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 36,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      }
+    ],
+    "Positions": [
+      -1,
+      0,
+      0.5,
+      7,
+      7.25,
+      12,
+      12.5,
+      18,
+      24,
+      24.5,
+      36,
+      47.5,
+      48,
+      60,
+      72,
+      100
+    ]
+  },
+  {
+    "Name": "fake-lift-hold-mine",
+    "Events": [
+      {
+        "Position": 0,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 12,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "F",
+        "Fake": true
+      },
+      {
+        "Position": 18,
+        "Type": "LaneNote",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "M",
+        "Fake": false
+      },
+      {
+        "Position": 24,
+        "Type": "LaneHoldStartNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "2",
+        "Fake": false
+      },
+      {
+        "Position": 36,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "L",
+        "Fake": false
+      }
+    ],
+    "Positions": [
+      -1,
+      0,
+      0.5,
+      7,
+      7.25,
+      12,
+      12.5,
+      18,
+      24,
+      24.5,
+      36,
+      47.5,
+      48,
+      60,
+      72,
+      100
+    ]
+  },
+  {
+    "Name": "mixed-editor-events",
+    "Events": [
+      {
+        "Position": 0,
+        "Type": "Tempo",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 0,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 7.25,
+        "Type": "Preview",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 10,
+        "Type": "TickCount",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 12,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 15,
+        "Type": "Attack",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 20,
+        "Type": "Pattern",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 24,
+        "Type": "LaneHoldStartNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "4",
+        "Fake": false
+      },
+      {
+        "Position": 31.75,
+        "Type": "EndHint",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 36,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "F",
+        "Fake": false
+      },
+      {
+        "Position": 48,
+        "Type": "Warp",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      }
+    ],
+    "Positions": [
+      -1,
+      0,
+      0.5,
+      7,
+      7.25,
+      12,
+      12.5,
+      18,
+      24,
+      24.5,
+      36,
+      47.5,
+      48,
+      60,
+      72,
+      100
+    ]
+  },
+  {
+    "Name": "singleton",
+    "Events": [
+      {
+        "Position": 12,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 0,
+        "Type": "Tempo",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      }
+    ],
+    "Positions": [
+      -1,
+      0,
+      0.5,
+      7,
+      7.25,
+      12,
+      12.5,
+      18,
+      24,
+      24.5,
+      36,
+      47.5,
+      48,
+      60,
+      72,
+      100
+    ]
+  },
+  {
+    "Name": "no-steps",
+    "Events": [
+      {
+        "Position": 0,
+        "Type": "Tempo",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 7.25,
+        "Type": "Preview",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 24,
+        "Type": "Stop",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      }
+    ],
+    "Positions": [
+      -1,
+      0,
+      0.5,
+      7,
+      7.25,
+      12,
+      12.5,
+      18,
+      24,
+      24.5,
+      36,
+      47.5,
+      48,
+      60,
+      72,
+      100
+    ]
+  },
+  {
+    "Name": "selected-row-widget",
+    "Events": [
+      {
+        "Position": 0,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 12,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 13,
+        "Type": "SelectedRows",
+        "Step": false,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 24,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      },
+      {
+        "Position": 36,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": false
+      }
+    ],
+    "Positions": [
+      -1,
+      0,
+      0.5,
+      7,
+      7.25,
+      12,
+      12.5,
+      18,
+      24,
+      24.5,
+      36,
+      47.5,
+      48,
+      60,
+      72,
+      100
+    ]
+  },
+  {
+    "Name": "all-faked-still-steps",
+    "Events": [
+      {
+        "Position": 0,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": true
+      },
+      {
+        "Position": 12,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": true
+      },
+      {
+        "Position": 24,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": true
+      },
+      {
+        "Position": 36,
+        "Type": "LaneTapNote",
+        "Step": true,
+        "Lane": 0,
+        "Symbol": "1",
+        "Fake": true
+      }
+    ],
+    "Positions": [
+      -1,
+      0,
+      0.5,
+      7,
+      7.25,
+      12,
+      12.5,
+      18,
+      24,
+      24.5,
+      36,
+      47.5,
+      48,
+      60,
+      72,
+      100
+    ]
+  }
+]

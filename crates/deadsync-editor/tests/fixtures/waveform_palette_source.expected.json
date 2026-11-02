@@ -1,0 +1,362 @@
+[
+  {
+    "name": "palette-raw--4",
+    "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"WaveFormSparseColorScale\": -4, \"WaveFormDenseColor\": {\"X\": -4, \"Y\": 0.25, \"Z\": 0.5, \"W\": -4}, \"WaveFormSparseColorOption\": \"99\", \"WaveFormDrawLocation\": \"99\"}}",
+    "accepted": true,
+    "waveform": {
+      "ShowWaveFormPreferencesWindow": false,
+      "ShowWaveForm": true,
+      "EnableWaveForm": true,
+      "WaveFormScaleXWhenZooming": false,
+      "WaveFormSparseColorOption": "99",
+      "WaveFormSparseColorScale": -4,
+      "WaveFormDenseColor": {
+        "X": -4,
+        "Y": 0.25,
+        "Z": 0.5,
+        "W": -4
+      },
+      "WaveFormSparseColor": {
+        "X": 0,
+        "Y": 0.35,
+        "Z": 0.164,
+        "W": 0.8
+      },
+      "WaveFormBackgroundColor": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormMaxXPercentagePerChannel": 0.9,
+      "WaveFormLoadingMaxParallelism": 8,
+      "DenseScale": 6,
+      "AntiAlias": true,
+      "AntiAliasSubpix": 0.2,
+      "AntiAliasEdgeThreshold": 0.166,
+      "AntiAliasEdgeThresholdMin": 0.0833,
+      "WaveFormScaleWidthToChart": true,
+      "WaveFormDrawLocation": "99"
+    }
+  },
+  {
+    "name": "palette-raw-0",
+    "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"WaveFormSparseColorScale\": 0, \"WaveFormDenseColor\": {\"X\": 0, \"Y\": 0.25, \"Z\": 0.5, \"W\": 0}, \"WaveFormSparseColorOption\": \"99\", \"WaveFormDrawLocation\": \"99\"}}",
+    "accepted": true,
+    "waveform": {
+      "ShowWaveFormPreferencesWindow": false,
+      "ShowWaveForm": true,
+      "EnableWaveForm": true,
+      "WaveFormScaleXWhenZooming": false,
+      "WaveFormSparseColorOption": "99",
+      "WaveFormSparseColorScale": 0,
+      "WaveFormDenseColor": {
+        "X": 0,
+        "Y": 0.25,
+        "Z": 0.5,
+        "W": 0
+      },
+      "WaveFormSparseColor": {
+        "X": 0,
+        "Y": 0.35,
+        "Z": 0.164,
+        "W": 0.8
+      },
+      "WaveFormBackgroundColor": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormMaxXPercentagePerChannel": 0.9,
+      "WaveFormLoadingMaxParallelism": 8,
+      "DenseScale": 6,
+      "AntiAlias": true,
+      "AntiAliasSubpix": 0.2,
+      "AntiAliasEdgeThreshold": 0.166,
+      "AntiAliasEdgeThresholdMin": 0.0833,
+      "WaveFormScaleWidthToChart": true,
+      "WaveFormDrawLocation": "99"
+    }
+  },
+  {
+    "name": "palette-raw-2",
+    "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"WaveFormSparseColorScale\": 2, \"WaveFormDenseColor\": {\"X\": 2, \"Y\": 0.25, \"Z\": 0.5, \"W\": 2}, \"WaveFormSparseColorOption\": \"99\", \"WaveFormDrawLocation\": \"99\"}}",
+    "accepted": true,
+    "waveform": {
+      "ShowWaveFormPreferencesWindow": false,
+      "ShowWaveForm": true,
+      "EnableWaveForm": true,
+      "WaveFormScaleXWhenZooming": false,
+      "WaveFormSparseColorOption": "99",
+      "WaveFormSparseColorScale": 2,
+      "WaveFormDenseColor": {
+        "X": 2,
+        "Y": 0.25,
+        "Z": 0.5,
+        "W": 2
+      },
+      "WaveFormSparseColor": {
+        "X": 0,
+        "Y": 0.35,
+        "Z": 0.164,
+        "W": 0.8
+      },
+      "WaveFormBackgroundColor": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormMaxXPercentagePerChannel": 0.9,
+      "WaveFormLoadingMaxParallelism": 8,
+      "DenseScale": 6,
+      "AntiAlias": true,
+      "AntiAliasSubpix": 0.2,
+      "AntiAliasEdgeThreshold": 0.166,
+      "AntiAliasEdgeThresholdMin": 0.0833,
+      "WaveFormScaleWidthToChart": true,
+      "WaveFormDrawLocation": "99"
+    }
+  },
+  {
+    "name": "palette-raw-512",
+    "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"WaveFormSparseColorScale\": 512, \"WaveFormDenseColor\": {\"X\": 512, \"Y\": 0.25, \"Z\": 0.5, \"W\": 512}, \"WaveFormSparseColorOption\": \"99\", \"WaveFormDrawLocation\": \"99\"}}",
+    "accepted": true,
+    "waveform": {
+      "ShowWaveFormPreferencesWindow": false,
+      "ShowWaveForm": true,
+      "EnableWaveForm": true,
+      "WaveFormScaleXWhenZooming": false,
+      "WaveFormSparseColorOption": "99",
+      "WaveFormSparseColorScale": 512,
+      "WaveFormDenseColor": {
+        "X": 512,
+        "Y": 0.25,
+        "Z": 0.5,
+        "W": 512
+      },
+      "WaveFormSparseColor": {
+        "X": 0,
+        "Y": 0.35,
+        "Z": 0.164,
+        "W": 0.8
+      },
+      "WaveFormBackgroundColor": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormMaxXPercentagePerChannel": 0.9,
+      "WaveFormLoadingMaxParallelism": 8,
+      "DenseScale": 6,
+      "AntiAlias": true,
+      "AntiAliasSubpix": 0.2,
+      "AntiAliasEdgeThreshold": 0.166,
+      "AntiAliasEdgeThresholdMin": 0.0833,
+      "WaveFormScaleWidthToChart": true,
+      "WaveFormDrawLocation": "99"
+    }
+  },
+  {
+    "name": "partial",
+    "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"WaveFormDenseColor\": {\"X\": 2}}}",
+    "accepted": true,
+    "waveform": {
+      "ShowWaveFormPreferencesWindow": false,
+      "ShowWaveForm": true,
+      "EnableWaveForm": true,
+      "WaveFormScaleXWhenZooming": false,
+      "WaveFormSparseColorOption": "DarkerDenseColor",
+      "WaveFormSparseColorScale": 0.8,
+      "WaveFormDenseColor": {
+        "X": 2,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormSparseColor": {
+        "X": 0,
+        "Y": 0.35,
+        "Z": 0.164,
+        "W": 0.8
+      },
+      "WaveFormBackgroundColor": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormMaxXPercentagePerChannel": 0.9,
+      "WaveFormLoadingMaxParallelism": 8,
+      "DenseScale": 6,
+      "AntiAlias": true,
+      "AntiAliasSubpix": 0.2,
+      "AntiAliasEdgeThreshold": 0.166,
+      "AntiAliasEdgeThresholdMin": 0.0833,
+      "WaveFormScaleWidthToChart": true,
+      "WaveFormDrawLocation": "AllChartsWithSameMusic"
+    }
+  },
+  {
+    "name": "empty",
+    "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"WaveFormDenseColor\": {}}}",
+    "accepted": true,
+    "waveform": {
+      "ShowWaveFormPreferencesWindow": false,
+      "ShowWaveForm": true,
+      "EnableWaveForm": true,
+      "WaveFormScaleXWhenZooming": false,
+      "WaveFormSparseColorOption": "DarkerDenseColor",
+      "WaveFormSparseColorScale": 0.8,
+      "WaveFormDenseColor": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormSparseColor": {
+        "X": 0,
+        "Y": 0.35,
+        "Z": 0.164,
+        "W": 0.8
+      },
+      "WaveFormBackgroundColor": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormMaxXPercentagePerChannel": 0.9,
+      "WaveFormLoadingMaxParallelism": 8,
+      "DenseScale": 6,
+      "AntiAlias": true,
+      "AntiAliasSubpix": 0.2,
+      "AntiAliasEdgeThreshold": 0.166,
+      "AntiAliasEdgeThresholdMin": 0.0833,
+      "WaveFormScaleWidthToChart": true,
+      "WaveFormDrawLocation": "AllChartsWithSameMusic"
+    }
+  },
+  {
+    "name": "lowercase",
+    "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"WaveFormDenseColor\": {\"x\": 2, \"w\": 1}}}",
+    "accepted": true,
+    "waveform": {
+      "ShowWaveFormPreferencesWindow": false,
+      "ShowWaveForm": true,
+      "EnableWaveForm": true,
+      "WaveFormScaleXWhenZooming": false,
+      "WaveFormSparseColorOption": "DarkerDenseColor",
+      "WaveFormSparseColorScale": 0.8,
+      "WaveFormDenseColor": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormSparseColor": {
+        "X": 0,
+        "Y": 0.35,
+        "Z": 0.164,
+        "W": 0.8
+      },
+      "WaveFormBackgroundColor": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormMaxXPercentagePerChannel": 0.9,
+      "WaveFormLoadingMaxParallelism": 8,
+      "DenseScale": 6,
+      "AntiAlias": true,
+      "AntiAliasSubpix": 0.2,
+      "AntiAliasEdgeThreshold": 0.166,
+      "AntiAliasEdgeThresholdMin": 0.0833,
+      "WaveFormScaleWidthToChart": true,
+      "WaveFormDrawLocation": "AllChartsWithSameMusic"
+    }
+  },
+  {
+    "name": "array",
+    "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"WaveFormDenseColor\": [2, 0, 0, 1]}}",
+    "accepted": false,
+    "waveform": {
+      "ShowWaveFormPreferencesWindow": false,
+      "ShowWaveForm": true,
+      "EnableWaveForm": true,
+      "WaveFormScaleXWhenZooming": false,
+      "WaveFormSparseColorOption": "DarkerDenseColor",
+      "WaveFormSparseColorScale": 0.8,
+      "WaveFormDenseColor": {
+        "X": 0,
+        "Y": 0.389,
+        "Z": 0.183,
+        "W": 0.8
+      },
+      "WaveFormSparseColor": {
+        "X": 0,
+        "Y": 0.35,
+        "Z": 0.164,
+        "W": 0.8
+      },
+      "WaveFormBackgroundColor": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormMaxXPercentagePerChannel": 0.9,
+      "WaveFormLoadingMaxParallelism": 8,
+      "DenseScale": 6,
+      "AntiAlias": true,
+      "AntiAliasSubpix": 0.2,
+      "AntiAliasEdgeThreshold": 0.166,
+      "AntiAliasEdgeThresholdMin": 0.0833,
+      "WaveFormScaleWidthToChart": true,
+      "WaveFormDrawLocation": "AllChartsWithSameMusic"
+    }
+  },
+  {
+    "name": "null",
+    "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"WaveFormDenseColor\": null}}",
+    "accepted": false,
+    "waveform": {
+      "ShowWaveFormPreferencesWindow": false,
+      "ShowWaveForm": true,
+      "EnableWaveForm": true,
+      "WaveFormScaleXWhenZooming": false,
+      "WaveFormSparseColorOption": "DarkerDenseColor",
+      "WaveFormSparseColorScale": 0.8,
+      "WaveFormDenseColor": {
+        "X": 0,
+        "Y": 0.389,
+        "Z": 0.183,
+        "W": 0.8
+      },
+      "WaveFormSparseColor": {
+        "X": 0,
+        "Y": 0.35,
+        "Z": 0.164,
+        "W": 0.8
+      },
+      "WaveFormBackgroundColor": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      },
+      "WaveFormMaxXPercentagePerChannel": 0.9,
+      "WaveFormLoadingMaxParallelism": 8,
+      "DenseScale": 6,
+      "AntiAlias": true,
+      "AntiAliasSubpix": 0.2,
+      "AntiAliasEdgeThreshold": 0.166,
+      "AntiAliasEdgeThresholdMin": 0.0833,
+      "WaveFormScaleWidthToChart": true,
+      "WaveFormDrawLocation": "AllChartsWithSameMusic"
+    }
+  }
+]

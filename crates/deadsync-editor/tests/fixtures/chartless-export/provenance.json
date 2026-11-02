@@ -1,0 +1,18 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "editor_source_sha256": "066bd606d5138343b444fb0355a125929c7b19baef4832202775eb419a5c60ff",
+  "writer_reader_sources": {
+    "Fumen/Converters/SMWriterBase.cs": "6f71f40e60c0c0b213281fc54c9520fefcc2387c40783aa46b1069562119eb30",
+    "Fumen/Converters/SMWriter.cs": "1fdab8aa9eec45ee3cb1805f5e5ed2503f6558dfab1456d193bf307b0e84f254",
+    "Fumen/Converters/SSCWriter.cs": "131b2ca345c6d4d1a0b14b3a36980715babde3ffd92206907e47be927f6b47c4",
+    "Fumen/Converters/SMReader.cs": "22e6b561094fbe26642251cee146ca090f3d56ed970b306ae85103c39640bfe0",
+    "Fumen/Converters/SSCReader.cs": "7d8fc98ede83f65079270989eb4edcf88ea10dd275f0206eb68e35aa6ffc88e2"
+  },
+  "program_sha256": "ab55236dac48d35cba8c7d3ca75f2a6313b8e6fff1da4c87be9afdb44591f822",
+  "assembly_sha256": "9ae513162063bc6096dbb44fb3172eb3eafde4c14f297eca45b2dfef30651934",
+  "sdk": "10.0.403",
+  "request_sha256": "92ed42b781ddb87ccd9f882451c1f254b42ccc08111dcab0290499c33230e44c",
+  "expected_sha256": "cd0debba82aedab7013ad09dfbc3895b9e5ecbd46d9c4890cde98b7c3ee55c10",
+  "scope": "Actual pinned Fumen SM/SSC readers and writers, zero-chart input and null fallback, original GA writer configuration; metadata-only adapters for anonymize and fixed custom-song payload. No complete EditorSong work queue, native history, recovery or storage publication claim."
+}

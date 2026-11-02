@@ -1,0 +1,228 @@
+{
+  "cases": [
+    {
+      "name": "False-False-before",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": false, \"ShowWaveForm\": false}}",
+      "show": false,
+      "enabled": false,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": false,
+          "EnableWaveForm": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-False-toggle",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": false, \"ShowWaveForm\": false}}",
+      "show": true,
+      "enabled": false,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": true,
+          "EnableWaveForm": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-False-toggle-back",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": false, \"ShowWaveForm\": false}}",
+      "show": false,
+      "enabled": false,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": false,
+          "EnableWaveForm": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-False-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": false, \"ShowWaveForm\": false}}",
+      "show": false,
+      "enabled": false,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": false,
+          "EnableWaveForm": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-True-before",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": false, \"ShowWaveForm\": true}}",
+      "show": true,
+      "enabled": false,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": true,
+          "EnableWaveForm": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-True-toggle",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": false, \"ShowWaveForm\": true}}",
+      "show": false,
+      "enabled": false,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": false,
+          "EnableWaveForm": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-True-toggle-back",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": false, \"ShowWaveForm\": true}}",
+      "show": true,
+      "enabled": false,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": true,
+          "EnableWaveForm": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-True-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": false, \"ShowWaveForm\": true}}",
+      "show": true,
+      "enabled": false,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": true,
+          "EnableWaveForm": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-False-before",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": true, \"ShowWaveForm\": false}}",
+      "show": false,
+      "enabled": true,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": false,
+          "EnableWaveForm": true
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-False-toggle",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": true, \"ShowWaveForm\": false}}",
+      "show": true,
+      "enabled": true,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": true,
+          "EnableWaveForm": true
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-False-toggle-back",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": true, \"ShowWaveForm\": false}}",
+      "show": false,
+      "enabled": true,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": false,
+          "EnableWaveForm": true
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-False-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": true, \"ShowWaveForm\": false}}",
+      "show": false,
+      "enabled": true,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": false,
+          "EnableWaveForm": true
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-True-before",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": true, \"ShowWaveForm\": true}}",
+      "show": true,
+      "enabled": true,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": true,
+          "EnableWaveForm": true
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-True-toggle",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": true, \"ShowWaveForm\": true}}",
+      "show": false,
+      "enabled": true,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": false,
+          "EnableWaveForm": true
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-True-toggle-back",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": true, \"ShowWaveForm\": true}}",
+      "show": true,
+      "enabled": true,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": true,
+          "EnableWaveForm": true
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-True-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesWaveForm\": {\"EnableWaveForm\": true, \"ShowWaveForm\": true}}",
+      "show": true,
+      "enabled": true,
+      "value": {
+        "Player": 3,
+        "PreferencesWaveForm": {
+          "ShowWaveForm": true,
+          "EnableWaveForm": true
+        }
+      },
+      "accepted": true
+    }
+  ]
+}

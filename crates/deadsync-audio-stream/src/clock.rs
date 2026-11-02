@@ -1,3 +1,12 @@
+fn editor_main_position(sample_rate:u32)->Option<(f64,f32,bool)>{
+    let generation=deadlib_audio_core::music_map_generation();let epoch=deadlib_audio_core::music_asset_epoch();
+    let control=deadlib_audio_core::editor_main_configuration().filter(|c|c.asset_epoch==epoch&&c.generation==generation)?;
+    if !deadlib_audio_core::music_track_active(){return None;}
+    let cursor=deadlib_audio_core::editor_main_cursor().filter(|c|c.asset_epoch==epoch&&c.generation==generation&&c.sample_rate_hz==sample_rate);
+    let decoded=cursor.is_some()&&deadlib_audio_core::rendered_music_cursor().is_some_and(|c|c.asset_epoch==epoch&&c.generation==generation);
+    Some((cursor.map_or(control.frame,|c|c.source_frame)as f64/f64::from(sample_rate),control.rate as f32,decoded))
+}
+
 use crate::MusicClock;
 use deadlib_audio_core::{
     CallbackClockSource, CallbackClockWindow, MusicStreamClockSnapshot,
@@ -101,7 +110,7 @@ fn editor_clock_at_nanos(
     clock: &MusicClock, sample_rate: u32, start: u64, valid_at: Instant,
     at_nanos: u64, source: CallbackClockSource, window: CallbackClockWindow,
 ) -> (MusicStreamClockSnapshot, bool, f64) {
-    let (mut snapshot, decoded) = music_stream_clock_snapshot_at_nanos(
+    let (mut snapshot, mut decoded) = music_stream_clock_snapshot_at_nanos(
         clock, sample_rate, start, valid_at, at_nanos, source, window,
     );
     // Continue the actual callback clock even if an opened request beyond EOF
@@ -109,6 +118,7 @@ fn editor_clock_at_nanos(
     // the first PCM block changes music_track_start_frame.
     let seconds = stream_position_frames_from_window(sample_rate, 0, at_nanos, window)
         / f64::from(sample_rate);
+    if let Some((position,rate,actual_pcm))=editor_main_position(sample_rate){snapshot.music_nanos=music_nanos_from_seconds(position);snapshot.music_seconds_per_second=rate;snapshot.has_music_mapping=true;decoded=actual_pcm;}
     snapshot.stream_seconds = seconds as f32;
     (snapshot, decoded, seconds)
 }
@@ -134,6 +144,16 @@ impl MusicClock {
         editor_clock_at_nanos(
             self, sample_rate, music_track_start_frame(), valid_at, at_nanos, source, window,
         )
+    }
+
+    /// Deterministic test seam: exact acknowledged render frame, with no host
+    /// interpolation and no fabricated decoder mapping/acknowledgement.
+    #[cfg(test)]
+    pub(crate) fn snapshot_at_rendered_frame(&self)->(MusicStreamClockSnapshot,bool,f64) {
+        let hz=self.sample_rate().max(1);let absolute=deadlib_audio_core::music_total_frames();
+        let relative=absolute.saturating_sub(music_track_start_frame()) as f64;
+        let (seconds,rate,mapped,decoded)=if let Some((seconds,rate,decoded))=editor_main_position(hz){(seconds,rate,true,decoded)}else if let Some((seconds,rate))=self.lookup(relative){(seconds,rate,true,true)}else if let Some((seconds,rate))=seeded_music_position(relative/f64::from(hz)){(seconds,rate,true,false)}else{(relative/f64::from(hz),1.,false,false)};
+        (MusicStreamClockSnapshot{stream_seconds:absolute as f32/hz as f32,music_nanos:music_nanos_from_seconds(seconds),music_seconds_per_second:rate,has_music_mapping:mapped,valid_at:Instant::now(),valid_at_host_nanos:0},decoded,absolute as f64/f64::from(hz))
     }
 
     fn snapshot_legacy_with_mapping(&mut self) -> (MusicStreamClockSnapshot, bool) {
@@ -357,6 +377,7 @@ mod tests {
                     stream.writer.try_push(
                         &[0; 512],
                         MusicBlockTiming {
+                            asset_epoch:deadlib_audio_core::music_asset_epoch(),
                             generation,
                             music_start_sec: origin,
                             music_sec_per_frame: f64::from(rate) / f64::from(SAMPLE_RATE),

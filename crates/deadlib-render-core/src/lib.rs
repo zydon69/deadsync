@@ -1,10 +1,11 @@
+pub mod fxaa;
 mod frame;
 #[cfg(any(test, feature = "test-util"))]
 pub mod frame_compare;
 
 pub use frame::{
     CameraUploadCache, DRAW_STORAGE_NAMES, DRAW_STORAGE_SLOTS, DrawOp, DrawStorageStats, MeshRun,
-    RenderFrame, RenderTargetFrame, SOFTWARE_MESH_STORAGE_SLOT, SOFTWARE_OBJECTS_STORAGE_SLOT,
+    FxaaPass, FxaaQuality, RenderFrame, RenderTargetFrame, SOFTWARE_MESH_STORAGE_SLOT, SOFTWARE_OBJECTS_STORAGE_SLOT,
     SOFTWARE_TMESH_STORAGE_SLOT, SpriteRun, TexturedMeshBufferCache, TexturedMeshGeometry,
     TexturedMeshRun, TexturedMeshSource, TexturedMeshUploads, draw_storage_stats,
     resolve_render_target_textured_mesh_geometries, resolve_textured_mesh_geometries,
@@ -828,6 +829,10 @@ impl<V> SamplerCache<V> {
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BlendMode {
+    /// Replace attachment RGBA without multiplying source alpha.
+    Replace,
+    /// XNA premultiplied composition: source ONE, destination ONE_MINUS_SRC_ALPHA.
+    PremultipliedAlpha,
     Alpha,
     Add,
     #[allow(dead_code)]
@@ -836,6 +841,10 @@ pub enum BlendMode {
     Subtract,
     /// Preserve destination color and alpha while still rasterizing depth.
     NoEffect,
+}
+
+impl BlendMode{/// These modes can change RGB or clear pixels even when source alpha is zero.
+    pub const fn requires_zero_alpha_fragments(self)->bool{matches!(self,Self::Replace|Self::PremultipliedAlpha)}
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

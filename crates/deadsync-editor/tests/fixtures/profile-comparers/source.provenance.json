@@ -1,0 +1,64 @@
+{
+  "source_pin": "48e18f71655d0f0d86144c63239331833501fda2",
+  "library_pin": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_pin": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "source_sha256": {
+    "StepManiaEditor/UI/UIPatternComparer.cs": "08791e07561c1a8f8470a19a7ed7d08c25ba517278ac7b935c7ad3f418b7954c",
+    "StepManiaEditor/UI/UIPerformedChartComparer.cs": "5f302491590c1a9ef93eb935f079ed348450883cde10e4144836029496f1ddb8",
+    "StepManiaEditor/UI/UIPatternConfigTable.cs": "1cba55013d1ca3289c721b5e177d879afc3d785563fca0ed3679eda4653c2cde",
+    "StepManiaEditor/UI/UIPerformedChartConfigTable.cs": "892530869e3790fb1a765b33f4f1a1a21e09d51bd3e9a5841b6729bb10c5b058",
+    "StepManiaEditor/AutogenConfig/EditorPatternConfig.cs": "8abc09c3e1c9a7cf2844829b3e9c9791b58cd03911b5522177ba52e7be703e73",
+    "StepManiaEditor/AutogenConfig/EditorPerformedChartConfig.cs": "880ddddd3efe61b338bff083caa6534b93425c7f04fd0d2deaf9347e55075d1f"
+  },
+  "method_sha256": {
+    "pattern": [
+      "d99a096aa361794774cc41cb2155379137c0b02c26f778222709812dea19065c",
+      "88bca9bb74f123e727ee7f711b3a3f1f1830c4560ee54921cba060c8a0d23a58",
+      "fa4fe3bdaaf7841f8f75399717e58b2ba6bd96404a693023a2362f5a8a2580b6",
+      "6e3d3a9585ccfc78c20c8b8d51475c40c5b514daa44dedaf08d0f1b6199f72b2",
+      "c08f002022718fdf2358caceff5f2b3bccf85a4f482ba760f9fe79d93f7f695c",
+      "f341dbb11a172aad63ce0fbe2ee44e17ac0527ef0e79a002d0475309eb9d8f2b",
+      "9492b3f0b2a19767afb55cd024a4deed9aa7dd9873b4dd2a0f582b1fc5604590",
+      "565af144ec73f2ea4353375251fedf53c86fcf948f459397f3602b21cfc3b81f",
+      "a94bd08950eaf57ca49a5258aeed70314d86910d5d38934520d27d918289de43",
+      "c22fea8f4b97a024614f81f91d6457d40a7170e354454f5e5334381a48d0e77f",
+      "6a73a00e4fc5979cbb2875d62761859a2d74de141f4dc2e30e1cefbc739b17dc",
+      "c649453068cf74c745f256403d31e628da329e8ce02d5bc80d32fcd9bf604e86",
+      "a21b282cd9de0d5db3c5ae50df24cc1667aca74e194fafd59c7b1d57313956a0"
+    ],
+    "performed": [
+      "d99a096aa361794774cc41cb2155379137c0b02c26f778222709812dea19065c",
+      "88bca9bb74f123e727ee7f711b3a3f1f1830c4560ee54921cba060c8a0d23a58",
+      "68deb5e1be0017f38d8caa2e5b9d6dfcaaf68a7506c41e762c302d70b9a7d00e",
+      "789d56b9fef1f636a5a6d3736f328f07fcec258e615c68b15d73a58e8638c6bf",
+      "9481b256ca32cd8e7c5636906de98b76d40f99c85c9f3c9c1c0621bb0821468d",
+      "50e30eff29de529ecf3bf0c73257520b460dc157dc8a4a0f307daed0683a870d",
+      "1ea85aac77d09bdff1e0c6852251ec60004803b54949af24320f6dcf42f704cf",
+      "785ca1043f9488ecd8a2ff9cb777a464492471312f9a749d63a968f82c3d2bf2",
+      "454ce11258eb454e5a8d978f7ace84c298be870393c19404415b99adfacf870b",
+      "22742e120878f4c104b9d4310b5e33aa9aa212669aa71ad152c174121d276301",
+      "87d49b3813a485b951d9ee5572260cf9a126af8e0c7c4f22b1f010b2fe1834e6",
+      "d5b093679bbb62341fc1206e62ae845e0c727e6b2ba24697dda0847274816161",
+      "bce494fbeb5f1cb38bef22a9c9d01a03114d927852778d19eb9b299fdf086fbb"
+    ]
+  },
+  "library_archive_sha256": "73e91af914c9039a1b0749d634badbcefc7ef7513a29996be1425d5cc21aa973",
+  "fumen_archive_sha256": "044027e32278d31494be9a9e557425e4dee5cd719e47465231743e3a06af6bc9",
+  "harness_sha256": "bec151123d57a405254654fe5c2432e6d272c94a7aeb3c00a69bcc3d2f5e8c0c",
+  "stubs_sha256": "102d2d813ed0f6ad04cab82329e5630fc9e656c47642bfa628c7d8e2d75cf790",
+  "fixture_sha256": "e8fc9053a1fc33ba7aef9c9ccefec747ec6c0ea5476c666246c34fa640470741",
+  "dotnet_sdk": "10.0.403",
+  "plumbing_stubs": [
+    "ImGui sort spec pointer transport with source table enum declarations unchanged",
+    "wrapper fields, GUID/Name assignment, notification no-op; no EditorConfig persistence/history",
+    "PatternType is integer measure denominator passed by fixtures; GetMeasureSubdivision is identity for this transport, aligned from actual Config.BeatSubDivision*4",
+    "wrapper TravelSpeedMinBPM field assigned directly; library Config fields are actual independently seeded models; no source editor speed setter under test"
+  ],
+  "limits": [
+    "No initial ImGui sort spec or graphics execution",
+    "No full editor profile lifecycle execution",
+    "No claim that native selector initial cultural order equals first source table draw"
+  ],
+  "columns": 21,
+  "pair_comparisons": 1512
+}

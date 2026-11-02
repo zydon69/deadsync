@@ -62,8 +62,73 @@ fn edit_undo_redo_save_and_reopen_preserves_other_charts_and_unknown_tags() {
     );
     file.session.undo().unwrap();
     assert!(file.session.is_dirty());
+    // In-memory undo still restores the exact source. Saving deliberately
+    // materializes the source editor's GA song metadata, even after Undo.
+    assert_eq!(file.session.serialize().unwrap(), SSC);
+    let expected_output = file.session.serialize_for_output().unwrap();
     file.save().unwrap();
-    assert_eq!(fs::read(&path).unwrap(), SSC);
+    let saved = fs::read(&path).unwrap();
+    assert_eq!(saved, expected_output);
+    let mut restored = FileSession::open(&path).unwrap();
+    assert!(
+        restored
+            .session
+            .grid(0)
+            .unwrap()
+            .get(pos(0, 2, 24))
+            .is_none()
+    );
+    assert_eq!(
+        restored.session.grid(0).unwrap().get(pos(0, 0, 0)),
+        Some(&Note::tap())
+    );
+    let original = session();
+    assert_eq!(
+        restored.session.document().charts().len(),
+        original.document().charts().len()
+    );
+    for (actual, source) in restored
+        .session
+        .document()
+        .charts()
+        .iter()
+        .zip(original.document().charts())
+    {
+        assert_eq!(
+            restored.session.document().value(actual.notes.clone()),
+            original.document().value(source.notes.clone())
+        );
+    }
+    for tag in original.document().tags() {
+        let actual = restored
+            .session
+            .document()
+            .tag(tag.chart, &tag.name)
+            .unwrap();
+        assert_eq!(
+            restored.session.document().value(actual.value.clone()),
+            original.document().value(tag.value.clone())
+        );
+    }
+    assert_eq!(
+        restored
+            .session
+            .document()
+            .text(None, "GASongDataVersion")
+            .unwrap(),
+        "1"
+    );
+    let metadata: serde_json::Value = serde_json::from_str(
+        &restored
+            .session
+            .document()
+            .text(None, "GASongData")
+            .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(metadata["SyncOffset"], 0.009);
+    assert_eq!(metadata["DefaultChartType"], "dance_single");
+    assert_eq!(metadata["DefaultChartIndex"], 0);
 }
 
 #[test]
@@ -237,9 +302,55 @@ fn unsupported_symbols_and_precision_never_rewrite_source() {
     let bytes = SSC.replace_bytes(b"1000", b"X000");
     let mut session =
         Session::new(Document::parse(Arc::<[u8]>::from(bytes.clone()), Format::Ssc).unwrap());
-    assert!(matches!(session.grid(0), Err(Error::Unsupported(_))));
+    // Unknown standard cells are readable opaque data, never fabricated notes.
+    assert!(session.grid(0).unwrap().get(pos(0, 0, 0)).is_none());
     assert_eq!(session.serialize().unwrap(), bytes);
-    assert!(Grid::parse(b"0000\n1000\n0000\n0000\n0000\n0000\n0000", 4).is_err());
+    assert!(matches!(
+        session.edit_notes(0, "Overwrite opaque", [(pos(0, 0, 0), Some(Note::tap()))]),
+        Err(Error::Unsupported(_))
+    ));
+    assert_eq!(
+        session.serialize().unwrap(),
+        bytes,
+        "refused overwrite must be atomic"
+    );
+    assert!(
+        session
+            .edit_notes(0, "Unrelated note", [(pos(0, 2, 24), Some(Note::tap()))])
+            .unwrap()
+    );
+    let edited = session.serialize().unwrap();
+    let mut reopened =
+        Session::new(Document::parse(Arc::<[u8]>::from(edited), Format::Ssc).unwrap());
+    assert!(reopened.grid(0).unwrap().get(pos(0, 0, 0)).is_none());
+    assert_eq!(
+        reopened.grid(0).unwrap().get(pos(0, 2, 24)),
+        Some(&Note::tap())
+    );
+    assert!(
+        reopened
+            .document()
+            .value(reopened.document().charts()[0].notes.clone())
+            .windows(4)
+            .any(|s| s == b"X000")
+    );
+    session.undo().unwrap();
+    assert_eq!(session.serialize().unwrap(), bytes);
+    // Unrepresentable occupied subdivision remains refused: no rounding.
+    let precision = b"0000\n1000\n0000\n0000\n0000\n0000\n0000";
+    assert!(matches!(
+        Grid::parse(precision, 4),
+        Err(Error::Unsupported(_))
+    ));
+    let precision_bytes = SSC.replace_bytes(b"1000\r\n0000\r\n0000\r\n0000", precision);
+    let mut precision_session = Session::new(
+        Document::parse(Arc::<[u8]>::from(precision_bytes.clone()), Format::Ssc).unwrap(),
+    );
+    assert!(matches!(
+        precision_session.grid(0),
+        Err(Error::Unsupported(_))
+    ));
+    assert_eq!(precision_session.serialize().unwrap(), precision_bytes);
 }
 
 #[test]

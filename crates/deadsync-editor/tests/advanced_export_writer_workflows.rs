@@ -219,7 +219,16 @@ fn sixty_original_writer_cases_have_explicit_rejection_or_matching_note_readback
         "fixtures/grooveauthor/save-format.expected.json"
     ))
     .unwrap();
+    let admission: Value = serde_json::from_str(include_str!(
+        "fixtures/save-format-native-admission.json"
+    ))
+    .unwrap();
+    let admissions = admission["cases"].as_array().unwrap();
+    assert_eq!(request["Cases"].as_array().unwrap().len(), 60);
+    assert_eq!(expected["Cases"].as_array().unwrap().len(), 60);
+    assert_eq!(admissions.len(), 60);
     let (mut generated, mut blocked) = (0, 0);
+    let mut classifications = std::collections::BTreeMap::new();
     for (input, result) in request["Cases"]
         .as_array()
         .unwrap()
@@ -248,6 +257,38 @@ fn sixty_original_writer_cases_have_explicit_rejection_or_matching_note_readback
             ..Options::default()
         };
         let p = prepare(&mut s, target, options);
+        let reviewed = &admissions[generated + blocked];
+        assert_eq!(reviewed["name"], input["Name"]);
+        let classification = reviewed["review"]["kind"].as_str().unwrap();
+        *classifications.entry(classification.to_owned()).or_insert(0usize) += 1;
+        match classification {
+            "accepted" => assert!(reviewed["errors"].as_array().unwrap().is_empty()),
+            "source_editor_guard" => assert!(!reviewed["review"]["guards"].as_array().unwrap().is_empty()),
+            "source_writer_loss" => {
+                let symbols = |charts: &Value| charts.as_array().unwrap().iter().map(|chart| {
+                    chart["Events"].as_array().unwrap().iter().filter(|event| event["Lane"].as_i64().unwrap() >= 0).count()
+                }).sum::<usize>();
+                assert!(symbols(&result["Before"]) > symbols(&result["After"]), "{name}: loss witness changed");
+            }
+            "source_reader_exclusion" => assert!(result["Before"].as_array().unwrap().is_empty(), "{name}"),
+            _ => panic!("{name}: unreviewed admission classification"),
+        }
+        assert_eq!(classification == "accepted", reviewed["errors"].as_array().unwrap().is_empty(), "{name}");
+        assert_eq!(reviewed["source_writer_saved"], result["Saved"], "{name}");
+        let mut errors: Vec<_> = p
+            .issues()
+            .iter()
+            .filter(|issue| issue.severity == Severity::Error)
+            .map(|issue| serde_json::json!({
+                "kind": format!("{:?}", issue.kind),
+                "field": issue.field,
+                "chart": issue.chart,
+            }))
+            .collect();
+        errors.sort_by_key(Value::to_string);
+        let mut expected_errors = reviewed["errors"].as_array().unwrap().clone();
+        expected_errors.sort_by_key(Value::to_string);
+        assert_eq!(errors, expected_errors, "{name}: admission policy changed");
         if p.issues().iter().any(|i| i.severity == Severity::Error) {
             assert!(
                 p.generate(
@@ -335,7 +376,11 @@ fn sixty_original_writer_cases_have_explicit_rejection_or_matching_note_readback
         assert!(!s.is_dirty());
         generated += 1;
     }
-    assert_eq!(generated + blocked, 60);
-    assert!(generated > 0);
-    assert!(blocked >= 10);
+    assert_eq!((generated, blocked), (28, 32));
+    assert_eq!(classifications, std::collections::BTreeMap::from([
+        ("accepted".to_owned(), 28),
+        ("source_editor_guard".to_owned(), 20),
+        ("source_reader_exclusion".to_owned(), 6),
+        ("source_writer_loss".to_owned(), 6),
+    ]));
 }

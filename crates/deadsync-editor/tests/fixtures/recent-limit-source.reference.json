@@ -1,0 +1,10 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "source_sha256": "77246efb397b70390f458d3c9a9f1ffbf65be5048c142391674743ac27bbc830",
+  "options_sha256": "e20d088de1d35d3858e5f7c9b6514c7b25fe698dd900525ea9d16183c6fd5239",
+  "method_sha256": "4d9bcfe5daf2e93fee06a54c893aaee91e767b967939e93fb2764e11594bc475",
+  "host_sha256": "91ea7cccd2809a24a7002ecb1f039ece08fe72dee57c555f332ea6759d3f03bf",
+  "fumen_assembly_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "scope": "Pinned Editor.UpdateRecentFilesForActiveSong unchanged body + real Fumen action.\nSong/pack/chart/zoom descriptors are deterministic host adapters; this proves list\nordering/truncation and limit-only Undo, not SavedSongInformation metadata or UI.\n"
+}

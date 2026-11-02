@@ -95,16 +95,16 @@ fn ssc_all_text_fields_identity_offset_apply_atomically_with_unicode_escaping_an
     );
 }
 #[test]
-fn sm_description_edit_preserves_positional_headers_and_rejects_nonpersistent_fields() {
+fn sm_description_edit_preserves_positional_headers_and_authors_native_metadata() {
     let bytes=b"#BPMS:0=120;#CREDIT:Song;#VENDOR:keep;#NOTES2:dance-single:Old\\:desc:Hard:9:0,1,2,3,4:1000;#NOTES:dance-single:Other:Easy:3::0001;";
     let mut s = Session::new(Document::parse(&bytes[..], Format::Sm).unwrap());
     let mut draft = Draft::capture(&s, 0).unwrap();
     assert_eq!(draft.text(Field::Description), "Old:desc");
     for field in [Field::Name, Field::Credit, Field::Style] {
-        assert!(!draft.supports_text(field));
-        assert!(draft.set_text(field, "lost").is_err());
+        assert!(draft.supports_text(field));
+        draft.set_text(field, "preserved").unwrap();
     }
-    assert!(!draft.has_changes());
+    assert!(draft.has_changes());
     draft
         .set_text(Field::Description, "Été : ; // \\ 日本語")
         .unwrap();
@@ -113,6 +113,7 @@ fn sm_description_edit_preserves_positional_headers_and_rejects_nonpersistent_fi
     let after = s.serialize().unwrap();
     let read = Text::read(&Document::parse(after.clone(), Format::Sm).unwrap(), 0).unwrap();
     assert_eq!(read.get(Field::Description), "Été : ; // \\ 日本語");
+    for field in [Field::Name,Field::Credit,Field::Style] {assert_eq!(read.get(field),"preserved");}
     assert!(
         String::from_utf8(after.clone())
             .unwrap()

@@ -86,6 +86,8 @@ struct OffscreenTarget {
     depth_image: Vec<f32>,
     with_depth: bool,
     initialized: bool,
+    fxaa_input: Vec<[f32; 4]>,
+    fxaa_output: Vec<[f32; 4]>,
 }
 
 struct DepthRows<'a> {
@@ -627,6 +629,8 @@ fn create_offscreen_target(
         depth_image: vec![1.0; if with_depth { len } else { 0 }],
         with_depth,
         initialized: false,
+        fxaa_input: Vec::new(),
+        fxaa_output: Vec::new(),
     }
 }
 
@@ -765,6 +769,34 @@ fn copy_target_pixels<const PRESERVE_ALPHA: bool>(target: &mut OffscreenTarget) 
     }
 }
 
+/// Filter the published texture, keeping raw capture pixels for preserve draws.
+/// Float captures retain HDR values through the same CPU shader as the GPU pass.
+fn apply_offscreen_fxaa(target: &mut OffscreenTarget, source: Option<&Texture>, quality: deadlib_render_core::FxaaQuality) {
+    let source = source.unwrap_or(&target.texture);
+    let (source_width, source_height) = source.image.dimensions();
+    target.fxaa_input.resize(source_width as usize * source_height as usize, [0.0; 4]);
+    target.fxaa_output.resize(target.width as usize * target.height as usize, [0.0; 4]);
+    if !source.half_pixels.is_empty() {
+        for (rgba, &pixel) in target.fxaa_input.iter_mut().zip(&source.half_pixels) {
+            *rgba = unpack_half(pixel);
+        }
+    } else {
+        for (rgba, pixel) in target.fxaa_input.iter_mut().zip(source.image.as_raw().chunks_exact(4)) {
+            *rgba = std::array::from_fn(|channel| f32::from(pixel[channel]) * U8_TO_F32);
+        }
+    }
+    deadlib_render_core::fxaa::apply_rgba_resized(source_width, source_height, target.width, target.height, &target.fxaa_input, &mut target.fxaa_output, quality);
+    if target.texture.opaque {for color in &mut target.fxaa_output {color[3] = 1.0;}}
+    if target.float_color {
+        for (pixel, &rgba) in target.texture.half_pixels.iter_mut().zip(&target.fxaa_output) {
+            *pixel = pack_half(rgba);
+        }
+    }
+    for (pixel, rgba) in target.texture.image.as_mut().chunks_exact_mut(4).zip(&target.fxaa_output) {
+        for channel in 0..4 { pixel[channel] = (clamp01(rgba[channel]) * 255.0).round() as u8; }
+    }
+}
+
 fn draw_offscreen_targets(
     state: &mut State,
     frame: &RenderFrame,
@@ -851,6 +883,18 @@ fn draw_offscreen_targets(
             copy_target_pixels::<true>(&mut targets[index]);
         } else {
             copy_target_pixels::<false>(&mut targets[index]);
+        }
+        if let Some(effect) = pass.postprocess {
+            let (earlier, current) = targets.split_at_mut(index);
+            let source = if let Some(handle) = effect.source {
+                let resolved = if is_render_target_texture(handle) {
+                    let handle = render_target_base_handle(handle);
+                    earlier.iter().find(|target| target.handle == handle).map(|target| &target.texture)
+                } else { textures.software_texture(handle) };
+                let Some(texture) = resolved else { continue; };
+                Some(texture)
+            } else { None };
+            apply_offscreen_fxaa(&mut current[0], source, effect.quality);
         }
     }
     state.offscreen_targets = targets;
@@ -1067,7 +1111,7 @@ fn prepare_objects(
                     let Some(sprite) = frame.sprite_instances.get(sprite_index as usize) else {
                         continue;
                     };
-                    if sprite.tint[3] <= 0.0 {
+                    if sprite.tint[3] <= 0.0 && !run.blend.requires_zero_alpha_fragments() {
                         continue;
                     }
                     let Some(vertices) = prepare_sprite_vertices(
@@ -2983,13 +3027,16 @@ fn sample_alpha_nearest(
 }
 
 #[inline(always)]
-fn sample_tex_linear<const OPAQUE: bool>(
+fn sample_tex_linear<const OPAQUE: bool>(tex_data:Texels<'_>,tex_w:usize,tex_h:usize,u:f32,v:f32,sampler:SamplerDesc)->Option<[f32;4]>{sample_tex_linear_preserving::<OPAQUE>(tex_data,tex_w,tex_h,u,v,sampler,false)}
+#[inline(always)]
+fn sample_tex_linear_preserving<const OPAQUE: bool>(
     tex_data: Texels<'_>,
     tex_w: usize,
     tex_h: usize,
     u: f32,
     v: f32,
     sampler: SamplerDesc,
+    preserve_transparent:bool,
 ) -> Option<[f32; 4]> {
     let x = wrap_uv(u, sampler.wrap).mul_add(tex_w as f32, -0.5);
     let y = wrap_uv(v, sampler.wrap).mul_add(tex_h as f32, -0.5);
@@ -3011,7 +3058,7 @@ fn sample_tex_linear<const OPAQUE: bool>(
         for c in &mut colors {
             c[3] = 1.0;
         }
-    } else if colors.iter().all(|c| c[3] == 0.0) {
+    } else if !preserve_transparent && colors.iter().all(|c| c[3] == 0.0) {
         return None;
     }
     let lerp = |a: f32, b: f32, t: f32| (b - a).mul_add(t, a);
@@ -3133,12 +3180,16 @@ fn blend_color(dst: [f32; 4], src: [f32; 4], mode: BlendMode) -> [f32; 4] {
     let inv = 1.0 - alpha;
     let mut color = std::array::from_fn(|i| match mode {
         BlendMode::NoEffect => dst[i],
+        BlendMode::Replace => src[i],
+        BlendMode::PremultipliedAlpha => src[i] + dst[i]*inv,
         BlendMode::Alpha => src[i].mul_add(alpha, dst[i] * inv),
         BlendMode::Add => src[i].mul_add(alpha, dst[i]),
         BlendMode::Multiply => src[i] * dst[i],
         BlendMode::Subtract => dst[i].mul_add(inv, -(src[i] * alpha)),
     });
-    color[3] = if mode == BlendMode::NoEffect {
+    color[3] = if mode == BlendMode::Replace {
+        src[3]
+    } else if mode == BlendMode::NoEffect {
         dst[3]
     } else if mode == BlendMode::Subtract {
         dst[3].mul_add(inv, -src[3])
@@ -3333,9 +3384,9 @@ fn rasterize_triangle_impl<const LINEAR: bool, const MASK: bool, const OPAQUE: b
                     } else {
                         sample_alpha_nearest(tex_data, tex_w, tex_h, u, v, sampler)
                     };
-                    alpha.map(|alpha| [0.0, 0.0, 0.0, alpha])
+                    alpha.or_else(||blend.requires_zero_alpha_fragments().then_some(0.0)).map(|alpha| [0.0, 0.0, 0.0, alpha])
                 } else if LINEAR {
-                    sample_tex_linear::<OPAQUE>(tex_data, tex_w, tex_h, u, v, sampler)
+                    sample_tex_linear_preserving::<OPAQUE>(tex_data, tex_w, tex_h, u, v, sampler,blend.requires_zero_alpha_fragments())
                 } else {
                     sample_tex_nearest::<OPAQUE>(tex_data, tex_w, tex_h, u, v, sampler)
                 }
@@ -3343,7 +3394,7 @@ fn rasterize_triangle_impl<const LINEAR: bool, const MASK: bool, const OPAQUE: b
             let Some(sampled) = sampled else {
                 continue;
             };
-            if sampled[3] == 0.0 && blend != BlendMode::Multiply {
+            if sampled[3] == 0.0 && blend != BlendMode::Multiply && !blend.requires_zero_alpha_fragments() {
                 continue;
             }
 
@@ -3351,7 +3402,7 @@ fn rasterize_triangle_impl<const LINEAR: bool, const MASK: bool, const OPAQUE: b
             let sg = if MASK { tint[1] } else { sampled[1] * tint[1] };
             let sb = if MASK { tint[2] } else { sampled[2] * tint[2] };
             let sa = sampled[3] * tint[3];
-            if sa == 0.0 && blend != BlendMode::Multiply {
+            if sa == 0.0 && blend != BlendMode::Multiply && !blend.requires_zero_alpha_fragments() {
                 continue;
             }
 
@@ -3415,9 +3466,9 @@ fn rasterize_triangle_tex_color_impl<const LINEAR: bool, const MASK: bool, const
                     } else {
                         sample_alpha_nearest(tex_data, tex_w, tex_h, u, v, sampler)
                     };
-                    alpha.map(|alpha| [0.0, 0.0, 0.0, alpha])
+                    alpha.or_else(||blend.requires_zero_alpha_fragments().then_some(0.0)).map(|alpha| [0.0, 0.0, 0.0, alpha])
                 } else if LINEAR {
-                    sample_tex_linear::<OPAQUE>(tex_data, tex_w, tex_h, u, v, sampler)
+                    sample_tex_linear_preserving::<OPAQUE>(tex_data, tex_w, tex_h, u, v, sampler,blend.requires_zero_alpha_fragments())
                 } else {
                     sample_tex_nearest::<OPAQUE>(tex_data, tex_w, tex_h, u, v, sampler)
                 }
@@ -3425,7 +3476,7 @@ fn rasterize_triangle_tex_color_impl<const LINEAR: bool, const MASK: bool, const
             let Some(sampled) = sampled else {
                 continue;
             };
-            if sampled[3] == 0.0 && blend != BlendMode::Multiply {
+            if sampled[3] == 0.0 && blend != BlendMode::Multiply && !blend.requires_zero_alpha_fragments() {
                 continue;
             }
 
@@ -3492,7 +3543,7 @@ fn rasterize_triangle_color_impl(
             let sg = v2.color[1].mul_add(w2, v0.color[1].mul_add(w0, v1.color[1] * w1));
             let sb = v2.color[2].mul_add(w2, v0.color[2].mul_add(w0, v1.color[2] * w1));
             let sa = v2.color[3].mul_add(w2, v0.color[3].mul_add(w0, v1.color[3] * w1));
-            if sa == 0.0 && blend != BlendMode::Multiply {
+            if sa == 0.0 && blend != BlendMode::Multiply && !blend.requires_zero_alpha_fragments() {
                 continue;
             }
 
@@ -3550,6 +3601,7 @@ mod tests {
                 alpha: true,
                 depth: true,
                 preserve: false,
+                postprocess: None,
                 float_color: false,
                 cameras: vec![projection],
                 sprite_instances: vec![],
@@ -3774,6 +3826,7 @@ mod tests {
             alpha: false,
             depth: true,
             preserve: false,
+            postprocess: None,
             cameras: vec![Matrix4::IDENTITY],
             sprite_instances: vec![],
             mesh_vertices: [
@@ -4232,6 +4285,7 @@ mod tests {
                 alpha: false,
                 depth: false,
                 preserve: false,
+                postprocess: None,
                 cameras: Vec::new(),
                 sprite_instances: Vec::new(),
                 mesh_vertices: [
@@ -6080,3 +6134,71 @@ mod offscreen_perf_tests;
 #[cfg(test)]
 #[path = "environment_performance.rs"]
 mod environment_performance;
+
+#[cfg(test)]
+mod editor_fxaa_tests {
+    use super::*;
+    #[test]
+    fn source_target_resize_filters_published_rgba_without_touching_raw_capture() {
+        let quality = deadlib_render_core::FxaaQuality {subpix: 0.75, edge_threshold: 0.166, edge_threshold_min: 0.0833};
+        for float_color in [false, true] {
+            let mut source = create_offscreen_target(1, 31, 19, [31, 19], float_color, false);
+            let mut input = Vec::new();
+            for index in 0..31*19 {
+                let bytes = [(index * 31 % 256) as u8, (index * 17 % 256) as u8, (index * 7 % 256) as u8, (index * 3 % 256) as u8];
+                let rgba = bytes.map(|value| f32::from(value) * U8_TO_F32);
+                let rgba = if float_color {
+                    source.texture.half_pixels[index] = pack_half(rgba);
+                    unpack_half(source.texture.half_pixels[index])
+                } else { rgba };
+                source.texture.image.put_pixel((index % 31) as u32, (index / 31) as u32, image::Rgba(bytes));
+                input.push(rgba);
+            }
+            let original_source = source.texture.image.clone();
+            let mut target = create_offscreen_target(2, 7, 11, [7, 11], float_color, false);
+            target.pixels.fill(0x12345678);
+            let raw = target.pixels.clone();
+            let raw_half = target.half_pixels.clone();
+            let mut expected = vec![[0.; 4]; 7 * 11];
+            deadlib_render_core::fxaa::apply_rgba_resized(31, 19, 7, 11, &input, &mut expected, quality);
+            apply_offscreen_fxaa(&mut target, Some(&source.texture), quality);
+            let input_ptr = target.fxaa_input.as_ptr();
+            let output_ptr = target.fxaa_output.as_ptr();
+            apply_offscreen_fxaa(&mut target, Some(&source.texture), quality);
+            assert_eq!(target.fxaa_input.as_ptr(), input_ptr);
+            assert_eq!(target.fxaa_output.as_ptr(), output_ptr);
+            assert_eq!(target.pixels, raw);
+            assert_eq!(target.half_pixels, raw_half);
+            assert_eq!(source.texture.image, original_source);
+            for (index, (actual, expected)) in target.texture.image.pixels().zip(expected).enumerate() {
+                assert_eq!(actual.0, expected.map(|value| (clamp01(value) * 255.0).round() as u8));
+                if float_color {assert_eq!(target.texture.half_pixels[index], pack_half(expected));}
+            }
+            target.texture.opaque = true;
+            apply_offscreen_fxaa(&mut target, Some(&source.texture), quality);
+            assert!(target.texture.image.pixels().all(|pixel| pixel[3] == 255));
+            if float_color {assert!(target.texture.half_pixels.iter().all(|pixel| unpack_half(*pixel)[3] == 1.0));}
+        }
+    }
+}
+
+#[cfg(test)]mod source_composition_tests{
+ use super::*;
+ fn expected(dst:[f32;4],src:[f32;4],mode:BlendMode)->[f32;4]{if mode==BlendMode::Replace{src}else{std::array::from_fn(|i|src[i]+dst[i]*(1.0-src[3]))}}
+ #[test]fn new_modes_actual_byte_and_half_writers_cover_zero_half_full_alpha(){
+  for mode in[BlendMode::Replace,BlendMode::PremultipliedAlpha]{for alpha in[0.0,0.5,1.0]{for dst_alpha in[0.0,0.25,0.5,0.75,1.0]{
+   let dst=[0.125,0.25,0.375,dst_alpha];let src=[0.125,0.25,0.375,alpha];let mut half=[pack_half(dst)];half_writer(&mut half,true)(0,src,mode);assert_eq!(half[0],pack_half(expected(dst,src,mode)),"mode={mode:?} alpha={alpha} dstalpha={dst_alpha}");
+   let packed=pack_rgba(dst);let quantized=[((packed>>16)&255)as f32*U8_TO_F32,((packed>>8)&255)as f32*U8_TO_F32,(packed&255)as f32*U8_TO_F32,(packed>>24)as f32*U8_TO_F32];let mut bytes=[packed];byte_writer(&mut bytes)(0,src,mode);assert_eq!(bytes[0],pack_rgba(expected(quantized,src,mode)));
+  }}}
+ }
+ #[test]fn zero_alpha_solid_raster_is_not_elided_for_source_one_modes(){
+  for mode in[BlendMode::Replace,BlendMode::PremultipliedAlpha]{let src=[0.125,0.25,0.375,0.0];let dst=[0.125,0.25,0.375,0.5];let v=[[0.0,0.0],[2.0,0.0],[0.0,2.0]].map(|[x,y]|ScreenVertexColor{x,y,color:src});let mut pixels=[pack_half(dst)];rasterize_triangle_color(&v[0],&v[1],&v[2],mode,1,1,0,1,&mut half_writer(&mut pixels,true));assert_eq!(pixels[0],pack_half(expected(dst,src,mode)));}
+ }
+ #[test]fn zero_alpha_texture_raster_nearest_and_linear_preserves_rgb_for_source_one_modes(){
+  let image=RgbaImage::from_pixel(2,2,image::Rgba([32,64,96,0]));let src=[32.0*U8_TO_F32,64.0*U8_TO_F32,96.0*U8_TO_F32,0.0];let dst=[0.125,0.25,0.375,0.5];let v=[[0.0,0.0],[2.0,0.0],[0.0,2.0]].map(|[x,y]|ScreenVertex{x,y,u:0.5,v:0.5});let inverse=1.0/edge_function(v[0].x,v[0].y,v[1].x,v[1].y,v[2].x,v[2].y);
+  for mode in[BlendMode::Replace,BlendMode::PremultipliedAlpha]{for filter in[SamplerFilter::Nearest,SamplerFilter::Linear]{let sampler=SamplerDesc{filter,wrap:SamplerWrap::Clamp,mipmaps:false};let mut pixels=[pack_half(dst)];rasterize_triangle_with_inv(&v[0],&v[1],&v[2],inverse,[1.0;4],false,mode,(&image).into(),sampler,false,1,1,0,1,&mut half_writer(&mut pixels,true));assert_eq!(pixels[0],pack_half(expected(dst,src,mode)));}}
+ }
+}
+
+#[cfg(feature="test-util")]
+pub mod test_util;

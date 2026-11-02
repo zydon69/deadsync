@@ -29,13 +29,6 @@ fn ctrl(s: &mut State, code: KeyCode) {
     press(s, code);
     key(s, KeyCode::SuperLeft, false);
 }
-fn open(s: &mut State) {
-    key(s, KeyCode::SuperLeft, true);
-    key(s, KeyCode::ShiftLeft, true);
-    press(s, KeyCode::KeyE);
-    key(s, KeyCode::ShiftLeft, false);
-    key(s, KeyCode::SuperLeft, false);
-}
 fn serialized(s: &State) -> Vec<u8> {
     s.workspace().file().session.serialize().unwrap()
 }

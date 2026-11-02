@@ -24,6 +24,13 @@ impl App {
     pub(super) fn execute_command(&mut self, command: Command, event_loop: &ActiveEventLoop) {
         let kind = command.kind();
         let started = Instant::now();
+        if matches!(&command,Command::ExitNow|Command::Shutdown) && self.state.screens.active_editor().is_some() {
+            if !std::mem::take(&mut self.state.screens.editor_exit_ready) {
+                let request=if matches!(&command,Command::Shutdown){crate::interaction::ProcessExitRequest::Shutdown}else{crate::interaction::ProcessExitRequest::Exit};
+                let commands=self.handle_process_exit(request);self.run_commands(commands,event_loop);return;
+            }
+            self.flush_active_editor_audio();
+        }
         match command {
             Command::ExitNow => event_loop.exit(),
             Command::Shutdown => {

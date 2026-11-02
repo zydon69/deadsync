@@ -1,0 +1,84 @@
+[
+  {
+    "row": "0[7]100",
+    "valid": true,
+    "events": [
+      {
+        "type": "LaneTapNote",
+        "SourceType": "1",
+        "IntegerPosition": 0
+      }
+    ]
+  },
+  {
+    "row": "0{drunk:2}100",
+    "valid": true,
+    "events": [
+      {
+        "type": "LaneTapNote",
+        "SourceType": "1",
+        "IntegerPosition": 0
+      }
+    ]
+  },
+  {
+    "row": "0\u003Citem\u003E100",
+    "valid": true,
+    "events": [
+      {
+        "type": "LaneTapNote",
+        "SourceType": "1",
+        "IntegerPosition": 0
+      }
+    ]
+  },
+  {
+    "row": "Z100",
+    "valid": true,
+    "events": [
+      {
+        "type": "LaneTapNote",
+        "SourceType": "1",
+        "IntegerPosition": 0
+      }
+    ]
+  },
+  {
+    "row": "?100",
+    "valid": true,
+    "events": [
+      {
+        "type": "LaneTapNote",
+        "SourceType": "1",
+        "IntegerPosition": 0
+      }
+    ]
+  },
+  {
+    "row": "K100",
+    "valid": true,
+    "events": [
+      {
+        "type": "LaneNote",
+        "SourceType": "K",
+        "IntegerPosition": 0
+      },
+      {
+        "type": "LaneTapNote",
+        "SourceType": "1",
+        "IntegerPosition": 0
+      }
+    ]
+  },
+  {
+    "row": "A100",
+    "valid": true,
+    "events": [
+      {
+        "type": "LaneTapNote",
+        "SourceType": "1",
+        "IntegerPosition": 0
+      }
+    ]
+  }
+]

@@ -64,7 +64,7 @@ pub fn files(directory: &Path) -> std::io::Result<Vec<PathBuf>> {
         .filter_map(|entry| match entry {
             Ok(entry) => match entry.file_type() {
                 Ok(kind) if kind.is_file() => Some(Ok(entry.path())),
-                Ok(kind) if kind.is_symlink() && entry.path().is_file() => Some(Ok(entry.path())),
+                Ok(kind) if kind.is_symlink() && !entry.path().is_dir() => Some(Ok(entry.path())),
                 Ok(_) => None,
                 Err(error) => Some(Err(error)),
             },
@@ -187,6 +187,13 @@ pub struct Assets {
     pub lyrics: Option<String>,
 }
 impl Assets {
+    /// Source global auto-assets action: one fresh song transaction, no inspector
+    /// draft, and no history entry when every discovered path is already set.
+    pub fn apply(&self, session: &mut crate::history::Session, only_unset: bool) -> Result<usize, Error> {
+        let mut draft = crate::song_properties::Draft::capture(session)?;
+        let count = draft.stage_assets(self, only_unset)?;
+        if draft.apply_with_presentation_receipt(session)?.changed() { Ok(count) } else { Ok(0) }
+    }
     pub fn discover<F>(directory: &Path, files: &[PathBuf], mut dimensions: F) -> Self
     where
         F: FnMut(&Path) -> Option<(i32, i32)>,

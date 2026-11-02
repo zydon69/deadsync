@@ -1,0 +1,15 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourceMembers": [
+    "EditorChart.GetHoldsOverlappingPosition",
+    "ActiveEditorChart.ScanBackwardsForHolds",
+    "UpdateChartEvents unchanged forward while"
+  ],
+  "SourceSha256": {
+    "EditorChart.cs": "b363bce0c00072e72a5e75dd5f80aa0de30fde10e3a83e806310e305f6d3f2eb",
+    "ActiveEditorChart.cs": "7aadac1e1f9ad4ce48a1b7013abfe35b4733c43dbc41a8dfe0cb98196ecbc538"
+  },
+  "Host": "real Fumen tree; strict predecessor query atrow50, explicit scalar hold0..192/lane0 andtap96/lane1; empty edit states; geometry callbacks as scalar host; not whole source reader",
+  "FumenDLLSha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639"
+}

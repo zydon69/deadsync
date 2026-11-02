@@ -21,7 +21,6 @@ use deadsync_editor::{
     zoom::SpacingMode,
 };
 use std::collections::{BTreeMap, BTreeSet};
-pub(super) const NOTE_BUDGET: usize = 16_384;
 #[derive(Clone, Copy)]
 pub(super) struct Viewport {
     pub top: f32,
@@ -37,6 +36,8 @@ pub(super) struct Cache {
     entries: BTreeMap<Guid, Entry>,
 }
 pub(super) struct Data {
+    pub waveform_music: String,
+    pub waveform_offset: f64,
     clock: std::sync::Arc<Clock>,
     index: Index,
     interpolation: Result<Timeline, String>,
@@ -132,7 +133,12 @@ impl Data {
                 row.checked_add(definition.length).map(|end| (row, end))
             })
             .collect();
+        let waveform_music = deadsync_editor::chart_text::local_value(document, chart, deadsync_editor::chart_text::Field::Music)?
+            .filter(|name|!name.is_empty()).unwrap_or_else(||document.text(None,"MUSIC").unwrap_or_default());
+        let waveform_offset = deadsync_editor::chart_properties::Draft::capture(session,chart)?.effective_music_offset();
         Ok(Self {
+            waveform_music,
+            waveform_offset,
             clock,
             index,
             interpolation,
@@ -159,6 +165,7 @@ impl Data {
         reverse: bool,
         zoom: f64,
         viewport: Viewport,
+        speeds:Speeds,
     ) -> Result<Projection<'_>, Error> {
         let time = self.clock.music_to_chart_time(music_time)?;
         let row = self.clock.position(music_time)?;
@@ -167,7 +174,7 @@ impl Data {
             let axis = RowProjection::new(
                 anchor,
                 f64::from(viewport.cursor),
-                zoom,
+                speeds.row*zoom,
                 f64::from(viewport.top),
                 f64::from(viewport.bottom),
             )?
@@ -183,7 +190,7 @@ impl Data {
         let settings = Settings {
             mode,
             reverse,
-            speeds: Speeds::default(),
+            speeds,
             interpolated_scroll: if mode == SpacingMode::Variable {
                 self.interpolation
                     .as_ref()
@@ -266,10 +273,12 @@ pub(super) fn notes(
         Option<&Signatures>,
     )>,
     pending: Option<&deadsync_editor::lane_entry::Inputs>,
+    admitted: Option<&[deadsync_editor::notes::Position]>,
+    explicit_selection: Option<&BTreeSet<deadsync_editor::notes::Position>>,
 ) -> NoteRenderStats {
     let mut stats = NoteRenderStats::default();
     if note_limit == 0 {
-        stats.partial = !ranges.is_empty();
+        stats.partial = admitted.is_none() && !ranges.is_empty();
         return stats;
     }
     let needs_classification = palette.is_some();
@@ -289,11 +298,17 @@ pub(super) fn notes(
     let bins_per_range = (bins / ranges.len().max(1)).max(1);
     let mut shown = BTreeSet::new();
     let mut queried = 0usize;
-    let mut hold_strips_remaining = note_limit;
+    // Admission counts musical notes, not the atlas tiles composing a hold.
+    // Even one admitted hold may need hundreds of visible body strips.
+    let hold_body_budget = super::hold_render::viewport_body_budget(
+        geometry.lane_width * size_zoom, viewport.bottom - viewport.top,
+    );
     let mut tree_queries = 0usize;
     let tree_limit = note_limit.saturating_mul(4);
-    stats.partial |= ranges.len() > bins;
-    for &(start, end) in ranges.iter().take(bins) {
+    stats.partial |= admitted.is_none() && ranges.len() > bins;
+    let exact_range=[(0,0)];
+    let draw_ranges=if admitted.is_some(){&exact_range[..]}else{ranges};
+    for &(start, end) in draw_ranges.iter().take(bins) {
         let remaining = note_limit.saturating_sub(queried);
         if remaining == 0 {
             stats.partial = true;
@@ -304,15 +319,14 @@ pub(super) fn notes(
             stats.partial = true;
             break;
         }
-        let overview = grid
-            .visible_overview_budgeted(start, end, bins_per_range, remaining, remaining_queries)
-            .expect("ordered bounded note viewport");
+        let overview=if let Some(admitted)=admitted{
+            deadsync_editor::notes::Overview{notes:admitted.iter().filter_map(|&position|grid.get(position).map(|note|(position,note))).collect(),queries:0,budget_exhausted:false}
+        }else{grid.visible_overview_budgeted(start,end,bins_per_range,remaining,remaining_queries).expect("ordered bounded note viewport")};
         queried += overview.notes.len();
         tree_queries += overview.queries;
-        stats.partial |= overview.budget_exhausted
-            || end.saturating_sub(start).saturating_add(1) > bins_per_range as u64;
+        stats.partial |= overview.budget_exhausted || admitted.is_none()&&end.saturating_sub(start).saturating_add(1)>bins_per_range as u64;
         for (position, note) in overview.notes {
-            if !shown.insert(position) {
+            if !shown.insert(position) && admitted.is_none() {
                 continue;
             }
             if pending.is_some_and(|input| input.deleted_heads().any(|deleted| deleted == position))
@@ -336,7 +350,10 @@ pub(super) fn notes(
                     continue;
                 };
                 let selected =
-                    selection.is_some_and(|(a, b)| a <= position.row && position.row <= b);
+                    explicit_selection.map_or_else(
+                    || selection.is_some_and(|(a, b)| a <= position.row && position.row <= b),
+                    |selected| selected.contains(&position),
+                );
                 let request = super::hold_render::ChartRequest {
                     layout,
                     row: position.row,
@@ -360,7 +377,7 @@ pub(super) fn notes(
                         .filter(|p| p.clip_hold)
                         .map(|_| f64::from(viewport.cursor)),
                     size_zoom: f64::from(size_zoom),
-                    body_budget: hold_strips_remaining,
+                    body_budget: hold_body_budget,
                 };
                 let result = match palette {
                     Some((palette, signatures)) => {
@@ -370,8 +387,6 @@ pub(super) fn notes(
                 };
                 match result {
                     Ok(output) => {
-                        hold_strips_remaining =
-                            hold_strips_remaining.saturating_sub(output.body_strips);
                         stats.partial |= output.partial;
                         actors.extend(output.actors);
                         if presentation.is_some_and(|p| p.fake) {
@@ -408,7 +423,10 @@ pub(super) fn notes(
                 }
                 continue;
             }
-            let selected = selection.is_some_and(|(a, b)| a <= position.row && position.row <= b);
+            let selected = explicit_selection.map_or_else(
+                    || selection.is_some_and(|(a, b)| a <= position.row && position.row <= b),
+                    |selected| selected.contains(&position),
+                );
             let kind = match note.kind {
                 Kind::Mine => super::short_note_render::Kind::Mine,
                 Kind::Lift => super::short_note_render::Kind::Lift,
@@ -506,15 +524,18 @@ pub(super) fn markers(
     viewport: Viewport,
     ranges: &[(u64, u64)],
     budget: usize,
+    marker_limit:usize,
+    render:deadsync_editor::options_preferences::RenderPolicy,
 ) {
     let bins = budget.clamp(1, 4096);
     let per_range = (bins / ranges.len().max(1)).max(1);
-    let mut labels = Vec::new();
+    let mut marker_count=0usize;
     let mut regions = BTreeSet::new();
     for &(start, end) in ranges.iter().take(bins) {
         let bands = deadsync_editor::projection::RowBands::new(start, end, per_range)
             .expect("bounded visible bands");
         for (a, b) in bands {
+            if render.markers && marker_count<marker_limit {
             if let Some(row) = a.div_ceil(48).checked_mul(48).filter(|row| *row <= b) {
                 let measure = data.signatures.as_ref().is_some_and(|signatures| {
                     signatures
@@ -526,10 +547,12 @@ pub(super) fn markers(
                         *y >= f64::from(viewport.top) && *y <= f64::from(viewport.bottom)
                     }) {
                         horizontal(actors, geometry, y as f32, 0.15);
+                        marker_count+=1;
                     }
                 }
             }
             if let Some(signatures) = &data.signatures {
+                if marker_count>=marker_limit {continue;}
                 if a <= i32::MAX as u64 {
                     if let Ok(mut starts) = signatures.measure_starts(a, b.min(i32::MAX as u64)) {
                         if let Some((row, measure)) = starts.next() {
@@ -537,6 +560,7 @@ pub(super) fn markers(
                                 *y >= f64::from(viewport.top) && *y <= f64::from(viewport.bottom)
                             }) {
                                 horizontal(actors, geometry, y as f32, 0.4);
+                                marker_count+=1;
                                 if geometry.visible_x(geometry.left - 30.0) {
                                     text(
                                         actors,
@@ -552,15 +576,8 @@ pub(super) fn markers(
                     }
                 }
             }
-            if let Some(values) = &data.labels {
-                if let Some((&row, value)) = values.values().range(a..=b).next() {
-                    if let Some(y) = projection.y(row).filter(|y| {
-                        *y >= f64::from(viewport.top) && *y <= f64::from(viewport.bottom)
-                    }) {
-                        labels.push((row, y, value.clone()));
-                    }
-                }
             }
+
         }
         for (a, b) in data
             .regions
@@ -576,29 +593,13 @@ pub(super) fn markers(
             ) else {
                 continue;
             };
-            if geometry.visible_x(geometry.left - 9.0) {
+            if render.regions && geometry.visible_x(geometry.left - 9.0) {
                 actors.push(act!(quad: xy(geometry.left-9.0,((y1+y2)*0.5) as f32): zoomto(4.0,(y2-y1).abs().max(2.0) as f32): diffuse(0.7,0.4,1.0,0.8): z(8002)));
             }
-            if a >= start && geometry.visible_x(geometry.left - 42.0) {
-                text(
-                    actors,
-                    &i18n::tr("Edition", "PatternMarker"),
-                    geometry.left - 42.0,
-                    y1 as f32 - 9.0,
-                    0.35,
-                    [0.8, 0.6, 1.0, 1.0],
-                );
-            }
+
         }
     }
-    if geometry.visible_x(geometry.right() + 12.0) {
-        super::spacing_view::label_actors(
-            actors,
-            labels,
-            geometry.right() + 12.0,
-            geometry.clip_right.min(geometry.right() + 30.0),
-        );
-    }
+
 }
 fn horizontal(actors: &mut Vec<Actor>, geometry: Geometry, y: f32, alpha: f32) {
     let left = geometry.left.max(geometry.clip_left);
@@ -653,6 +654,8 @@ mod tests {
             limit,
             None,
             false,
+            None,
+            None,
             None,
             None,
             None,
@@ -720,5 +723,83 @@ mod tests {
         assert_eq!(stats.candidates, 0);
         assert_eq!(stats.tree_queries, 32);
         assert!(stats.partial);
+    }
+}
+
+#[cfg(test)]
+mod admitted_hold_body_tests {
+    use super::*;
+    use deadsync_editor::notes::{Note, Position};
+
+    #[test]
+    fn admitted_long_hold_does_not_starve_adjacent_roll_body() {
+        let positions = [Position { player: 0, lane: 0, row: 0 },
+            Position { player: 0, lane: 1, row: 48 }];
+        let mut grid = Grid::new(4, 1).unwrap();
+        for (position, kind, tail) in [(positions[0], Kind::Hold, 1_000_000_000),
+            (positions[1], Kind::Roll, 192)] {
+            let mut note = Note::tap(); note.kind = kind; note.end = Some(tail);
+            grid.set(position, Some(note)).unwrap();
+        }
+        for bottom in [395.0, 635.0, 1000.0] {
+            let geometry = Geometry { source: 0, order: 0, focused: true,
+                left: 331.0, field_width: 192.0, lane_width: 48.0,
+                clip_left: 0.0, clip_right: 854.0 };
+            let viewport = Viewport { top: 105.0, bottom, cursor: 160.0 };
+            let projection = Projection::Rows(RowProjection::new(0, 160.0, 1.0,
+                105.0, f64::from(bottom)).unwrap(), None);
+            let mut actors = Vec::new();
+            let stats = notes(&mut actors, &grid, "dance-single", &projection,
+                geometry, viewport, &[(0, 1000)], 1.0, positions.len(), None,
+                false, None, None, None, Some(&positions), None);
+            assert_eq!(stats.candidates, 2);
+            assert!(!stats.partial, "visible bodies must not consume note admission: {bottom}");
+            for lane in [0, 1] {
+                let x = geometry.left + (lane as f32 + 0.5) * geometry.lane_width;
+                assert!(actors.iter().filter(|actor| matches!(actor,
+                    Actor::Sprite { offset, .. } if (offset[0] - x).abs() < 0.001
+                )).count() > 4, "lane{lane} needs body strips as well as head/cap");
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod explicit_note_selection_tests {
+    use super::*;
+    use deadsync_editor::notes::{Note, Position};
+
+    #[test]
+    fn explicit_tap_hold_and_roll_selection_matches_range_selected_graphics() {
+        let positions = (0..3).map(|lane| Position { player: 0, lane, row: 0 })
+            .collect::<Vec<_>>();
+        let mut grid = Grid::new(4, 1).unwrap();
+        for (position, kind) in positions.iter().copied().zip([Kind::Tap, Kind::Hold, Kind::Roll]) {
+            let mut note = Note::tap(); note.kind = kind;
+            note.end = (kind != Kind::Tap).then_some(96);
+            grid.set(position, Some(note)).unwrap();
+        }
+        let selected = positions.iter().copied().collect::<BTreeSet<_>>();
+        let render = |range, explicit| {
+            let geometry = Geometry { source: 0, order: 0, focused: true,
+                left: 331.0, field_width: 192.0, lane_width: 48.0,
+                clip_left: 0.0, clip_right: 854.0 };
+            let viewport = Viewport { top: 105.0, bottom: 635.0, cursor: 160.0 };
+            let projection = Projection::Rows(RowProjection::new(0,160.0,1.0,105.0,635.0).unwrap(),None);
+            let mut actors = Vec::new();
+            let stats = notes(&mut actors,&grid,"dance-single",&projection,geometry,viewport,
+                &[(0,192)],1.0,positions.len(),None,false,range,None,None,Some(&positions),explicit);
+            assert!(!stats.partial);
+            actors.into_iter().filter_map(|actor| match actor {
+                Actor::Sprite { tint, uv_rect, .. } => Some((tint,uv_rect)), _ => None,
+            }).collect::<Vec<_>>()
+        };
+        let ordinary = render(None,None);
+        let ranged = render(Some((0,0)),None);
+        assert_ne!(ordinary,ranged,"selection must change the actual note graphics");
+        assert_eq!(render(None,Some(&selected)),ranged);
+        assert_eq!(render(Some((0,0)),Some(&selected)),ranged);
+        assert_eq!(render(Some((0,0)),Some(&BTreeSet::new())),ordinary,
+            "explicit deselection must override an older range highlight");
     }
 }

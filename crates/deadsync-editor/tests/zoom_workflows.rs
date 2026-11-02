@@ -60,7 +60,7 @@ fn original_csharp_zoom_manager_traces_match_interpolation_bounds_and_spacing_no
                     None
                 }
                 "limit" => {
-                    manager.set_limit_to_size(op[1].as_bool().unwrap());
+                    manager.set_limit_to_size(op[1].as_bool().unwrap()).unwrap();
                     None
                 }
                 "duration" => {
@@ -166,7 +166,7 @@ fn spacing_and_size_zoom_are_independent_and_uncaptured_input_does_not_change_st
     manager.set_size_cap(0.25).unwrap();
     assert_eq!(manager.spacing_zoom(), 2000.0);
     assert_eq!(manager.size_zoom(), 0.25);
-    manager.set_limit_to_size(true);
+    manager.set_limit_to_size(true).unwrap();
     assert_eq!(manager.spacing_zoom(), 0.25);
     manager.set_zoom(-1.0).unwrap();
     assert_eq!(manager.spacing_zoom(), 0.000001);

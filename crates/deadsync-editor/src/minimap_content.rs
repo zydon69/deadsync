@@ -37,10 +37,10 @@ impl Raster {
         quantize: bool,
         background: u32,
     ) -> Result<Self, Error> {
-        if !(3..=1024).contains(&width)
+        if !(2..=1024).contains(&width)
             || !(3..=16384).contains(&height)
             || lanes > 64
-            || note_width > width - 2
+            || note_width > 1024
             || note_spacing > 1024
         {
             return Err(Error::InvalidEdit("Invalid minimap raster geometry".into()));
@@ -59,7 +59,7 @@ impl Raster {
         let positions = (0..lanes)
             .map(|lane| {
                 (start + lane as i64 * (spacing as i64 + note_width as i64))
-                    .min((width - 1 - note_width) as i64)
+                    .min(i64::from(width) - 1 - i64::from(note_width))
                     .max(1) as u32
             })
             .collect();
@@ -194,14 +194,15 @@ impl Raster {
             .lanes
             .get(lane as usize)
             .ok_or_else(|| Error::InvalidEdit("Invalid minimap lane".into()))?;
+        let width = self.note_width.min(self.width - 2);
         self.region(
             x,
-            x + self.note_width.saturating_sub(1),
+            x + width.saturating_sub(1),
             start,
             end + 1.0,
             head,
             Some(body),
-            self.note_width == 0,
+            width == 0,
         )
     }
     pub fn rect(

@@ -129,6 +129,7 @@ pub enum RawKeyScreenRoute {
     SelectMusic,
     PlayerOptions,
     Practice,
+    Edition,
     Evaluation,
     ConfigurePads,
 }
@@ -322,7 +323,7 @@ pub fn pre_screen_input_route(
 #[inline(always)]
 pub const fn raw_key_text_route(screen: Screen) -> RawKeyTextRoute {
     match screen {
-        Screen::Practice => RawKeyTextRoute::Practice,
+        Screen::Practice | Screen::Edition => RawKeyTextRoute::Practice,
         Screen::ContentBrowser => RawKeyTextRoute::ContentBrowser,
         Screen::ManageLocalProfiles => RawKeyTextRoute::ManageLocalProfiles,
         Screen::Options => RawKeyTextRoute::Options,
@@ -346,6 +347,7 @@ pub const fn raw_key_screen_route(screen: Screen) -> RawKeyScreenRoute {
         Screen::SelectMusic => RawKeyScreenRoute::SelectMusic,
         Screen::PlayerOptions => RawKeyScreenRoute::PlayerOptions,
         Screen::Practice => RawKeyScreenRoute::Practice,
+        Screen::Edition => RawKeyScreenRoute::Edition,
         Screen::Evaluation => RawKeyScreenRoute::Evaluation,
         Screen::ConfigurePads => RawKeyScreenRoute::ConfigurePads,
         _ => RawKeyScreenRoute::None,
@@ -1554,4 +1556,15 @@ mod tests {
             );
         }
     }
+}
+
+#[cfg(test)]
+mod standalone_editor_routes {
+ use super::*;
+ #[test]
+ fn editor_owns_keyboard_and_text_without_gameplay_input_routes() {
+  assert_eq!(raw_key_screen_route(Screen::Edition),RawKeyScreenRoute::Edition);
+  assert_eq!(raw_key_text_route(Screen::Edition),RawKeyTextRoute::Practice);
+  assert_eq!(raw_pad_screen_route(Screen::Edition),RawPadScreenRoute::None);
+ }
 }

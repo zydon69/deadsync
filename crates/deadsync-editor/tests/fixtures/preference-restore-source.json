@@ -1,0 +1,757 @@
+[
+  {
+    "name": "minimap-before",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapWidth\": 123, \"PositionOffsets\": {\"RightSideOfWindow\": 501, \"99\": 777}}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 123,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 501,
+        "99": 777,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    },
+    "density": {
+      "ShowDensityGraph": true,
+      "AccumulationType": "Step",
+      "DensityGraphColorModeValue": "ColorByHeight",
+      "DensityGraphLowColor": {
+        "X": 0.251,
+        "Y": 0.647,
+        "Z": 0.419,
+        "W": 1
+      },
+      "DensityGraphHighColor": {
+        "X": 0.705,
+        "Y": 0.282,
+        "Z": 0.282,
+        "W": 1
+      },
+      "DensityGraphBackgroundColor": {
+        "X": 0.118,
+        "Y": 0.118,
+        "Z": 0.118,
+        "W": 1
+      },
+      "ShowDensityGraphPreferencesWindow": false,
+      "ShowStream": true,
+      "DensityGraphPositionValue": "LeftSideOfWindow",
+      "DensityGraphHeight": 90,
+      "DensityGraphPositionOffsets": {
+        "RightSideOfWindow": 10,
+        "LeftSideOfWindow": 10,
+        "FocusedChartWithoutScaling": 110,
+        "FocusedChartWithScaling": 110,
+        "TopOfFocusedChart": 10,
+        "BottomOfFocusedChart": 10
+      },
+      "DensityGraphWidthOffsets": {
+        "RightSideOfWindow": -10,
+        "LeftSideOfWindow": -10,
+        "FocusedChartWithoutScaling": -10,
+        "FocusedChartWithScaling": -10,
+        "TopOfFocusedChart": 0,
+        "BottomOfFocusedChart": 0
+      }
+    },
+    "minimap_defaults": false,
+    "density_defaults": true
+  },
+  {
+    "name": "minimap-apply",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapWidth\": 123, \"PositionOffsets\": {\"RightSideOfWindow\": 501, \"99\": 777}}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "99": 777,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    },
+    "density": {
+      "ShowDensityGraph": true,
+      "AccumulationType": "Step",
+      "DensityGraphColorModeValue": "ColorByHeight",
+      "DensityGraphLowColor": {
+        "X": 0.251,
+        "Y": 0.647,
+        "Z": 0.419,
+        "W": 1
+      },
+      "DensityGraphHighColor": {
+        "X": 0.705,
+        "Y": 0.282,
+        "Z": 0.282,
+        "W": 1
+      },
+      "DensityGraphBackgroundColor": {
+        "X": 0.118,
+        "Y": 0.118,
+        "Z": 0.118,
+        "W": 1
+      },
+      "ShowDensityGraphPreferencesWindow": false,
+      "ShowStream": true,
+      "DensityGraphPositionValue": "LeftSideOfWindow",
+      "DensityGraphHeight": 90,
+      "DensityGraphPositionOffsets": {
+        "RightSideOfWindow": 10,
+        "LeftSideOfWindow": 10,
+        "FocusedChartWithoutScaling": 110,
+        "FocusedChartWithScaling": 110,
+        "TopOfFocusedChart": 10,
+        "BottomOfFocusedChart": 10
+      },
+      "DensityGraphWidthOffsets": {
+        "RightSideOfWindow": -10,
+        "LeftSideOfWindow": -10,
+        "FocusedChartWithoutScaling": -10,
+        "FocusedChartWithScaling": -10,
+        "TopOfFocusedChart": 0,
+        "BottomOfFocusedChart": 0
+      }
+    },
+    "minimap_defaults": true,
+    "density_defaults": true
+  },
+  {
+    "name": "minimap-undo",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapWidth\": 123, \"PositionOffsets\": {\"RightSideOfWindow\": 501, \"99\": 777}}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 123,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 501,
+        "99": 777,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    },
+    "density": {
+      "ShowDensityGraph": true,
+      "AccumulationType": "Step",
+      "DensityGraphColorModeValue": "ColorByHeight",
+      "DensityGraphLowColor": {
+        "X": 0.251,
+        "Y": 0.647,
+        "Z": 0.419,
+        "W": 1
+      },
+      "DensityGraphHighColor": {
+        "X": 0.705,
+        "Y": 0.282,
+        "Z": 0.282,
+        "W": 1
+      },
+      "DensityGraphBackgroundColor": {
+        "X": 0.118,
+        "Y": 0.118,
+        "Z": 0.118,
+        "W": 1
+      },
+      "ShowDensityGraphPreferencesWindow": false,
+      "ShowStream": true,
+      "DensityGraphPositionValue": "LeftSideOfWindow",
+      "DensityGraphHeight": 90,
+      "DensityGraphPositionOffsets": {
+        "RightSideOfWindow": 10,
+        "LeftSideOfWindow": 10,
+        "FocusedChartWithoutScaling": 110,
+        "FocusedChartWithScaling": 110,
+        "TopOfFocusedChart": 10,
+        "BottomOfFocusedChart": 10
+      },
+      "DensityGraphWidthOffsets": {
+        "RightSideOfWindow": -10,
+        "LeftSideOfWindow": -10,
+        "FocusedChartWithoutScaling": -10,
+        "FocusedChartWithScaling": -10,
+        "TopOfFocusedChart": 0,
+        "BottomOfFocusedChart": 0
+      }
+    },
+    "minimap_defaults": false,
+    "density_defaults": true
+  },
+  {
+    "name": "minimap-redo",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapWidth\": 123, \"PositionOffsets\": {\"RightSideOfWindow\": 501, \"99\": 777}}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "99": 777,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    },
+    "density": {
+      "ShowDensityGraph": true,
+      "AccumulationType": "Step",
+      "DensityGraphColorModeValue": "ColorByHeight",
+      "DensityGraphLowColor": {
+        "X": 0.251,
+        "Y": 0.647,
+        "Z": 0.419,
+        "W": 1
+      },
+      "DensityGraphHighColor": {
+        "X": 0.705,
+        "Y": 0.282,
+        "Z": 0.282,
+        "W": 1
+      },
+      "DensityGraphBackgroundColor": {
+        "X": 0.118,
+        "Y": 0.118,
+        "Z": 0.118,
+        "W": 1
+      },
+      "ShowDensityGraphPreferencesWindow": false,
+      "ShowStream": true,
+      "DensityGraphPositionValue": "LeftSideOfWindow",
+      "DensityGraphHeight": 90,
+      "DensityGraphPositionOffsets": {
+        "RightSideOfWindow": 10,
+        "LeftSideOfWindow": 10,
+        "FocusedChartWithoutScaling": 110,
+        "FocusedChartWithScaling": 110,
+        "TopOfFocusedChart": 10,
+        "BottomOfFocusedChart": 10
+      },
+      "DensityGraphWidthOffsets": {
+        "RightSideOfWindow": -10,
+        "LeftSideOfWindow": -10,
+        "FocusedChartWithoutScaling": -10,
+        "FocusedChartWithScaling": -10,
+        "TopOfFocusedChart": 0,
+        "BottomOfFocusedChart": 0
+      }
+    },
+    "minimap_defaults": true,
+    "density_defaults": true
+  },
+  {
+    "name": "minimap-reopen",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapWidth\": 123, \"PositionOffsets\": {\"RightSideOfWindow\": 501, \"99\": 777}}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "99": 777,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    },
+    "density": {
+      "ShowDensityGraph": true,
+      "AccumulationType": "Step",
+      "DensityGraphColorModeValue": "ColorByHeight",
+      "DensityGraphLowColor": {
+        "X": 0.251,
+        "Y": 0.647,
+        "Z": 0.419,
+        "W": 1
+      },
+      "DensityGraphHighColor": {
+        "X": 0.705,
+        "Y": 0.282,
+        "Z": 0.282,
+        "W": 1
+      },
+      "DensityGraphBackgroundColor": {
+        "X": 0.118,
+        "Y": 0.118,
+        "Z": 0.118,
+        "W": 1
+      },
+      "ShowDensityGraphPreferencesWindow": false,
+      "ShowStream": true,
+      "DensityGraphPositionValue": "LeftSideOfWindow",
+      "DensityGraphHeight": 90,
+      "DensityGraphPositionOffsets": {
+        "RightSideOfWindow": 10,
+        "LeftSideOfWindow": 10,
+        "FocusedChartWithoutScaling": 110,
+        "FocusedChartWithScaling": 110,
+        "TopOfFocusedChart": 10,
+        "BottomOfFocusedChart": 10
+      },
+      "DensityGraphWidthOffsets": {
+        "RightSideOfWindow": -10,
+        "LeftSideOfWindow": -10,
+        "FocusedChartWithoutScaling": -10,
+        "FocusedChartWithScaling": -10,
+        "TopOfFocusedChart": 0,
+        "BottomOfFocusedChart": 0
+      }
+    },
+    "minimap_defaults": true,
+    "density_defaults": true
+  },
+  {
+    "name": "density-before",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": 123, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": 501, \"99\": 777}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": -501, \"99\": -777}}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    },
+    "density": {
+      "ShowDensityGraph": true,
+      "AccumulationType": "Step",
+      "DensityGraphColorModeValue": "ColorByHeight",
+      "DensityGraphLowColor": {
+        "X": 0.251,
+        "Y": 0.647,
+        "Z": 0.419,
+        "W": 1
+      },
+      "DensityGraphHighColor": {
+        "X": 0.705,
+        "Y": 0.282,
+        "Z": 0.282,
+        "W": 1
+      },
+      "DensityGraphBackgroundColor": {
+        "X": 0.118,
+        "Y": 0.118,
+        "Z": 0.118,
+        "W": 1
+      },
+      "ShowDensityGraphPreferencesWindow": false,
+      "ShowStream": true,
+      "DensityGraphPositionValue": "LeftSideOfWindow",
+      "DensityGraphHeight": 123,
+      "DensityGraphPositionOffsets": {
+        "RightSideOfWindow": 501,
+        "99": 777,
+        "LeftSideOfWindow": 10,
+        "FocusedChartWithoutScaling": 110,
+        "FocusedChartWithScaling": 110,
+        "TopOfFocusedChart": 10,
+        "BottomOfFocusedChart": 10
+      },
+      "DensityGraphWidthOffsets": {
+        "RightSideOfWindow": -501,
+        "99": -777,
+        "LeftSideOfWindow": -10,
+        "FocusedChartWithoutScaling": -10,
+        "FocusedChartWithScaling": -10,
+        "TopOfFocusedChart": 0,
+        "BottomOfFocusedChart": 0
+      }
+    },
+    "minimap_defaults": true,
+    "density_defaults": false
+  },
+  {
+    "name": "density-apply",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": 123, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": 501, \"99\": 777}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": -501, \"99\": -777}}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    },
+    "density": {
+      "ShowDensityGraph": true,
+      "AccumulationType": "Step",
+      "DensityGraphColorModeValue": "ColorByHeight",
+      "DensityGraphLowColor": {
+        "X": 0.251,
+        "Y": 0.647,
+        "Z": 0.419,
+        "W": 1
+      },
+      "DensityGraphHighColor": {
+        "X": 0.705,
+        "Y": 0.282,
+        "Z": 0.282,
+        "W": 1
+      },
+      "DensityGraphBackgroundColor": {
+        "X": 0.118,
+        "Y": 0.118,
+        "Z": 0.118,
+        "W": 1
+      },
+      "ShowDensityGraphPreferencesWindow": false,
+      "ShowStream": true,
+      "DensityGraphPositionValue": "LeftSideOfWindow",
+      "DensityGraphHeight": 90,
+      "DensityGraphPositionOffsets": {
+        "RightSideOfWindow": 10,
+        "99": 777,
+        "LeftSideOfWindow": 10,
+        "FocusedChartWithoutScaling": 110,
+        "FocusedChartWithScaling": 110,
+        "TopOfFocusedChart": 10,
+        "BottomOfFocusedChart": 10
+      },
+      "DensityGraphWidthOffsets": {
+        "RightSideOfWindow": -10,
+        "99": -777,
+        "LeftSideOfWindow": -10,
+        "FocusedChartWithoutScaling": -10,
+        "FocusedChartWithScaling": -10,
+        "TopOfFocusedChart": 0,
+        "BottomOfFocusedChart": 0
+      }
+    },
+    "minimap_defaults": true,
+    "density_defaults": true
+  },
+  {
+    "name": "density-undo",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": 123, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": 501, \"99\": 777}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": -501, \"99\": -777}}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    },
+    "density": {
+      "ShowDensityGraph": true,
+      "AccumulationType": "Step",
+      "DensityGraphColorModeValue": "ColorByHeight",
+      "DensityGraphLowColor": {
+        "X": 0.251,
+        "Y": 0.647,
+        "Z": 0.419,
+        "W": 1
+      },
+      "DensityGraphHighColor": {
+        "X": 0.705,
+        "Y": 0.282,
+        "Z": 0.282,
+        "W": 1
+      },
+      "DensityGraphBackgroundColor": {
+        "X": 0.118,
+        "Y": 0.118,
+        "Z": 0.118,
+        "W": 1
+      },
+      "ShowDensityGraphPreferencesWindow": false,
+      "ShowStream": true,
+      "DensityGraphPositionValue": "LeftSideOfWindow",
+      "DensityGraphHeight": 123,
+      "DensityGraphPositionOffsets": {
+        "RightSideOfWindow": 501,
+        "99": 777,
+        "LeftSideOfWindow": 10,
+        "FocusedChartWithoutScaling": 110,
+        "FocusedChartWithScaling": 110,
+        "TopOfFocusedChart": 10,
+        "BottomOfFocusedChart": 10
+      },
+      "DensityGraphWidthOffsets": {
+        "RightSideOfWindow": -501,
+        "99": -777,
+        "LeftSideOfWindow": -10,
+        "FocusedChartWithoutScaling": -10,
+        "FocusedChartWithScaling": -10,
+        "TopOfFocusedChart": 0,
+        "BottomOfFocusedChart": 0
+      }
+    },
+    "minimap_defaults": true,
+    "density_defaults": false
+  },
+  {
+    "name": "density-redo",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": 123, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": 501, \"99\": 777}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": -501, \"99\": -777}}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    },
+    "density": {
+      "ShowDensityGraph": true,
+      "AccumulationType": "Step",
+      "DensityGraphColorModeValue": "ColorByHeight",
+      "DensityGraphLowColor": {
+        "X": 0.251,
+        "Y": 0.647,
+        "Z": 0.419,
+        "W": 1
+      },
+      "DensityGraphHighColor": {
+        "X": 0.705,
+        "Y": 0.282,
+        "Z": 0.282,
+        "W": 1
+      },
+      "DensityGraphBackgroundColor": {
+        "X": 0.118,
+        "Y": 0.118,
+        "Z": 0.118,
+        "W": 1
+      },
+      "ShowDensityGraphPreferencesWindow": false,
+      "ShowStream": true,
+      "DensityGraphPositionValue": "LeftSideOfWindow",
+      "DensityGraphHeight": 90,
+      "DensityGraphPositionOffsets": {
+        "RightSideOfWindow": 10,
+        "99": 777,
+        "LeftSideOfWindow": 10,
+        "FocusedChartWithoutScaling": 110,
+        "FocusedChartWithScaling": 110,
+        "TopOfFocusedChart": 10,
+        "BottomOfFocusedChart": 10
+      },
+      "DensityGraphWidthOffsets": {
+        "RightSideOfWindow": -10,
+        "99": -777,
+        "LeftSideOfWindow": -10,
+        "FocusedChartWithoutScaling": -10,
+        "FocusedChartWithScaling": -10,
+        "TopOfFocusedChart": 0,
+        "BottomOfFocusedChart": 0
+      }
+    },
+    "minimap_defaults": true,
+    "density_defaults": true
+  },
+  {
+    "name": "density-reopen",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": 123, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": 501, \"99\": 777}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": -501, \"99\": -777}}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    },
+    "density": {
+      "ShowDensityGraph": true,
+      "AccumulationType": "Step",
+      "DensityGraphColorModeValue": "ColorByHeight",
+      "DensityGraphLowColor": {
+        "X": 0.251,
+        "Y": 0.647,
+        "Z": 0.419,
+        "W": 1
+      },
+      "DensityGraphHighColor": {
+        "X": 0.705,
+        "Y": 0.282,
+        "Z": 0.282,
+        "W": 1
+      },
+      "DensityGraphBackgroundColor": {
+        "X": 0.118,
+        "Y": 0.118,
+        "Z": 0.118,
+        "W": 1
+      },
+      "ShowDensityGraphPreferencesWindow": false,
+      "ShowStream": true,
+      "DensityGraphPositionValue": "LeftSideOfWindow",
+      "DensityGraphHeight": 90,
+      "DensityGraphPositionOffsets": {
+        "RightSideOfWindow": 10,
+        "99": 777,
+        "LeftSideOfWindow": 10,
+        "FocusedChartWithoutScaling": 110,
+        "FocusedChartWithScaling": 110,
+        "TopOfFocusedChart": 10,
+        "BottomOfFocusedChart": 10
+      },
+      "DensityGraphWidthOffsets": {
+        "RightSideOfWindow": -10,
+        "99": -777,
+        "LeftSideOfWindow": -10,
+        "FocusedChartWithoutScaling": -10,
+        "FocusedChartWithScaling": -10,
+        "TopOfFocusedChart": 0,
+        "BottomOfFocusedChart": 0
+      }
+    },
+    "minimap_defaults": true,
+    "density_defaults": true
+  }
+]

@@ -1,5 +1,13 @@
 # Edit event menus: remaining work after timing, presets and reviewed note scopes
 
+> Historical implementation plan. The sections below describe earlier gaps,
+> not current missing features. The current reviewed implementations are
+> `note_operation_review.rs`, `selected_transform_review.rs`,
+> `event_selection/presets.rs` and the checked timing conversion route.
+> See `completion-audit-2026-11-02.json`, flow 08, for exact current source
+> checks and previously executed results whose hashes still match. Physical
+> keyboard/runtime validation remains distinct from this engine evidence.
+
 Target: GA `48e18f71655d0f0d86144c63239331833501fda2`.
 This is a focused dispatch/interaction review, not certification of every source
 file or every native test. `reference-inventory.json` lists file hashes and is

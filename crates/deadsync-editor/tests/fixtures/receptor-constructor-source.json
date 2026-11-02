@@ -1,0 +1,341 @@
+{
+  "processor_count": 14,
+  "cases": [
+    {
+      "name": "PositionX--2147483648",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionX\": -2147483648}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 0,
+          "PositionY": 110,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "PositionX--1",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionX\": -1}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 0,
+          "PositionY": 110,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "PositionX-0",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionX\": 0}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 0,
+          "PositionY": 110,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "PositionX-1",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionX\": 1}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 1,
+          "PositionY": 110,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "PositionX-2147483647",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionX\": 2147483647}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 2147483647,
+          "PositionY": 110,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "PositionX--2147483649",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionX\": -2147483649}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 842,
+          "PositionY": 110,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": false
+    },
+    {
+      "name": "PositionX-2147483648",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionX\": 2147483648}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 842,
+          "PositionY": 110,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": false
+    },
+    {
+      "name": "PositionY--2147483648",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionY\": -2147483648}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 842,
+          "PositionY": 0,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "PositionY--1",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionY\": -1}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 842,
+          "PositionY": 0,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "PositionY-0",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionY\": 0}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 842,
+          "PositionY": 0,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "PositionY-1",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionY\": 1}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 842,
+          "PositionY": 1,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "PositionY-2147483647",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionY\": 2147483647}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 842,
+          "PositionY": 2147483647,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "PositionY--2147483649",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionY\": -2147483649}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 842,
+          "PositionY": 110,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": false
+    },
+    {
+      "name": "PositionY-2147483648",
+      "raw": "{\"Player\": 3, \"PreferencesReceptors\": {\"PositionY\": 2147483648}}",
+      "value": {
+        "PreferencesReceptors": {
+          "PositionX": 842,
+          "PositionY": 110,
+          "ShowReceptorPreferencesWindow": false,
+          "AutoPlayHideArrows": true,
+          "AutoPlayLightHolds": true,
+          "AutoPlayRimEffect": true,
+          "AutoPlayGlowEffect": true,
+          "AutoPlayShrinkEffect": true,
+          "TapRimEffect": true,
+          "TapShrinkEffect": true,
+          "PulseReceptorsWithTempo": true,
+          "CenterHorizontally": false,
+          "AllowChartMoveWhenPositionLocked": true,
+          "LockPositionX": false,
+          "LockPositionY": false
+        }
+      },
+      "accepted": false
+    }
+  ]
+}

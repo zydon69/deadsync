@@ -8,6 +8,7 @@ mod browser_skin;
 mod commands;
 mod config_requests;
 mod evaluation_views;
+mod editor_host;
 mod graphics;
 mod input_routing;
 mod live_case;
@@ -483,6 +484,7 @@ mod frame_work {
         match screen {
             super::CurrentScreen::Gameplay => ONLINE_VIEW,
             super::CurrentScreen::Practice => 0,
+            super::CurrentScreen::Edition => ASYNC_RESULTS,
             super::CurrentScreen::Menu => NON_GAMEPLAY | MENU_AUTOPROMPT,
             super::CurrentScreen::Options => NON_GAMEPLAY | OPTIONS_VIEW | CONTENT_RELOAD,
             super::CurrentScreen::ContentBrowser => {
@@ -582,6 +584,12 @@ pub struct ScreensState {
     menu_state: menu::State,
     gameplay_state: Option<gameplay::State>,
     practice_state: Option<practice::State>,
+    edition_state: Option<screens::edition::State>,
+    editor_launch: Option<crate::editor_entry::EditorLaunch>,
+    editor_departure_authority: Option<CurrentScreen>,
+    editor_exit_request: Option<ProcessExitRequest>,
+    editor_exit_ready: bool,
+    editor_departure_target: Option<CurrentScreen>,
     gameplay_score_cursor: crate::gameplay_runtime::ScoreRuntimeCursor,
     options_state: options::State,
     content_browser_state: content_browser::State,
@@ -1238,6 +1246,12 @@ impl ScreensState {
             menu_state,
             gameplay_state: None,
             practice_state: None,
+            edition_state: None,
+            editor_launch: None,
+            editor_departure_authority: None,
+            editor_exit_request: None,
+            editor_exit_ready: false,
+            editor_departure_target: None,
             gameplay_score_cursor: crate::gameplay_runtime::ScoreRuntimeCursor::default(),
             options_state,
             content_browser_state,
@@ -1283,7 +1297,7 @@ impl ScreensState {
         premium_seconds_left: Option<u32>,
         asset_manager: &AssetManager,
         audio: &mut deadsync_audio_stream::AudioControl,
-        gameplay_sfx: &GameplaySfx,
+        gameplay_sfx: &mut GameplaySfx,
         music_clock: &mut deadsync_audio_stream::MusicClock,
         smx_assignment: Option<&SmxAssignmentView>,
         gameplay_smx_input: bool,
@@ -1317,7 +1331,28 @@ impl ScreensState {
                         effects,
                     );
                 }
-                (None, false)
+                if let Some(target)=self.editor_departure_target {
+                    if self.practice_state.as_ref().is_none_or(|state|practice::editor(state).is_none()) {
+                        self.editor_departure_target=None;self.editor_departure_authority=Some(target);
+                        (Some(ThemeEffect::Navigate(target)),false)
+                    } else {
+                        if self.active_editor().is_some_and(|editor|!editor.host_close_pending()) {self.editor_departure_target=None;}
+                        (None,false)
+                    }
+                } else {(None,false)}
+            }
+            CurrentScreen::Edition => {
+                if let Some(editor)=self.edition_state.as_mut() {
+                    let closed=crate::gameplay_runtime::update_standalone_editor(editor,audio,gameplay_sfx,music_clock);
+                    if closed {
+                        let target=self.editor_departure_target.take().unwrap_or(CurrentScreen::Menu);
+                        self.editor_departure_authority=Some(target);
+                        (Some(ThemeEffect::Navigate(target)),false)
+                    } else {
+                        if !editor.host_close_pending() {self.editor_departure_target=None;}
+                        (None,false)
+                    }
+                } else {(None,false)}
             }
             CurrentScreen::Init => (Some(init::update(&mut self.init_state, delta_time)), false),
             CurrentScreen::Options => {
@@ -3143,8 +3178,8 @@ impl App {
             focused, self.state.screens.current_screen
         );
         if plan.clear_live_input {
-            if let Some(state) = self.state.screens.practice_state.as_mut() {
-                screens::practice::release_editor_input(state);
+            if let Some(state) = self.state.screens.active_editor_mut() {
+                state.release_input();
             }
             self.state.shell.interaction.controls_mut().clear();
             self.input.clear();
@@ -4383,7 +4418,9 @@ impl App {
         request_to_redraw_us: u32,
         redraw_request_reason: &'static str,
     ) {
+        self.sync_editor_window_layout(event_loop);
         self.sync_editor_ime(&window);
+        if let Some(editor)=self.state.screens.active_editor(){editor.begin_performance_frame(redraw_started);}
         let prev_frame_end = self.state.shell.last_frame_end_time;
         let pre_redraw_gap_us = elapsed_us_between(redraw_started, prev_frame_end);
         let delta_time = redraw_started
@@ -4624,7 +4661,7 @@ impl App {
                     premium_seconds_left,
                     &self.asset_manager,
                     &mut self.audio,
-                    &self.gameplay_sfx,
+                    &mut self.gameplay_sfx,
                     &mut self.music_clock,
                     smx_assignment.as_ref(),
                     self.state.play_input_policy.smx_input,
@@ -4895,9 +4932,7 @@ impl App {
         } else {
             self.option_previews.idle();
         }
-        let image_request = if self.state.screens.current_screen == CurrentScreen::Practice {
-            self.state.screens.practice_state.as_ref().and_then(screens::practice::editor_image_preview_request)
-        } else { None };
+        let image_request=self.state.screens.active_editor().and_then(|editor|editor.image_preview_request());
         if image_request.is_some() && self.editor_image_previews.is_none()
             && self.editor_image_preview_retry.is_none_or(|retry| redraw_started >= retry) {
             match crate::editor_image_previews::Service::new() {
@@ -4915,9 +4950,7 @@ impl App {
                     log::warn!("Editor image preview upload failed: {error}");
                 }
             }
-            if let Some(state) = self.state.screens.practice_state.as_mut() {
-                screens::practice::set_editor_image_preview_views(state, service.views());
-            }
+            if let Some(editor)=self.state.screens.active_editor_mut() {editor.set_image_preview_views(service.views());}
         }
         let fonts = self.asset_manager.fonts();
         let build_screen_started = Instant::now();
@@ -4943,7 +4976,8 @@ impl App {
             _ => None,
         };
         let actor_resources = gameplay_state.map(gameplay::State::actor_resources);
-        let render_targets = gameplay_state.map_or(&[][..], gameplay::State::render_targets);
+        let editor_render_targets=if self.state.screens.current_screen==CurrentScreen::Edition{self.state.screens.edition_state.as_ref().map_or_else(Vec::new,|editor|editor.take_waveform_render_targets())}else{Vec::new()};
+        let render_targets = if gameplay_state.is_some(){gameplay_state.map_or(&[][..], gameplay::State::render_targets)}else{&editor_render_targets};
         let segmented_actors = gameplay_segments.as_ref().map(|segments| {
             segments.segments(
                 gameplay_state
@@ -5007,7 +5041,9 @@ impl App {
             let compose_scratch = &mut self.ui_compose_scratch;
             text_layout_cache.begin_frame_stats(collect_text_layout_stats);
             compose_scratch.begin_frame_stats(false);
-            let screen = if let Some(actor_resources) = actor_resources {
+            let screen = if !render_targets.is_empty(){
+                compose::build_passes(std::iter::once(compose::ActorSegment::new(&actors)),render_targets,clear_color,&self.state.shell.metrics,fonts,total_elapsed,text_layout_cache,compose_scratch,self.asset_manager.texture_context(),actor_resources)
+            } else if let Some(actor_resources) = actor_resources {
                 compose::build_screen_cached_with_scratch_and_texture_context_and_actor_resources(
                     &actors,
                     clear_color,
@@ -5098,6 +5134,17 @@ impl App {
             self.capture_pending_screenshot(redraw_started);
         }
         let frame_finished = Instant::now();
+        if let Some(editor)=self.state.screens.active_editor(){
+            use deadsync_editor::performance::monitor::Timing;
+            let micros=|value:u64|std::time::Duration::from_micros(value);
+            let present=micros(u64::from(draw_stats.present_us));
+            let wait=micros(u64::from(draw_stats.gpu_wait_us)+u64::from(draw_stats.acquire_us));
+            editor.record_performance_stage(Timing::EditorCpu,frame_finished.saturating_duration_since(redraw_started).saturating_sub(present).saturating_sub(wait));
+            editor.record_performance_stage(Timing::Update,micros(u64::from(input_us)+u64::from(update_us)));
+            editor.record_performance_stage(Timing::Draw,micros(u64::from(compose_us)));
+            editor.record_performance_stage(Timing::Present,present);
+            editor.record_performance_stage(Timing::PresentWait,wait);
+        }
         let frame_seconds = frame_finished.duration_since(prev_frame_end).as_secs_f32();
         self.state.shell.last_frame_end_time = frame_finished;
         self.chain_continuous_redraw(&window);
@@ -7577,6 +7624,9 @@ impl App {
             OperatorMenuButtonRoute::NavigateOptions => {}
         }
 
+        if self.state.screens.current_screen==CurrentScreen::Edition {
+            self.handle_navigation_action_after_prompt(CurrentScreen::Options);return true;
+        }
         info!("{SERVICE_SWITCH_PRESSED}");
         self.state
             .shell
@@ -7945,6 +7995,8 @@ impl App {
             }
         }
 
+        self.sync_editor_ui_dpi();
+        self.sync_editor_notifications();
         let mut actors = std::mem::take(&mut self.actor_scratch);
         actors.clear();
         let mut gameplay_segments = None;
@@ -8008,6 +8060,7 @@ impl App {
             }
             CurrentScreen::Practice => {
                 if let Some(ps) = &mut self.state.screens.practice_state {
+                    screens::practice::process_editor_profile_order(ps,&deadsync_theme_simply_love::i18n::current_locale(),&mut crate::editor_collation::NativeProfileOrder);
                     screens::practice::process_editor_pack_songs(ps, &mut crate::editor_pack_collation::NativePackSongOrder, &mut crate::editor_collation::NativeChartOrder);
                     screens::practice::flush_editor_audio_commands(ps);
                     screens::components::gameplay::gameplay_stats::refresh_density_graph_meshes(
@@ -8020,6 +8073,18 @@ impl App {
                         arrow_effect_time_s,
                         visual_policy,
                     ));
+                }
+            }
+            CurrentScreen::Edition => {
+                if let Some(editor)=self.state.screens.edition_state.as_mut() {
+                    if editor.log_formatting_needed(){let mut formatter=crate::editor_log_formatter::NativeLogFormatter::new(&deadsync_theme_simply_love::i18n::current_locale(),editor.log_preferences().date);editor.process_log_formatting(&mut formatter);}
+                    editor.process_text_clipboard(&mut self.editor_clipboard);
+                    editor.process_music_picker(&mut crate::editor_music_picker::NativeMusicPicker);
+                    editor.process_chart_order(&mut crate::editor_collation::NativeChartOrder);
+                    editor.process_profile_order(&deadsync_theme_simply_love::i18n::current_locale(),&mut crate::editor_collation::NativeProfileOrder);
+                    editor.process_pack_song_list(&mut crate::editor_pack_collation::NativePackSongOrder,&mut crate::editor_collation::NativeChartOrder);
+                    crate::gameplay_runtime::flush_standalone_editor(editor,&mut self.audio,&self.gameplay_sfx,&mut self.music_clock);
+                    editor.actors(&mut actors);
                 }
             }
             CurrentScreen::Options => {
@@ -8516,15 +8581,13 @@ impl App {
 
     fn sync_editor_ime(&mut self, window: &Window) {
         let wanted = self.accepts_live_input()
-            && self.state.screens.current_screen == CurrentScreen::Practice
-            && self.state.screens.practice_state.as_ref()
-                .is_some_and(screens::practice::wants_editor_text_input);
+            && self.state.screens.active_editor().is_some_and(|editor|editor.wants_text_input());
         if self.editor_ime_state != Some((window.id(), wanted)) {
             window.set_ime_allowed(wanted);
             self.editor_ime_state = Some((window.id(), wanted));
             if !wanted {
-                if let Some(state) = self.state.screens.practice_state.as_mut() {
-                    screens::practice::handle_editor_preedit(state, "");
+                if let Some(state) = self.state.screens.active_editor_mut() {
+                    state.text_preedit("");
                 }
             }
         }
@@ -8539,12 +8602,14 @@ impl App {
 
     #[inline(always)]
     fn handle_key_text(&mut self, event_loop: &ActiveEventLoop, text: &str) {
+        self.sync_editor_window_layout(event_loop);
+        self.sync_editor_ui_dpi();
+        self.sync_editor_notifications();
         let action = match raw_key_text_route(self.state.screens.current_screen) {
             RawKeyTextRoute::Practice => {
                 let controls = self.state.shell.interaction.controls();
                 let changed = !controls.ctrl() && !controls.logo()
-                    && self.state.screens.practice_state.as_mut()
-                        .is_some_and(|state| screens::practice::handle_editor_text(state, text));
+                    && self.state.screens.active_editor_mut().is_some_and(|editor|editor.text_input(text));
                 if changed {
                     if let Some(window) = self.window.clone() {
                         self.request_redraw(&window, "editor_text");
@@ -8641,6 +8706,9 @@ impl App {
         raw_key: RawKeyboardEvent,
     ) -> bool {
         use winit::keyboard::KeyCode;
+        self.sync_editor_window_layout(event_loop);
+        self.sync_editor_ui_dpi();
+        self.sync_editor_notifications();
 
         self.state
             .shell
@@ -8654,10 +8722,8 @@ impl App {
         let logo_held = self.state.shell.interaction.controls().logo();
 
         if raw_key_alt_f4_quit(raw_key.pressed, raw_key.code, alt_held) {
-            if self.editor_allows_transition() {
-                info!("Alt+F4 quit shortcut pressed. Shutting down.");
-                event_loop.exit();
-            }
+            let commands=self.handle_process_exit(ProcessExitRequest::Exit);
+            self.run_commands(commands,event_loop);
             return true;
         }
 
@@ -8837,6 +8903,10 @@ impl App {
                     }
                 }
             }
+            RawKeyScreenRoute::Edition => {
+                self.handle_standalone_raw_key(&raw_key);
+                return true;
+            }
             RawKeyScreenRoute::Practice => {
                 if practice_reload_shortcut(
                     raw_key.pressed,
@@ -8864,11 +8934,13 @@ impl App {
                     false
                 };
                 if let Some(state) = self.state.screens.practice_state.as_mut() {
+                    if let Some(editor)=screens::practice::editor_mut(state){if editor.log_formatting_needed(){let mut formatter=crate::editor_log_formatter::NativeLogFormatter::new(&deadsync_theme_simply_love::i18n::current_locale(),editor.log_preferences().date);editor.process_log_formatting(&mut formatter);}}
                     screens::practice::process_editor_clipboard(state, &mut self.editor_clipboard);
                     screens::practice::process_editor_music_picker(
                         state,
                         &mut crate::editor_music_picker::NativeMusicPicker,
                     );
+                    screens::practice::process_editor_profile_order(state,&deadsync_theme_simply_love::i18n::current_locale(),&mut crate::editor_collation::NativeProfileOrder);
                     screens::practice::process_editor_chart_order(
                         state,
                         &mut crate::editor_collation::NativeChartOrder,
@@ -9288,6 +9360,7 @@ impl App {
             self.sync_screen_color_index(idx);
         }
 
+        if prev==CurrentScreen::Edition && target!=CurrentScreen::Edition {self.state.screens.edition_state=None;}
         if target == CurrentScreen::Menu {
             self.state.session.reset_for_menu(profile::combo_carry());
             menu::reset_for_entry(&mut self.state.screens.menu_state);
@@ -11008,6 +11081,9 @@ impl ApplicationHandler<UserEvent> for App {
                 event_loop.exit();
                 return;
             }
+            if self.state.screens.editor_launch.is_some() {
+                self.handle_navigation_action(CurrentScreen::Edition);
+            }
             // After all initial loading is complete, start network checks.
             if self.live_case.is_none() {
                 deadsync_online::runtime::init();
@@ -11030,7 +11106,10 @@ impl ApplicationHandler<UserEvent> for App {
 
         match event {
             WindowEvent::CloseRequested => {
-                if self.editor_allows_transition() {
+                let ready=self.state.screens.active_editor_mut().is_none_or(|editor|editor.request_host_application_exit()==screens::edition::ApplicationExit::Ready);
+                self.flush_active_editor_audio();
+                if !ready {if let Some(window)=self.window.clone(){self.request_redraw(&window,"editor_exit_confirmation");}}
+                if ready {
                     info!("Close requested. Shutting down.");
                     event_loop.exit();
                 }
@@ -11061,8 +11140,8 @@ impl ApplicationHandler<UserEvent> for App {
             }
             WindowEvent::Focused(focused) => {
                 if !focused {
-                    if let Some(state) = self.state.screens.practice_state.as_mut() {
-                        screens::practice::handle_editor_preedit(state, "");
+                    if let Some(state) = self.state.screens.active_editor_mut() {
+                        state.text_preedit("");
                     }
                 }
                 #[cfg(target_os = "windows")]
@@ -11099,22 +11178,22 @@ impl ApplicationHandler<UserEvent> for App {
             }
             WindowEvent::Ime(event) => {
                 if matches!(event, winit::event::Ime::Disabled) {
-                    if let Some(state) = self.state.screens.practice_state.as_mut() {
-                        screens::practice::handle_editor_preedit(state, "");
+                    if let Some(state) = self.state.screens.active_editor_mut() {
+                        state.text_preedit("");
                     }
                     self.request_redraw(&window, "editor_preedit");
                     return;
                 }
                 if !self.accepts_live_input()
-                    || self.state.screens.current_screen != CurrentScreen::Practice
+                    || self.state.screens.active_editor().is_none()
                 {
                     return;
                 }
                 match event {
                     winit::event::Ime::Commit(text) => self.handle_key_text(event_loop, &text),
                     winit::event::Ime::Preedit(text, _) => {
-                        if let Some(state) = self.state.screens.practice_state.as_mut() {
-                            screens::practice::handle_editor_preedit(state, &text);
+                        if let Some(state) = self.state.screens.active_editor_mut() {
+                            state.text_preedit(&text);
                         }
                         self.request_redraw(&window, "editor_preedit");
                     }
@@ -11138,6 +11217,14 @@ impl ApplicationHandler<UserEvent> for App {
                         });
                     }
                 }
+            }
+            WindowEvent::MouseWheel {delta,..} => {
+                if !self.accepts_live_input() {return;}
+                let consumed=self.state.screens.active_editor_mut().is_some_and(|editor|match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_,vertical)=>editor.wheel_lines(f64::from(vertical)),
+                    winit::event::MouseScrollDelta::PixelDelta(position)=>editor.wheel_pixels(position.y,window.scale_factor()),
+                });
+                if consumed {self.request_redraw(&window,"editor_wheel");}
             }
             WindowEvent::KeyboardInput {
                 event: key_event, ..
@@ -11189,6 +11276,17 @@ impl ApplicationHandler<UserEvent> for App {
                 event_loop.exit();
                 return;
             }
+        }
+        match self.state.screens.active_editor_mut().and_then(|editor|editor.take_host_application_exit()) {
+            Some(screens::edition::ApplicationExit::Ready)=>{
+                self.flush_active_editor_audio();
+                if let Some(request)=self.state.screens.editor_exit_request.take() {
+                    self.state.screens.editor_exit_ready=true;
+                    let commands=self.handle_process_exit(request);self.run_commands(commands,event_loop);
+                } else {event_loop.exit();return;}
+            }
+            Some(screens::edition::ApplicationExit::Cancelled)=>{self.state.screens.editor_exit_request=None;}
+            _=>{},
         }
         if self.gameplay_preload_holds_frame() {
             event_loop.set_control_flow(ControlFlow::WaitUntil(
@@ -11247,6 +11345,7 @@ pub fn init_paths(dirs: &AppDirs) -> Result<(), &'static str> {
     }
     deadsync_config::runtime::init_paths(dirs.config_path(), dirs.judgment_palettes_path())?;
     deadsync_assets::init_paths(dirs.asset_paths(cwd.as_deref()))?;
+    deadsync_editor::waveform_preferences::initialize_runtime_defaults(std::thread::available_parallelism().map_or(1,usize::from));
     deadsync_editor::runtime::init_paths(dirs.editor_configs_dir(), dirs.editor_preferences_path())?;
     deadsync_profile::app_runtime::init_paths(
         dirs.profiles_root(),
@@ -11275,6 +11374,7 @@ pub fn run(
     audio: deadsync_audio_stream::AudioControl,
     music_clock: deadsync_audio_stream::MusicClock,
     live_case: Option<crate::live_case::LiveCase>,
+    editor_launch: Option<crate::editor_entry::EditorLaunch>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let (config_generation, config) = config::runtime::snapshot();
     let show_stats_mode = config.show_stats_mode.min(2);
@@ -11293,6 +11393,7 @@ pub fn run(
         live_case,
     );
 
+    app.state.screens.editor_launch=editor_launch;
     // Spawn background input backend threads; all input stays decoupled from frame rate.
     let proxy = event_loop.create_proxy();
     // Raw input backends default to "unfocused" until init_graphics seeds the

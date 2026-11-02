@@ -1,0 +1,824 @@
+[
+  {
+    "Name": "disabled",
+    "Assist": false,
+    "Beat": false,
+    "SkipAssist": false,
+    "SkipBeat": false,
+    "AssistAttack": 0,
+    "BeatAttack": 0,
+    "Offset": 0,
+    "Visual": 0,
+    "Events": [
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 6,
+        "Time": 0.0625,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 12,
+        "Time": 0.125,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorHoldNoteEvent",
+        "Row": 24,
+        "Time": 0.25,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorLiftNoteEvent",
+        "Row": 36,
+        "Time": 0.375,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      }
+    ],
+    "Result": {
+      "Assist": null,
+      "Beat": null,
+      "VisualTime": 0,
+      "SampleIndex": 0,
+      "AttackAssist": 0,
+      "AttackBeat": 0
+    }
+  },
+  {
+    "Name": "assist-only",
+    "Assist": true,
+    "Beat": false,
+    "SkipAssist": false,
+    "SkipBeat": false,
+    "AssistAttack": 0,
+    "BeatAttack": 0,
+    "Offset": 0,
+    "Visual": 0,
+    "Events": [
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 6,
+        "Time": 0.0625,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 12,
+        "Time": 0.125,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorHoldNoteEvent",
+        "Row": 24,
+        "Time": 0.25,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorLiftNoteEvent",
+        "Row": 36,
+        "Time": 0.375,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      }
+    ],
+    "Result": {
+      "Assist": [
+        0,
+        12000,
+        18000,
+        24000
+      ],
+      "Beat": null,
+      "VisualTime": 0,
+      "SampleIndex": 0,
+      "AttackAssist": 0,
+      "AttackBeat": 0
+    }
+  },
+  {
+    "Name": "both",
+    "Assist": true,
+    "Beat": true,
+    "SkipAssist": false,
+    "SkipBeat": false,
+    "AssistAttack": 0,
+    "BeatAttack": 0,
+    "Offset": 0,
+    "Visual": 0,
+    "Events": [
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 6,
+        "Time": 0.0625,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 12,
+        "Time": 0.125,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorHoldNoteEvent",
+        "Row": 24,
+        "Time": 0.25,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorLiftNoteEvent",
+        "Row": 36,
+        "Time": 0.375,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      }
+    ],
+    "Result": {
+      "Assist": [
+        0,
+        12000,
+        18000,
+        24000
+      ],
+      "Beat": [
+        0,
+        24000
+      ],
+      "VisualTime": 0,
+      "SampleIndex": 0,
+      "AttackAssist": 0,
+      "AttackBeat": 0
+    }
+  },
+  {
+    "Name": "skip-assist",
+    "Assist": true,
+    "Beat": true,
+    "SkipAssist": true,
+    "SkipBeat": false,
+    "AssistAttack": 0,
+    "BeatAttack": 0,
+    "Offset": 0,
+    "Visual": 0,
+    "Events": [
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 6,
+        "Time": 0.0625,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 12,
+        "Time": 0.125,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorHoldNoteEvent",
+        "Row": 24,
+        "Time": 0.25,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorLiftNoteEvent",
+        "Row": 36,
+        "Time": 0.375,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      }
+    ],
+    "Result": {
+      "Assist": [
+        12000,
+        18000
+      ],
+      "Beat": [
+        0,
+        24000
+      ],
+      "VisualTime": 0,
+      "SampleIndex": 0,
+      "AttackAssist": 0,
+      "AttackBeat": 0
+    }
+  },
+  {
+    "Name": "skip-beat",
+    "Assist": true,
+    "Beat": true,
+    "SkipAssist": false,
+    "SkipBeat": true,
+    "AssistAttack": 0,
+    "BeatAttack": 0,
+    "Offset": 0,
+    "Visual": 0,
+    "Events": [
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 6,
+        "Time": 0.0625,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 12,
+        "Time": 0.125,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorHoldNoteEvent",
+        "Row": 24,
+        "Time": 0.25,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorLiftNoteEvent",
+        "Row": 36,
+        "Time": 0.375,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      }
+    ],
+    "Result": {
+      "Assist": [
+        0,
+        12000,
+        18000,
+        24000
+      ],
+      "Beat": null,
+      "VisualTime": 0,
+      "SampleIndex": 0,
+      "AttackAssist": 0,
+      "AttackBeat": 0
+    }
+  },
+  {
+    "Name": "both-skips-assist-priority",
+    "Assist": true,
+    "Beat": true,
+    "SkipAssist": true,
+    "SkipBeat": true,
+    "AssistAttack": 0,
+    "BeatAttack": 0,
+    "Offset": 0,
+    "Visual": 0,
+    "Events": [
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 6,
+        "Time": 0.0625,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 12,
+        "Time": 0.125,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorHoldNoteEvent",
+        "Row": 24,
+        "Time": 0.25,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorLiftNoteEvent",
+        "Row": 36,
+        "Time": 0.375,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      }
+    ],
+    "Result": {
+      "Assist": [
+        12000,
+        18000
+      ],
+      "Beat": [
+        0,
+        24000
+      ],
+      "VisualTime": 0,
+      "SampleIndex": 0,
+      "AttackAssist": 0,
+      "AttackBeat": 0
+    }
+  },
+  {
+    "Name": "assist-disabled-skip-beat",
+    "Assist": false,
+    "Beat": true,
+    "SkipAssist": false,
+    "SkipBeat": true,
+    "AssistAttack": 0,
+    "BeatAttack": 0,
+    "Offset": 0,
+    "Visual": 0,
+    "Events": [
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 6,
+        "Time": 0.0625,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 12,
+        "Time": 0.125,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorHoldNoteEvent",
+        "Row": 24,
+        "Time": 0.25,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorLiftNoteEvent",
+        "Row": 36,
+        "Time": 0.375,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      }
+    ],
+    "Result": {
+      "Assist": null,
+      "Beat": [
+        0,
+        24000
+      ],
+      "VisualTime": 0,
+      "SampleIndex": 0,
+      "AttackAssist": 0,
+      "AttackBeat": 0
+    }
+  },
+  {
+    "Name": "beat-disabled-skip-assist",
+    "Assist": true,
+    "Beat": false,
+    "SkipAssist": true,
+    "SkipBeat": false,
+    "AssistAttack": 0,
+    "BeatAttack": 0,
+    "Offset": 0,
+    "Visual": 0,
+    "Events": [
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 6,
+        "Time": 0.0625,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 12,
+        "Time": 0.125,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorHoldNoteEvent",
+        "Row": 24,
+        "Time": 0.25,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorLiftNoteEvent",
+        "Row": 36,
+        "Time": 0.375,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      }
+    ],
+    "Result": {
+      "Assist": [
+        0,
+        12000,
+        18000,
+        24000
+      ],
+      "Beat": null,
+      "VisualTime": 0,
+      "SampleIndex": 0,
+      "AttackAssist": 0,
+      "AttackBeat": 0
+    }
+  },
+  {
+    "Name": "attack-offset",
+    "Assist": true,
+    "Beat": true,
+    "SkipAssist": false,
+    "SkipBeat": false,
+    "AssistAttack": 0.01,
+    "BeatAttack": 0.02,
+    "Offset": 0.125,
+    "Visual": 0.25,
+    "Events": [
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 6,
+        "Time": 0.0625,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 12,
+        "Time": 0.125,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorHoldNoteEvent",
+        "Row": 24,
+        "Time": 0.25,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorLiftNoteEvent",
+        "Row": 36,
+        "Time": 0.375,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      }
+    ],
+    "Result": {
+      "Assist": [
+        11520,
+        17520,
+        23520
+      ],
+      "Beat": [
+        -959,
+        23040,
+        47040
+      ],
+      "VisualTime": 0.25,
+      "SampleIndex": 18000,
+      "AttackAssist": 0.01,
+      "AttackBeat": 0.02
+    }
+  },
+  {
+    "Name": "negative-offset",
+    "Assist": true,
+    "Beat": true,
+    "SkipAssist": false,
+    "SkipBeat": false,
+    "AssistAttack": 0,
+    "BeatAttack": 0,
+    "Offset": -0.25,
+    "Visual": 0,
+    "Events": [
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 6,
+        "Time": 0.0625,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 12,
+        "Time": 0.125,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorHoldNoteEvent",
+        "Row": 24,
+        "Time": 0.25,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorLiftNoteEvent",
+        "Row": 36,
+        "Time": 0.375,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      }
+    ],
+    "Result": {
+      "Assist": [
+        0,
+        12000,
+        18000,
+        24000
+      ],
+      "Beat": [
+        0,
+        24000
+      ],
+      "VisualTime": 0,
+      "SampleIndex": -12000,
+      "AttackAssist": 0,
+      "AttackBeat": 0
+    }
+  },
+  {
+    "Name": "warped-beat-duplicates",
+    "Assist": true,
+    "Beat": true,
+    "SkipAssist": false,
+    "SkipBeat": false,
+    "AssistAttack": 0,
+    "BeatAttack": 0,
+    "Offset": 0,
+    "Visual": 0,
+    "Events": [
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 0,
+        "Time": 0,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 6,
+        "Time": 0.0625,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 12,
+        "Time": 0.125,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorHoldNoteEvent",
+        "Row": 24,
+        "Time": 0.25,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorLiftNoteEvent",
+        "Row": 36,
+        "Time": 0.375,
+        "Fake": false
+      },
+      {
+        "Kind": "EditorTapNoteEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": true
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 48,
+        "Time": 0.5,
+        "Fake": false
+      }
+    ],
+    "Result": {
+      "Assist": [
+        0,
+        12000,
+        18000
+      ],
+      "Beat": [
+        0,
+        24000,
+        24000,
+        24000
+      ],
+      "VisualTime": 0,
+      "SampleIndex": 0,
+      "AttackAssist": 0,
+      "AttackBeat": 0
+    }
+  }
+]

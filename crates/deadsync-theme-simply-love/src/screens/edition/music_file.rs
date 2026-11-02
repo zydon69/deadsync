@@ -4,13 +4,19 @@ use deadsync_editor::music_file::{self, Browse, Picker};
 pub(super) struct Request {
     serial: u64,
     target: super::text_fields::Target,
+    directory: std::path::PathBuf,
+    pack: Option<super::pack_properties::CouplingGuard>,
 }
 impl State {
     pub(super) fn queue_music_picker(&mut self) {
         if let Some(target) = self.text_target().filter(|t| t.is_file()) {
+            let is_pack=matches!(target,super::text_fields::Target::Pack(_));
+            let directory=if is_pack{let Some(directory)=self.pack_media_directory()else{return;};directory}else{self.workspace.file().resource_base().to_path_buf()};
             self.music_picker_request = Some(Request {
                 serial: self.text_edit_serial,
                 target,
+                directory,
+                pack:if is_pack{self.capture_pack_coupling()}else{None},
             });
         }
     }
@@ -34,21 +40,38 @@ impl State {
             );
         }
     }
-    pub(super) fn find_all_song_media(&mut self, only_unset: bool) {
+    fn discover_song_assets(&self) -> std::io::Result<deadsync_editor::song_assets::Assets> {
         use deadsync_editor::song_assets;
-        let directory = self
-            .workspace
-            .file()
-            .resource_base();
-        let assets = match song_assets::files(directory) {
-            Ok(files) => song_assets::Assets::discover(directory, &files, |path| {
-                let (width, height) = image::image_dimensions(path).ok()?;
-                Some((i32::try_from(width).ok()?, i32::try_from(height).ok()?))
-            }),
-            Err(_) => {
-                self.status = i18n::tr("Edition", "SongAssetNotFound");
-                return;
-            }
+        let directory = self.workspace.file().resource_base();
+        let files = song_assets::files(directory)?;
+        Ok(song_assets::Assets::discover(directory, &files, |path| {
+            let (width,height)=image::image_dimensions(path).ok()?;
+            Some((i32::try_from(width).ok()?,i32::try_from(height).ok()?))
+        }))
+    }
+    pub(super) fn command_auto_song_assets(&mut self, only_unset: bool) {
+        if !self.has_song() {
+            self.status=i18n::tr("Edition","FileNoSongHelp");return;
+        }
+        // The original action treats directory errors as an empty discovery.
+        let assets=self.discover_song_assets().unwrap_or_default();
+        let result=(|| -> Result<usize,deadsync_editor::Error> {
+            let mut draft=self.workspace.song_properties()?;
+            let count=draft.stage_assets(&assets,only_unset)?;
+            if count==0 {return Ok(0);}
+            self.commit_song_properties_presented(&draft)?;
+            Ok(count)
+        })();
+        match result {
+            Ok(count)=>{self.refresh();self.status=if count==0 {i18n::tr("Edition","SongAssetsUnchanged")}else{i18n::tr_fmt("Edition","SongAssetsApplied",&[("count",&count.to_string())])};}
+            Err(error)=>self.status=i18n::tr_fmt("Edition","Error",&[("message",&crate::i18n::editor_error(&error))]),
+        }
+    }
+
+    pub(super) fn find_all_song_media(&mut self, only_unset: bool) {
+        let assets = match self.discover_song_assets() {
+            Ok(assets)=>assets,
+            Err(_)=>{self.status=i18n::tr("Edition","SongAssetNotFound");return;}
         };
         if let Some(draft) = self.song_properties.as_mut() {
             self.status = match draft.stage_assets(&assets, only_unset) {
@@ -58,7 +81,7 @@ impl State {
                     "SongAssetsStaged",
                     &[("count", &count.to_string())],
                 ),
-                Err(error) => i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]),
+                Err(error) => i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]),
             };
         }
     }
@@ -108,6 +131,7 @@ impl State {
         if request.serial != self.text_edit_serial
             || self.text_target() != Some(request.target)
             || !self.label_preedit.is_empty()
+            || (matches!(request.target,super::text_fields::Target::Pack(_)) && (!self.pack_coupling_current(&request.pack)||self.pack_media_directory().as_ref()!=Some(&request.directory)))
         {
             return false;
         }
@@ -118,15 +142,11 @@ impl State {
             .unwrap_or_default();
         let browse = Browse {
             kind: request.target.file_kind().expect("file selection target"),
-            directory: self
-                .workspace
-                .file()
-                .resource_base()
-                .to_path_buf(),
+            directory: request.directory.clone(),
             current,
         };
         let result = picker.choose(&browse).and_then(|path| {
-            path.map(|path| music_file::selected_path_from_directory(self.workspace.file().resource_base(), &path))
+            path.map(|path| music_file::selected_path_from_directory(&request.directory, &path))
                 .transpose()
         });
         match result {
@@ -169,6 +189,7 @@ impl State {
                 )
             }
         }
+        if matches!(request.target,super::text_fields::Target::Pack(_)){self.commit_pack_field();}
         true
     }
 }
@@ -192,13 +213,14 @@ mod untitled_resources_tests {
         assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
     }
     #[test]
-    fn untitled_save_as_starts_with_an_explicit_empty_destination() {
+    fn untitled_save_as_prefills_resource_directory_without_inventing_filename() {
         crate::i18n::init_for_tests();
         let root = tempfile::tempdir().unwrap();
         let mut state = state(root.path());
         state.open_save_as();
         assert!(matches!(state.panel, Some(super::super::Panel::SaveAsDestination(_))));
-        assert!(state.save_as.destination.is_empty());
+        assert_eq!(std::path::Path::new(&state.save_as.destination), state.workspace.file().resource_base());
+        assert!(state.save_as.destination.ends_with(std::path::MAIN_SEPARATOR));
         assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
     }
     #[test]
@@ -217,3 +239,7 @@ mod untitled_resources_tests {
         assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
     }
 }
+
+#[cfg(test)]
+#[path = "source_assets_tests.rs"]
+mod source_assets_tests;

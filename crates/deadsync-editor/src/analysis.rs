@@ -2,6 +2,7 @@
 //! byte-preserving document remains the authority for file writes: an analysis
 //! summary does not contain unknown vendor properties or every editable layout.
 pub mod task;
+mod resident;
 use crate::{Error, document::Format, history::Session};
 
 /// Analyze a snapshot rather than the on-disk file, so unsaved notes and timing
@@ -31,6 +32,13 @@ pub fn chart_bytes(
             "RSSP analysis does not support layout {} directly",
             rssp::parse::decode_unescape_trim(selected.fields[0])
         )));
+    }
+    if format==Format::Sm {
+        if let Some(projection)=resident::project(bytes,chart_index,selected)? {
+            let mut summary=chart_bytes(&projection.bytes,Format::Ssc,0,options)?;
+            projection.restore_sm_metadata(&mut summary);
+            return Ok(summary);
+        }
     }
     let summary_index = parsed.notes_list[..chart_index]
         .iter()

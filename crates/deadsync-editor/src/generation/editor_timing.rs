@@ -2,6 +2,7 @@
 //! Engine generation keeps Fumen's clock; editor density uses these distinct
 //! rules, including time signatures inside warps and retroactive fake flags.
 mod insertion;
+mod density;
 
 use super::{
     context::ContextEvent,
@@ -795,7 +796,7 @@ impl EditorTimeline {
         finite(row)?;
         Ok(row)
     }
-    fn query(&self, row: u64, order: Option<u8>) -> Result<f64, Error> {
+    pub(crate) fn query(&self, row: u64, order: Option<u8>) -> Result<f64, Error> {
         valid_row(row)?;
         let index = self.rates.partition_point(|rate| {
             rate.row < row || (rate.row == row && order.is_some_and(|order| rate.order < order))
@@ -899,4 +900,20 @@ fn event_cmp(a: (u64, u8, u16), b: (u64, u8, u16)) -> std::cmp::Ordering {
             a.1.cmp(&b.1)
         }
     })
+}
+
+impl EditorTimeline {
+    /// End of the currently selected position mapping. At a timing event's row,
+    /// source position queries still use the preceding mapping; the following
+    /// beat must select again. This enables exact PCM-bin compression without
+    /// traversing every row inside a warp or an extremely fast tempo segment.
+    pub(crate) fn tick_mapping_end(&self, row: i64) -> Result<i64, Error> {
+        let index = self
+            .rates
+            .partition_point(|rate| (rate.row as f64) < row as f64);
+        Ok(self
+            .rates
+            .get(index)
+            .map_or(i64::MAX, |next| i64::try_from(next.row).unwrap_or(i64::MAX)))
+    }
 }

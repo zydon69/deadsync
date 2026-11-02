@@ -76,7 +76,7 @@ impl Plan {
     }
     pub(crate) fn detached_output_snapshot(&self,session:&Session)->Result<Session,Error>{
         self.validate(session)?;
-        session.detached_output_snapshot(Document::parse(Arc::<[u8]>::from(self.bytes.as_slice()),session.document.format)?)
+        session.detached_output_snapshot(session.document.reparse(Arc::<[u8]>::from(self.bytes.as_slice()))?)
     }
     fn prepare_from_source(session:&Session,old:SourceBase<'_>,new:&Path,target:crate::document::Format)->Result<Self,Error> {
         if !old.is_absolute()
@@ -192,6 +192,8 @@ fn walk(
     slots: &mut Vec<Slot>,
 ) -> Result<(), Error> {
     let update = match change {
+        Change::ChartProperties {change,..} | Change::SongTimingProperties(change) | Change::TimingMigration(change) | Change::TimingEdit(change) | Change::MarkerMetadata(change) | Change::SongPropertiesLive(change) | Change::SongPropertiesMetadata(change) | Change::ChartEventCopy(change)=>return walk(change,context,forward,old,new,stack,entry,path,slots),
+        Change::SongTimingChoice { .. }=>None,
         Change::Group(changes) => {
             for offset in 0..changes.len() {
                 let index = if forward {
@@ -242,11 +244,11 @@ fn walk(
             before,
             after,
         } => {
-            let update = media::is_media(*chart, &name.to_ascii_uppercase())
+            let update = media::is_media_in(context, *chart, &name.to_ascii_uppercase())
                 .then(|| {
                     Ok::<_, Error>(Update::Added {
-                        before: media::added(before, old, new)?,
-                        after: media::added(after, old, new)?,
+                        before: media::added(name, before, old, new)?,
+                        after: media::added(name, after, old, new)?,
                     })
                 })
                 .transpose()?;
@@ -259,10 +261,14 @@ fn walk(
         }
         // Exhaustive on purpose: adding a history variant requires an explicit
         // decision, rather than accidentally executing a persisted side effect.
-        Change::ReceptorPreferences(_) | Change::KeyBindingPreferences(_) | Change::NoteColorPreferences(_) | Change::AudioPreferences(_)
+        Change::SourcePreferences(_) | Change::SelectionPreferences(_) | Change::DensityPreferences(_) | Change::StreamPreferences(_) | Change::ScrollPreferences(_) | Change::RestoreOptions(_) | Change::RestoreScroll(_) | Change::PerformancePreferences(_) | Change::GeneralOptions(_) | Change::DisplayOptions(_) | Change::VisualPreferences(_) | Change::DarkPreferences(_) | Change::ReceptorPreferences(_) | Change::KeyBindingPreferences(_) | Change::NoteColorPreferences(_) | Change::AudioPreferences(_)
+        | Change::PackProperties(_) | Change::ProfileEdit(_)
         | Change::ProfileCreation { .. }
         | Change::ProfileDeletion { .. }
         | Change::PlayerCount { .. }
+        | Change::AttackIdentity(_)
+        | Change::MarkerSeedTouch { .. }
+        | Change::PatternReadd { .. }
         | Change::Notes { .. } => None,
     };
     if let Some(update) = update {
@@ -292,12 +298,13 @@ impl Publication<'_> {
             };
             let mut change = &mut entries[slot.entry].change;
             for index in slot.path {
+                change=relocation_change(change);
                 match change {
                     Change::Group(changes) => change = &mut changes[index],
                     _ => unreachable!("Validated relocation group"),
                 }
             }
-            match (change, slot.update) {
+            match (relocation_change(change), slot.update) {
                 (Change::DocumentSwap(state), Update::Document(document)) => {
                     state.document = document
                 }
@@ -674,3 +681,5 @@ mod tests {
         );
     }
 }
+
+fn relocation_change(mut change:&mut Change)->&mut Change{loop{match change{Change::ChartProperties {change:inner,..} | Change::SongTimingProperties(inner) | Change::TimingMigration(inner) | Change::TimingEdit(inner) | Change::MarkerMetadata(inner) | Change::SongPropertiesLive(inner) | Change::SongPropertiesMetadata(inner) | Change::ChartEventCopy(inner)=>change=inner,_=>return change}}}

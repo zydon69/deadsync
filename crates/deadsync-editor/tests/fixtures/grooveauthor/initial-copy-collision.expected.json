@@ -1,0 +1,30 @@
+[
+  {
+    "kind": "Tempo",
+    "equal": false,
+    "comparison": 0,
+    "rejected": true,
+    "error": "ArgumentException"
+  },
+  {
+    "kind": "Tempo",
+    "equal": true,
+    "comparison": 0,
+    "rejected": true,
+    "error": "ArgumentException"
+  },
+  {
+    "kind": "Signature",
+    "equal": false,
+    "comparison": 0,
+    "rejected": true,
+    "error": "ArgumentException"
+  },
+  {
+    "kind": "Signature",
+    "equal": true,
+    "comparison": 0,
+    "rejected": true,
+    "error": "ArgumentException"
+  }
+]

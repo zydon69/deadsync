@@ -64,7 +64,7 @@ fn sprite(
     }
     Ok(deadlib_present::__act_from_builder!(
         (xy(d.x,(d.top+d.height*0.5) as f32): setsize(d.width,d.height as f32):
-         customtexturerect(u0,v0,u1,v1): rotationz(rotation):
+         customtexturerect(u0,v0,u1,v1): rotationz(-rotation):
          diffuse(color[0],color[1],color[2],color[3]): z(8004))
         ::deadsync_assets::present_dsl::SpriteBuilder::static_texture("editor-grooveauthor/atlas.png")
     ))
@@ -203,6 +203,18 @@ pub fn render(request: Request<'_>) -> Result<Output, &'static str> {
 #[path = "hold_palette.rs"]
 mod palette;
 /// Native projection boundary: note centers become the original extended H.
+/// Bound work by visible geometry, independently for each admitted hold.
+/// Every atlas body is at least one source pixel high and scales by width/128.
+/// Two edge tiles plus rounding allowance cover the planner's padded viewport.
+/// Extreme subpixel zoom remains bounded and is reported as partial by plan().
+pub(super) fn viewport_body_budget(width: f32, height: f32) -> usize {
+    if !width.is_finite() || width <= 0.0 || !height.is_finite() || height < 0.0 {
+        return 0;
+    }
+    ((f64::from(height) * 128.0 / f64::from(width)).ceil() as usize)
+        .saturating_add(4).min(16_384)
+}
+
 pub struct ChartRequest<'a> {
     pub layout: &'a str,
     pub row: u64,
@@ -411,14 +423,79 @@ pub(super) fn clip_to_viewport(
     let b = ((y1 - bottom) / h).clamp(0.0, 1.0);
     let [cl, cr, ct, cb] = match rotation {
         0.0 => [l, r, t, b],
-        90.0 => [t, b, r, l],
+        90.0 => [b, t, l, r],
         180.0 => [r, l, b, t],
-        270.0 => [b, t, l, r],
+        270.0 => [t, b, r, l],
         _ => return Err("Noncardinal hold sprite rotation"),
     };
+    // The compositor applies the crop's center displacement in world axes,
+    // then rotates the resized quad. Move the actor by the difference from
+    // the rotated displacement so the visible original pixels stay anchored.
+    let delta = [(cl - cr) * width * 0.5, (ct - cb) * height * 0.5];
+    let (sin, cos) = rotation.to_radians().sin_cos();
+    offset[0] += cos * delta[0] + sin * delta[1] - delta[0];
+    offset[1] += -sin * delta[0] + cos * delta[1] - delta[1];
     *cropleft = cl;
     *cropright = cr;
     *croptop = ct;
     *cropbottom = cb;
     Ok(())
+}
+
+#[cfg(test)]
+mod rotation_boundary_tests {
+    use super::*;
+    #[test]
+    fn every_source_hold_head_and_pump_cap_uses_native_handedness() {
+        for layout in deadsync_editor::chart_order::TYPE_ORDER {
+            for lane in 0..deadsync_editor::notes::layout_columns(layout).unwrap() {
+                let graphic=graphics::graphic(layout,lane,false,false).unwrap();
+                for (id,source_rotation) in [(&graphic.head_fill,graphic.head_rotation),(&graphic.cap_fill,graphic.cap_rotation)] {
+                    let actor=sprite(id,Destination{x:100.,top:140.,width:48.,height:48.},None,source_rotation,false,false,[1.;4]).unwrap();
+                    let Actor::Sprite{rot_z_deg,..}=actor else {panic!("sprite");};
+                    assert_eq!(rot_z_deg,-source_rotation,"{layout}/{lane}/{id}");
+                }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod viewport_corner_tests {
+    use super::*;
+
+    #[test]
+    fn cropped_cardinal_sprite_corners_stay_inside_world_viewport() {
+        let graphic = graphics::graphic("dance-single", 0, false, false).unwrap();
+        let viewport = [20.0, 40.0, 180.0, 220.0];
+        for rotation in [0.0_f32, 90.0, 180.0, 270.0] {
+            for center in [[24.0, 130.0], [176.0, 130.0], [100.0, 44.0], [100.0, 216.0]] {
+                let mut actor = sprite(&graphic.head_fill, Destination {
+                    x: center[0], top: f64::from(center[1] - 24.0),
+                    width: 48.0, height: 48.0,
+                }, None, -rotation, false, false, [1.0; 4]).unwrap();
+                assert!(clip_world_sprite(&mut actor, viewport).unwrap());
+                let Actor::Sprite { offset, rot_z_deg, cropleft, cropright,
+                    croptop, cropbottom, .. } = actor else { panic!("sprite"); };
+                let (sin, cos) = rot_z_deg.to_radians().sin_cos();
+                // Match the actual non-skewed compositor: crop moves the
+                // center in world axes, then rotates the resized rectangle.
+                let center = [offset[0] + (cropleft - cropright) * 24.0,
+                    offset[1] + (croptop - cropbottom) * 24.0];
+                let half = [24.0 * (1.0 - cropleft - cropright),
+                    24.0 * (1.0 - croptop - cropbottom)];
+                for x in [-half[0], half[0]] {
+                    for y in [-half[1], half[1]] {
+                        let world = [center[0] + cos * x + sin * y,
+                            center[1] - sin * x + cos * y];
+                        assert!(world[0] >= viewport[0] - 0.001
+                            && world[0] <= viewport[2] + 0.001
+                            && world[1] >= viewport[1] - 0.001
+                            && world[1] <= viewport[3] + 0.001,
+                            "rotation={rotation}, center={center:?}, corner={world:?}");
+                    }
+                }
+            }
+        }
+    }
 }

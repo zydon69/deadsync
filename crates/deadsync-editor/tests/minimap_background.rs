@@ -1,6 +1,5 @@
-use deadsync_editor::{Error, minimap_content, minimap_projection};
-#[path = "../src/minimap_background.rs"]
-mod minimap_background;
+use deadsync_editor::minimap_projection;
+use deadsync_editor::minimap_background;
 use minimap_background::{build, fade};
 #[test]
 fn original_updatebegin_background_and_updateend_fade_match_96_cases() {
@@ -93,7 +92,7 @@ fn malformed_background_geometry_and_fade_never_overflow() {
         reverse: false,
         quantize: false,
     };
-    assert!(build(&projection, 2, (0.0, 24.0), 3.0, false, false).is_err());
+    assert!(build(&projection, 1, (0.0, 24.0), 3.0, false, false).is_err());
     assert!(build(&projection, 16, (f64::NAN, 24.0), 3.0, false, false).is_err());
     let mut pixels = vec![0xff112233];
     assert!(fade(&mut pixels, f64::NAN, 0.9).is_err());

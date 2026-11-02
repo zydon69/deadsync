@@ -122,8 +122,8 @@ impl Capture {
                 },
                 std::iter::empty(),
             );
-            while let Some((tag, segment)) = self.played.pop() {
-                if tag != generation {
+            while let Some((tag, asset_epoch, segment)) = self.played.pop() {
+                if tag != generation || asset_epoch!=deadlib_audio_core::music_asset_epoch() {
                     assert!(
                         result.timing.is_empty(),
                         "{label}: stale generation resumed"
@@ -225,7 +225,8 @@ fn retained_seeks_match_fresh_cuts_across_codecs_rates_pitch_and_output_rates() 
                         let (stream, render) = music_transport(hz, 2);
                         let mut runtime = MusicStreamRuntime::new(stream.writer, mode.output());
                         runtime.handle(StreamCommand::PlayMusic {
-                            decode_options: options,
+                            asset_epoch:deadlib_audio_core::music_asset_epoch(),
+decode_options: options,
                             path: copy.path.clone(),
                             cut: mode.cut(0.0),
                             looping: false,
@@ -303,7 +304,7 @@ fn retained_seeks_match_fresh_cuts_across_codecs_rates_pitch_and_output_rates() 
                             );
                         }
                         bump_music_map_generation();
-                        runtime.handle(StreamCommand::StopMusic);
+                        runtime.handle(StreamCommand::StopMusic{asset_epoch:deadlib_audio_core::music_asset_epoch()});
                         cases += 1;
                     }
                 }

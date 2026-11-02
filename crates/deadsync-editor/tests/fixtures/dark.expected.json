@@ -1,0 +1,341 @@
+[
+  {
+    "Input": {},
+    "Normalized": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    },
+    "Changed": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Restored": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    },
+    "Undone": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Redone": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    }
+  },
+  {
+    "Input": {
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Normalized": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Changed": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Restored": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    },
+    "Undone": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Redone": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    }
+  },
+  {
+    "Input": {
+      "Size": "Future",
+      "DarkBgDrawOrder": 999
+    },
+    "Normalized": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    },
+    "Changed": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Restored": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    },
+    "Undone": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Redone": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    }
+  },
+  {
+    "Input": {
+      "Color": {
+        "X": 1
+      }
+    },
+    "Normalized": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 1,
+        "Y": 0,
+        "Z": 0,
+        "W": 0
+      }
+    },
+    "Changed": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Restored": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    },
+    "Undone": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Redone": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    }
+  },
+  {
+    "Input": {
+      "Color": {
+        "X": -2,
+        "Y": 3,
+        "Z": 0.5,
+        "W": 0.8
+      }
+    },
+    "Normalized": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": -2,
+        "Y": 3,
+        "Z": 0.5,
+        "W": 0.8
+      }
+    },
+    "Changed": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Restored": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    },
+    "Undone": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": true,
+      "Size": "Charts",
+      "DarkBgDrawOrder": "AfterWaveForm",
+      "Color": {
+        "X": 0.2,
+        "Y": 0.4,
+        "Z": 0.6,
+        "W": 0.3
+      }
+    },
+    "Redone": {
+      "ShowDarkPreferencesWindow": false,
+      "ShowDarkBg": false,
+      "Size": "Window",
+      "DarkBgDrawOrder": "AfterBackground",
+      "Color": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 0.8
+      }
+    }
+  }
+]

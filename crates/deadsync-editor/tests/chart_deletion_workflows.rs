@@ -107,7 +107,7 @@ fn timing_reference_index_missing_index_and_numeric_enums_are_updated_with_futur
     for (kind, index, deleted, expected) in [
         ("\"dance_single\"", Some(1), 0, Some(0)),
         ("0", Some(1), 0, Some(0)),
-        ("\"DANCE_SINGLE\"", None, 0, None),
+        ("\"DANCE_SINGLE\"", None, 0, Some(0)),
         ("\"dance_single\"", Some(0), 1, Some(0)),
     ] {
         let index = index.map_or(String::new(), |v| format!(",\"DefaultChartIndex\":{v}"));
@@ -117,7 +117,12 @@ fn timing_reference_index_missing_index_and_numeric_enums_are_updated_with_futur
         let mut s = Session::new(
             Document::parse(format!("{prefix}{SONG}").into_bytes(), Format::Ssc).unwrap(),
         );
-        Draft::capture(&s, deleted).unwrap().apply(&mut s).unwrap();
+        let mut draft = Draft::capture(&s, deleted).unwrap();
+        // This test isolates index remapping; inject a deterministic order.
+        // Cultural fallback ordering is covered by song_timing_chart_workflows.
+        let snapshot = s.song_timing_snapshot().unwrap();
+        draft.prepare_song_timing(&s, &Default::default(), snapshot.source_indices()).unwrap();
+        draft.apply(&mut s).unwrap();
         let value: serde_json::Value =
             serde_json::from_str(&s.document().text(None, "GASongData").unwrap()).unwrap();
         assert_eq!(value["Future"]["Keep"], true);
@@ -211,7 +216,9 @@ fn successor_prefers_matching_type_and_difficulty_then_counterpart_and_restores_
     let path = dir.path().join("song.ssc");
     fs::write(&path, SONG).unwrap();
     let mut w = Workspace::open(&path, 0).unwrap();
-    let draft = w.deletion_draft().unwrap();
+    let mut draft = w.deletion_draft().unwrap();
+    let snapshot = w.file().session.song_timing_snapshot().unwrap();
+    draft.prepare_song_timing(&w.file().session, &Default::default(), snapshot.source_indices()).unwrap();
     w.delete_chart(&draft).unwrap();
     assert_eq!(w.chart(), 0);
     assert_eq!(

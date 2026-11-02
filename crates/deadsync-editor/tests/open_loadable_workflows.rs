@@ -8,8 +8,12 @@ use deadsync_editor::{
 };
 use std::{fs, sync::Arc};
 fn source(bad_preferred: bool) -> Vec<u8> {
-    let single = if bad_preferred { "oops" } else { "1000" };
-    let double = if bad_preferred { "10000000" } else { "oops" };
+    let single = if bad_preferred { "00000" } else { "1000" };
+    let double = if bad_preferred {
+        "10000000"
+    } else {
+        "000000000"
+    };
     format!("#VERSION:0.83;#TITLE:Peers retained;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Challenge;#METER:9;#VENDOR:single;#NOTES:{single};#NOTEDATA:;#STEPSTYPE:dance-double;#DIFFICULTY:Hard;#METER:8;#VENDOR:double;#NOTES:{double};").into_bytes()
 }
 #[test]
@@ -19,7 +23,11 @@ fn bad_nonpreferred_peer_does_not_prevent_valid_preferred_chart_or_rewrite_sourc
         let mut session =
             Session::new(Document::parse(Arc::<[u8]>::from(bytes.clone()), Format::Ssc).unwrap());
         let identities = session.chart_ids().to_vec();
-        let token = (session.revision(), session.content_revision(), session.chart_ids().to_vec());
+        let token = (
+            session.revision(),
+            session.content_revision(),
+            session.chart_ids().to_vec(),
+        );
         // Existing strict snapshot callers keep their current error contract.
         assert!(Snapshot::resident(&mut session).is_err());
         let report = Snapshot::loadable(&mut session).unwrap();
@@ -38,7 +46,14 @@ fn bad_nonpreferred_peer_does_not_prevent_valid_preferred_chart_or_rewrite_sourc
             Some(good)
         );
         assert_eq!(session.chart_ids(), identities);
-        assert_eq!((session.revision(), session.content_revision(), session.chart_ids().to_vec()), token);
+        assert_eq!(
+            (
+                session.revision(),
+                session.content_revision(),
+                session.chart_ids().to_vec()
+            ),
+            token
+        );
         assert_eq!(session.serialize().unwrap(), bytes);
         assert!(!session.is_dirty());
     }
@@ -61,7 +76,7 @@ fn all_bad_supported_charts_can_remain_unfocused_with_every_source_block_intact(
     let bytes = source(false);
     let bytes = String::from_utf8(bytes)
         .unwrap()
-        .replace("#NOTES:1000;", "#NOTES:oops;");
+        .replace("#NOTES:1000;", "#NOTES:00000;");
     fs::write(&path, &bytes).unwrap();
     let mut file = FileSession::open(&path).unwrap();
     let identities = file.session.chart_ids().to_vec();
@@ -143,16 +158,79 @@ fn checked_preparation_cancellation_never_authorizes_an_empty_fallback() {
 fn unfocused_workspace_restores_snap_without_selecting_an_unavailable_chart() {
     let root = tempfile::tempdir().unwrap();
     let path = root.path().join("unavailable.ssc");
-    let bytes = b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:oops;";
+    let bytes = b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:00000;";
     fs::write(&path, bytes).unwrap();
     let mut workspace = Workspace::from_file_unfocused(FileSession::open(&path).unwrap());
     let revision = workspace.file().session.revision();
-    workspace.execute(deadsync_editor::workspace::Command::SetSnap(9)).unwrap();
+    workspace
+        .execute(deadsync_editor::workspace::Command::SetSnap(9))
+        .unwrap();
     assert_eq!(workspace.snap(), 9);
     assert!(!workspace.has_chart());
     assert_eq!(workspace.file().session.revision(), revision);
     assert_eq!(workspace.file().session.serialize().unwrap(), bytes);
     assert!(!workspace.file().session.is_dirty());
-    assert!(workspace.execute(deadsync_editor::workspace::Command::SetSnap(10)).is_err());
+    assert!(
+        workspace
+            .execute(deadsync_editor::workspace::Command::SetSnap(10))
+            .is_err()
+    );
     assert_eq!(workspace.snap(), 9);
+}
+
+#[test]
+fn opaque_cells_are_loadable_without_invented_notes_and_survive_unrelated_edit() {
+    use deadsync_editor::notes::{Note, Position};
+    let bytes = b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:Q000;#NOTEDATA:;#STEPSTYPE:dance-double;#NOTES:Q0000000;";
+    let mut session = Session::new(Document::parse(bytes.as_slice(), Format::Ssc).unwrap());
+    let ids = session.chart_ids().to_vec();
+    assert_eq!(
+        Snapshot::resident(&mut session).unwrap().source_indices(),
+        [0, 1]
+    );
+    assert!(
+        Snapshot::loadable(&mut session)
+            .unwrap()
+            .failures
+            .is_empty()
+    );
+    for chart in 0..2 {
+        let opaque = Position {
+            player: 0,
+            lane: 0,
+            row: 0,
+        };
+        assert!(session.grid(chart).unwrap().get(opaque).is_none());
+        assert!(
+            session
+                .edit_notes(
+                    chart,
+                    "Refuse opaque overwrite",
+                    [(opaque, Some(Note::tap()))]
+                )
+                .is_err()
+        );
+        assert_eq!(session.serialize().unwrap(), bytes);
+        assert!(session.undo_label().is_none());
+        let other = Position {
+            player: 0,
+            lane: 1,
+            row: 48,
+        };
+        assert!(
+            session
+                .edit_notes(chart, "Unrelated note", [(other, Some(Note::tap()))])
+                .unwrap()
+        );
+        assert!(session.grid(chart).unwrap().get(other).is_some());
+        assert!(
+            String::from_utf8(session.serialize().unwrap())
+                .unwrap()
+                .contains('Q')
+        );
+        session.undo().unwrap();
+        assert_eq!(session.serialize().unwrap(), bytes);
+    }
+    assert_eq!(session.chart_ids(), ids);
+    assert!(!session.is_dirty());
 }

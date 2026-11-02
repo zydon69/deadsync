@@ -226,6 +226,8 @@ impl App {
 
     fn handle_navigation_action_inner(&mut self, target: CurrentScreen, allow_offset_prompt: bool) {
         let from = self.state.screens.current_screen;
+        if super::editor_host::requires_departure_check(from,target,self.state.screens.active_editor().is_some(),self.state.screens.editor_departure_authority.is_some()) && !self.authorize_editor_departure(target) {return;}
+        if target==CurrentScreen::Edition && !self.prepare_standalone_editor(){return;}
         let cfg = config::runtime::get();
         self.lights.clear_button_pressed();
         let plan = navigation_route_plan(
@@ -325,6 +327,21 @@ impl App {
     }
 
     pub(super) fn handle_process_exit(&mut self, request: ProcessExitRequest) -> Vec<Command> {
+        if !self.state.screens.editor_exit_ready {
+            if let Some(editor)=self.state.screens.active_editor_mut() {
+                match editor.request_host_application_exit() {
+                    screens::edition::ApplicationExit::Ready=>{self.state.screens.editor_exit_ready=true;},
+                    screens::edition::ApplicationExit::Pending=>{self.state.screens.editor_exit_request=Some(request);self.flush_active_editor_audio();return Vec::new();},
+                    screens::edition::ApplicationExit::Cancelled=>{self.state.screens.editor_exit_request=None;return Vec::new();},
+                }
+                self.flush_active_editor_audio();
+            }
+        }
+        // Editor authority was checked on this turn. Do not defer an accepted
+        // exit behind a fade while the document could acquire a newer revision.
+        if self.state.screens.active_editor().is_some() && self.state.screens.editor_exit_ready {
+            return vec![match request {ProcessExitRequest::Exit=>Command::ExitNow,ProcessExitRequest::Shutdown=>Command::Shutdown}];
+        }
         let current = self.state.screens.current_screen;
         let shell = &mut self.state.shell;
         let plan = process_exit_navigation_plan(
@@ -416,6 +433,7 @@ impl App {
             CurrentScreen::Menu => menu::out_transition(),
             CurrentScreen::Gameplay => gameplay::out_transition(),
             CurrentScreen::Practice => gameplay::out_transition(),
+            CurrentScreen::Edition => (Vec::new(),0.0),
             CurrentScreen::Options => options::out_transition(),
             CurrentScreen::ContentBrowser => content_browser::out_transition(),
             CurrentScreen::Credits => credits::out_transition(),
@@ -464,6 +482,7 @@ impl App {
                 false,
                 super::simply_love_visual_policy(&config::runtime::get()),
             ),
+            CurrentScreen::Edition => (Vec::new(),0.0),
             CurrentScreen::Options => options::in_transition(),
             CurrentScreen::ContentBrowser => content_browser::in_transition(),
             CurrentScreen::Credits => credits::in_transition(),

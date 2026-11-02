@@ -146,7 +146,34 @@ impl ChartData {
             .map(|(&start, marker)| (start, marker))
     }
 
-    /// Strict next/previous start with wraparound, like the original editor navigation.
+    /// Strict source pattern starts with wraparound, using ChartPosition
+    /// (double) rather than rounded rows.
+    pub fn adjacent_marker_at(&self, cursor: f64, forward: bool) -> Option<u64> {
+        use std::ops::Bound::{Excluded, Unbounded};
+        if !cursor.is_finite() {
+            return None;
+        }
+        let patterns = self.patterns.as_ref()?;
+        let first = || patterns.first_key_value();
+        let last = || patterns.last_key_value();
+        let entry = if cursor < 0. || cursor >= u64::MAX as f64 {
+            if forward { first() } else { last() }
+        } else {
+            let row = cursor.floor() as u64;
+            if forward {
+                patterns
+                    .range((Excluded(row), Unbounded))
+                    .next()
+                    .or_else(first)
+            } else if cursor > row as f64 {
+                patterns.range(..=row).next_back().or_else(last)
+            } else {
+                patterns.range(..row).next_back().or_else(last)
+            }
+        };
+        entry.map(|(&row, _)| row)
+    }
+    /// Existing native navigation keeps its strict integer-row contract.
     pub fn adjacent_marker(&self, cursor: u64, forward: bool) -> Option<u64> {
         use std::ops::Bound::{Excluded, Unbounded};
         let patterns = self.patterns.as_ref()?;
@@ -173,6 +200,9 @@ impl ChartData {
         Ok(data)
     }
     pub fn validate(&self) -> Result<(), Error> {
+        if let Some(value) = self.extra.get(crate::chart_text::EXTENSION) {
+            crate::chart_text::validate_extension(value)?;
+        }
         if self.extra.keys().any(|key| {
             [
                 "MusicOffset",
@@ -241,8 +271,10 @@ impl ChartData {
                 // metadata-only API remains tolerant of opaque note streams:
                 // use the family default without changing their source bytes.
                 data.max_player_index = crate::notes::Grid::parse_layout(
-                    document.value(descriptor.notes.clone()), &descriptor.steps_type,
-                ).map_or(default_players-1, |grid| grid.players()-1);
+                    document.value(descriptor.notes.clone()),
+                    &descriptor.steps_type,
+                )
+                .map_or(default_players - 1, |grid| grid.players() - 1);
             }
         }
         if document.format == Format::Ssc {
@@ -289,7 +321,7 @@ impl ChartData {
         {
             return invalid("Convert legacy SSC timing in F10 before exporting a chart offset");
         }
-        Self::read(session.document(), chart)?;
+        let previous=Self::read(session.document(), chart)?.and_then(|data|data.patterns).unwrap_or_default();
         let (scope, version, data) = tags(session.document(), chart)?;
         let json = serde_json::to_string(self).map_err(|e| Error::InvalidFormat(e.to_string()))?;
         let offset = chart_offset.map(|value| value.to_string());
@@ -317,7 +349,12 @@ impl ChartData {
                 crate::document::escape_text(offset).into(),
             ));
         }
-        session.set_property_bytes_atomic(&properties, label)
+        let changed=session.set_property_bytes_atomic(&properties, label)?;
+        let next=self.patterns.as_ref();
+        let removed=previous.keys().copied().filter(|row|next.is_none_or(|patterns|!patterns.contains_key(row))).collect();
+        let added=next.into_iter().flat_map(|patterns|patterns.keys().copied()).filter(|row|!previous.contains_key(row)).collect();
+        session.record_pattern_additions(chart,removed,added,changed);
+        Ok(changed)
     }
     pub fn options(&self, row: u64, registry: &Registry) -> Result<Options, Error> {
         self.validate()?;
@@ -368,7 +405,30 @@ impl ChartData {
         Ok(options)
     }
 }
-pub(crate) fn tags(document: &Document, chart: usize) -> Result<(Option<usize>, String, String), Error> {
+/// SM stores chart metadata globally, outside the cloned NOTES block. Copy the
+/// current raw owner (including extensions), not an earlier file snapshot.
+/// This also preserves opaque metadata when duplicating a chart; generation
+/// validates its typed input before producing an append preview.
+pub(crate) fn clone_chart_owner(
+    source: &Document, from: usize, target: &mut Document, to: usize,
+) -> Result<(), Error> {
+    let (source_scope, source_version, source_data) = tags(source, from)?;
+    let (target_scope, target_version, target_data) = tags(target, to)?;
+    for (origin, destination) in [(source_version, target_version), (source_data, target_data)] {
+        if target.raw_property(target_scope, &destination).is_some() {
+            return invalid("Chart metadata occupies the new chart index");
+        }
+        if let Some(raw) = source.raw_property(source_scope, &origin) {
+            target.set_added_property(target_scope, &destination, Some(std::sync::Arc::from(raw)))?;
+        }
+    }
+    Ok(())
+}
+
+pub(crate) fn tags(
+    document: &Document,
+    chart: usize,
+) -> Result<(Option<usize>, String, String), Error> {
     if chart >= document.charts().len() {
         return invalid("Pattern chart does not exist");
     }

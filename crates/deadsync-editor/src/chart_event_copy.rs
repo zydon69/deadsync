@@ -44,7 +44,7 @@ impl EventType {
         Some(match event {
             Event::Pattern { .. } => Self::Pattern,
             Event::Attack { .. } => Self::Attack,
-            Event::Note(_) => return None,
+            Event::Note(_) | Event::SongWidget(_) => return None,
             Event::Timing { kind, .. } => match kind {
                 TimingKind::Signature => Self::Signature,
                 TimingKind::Tempo => Self::Tempo,
@@ -71,6 +71,7 @@ pub struct Report {
     /// in SM / legacy SSC. Their source values are never rewritten as chart data.
     pub shared_types_unchanged: BTreeSet<EventType>,
 }
+#[derive(Clone)]
 pub struct Plan {
     token: RevisionToken,
     source: usize,
@@ -105,15 +106,11 @@ impl Plan {
                 "Chart-copy source and destinations must be distinct existing charts",
             ));
         }
-        let shared = if crate::timing_edit::supports_chart_timing(session.document()) {
-            BTreeSet::new()
-        } else {
-            types
-                .iter()
-                .copied()
-                .filter(|kind| *kind != EventType::Pattern)
-                .collect()
-        };
+        let shared:BTreeSet<_>=types.iter().copied().filter(|kind| {
+            if *kind==EventType::Pattern {false}
+            else if *kind==EventType::Attack {!crate::attacks::supports_resident_chart_attacks(session.document())}
+            else {!crate::timing_edit::supports_resident_chart_timing(session.document())}
+        }).collect();
         types.retain(|kind| !shared.contains(kind));
         let selected = selected(session, source, &types)?;
         let origin = selected
@@ -175,6 +172,7 @@ impl Plan {
                 Ok(())
             },
         )?;
+        if report.changed{session.wrap_chart_event_copy();}
         Ok(report)
     }
 }
@@ -195,3 +193,6 @@ fn selected(
 fn invalid(message: &str) -> Error {
     Error::InvalidEdit(message.into())
 }
+
+/// Closed prospective presentation, independent of the focused source chart.
+pub mod live { pub use crate::history::chart_copy_live::{Plan,Application,Receipt}; }

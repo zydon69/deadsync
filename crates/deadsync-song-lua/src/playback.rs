@@ -3786,6 +3786,7 @@ fn song_lua_draw_owner<S: NoteskinSlot + Clone>(
                     alpha: alpha_buffer,
                     depth: depth_buffer,
                     preserve,
+                    postprocess: None,
                     children,
                 });
             }
@@ -13016,6 +13017,7 @@ fn push_song_lua_layer_actors<S: NoteskinSlot + Clone>(
                     alpha: *alpha_buffer,
                     depth: *depth_buffer,
                     preserve: overlay_state.aft_preserve,
+                    postprocess: None,
                     children,
                 });
             }

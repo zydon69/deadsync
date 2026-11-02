@@ -1,0 +1,17 @@
+[
+  {
+    "culture": "en-US",
+    "pattern": "  named  : 1/16 3 2/9x4 R [7|N]->[S|A]",
+    "performed": "1.25S 15T 42%"
+  },
+  {
+    "culture": "fr-FR",
+    "pattern": "  named  : 1/16 3 2/9x4 R [7|N]->[S|A]",
+    "performed": "1,25S 15T 42%"
+  },
+  {
+    "culture": "sv-SE",
+    "pattern": "  named  : 1/16 3 2/9x4 R [7|N]->[S|A]",
+    "performed": "1,25S 15T 42%"
+  }
+]

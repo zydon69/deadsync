@@ -1,9 +1,7 @@
-//! Isolated source modules until the coordinated UI/preferences integration.
+//! Exercise the public production modules against source contracts.
 pub use deadsync_editor::Error;
-#[path = "../src/scroll_preferences/dragging.rs"]
-mod dragging;
-#[path = "../src/minimap_navigation.rs"]
-mod navigation;
+use deadsync_editor::scroll_preferences::dragging;
+use deadsync_editor::minimap_navigation as navigation;
 use navigation::{Effect, Gesture, Input, Position};
 
 fn position(time: f64) -> Position {

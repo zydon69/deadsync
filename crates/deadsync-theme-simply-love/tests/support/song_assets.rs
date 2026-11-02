@@ -82,12 +82,6 @@ fn field(s: &mut State, current: &mut usize, target: Field) {
     while *current != target {
         press(s, KeyCode::Tab);
         *current = (*current + 1) % (Field::ALL.len() + 1);
-        while *current < Field::ALL.len()
-            && s.workspace().file().session.document().format == Format::Sm
-            && Field::ALL[*current].requires_ssc()
-        {
-            *current = (*current + 1) % (Field::ALL.len() + 1);
-        }
     }
 }
 #[test]
@@ -108,9 +102,6 @@ fn all_media_paths_use_typed_picker_stage_apply_undo_save_and_reopen() {
         ];
         let mut selected = Vec::new();
         for (index, (target, kind)) in cases.into_iter().enumerate() {
-            if format == Format::Sm && target.requires_ssc() {
-                continue;
-            }
             field(&mut s, &mut current, target);
             let extension = match kind {
                 Kind::Video | Kind::ImageOrVideo => "mp4",
@@ -171,9 +162,6 @@ fn all_media_paths_use_typed_picker_stage_apply_undo_save_and_reopen() {
             assert_eq!(text.get(target), name);
             assert_eq!(fs::read(path).unwrap(), b"untouched media fixture");
         }
-        if format == Format::Sm {
-            assert!(String::from_utf8_lossy(&changed).contains("#JACKET:legacy.png;"));
-        }
     }
 }
 #[test]
@@ -232,9 +220,6 @@ fn automatic_media_search_stages_real_images_and_lyrics_and_preserves_missing_pa
             (Field::Lyrics, "paroles.lrc"),
         ];
         for (target, name) in cases {
-            if format == Format::Sm && target.requires_ssc() {
-                continue;
-            }
             if target == Field::Lyrics {
                 fs::write(d.path().join(name), b"[00:01.00]Hello").unwrap();
             } else {

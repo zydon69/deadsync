@@ -1,0 +1,513 @@
+{
+  "source": "48e18f71655d0f0d86144c63239331833501fda2",
+  "editor_position_sha256": "d067f70871df451509451b5bf7d8edef639ba5a185b3f421dd3ad697a4b18daf",
+  "fumen_source": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "fumen_dll_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "chart_adapter": "identity; no timing projection claim",
+  "cases": [
+    {
+      "time": true,
+      "kind": "ordinary",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4608308318706860032,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.05,
+          "current": 4609434218613702656,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.1,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4612248968380809216,
+          "desired": 4613937818241073152,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 4613937818241073152,
+          "desired": 4613937818241073152,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": true,
+      "kind": "desired_ulp",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4607182418800017408,
+          "desired": 4607182418800017409,
+          "active": false
+        },
+        {
+          "now": 0.05,
+          "current": 4607182418800017408,
+          "desired": 4607182418800017409,
+          "active": false
+        },
+        {
+          "now": 0.1,
+          "current": 4607182418800017408,
+          "desired": 4607182418800017409,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4608308318706860032,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": true,
+      "kind": "setter_ulp",
+      "trace": [
+        {
+          "now": 1e-17,
+          "current": 4607182418800017408,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.05,
+          "current": 4609434218613702656,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.1,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4612248968380809216,
+          "desired": 4613937818241073152,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 4613937818241073152,
+          "desired": 4613937818241073152,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": true,
+      "kind": "zero_duration",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        },
+        {
+          "now": 0.05,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        },
+        {
+          "now": 0.1,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4613937818241073152,
+          "desired": 4613937818241073152,
+          "active": false
+        },
+        {
+          "now": 1,
+          "current": 4613937818241073152,
+          "desired": 4613937818241073152,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": true,
+      "kind": "negative",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4602678819172646912,
+          "desired": -4616189618054758400,
+          "active": true
+        },
+        {
+          "now": 0.05,
+          "current": 0,
+          "desired": -4616189618054758400,
+          "active": true
+        },
+        {
+          "now": 0.1,
+          "current": -4616189618054758400,
+          "desired": -4616189618054758400,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": -4618441417868443648,
+          "desired": 0,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 0,
+          "desired": 0,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": true,
+      "kind": "cancel",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4608308318706860032,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.05,
+          "current": 4609434218613702656,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.1,
+          "current": 4609434218613702656,
+          "desired": 4609434218613702656,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4610560118520545280,
+          "desired": 4612811918334230528,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 4612811918334230528,
+          "desired": 4612811918334230528,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": true,
+      "kind": "axis_switch",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4608308318706860032,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.05,
+          "current": 4609434218613702656,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.1,
+          "current": 4611686018427387903,
+          "desired": 4611686018427387903,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4612248968380809216,
+          "desired": 4613937818241073152,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 4613937818241073152,
+          "desired": 4613937818241073152,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": false,
+      "kind": "ordinary",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4608308318706860032,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.05,
+          "current": 4609434218613702656,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.1,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4612248968380809216,
+          "desired": 4613937818241073152,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 4613937818241073152,
+          "desired": 4613937818241073152,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": false,
+      "kind": "desired_ulp",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4607182418800017408,
+          "desired": 4607182418800017409,
+          "active": false
+        },
+        {
+          "now": 0.05,
+          "current": 4607182418800017408,
+          "desired": 4607182418800017409,
+          "active": false
+        },
+        {
+          "now": 0.1,
+          "current": 4607182418800017408,
+          "desired": 4607182418800017409,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4608308318706860032,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": false,
+      "kind": "setter_ulp",
+      "trace": [
+        {
+          "now": 1e-17,
+          "current": 4607182418800017408,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.05,
+          "current": 4609434218613702656,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.1,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4612248968380809216,
+          "desired": 4613937818241073152,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 4613937818241073152,
+          "desired": 4613937818241073152,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": false,
+      "kind": "zero_duration",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        },
+        {
+          "now": 0.05,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        },
+        {
+          "now": 0.1,
+          "current": 4611686018427387904,
+          "desired": 4611686018427387904,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4613937818241073152,
+          "desired": 4613937818241073152,
+          "active": false
+        },
+        {
+          "now": 1,
+          "current": 4613937818241073152,
+          "desired": 4613937818241073152,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": false,
+      "kind": "negative",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4602678819172646912,
+          "desired": -4616189618054758400,
+          "active": true
+        },
+        {
+          "now": 0.05,
+          "current": 0,
+          "desired": -4616189618054758400,
+          "active": true
+        },
+        {
+          "now": 0.1,
+          "current": -4616189618054758400,
+          "desired": -4616189618054758400,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": -4618441417868443648,
+          "desired": 0,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 0,
+          "desired": 0,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": false,
+      "kind": "cancel",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4608308318706860032,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.05,
+          "current": 4609434218613702656,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.1,
+          "current": 4609434218613702656,
+          "desired": 4609434218613702656,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4610560118520545280,
+          "desired": 4612811918334230528,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 4612811918334230528,
+          "desired": 4612811918334230528,
+          "active": false
+        }
+      ]
+    },
+    {
+      "time": false,
+      "kind": "axis_switch",
+      "trace": [
+        {
+          "now": 0.025,
+          "current": 4608308318706860032,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.05,
+          "current": 4609434218613702656,
+          "desired": 4611686018427387904,
+          "active": true
+        },
+        {
+          "now": 0.1,
+          "current": 4611686018427387903,
+          "desired": 4611686018427387903,
+          "active": false
+        },
+        {
+          "now": 0.125,
+          "current": 4612248968380809216,
+          "desired": 4613937818241073152,
+          "active": true
+        },
+        {
+          "now": 1,
+          "current": 4613937818241073152,
+          "desired": 4613937818241073152,
+          "active": false
+        }
+      ]
+    }
+  ]
+}

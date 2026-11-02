@@ -1,3 +1,5 @@
+#[path = "support/source_output_context.rs"]
+mod source_output_context;
 use deadsync_editor::{
     document::{Document, Format, metadata::Metadata},
     history::Session,
@@ -185,16 +187,29 @@ fn escaped_stepf2_alias_normalization_is_reversible_after_save() {
                 "pump-double"
             );
             assert!(file.session.normalize_stepf2_chart(0).unwrap());
-            let changed = source(format, "pump-routine", "XY00000000");
-            assert_eq!(file.session.serialize().unwrap(), changed.as_bytes());
+            let layout_changed = source(format, "pump-routine", "XY00000000");
+            // Structural normalization materializes the selected timing context
+            // in the resident transaction, before any disk publication.
+            let changed = source_output_context::expected_with_context(
+                layout_changed.as_bytes(), format,
+                source_output_context::Context { sync_offset: 0.0, chart_type: "pump_routine", chart_index: 0 },
+            );
+            assert_eq!(file.session.serialize().unwrap(), changed);
+            assert_eq!(std::fs::read(&path).unwrap(), original.as_bytes());
             file.save().unwrap();
+            assert_eq!(file.session.serialize().unwrap(), changed);
+            let published = std::fs::read(&path).unwrap();
+            assert_eq!(published, changed);
             assert!(file.session.undo().unwrap());
             assert_eq!(file.session.serialize().unwrap(), original.as_bytes());
+            assert_eq!(std::fs::read(&path).unwrap(), published);
             assert!(file.session.redo().unwrap());
+            assert_eq!(file.session.serialize().unwrap(), changed);
             file.save().unwrap();
             let mut reopened = FileSession::open(&path).unwrap();
             assert_eq!(reopened.session.grid(0).unwrap().players(), 2);
-            assert_eq!(std::fs::read(&path).unwrap(), changed.as_bytes());
+            assert_eq!(std::fs::read(&path).unwrap(), published);
+            assert_eq!(reopened.session.serialize().unwrap(), published);
         }
     }
 }

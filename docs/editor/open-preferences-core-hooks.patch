@@ -1,0 +1,106 @@
+--- a/crates/deadsync-editor/src/lib.rs
++++ b/crates/deadsync-editor/src/lib.rs
+@@ -23,6 +23,7 @@
+ pub mod chart_creation;
+ pub mod chart_deletion;
+ pub mod chart_order;
++pub mod open_preferences;
+ pub mod chart_event_copy;
+ pub mod chart_focus;
+ pub mod chart_views;
+--- a/crates/deadsync-editor/src/document.rs
++++ b/crates/deadsync-editor/src/document.rs
+@@ -1,4 +1,5 @@
+ pub mod metadata;
++pub mod chart_type;
+ use crate::Error;
+ use std::{collections::BTreeMap, ops::Range, sync::Arc};
+ 
+--- a/crates/deadsync-editor/src/pack/song_list.rs
++++ b/crates/deadsync-editor/src/pack/song_list.rs
+@@ -1,3 +1,4 @@
+ //! Read-only, bounded pack discovery. Cultural ordering is supplied by the shell.
++use crate::document::chart_type::canonical as canonical_layout;
+ use crate::{
+     Error,
+@@ -149,67 +150,6 @@
+         .iter()
+         .position(|v| *v == kind)
+         .unwrap_or(usize::MAX)
+-}
+-// Original Fumen SMCommon.ChartType order and names, source pin 0fe292f9.
+-const LAYOUTS: &[&str] = &[
+-    "dance-single",
+-    "dance-double",
+-    "dance-couple",
+-    "dance-solo",
+-    "dance-threepanel",
+-    "dance-routine",
+-    "pump-single",
+-    "pump-halfdouble",
+-    "pump-double",
+-    "pump-couple",
+-    "pump-routine",
+-    "kb7-single",
+-    "ez2-single",
+-    "ez2-double",
+-    "ez2-real",
+-    "para-single",
+-    "ds3ddx-single",
+-    "bm-single5",
+-    "bm-versus5",
+-    "bm-double5",
+-    "bm-single7",
+-    "bm-versus7",
+-    "bm-double7",
+-    "maniax-single",
+-    "maniax-double",
+-    "techno-single4",
+-    "techno-single5",
+-    "techno-single8",
+-    "techno-double4",
+-    "techno-double5",
+-    "techno-double8",
+-    "pnm-five",
+-    "pnm-nine",
+-    "lights-cabinet",
+-    "kickbox-human",
+-    "kickbox-quadarm",
+-    "kickbox-insect",
+-    "kickbox-arachnid",
+-    "smx-beginner",
+-    "smx-single",
+-    "smx-dual",
+-    "smx-full",
+-    "smx-team",
+-];
+-fn canonical_layout(value: &str) -> Option<&'static str> {
+-    let value = value.trim().replace('_', "-");
+-    if let Some(layout) = LAYOUTS.iter().find(|layout| **layout == value) {
+-        return Some(*layout);
+-    }
+-    if let Ok(index) = value.parse::<usize>() {
+-        return LAYOUTS.get(index).copied();
+-    }
+-    match value.as_str() {
+-        "smx-double6" => Some("smx-dual"),
+-        "smx-double10" => Some("smx-full"),
+-        "smx-couple" | "smx-routine" => Some("smx-team"),
+-        _ => None,
+-    }
+ }
+ #[derive(Clone, Copy, Debug)]
+ pub struct Limits {
+--- a/crates/deadsync-editor/src/audio_preferences.rs
++++ b/crates/deadsync-editor/src/audio_preferences.rs
+@@ -261,6 +261,10 @@
+     pub fn set_snap(&mut self,snap:crate::snap::Preferences){self.settings.snap=snap;}
+     pub fn receptors(&self)->crate::receptor_preferences::Preferences {self.settings.receptors}
+     pub fn set_receptors(&mut self,p:crate::receptor_preferences::Preferences){self.settings.receptors=p;}
++    /// Shared Options group; no independent preference file or implicit write.
++    pub fn opening(&self) -> Result<crate::open_preferences::Preferences, Error> {
++        crate::open_preferences::Preferences::read(&self.group_fields("Options")?)
++    }
+     pub fn note_colors(&self) -> Result<crate::note_color_preferences::Preferences, Error> {
+         crate::note_color_preferences::Preferences::read(&self.group_fields("NoteColor")?, &self.group_fields("Options")?)
+     }

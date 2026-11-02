@@ -1,0 +1,236 @@
+{
+  "restores": [
+    {
+      "mode": 0,
+      "region": 0,
+      "before": {
+        "mode": 0,
+        "region": 0,
+        "defaults": false,
+        "dirty": false
+      },
+      "after": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      },
+      "undo": true,
+      "undone": {
+        "mode": 0,
+        "region": 0,
+        "defaults": false,
+        "dirty": false
+      },
+      "redo": true,
+      "redone": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      }
+    },
+    {
+      "mode": 0,
+      "region": 1,
+      "before": {
+        "mode": 0,
+        "region": 1,
+        "defaults": false,
+        "dirty": false
+      },
+      "after": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      },
+      "undo": true,
+      "undone": {
+        "mode": 0,
+        "region": 1,
+        "defaults": false,
+        "dirty": false
+      },
+      "redo": true,
+      "redone": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      }
+    },
+    {
+      "mode": 1,
+      "region": 0,
+      "before": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      },
+      "after": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      },
+      "undo": false,
+      "undone": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      },
+      "redo": false,
+      "redone": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      }
+    },
+    {
+      "mode": 1,
+      "region": 1,
+      "before": {
+        "mode": 1,
+        "region": 1,
+        "defaults": false,
+        "dirty": false
+      },
+      "after": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      },
+      "undo": true,
+      "undone": {
+        "mode": 1,
+        "region": 1,
+        "defaults": false,
+        "dirty": false
+      },
+      "redo": true,
+      "redone": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      }
+    },
+    {
+      "mode": 2,
+      "region": 0,
+      "before": {
+        "mode": 2,
+        "region": 0,
+        "defaults": false,
+        "dirty": false
+      },
+      "after": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      },
+      "undo": true,
+      "undone": {
+        "mode": 2,
+        "region": 0,
+        "defaults": false,
+        "dirty": false
+      },
+      "redo": true,
+      "redone": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      }
+    },
+    {
+      "mode": 2,
+      "region": 1,
+      "before": {
+        "mode": 2,
+        "region": 1,
+        "defaults": false,
+        "dirty": false
+      },
+      "after": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      },
+      "undo": true,
+      "undone": {
+        "mode": 2,
+        "region": 1,
+        "defaults": false,
+        "dirty": false
+      },
+      "redo": true,
+      "redone": {
+        "mode": 1,
+        "region": 0,
+        "defaults": true,
+        "dirty": false
+      }
+    }
+  ],
+  "reads": [
+    {
+      "input": "{}",
+      "mode": 1,
+      "region": 0
+    },
+    {
+      "input": "{\"Mode\":\"OverlapCenter\"}",
+      "mode": 1,
+      "region": 0
+    },
+    {
+      "input": "{\"Mode\":\"overlapall\"}",
+      "mode": 2,
+      "region": 0
+    },
+    {
+      "input": "{\"Mode\":\"bogus\"}",
+      "mode": 1,
+      "region": 0
+    },
+    {
+      "input": "{\"Mode\":\"999\"}",
+      "mode": 999,
+      "region": 0
+    },
+    {
+      "input": "{\"Mode\":\"OverlapCenter, OverlapAll\"}",
+      "mode": 3,
+      "region": 0
+    },
+    {
+      "input": "{\"Mode\":1}",
+      "mode": 0,
+      "region": 0
+    },
+    {
+      "input": "{\"Mode\":null}",
+      "mode": 0,
+      "region": 0
+    },
+    {
+      "input": "{\"Mode\":true}",
+      "mode": 0,
+      "region": 0
+    },
+    {
+      "input": "{\"RegionMode\":\"TimeOrPositionAndLane\"}",
+      "mode": 1,
+      "region": 1
+    }
+  ]
+}

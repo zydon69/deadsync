@@ -1,0 +1,3125 @@
+{
+  "sourcePin": "48e18f71655d0f0d86144c63239331833501fda2",
+  "libraryPin": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumenPin": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "culture": "InvariantCulture (Editor.cs431–432)",
+  "execution": "original comparer classes unchanged; actual pinned library configs and normalization; original source string method bodies unchanged; explicit wrapper and ImGui transport stubs, not graphical UI",
+  "pattern": {
+    "entries": [
+      {
+        "id": "ffffffff-0000-0000-0000-000000000001",
+        "name": null,
+        "config": {
+          "BeatSubDivision": 1,
+          "StartingFootChoice": 0,
+          "StartingFootSpecified": 0,
+          "LeftFootStartChoice": 0,
+          "LeftFootStartLaneSpecified": 10,
+          "LeftFootEndChoice": 0,
+          "LeftFootEndLaneSpecified": 10,
+          "RightFootStartChoice": 1,
+          "RightFootStartLaneSpecified": 2,
+          "RightFootEndChoice": 2,
+          "RightFootEndLaneSpecified": 2,
+          "SameArrowStepWeight": 2,
+          "NewArrowStepWeight": 2,
+          "StepTypeCheckPeriod": 0,
+          "LimitSameArrowsInARowPerFoot": true,
+          "MaxSameArrowsInARowPerFoot": 3
+        },
+        "display": "1/4 3 2/2 ? [S|N]->[I|N]"
+      },
+      {
+        "id": "80000000-0000-0000-0000-000000000002",
+        "name": "",
+        "config": {
+          "BeatSubDivision": 2,
+          "StartingFootChoice": 1,
+          "StartingFootSpecified": 1,
+          "LeftFootStartChoice": 1,
+          "LeftFootStartLaneSpecified": 1,
+          "LeftFootEndChoice": 1,
+          "LeftFootEndLaneSpecified": 1,
+          "RightFootStartChoice": 2,
+          "RightFootStartLaneSpecified": 10,
+          "RightFootEndChoice": 3,
+          "RightFootEndLaneSpecified": 2,
+          "SameArrowStepWeight": 9,
+          "NewArrowStepWeight": 9,
+          "StepTypeCheckPeriod": 1,
+          "LimitSameArrowsInARowPerFoot": false,
+          "MaxSameArrowsInARowPerFoot": 9
+        },
+        "display": "1/8 9/9 A [N|A]->[S|A]"
+      },
+      {
+        "id": "7fffffff-ffff-0000-0000-000000000003",
+        "name": "",
+        "config": {
+          "BeatSubDivision": 3,
+          "StartingFootChoice": 2,
+          "StartingFootSpecified": 0,
+          "LeftFootStartChoice": 2,
+          "LeftFootStartLaneSpecified": 2,
+          "LeftFootEndChoice": 2,
+          "LeftFootEndLaneSpecified": 2,
+          "RightFootStartChoice": 3,
+          "RightFootStartLaneSpecified": 2,
+          "RightFootEndChoice": 4,
+          "RightFootEndLaneSpecified": 10,
+          "SameArrowStepWeight": 0,
+          "NewArrowStepWeight": 0,
+          "StepTypeCheckPeriod": 2,
+          "LimitSameArrowsInARowPerFoot": true,
+          "MaxSameArrowsInARowPerFoot": 1
+        },
+        "display": ": 1/12 1 0/0x2 L [A|2]->[N|10]"
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000004",
+        "name": "𐀀",
+        "config": {
+          "BeatSubDivision": 4,
+          "StartingFootChoice": 0,
+          "StartingFootSpecified": 1,
+          "LeftFootStartChoice": 3,
+          "LeftFootStartLaneSpecified": 3,
+          "LeftFootEndChoice": 3,
+          "LeftFootEndLaneSpecified": 3,
+          "RightFootStartChoice": 0,
+          "RightFootStartLaneSpecified": 2,
+          "RightFootEndChoice": 0,
+          "RightFootEndLaneSpecified": 2,
+          "SameArrowStepWeight": 25,
+          "NewArrowStepWeight": 75,
+          "StepTypeCheckPeriod": 4,
+          "LimitSameArrowsInARowPerFoot": false,
+          "MaxSameArrowsInARowPerFoot": 2
+        },
+        "display": "𐀀: 1/16 25/75x4 ? [3|S]->[A|I]"
+      },
+      {
+        "id": "00000000-ffff-0000-0000-000000000005",
+        "name": "é",
+        "config": {
+          "BeatSubDivision": 6,
+          "StartingFootChoice": 1,
+          "StartingFootSpecified": 0,
+          "LeftFootStartChoice": 0,
+          "LeftFootStartLaneSpecified": 4,
+          "LeftFootEndChoice": 4,
+          "LeftFootEndLaneSpecified": 4,
+          "RightFootStartChoice": 1,
+          "RightFootStartLaneSpecified": 2,
+          "RightFootEndChoice": 1,
+          "RightFootEndLaneSpecified": 2,
+          "SameArrowStepWeight": 75,
+          "NewArrowStepWeight": 25,
+          "StepTypeCheckPeriod": 16,
+          "LimitSameArrowsInARowPerFoot": true,
+          "MaxSameArrowsInARowPerFoot": 4
+        },
+        "display": "é: 1/24 4 75/25x16 A [S|N]->[4|S]"
+      },
+      {
+        "id": "00000000-0000-8000-0000-000000000006",
+        "name": "z",
+        "config": {
+          "BeatSubDivision": 48,
+          "StartingFootChoice": 2,
+          "StartingFootSpecified": 1,
+          "LeftFootStartChoice": 1,
+          "LeftFootStartLaneSpecified": 5,
+          "LeftFootEndChoice": 0,
+          "LeftFootEndLaneSpecified": 5,
+          "RightFootStartChoice": 2,
+          "RightFootStartLaneSpecified": 2,
+          "RightFootEndChoice": 2,
+          "RightFootEndLaneSpecified": 2,
+          "SameArrowStepWeight": 1,
+          "NewArrowStepWeight": 0,
+          "StepTypeCheckPeriod": 3,
+          "LimitSameArrowsInARowPerFoot": false,
+          "MaxSameArrowsInARowPerFoot": 0
+        },
+        "display": "z: 1/192 1/0x3 R [N|A]->[I|N]"
+      }
+    ],
+    "columns": [
+      {
+        "name": "NoteType",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                -1,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                0,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                0,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "ffffffff-0000-0000-0000-000000000001",
+              "80000000-0000-0000-0000-000000000002",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-8000-0000-000000000006"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-0000-0000-000000000004",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "RepetitionLimit",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                0,
+                -1,
+                1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                1,
+                0,
+                1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "80000000-0000-0000-0000-000000000002",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-ffff-0000-0000-000000000005"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                -1,
+                -1,
+                -1,
+                1,
+                -1
+              ],
+              [
+                1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                -1,
+                0,
+                -1,
+                1,
+                -1
+              ],
+              [
+                1,
+                -1,
+                1,
+                0,
+                1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                -1
+              ],
+              [
+                1,
+                -1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-ffff-0000-0000-000000000005",
+              "ffffffff-0000-0000-0000-000000000001",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "80000000-0000-0000-0000-000000000002"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "StepType",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                0,
+                1,
+                1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-0000-0000-000000000004",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-8000-0000-000000000006"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                -1,
+                -1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                -1,
+                -1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                -1,
+                0,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-0000-0000-000000000004",
+              "7fffffff-ffff-0000-0000-000000000003"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "StepTypeCheckPeriod",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                -1,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                0,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                0,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                0,
+                -1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "ffffffff-0000-0000-0000-000000000001",
+              "80000000-0000-0000-0000-000000000002",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-ffff-0000-0000-000000000005"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "StartingFoot",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                -1,
+                -1,
+                1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                0,
+                -1,
+                1,
+                1,
+                -1
+              ],
+              [
+                1,
+                1,
+                0,
+                1,
+                1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                -1,
+                -1,
+                1,
+                0,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-0000-0000-000000000004",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-ffff-0000-0000-000000000005",
+              "80000000-0000-0000-0000-000000000002",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-8000-0000-000000000006"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                -1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                -1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                1,
+                1,
+                0,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                -1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-8000-0000-000000000006",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-ffff-0000-0000-000000000005",
+              "80000000-0000-0000-0000-000000000002",
+              "00000000-0000-0000-0000-000000000004",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "StartingFooting",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                1,
+                1,
+                1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-0000-0000-000000000004",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-8000-0000-000000000006",
+              "80000000-0000-0000-0000-000000000002",
+              "00000000-ffff-0000-0000-000000000005",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                -1,
+                -1,
+                -1,
+                1,
+                -1
+              ],
+              [
+                1,
+                0,
+                -1,
+                -1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                0,
+                -1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                0,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                -1
+              ],
+              [
+                1,
+                -1,
+                -1,
+                -1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-ffff-0000-0000-000000000005",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-8000-0000-000000000006",
+              "80000000-0000-0000-0000-000000000002",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-0000-0000-000000000004"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "EndingFooting",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                -1,
+                -1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                -1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "ffffffff-0000-0000-0000-000000000001",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                -1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                0,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                1,
+                0,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                0,
+                -1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0,
+                1
+              ],
+              [
+                -1,
+                1,
+                1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "80000000-0000-0000-0000-000000000002",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-8000-0000-000000000006",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-ffff-0000-0000-000000000005"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Abbreviation",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                -1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "ffffffff-0000-0000-0000-000000000001",
+              "80000000-0000-0000-0000-000000000002"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                0,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                -1,
+                0,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                -1,
+                -1,
+                0,
+                -1
+              ],
+              [
+                1,
+                1,
+                -1,
+                -1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-0000-0000-0000-000000000004",
+              "7fffffff-ffff-0000-0000-000000000003"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Name",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                1,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                0,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                -1,
+                0,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                -1,
+                -1,
+                0,
+                1
+              ],
+              [
+                1,
+                1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-0000-0000-000000000004",
+              "7fffffff-ffff-0000-0000-000000000003"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                1,
+                0,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-8000-0000-000000000006",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          }
+        ]
+      }
+    ],
+    "multiple": {
+      "specs": [
+        {
+          "column": "StepType",
+          "descending": false
+        },
+        {
+          "column": "RepetitionLimit",
+          "descending": true
+        },
+        {
+          "column": "Name",
+          "descending": true
+        }
+      ],
+      "order": [
+        "7fffffff-ffff-0000-0000-000000000003",
+        "00000000-0000-0000-0000-000000000004",
+        "ffffffff-0000-0000-0000-000000000001",
+        "80000000-0000-0000-0000-000000000002",
+        "00000000-ffff-0000-0000-000000000005",
+        "00000000-0000-8000-0000-000000000006"
+      ]
+    }
+  },
+  "performed": {
+    "entries": [
+      {
+        "id": "ffffffff-0000-0000-0000-000000000001",
+        "name": null,
+        "config": {
+          "Transitions": {
+            "Enabled": true,
+            "StepsPerTransitionMin": 0,
+            "StepsPerTransitionMax": 32,
+            "MinimumPadWidth": 5,
+            "TransitionCutoffPercentage": 0.5
+          },
+          "Facing": {
+            "MaxInwardPercentage": 0,
+            "InwardPercentageCutoff": 0.34,
+            "MaxOutwardPercentage": 1,
+            "OutwardPercentageCutoff": 0.34
+          },
+          "LateralTightening": {
+            "Enabled": null,
+            "RelativeNPS": 1,
+            "AbsoluteNPS": 2,
+            "Speed": 1
+          },
+          "StepTightening": {
+            "SpeedTighteningEnabled": true,
+            "SpeedMinTimeSeconds": 0.01,
+            "SpeedMaxTimeSeconds": 0.2,
+            "SpeedTighteningMinDistance": 0,
+            "DistanceTighteningEnabled": true,
+            "DistanceMin": 1,
+            "DistanceMax": 3,
+            "StretchTighteningEnabled": false,
+            "StretchDistanceMin": 0.5,
+            "StretchDistanceMax": 3,
+            "LateralMinPanelDistance": 0,
+            "LongitudinalMinPanelDistance": 0
+          },
+          "ArrowWeights": {}
+        },
+        "display": "1.00S 0T 0%",
+        "travelSpeedMinBpm": 99
+      },
+      {
+        "id": "80000000-0000-0000-0000-000000000002",
+        "name": "",
+        "config": {
+          "Transitions": {
+            "Enabled": false,
+            "StepsPerTransitionMin": 4,
+            "StepsPerTransitionMax": 48,
+            "MinimumPadWidth": 5,
+            "TransitionCutoffPercentage": 0.5
+          },
+          "Facing": {
+            "MaxInwardPercentage": 0.2,
+            "InwardPercentageCutoff": 0.34,
+            "MaxOutwardPercentage": 0.8,
+            "OutwardPercentageCutoff": 0.34
+          },
+          "LateralTightening": {
+            "Enabled": true,
+            "RelativeNPS": 1.25,
+            "AbsoluteNPS": 3,
+            "Speed": 1.5
+          },
+          "StepTightening": {
+            "SpeedTighteningEnabled": true,
+            "SpeedMinTimeSeconds": 0.03,
+            "SpeedMaxTimeSeconds": 0.21000000000000002,
+            "SpeedTighteningMinDistance": 0,
+            "DistanceTighteningEnabled": false,
+            "DistanceMin": 1.25,
+            "DistanceMax": 4,
+            "StretchTighteningEnabled": null,
+            "StretchDistanceMin": 0.6,
+            "StretchDistanceMax": 4,
+            "LateralMinPanelDistance": 0,
+            "LongitudinalMinPanelDistance": 0
+          },
+          "ArrowWeights": {}
+        },
+        "display": "20%",
+        "travelSpeedMinBpm": 300
+      },
+      {
+        "id": "7fffffff-ffff-0000-0000-000000000003",
+        "name": "",
+        "config": {
+          "Transitions": {
+            "Enabled": null,
+            "StepsPerTransitionMin": 8,
+            "StepsPerTransitionMax": 64,
+            "MinimumPadWidth": 5,
+            "TransitionCutoffPercentage": 0.5
+          },
+          "Facing": {
+            "MaxInwardPercentage": 0.4,
+            "InwardPercentageCutoff": 0.34,
+            "MaxOutwardPercentage": 0.6,
+            "OutwardPercentageCutoff": 0.34
+          },
+          "LateralTightening": {
+            "Enabled": false,
+            "RelativeNPS": 1.5,
+            "AbsoluteNPS": 4,
+            "Speed": 2
+          },
+          "StepTightening": {
+            "SpeedTighteningEnabled": null,
+            "SpeedMinTimeSeconds": 0.05,
+            "SpeedMaxTimeSeconds": 0.22,
+            "SpeedTighteningMinDistance": 0,
+            "DistanceTighteningEnabled": null,
+            "DistanceMin": 1.5,
+            "DistanceMax": 5,
+            "StretchTighteningEnabled": true,
+            "StretchDistanceMin": 0.7,
+            "StretchDistanceMax": 5,
+            "LateralMinPanelDistance": 0,
+            "LongitudinalMinPanelDistance": 0
+          },
+          "ArrowWeights": {}
+        },
+        "display": ": 40%",
+        "travelSpeedMinBpm": 125
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000004",
+        "name": "𐀀",
+        "config": {
+          "Transitions": {
+            "Enabled": true,
+            "StepsPerTransitionMin": 12,
+            "StepsPerTransitionMax": 80,
+            "MinimumPadWidth": 5,
+            "TransitionCutoffPercentage": 0.5
+          },
+          "Facing": {
+            "MaxInwardPercentage": 0.6,
+            "InwardPercentageCutoff": 0.34,
+            "MaxOutwardPercentage": 0.4,
+            "OutwardPercentageCutoff": 0.34
+          },
+          "LateralTightening": {
+            "Enabled": null,
+            "RelativeNPS": 1.75,
+            "AbsoluteNPS": 5,
+            "Speed": 2.5
+          },
+          "StepTightening": {
+            "SpeedTighteningEnabled": true,
+            "SpeedMinTimeSeconds": 0.06999999999999999,
+            "SpeedMaxTimeSeconds": 0.23,
+            "SpeedTighteningMinDistance": 0,
+            "DistanceTighteningEnabled": true,
+            "DistanceMin": 1.75,
+            "DistanceMax": 6,
+            "StretchTighteningEnabled": false,
+            "StretchDistanceMin": 0.8,
+            "StretchDistanceMax": 6,
+            "LateralMinPanelDistance": 0,
+            "LongitudinalMinPanelDistance": 0
+          },
+          "ArrowWeights": {}
+        },
+        "display": "𐀀: 1.75S 12T 60%",
+        "travelSpeedMinBpm": 50
+      },
+      {
+        "id": "00000000-ffff-0000-0000-000000000005",
+        "name": "é",
+        "config": {
+          "Transitions": {
+            "Enabled": false,
+            "StepsPerTransitionMin": 16,
+            "StepsPerTransitionMax": 96,
+            "MinimumPadWidth": 5,
+            "TransitionCutoffPercentage": 0.5
+          },
+          "Facing": {
+            "MaxInwardPercentage": 0.8,
+            "InwardPercentageCutoff": 0.34,
+            "MaxOutwardPercentage": 0.2,
+            "OutwardPercentageCutoff": 0.34
+          },
+          "LateralTightening": {
+            "Enabled": true,
+            "RelativeNPS": 2,
+            "AbsoluteNPS": 6,
+            "Speed": 3
+          },
+          "StepTightening": {
+            "SpeedTighteningEnabled": false,
+            "SpeedMinTimeSeconds": 0.09,
+            "SpeedMaxTimeSeconds": 0.24000000000000002,
+            "SpeedTighteningMinDistance": 0,
+            "DistanceTighteningEnabled": false,
+            "DistanceMin": 2,
+            "DistanceMax": 7,
+            "StretchTighteningEnabled": null,
+            "StretchDistanceMin": 0.9,
+            "StretchDistanceMax": 7,
+            "LateralMinPanelDistance": 0,
+            "LongitudinalMinPanelDistance": 0
+          },
+          "ArrowWeights": {}
+        },
+        "display": "é: 80%",
+        "travelSpeedMinBpm": 200
+      },
+      {
+        "id": "00000000-0000-8000-0000-000000000006",
+        "name": "z",
+        "config": {
+          "Transitions": {
+            "Enabled": null,
+            "StepsPerTransitionMin": 20,
+            "StepsPerTransitionMax": 112,
+            "MinimumPadWidth": 5,
+            "TransitionCutoffPercentage": 0.5
+          },
+          "Facing": {
+            "MaxInwardPercentage": 1,
+            "InwardPercentageCutoff": 0.34,
+            "MaxOutwardPercentage": 0,
+            "OutwardPercentageCutoff": 0.34
+          },
+          "LateralTightening": {
+            "Enabled": false,
+            "RelativeNPS": 2.25,
+            "AbsoluteNPS": 7,
+            "Speed": 3.5
+          },
+          "StepTightening": {
+            "SpeedTighteningEnabled": null,
+            "SpeedMinTimeSeconds": 0.11,
+            "SpeedMaxTimeSeconds": 0.25,
+            "SpeedTighteningMinDistance": 0,
+            "DistanceTighteningEnabled": null,
+            "DistanceMin": 2.25,
+            "DistanceMax": 8,
+            "StretchTighteningEnabled": true,
+            "StretchDistanceMin": 1,
+            "StretchDistanceMax": 8,
+            "LateralMinPanelDistance": 0,
+            "LongitudinalMinPanelDistance": 0
+          },
+          "ArrowWeights": {}
+        },
+        "display": "z",
+        "travelSpeedMinBpm": 90
+      }
+    ],
+    "columns": [
+      {
+        "name": "StepSpeedMin",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                -1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                0,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-0000-0000-000000000004",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                -1,
+                1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                0,
+                -1,
+                1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                -1,
+                1,
+                0,
+                1
+              ],
+              [
+                1,
+                1,
+                -1,
+                1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-0000-0000-000000000004",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "7fffffff-ffff-0000-0000-000000000003"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "StepDistanceMin",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                -1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                -1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                -1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                0,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-0000-0000-000000000004"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                -1,
+                -1,
+                1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                -1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                -1,
+                -1,
+                1,
+                0,
+                1
+              ],
+              [
+                1,
+                -1,
+                -1,
+                1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-0000-0000-000000000004",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "StepStretchMin",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                1,
+                -1,
+                1,
+                1,
+                -1
+              ],
+              [
+                -1,
+                0,
+                -1,
+                1,
+                1,
+                -1
+              ],
+              [
+                1,
+                1,
+                0,
+                1,
+                1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                1,
+                0,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-ffff-0000-0000-000000000005",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-8000-0000-000000000006"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                -1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                0,
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-8000-0000-000000000006",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-ffff-0000-0000-000000000005",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "LateralSpeed",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                -1,
+                1,
+                1,
+                -1,
+                1
+              ],
+              [
+                1,
+                0,
+                1,
+                1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "ffffffff-0000-0000-0000-000000000001",
+              "80000000-0000-0000-0000-000000000002",
+              "00000000-ffff-0000-0000-000000000005"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                -1,
+                -1,
+                1,
+                -1
+              ],
+              [
+                -1,
+                1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                1,
+                -1,
+                0,
+                1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                -1
+              ],
+              [
+                -1,
+                1,
+                -1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-ffff-0000-0000-000000000005",
+              "80000000-0000-0000-0000-000000000002",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "LateralRelativeNPS",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                -1,
+                1,
+                1,
+                -1,
+                1
+              ],
+              [
+                1,
+                0,
+                1,
+                1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "ffffffff-0000-0000-0000-000000000001",
+              "80000000-0000-0000-0000-000000000002",
+              "00000000-ffff-0000-0000-000000000005"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                -1,
+                -1,
+                1,
+                -1
+              ],
+              [
+                -1,
+                1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                1,
+                -1,
+                0,
+                1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                -1
+              ],
+              [
+                -1,
+                1,
+                -1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-ffff-0000-0000-000000000005",
+              "80000000-0000-0000-0000-000000000002",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "LateralAbsoluteNPS",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                -1,
+                1,
+                1,
+                -1,
+                1
+              ],
+              [
+                1,
+                0,
+                1,
+                1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                1,
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "ffffffff-0000-0000-0000-000000000001",
+              "80000000-0000-0000-0000-000000000002",
+              "00000000-ffff-0000-0000-000000000005"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                -1,
+                -1,
+                1,
+                -1
+              ],
+              [
+                -1,
+                1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                1,
+                -1,
+                0,
+                1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                -1
+              ],
+              [
+                -1,
+                1,
+                -1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-ffff-0000-0000-000000000005",
+              "80000000-0000-0000-0000-000000000002",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "TransitionMin",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                -1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                -1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                -1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                0,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-0000-0000-000000000004"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "TransitionMax",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                -1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                -1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                -1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                0,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-0000-0000-000000000004"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                -1,
+                -1,
+                1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                -1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                -1,
+                -1,
+                1,
+                0,
+                1
+              ],
+              [
+                1,
+                -1,
+                -1,
+                1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-0000-0000-000000000004",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "FacingInwardLimit",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                -1,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                0,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                0,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "ffffffff-0000-0000-0000-000000000001",
+              "80000000-0000-0000-0000-000000000002",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-8000-0000-000000000006"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-0000-0000-000000000004",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "FacingOutwardLimit",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                0,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-0000-0000-000000000004",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                -1,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                0,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                0,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "ffffffff-0000-0000-0000-000000000001",
+              "80000000-0000-0000-0000-000000000002",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-8000-0000-000000000006"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Abbreviation",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                -1,
+                -1,
+                -1,
+                -1,
+                1
+              ],
+              [
+                1,
+                0,
+                -1,
+                1,
+                -1,
+                1
+              ],
+              [
+                1,
+                1,
+                0,
+                1,
+                -1,
+                1
+              ],
+              [
+                1,
+                -1,
+                -1,
+                0,
+                -1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0,
+                1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-0000-8000-0000-000000000006",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-0000-0000-000000000004",
+              "80000000-0000-0000-0000-000000000002",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-ffff-0000-0000-000000000005"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                -1
+              ],
+              [
+                -1,
+                0,
+                1,
+                -1,
+                1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                -1,
+                1,
+                -1
+              ],
+              [
+                -1,
+                1,
+                1,
+                0,
+                1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                -1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "00000000-ffff-0000-0000-000000000005",
+              "7fffffff-ffff-0000-0000-000000000003",
+              "80000000-0000-0000-0000-000000000002",
+              "00000000-0000-0000-0000-000000000004",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-8000-0000-000000000006"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Name",
+        "trials": [
+          {
+            "descending": false,
+            "comparisons": [
+              [
+                0,
+                1,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                0,
+                -1,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                1,
+                1,
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                -1,
+                0,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                -1,
+                -1,
+                0,
+                1
+              ],
+              [
+                1,
+                1,
+                -1,
+                -1,
+                -1,
+                0
+              ]
+            ],
+            "order": [
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001",
+              "00000000-0000-8000-0000-000000000006",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-0000-0000-000000000004",
+              "7fffffff-ffff-0000-0000-000000000003"
+            ]
+          },
+          {
+            "descending": true,
+            "comparisons": [
+              [
+                0,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                0,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                -1,
+                -1,
+                0,
+                -1,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                0,
+                -1,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                1,
+                0,
+                -1
+              ],
+              [
+                -1,
+                -1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "order": [
+              "7fffffff-ffff-0000-0000-000000000003",
+              "00000000-0000-0000-0000-000000000004",
+              "00000000-ffff-0000-0000-000000000005",
+              "00000000-0000-8000-0000-000000000006",
+              "80000000-0000-0000-0000-000000000002",
+              "ffffffff-0000-0000-0000-000000000001"
+            ]
+          }
+        ]
+      }
+    ],
+    "multiple": {
+      "specs": [
+        {
+          "column": "StepSpeedMin",
+          "descending": true
+        },
+        {
+          "column": "StepDistanceMin",
+          "descending": false
+        },
+        {
+          "column": "Name",
+          "descending": true
+        }
+      ],
+      "order": [
+        "80000000-0000-0000-0000-000000000002",
+        "ffffffff-0000-0000-0000-000000000001",
+        "00000000-0000-0000-0000-000000000004",
+        "7fffffff-ffff-0000-0000-000000000003",
+        "00000000-ffff-0000-0000-000000000005",
+        "00000000-0000-8000-0000-000000000006"
+      ]
+    }
+  },
+  "pairComparisons": 1512
+}

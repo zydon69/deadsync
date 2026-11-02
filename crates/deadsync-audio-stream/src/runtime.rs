@@ -1,3 +1,6 @@
+mod editor;
+pub use editor::EditorPreviewCursor;
+pub use editor::{EditorLogicalPhase, EditorAudioGains, EditorAudioStatus, EditorTickKind, EditorOutputAck, EditorOutputEvent, EditorOutputUpdate};
 #[cfg(target_os = "linux")]
 use deadlib_audio::LinuxAudioBackend;
 use deadlib_audio::{InitConfig, prepare_output};
@@ -19,6 +22,10 @@ use crate::sfx_cache::SfxCache;
 use crate::{MusicClock, SfxId};
 use deadlib_audio::stream::{self, Cut, OutputFormat, StreamCommand};
 
+mod output_reconfigure;
+pub use output_reconfigure::{OutputRestoreReceipt, ReconfigureAck};
+use output_reconfigure::OutputReconfigure;
+
 static REPLAYGAIN_ENABLED: AtomicBool = AtomicBool::new(false);
 static PRESERVE_PITCH_ENABLED: AtomicBool = AtomicBool::new(false);
 
@@ -28,11 +35,24 @@ static PRESERVE_PITCH_ENABLED: AtomicBool = AtomicBool::new(false);
 /// the same API but has no shared runtime state. `AudioControl` is deliberately
 /// non-`Clone`: `App` is the only producer for the callback's bounded ring.
 pub struct AudioControl {
+    output_reconfigure: OutputReconfigure,
     engine: Option<AudioEngine>,
     music_request: Cell<Option<f32>>,
+    editor: editor::Scope,
+}
+
+struct LiveOutput {
+    manager: stream::StreamManager,
+    plan: std::sync::Arc<deadlib_audio::OutputPlan>,
+    config: InitConfig,
+    controls: std::sync::Arc<deadlib_audio_core::MixControls>,
+    buffers: deadlib_audio_core::OutputBufferState,
+    backend: &'static str,
+    device: String,
 }
 
 struct AudioEngine {
+    live: Option<LiveOutput>,
     command_sender: Sender<StreamCommand>,
     decoder_status: stream::lifecycle::DecoderStatusMonitor,
     sfx_cache: SfxCache,
@@ -72,20 +92,30 @@ pub fn init(
     })
     .map_err(str::to_string)?;
     let controls = init_controls();
-    let output_plan = prepare_output(&cfg, controls.clone());
+    let mut output_plan = prepare_output(&cfg, controls.clone());
     let startup_output_devices = output_plan.devices().to_vec();
     let stream::StreamReady {
+        manager,
+        buffers,
         command_sender,
         backend_ready: ready,
         sfx_sender,
         played_map,
         decoder_status,
-    } = stream::start(output_plan)?;
+    } = stream::start(output_plan.clone())?;
+    output_plan.pin_backend(ready.backend_name);
     let music_clock = MusicClock::new(played_map, ready.device_sample_rate);
     Ok((
         AudioControl {
+            output_reconfigure: OutputReconfigure::new(),
             music_request: Cell::new(None),
+            editor: editor::Scope::new(),
             engine: Some(AudioEngine {
+                live: Some(LiveOutput {
+                    manager, plan: std::sync::Arc::new(output_plan), config: cfg,
+                    controls: controls.clone(), buffers, backend: ready.backend_name,
+                    device: ready.device_name.clone(),
+                }),
                 command_sender,
                 decoder_status,
                 sfx_cache: SfxCache::new(controls, sfx_sender),
@@ -133,8 +163,10 @@ impl AudioControl {
     #[must_use]
     pub const fn without_audio() -> Self {
         Self {
+            output_reconfigure: OutputReconfigure::new(),
             engine: None,
             music_request: Cell::new(None),
+            editor: editor::Scope::new(),
         }
     }
 
@@ -152,6 +184,14 @@ impl AudioControl {
     /// Loads a sound for later playback; call during startup or screen/song preparation.
     ///
     /// Returns `None` when audio is unavailable or the sound cannot be loaded.
+    /// Prepare an editor tick float clip outside render/update callbacks.
+    pub fn editor_tick_output_format(&self) -> Option<OutputFormat> {
+        self.engine.as_ref().map(|engine| engine.output)
+    }
+    pub fn prepare_editor_tick(&mut self, path: &Path) -> Option<SfxId> {
+        let engine = self.engine.as_mut()?;
+        engine.sfx_cache.prepare_editor_tick(path, engine.output)
+    }
     pub fn prepare_sfx(&mut self, path: &Path) -> Option<SfxId> {
         let engine = self.engine.as_mut()?;
         engine.sfx_cache.prepare(path, engine.output)
@@ -233,6 +273,7 @@ impl AudioControl {
     }
 
     pub fn play_music(&self, path: PathBuf, cut: Cut, looping: bool, rate: f32) {
+        self.release_editor_audio();
         self.music_request
             .set(self.engine.as_ref().map(|_| normalized_music_rate(rate)));
         play_music(self.engine.as_ref(), path, cut, looping, rate);
@@ -244,7 +285,7 @@ impl AudioControl {
     pub fn decoder_status(&self) -> Option<stream::lifecycle::DecoderSnapshot> {
         let engine = self.engine.as_ref()?;
         let snapshot = engine.decoder_status.snapshot()?;
-        (snapshot.command_generation == deadlib_audio_core::music_map_generation())
+        (snapshot.command_generation == deadlib_audio_core::music_map_generation() && snapshot.asset_epoch == deadlib_audio_core::music_asset_epoch())
             .then_some(snapshot)
     }
 
@@ -258,17 +299,20 @@ impl AudioControl {
     /// Seek the current decoder. The manager serializes this with pending Play/Stop.
     /// Invalid input and a disabled audio engine do not alter the shared clock.
     pub fn seek_music(&self, seconds: f64) {
+        self.release_editor_audio();
         if let (Some(engine), Some(rate)) = (self.engine.as_ref(), self.music_request.get()) {
             seek_music(&engine.command_sender, seconds, rate);
         }
     }
 
     pub fn stop_music(&self) {
+        self.release_editor_audio();
         self.music_request.set(None);
         stop_music(self.engine.as_ref());
     }
 
     pub fn set_music_rate(&self, rate: f32) {
+        self.release_editor_audio();
         if self.music_request.get().is_some() {
             self.music_request.set(Some(normalized_music_rate(rate)));
         }
@@ -277,6 +321,9 @@ impl AudioControl {
 
     pub fn set_preserve_pitch_enabled(&self, enabled: bool) {
         set_preserve_pitch_enabled(enabled);
+        // The gameplay preference is retained for the next gameplay stream.
+        // Source editor music uses rate resampling, independently of this option.
+        if self.editor_music_owner().is_some() { return; }
         if let Some(engine) = self.engine.as_ref() {
             let generation = clear_music_pos_map();
             let _ = engine.command_sender.send(StreamCommand::SetPreservePitch {
@@ -316,12 +363,28 @@ fn seek_music(sender: &Sender<StreamCommand>, seconds: f64, rate: f32) {
 }
 
 fn play_music(engine: Option<&AudioEngine>, path: PathBuf, cut: Cut, looping: bool, rate: f32) {
+    play_music_with_pitch(engine,path,cut,looping,rate,preserve_pitch_enabled());
+}
+
+fn play_music_with_pitch(engine: Option<&AudioEngine>, path: PathBuf, cut: Cut, looping: bool, rate: f32, preserve_pitch: bool) {
+    play_music_with_policy(engine,path,cut,looping,rate,preserve_pitch,ReplayGainPolicy::Gameplay);
+}
+
+#[derive(Clone,Copy,Eq,PartialEq)]
+enum ReplayGainPolicy{Gameplay,Editor}
+
+fn play_music_with_policy(engine:Option<&AudioEngine>,path:PathBuf,cut:Cut,looping:bool,rate:f32,preserve_pitch:bool,replaygain_policy:ReplayGainPolicy){
+    let allow_replaygain=replaygain_policy==ReplayGainPolicy::Gameplay;
     let rate = normalized_music_rate(rate);
     let generation = reset_music_stream_clock();
+    let asset_epoch=deadlib_audio_core::advance_music_asset_epoch();
+    deadlib_audio_core::resume_music_track();
     deadlib_audio_core::seed_music_stream_clock(cut.start_sec, rate);
 
+    let gain_guard=replaygain_track_guard();
     let track_id = deadlib_audio_core::next_music_track_id();
-    let initial_gain = if replaygain_enabled() {
+    if !allow_replaygain{EDITOR_REPLAYGAIN_EXCLUDED_TRACK.store(track_id,Ordering::Release);}
+    let initial_gain = if allow_replaygain && replaygain_enabled() {
         replaygain::get_or_queue_gain_linear(&path, track_id).unwrap_or(1.0)
     } else {
         1.0
@@ -330,15 +393,17 @@ fn play_music(engine: Option<&AudioEngine>, path: PathBuf, cut: Cut, looping: bo
     // Snap to the new target at the track boundary so the previous track's
     // gain doesn't audibly bleed into the start of this one.
     deadlib_audio_core::snap_music_gain_generation();
+    drop(gain_guard);
 
     if let Some(engine) = engine {
         let _ = engine.command_sender.send(StreamCommand::PlayMusic {
+            asset_epoch,
             decode_options: crate::DECODE_OPTIONS,
             path,
             cut,
             looping,
             rate,
-            preserve_pitch: preserve_pitch_enabled(),
+            preserve_pitch,
             generation,
         });
     }
@@ -346,10 +411,12 @@ fn play_music(engine: Option<&AudioEngine>, path: PathBuf, cut: Cut, looping: bo
 
 /// Applies a `ReplayGain` result from the background analyzer, but only if it
 /// still corresponds to the currently active music track. Called by
-/// `deadsync_audio_replaygain`; safe to call from any thread.
+/// `deadsync_audio_replaygain` on its analysis thread. This control-plane API
+/// serializes track changes and must not be called by an audio callback.
 pub fn set_music_replaygain_if_matches(track_id: u64, gain_linear: f32) {
+    let _guard=replaygain_track_guard();
     let active_id = deadlib_audio_core::active_music_track_id();
-    if active_id != track_id {
+    if active_id != track_id || EDITOR_REPLAYGAIN_EXCLUDED_TRACK.load(Ordering::Acquire)==track_id {
         return;
     }
     if !deadlib_audio_core::music_track_active() {
@@ -359,11 +426,13 @@ pub fn set_music_replaygain_if_matches(track_id: u64, gain_linear: f32) {
 }
 
 fn stop_music(engine: Option<&AudioEngine>) {
+    let asset_epoch=deadlib_audio_core::advance_music_asset_epoch();
+    deadlib_audio_core::resume_music_track();
     reset_music_stream_clock();
     deadlib_audio_core::reset_music_target_gain();
     deadlib_audio_core::snap_music_gain_generation();
     if let Some(engine) = engine {
-        let _ = engine.command_sender.send(StreamCommand::StopMusic);
+        let _ = engine.command_sender.send(StreamCommand::StopMusic{asset_epoch});
     }
 }
 
@@ -401,7 +470,9 @@ mod seek_tests {
         let (sender, receiver) = std::sync::mpsc::channel();
         let (sfx_sender, _sfx_receiver) = deadlib_audio_core::sfx_transport(8);
         let audio = AudioControl {
+            output_reconfigure: OutputReconfigure::new(),
             engine: Some(AudioEngine {
+                live: None,
                 command_sender: sender,
                 decoder_status: monitor,
                 sfx_cache: SfxCache::new(std::sync::Arc::new(deadlib_audio_core::MixControls::new()), sfx_sender),
@@ -409,6 +480,7 @@ mod seek_tests {
                 startup_output_devices: Vec::new(),
             }),
             music_request: Cell::new(None),
+            editor: editor::Scope::new(),
         };
         assert!(audio.decoder_status().is_none());
         assert!(AudioControl::without_audio().decoder_status().is_none());
@@ -419,7 +491,7 @@ mod seek_tests {
         let generation = audio.music_command_generation().unwrap();
         runtime.handle(receiver.try_recv().unwrap());
         // Stop joins the worker, avoiding a sleep or race with its open failure.
-        runtime.handle(StreamCommand::StopMusic);
+        runtime.handle(StreamCommand::StopMusic{asset_epoch:deadlib_audio_core::music_asset_epoch()});
         let status = audio.decoder_status().unwrap();
         assert_eq!(status.command_generation, generation);
         assert_eq!(status.phase, stream::lifecycle::DecoderPhase::Stopped);
@@ -479,7 +551,9 @@ mod seek_tests {
         assert!(rx.try_recv().is_err());
         let (sfx_sender, _sfx_receiver) = deadlib_audio_core::sfx_transport(8);
         let audio = AudioControl {
+            output_reconfigure: OutputReconfigure::new(),
             engine: Some(AudioEngine {
+                live: None,
                 command_sender: tx,
                 decoder_status: Default::default(),
                 sfx_cache: SfxCache::new(std::sync::Arc::new(MixControls::new()), sfx_sender),
@@ -490,6 +564,7 @@ mod seek_tests {
                 startup_output_devices: Vec::new(),
             }),
             music_request: Cell::new(None),
+            editor: editor::Scope::new(),
         };
         audio.seek_music(1.0);
         assert_eq!(music_map_generation(), generation);
@@ -525,7 +600,7 @@ mod seek_tests {
         ));
         assert_eq!(seeded_music_position(0.0), Some((0.25, 1.2)));
         audio.stop_music();
-        assert!(matches!(rx.try_recv().unwrap(), StreamCommand::StopMusic));
+        assert!(matches!(rx.try_recv().unwrap(), StreamCommand::StopMusic{..}));
         let stopped = music_map_generation();
         audio.seek_music(1.0);
         assert_eq!(music_map_generation(), stopped);
@@ -533,5 +608,38 @@ mod seek_tests {
         stop_music_track();
         reset_music_stream_clock_state();
         reset_music_target_gain();
+    }
+}
+
+// Immutable track IDs prevent late background gameplay analysis from applying
+// to editor playback. A new gameplay ID remains eligible without global reset.
+static EDITOR_REPLAYGAIN_EXCLUDED_TRACK:std::sync::atomic::AtomicU64=std::sync::atomic::AtomicU64::new(0);
+fn begin_editor_unity_replaygain(){
+    let _guard=replaygain_track_guard();
+    let track_id=deadlib_audio_core::next_music_track_id();
+    EDITOR_REPLAYGAIN_EXCLUDED_TRACK.store(track_id,Ordering::Release);
+    deadlib_audio_core::set_music_target_gain(1.);
+    deadlib_audio_core::snap_music_gain_generation();
+}
+
+// Control/analysis threads only. Audio callbacks never acquire this guard.
+// Serialize ID replacement+unity with tagged analysis so an analysis which read
+// an old ID immediately before editor acceptance cannot write gain afterward.
+static REPLAYGAIN_TRACK_GUARD:std::sync::Mutex<()>=std::sync::Mutex::new(());
+fn replaygain_track_guard()->std::sync::MutexGuard<'static,()>{REPLAYGAIN_TRACK_GUARD.lock().unwrap_or_else(|poison|poison.into_inner())}
+
+#[cfg(test)]
+mod editor_replaygain_policy_tests {
+    use super::*;
+    #[test]
+    fn legacy_editor_track_rejects_tagged_gain_and_next_gameplay_track_remains_eligible(){
+        let _serial=crate::CLOCK_TEST_LOCK.lock().unwrap();
+        let enabled=replaygain_enabled();set_replaygain_enabled(false);
+        deadlib_audio_core::activate_music_track();
+        play_music_with_policy(None,PathBuf::from("editor.wav"),Cut{start_sec:0.25,length_sec:0.75,..Default::default()},true,1.35,false,ReplayGainPolicy::Editor);
+        deadlib_audio_core::activate_music_track();let editor=deadlib_audio_core::active_music_track_id();set_music_replaygain_if_matches(editor,0.125);assert_eq!(deadlib_audio_core::music_target_gain(),1.);
+        play_music(None,PathBuf::from("gameplay.wav"),Cut::default(),false,1.);
+        deadlib_audio_core::activate_music_track();let gameplay=deadlib_audio_core::active_music_track_id();assert_ne!(gameplay,editor);set_music_replaygain_if_matches(gameplay,0.375);assert_eq!(deadlib_audio_core::music_target_gain(),0.375);set_music_replaygain_if_matches(editor,2.);assert_eq!(deadlib_audio_core::music_target_gain(),0.375);
+        set_replaygain_enabled(enabled);deadlib_audio_core::reset_music_target_gain();
     }
 }

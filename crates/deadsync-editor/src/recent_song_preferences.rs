@@ -71,7 +71,14 @@ fn chart(fields: &Map<String, Value>) -> Result<SavedChart, Error> {
     })
 }
 impl Record {
-    pub fn read(mut fields: Map<String, Value>) -> Result<Self, Error> {
+    pub fn read(fields:Map<String,Value>)->Result<Self,Error>{
+        // A native chartless descriptor is intentional. Only obsolete fields or
+        // a missing/null modern list identify a legacy record at this boundary.
+        let migrate=fields.contains_key("LastChartType")||fields.contains_key("LastChartDifficultyType")||!matches!(fields.get("ActiveCharts"),Some(Value::Array(_)));
+        Self::read_with_migration(fields,migrate)
+    }
+    pub fn read_source(fields:Map<String,Value>)->Result<Self,Error>{Self::read_with_migration(fields,true)}
+    fn read_with_migration(mut fields: Map<String, Value>,migrate:bool) -> Result<Self, Error> {
         let empty = match fields.get("ActiveCharts") {
             None | Some(Value::Null) => true,
             Some(Value::Array(values)) => values.is_empty(),
@@ -81,7 +88,7 @@ impl Record {
                 ));
             }
         };
-        if empty {
+        if empty && migrate {
             // SavedSongInformation.PostLoad migration, not a modern empty list.
             let old = enum_fields(
                 fields.get("LastChartType"),
@@ -180,7 +187,9 @@ impl Record {
     }
 }
 impl Preferences {
-    pub fn read(root: &Map<String, Value>) -> Result<Self, Error> {
+    pub fn read(root:&Map<String,Value>)->Result<Self,Error>{Self::read_with_source(root,false)}
+    pub fn read_source(root:&Map<String,Value>)->Result<Self,Error>{Self::read_with_source(root,true)}
+    fn read_with_source(root: &Map<String, Value>,source:bool) -> Result<Self, Error> {
         let options = match root.get("Options") {
             None => None,
             Some(Value::Object(options)) => Some(options),
@@ -203,13 +212,12 @@ impl Preferences {
             Some(Value::Array(values)) => values
                 .iter()
                 .map(|v| {
-                    Record::read(
-                        v.as_object()
+                    let fields=v.as_object()
                             .ok_or_else(|| {
                                 Error::InvalidFormat("Recent song must be an object".into())
                             })?
-                            .clone(),
-                    )
+                            .clone();
+                    if source{Record::read_source(fields)}else{Record::read(fields)}
                 })
                 .collect::<Result<_, _>>()?,
             _ => return Err(Error::InvalidFormat("RecentFiles must be an array".into())),
@@ -289,7 +297,7 @@ mod tests {
                 }
                 let mut fields = input["Saved"].as_object().unwrap().clone();
                 fields.insert("FileName".into(), "pack/song/song.ssc".into());
-                let record = Record::read(fields).unwrap();
+                let record = Record::read_source(fields).unwrap();
                 let song = record.song().unwrap();
                 assert_eq!(
                     serde_json::json!(song.focused.map(|v| v as i64).unwrap_or(-1)),
@@ -352,4 +360,14 @@ mod tests {
         let record = Record::read(Map::new()).unwrap();
         assert!(record.song().is_err(), "a missing path cannot be opened");
     }
+}
+
+#[cfg(test)]mod native_chartless_boundary_tests{
+ use super::*;
+ #[test]fn native_empty_chart_descriptor_survives_file_read_cas_save_and_reopen(){
+  let root=tempfile::tempdir().unwrap();let path=root.path().join("prefs.json");std::fs::write(&path,br#"{"Version":1,"RecentFiles":[{"FileName":"song.ssc","ActiveCharts":[],"FocusedChartIndex":-1,"Future":17}]}"#).unwrap();
+  let mut file=crate::audio_preferences::File::open(&path).unwrap();let mut song=file.recent_songs().entries[0].song().unwrap();assert!(song.active.is_empty());assert_eq!(song.focused,None);assert!(!file.has_changes());
+  song.chart_position=12.5;file.record_recent_song(&song).unwrap();file.save().unwrap();let reopened=crate::audio_preferences::File::open(&path).unwrap();assert_eq!(reopened.recent_songs(),file.recent_songs());assert_eq!(reopened.recent_songs().entries[0].fields["Future"],17);assert!(reopened.recent_songs().entries[0].song().unwrap().active.is_empty());
+ }
+ #[test]fn explicit_source_empty_still_receives_original_postload_defaults(){let fields=serde_json::json!({"FileName":"song.ssc","ActiveCharts":[],"FocusedChartIndex":-1}).as_object().unwrap().clone();assert!(Record::read(fields.clone()).unwrap().song().unwrap().active.is_empty());let source=Record::read_source(fields).unwrap().song().unwrap();assert_eq!(source.active.len(),1);assert_eq!(source.active[0].steps_type,"dance-single");assert_eq!(source.focused,Some(0));}
 }

@@ -1,5 +1,6 @@
 //! Pack metadata model. Filesystem publication is deliberately owned by the caller.
 pub mod storage;
+pub mod banner;
 pub mod song_list;
 mod codec;
 pub use codec::Document;

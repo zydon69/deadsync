@@ -1,0 +1,69 @@
+{
+  "Cases": [
+    {
+      "Name": "loaded-initial-node-normalization",
+      "Types": [
+        "Tempo",
+        "Signature"
+      ],
+      "Source": {
+        "Layout": "dance-single",
+        "Players": 1,
+        "Events": [
+          {
+            "Kind": "Tempo",
+            "Row": 16,
+            "Bpm": 180
+          },
+          {
+            "Kind": "Tempo",
+            "Row": 192,
+            "Bpm": 240
+          },
+          {
+            "Kind": "Signature",
+            "Row": 16,
+            "N": 2,
+            "D": 2
+          },
+          {
+            "Kind": "Signature",
+            "Row": 384,
+            "N": 3,
+            "D": 4
+          }
+        ]
+      },
+      "Destinations": [
+        {
+          "Layout": "dance-single",
+          "Players": 1,
+          "Events": [
+            {
+              "Kind": "Tempo",
+              "Row": 48,
+              "Bpm": 90
+            },
+            {
+              "Kind": "Tempo",
+              "Row": 96,
+              "Bpm": 110
+            },
+            {
+              "Kind": "Signature",
+              "Row": 48,
+              "N": 4,
+              "D": 4
+            },
+            {
+              "Kind": "Signature",
+              "Row": 192,
+              "N": 5,
+              "D": 8
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

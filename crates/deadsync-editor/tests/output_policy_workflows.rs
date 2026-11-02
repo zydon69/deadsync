@@ -30,7 +30,22 @@ fn native_lossless_retains_unknown_bytes_and_chartless_documents() {
         let mut s=Session::new(Document::parse(source,Format::Ssc).unwrap());
         let policy=OutputPolicy::NativeLossless;let p=prepare(&policy,&mut s);
         assert!(p.issues().is_empty());let out=p.generate(&s,&BTreeSet::new(),1<<20,&AtomicBool::new(false)).unwrap();
-        assert_eq!(out.bytes(),source);assert_eq!(out.format(),Format::Ssc);assert!(out.is_current(&s));assert!(!s.is_dirty());
+        // Native output materializes the resident opening context; the live
+        // document and every unknown property's original spelling stay exact.
+        assert_eq!(s.serialize().unwrap(),source);
+        assert_eq!(out.bytes(),s.serialize_for_output().unwrap());
+        for raw in [b"#vendor: x\\;y /*raw*/;".as_slice(), b"#VENDOR:custom\\;text;", b"#LOCALVENDOR:Keep;", b"#NOTES:1000;"] {
+            if source.windows(raw.len()).any(|window|window==raw) {
+                assert!(out.bytes().windows(raw.len()).any(|window|window==raw));
+            }
+        }
+        let reopened=Document::parse(out.bytes(),Format::Ssc).unwrap();
+        assert_eq!(reopened.charts().len(),s.document().charts().len());
+        let metadata:serde_json::Value=serde_json::from_str(&reopened.text(None,"GASongData").unwrap()).unwrap();
+        assert_eq!(metadata["SyncOffset"].as_f64(),Some(0.009));
+        assert_eq!(metadata["DefaultChartType"].as_str(),(!s.document().charts().is_empty()).then_some("dance_single"));
+        assert_eq!(metadata["DefaultChartIndex"],0);
+        assert_eq!(out.format(),Format::Ssc);assert!(out.is_current(&s));assert!(!s.is_dirty());
         assert!(p.generate(&s,&BTreeSet::from([0]),1<<20,&AtomicBool::new(false)).is_err());
     }
 }

@@ -1,0 +1,2181 @@
+{
+  "Callbacks": [
+    {
+      "format": "sm",
+      "end": false,
+      "time": -1.25,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 0,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 0,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": -1.25,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": -1.25,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 0,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 0,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 0,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 0,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 0,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 0.125,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 0.125,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 0.125,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 0.125,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 0.125,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 1.25,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 1.25,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 1.25,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 2,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 2,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 2,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 2,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 2,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 7.123456789,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 7.123456789,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 7.123456789,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 7.123456789,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": false,
+      "time": 7.123456789,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": -1.25,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 0,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 0,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": -1.25,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": -1.25,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 0,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 0,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 0,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 0,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 0,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 0.125,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 0.125,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 0.125,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 0.125,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 0.125,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 1.25,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 1.25,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 1.25,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 1.25,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 1.25,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 2,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 2,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 2,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 7.123456789,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 7.123456789,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 7.123456789,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 7.123456789,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "sm",
+      "end": true,
+      "time": 7.123456789,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": -1.25,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 0,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 0,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": -1.25,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": -1.25,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 0,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 0,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 0,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 0,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 0,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 0.125,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 0.125,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 0.125,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 0.125,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 0.125,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 1.25,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 1.25,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 1.25,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 2,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 2,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 2,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 2,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 2,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 7.123456789,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 7.123456789,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 7.123456789,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 7.123456789,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": false,
+      "time": 7.123456789,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": -1.25,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 0,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 0,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": -1.25,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": -1.25,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 0,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 0,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 0,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 0,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 0,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 0.125,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 0.125,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 0.125,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 0.125,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 0.125,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 1.25,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 1.25,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 1.25,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 1.25,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 1.25,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 2,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 2,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 2,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 7.123456789,
+      "gate": "ready",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 7.123456789,
+        "Dirty": true
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 7.123456789,
+        "Dirty": true
+      },
+      "HadUndo": true,
+      "HadRedo": true
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 7.123456789,
+      "gate": "locked",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    },
+    {
+      "format": "ssc",
+      "end": true,
+      "time": 7.123456789,
+      "gate": "nochart",
+      "before": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "after": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "undone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "redone": {
+        "Sample": 1.25,
+        "Hint": 2,
+        "Dirty": false
+      },
+      "HadUndo": false,
+      "HadRedo": false
+    }
+  ],
+  "Writers": [
+    {
+      "target": "sm",
+      "chartless": false,
+      "tags": {
+        "TITLE": "Keep",
+        "SUBTITLE": "",
+        "ARTIST": "",
+        "TITLETRANSLIT": "",
+        "SUBTITLETRANSLIT": "",
+        "ARTISTTRANSLIT": "",
+        "GENRE": "Genre",
+        "CREDIT": "",
+        "BANNER": "banner.png",
+        "BACKGROUND": "bg.png",
+        "LYRICSPATH": "words.lrc",
+        "CDTITLE": "title.png",
+        "MUSIC": "music.ogg",
+        "OFFSET": "0.000000",
+        "SAMPLESTART": "1.250000",
+        "SAMPLELENGTH": "5.000000",
+        "SELECTABLE": "",
+        "BPMS": "0.000000=120.000000",
+        "STOPS": "",
+        "DELAYS": "",
+        "TIMESIGNATURES": "0.000000=4=4",
+        "TICKCOUNTS": "",
+        "KEYSOUNDS": "",
+        "ATTACKS": "",
+        "NOTES": "dance-single:\n     :\n     Easy:\n     1:\n     :\n0000\n0000\n0000\n0000"
+      }
+    },
+    {
+      "target": "sm",
+      "chartless": true,
+      "tags": {
+        "TITLE": "Keep",
+        "SUBTITLE": "",
+        "ARTIST": "",
+        "TITLETRANSLIT": "",
+        "SUBTITLETRANSLIT": "",
+        "ARTISTTRANSLIT": "",
+        "GENRE": "Genre",
+        "CREDIT": "",
+        "BANNER": "banner.png",
+        "BACKGROUND": "bg.png",
+        "LYRICSPATH": "words.lrc",
+        "CDTITLE": "title.png",
+        "MUSIC": "music.ogg",
+        "OFFSET": "",
+        "SAMPLESTART": "1.250000",
+        "SAMPLELENGTH": "5.000000",
+        "SELECTABLE": "",
+        "BPMS": "",
+        "STOPS": "",
+        "DELAYS": "",
+        "TIMESIGNATURES": "0.000000=4=4",
+        "TICKCOUNTS": "",
+        "KEYSOUNDS": "",
+        "ATTACKS": ""
+      }
+    },
+    {
+      "target": "ssc",
+      "chartless": false,
+      "tags": {
+        "VERSION": "0.83",
+        "TITLE": "Keep",
+        "SUBTITLE": "",
+        "ARTIST": "",
+        "TITLETRANSLIT": "",
+        "SUBTITLETRANSLIT": "",
+        "ARTISTTRANSLIT": "",
+        "GENRE": "Genre",
+        "ORIGIN": "Origin",
+        "CREDIT": "",
+        "BANNER": "banner.png",
+        "BACKGROUND": "bg.png",
+        "PREVIEWVID": "preview.mp4",
+        "JACKET": "jacket.png",
+        "CDIMAGE": "cd.png",
+        "DISCIMAGE": "disc.png",
+        "LYRICSPATH": "words.lrc",
+        "CDTITLE": "title.png",
+        "MUSIC": "music.ogg",
+        "PREVIEW": "preview.ogg",
+        "OFFSET": "0.000000",
+        "SAMPLESTART": "1.250000",
+        "SAMPLELENGTH": "5.000000",
+        "SELECTABLE": "",
+        "BPMS": "0.000000=120.000000",
+        "STOPS": "",
+        "DELAYS": "",
+        "WARPS": "",
+        "TIMESIGNATURES": "0.000000=4=4",
+        "TICKCOUNTS": "",
+        "COMBOS": "",
+        "SPEEDS": "",
+        "SCROLLS": "",
+        "FAKES": "",
+        "LABELS": "",
+        "LASTSECONDHINT": "2.000000",
+        "KEYSOUNDS": "",
+        "ATTACKS": "",
+        "NOTEDATA": "",
+        "CHARTNAME": "",
+        "STEPSTYPE": "dance-single",
+        "DESCRIPTION": "",
+        "CHARTSTYLE": "",
+        "DIFFICULTY": "Easy",
+        "METER": "1",
+        "RADARVALUES": "",
+        "DISPLAYBPM": "120.000",
+        "NOTES": "0000\n0000\n0000\n0000"
+      }
+    },
+    {
+      "target": "ssc",
+      "chartless": true,
+      "tags": {
+        "VERSION": "0.83",
+        "TITLE": "Keep",
+        "SUBTITLE": "",
+        "ARTIST": "",
+        "TITLETRANSLIT": "",
+        "SUBTITLETRANSLIT": "",
+        "ARTISTTRANSLIT": "",
+        "GENRE": "Genre",
+        "ORIGIN": "Origin",
+        "CREDIT": "",
+        "BANNER": "banner.png",
+        "BACKGROUND": "bg.png",
+        "PREVIEWVID": "preview.mp4",
+        "JACKET": "jacket.png",
+        "CDIMAGE": "cd.png",
+        "DISCIMAGE": "disc.png",
+        "LYRICSPATH": "words.lrc",
+        "CDTITLE": "title.png",
+        "MUSIC": "music.ogg",
+        "PREVIEW": "preview.ogg",
+        "OFFSET": "",
+        "SAMPLESTART": "1.250000",
+        "SAMPLELENGTH": "5.000000",
+        "SELECTABLE": "",
+        "BPMS": "",
+        "STOPS": "",
+        "DELAYS": "",
+        "WARPS": "",
+        "TIMESIGNATURES": "0.000000=4=4",
+        "TICKCOUNTS": "",
+        "COMBOS": "",
+        "SPEEDS": "",
+        "SCROLLS": "",
+        "FAKES": "",
+        "LABELS": "",
+        "LASTSECONDHINT": "2.000000",
+        "KEYSOUNDS": "",
+        "ATTACKS": ""
+      }
+    }
+  ]
+}

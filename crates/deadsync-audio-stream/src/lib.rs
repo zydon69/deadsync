@@ -1,6 +1,10 @@
 //! Game playback decisions, assist timing, bus levels, and ReplayGain policy.
 #![forbid(unsafe_code)]
 
+pub mod editor_asset_watch;
+pub mod editor_asset_service;
+pub mod editor_asset_slots;
+
 mod clock;
 mod mix;
 mod music_map;
@@ -13,7 +17,7 @@ pub use music_map::MusicClock;
 #[cfg(target_os = "linux")]
 pub use runtime::available_linux_backends;
 pub use runtime::{
-    AudioControl, assist_sfx_generation, collect_stutter_diag_events, get_output_timing_snapshot,
+    AudioControl, EditorPreviewCursor, EditorLogicalPhase, EditorAudioGains, EditorAudioStatus, EditorTickKind, EditorOutputAck, EditorOutputEvent, EditorOutputUpdate, assist_sfx_generation, collect_stutter_diag_events, get_output_timing_snapshot,
     init, preserve_pitch_enabled, replaygain_enabled, set_preserve_pitch_enabled,
     set_replaygain_enabled, stutter_diag_trigger_seq, timing_diag_last_callback_gap_ns,
 };
@@ -26,3 +30,6 @@ const DECODE_OPTIONS: deadlib_audio_decode::DecodeOptions =
 
 #[cfg(test)]
 static CLOCK_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+pub use runtime::{OutputRestoreReceipt, ReconfigureAck};
+pub use deadlib_audio_core::{BufferCapabilities, BufferControl, BufferNegotiation, BufferRequest, OutputBufferState, ReconfigureError, ReconfigureFailure, ReconfigureOutcome};

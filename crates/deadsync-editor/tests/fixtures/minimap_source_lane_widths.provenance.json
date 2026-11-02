@@ -1,0 +1,8 @@
+{
+  "source_pin": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_method": "StepManiaEditor/MiniMap.cs UpdateLaneXPositions",
+  "case_count": 24,
+  "executed": true,
+  "runtime": "/tmp/deadsync-dotnet10/dotnet",
+  "limit": "Original lane-position method only; does not execute source graphics or native Rust tests."
+}

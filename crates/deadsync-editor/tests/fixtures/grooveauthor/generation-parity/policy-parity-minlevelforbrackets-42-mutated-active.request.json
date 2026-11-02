@@ -1,0 +1,111 @@
+{
+  "Operation": "InterpretChart",
+  "Layout": "dance-single",
+  "Method": "Balanced",
+  "Notes": [
+    [
+      0,
+      0,
+      "2"
+    ],
+    [
+      12,
+      3,
+      "4"
+    ],
+    [
+      24,
+      1,
+      "M"
+    ],
+    [
+      36,
+      0,
+      "3"
+    ],
+    [
+      36,
+      1,
+      "F"
+    ],
+    [
+      48,
+      3,
+      "3"
+    ],
+    [
+      48,
+      0,
+      "M"
+    ],
+    [
+      60,
+      3,
+      "L"
+    ],
+    [
+      72,
+      0,
+      "1"
+    ],
+    [
+      72,
+      1,
+      "1"
+    ],
+    [
+      84,
+      3,
+      "1"
+    ],
+    [
+      96,
+      1,
+      "1"
+    ],
+    [
+      108,
+      1,
+      "M"
+    ],
+    [
+      120,
+      0,
+      "1"
+    ],
+    [
+      132,
+      3,
+      "1"
+    ],
+    [
+      144,
+      0,
+      "1"
+    ],
+    [
+      144,
+      1,
+      "1"
+    ],
+    [
+      144,
+      3,
+      "1"
+    ],
+    [
+      156,
+      1,
+      "K"
+    ]
+  ],
+  "ExpressedConfig": {
+    "DefaultBracketParsingMethod": "balanced",
+    "BracketParsingDetermination": "chooseMethodDynamically",
+    "MinLevelForBrackets": 8,
+    "UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets": false,
+    "BalancedBracketsPerMinuteForAggressiveBrackets": 10000.0,
+    "BalancedBracketsPerMinuteForNoBrackets": 0.0
+  },
+  "Difficulty": 8.5
+}

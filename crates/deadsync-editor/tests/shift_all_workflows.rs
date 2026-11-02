@@ -13,12 +13,31 @@ fn global_shift_is_detached_reviews_counts_and_restores_in_one_undo() {
     let before = s.serialize().unwrap();
     let plan = Plan::prepare(&mut s, 0, 48).unwrap();
     let report = plan.report().clone();
-    assert!(report.moved >= 3);
-    assert!(report.immutable >= 2);
+    assert_eq!(report.moved, 4);
+    assert_eq!(report.immutable, 2);
+    assert_eq!(report.deleted, 0);
     assert_eq!(s.serialize().unwrap(), before);
     plan.apply(&mut s, 0, &report).unwrap();
     let after = s.serialize().unwrap();
     assert_ne!(after, before);
+    let grid = s.grid(0).unwrap();
+    let heads: Vec<_> = grid
+        .iter()
+        .map(|(position, note)| (position.row, position.lane, position.player, note.kind))
+        .collect();
+    assert_eq!(heads, vec![
+        (48, 0, 0, deadsync_editor::notes::Kind::Tap),
+        (96, 1, 0, deadsync_editor::notes::Kind::Tap),
+    ]);
+    for (tag, value) in [
+        ("BPMS", "0=120,2=180"),
+        ("TIMESIGNATURES", "0=4=4"),
+        ("LABELS", "3=target"),
+    ] {
+        assert_eq!(s.document().text(Some(0), tag).as_deref(), Some(value), "{tag}");
+    }
+    let mut reopened = Session::new(Document::parse(after.clone(), Format::Ssc).unwrap());
+    assert_eq!(reopened.grid(0).unwrap(), s.grid(0).unwrap());
     s.undo().unwrap();
     assert_eq!(s.serialize().unwrap(), before);
     s.redo().unwrap();

@@ -1,6 +1,6 @@
 //! Read-only song/chart headers sharing the editable document's tokenizer.
 //! No note spans, editing commands or writer entry point are exposed.
-use super::{Format, decode, parse_parts};
+use super::{Format, decode_property, parse_parts};
 use crate::Error;
 use std::sync::Arc;
 /// Resource bounds for read-only previews; editable parsing is unchanged.
@@ -29,6 +29,7 @@ pub struct Chart {
 #[derive(Clone, Debug)]
 pub struct Metadata {
     source: Arc<[u8]>,
+    format: Format,
     tags: Vec<super::Tag>,
     charts: Vec<Chart>,
 }
@@ -48,6 +49,7 @@ impl Metadata {
         let parts = parse_parts(source, format, Some((limits.charts, limits.tags)))?;
         Ok(Self {
             source: parts.source,
+            format,
             tags: parts.tags,
             charts: parts
                 .charts
@@ -70,6 +72,6 @@ impl Metadata {
             .iter()
             .rev()
             .find(|tag| tag.chart.is_none() && tag.name.eq_ignore_ascii_case(name))
-            .map(|tag| decode(&self.source[tag.value.clone()]))
+            .map(|tag| decode_property(&self.source[tag.value.clone()], self.format, false, name))
     }
 }

@@ -140,14 +140,43 @@ fn creation_uses_working_timing_without_cloning_notes_properties_or_patterns() {
         0.25
     );
     let after = session.serialize().unwrap();
-    assert!(after.starts_with(&before));
+    // Adding a chart materializes the existing timing-chart identity in the
+    // shared song GA owner. This can insert before the first chart, so the
+    // previous full byte stream is not necessarily one contiguous prefix.
+    // Every existing tag payload (including opaque chart metadata) must remain
+    // byte-identical, and the chosen timing chart must remain the original.
+    let original = Document::parse(before.as_slice(), Format::Ssc).unwrap();
+    assert_eq!(original.charts().len(), 1);
+    assert_eq!(session.document().charts().len(), 2);
+    for tag in original.tags() {
+        let actual = session.document().tag(tag.chart, &tag.name).unwrap();
+        assert_eq!(
+            session.document().value(actual.value.clone()),
+            original.value(tag.value.clone()),
+            "existing {:?}/{}",
+            tag.chart,
+            tag.name
+        );
+    }
+    let song: Value =
+        serde_json::from_str(&session.document().text(None, "GASongData").unwrap()).unwrap();
+    assert_eq!(
+        session
+            .document()
+            .text(None, "GASongDataVersion")
+            .as_deref(),
+        Some("1")
+    );
+    assert_eq!(song["DefaultChartType"], "dance_single");
+    assert_eq!(song["DefaultChartIndex"], 0);
+    assert_eq!(song["SyncOffset"], 0.009);
     session.undo().unwrap();
     assert_eq!(session.serialize().unwrap(), before);
     session.redo().unwrap();
     assert_eq!(session.serialize().unwrap(), after);
 }
 #[test]
-fn empty_song_bootstrap_and_sm_shared_timing_have_valid_reopenable_metadata() {
+fn empty_song_bootstrap_and_sm_independent_initial_timing_have_valid_reopenable_metadata() {
     for text in [
         "#TITLE:New;#OFFSET:0.125;",
         "#VERSION:0.60;#TITLE:New;#BPMS:0=142;",
@@ -182,6 +211,48 @@ fn empty_song_bootstrap_and_sm_shared_timing_have_valid_reopenable_metadata() {
     let bytes = session.serialize().unwrap();
     let mut reopened = Session::new(Document::parse(bytes, Format::Sm).unwrap());
     assert_eq!(reopened.grid(1).unwrap().iter().count(), 0);
+    // EditorChart's SM constructor creates only its initial tempo/signature,
+    // not the old chart's later BPM nodes, pauses or inherited attacks.
+    assert_eq!(
+        deadsync_editor::timing_edit::TempoDraft::capture(
+            &reopened,
+            1,
+            deadsync_editor::timing_edit::Scope::Chart
+        )
+        .unwrap()
+        .tempos()
+        .serialize(),
+        "0=120"
+    );
+    assert!(
+        deadsync_editor::timing_edit::pause::Draft::capture(
+            &reopened,
+            1,
+            deadsync_editor::timing_edit::Scope::Chart
+        )
+        .unwrap()
+        .pauses(deadsync_editor::timing_edit::pause::Kind::Stop)
+        .values()
+        .is_empty()
+    );
+    assert_eq!(
+        deadsync_editor::playback::Clock::capture(&reopened, 1)
+            .unwrap()
+            .chart_time(240)
+            .unwrap(),
+        2.5
+    );
+    let original = Session::new(Document::parse(raw.as_slice(), Format::Sm).unwrap());
+    assert_eq!(
+        deadsync_editor::playback::Clock::capture(&reopened, 0)
+            .unwrap()
+            .chart_time(240)
+            .unwrap(),
+        deadsync_editor::playback::Clock::capture(&original, 0)
+            .unwrap()
+            .chart_time(240)
+            .unwrap()
+    );
     let data = ChartData::read(reopened.document(), 1).unwrap().unwrap();
     assert_eq!(data.max_player_index, 1);
     assert!(!data.should_use_chart_music_offset);

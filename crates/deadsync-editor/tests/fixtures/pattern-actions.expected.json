@@ -1,0 +1,510 @@
+[
+  {
+    "Action": "SelectedFixed",
+    "Before": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "After": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "Scheduled": [
+      [
+        {
+          "Row": 0,
+          "RandomSeed": 10
+        },
+        {
+          "Row": 384,
+          "RandomSeed": 30
+        }
+      ]
+    ],
+    "Undo1": "ActionAutoGeneratePatterns",
+    "AfterUndo1": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "Undo2": null,
+    "AfterUndo2": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "AfterRedo": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ]
+  },
+  {
+    "Action": "SelectedNew",
+    "Before": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "After": [
+      {
+        "Row": 0,
+        "RandomSeed": 2048361643
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 496102545
+      }
+    ],
+    "Scheduled": [
+      [
+        {
+          "Row": 0,
+          "RandomSeed": 2048361643
+        },
+        {
+          "Row": 384,
+          "RandomSeed": 496102545
+        }
+      ]
+    ],
+    "Undo1": "ActionAutoGeneratePatterns",
+    "AfterUndo1": [
+      {
+        "Row": 0,
+        "RandomSeed": 2048361643
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 496102545
+      }
+    ],
+    "Undo2": "ActionMultiple",
+    "AfterUndo2": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "AfterRedo": [
+      {
+        "Row": 0,
+        "RandomSeed": 2048361643
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 496102545
+      }
+    ]
+  },
+  {
+    "Action": "AllFixed",
+    "Before": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "After": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "Scheduled": [
+      [
+        {
+          "Row": 0,
+          "RandomSeed": 10
+        },
+        {
+          "Row": 192,
+          "RandomSeed": 20
+        },
+        {
+          "Row": 384,
+          "RandomSeed": 30
+        }
+      ]
+    ],
+    "Undo1": "ActionAutoGeneratePatterns",
+    "AfterUndo1": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "Undo2": null,
+    "AfterUndo2": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "AfterRedo": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ]
+  },
+  {
+    "Action": "AllNew",
+    "Before": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "After": [
+      {
+        "Row": 0,
+        "RandomSeed": 415138369
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 259321908
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 2008413261
+      }
+    ],
+    "Scheduled": [
+      [
+        {
+          "Row": 0,
+          "RandomSeed": 415138369
+        },
+        {
+          "Row": 192,
+          "RandomSeed": 259321908
+        },
+        {
+          "Row": 384,
+          "RandomSeed": 2008413261
+        }
+      ]
+    ],
+    "Undo1": "ActionAutoGeneratePatterns",
+    "AfterUndo1": [
+      {
+        "Row": 0,
+        "RandomSeed": 415138369
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 259321908
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 2008413261
+      }
+    ],
+    "Undo2": "ActionMultiple",
+    "AfterUndo2": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "AfterRedo": [
+      {
+        "Row": 0,
+        "RandomSeed": 415138369
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 259321908
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 2008413261
+      }
+    ]
+  },
+  {
+    "Action": "EmptyFixed",
+    "Before": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "After": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "Scheduled": [],
+    "Undo1": null,
+    "AfterUndo1": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "Undo2": null,
+    "AfterUndo2": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "AfterRedo": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ]
+  },
+  {
+    "Action": "EmptyNew",
+    "Before": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "After": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "Scheduled": [],
+    "Undo1": null,
+    "AfterUndo1": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "Undo2": null,
+    "AfterUndo2": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ],
+    "AfterRedo": [
+      {
+        "Row": 0,
+        "RandomSeed": 10
+      },
+      {
+        "Row": 192,
+        "RandomSeed": 20
+      },
+      {
+        "Row": 384,
+        "RandomSeed": 30
+      }
+    ]
+  }
+]

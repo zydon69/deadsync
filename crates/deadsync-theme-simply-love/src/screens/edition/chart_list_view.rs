@@ -8,7 +8,6 @@ use deadlib_present::{
 
 impl State {
     pub(super) fn open_chart_list(&mut self) {
-        self.stop_audio();
         self.panel = None;
         self.queue_chart_list();
     }
@@ -97,6 +96,7 @@ impl State {
             let selected = self.chart_list_selection.position(rows).unwrap_or(0);
             let start = selected / 8 * 8;
             for (position, row) in rows.iter().enumerate().skip(start).take(8) {
+            let ui_row_start=actors.len();
                 let name = if row.key.name.is_empty() {
                     &row.key.description
                 } else {
@@ -140,7 +140,9 @@ impl State {
                         [0.8, 0.85, 0.95, 1.0]
                     },
                 );
-            }
+
+            self.ui_row(actors,ui_row_start,position==selected,32.);
+        }
         }
         label(
             actors,

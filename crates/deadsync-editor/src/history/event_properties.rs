@@ -16,7 +16,7 @@ impl Session {
             operation(staged)?;
             fn properties_only(change: &Change) -> bool {
                 match change {
-                    Change::Value { .. } | Change::AddedProperty { .. } => true,
+                    Change::AttackIdentity(_) | Change::Value { .. } | Change::AddedProperty { .. } => true,
                     Change::Group(changes) => changes.iter().all(properties_only),
                     _ => false,
                 }
@@ -36,7 +36,13 @@ impl Session {
             // Each edit_chart_atomic closure starts with an empty history. These
             // are only this gesture's temporary entries; the live undo/redo and
             // revision token have not been touched.
-            staged.undo.clear();
+            fn carries_attack_lifetime(change:&Change)->bool {
+                match change { Change::AttackIdentity(_)=>true,
+                    Change::Group(changes)=>changes.iter().any(carries_attack_lifetime), _=>false }
+            }
+            if !staged.undo.iter().any(|entry|carries_attack_lifetime(&entry.change)) {
+                staged.undo.clear();
+            }
             Ok(())
         })
     }

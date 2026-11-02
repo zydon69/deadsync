@@ -1,0 +1,422 @@
+[
+  {
+    "name": "close-False-False-cancel",
+    "Intent": "close",
+    "Song": false,
+    "Pack": false,
+    "Choice": "cancel"
+  },
+  {
+    "name": "close-False-False-discard",
+    "Intent": "close",
+    "Song": false,
+    "Pack": false,
+    "Choice": "discard"
+  },
+  {
+    "name": "close-False-False-save",
+    "Intent": "close",
+    "Song": false,
+    "Pack": false,
+    "Choice": "save"
+  },
+  {
+    "name": "close-False-True-cancel",
+    "Intent": "close",
+    "Song": false,
+    "Pack": true,
+    "Choice": "cancel"
+  },
+  {
+    "name": "close-False-True-discard",
+    "Intent": "close",
+    "Song": false,
+    "Pack": true,
+    "Choice": "discard"
+  },
+  {
+    "name": "close-False-True-save",
+    "Intent": "close",
+    "Song": false,
+    "Pack": true,
+    "Choice": "save"
+  },
+  {
+    "name": "close-True-False-cancel",
+    "Intent": "close",
+    "Song": true,
+    "Pack": false,
+    "Choice": "cancel"
+  },
+  {
+    "name": "close-True-False-discard",
+    "Intent": "close",
+    "Song": true,
+    "Pack": false,
+    "Choice": "discard"
+  },
+  {
+    "name": "close-True-False-save",
+    "Intent": "close",
+    "Song": true,
+    "Pack": false,
+    "Choice": "save"
+  },
+  {
+    "name": "close-True-True-cancel",
+    "Intent": "close",
+    "Song": true,
+    "Pack": true,
+    "Choice": "cancel"
+  },
+  {
+    "name": "close-True-True-discard",
+    "Intent": "close",
+    "Song": true,
+    "Pack": true,
+    "Choice": "discard"
+  },
+  {
+    "name": "close-True-True-save",
+    "Intent": "close",
+    "Song": true,
+    "Pack": true,
+    "Choice": "save"
+  },
+  {
+    "name": "exit-False-False-cancel",
+    "Intent": "exit",
+    "Song": false,
+    "Pack": false,
+    "Choice": "cancel"
+  },
+  {
+    "name": "exit-False-False-discard",
+    "Intent": "exit",
+    "Song": false,
+    "Pack": false,
+    "Choice": "discard"
+  },
+  {
+    "name": "exit-False-False-save",
+    "Intent": "exit",
+    "Song": false,
+    "Pack": false,
+    "Choice": "save"
+  },
+  {
+    "name": "exit-False-True-cancel",
+    "Intent": "exit",
+    "Song": false,
+    "Pack": true,
+    "Choice": "cancel"
+  },
+  {
+    "name": "exit-False-True-discard",
+    "Intent": "exit",
+    "Song": false,
+    "Pack": true,
+    "Choice": "discard"
+  },
+  {
+    "name": "exit-False-True-save",
+    "Intent": "exit",
+    "Song": false,
+    "Pack": true,
+    "Choice": "save"
+  },
+  {
+    "name": "exit-True-False-cancel",
+    "Intent": "exit",
+    "Song": true,
+    "Pack": false,
+    "Choice": "cancel"
+  },
+  {
+    "name": "exit-True-False-discard",
+    "Intent": "exit",
+    "Song": true,
+    "Pack": false,
+    "Choice": "discard"
+  },
+  {
+    "name": "exit-True-False-save",
+    "Intent": "exit",
+    "Song": true,
+    "Pack": false,
+    "Choice": "save"
+  },
+  {
+    "name": "exit-True-True-cancel",
+    "Intent": "exit",
+    "Song": true,
+    "Pack": true,
+    "Choice": "cancel"
+  },
+  {
+    "name": "exit-True-True-discard",
+    "Intent": "exit",
+    "Song": true,
+    "Pack": true,
+    "Choice": "discard"
+  },
+  {
+    "name": "exit-True-True-save",
+    "Intent": "exit",
+    "Song": true,
+    "Pack": true,
+    "Choice": "save"
+  },
+  {
+    "name": "open-False-False-cancel",
+    "Intent": "open",
+    "Song": false,
+    "Pack": false,
+    "Choice": "cancel"
+  },
+  {
+    "name": "open-False-False-discard",
+    "Intent": "open",
+    "Song": false,
+    "Pack": false,
+    "Choice": "discard"
+  },
+  {
+    "name": "open-False-False-save",
+    "Intent": "open",
+    "Song": false,
+    "Pack": false,
+    "Choice": "save"
+  },
+  {
+    "name": "open-False-True-cancel",
+    "Intent": "open",
+    "Song": false,
+    "Pack": true,
+    "Choice": "cancel"
+  },
+  {
+    "name": "open-False-True-discard",
+    "Intent": "open",
+    "Song": false,
+    "Pack": true,
+    "Choice": "discard"
+  },
+  {
+    "name": "open-False-True-save",
+    "Intent": "open",
+    "Song": false,
+    "Pack": true,
+    "Choice": "save"
+  },
+  {
+    "name": "open-True-False-cancel",
+    "Intent": "open",
+    "Song": true,
+    "Pack": false,
+    "Choice": "cancel"
+  },
+  {
+    "name": "open-True-False-discard",
+    "Intent": "open",
+    "Song": true,
+    "Pack": false,
+    "Choice": "discard"
+  },
+  {
+    "name": "open-True-False-save",
+    "Intent": "open",
+    "Song": true,
+    "Pack": false,
+    "Choice": "save"
+  },
+  {
+    "name": "open-True-True-cancel",
+    "Intent": "open",
+    "Song": true,
+    "Pack": true,
+    "Choice": "cancel"
+  },
+  {
+    "name": "open-True-True-discard",
+    "Intent": "open",
+    "Song": true,
+    "Pack": true,
+    "Choice": "discard"
+  },
+  {
+    "name": "open-True-True-save",
+    "Intent": "open",
+    "Song": true,
+    "Pack": true,
+    "Choice": "save"
+  },
+  {
+    "name": "same-pack-open-False-False-cancel",
+    "Intent": "same-pack-open",
+    "Song": false,
+    "Pack": false,
+    "Choice": "cancel"
+  },
+  {
+    "name": "same-pack-open-False-False-discard",
+    "Intent": "same-pack-open",
+    "Song": false,
+    "Pack": false,
+    "Choice": "discard"
+  },
+  {
+    "name": "same-pack-open-False-False-save",
+    "Intent": "same-pack-open",
+    "Song": false,
+    "Pack": false,
+    "Choice": "save"
+  },
+  {
+    "name": "same-pack-open-False-True-cancel",
+    "Intent": "same-pack-open",
+    "Song": false,
+    "Pack": true,
+    "Choice": "cancel"
+  },
+  {
+    "name": "same-pack-open-False-True-discard",
+    "Intent": "same-pack-open",
+    "Song": false,
+    "Pack": true,
+    "Choice": "discard"
+  },
+  {
+    "name": "same-pack-open-False-True-save",
+    "Intent": "same-pack-open",
+    "Song": false,
+    "Pack": true,
+    "Choice": "save"
+  },
+  {
+    "name": "same-pack-open-True-False-cancel",
+    "Intent": "same-pack-open",
+    "Song": true,
+    "Pack": false,
+    "Choice": "cancel"
+  },
+  {
+    "name": "same-pack-open-True-False-discard",
+    "Intent": "same-pack-open",
+    "Song": true,
+    "Pack": false,
+    "Choice": "discard"
+  },
+  {
+    "name": "same-pack-open-True-False-save",
+    "Intent": "same-pack-open",
+    "Song": true,
+    "Pack": false,
+    "Choice": "save"
+  },
+  {
+    "name": "same-pack-open-True-True-cancel",
+    "Intent": "same-pack-open",
+    "Song": true,
+    "Pack": true,
+    "Choice": "cancel"
+  },
+  {
+    "name": "same-pack-open-True-True-discard",
+    "Intent": "same-pack-open",
+    "Song": true,
+    "Pack": true,
+    "Choice": "discard"
+  },
+  {
+    "name": "same-pack-open-True-True-save",
+    "Intent": "same-pack-open",
+    "Song": true,
+    "Pack": true,
+    "Choice": "save"
+  },
+  {
+    "name": "pack-reload-False-False-cancel",
+    "Intent": "pack-reload",
+    "Song": false,
+    "Pack": false,
+    "Choice": "cancel"
+  },
+  {
+    "name": "pack-reload-False-False-discard",
+    "Intent": "pack-reload",
+    "Song": false,
+    "Pack": false,
+    "Choice": "discard"
+  },
+  {
+    "name": "pack-reload-False-False-save",
+    "Intent": "pack-reload",
+    "Song": false,
+    "Pack": false,
+    "Choice": "save"
+  },
+  {
+    "name": "pack-reload-False-True-cancel",
+    "Intent": "pack-reload",
+    "Song": false,
+    "Pack": true,
+    "Choice": "cancel"
+  },
+  {
+    "name": "pack-reload-False-True-discard",
+    "Intent": "pack-reload",
+    "Song": false,
+    "Pack": true,
+    "Choice": "discard"
+  },
+  {
+    "name": "pack-reload-False-True-save",
+    "Intent": "pack-reload",
+    "Song": false,
+    "Pack": true,
+    "Choice": "save"
+  },
+  {
+    "name": "pack-reload-True-False-cancel",
+    "Intent": "pack-reload",
+    "Song": true,
+    "Pack": false,
+    "Choice": "cancel"
+  },
+  {
+    "name": "pack-reload-True-False-discard",
+    "Intent": "pack-reload",
+    "Song": true,
+    "Pack": false,
+    "Choice": "discard"
+  },
+  {
+    "name": "pack-reload-True-False-save",
+    "Intent": "pack-reload",
+    "Song": true,
+    "Pack": false,
+    "Choice": "save"
+  },
+  {
+    "name": "pack-reload-True-True-cancel",
+    "Intent": "pack-reload",
+    "Song": true,
+    "Pack": true,
+    "Choice": "cancel"
+  },
+  {
+    "name": "pack-reload-True-True-discard",
+    "Intent": "pack-reload",
+    "Song": true,
+    "Pack": true,
+    "Choice": "discard"
+  },
+  {
+    "name": "pack-reload-True-True-save",
+    "Intent": "pack-reload",
+    "Song": true,
+    "Pack": true,
+    "Choice": "save"
+  }
+]

@@ -19,7 +19,7 @@ fn open(state: &mut State) {
     press(state, KeyCode::F12);
     event(state, KeyCode::SuperLeft, false);
 }
-fn setup() -> (tempfile::TempDir, State, std::path::PathBuf, Vec<u8>) {
+fn setup() -> (tempfile::TempDir, State, std::path::PathBuf, Vec<u8>,u64) {
     i18n::init(deadsync_assets::language::load_for_tests(LANGUAGE));
     deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
         854.0, 480.0,
@@ -32,9 +32,10 @@ fn setup() -> (tempfile::TempDir, State, std::path::PathBuf, Vec<u8>) {
     let bytes=b"#VERSION:0.83;#TITLE:Keep;#MUSIC:music.wav;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000;".to_vec();
     fs::write(&song, &bytes).unwrap();
     fs::write(root_path.join("old/music.wav"), b"command-only asset").unwrap();
-    let state = State::open(&song, 0).unwrap();
+    let mut state = State::open(&song, 0).unwrap();
     let destination = root_path.join("nouveau été/copîe.ssc");
-    (root, state, destination, bytes)
+    let owner=publish_audio_fixture(&mut state);
+    (root, state, destination, bytes,owner)
 }
 fn type_destination(state: &mut State, path: &std::path::Path) {
     assert!(state.wants_text_input());
@@ -46,7 +47,7 @@ fn confirm(state: &mut State) {
 }
 #[test]
 fn unicode_ime_destination_review_and_cancel_never_write_or_close() {
-    let (_root, mut state, destination, bytes) = setup();
+    let (_root, mut state, destination, bytes,owner)=setup();
     let source = state.workspace().file().require_existing_path().unwrap().to_owned();
     open(&mut state);
     state.text_preedit("été");
@@ -63,7 +64,7 @@ fn unicode_ime_destination_review_and_cancel_never_write_or_close() {
 }
 #[test]
 fn explicit_overwrite_review_publishes_same_session_and_preserves_undo() {
-    let (_root, mut state, destination, bytes) = setup();
+    let (_root, mut state, destination, bytes,owner)=setup();
     let source = state.workspace().file().require_existing_path().unwrap().to_owned();
     fs::write(&destination, b"reviewed existing target").unwrap();
     press(&mut state, KeyCode::Digit2);
@@ -85,7 +86,7 @@ fn explicit_overwrite_review_publishes_same_session_and_preserves_undo() {
 }
 #[test]
 fn changed_overwrite_target_keeps_working_song_open_and_requires_new_review() {
-    let (_root, mut state, destination, bytes) = setup();
+    let (_root, mut state, destination, bytes,owner)=setup();
     let source = state.workspace().file().require_existing_path().unwrap().to_owned();
     fs::write(&destination, b"first baseline").unwrap();
     open(&mut state);
@@ -100,7 +101,7 @@ fn changed_overwrite_target_keeps_working_song_open_and_requires_new_review() {
 }
 #[test]
 fn cross_format_request_is_rejected_without_implicit_conversion_or_output() {
-    let (_root, mut state, destination, _) = setup();
+    let (_root, mut state, destination, _,owner)=setup();
     let different = destination.with_extension("sm");
     open(&mut state);
     type_destination(&mut state, &different);
@@ -111,7 +112,7 @@ fn cross_format_request_is_rejected_without_implicit_conversion_or_output() {
 #[test]
 fn save_as_explicitly_stops_chart_transport_and_ignores_old_audio_snapshot() {
     use deadsync_gameplay::{GameplayAudioCommand, GameplayAudioSnapshot};
-    let (_root, mut state, destination, _) = setup();
+    let (_root, mut state, destination, _,owner)=setup();
     press(&mut state, KeyCode::Enter);
     state.take_audio_commands();
     let mut snapshot = GameplayAudioSnapshot::default();
@@ -123,7 +124,7 @@ fn save_as_explicitly_stops_chart_transport_and_ignores_old_audio_snapshot() {
     assert!(!state.is_playing());
     assert_eq!(
         state.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
+        vec![GameplayAudioCommand::EditorStopMusic{owner}]
     );
     let instant = state.chart_focus_time().unwrap();
     type_destination(&mut state, &destination);
@@ -135,4 +136,15 @@ fn save_as_explicitly_stops_chart_transport_and_ignores_old_audio_snapshot() {
         state.chart_focus_time().unwrap().to_bits(),
         instant.to_bits()
     );
+}
+
+
+fn publish_audio_fixture(state:&mut State)->u64 {
+    let commands=state.take_audio_commands();
+    let owners:Vec<_>=commands.iter().filter_map(|c|match c{deadsync_gameplay::GameplayAudioCommand::EditorBeginAudio{owner,..}=>Some(*owner),_=>None}).collect();
+    assert_eq!(owners.len(),1,"one published lazy session");
+    assert_ne!(owners[0],0);
+    state.update_audio(deadsync_gameplay::GameplayAudioSnapshot::default());
+    assert!(!state.take_audio_commands().iter().any(|c|matches!(c,deadsync_gameplay::GameplayAudioCommand::EditorInitializeOutput{..})),"unavailable command-only host needs no DSP request");
+    owners[0]
 }

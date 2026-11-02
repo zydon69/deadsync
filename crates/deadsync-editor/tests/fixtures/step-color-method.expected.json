@@ -1,0 +1,156 @@
+[
+  {
+    "Input": {},
+    "Raw": 0,
+    "Serialized": "Stepmania",
+    "Row": 12,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": "note"
+    },
+    "Raw": 1,
+    "Serialized": "Note",
+    "Row": 32,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": "nOtE"
+    },
+    "Raw": 1,
+    "Serialized": "Note",
+    "Row": 32,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": " Beat "
+    },
+    "Raw": 2,
+    "Serialized": "Beat",
+    "Row": 16,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": "1"
+    },
+    "Raw": 1,
+    "Serialized": "Note",
+    "Row": 32,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": "2"
+    },
+    "Raw": 2,
+    "Serialized": "Beat",
+    "Row": 16,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": "999"
+    },
+    "Raw": 999,
+    "Serialized": "999",
+    "Row": 12,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": "-1"
+    },
+    "Raw": -1,
+    "Serialized": "-1",
+    "Row": 12,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": "Note, Beat"
+    },
+    "Raw": 3,
+    "Serialized": "3",
+    "Row": 12,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": "Stepmania, Note"
+    },
+    "Raw": 1,
+    "Serialized": "Note",
+    "Row": 32,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": "future"
+    },
+    "Raw": 0,
+    "Serialized": "Stepmania",
+    "Row": 12,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": "1, Beat"
+    },
+    "Raw": 0,
+    "Serialized": "Stepmania",
+    "Row": 12,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": 1
+    },
+    "Raw": 0,
+    "Serialized": "Stepmania",
+    "Row": 12,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": 999
+    },
+    "Raw": 0,
+    "Serialized": "Stepmania",
+    "Row": 12,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": true
+    },
+    "Raw": 0,
+    "Serialized": "Stepmania",
+    "Row": 12,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": null
+    },
+    "Raw": 0,
+    "Serialized": "Stepmania",
+    "Row": 12,
+    "Error": false
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": {}
+    },
+    "Error": true
+  },
+  {
+    "Input": {
+      "StepColorMethodValue": []
+    },
+    "Error": true
+  }
+]

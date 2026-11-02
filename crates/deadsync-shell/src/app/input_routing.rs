@@ -251,6 +251,7 @@ impl App {
                 self.begin_play_session();
             }
         }
+        if current_screen==CurrentScreen::Edition {return Ok(());}
         let input_policy = self.input_route_policy(current_screen);
         let mut ev = ev;
         if !matches!(
@@ -315,6 +316,7 @@ impl App {
             }
             return self.drain_theme_effects(event_loop);
         }
+        if current_screen==CurrentScreen::Edition {return Ok(());}
         if current_screen == CurrentScreen::Practice {
             debug_assert!(self.theme_effect_scratch.is_empty());
             if let Some(state) = self.state.screens.practice_state.as_mut() {
@@ -508,6 +510,7 @@ impl App {
             }
             CurrentScreen::Gameplay => unreachable!("Gameplay input routed directly"),
             CurrentScreen::Practice => unreachable!("Practice input uses the flat buffer"),
+            CurrentScreen::Edition => unreachable!("Editor input routed directly"),
         };
         if matches!(action, ThemeEffect::None) {
             return Ok(());

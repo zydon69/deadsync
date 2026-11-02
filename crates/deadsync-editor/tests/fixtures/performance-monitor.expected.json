@@ -1,0 +1,442 @@
+{
+  "revision": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_sha256": "2e718fa33dc17e4ba41466d8021e23ee78e5a9e2a387991087f2e56b78f3e959",
+  "scope": "Original recorder with deterministic BeginFrame/SetTime ticks; real stopwatch Start/End and UI not executed",
+  "cases": [
+    {
+      "name": "empty",
+      "capacity": 3,
+      "operations": []
+    },
+    {
+      "name": "one_incomplete",
+      "capacity": 3,
+      "operations": [
+        [
+          "begin",
+          100
+        ]
+      ]
+    },
+    {
+      "name": "completed_and_accumulated",
+      "capacity": 3,
+      "operations": [
+        [
+          "begin",
+          100
+        ],
+        [
+          "add",
+          7
+        ],
+        [
+          "add",
+          11
+        ],
+        [
+          "begin",
+          130
+        ]
+      ]
+    },
+    {
+      "name": "ring_wrap",
+      "capacity": 3,
+      "operations": [
+        [
+          "begin",
+          100
+        ],
+        [
+          "begin",
+          110
+        ],
+        [
+          "begin",
+          130
+        ],
+        [
+          "begin",
+          160
+        ],
+        [
+          "begin",
+          200
+        ],
+        [
+          "begin",
+          250
+        ]
+      ]
+    },
+    {
+      "name": "paused_closes_current",
+      "capacity": 3,
+      "operations": [
+        [
+          "begin",
+          100
+        ],
+        [
+          "add",
+          7
+        ],
+        [
+          "enabled",
+          false
+        ],
+        [
+          "add",
+          99
+        ],
+        [
+          "begin",
+          130
+        ],
+        [
+          "begin",
+          200
+        ]
+      ]
+    },
+    {
+      "name": "resume_skips_paused_frames",
+      "capacity": 3,
+      "operations": [
+        [
+          "begin",
+          100
+        ],
+        [
+          "begin",
+          120
+        ],
+        [
+          "enabled",
+          false
+        ],
+        [
+          "begin",
+          150
+        ],
+        [
+          "enabled",
+          true
+        ],
+        [
+          "begin",
+          180
+        ],
+        [
+          "add",
+          9
+        ],
+        [
+          "begin",
+          210
+        ]
+      ]
+    },
+    {
+      "name": "zero_length_frame",
+      "capacity": 3,
+      "operations": [
+        [
+          "begin",
+          100
+        ],
+        [
+          "begin",
+          100
+        ],
+        [
+          "begin",
+          110
+        ]
+      ]
+    },
+    {
+      "name": "no_current_timing_is_ignored",
+      "capacity": 3,
+      "operations": [
+        [
+          "add",
+          17
+        ],
+        [
+          "begin",
+          100
+        ],
+        [
+          "begin",
+          110
+        ]
+      ]
+    },
+    {
+      "name": "capacity_one",
+      "capacity": 1,
+      "operations": [
+        [
+          "begin",
+          100
+        ],
+        [
+          "begin",
+          110
+        ],
+        [
+          "begin",
+          120
+        ]
+      ]
+    },
+    {
+      "name": "negative_and_zero_counter",
+      "capacity": 3,
+      "operations": [
+        [
+          "begin",
+          100
+        ],
+        [
+          "add",
+          7
+        ],
+        [
+          "add",
+          -7
+        ],
+        [
+          "begin",
+          110
+        ]
+      ]
+    }
+  ],
+  "results": [
+    {
+      "name": "empty",
+      "snapshots": []
+    },
+    {
+      "name": "one_incomplete",
+      "snapshots": [
+        []
+      ]
+    },
+    {
+      "name": "completed_and_accumulated",
+      "snapshots": [
+        [],
+        [],
+        [],
+        [
+          [
+            30,
+            18
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "ring_wrap",
+      "snapshots": [
+        [],
+        [
+          [
+            10,
+            0
+          ]
+        ],
+        [
+          [
+            20,
+            0
+          ],
+          [
+            10,
+            0
+          ]
+        ],
+        [
+          [
+            30,
+            0
+          ],
+          [
+            20,
+            0
+          ]
+        ],
+        [
+          [
+            40,
+            0
+          ],
+          [
+            30,
+            0
+          ]
+        ],
+        [
+          [
+            50,
+            0
+          ],
+          [
+            40,
+            0
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "paused_closes_current",
+      "snapshots": [
+        [],
+        [],
+        [],
+        [],
+        [
+          [
+            30,
+            7
+          ]
+        ],
+        [
+          [
+            30,
+            7
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "resume_skips_paused_frames",
+      "snapshots": [
+        [],
+        [
+          [
+            20,
+            0
+          ]
+        ],
+        [
+          [
+            20,
+            0
+          ]
+        ],
+        [
+          [
+            30,
+            0
+          ],
+          [
+            20,
+            0
+          ]
+        ],
+        [
+          [
+            30,
+            0
+          ],
+          [
+            20,
+            0
+          ]
+        ],
+        [
+          [
+            30,
+            0
+          ],
+          [
+            20,
+            0
+          ]
+        ],
+        [
+          [
+            30,
+            0
+          ],
+          [
+            20,
+            0
+          ]
+        ],
+        [
+          [
+            30,
+            9
+          ],
+          [
+            30,
+            0
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "zero_length_frame",
+      "snapshots": [
+        [],
+        [
+          [
+            0,
+            0
+          ]
+        ],
+        [
+          [
+            10,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "no_current_timing_is_ignored",
+      "snapshots": [
+        [],
+        [],
+        [
+          [
+            10,
+            0
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "capacity_one",
+      "snapshots": [
+        [],
+        [],
+        []
+      ]
+    },
+    {
+      "name": "negative_and_zero_counter",
+      "snapshots": [
+        [],
+        [],
+        [],
+        [
+          [
+            10,
+            0
+          ]
+        ]
+      ]
+    }
+  ]
+}

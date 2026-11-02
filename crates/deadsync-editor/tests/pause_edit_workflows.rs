@@ -362,9 +362,14 @@ fn edits_match_real_fumen_reader_pause_order_and_note_times_before_after_save() 
     assert_eq!(count, 5);
 }
 #[test]
-fn legacy_and_sm_require_shared_timing_and_missing_or_malformed_data_is_explicit() {
+fn legacy_requires_shared_timing_while_sm_uses_resident_owners_and_malformed_data_is_explicit() {
     for (bytes,format) in [(b"#BPMS:0=120;#STOPS:1=0.5;#NOTES:dance-single::Hard:9::1000;".as_slice(),Format::Sm),(b"#VERSION:0.6;#BPMS:0=120;#STOPS:1=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",Format::Ssc)]{
-        let mut source=source(bytes,format);assert!(Draft::capture(&source,0,Scope::Chart).is_err());let mut draft=Draft::capture(&source,0,Scope::Song).unwrap();draft.set(Kind::Stop,0,-0.25).unwrap();draft.apply(&mut source,0).unwrap();assert_eq!(source.document().text(None,"STOPS").as_deref(),Some("0=-0.25,1=0.5"));
+        let mut source=source(bytes,format);
+        if format==Format::Sm {assert!(Draft::capture(&source,0,Scope::Chart).unwrap().inherited());}
+        else {assert!(Draft::capture(&source,0,Scope::Chart).is_err());}
+        let mut draft=Draft::capture(&source,0,Scope::Song).unwrap();draft.set(Kind::Stop,0,-0.25).unwrap();draft.apply(&mut source,0).unwrap();
+        assert_eq!(Draft::capture(&source,0,Scope::Song).unwrap().pauses(Kind::Stop).serialize(),"0=-0.25,1=0.5");
+        assert_eq!(source.document().text(None,"STOPS").as_deref(),Some(if format==Format::Sm{"1=0.5"}else{"0=-0.25,1=0.5"}));
     }
     assert!(Draft::capture(&source(SSC, Format::Ssc), 999, Scope::Song).is_err());
     assert!(Pauses::parse(Kind::Stop, "1=broken").is_err());

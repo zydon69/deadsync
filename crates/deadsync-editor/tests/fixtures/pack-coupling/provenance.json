@@ -1,0 +1,11 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_blob_sha256": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+  "extracted_methods_sha256": "4f16a20aae8aadf8abe02f6012bb8aead01eeef2c094b738a6f6336624d71422",
+  "program_sha256": "af7a888d5765568ceebe03ea00709f39c8202577077146fa89af2f6e524581b9",
+  "assembly_sha256": "d85c39d5aac90c357fdbd81e379eec7f36dd4f63e72681f3b2cf475b75b5094d",
+  "sdk": "7.0.317",
+  "scope": "Unchanged ShowUnsavedChangesModal, TryInvokePostSaveFunction, OnClose, OnExit. UI delegate/property-only adapters. Save stubs record source documented song-to-pack callback coupling, not actual EditorSong writer/pack IO; no failure/durability claim.",
+  "request_sha256": "22288ca68b6efdfb9b66f7967b01a167d31a98314ecb8bf2768adbf6fcd5b098",
+  "expected_sha256": "831a75827a8bf1207b9400ad0dd38eddaf84afc1b614ed2454860c23a75be853"
+}

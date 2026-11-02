@@ -1,8 +1,15 @@
 //! Native storage adapter. Saving never marks the document clean until the
 //! atomic replacement succeeds; failures leave the current document editable.
 mod auto_recovery;
+mod authoring;
 mod save_output;
+mod external;
+mod published_open;
+pub use published_open::PublishedOpenWitness;
+pub use external::{ExternalSnapshot,ExternalObservation};
 mod recovery_codec;
+mod recovery_publication;
+pub use recovery_publication::RecoveryOutcome;
 pub use save_output::{SaveAttempt, SaveReview};
 mod origin;
 pub use origin::PersistedFile;
@@ -23,20 +30,23 @@ use std::{
 };
 
 pub struct FileSession {
+    generation_profile_load:Option<crate::generation::profile_load::Guard>,
     pub session: Session,
     output_policy: crate::output_policy::OutputPolicy,
     policy_revision: u64,
     publication_revision:u64,
+    publication_witness:Option<PublishedOpenWitness>,
     publication_epoch:Arc<std::sync::atomic::AtomicU64>,
     origin: crate::file_origin::Origin,
     resource_base: PathBuf,
     expected: Option<Arc<[u8]>>,
     recovery_receipt: Option<Arc<Mutex<Option<Arc<[u8]>>>>>,
+    recovery_durability: recovery_publication::SharedPending,
 }
 
 impl FileSession {
     pub fn open(path: &Path) -> Result<Self, Error> {
-        Self::open_read(path, |path| Ok(fs::read(path)?))
+        Self::open_with_context(path,Default::default())
     }
 
     /// Strict editor opening with an explicit byte cap and cooperative read
@@ -47,7 +57,10 @@ impl FileSession {
         maximum: usize,
         cancelled: &std::sync::atomic::AtomicBool,
     ) -> Result<Self, Error> {
-        Self::open_read(path, |path| {
+        Self::open_bounded_with_context(path,maximum,cancelled,Default::default())
+    }
+    pub fn open_bounded_with_context(path:&Path,maximum:usize,cancelled:&std::sync::atomic::AtomicBool,context:crate::document::LoadContext)->Result<Self,Error>{
+        Self::open_read_with_context(path, context,Some(cancelled),|path| {
             let file = fs::File::open(path)?;
             if file.metadata()?.len() > maximum as u64 {
                 return Err(Error::Unsupported("Song byte limit exceeded".into()));
@@ -56,7 +69,7 @@ impl FileSession {
         })
     }
 
-    fn open_read(path: &Path, read: impl FnOnce(&Path) -> Result<Vec<u8>, Error>) -> Result<Self, Error> {
+    fn open_read_with_context(path: &Path, context:crate::document::LoadContext,cancelled:Option<&std::sync::atomic::AtomicBool>,read: impl FnOnce(&Path) -> Result<Vec<u8>, Error>) -> Result<Self, Error> {
         let path = path.canonicalize()?;
         let format = match path
             .extension()
@@ -73,17 +86,21 @@ impl FileSession {
             }
         };
         let expected: Arc<[u8]> = read(&path)?.into();
-        let document = Document::parse(expected.clone(), format)?;
+        let document = Document::parse_with_context(expected.clone(), format,context)?;
+        let mut session=Session::new(document);session.initialize_song_timing_choice_checked(cancelled)?;
         Ok(Self {
-            session: Session::new(document),
+            generation_profile_load:None,
+            session,
             output_policy: crate::output_policy::OutputPolicy::NativeLossless,
             policy_revision: 0,
             publication_revision:0,
+            publication_witness:None,
             publication_epoch:Arc::new(std::sync::atomic::AtomicU64::new(0)),
             resource_base: path.parent().ok_or_else(||Error::InvalidEdit("Song has no resource directory".into()))?.to_owned(),
             origin: crate::file_origin::Origin::Existing(path),
             expected: Some(expected),
             recovery_receipt: Some(Default::default()),
+            recovery_durability: Default::default(),
         })
     }
 
@@ -111,9 +128,10 @@ impl FileSession {
         Ok(path.with_file_name(name))
     }
 
-    /// Durable draft; the original song is untouched. Recovery is explicit and
-    /// refuses a draft whose original file has since changed.
-    pub fn save_recovery(&self) -> Result<(), Error> {
+    /// Publish a recovery draft without changing the original song. Inspect the
+    /// Published outcome: directory durability may remain uncertain after rename.
+    /// Recovery is explicit and refuses a draft whose original file changed.
+    pub fn save_recovery(&self) -> Result<RecoveryOutcome, Error> {
         self.recovery_snapshot()?.ok_or_else(||Error::Unsupported("Save As is required before creating a sidecar recovery".into()))?.write(false)
     }
 
@@ -126,8 +144,11 @@ impl FileSession {
             expected: Arc::clone(persisted.expected),
             content: self.session.serialize()?,
             source_format:self.session.document().format,
-            policy:self.output_policy.clone(),
+            load_context:self.session.document().load_context(),
+            policy:self.output_policy().clone(),
+            output_requires_review:self.output_policy().timing_chart(&self.session).is_err(),
             chart_ids:self.session.chart_ids().to_vec(),
+            song_timing:self.session.song_timing_choice()?,
             publication_epoch:Arc::clone(&self.publication_epoch),
             publication_revision:self.publication_revision,
             expected_draft: persisted.recovery
@@ -135,27 +156,35 @@ impl FileSession {
                 .map_err(|_| std::io::Error::other("Recovery receipt unavailable"))?
                 .clone(),
             receipt: Arc::clone(persisted.recovery),
+            pending_durability: Arc::clone(&self.recovery_durability),
         }))
     }
 
     pub fn recover(&mut self) -> Result<(), Error> {
-        if self.session.is_dirty() {
+        if self.session.is_dirty() && !self.generation_profile_load.as_ref().is_some_and(|guard|guard.permits_dirty_recovery(&self.session)) {
             return Err(Error::InvalidEdit(
                 "Save or discard current edits before recovering a draft".into(),
             ));
         }
+        self.retry_recovery_durability()?;
         let persisted=self.require_persisted()?;
         let expected=Arc::clone(persisted.expected);
         let receipt=Arc::clone(persisted.recovery);
         let bytes = fs::read(self.sidecar_path(".deadsync-recovery")?)?;
         if self.has_external_change()?{return Err(Error::ExternalChange);}
-        let recovered=recovery_codec::decode(&bytes,&expected,self.require_existing_path()?,self.session.document().format)?;
+        let mut recovered=recovery_codec::decode(&bytes,&expected,self.require_existing_path()?,self.session.document().format)?;
+        let recovered_profiles=if let Some(guard)=&self.generation_profile_load{
+            let cancelled=std::sync::atomic::AtomicBool::new(false);
+            let plan=crate::generation::profile_load::Plan::capture(&recovered.session,guard.directory(),&cancelled)?;
+            let mut next=plan.apply(&mut recovered.session,&cancelled)?;next.after_recovery();Some(next)
+        }else{None};
+        if self.has_external_change()?{return Err(Error::ExternalChange);}
         let next_policy=self.next_policy_revision(&recovered.policy)?;
         let next_publication=self.next_publication_revision()?;
         let bytes:Arc<[u8]>=bytes.into();
         let mut ownership=receipt.lock().map_err(|_|std::io::Error::other("Recovery receipt unavailable"))?;
         *ownership=Some(bytes);
-        self.session=recovered.session;self.output_policy=recovered.policy;self.policy_revision=next_policy;self.publication_revision=next_publication;self.publication_epoch.store(next_publication,std::sync::atomic::Ordering::Release);
+        self.session=recovered.session;self.generation_profile_load=recovered_profiles;self.publication_witness=None;self.output_policy=recovered.policy;self.policy_revision=next_policy;self.publication_revision=next_publication;self.publication_epoch.store(next_publication,std::sync::atomic::Ordering::Release);
         Ok(())
     }
 }
@@ -167,61 +196,16 @@ struct RecoverySnapshot {
     expected: Arc<[u8]>,
     content: Vec<u8>,
     source_format:Format,
+    load_context:crate::document::LoadContext,
     policy:crate::output_policy::OutputPolicy,
+    output_requires_review:bool,
     chart_ids:Vec<crate::generation::metadata::Guid>,
+    song_timing:crate::song_timing_chart::Choice,
     publication_epoch:Arc<std::sync::atomic::AtomicU64>,
     publication_revision:u64,
     expected_draft: Option<Arc<[u8]>>,
     receipt: Arc<Mutex<Option<Arc<[u8]>>>>,
-}
-impl RecoverySnapshot {
-    fn write(self, require_current_source: bool) -> Result<(), Error> {
-        let lock = fs::OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
-            .truncate(false)
-            .open(&self.lock_path)?;
-        lock.try_lock().map_err(std::io::Error::other)?;
-        let check = || -> Result<(), Error> {
-            if require_current_source
-                && (self.publication_epoch.load(std::sync::atomic::Ordering::Acquire)!=self.publication_revision || fs::read(&self.source)?.as_slice() != self.expected.as_ref())
-            {
-                return Err(Error::ExternalChange);
-            }
-            Ok(())
-        };
-        check()?;
-        if require_current_source {
-            match fs::read(&self.path) {
-                Ok(bytes) if self.expected_draft.as_deref() == Some(bytes.as_slice()) => {}
-                Err(error)
-                    if error.kind() == std::io::ErrorKind::NotFound
-                        && self.expected_draft.is_none() => {}
-                Ok(_) => return Err(Error::RecoveryConflict),
-                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
-                    return Err(Error::RecoveryConflict);
-                }
-                Err(error) => return Err(error.into()),
-            }
-        }
-        let parent = self.path.parent().unwrap();
-        let bytes=recovery_codec::encode(&self)?;
-        let mut pending = tempfile::NamedTempFile::new_in(parent)?;
-        pending.write_all(&bytes)?;
-        pending.as_file().sync_all()?;
-        check()?;
-        pending
-            .persist(&self.path)
-            .map_err(|error| Error::Io(error.error))?;
-        sync_directory(parent)?;
-        *self
-            .receipt
-            .lock()
-            .map_err(|_| std::io::Error::other("Recovery receipt unavailable"))? =
-            Some(bytes.into());
-        Ok(())
-    }
+    pending_durability: recovery_publication::SharedPending,
 }
 
 pub(crate) fn sync_directory(path: &Path) -> Result<(), Error> {
@@ -279,3 +263,23 @@ mod bounded_open_tests {
         assert!(read_bounded(Cancel(&cancelled),1024,&cancelled).is_err());
     }
 }
+
+impl FileSession {pub fn open_with_context(path:&Path,context:crate::document::LoadContext)->Result<Self,Error>{Self::open_read_with_context(path,context,None,|path|Ok(fs::read(path)?))}}
+impl FileSession {
+    pub(crate) fn install_generation_profile_guard(&mut self,guard:crate::generation::profile_load::Guard){self.generation_profile_load=Some(guard);}
+    pub fn validate_generation_profiles(&self,cancelled:&std::sync::atomic::AtomicBool)->Result<(),Error>{
+        if cancelled.load(std::sync::atomic::Ordering::Relaxed){return Err(Error::InvalidEdit("Profile resolution cancelled".into()));}
+        if let Some(guard)=&self.generation_profile_load{guard.validate(cancelled)?;}
+        Ok(())
+    }
+}
+
+impl FileSession {
+    pub(crate) fn has_generation_profile_resolution(&self)->bool{self.generation_profile_load.is_some()}
+    pub fn validate_generation_profile_context(&self,directory:Option<&Path>,cancelled:&std::sync::atomic::AtomicBool)->Result<(),Error>{
+        if cancelled.load(std::sync::atomic::Ordering::Relaxed){return Err(Error::InvalidEdit("Profile resolution cancelled".into()));}
+        if let Some(guard)=&self.generation_profile_load{guard.validate_for(directory,cancelled)?;}Ok(())
+    }
+}
+
+impl FileSession {pub fn generation_profile_repairs(&self)->&[crate::generation::profile_load::Repair]{self.generation_profile_load.as_ref().map(|guard|guard.repairs()).unwrap_or(&[])}}

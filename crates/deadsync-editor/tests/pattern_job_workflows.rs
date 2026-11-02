@@ -94,12 +94,19 @@ fn preview_applies_once_undoes_and_saves_through_real_session() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     std::fs::write(&path, &before).unwrap();
+    let other_chart = source.grid(1).unwrap().clone();
+    let output = source.serialize_for_output().unwrap();
     let mut file = FileSession::open(&path).unwrap();
     file.session = source;
     file.save().unwrap();
-    assert_eq!(std::fs::read(&path).unwrap(), after);
+    assert_eq!(std::fs::read(&path).unwrap(), output);
     let mut reopened = FileSession::open(&path).unwrap();
+    let resident = Document::parse(after.as_slice(), Format::Ssc).unwrap();
+    for tag in resident.tags() {
+        assert_eq!(reopened.session.document().raw_property(tag.chart, &tag.name), resident.raw_property(tag.chart, &tag.name), "Resident field changed: {:?}/{}", tag.chart, tag.name);
+    }
     assert_eq!(reopened.session.grid(0).unwrap(), &expected);
+    assert_eq!(reopened.session.grid(1).unwrap(), &other_chart);
     assert_eq!(reopened.session.document().charts().len(), 2);
     assert!(String::from_utf8_lossy(&after).contains("#VENDOR:keep;"));
 }

@@ -1,0 +1,7 @@
+{
+  "commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "method_sha256": "e36669fd8027f9e2f2d32953b022daa7858d79ebdf308a41c78c5ad455ddc8da",
+  "comparer_sha256": "6073052a2d4717793ffb66c24cb92d59c754a027088982454fd17a2ba39c6deb",
+  "scope": "Original GetBannerFromDirectory(DirectoryInfo) and FileInfoNameComparer unchanged. Real files/directories/symlinks, en-US/fr-FR/sv-SE. No GUI/texture decoding.",
+  "sdk": "10.0.403"
+}

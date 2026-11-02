@@ -1,0 +1,422 @@
+[
+  {
+    "kind": "integer",
+    "control": "receptor-x",
+    "raw": -2147483648,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-x",
+    "raw": -1,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-x",
+    "raw": 0,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-x",
+    "raw": 7,
+    "result": 7
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-x",
+    "raw": 137,
+    "result": 137
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-x",
+    "raw": 32769,
+    "result": 853
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-x",
+    "raw": 2147483647,
+    "result": 853
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-y",
+    "raw": -2147483648,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-y",
+    "raw": -1,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-y",
+    "raw": 0,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-y",
+    "raw": 7,
+    "result": 7
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-y",
+    "raw": 137,
+    "result": 137
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-y",
+    "raw": 32769,
+    "result": 479
+  },
+  {
+    "kind": "integer",
+    "control": "receptor-y",
+    "raw": 2147483647,
+    "result": 479
+  },
+  {
+    "kind": "integer",
+    "control": "stream-min",
+    "raw": -2147483648,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "stream-min",
+    "raw": -1,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "stream-min",
+    "raw": 0,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "stream-min",
+    "raw": 7,
+    "result": 7
+  },
+  {
+    "kind": "integer",
+    "control": "stream-min",
+    "raw": 137,
+    "result": 8
+  },
+  {
+    "kind": "integer",
+    "control": "stream-min",
+    "raw": 32769,
+    "result": 8
+  },
+  {
+    "kind": "integer",
+    "control": "stream-min",
+    "raw": 2147483647,
+    "result": 8
+  },
+  {
+    "kind": "integer",
+    "control": "stream-cutoff",
+    "raw": -2147483648,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "stream-cutoff",
+    "raw": -1,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "stream-cutoff",
+    "raw": 0,
+    "result": 0
+  },
+  {
+    "kind": "integer",
+    "control": "stream-cutoff",
+    "raw": 7,
+    "result": 7
+  },
+  {
+    "kind": "integer",
+    "control": "stream-cutoff",
+    "raw": 137,
+    "result": 64
+  },
+  {
+    "kind": "integer",
+    "control": "stream-cutoff",
+    "raw": 32769,
+    "result": 64
+  },
+  {
+    "kind": "integer",
+    "control": "stream-cutoff",
+    "raw": 2147483647,
+    "result": 64
+  },
+  {
+    "kind": "integer",
+    "control": "history",
+    "raw": -2147483648,
+    "result": 1
+  },
+  {
+    "kind": "integer",
+    "control": "history",
+    "raw": -1,
+    "result": 1
+  },
+  {
+    "kind": "integer",
+    "control": "history",
+    "raw": 0,
+    "result": 1
+  },
+  {
+    "kind": "integer",
+    "control": "history",
+    "raw": 7,
+    "result": 7
+  },
+  {
+    "kind": "integer",
+    "control": "history",
+    "raw": 137,
+    "result": 137
+  },
+  {
+    "kind": "integer",
+    "control": "history",
+    "raw": 32769,
+    "result": 32768
+  },
+  {
+    "kind": "integer",
+    "control": "history",
+    "raw": 2147483647,
+    "result": 32768
+  },
+  {
+    "kind": "integer",
+    "control": "frames",
+    "raw": -2147483648,
+    "result": 2
+  },
+  {
+    "kind": "integer",
+    "control": "frames",
+    "raw": -1,
+    "result": 2
+  },
+  {
+    "kind": "integer",
+    "control": "frames",
+    "raw": 0,
+    "result": 2
+  },
+  {
+    "kind": "integer",
+    "control": "frames",
+    "raw": 7,
+    "result": 7
+  },
+  {
+    "kind": "integer",
+    "control": "frames",
+    "raw": 137,
+    "result": 137
+  },
+  {
+    "kind": "integer",
+    "control": "frames",
+    "raw": 32769,
+    "result": 1024
+  },
+  {
+    "kind": "integer",
+    "control": "frames",
+    "raw": 2147483647,
+    "result": 1024
+  },
+  {
+    "kind": "double",
+    "control": "sync",
+    "raw": -100,
+    "raw_text": "-100",
+    "result": 0,
+    "result_bits": "0000000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "sync",
+    "raw": 0,
+    "raw_text": "-0",
+    "result": 0,
+    "result_bits": "0000000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "sync",
+    "raw": 0,
+    "raw_text": "0",
+    "result": 0,
+    "result_bits": "0000000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "sync",
+    "raw": 0.123456789012345,
+    "raw_text": "0.123456789012345",
+    "result": 0.123456789012345,
+    "result_bits": "3FBF9ADD3746F62E"
+  },
+  {
+    "kind": "double",
+    "control": "sync",
+    "raw": 1.23456789,
+    "raw_text": "1.23456789",
+    "result": 1.23456789,
+    "result_bits": "3FF3C0CA4283DE1B"
+  },
+  {
+    "kind": "double",
+    "control": "sync",
+    "raw": 12,
+    "raw_text": "12",
+    "result": 12,
+    "result_bits": "4028000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "sync",
+    "raw": 1e+100,
+    "raw_text": "1E+100",
+    "result": 1e+100,
+    "result_bits": "54B249AD2594C37D"
+  },
+  {
+    "kind": "double",
+    "control": "dpi",
+    "raw": -100,
+    "raw_text": "-100",
+    "result": 0.25,
+    "result_bits": "3FD0000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "dpi",
+    "raw": 0,
+    "raw_text": "-0",
+    "result": 0.25,
+    "result_bits": "3FD0000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "dpi",
+    "raw": 0,
+    "raw_text": "0",
+    "result": 0.25,
+    "result_bits": "3FD0000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "dpi",
+    "raw": 0.123456789012345,
+    "raw_text": "0.123456789012345",
+    "result": 0.25,
+    "result_bits": "3FD0000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "dpi",
+    "raw": 1.23456789,
+    "raw_text": "1.23456789",
+    "result": 1.23456789,
+    "result_bits": "3FF3C0CA4283DE1B"
+  },
+  {
+    "kind": "double",
+    "control": "dpi",
+    "raw": 12,
+    "raw_text": "12",
+    "result": 8,
+    "result_bits": "4020000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "dpi",
+    "raw": 1e+100,
+    "raw_text": "1E+100",
+    "result": 8,
+    "result_bits": "4020000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "explicit",
+    "raw": -100,
+    "raw_text": "-100",
+    "result": 0,
+    "result_bits": "0000000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "explicit",
+    "raw": 0,
+    "raw_text": "-0",
+    "result": 0,
+    "result_bits": "0000000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "explicit",
+    "raw": 0,
+    "raw_text": "0",
+    "result": 0,
+    "result_bits": "0000000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "explicit",
+    "raw": 0.123456789012345,
+    "raw_text": "0.123456789012345",
+    "result": 0.123456789012345,
+    "result_bits": "3FBF9ADD3746F62E"
+  },
+  {
+    "kind": "double",
+    "control": "explicit",
+    "raw": 1.23456789,
+    "raw_text": "1.23456789",
+    "result": 1,
+    "result_bits": "3FF0000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "explicit",
+    "raw": 12,
+    "raw_text": "12",
+    "result": 1,
+    "result_bits": "3FF0000000000000"
+  },
+  {
+    "kind": "double",
+    "control": "explicit",
+    "raw": 1e+100,
+    "raw_text": "1E+100",
+    "result": 1,
+    "result_bits": "3FF0000000000000"
+  }
+]

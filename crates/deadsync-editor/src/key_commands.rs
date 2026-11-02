@@ -104,10 +104,17 @@ impl Registry {
         let Some(candidate) = self.states.iter().find(|state| state.id == id) else {
             return Vec::new();
         };
+        self.conflicts_with_policy(id, keys, candidate.blocks)
+    }
+    /// Original GetConflictingCommands obtains the candidate blocking policy
+    /// from PreferencesKeyBinds, independently of its registered command state.
+    /// Native callers normally use conflicts(), whose policy is its binding.
+    pub fn conflicts_with_policy(&self, id: &str, keys: &[Key], blocks_input: bool) -> Vec<String> {
+        if !self.states.iter().any(|state|state.id==id) {return Vec::new();}
         let mut result = BTreeSet::new();
         for state in &self.states {
             if state.id != id
-                && ((candidate.blocks && conflicts(keys, &state.keys))
+                && ((blocks_input && conflicts(keys, &state.keys))
                     || (state.blocks && conflicts(&state.keys, keys)))
             {
                 result.insert(state.id.clone());

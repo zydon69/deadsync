@@ -9,9 +9,33 @@ pub(super) struct Settings {
 }
 impl State {
     pub(super) fn pattern_set_side_panel(&self) -> bool {
-        screen_width() >= 800.0
-            && matches!(self.panel, Some(Panel::GenerationPreview(_)))
-            && matches!(self.preview, Some(GenerationPreview::PatternSet { .. }))
+        if !matches!(self.panel, Some(Panel::GenerationPreview(_))) {
+            return false;
+        }
+        let Some(GenerationPreview::PatternSet { preview, .. }) = &self.preview else {
+            return false;
+        };
+        let width = screen_width();
+        let right = (width - 390.0).max(1.0);
+        let center = self.receptor_preferences().placement.project(
+            (width - 390.0) * 0.5, 0.0, right, 105.0,
+            (screen_height() - 85.0).max(105.0), self.reverse_display,
+        ).0;
+        let mut reserved_left = 0.0_f32;
+        let density = self.source_density.preferences;
+        if density.visible && density.position == deadsync_editor::density_preferences::Position::LeftSideOfWindow {
+            reserved_left = (density.position_offsets[density.position.index()] as f32
+                + density.height as f32).max(reserved_left);
+        }
+        let mount = self.minimap.position.mount;
+        if self.minimap.content.options.visible
+            && mount == deadsync_editor::minimap_position_preferences::Mount::LeftSideOfWindow
+        {
+            reserved_left = (self.minimap.position.offset(mount) as f32
+                + self.minimap.content.options.width as f32).max(reserved_left);
+        }
+        side_panel_fits(width, preview.grid().columns(), self.zoom.size_zoom() as f32,
+            center, reserved_left)
     }
     pub fn pattern_set_preview(&self) -> Option<(&pattern_batch::Preview, usize)> {
         match self.preview.as_ref()? {
@@ -62,7 +86,7 @@ impl State {
                 self.status = i18n::tr("Edition", "PatternSetOptionsHelp");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
             }
         }
     }
@@ -152,7 +176,7 @@ impl State {
                 self.status = i18n::tr("Edition", "GenerationPreparing");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
             }
         }
     }
@@ -164,7 +188,7 @@ impl State {
                 let row = preview.entries()[*entry].row;
                 if let Err(error) = self.workspace.execute(Command::Seek(row)) {
                     self.status =
-                        i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
+                        i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
                 }
                 self.refresh();
             }
@@ -288,5 +312,37 @@ fn toggle(settings: &mut Settings) {
     let row = settings.markers[settings.current].0;
     if !settings.selected.remove(&row) {
         settings.selected.insert(row);
+    }
+}
+
+
+// Reserve the actual scaled sprite envelope, not only the lane centers. Keep
+// the existing bottom preview when a lateral panel would hide notes behind
+// either a window-mounted overview or the panel itself.
+fn side_panel_fits(width: f32, columns: u16, zoom: f32, center: f32, reserved_left: f32) -> bool {
+    if width < 800.0 || columns == 0 {
+        return false;
+    }
+    let lane = ((width - 570.0).max(80.0) / f32::from(columns)).min(48.0);
+    let half_extent = lane * (f32::from(columns) - 1.0 + zoom) * 0.5;
+    center - half_extent >= reserved_left + 12.0
+        && center + half_extent <= width - 390.0 - 12.0
+}
+
+#[cfg(test)]
+mod preview_layout_tests {
+    use super::side_panel_fits;
+
+    #[test]
+    fn lateral_preview_requires_room_for_overviews_and_scaled_notes() {
+        for columns in [4, 8, 10] {
+            assert!(!side_panel_fits(854.0, columns, 1.0, 232.0, 200.0));
+        }
+        assert!(side_panel_fits(1280.0, 4, 1.0, 445.0, 200.0));
+        assert!(side_panel_fits(1280.0, 8, 1.0, 445.0, 200.0));
+        assert!(!side_panel_fits(1280.0, 4, 1.0, 445.0, 360.0));
+        assert!(!side_panel_fits(1280.0, 4, 10.0, 445.0, 200.0));
+        assert!(!side_panel_fits(1280.0, 4, 1.0, 850.0, 200.0));
+        assert!(side_panel_fits(854.0, 4, 1.0, 232.0, 100.0));
     }
 }

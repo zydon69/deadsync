@@ -177,18 +177,26 @@ fn workspace_clone_edit_undo_redo_save_reopen_restores_active_chart_and_particip
     let before = workspace.file().session.serialize().unwrap();
     workspace.execute(Command::DuplicateChart).unwrap();
     assert_eq!(workspace.chart(), 1);
-    assert_eq!(workspace.player(), 0);
+    // FinishAddingChart inherits the active player, clamped to this layout.
+    assert_eq!(workspace.player(), 1);
     assert_eq!(workspace.grid().players(), 2);
     assert_eq!(workspace.row(), 48);
     workspace.execute(Command::Place(2)).unwrap();
+    let added = Position { player: 1, lane: 2, row: 48 };
+    assert_eq!(workspace.grid().get(added), Some(&Note::tap()));
+    assert!(workspace.grid().get(Position { player: 0, ..added }).is_none());
     let after = workspace.file().session.serialize().unwrap();
     workspace.execute(Command::Undo).unwrap();
     workspace.execute(Command::Undo).unwrap();
     assert_eq!(workspace.chart(), 0);
+    assert_eq!(workspace.player(), 1);
     assert_eq!(workspace.file().session.serialize().unwrap(), before);
     workspace.execute(Command::Redo).unwrap();
     assert_eq!(workspace.chart(), 1);
+    assert_eq!(workspace.player(), 1);
+    assert!(workspace.grid().get(added).is_none());
     workspace.execute(Command::Redo).unwrap();
+    assert_eq!(workspace.grid().get(added), Some(&Note::tap()));
     assert_eq!(workspace.file().session.serialize().unwrap(), after);
     workspace.execute(Command::Save).unwrap();
     let reopened = Workspace::open(&path, 1).unwrap();

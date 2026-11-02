@@ -15,6 +15,8 @@ mod window_modifier_fallback;
 mod editor_music_picker;
 mod editor_image_previews;
 mod editor_collation;
+mod editor_log_formatter;
+mod editor_external_open;
 mod editor_pack_collation;
 mod frame_pacing_trace;
 mod frame_stats;
@@ -132,3 +134,5 @@ fn dataflow_peak_bytes(churn: perf::Churn) -> usize {
 #[cfg(test)]
 #[path = "../../../tests/perf/course_support.rs"]
 mod course_perf;
+
+pub mod editor_entry;

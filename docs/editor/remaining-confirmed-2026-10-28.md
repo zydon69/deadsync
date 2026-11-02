@@ -1,6 +1,21 @@
 # Confirmed remaining work — 28 October 2026
 
-This is a live list of confirmed gaps, not an exhaustive coverage certificate.
+This is a historical list of gaps confirmed on 28 October, not a current task
+list or an exhaustive coverage certificate. Many entries below have since been
+implemented and tested. Current scoped results are recorded in
+`resume-validation-2026-10-28.json`, under `latest_integration_2026_10_29`,
+and in `patches/editor-completion-review.md`. Do not infer missing functionality
+from this older inventory without inspecting the current consumers.
+
+The earlier open-work summary is superseded: source preference import, wheel
+routing, Log/Help/FTUE and the native performance panel with host measurements
+have since been integrated. They still require final combined product validation.
+Current confirmed implementation work includes source-domain assist/beat tick
+scheduling and bounded SFX retirement, remaining source preference edge cases,
+and generation metadata fidelity. The latest Main transport audio suite passes
+237 tests; that scope does not prove nonempty tick equivalence. Full editor,
+shell, renderer and macOS runtime validation remain open. Source feature parity
+must still be established requirement by requirement, beyond this historical list.
 Reference: GrooveAuthor 48e18f71655d0f0d86144c63239331833501fda2.
 
 ## Integration and validation in progress

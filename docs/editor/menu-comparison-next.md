@@ -1,5 +1,7 @@
 # Original menu comparison and next independent increment
 
+> Historical checkpoint. The absence claims in the table below predate the File, Pack, Save As, advanced export, selection/conversion, keybinding, Help and layout ports. They must not be used as the current completion checklist. See `resume-validation-2026-10-28.json` for scoped current evidence; remaining features must be checked against the source and current implementation.
+
 ## Scope and method
 
 Comparison at GrooveAuthor `48e18f71655d0f0d86144c63239331833501fda2`.

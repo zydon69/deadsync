@@ -9,7 +9,7 @@ test-support = []
 
 [dependencies]
 deadlib-audio-decode = { path = "../deadlib-audio-decode" }
-deadsync-editor = { path = "../deadsync-editor" }
+deadsync-editor = { path = "../deadsync-editor", features = ["assistant-audio"] }
 deadsync-song-lua = { path = "../deadsync-song-lua" }
 null-or-die = { git = "https://github.com/pnn64/null-or-die", branch = "main" }
 deadsync-smx = { path = "../deadsync-smx" }
@@ -54,7 +54,7 @@ unicode-segmentation = "1.13.3"
 tempfile = "3.27.0"
 deadsync-lights = { path = "../deadsync-lights" }
 deadlib-render-core = { path = "../deadlib-render-core", features = ["test-util"] }
-deadlib-render = { path = "../deadlib-render" }
+deadlib-render = { path = "../deadlib-render", features = ["test-util"] }
 deadsync-notefield = { path = "../deadsync-notefield" }
 serde_json = "1.0.151"
 winit = "0.30.13"

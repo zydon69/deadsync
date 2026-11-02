@@ -62,16 +62,32 @@ impl AlsaOutputPrep {
 }
 
 pub struct AlsaOutputStream {
+    negotiated: deadlib_audio_core::BufferNegotiation,
     stop_flag: Arc<AtomicBool>,
     thread: Option<JoinHandle<()>>,
 }
 
+impl AlsaOutputStream {
+    pub fn buffer_negotiation(&self) -> deadlib_audio_core::BufferNegotiation {
+        self.negotiated
+    }
+}
+
+impl AlsaOutputStream {
+    pub fn shutdown(&mut self) -> Result<(), String> {
+        self.stop_flag.store(true, Ordering::Release);
+        if let Some(thread) = self.thread.take() {
+            thread
+                .join()
+                .map_err(|_| "Alsa render thread panicked during shutdown".to_string())?;
+        }
+        Ok(())
+    }
+}
+
 impl Drop for AlsaOutputStream {
     fn drop(&mut self) {
-        self.stop_flag.store(true, Ordering::Relaxed);
-        if let Some(thread) = self.thread.take() {
-            let _ = thread.join();
-        }
+        let _ = self.shutdown();
     }
 }
 
@@ -249,9 +265,46 @@ pub fn prepare(
     channels: usize,
     mode: AlsaAccessMode,
 ) -> Result<AlsaOutputPrep, String> {
+    prepare_with_buffers(
+        pcm_id,
+        device_name,
+        sample_rate_hz,
+        channels,
+        mode,
+        deadlib_audio_core::BufferRequest::default(),
+    )
+}
+
+pub fn prepare_with_buffers(
+    pcm_id: Option<String>,
+    device_name: String,
+    sample_rate_hz: u32,
+    channels: usize,
+    mode: AlsaAccessMode,
+    request: deadlib_audio_core::BufferRequest,
+) -> Result<AlsaOutputPrep, String> {
+    if request != deadlib_audio_core::BufferRequest::default() {
+        request
+            .validate(deadlib_audio_core::BufferCapabilities {
+                period_frames: deadlib_audio_core::BufferControl::Adjustable,
+                num_buffers: deadlib_audio_core::BufferControl::Adjustable,
+            })
+            .map_err(|error| format!("invalid ALSA buffer request: {error:?}"))?;
+    }
     let pcm_id = selected_pcm_id(pcm_id, &device_name, mode)?;
     let pcm = open_pcm(&pcm_id)?;
-    let actual = configure_probe(&pcm, sample_rate_hz, channels.max(1), mode)?;
+    let period = request
+        .period_frames
+        .unwrap_or_else(|| suggested_period_frames(sample_rate_hz));
+    let total = request
+        .num_buffers
+        .map(|count| {
+            period
+                .checked_mul(count)
+                .ok_or_else(|| "ALSA buffer request overflow".to_string())
+        })
+        .transpose()?;
+    let actual = configure_pcm(&pcm, sample_rate_hz, channels.max(1), mode, period, total)?;
     Ok(AlsaOutputPrep {
         pcm_id,
         device_name,
@@ -271,13 +324,14 @@ pub fn start(
 ) -> Result<AlsaOutputStream, String> {
     let stop_flag = Arc::new(AtomicBool::new(false));
     let stop_flag_thread = stop_flag.clone();
-    let (ready_tx, ready_rx) = channel::<Result<(), String>>();
+    let (ready_tx, ready_rx) = channel::<Result<deadlib_audio_core::BufferNegotiation, String>>();
     let thread = thread::Builder::new()
         .name("alsa_out".to_string())
         .spawn(move || render_thread(prep, render, sfx_receiver, stop_flag_thread, ready_tx))
         .map_err(|e| format!("failed to spawn ALSA render thread: {e}"))?;
     match ready_rx.recv() {
-        Ok(Ok(())) => Ok(AlsaOutputStream {
+        Ok(Ok(negotiated)) => Ok(AlsaOutputStream {
+            negotiated,
             stop_flag,
             thread: Some(thread),
         }),
@@ -369,7 +423,7 @@ fn render_thread(
     render: RenderState,
     sfx_receiver: SfxReceiver,
     stop_flag: Arc<AtomicBool>,
-    ready_tx: Sender<Result<(), String>>,
+    ready_tx: Sender<Result<deadlib_audio_core::BufferNegotiation, String>>,
 ) {
     if let Err(err) = render_thread_inner(prep, render, sfx_receiver, &stop_flag, &ready_tx) {
         let _ = ready_tx.send(Err(err));
@@ -381,7 +435,7 @@ fn render_thread_inner(
     mut render: RenderState,
     mut sfx_receiver: SfxReceiver,
     stop_flag: &AtomicBool,
-    ready_tx: &Sender<Result<(), String>>,
+    ready_tx: &Sender<Result<deadlib_audio_core::BufferNegotiation, String>>,
 ) -> Result<(), String> {
     let pcm = open_pcm(&prep.pcm_id)?;
     let actual = configure_run(
@@ -392,6 +446,9 @@ fn render_thread_inner(
         prep.buffer_frames,
         prep.mode,
     )?;
+    if actual.sample_rate_hz != prep.sample_rate_hz || actual.channels != prep.channels {
+        return Err("ALSA output format changed between probe and startup".into());
+    }
     let io = pcm.io_i16().map_err(|e| {
         format!(
             "failed to create ALSA i16 IO for '{}': {e}",
@@ -415,7 +472,11 @@ fn render_thread_inner(
         0,
         0,
     );
-    if ready_tx.send(Ok(())).is_err() {
+    let negotiated = deadlib_audio_core::BufferNegotiation::from_period_and_total(
+        actual.period_frames,
+        actual.buffer_frames,
+    );
+    if ready_tx.send(Ok(negotiated)).is_err() {
         return Ok(());
     }
 
@@ -523,22 +584,6 @@ fn resolved_hw_pcm_id(pcm_id: &str) -> Option<String> {
 fn open_pcm(pcm_id: &str) -> Result<PCM, String> {
     PCM::new(pcm_id, Direction::Playback, false)
         .map_err(|e| format!("failed to open ALSA PCM '{pcm_id}': {e}"))
-}
-
-fn configure_probe(
-    pcm: &PCM,
-    sample_rate_hz: u32,
-    channels: usize,
-    mode: AlsaAccessMode,
-) -> Result<AlsaParams, String> {
-    configure_pcm(
-        pcm,
-        sample_rate_hz,
-        channels,
-        mode,
-        suggested_period_frames(sample_rate_hz),
-        None,
-    )
 }
 
 fn configure_run(

@@ -1,0 +1,448 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "LibraryCommit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "OriginalWorkerSha256": "a7f4d360c871ffb371e259144b6e4790c2767468da8f47d6a6dd1820113c32f1",
+  "CompiledWorkerSha256": "0a472dac604682fcffae88eec07a114193e555d07baa85116f92d2db4a0229c5",
+  "ContainerAdapterSha256": "f7917791b27c99c1931c3d0a5fb891b99d92c1b94b89a8974f3ecdfc4133772c",
+  "BranchSha256": "2895f5acbb2508419327a1b29702dfcc316852125800ee30b2b83f8329bdcd3b",
+  "PlumbingSha256": "34b65eba48357a2d6f16695610397cb5b63e880121a9e65395421b92d6635bfb",
+  "Cases": [
+    {
+      "Request": "pattern-batch-adjacent.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "434d46c4fc95d473e1383ccb67e5b52fe84e881f15551440c0b9e6ac0c17029a",
+      "ResultSha256": "7e3c9f0d1e06c7a903e22cc432f895dbccfe5b232070a515e9339d9003e06451",
+      "MatchesReconstructedWorker": false
+    },
+    {
+      "Request": "pattern-batch-all-empty.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "33ef214379154e2a99f1b4ff87d93d1a3e5bcea85ea3aa1c9133fbfccebcc509",
+      "ResultSha256": "9bc4acfb9f5d70bf0b8e5d21a01b54ad4d1b0c446a932f3bd3042ba070ab44f8",
+      "MatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-delayed-origin-sm.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "4e1ef1864b4c4ee33827ff069c8ba6e3fe429b5d475d800412c752d7d9cdc1ec",
+      "ResultSha256": "562e9cca94be5a2f1333afbd904fd5310c44f157b33a576c6e3121145c435281",
+      "MatchesReconstructedWorker": false
+    },
+    {
+      "Request": "pattern-batch-delayed-origin.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "95f3719eacd2372e0e91414a11534bd8baa35848a363d6131690399441af8595",
+      "ResultSha256": "562e9cca94be5a2f1333afbd904fd5310c44f157b33a576c6e3121145c435281",
+      "MatchesReconstructedWorker": false
+    },
+    {
+      "Request": "pattern-batch-disjoint.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "646edb756ccb55469e7442b398cd04b212059ff236d5e065f2226cfedf531ef1",
+      "ResultSha256": "a6e3316bb76854ee7c656d5b28142c452cbacdedfe952a63c5de978515bd722e",
+      "MatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-empty-final.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "6a1a1599ea29002da41fa60f4fbf9bdcbbf65ab541c904c5bb6a948dfacbc538",
+      "ResultSha256": "b64d28acf7a54c43a14c7d7771a2d976618cf275b594f24974d5010d5aa6e5e1",
+      "MatchesReconstructedWorker": false
+    },
+    {
+      "Request": "pattern-batch-empty-next-context.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "8d63ec7d33a1bfbfa12d61d4e21a3204092181ae9894013d043b984dad593994",
+      "ResultSha256": "c895d752a1aa2885b2b1d05ff078e02687ce3bdb98ddcd41dc384a0661b7e61d",
+      "MatchesReconstructedWorker": false
+    },
+    {
+      "Request": "pattern-batch-empty-next-double.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "36ad8df2bb7223820e9bc572b77d31f553bd93da3e6091bdd1415ba0943de1bd",
+      "ResultSha256": "f9e8c54ef5dcec69c73af519622c611e881e7e960dc82b8f4038c611101e1709",
+      "MatchesReconstructedWorker": false
+    },
+    {
+      "Request": "pattern-batch-empty-next.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "f593433a9b7a7fc12eda78ad2aac3ad3de6291e8d8e3067715d22e7152be6097",
+      "ResultSha256": "86e88728ebd4aea9c4a956ec5840d571f27fde3f4a8da0e4288f7b8b3c653854",
+      "MatchesReconstructedWorker": false
+    },
+    {
+      "Request": "pattern-batch-ignore-distribution.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "010e3c219f2cbd44662f23213560b974674ee4294ff565a1b2463eb97a77563d",
+      "ResultSha256": "97839a0434ecd84398c5833bf67df61fafba7421494c4488a698bc19986c2434",
+      "MatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-nested-short.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "b5fe6d425553661a1a708460e4bd28dc4145238dbee807fbb714b6ec49a59a3d",
+      "ResultSha256": "9cf9dab6f22310a82574c1c0b3aefc89f9cee5c051a4d50ee146df951c4db5d0",
+      "MatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-off-grid.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "d460a6ceabc9b9aa1896c8b1f2b2cab499ff6555842cada5efcaab5bafb702d8",
+      "ResultSha256": "6dafcab4d3262331eb4d930ef6c4de8150182788689404fcdb432a43d40861d4",
+      "MatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-overlap.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "cb912d9101348ef6e17a0d3a77b3a2989f435018658367cd9ca72979be3150be",
+      "ResultSha256": "28938733ecb1e59c41f95abd7bc92e3d7ed50a6a7305c331e4822cd23318aaa9",
+      "MatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-shared-transitions.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "4dfbb78e7a8fc30bb037de10fda128e9bb8927b8eac0fd078829c57e4866465f",
+      "ResultSha256": "c895d752a1aa2885b2b1d05ff078e02687ce3bdb98ddcd41dc384a0661b7e61d",
+      "MatchesReconstructedWorker": false
+    },
+    {
+      "Request": "pattern-batch-single-row.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "686a644606508377ca57444dfba301abdbfef01a2c861fd8748ef96046359019",
+      "ResultSha256": "480fbca4efaef0a66fcde17a9941b9aa84b797ee6f5e42354c6200892ccd6d7b",
+      "MatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-spacing-one.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "caa694d067c2701d2be3a089618fa006aaa138b3c9d0f177a9260c1858e9587d",
+      "ResultSha256": "d8f40320fd61815d0a42a55e2e5aab88f164fcaccd40c23d5b405ab2d5e5cbc9",
+      "MatchesReconstructedWorker": false
+    },
+    {
+      "Request": "pattern-batch-unsorted.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "5dd7ef9b2c66406c6e79f474d3cd5df897a8b77d0b7030950fce8bf0e2238761",
+      "ResultSha256": "66d1409f5589e3912b0ed7ee9003f27bcd137742aec5327d4ac722420db5698e",
+      "MatchesReconstructedWorker": false
+    },
+    {
+      "Request": "pattern-single-adjacent.request.json",
+      "DerivedFirstMarkerOnly": true,
+      "DerivedProjectionToSingleMarker": false,
+      "RequestSha256": "434d46c4fc95d473e1383ccb67e5b52fe84e881f15551440c0b9e6ac0c17029a",
+      "ResultSha256": "8a5733e7b89fa7a30130588a8467051a65bc01fa0294c43bae6f10516c85152f",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-baseline.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "88dc49f559aa827950ae7469ca7ace1902730bd9b89600b22c4922cdf001916b",
+      "ResultSha256": "7eba471a341c69eceed4fbd05d7d97b5f56ad505fc0079760626db8da3d5c48d",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-delay.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "53b080d5e3dfa272af75f097670e30a3444372f17ee49b84a1d01f1927666202",
+      "ResultSha256": "90d100a6990fd0d914149ed5d5c6924abb0b33a78a1417a755f7e38aca68d28e",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-dense-warp-rounding.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "1784f8e8eaa024b80cfd9cc29e1c4062728581299ce11345a1300d67876e30c3",
+      "ResultSha256": "8415fbb475fec07fa136243f1ca92d5a214f4782978513503538d6f2189cf49b",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-empty.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "1a4d6dc2b53cc509750661266585f01b4c890329c485492d4d63c05e91d15577",
+      "ResultSha256": "a12239f3f5d803e1c6d057f7dfe713e20597277cd0415aa90e8f375e4c14a8e4",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-hold-before-metadata.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "2e8f147696067dacc6425435413cbc5a1abab214abe0829368bc8ec4636fd1be",
+      "ResultSha256": "6c539f8d5623cb78f854f56ff22410b4c926553a098f8ca812fabdb44799cfdf",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-last-combo.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "a6fad7137ae2129438356bb3297a955fb17e9907f664738059d279ec3902c2bb",
+      "ResultSha256": "7eba471a341c69eceed4fbd05d7d97b5f56ad505fc0079760626db8da3d5c48d",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-last-delay.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "0d3ec776aa83f6fcdbfa7469ac7154b381b8e1bfd7fb304531b3bcce8fcbf77d",
+      "ResultSha256": "7eba471a341c69eceed4fbd05d7d97b5f56ad505fc0079760626db8da3d5c48d",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-last-fake-and-label.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "1ae2d723ee31451827afd32fd747d99631ebd9754e653436a2baf79cd996749b",
+      "ResultSha256": "7eba471a341c69eceed4fbd05d7d97b5f56ad505fc0079760626db8da3d5c48d",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-last-fake.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "1c60268474253d0b36df16e84e35f86e3856de3352c617317f4ef9530665c5c6",
+      "ResultSha256": "7eba471a341c69eceed4fbd05d7d97b5f56ad505fc0079760626db8da3d5c48d",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-last-long-hold.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "f0f12daf95bf6cb65ef7edd5622f4729a52c6b0b8516bd3f6732335c491ac6b2",
+      "ResultSha256": "6c539f8d5623cb78f854f56ff22410b4c926553a098f8ca812fabdb44799cfdf",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-last-speed.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "cf10b55f873d5cb7ec92e991376889024672468163da1450f57c5c8d841368b2",
+      "ResultSha256": "7eba471a341c69eceed4fbd05d7d97b5f56ad505fc0079760626db8da3d5c48d",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-last-stop.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "2c2337bf34ef8ac8ab6c4fdcbdd5fdbbde70b820a4dc471adcc73d11f5be9344",
+      "ResultSha256": "7eba471a341c69eceed4fbd05d7d97b5f56ad505fc0079760626db8da3d5c48d",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-last-tick.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "e52b2e87796dad4291c878ffd83605c64da740d7bc96eec006a98c41d5591033",
+      "ResultSha256": "7eba471a341c69eceed4fbd05d7d97b5f56ad505fc0079760626db8da3d5c48d",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-last-warp.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "e9b6d6d65cd9ba7a88d823b98f20adf347391a9bbafb40be10eb43f12f1a7c75",
+      "ResultSha256": "7eba471a341c69eceed4fbd05d7d97b5f56ad505fc0079760626db8da3d5c48d",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-loaded-flat.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "0083c505a176fb3aed387a8e74b25ae558736d917d993a6e849270bd33b13944",
+      "ResultSha256": "7eba471a341c69eceed4fbd05d7d97b5f56ad505fc0079760626db8da3d5c48d",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-loaded-mixed.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "0e5df0512473163034da7a87bb0ce843c79996acb77e3306a82cbeb3b900b4c9",
+      "ResultSha256": "cde282fef49b35768d29f533bb6be0aa17658449020a9ed94adb71d4e0fe450f",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-loaded-negative.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "4617dd5f416893aadfee6ff26d459b101ece0b15241ca744a283eefc11f0b0c2",
+      "ResultSha256": "90d100a6990fd0d914149ed5d5c6924abb0b33a78a1417a755f7e38aca68d28e",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-loaded-warp.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "41d5a58415711efbe14fd5c28b6d362a9a87635a2181b82b1a8ae0b0aa17d5bb",
+      "ResultSha256": "8415fbb475fec07fa136243f1ca92d5a214f4782978513503538d6f2189cf49b",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-mixed-row-order.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "e1af1565b02f8cfbc833b127796e9b80813dd425d734b5814e9243159bb57e7a",
+      "ResultSha256": "cde282fef49b35768d29f533bb6be0aa17658449020a9ed94adb71d4e0fe450f",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-negative-stop-delay.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "a2f3a4f581c397d4aa1ac4a67869a2beb6211aa93269e0c39930c674fc079f95",
+      "ResultSha256": "90d100a6990fd0d914149ed5d5c6924abb0b33a78a1417a755f7e38aca68d28e",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-negative-stop.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "265accb468ebb4457fbb88c17262b6e0dcc392865da1fefb01c501a9cb0ae22e",
+      "ResultSha256": "90d100a6990fd0d914149ed5d5c6924abb0b33a78a1417a755f7e38aca68d28e",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-nested-fakes.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "db0d6bab089ac14819a674d4e39ac4be8c0cd26c285ab0b11f6e43356fd2b3e0",
+      "ResultSha256": "7eba471a341c69eceed4fbd05d7d97b5f56ad505fc0079760626db8da3d5c48d",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-overlapping-warps.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "9508b3dda8212b044436ce2486a7edc614056710608220320c30da05fdd85927",
+      "ResultSha256": "90d100a6990fd0d914149ed5d5c6924abb0b33a78a1417a755f7e38aca68d28e",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-pattern-empty-chart.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "01ba225b5682d207f4ea77af41719705226e6fada9f36ebbbe0df08e7098613e",
+      "ResultSha256": "213cfe9b17df0f523bd7d894cd18158bbe09d147c8da10376261aed8e39f3fec",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-pattern-exclusive.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "99165393c4134e8712b837f9e5372fdfe3000aaaf201927e203a8681599484a0",
+      "ResultSha256": "737c45d4bf0a3f17644bc544609a13cf19bcb87b4f2803e5bed18a141e6e31d3",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-pattern-single.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "a9b625ec54d029785cd9cf2c5b54b718b6bbaaca0c37ba84bd549001d4064534",
+      "ResultSha256": "6095705aa7d5b64f309c7cf720ae0af391a6246c9df60b4a65e324a80fad1ec6",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-pattern-start.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "f60e34477352a8310e50d140c8b7c2e378df78ba059aa7d5277fe324e4a8dd81",
+      "ResultSha256": "1bf4799a14a50835f2930cc7f0f5a7e8f0ade07a5059c264faebed14d716132b",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-scroll-in-negative-stop.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "a9d83d23019f863163f494958f07ae21a62cbffafea3b56e2e1774d112ad08ab",
+      "ResultSha256": "90d100a6990fd0d914149ed5d5c6924abb0b33a78a1417a755f7e38aca68d28e",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-signature-in-warp.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "a5019d1f5ce3ec736218fd7670c50c76632a15fa899679f9d76848c0cc7b6747",
+      "ResultSha256": "16d87d409bd40f7b8d7e1e7d9d6a0c5dc8c023fd16384e4aa0892d7002078d3a",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-simultaneous.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "8eea73829a8367108743ccf0fb017bfe416cb63d3a6d5de956385bffced887f6",
+      "ResultSha256": "c3c7668fb88e7485843d120c65410115e52feed69d40958c5fb42ea5f8c80461",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-stacked-negative-stops.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "b13c4b7f0aca8a8ffcda295a0129cf8879c73277fbe2a9e782baf0d46daf66f8",
+      "ResultSha256": "90d100a6990fd0d914149ed5d5c6924abb0b33a78a1417a755f7e38aca68d28e",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-stop.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "e55075effd3fdc52b0364b622b473d89d876cf61e47fba4a2f7d174b302ecee7",
+      "ResultSha256": "c3c7668fb88e7485843d120c65410115e52feed69d40958c5fb42ea5f8c80461",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-warp-delay.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "f62989c98438708e522c7d8f1f896ccdc3c8b12ac588fe41cfde445b1666e5d2",
+      "ResultSha256": "90d100a6990fd0d914149ed5d5c6924abb0b33a78a1417a755f7e38aca68d28e",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-warp-stop.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "ec3b5d9c71169785b345f5ed56db38c6cc7448ae16d93dfb29eea0a9cec23a58",
+      "ResultSha256": "c3c7668fb88e7485843d120c65410115e52feed69d40958c5fb42ea5f8c80461",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-warp.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "47c71d1bbeecafa37c83f6381ddbc2d3d7e9fd976d6e2e3a961eee00b6e69e9e",
+      "ResultSha256": "90d100a6990fd0d914149ed5d5c6924abb0b33a78a1417a755f7e38aca68d28e",
+      "MatchesReconstructedWorker": null
+    },
+    {
+      "Request": "editor-timing-zero-duration.request.json",
+      "DerivedFirstMarkerOnly": false,
+      "DerivedProjectionToSingleMarker": true,
+      "RequestSha256": "45fc0030e1b1115cf908738605adf4f2dd75098b6f67565316bc5caeda1672d7",
+      "ResultSha256": "a65813d6f0b7ed1e0c2374875384ce731ac9de59ebefb6b4d7e370fd1775184c",
+      "MatchesReconstructedWorker": null
+    }
+  ],
+  "LibraryAssemblySha256": "90109b74cb841debbe7248c4d92c385b92a977aa9437bc4c2f968c271f9ee81e",
+  "FumenAssemblySha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "DotnetSdk": "10.0.403",
+  "Scope": "Full original class unchanged except namespace and deletion type alias. Real original expression/performed search, scheduling, constructor duplication, helpers, Do/Undo/Redo. Existing editor containers and source-extracted clocks/deletion helpers; config accessors, note factory row-dependency adapter, graph-loader host, completion observation, synchronous dispatcher. Not full editor threads/UI, metadata writer, original event factory, actual Fumen ActionQueue or physical thread interleaving."
+}

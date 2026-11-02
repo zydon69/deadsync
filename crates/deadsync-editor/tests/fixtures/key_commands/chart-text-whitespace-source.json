@@ -1,0 +1,112 @@
+[
+  {
+    "format": "sm",
+    "raw": " ",
+    "input": "#TITLE:source;#CREDIT:global-credit;#MUSIC:global.ogg;#BPMS:0=120;#NOTES: dance-single : : Easy : 1 ::0000;",
+    "name": null,
+    "style": null,
+    "description": "",
+    "credit": "global-credit",
+    "music": "global.ogg",
+    "type": "dance-single"
+  },
+  {
+    "format": "sm",
+    "raw": "  edge.png  ",
+    "input": "#TITLE:source;#CREDIT:global-credit;#MUSIC:global.ogg;#BPMS:0=120;#NOTES: dance-single :  edge.png  : Easy : 1 ::0000;",
+    "name": null,
+    "style": null,
+    "description": "edge.png",
+    "credit": "global-credit",
+    "music": "global.ogg",
+    "type": "dance-single"
+  },
+  {
+    "format": "sm",
+    "raw": "a\\/b\\;c",
+    "input": "#TITLE:source;#CREDIT:global-credit;#MUSIC:global.ogg;#BPMS:0=120;#NOTES: dance-single :a\\/b\\;c: Easy : 1 ::0000;",
+    "name": null,
+    "style": null,
+    "description": "a/b;c",
+    "credit": "global-credit",
+    "music": "global.ogg",
+    "type": "dance-single"
+  },
+  {
+    "format": "sm",
+    "raw": " // comment\n  edge.png  ",
+    "input": "#TITLE:source;#CREDIT:global-credit;#MUSIC:global.ogg;#BPMS:0=120;#NOTES: dance-single : // comment\n  edge.png  : Easy : 1 ::0000;",
+    "name": null,
+    "style": null,
+    "description": "edge.png",
+    "credit": "global-credit",
+    "music": "global.ogg",
+    "type": "dance-single"
+  },
+  {
+    "format": "sm",
+    "raw": "\tname\t",
+    "input": "#TITLE:source;#CREDIT:global-credit;#MUSIC:global.ogg;#BPMS:0=120;#NOTES: dance-single :\tname\t: Easy : 1 ::0000;",
+    "name": null,
+    "style": null,
+    "description": "name",
+    "credit": "global-credit",
+    "music": "global.ogg",
+    "type": "dance-single"
+  },
+  {
+    "format": "ssc",
+    "raw": " ",
+    "input": "#TITLE:source;#CREDIT:global-credit;#MUSIC:global.ogg;#BPMS:0=120;#VERSION:0.83;#NOTEDATA:;#STEPSTYPE: dance-single ;#CHARTNAME: ;#CHARTSTYLE: ;#DESCRIPTION: ;#CREDIT: ;#MUSIC: ;#NOTES:0000;",
+    "name": " ",
+    "style": " ",
+    "description": " ",
+    "credit": " ",
+    "music": " ",
+    "type": "dance-single"
+  },
+  {
+    "format": "ssc",
+    "raw": "  edge.png  ",
+    "input": "#TITLE:source;#CREDIT:global-credit;#MUSIC:global.ogg;#BPMS:0=120;#VERSION:0.83;#NOTEDATA:;#STEPSTYPE: dance-single ;#CHARTNAME:  edge.png  ;#CHARTSTYLE:  edge.png  ;#DESCRIPTION:  edge.png  ;#CREDIT:  edge.png  ;#MUSIC:  edge.png  ;#NOTES:0000;",
+    "name": "  edge.png  ",
+    "style": "  edge.png  ",
+    "description": "  edge.png  ",
+    "credit": "  edge.png  ",
+    "music": "  edge.png  ",
+    "type": "dance-single"
+  },
+  {
+    "format": "ssc",
+    "raw": "a\\/b\\;c",
+    "input": "#TITLE:source;#CREDIT:global-credit;#MUSIC:global.ogg;#BPMS:0=120;#VERSION:0.83;#NOTEDATA:;#STEPSTYPE: dance-single ;#CHARTNAME:a\\/b\\;c;#CHARTSTYLE:a\\/b\\;c;#DESCRIPTION:a\\/b\\;c;#CREDIT:a\\/b\\;c;#MUSIC:a\\/b\\;c;#NOTES:0000;",
+    "name": "a/b;c",
+    "style": "a/b;c",
+    "description": "a/b;c",
+    "credit": "a/b;c",
+    "music": "a/b;c",
+    "type": "dance-single"
+  },
+  {
+    "format": "ssc",
+    "raw": " // comment\n  edge.png  ",
+    "input": "#TITLE:source;#CREDIT:global-credit;#MUSIC:global.ogg;#BPMS:0=120;#VERSION:0.83;#NOTEDATA:;#STEPSTYPE: dance-single ;#CHARTNAME: // comment\n  edge.png  ;#CHARTSTYLE: // comment\n  edge.png  ;#DESCRIPTION: // comment\n  edge.png  ;#CREDIT: // comment\n  edge.png  ;#MUSIC: // comment\n  edge.png  ;#NOTES:0000;",
+    "name": " \n  edge.png  ",
+    "style": " \n  edge.png  ",
+    "description": " \n  edge.png  ",
+    "credit": " \n  edge.png  ",
+    "music": " \n  edge.png  ",
+    "type": "dance-single"
+  },
+  {
+    "format": "ssc",
+    "raw": "\tname\t",
+    "input": "#TITLE:source;#CREDIT:global-credit;#MUSIC:global.ogg;#BPMS:0=120;#VERSION:0.83;#NOTEDATA:;#STEPSTYPE: dance-single ;#CHARTNAME:\tname\t;#CHARTSTYLE:\tname\t;#DESCRIPTION:\tname\t;#CREDIT:\tname\t;#MUSIC:\tname\t;#NOTES:0000;",
+    "name": "\tname\t",
+    "style": "\tname\t",
+    "description": "\tname\t",
+    "credit": "\tname\t",
+    "music": "\tname\t",
+    "type": "dance-single"
+  }
+]

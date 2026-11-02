@@ -1,3 +1,5 @@
+#[path = "support/source_output_context.rs"]
+mod source_output_context;
 use deadsync_editor::{
     document::{Document, Format},
     generation::{
@@ -185,7 +187,10 @@ fn normalization_does_not_rewrite_legacy_bytes_notes_or_history_during_save_and_
     assert_eq!(workspace.file().session.serialize().unwrap(), bytes);
     assert_eq!(workspace.file().session.redo_label(), Some(redo.as_str()));
     workspace.execute(Command::Save).unwrap();
-    assert_eq!(fs::read(&path).unwrap(), bytes);
+    assert_eq!(workspace.file().session.serialize().unwrap(), bytes);
+    let published = fs::read(&path).unwrap();
+    source_output_context::assert_context(bytes, &published, Format::Ssc,
+        source_output_context::Context { sync_offset: 0.009, chart_type: "dance_single", chart_index: 0 });
     assert_eq!(
         Workspace::open(&path, 0)
             .unwrap()
@@ -193,7 +198,7 @@ fn normalization_does_not_rewrite_legacy_bytes_notes_or_history_during_save_and_
             .session
             .serialize()
             .unwrap(),
-        bytes
+        published
     );
 }
 #[test]

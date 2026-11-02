@@ -1,0 +1,12 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "monogame_commit": "8e61b2effa9f8775bd63f24dc33b2f7924f9eba2",
+  "effect_sha256": "ea38dff4ae8ef54ff285d748c5d962c189d741b01458dd8eeeefbd3d1d066c07",
+  "step_density_sha256": "0dc93fb63b7596e062f7babd26c0398b135ee701a34b603d5f8f3583cfa1c72e",
+  "color_sha256": "bb40ac7bfc5b275965a9c7bdf14acf134df9756fbee1ba17f88181239b0e70ac",
+  "original_body_sha256": "2e2c62c01bd729f696624dffa32cdd4c0b82b63bb0ee97f96eff404d0e184e15",
+  "host_sha256": "1f5501bd7ceac224a2990602e37d8d7c45ab693b3f290efcc52a863f3fd21cae",
+  "cases": 72,
+  "scope": "Execute the pinned original density measure-mesh body, real Fumen and MonoGame constructors.\nExternal threading/GPU hosts are omitted. Geometry/colors are observed before GPU projection.\n"
+}

@@ -1,0 +1,11 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourceSha256": {
+    "ActiveEditorChart.cs": "60bde1681bba77f08a7c4d772c247c0b6725901fd8b0e2225f3e02e5d728ac3a",
+    "EditorEvents/EditorRateAlteringEvent.cs": "65df864234461b543af99e6f640e43998be9343ba64829f3d0d28cb027e481ce",
+    "SelectedRegion.cs": "07ba24eb2d6ec1b45d17b8cac12b9b64216eb3bc33a1af855379bcb9aaf8c459",
+    "EventSpacingHelper.cs": "67deae613750c28f54442f4379f65f7c7e7728b8603bb5ea16c25807bc35fd5b"
+  },
+  "Scope": "Original entire two SelectedRegion update helpers, actual setter bodies, entire EventSpacingHelper, unchanged complementary loop, source EndRegions selected-region calls. Real Fumen rate enumerator. Explicit post-admission cursor/flags initialized by initial UpdateRegions; scalar3 rates. Not full UpdateChartEvents/reader."
+}

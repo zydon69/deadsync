@@ -11,7 +11,7 @@ use std::{fs, path::PathBuf, sync::atomic::AtomicBool};
 fn fixture(name: &str, suffix: &str) -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/grooveauthor")
-        .join(format!("{name}.{suffix}.json"));
+        .join(if name.starts_with("parity-")||name.starts_with("policy-parity-"){format!("generation-parity/{name}.{suffix}.json")}else{format!("{name}.{suffix}.json")});
     serde_json::from_slice(&fs::read(path).unwrap()).unwrap()
 }
 fn node_json(node: NodeState) -> Value {
@@ -682,6 +682,23 @@ fn automatic_bracket_policy_and_mines_match_complete_original_interpretation() {
         "empty",
         "only-mines",
         "no-brackets",
+        "parity-defaultbracketparsingmethod-42-base-active",
+        "parity-defaultbracketparsingmethod-42-mutated-active",
+        "parity-bracketparsingdetermination-42-base-active",
+        "parity-bracketparsingdetermination-42-mutated-active",
+        "parity-minlevelforbrackets-42-base-active",
+        "parity-minlevelforbrackets-42-mutated-active",
+        "parity-balancedbracketsperminuteforaggressivebrackets-42-base-active",
+        "parity-balancedbracketsperminuteforaggressivebrackets-42-mutated-active",
+        "parity-balancedbracketsperminutefornobrackets-42-base-active",
+        "parity-balancedbracketsperminutefornobrackets-42-mutated-active",
+
+        "parity-defaultbracketparsingmethod",
+        "parity-bracketparsingdetermination",
+        "parity-minlevelforbrackets",
+        "parity-useaggressivebracketswhenmoresimultaneousnotesthancanbecoveredwithoutbrackets",
+        "parity-balancedbracketsperminuteforaggressivebrackets",
+        "parity-balancedbracketsperminutefornobrackets",
     ] {
         let name = format!("policy-{variant}");
         let input = fixture(&name, "request");

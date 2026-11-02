@@ -1,0 +1,566 @@
+[
+  {
+    "Input": {},
+    "Normalized": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Changed": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Restored": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Undone": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Redone": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    }
+  },
+  {
+    "Input": {
+      "NoteType": "QuarterNotes",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 8,
+      "ShortBreakCutoff": 64,
+      "ShortBreakCharacter": "/",
+      "LongBreakCharacter": ":"
+    },
+    "Normalized": {
+      "NoteType": "QuarterNotes",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 8,
+      "ShortBreakCutoff": 64,
+      "ShortBreakCharacter": "/",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Changed": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Restored": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Undone": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Redone": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    }
+  },
+  {
+    "Input": {
+      "NoteType": "Future",
+      "AccumulationType": "Future"
+    },
+    "Normalized": {
+      "NoteType": "QuarterNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Changed": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Restored": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Undone": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Redone": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    }
+  },
+  {
+    "Input": {
+      "NoteType": 999,
+      "AccumulationType": 999
+    },
+    "Normalized": {
+      "NoteType": "QuarterNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Changed": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Restored": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Undone": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Redone": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    }
+  },
+  {
+    "Input": {
+      "MinimumLengthToConsiderStream": -3,
+      "ShortBreakCutoff": -4,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": " "
+    },
+    "Normalized": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": -3,
+      "ShortBreakCutoff": -4,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": " ",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Changed": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Restored": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Undone": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Redone": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    }
+  },
+  {
+    "Input": {
+      "ShowStreamPreferencesWindow": true,
+      "MinimumLengthToConsiderStream": 2147483647
+    },
+    "Normalized": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 2147483647,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": true
+    },
+    "Changed": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": true
+    },
+    "Restored": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": true
+    },
+    "Undone": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": true
+    },
+    "Redone": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": true
+    }
+  },
+  {
+    "Input": {
+      "NoteType": "eighthnotetriplets",
+      "AccumulationType": "row"
+    },
+    "Normalized": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Changed": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Restored": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Undone": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Redone": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    }
+  },
+  {
+    "Input": {
+      "NoteType": "2",
+      "AccumulationType": "1"
+    },
+    "Normalized": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Changed": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Restored": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Undone": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Redone": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    }
+  },
+  {
+    "Input": {
+      "NoteType": 2,
+      "AccumulationType": 1
+    },
+    "Normalized": {
+      "NoteType": "QuarterNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Changed": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Restored": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Undone": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Redone": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    }
+  },
+  {
+    "Input": {
+      "ShortBreakCharacter": "\t",
+      "LongBreakCharacter": "\n"
+    },
+    "Normalized": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "\t",
+      "LongBreakCharacter": "\n",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Changed": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Restored": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Undone": {
+      "NoteType": "EighthNoteTriplets",
+      "AccumulationType": "Row",
+      "ShowBreakLengths": true,
+      "MinimumLengthToConsiderStream": 3,
+      "ShortBreakCutoff": 11,
+      "ShortBreakCharacter": "\u00e9",
+      "LongBreakCharacter": ":",
+      "ShowStreamPreferencesWindow": false
+    },
+    "Redone": {
+      "NoteType": "SixteenthNotes",
+      "AccumulationType": "Step",
+      "ShowBreakLengths": false,
+      "MinimumLengthToConsiderStream": 1,
+      "ShortBreakCutoff": 4,
+      "ShortBreakCharacter": "-",
+      "LongBreakCharacter": "|",
+      "ShowStreamPreferencesWindow": false
+    }
+  }
+]

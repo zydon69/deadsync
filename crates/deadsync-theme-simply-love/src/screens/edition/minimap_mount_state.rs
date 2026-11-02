@@ -1,5 +1,5 @@
-//! Mount adapter for the simplified native layout. Vertical navigation remains
-//! in the previously validated native viewport; only horizontal mounting changes.
+//! Mount adapter for the simplified native layout. Vertical bounds share the
+//! partition viewport used by minimap rendering and keyboard navigation.
 use super::*;
 use deadsync_editor::minimap_mount::{Bounds, FocusEdges, Input, Padding, Rect};
 use deadsync_editor::minimap_position_preferences::Preferences;
@@ -46,6 +46,9 @@ impl State {
                 with_scale: layout.with_scale as i32,
             });
         let height = screen_height().max(0.0) as i32;
+        let overview = self.overview_vertical_layout();
+        let top = overview.top;
+        let bottom = (height - overview.bottom).max(0);
         deadsync_editor::minimap_mount::bounds(
             self.minimap.position,
             self.minimap.content.options.width,
@@ -58,11 +61,11 @@ impl State {
                 },
                 viewport_height: height,
                 focus,
-                // Native insets intentionally preserve the validated y96 projection.
+                // Share the chart's actual allocated vertical viewport.
                 padding: Padding {
-                    top_screen: 96,
-                    top_chart: 96,
-                    bottom: 96,
+                    top_screen: top,
+                    top_chart: top,
+                    bottom,
                 },
                 dpi_scale: 1.0,
             },

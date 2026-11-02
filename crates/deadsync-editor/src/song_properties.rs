@@ -1,5 +1,10 @@
 //! GrooveAuthor song-level editor metadata. SyncOffset affects preview only.
 mod custom;
+/// Prospective row-preserving main-music/offset publication.
+pub mod live { pub use crate::history::song_live::{Plan, Application}; }
+mod selectable;
+pub use selectable::Selectable;
+pub use crate::history::song_presentation::{Application,PresentationReceipt};
 use crate::{
     Error,
     document::Document,
@@ -12,7 +17,7 @@ const DATA: &str = "GASongData";
 
 fn read(document: &Document) -> Result<(Map<String, Value>, f64), Error> {
     let fields = match (custom::text(document, VERSION), custom::text(document, DATA)) {
-        (None, None) => return Ok((Map::new(), DEFAULT_SYNC_OFFSET)),
+        (None, None) => return Ok((Map::new(), document.load_context().open_sync_offset())),
         (Some(version), Some(data)) if version.trim().parse::<i32>().ok() == Some(1) => {
             let data = crate::generation::jsonc::strip_comments(data.as_bytes())?;
             match serde_json::from_slice(&data).map_err(|e| Error::InvalidFormat(e.to_string()))? {
@@ -41,87 +46,15 @@ fn read(document: &Document) -> Result<(Map<String, Value>, f64), Error> {
     // Keep the complete object, including future fields and default chart selection.
     Ok((fields, offset))
 }
+pub(crate) fn validate_structural_deletion(document:&Document)->Result<(),Error>{if custom::text(document,VERSION).is_none()&&custom::text(document,DATA).is_none(){Ok(())}else{read(document).map(|_|())}}
+pub(crate) fn timing_custom_fields(document:&Document)->Option<Map<String,Value>>{read(document).ok().map(|(fields,_)|fields)}
 pub fn sync_offset(document: &Document) -> Result<f64, Error> {
     read(document).map(|(_, offset)| offset)
 }
 
-/// V1 restores timing-chart references from type-group file-load order before
-/// EditorSong.UpdateChartSortInternal. Keep that load-time reference attached.
-pub(crate) fn after_chart_deletion(
-    document: &Document,
-    deleted: usize,
-) -> Result<Option<String>, Error> {
-    if custom::text(document, DATA).is_none() && custom::text(document, VERSION).is_none() {
-        return Ok(None);
-    }
-    let (mut fields, _) = read(document)?;
-    let kind = match fields.get("DefaultChartType") {
-        Some(Value::String(kind)) => kind.to_ascii_lowercase().replace('_', "-"),
-        Some(Value::Number(kind)) => {
-            // Numeric enum values in pinned Fumen ChartType; JsonStringEnumConverter
-            // also accepts these values in existing GrooveAuthor song metadata.
-            let kind = match kind.as_u64() {
-                Some(0) => "dance-single",
-                Some(1) => "dance-double",
-                Some(2) => "dance-couple",
-                Some(3) => "dance-solo",
-                Some(4) => "dance-threepanel",
-                Some(5) => "dance-routine",
-                Some(6) => "pump-single",
-                Some(7) => "pump-halfdouble",
-                Some(8) => "pump-double",
-                Some(9) => "pump-couple",
-                Some(10) => "pump-routine",
-                Some(38) => "smx-beginner",
-                Some(39) => "smx-single",
-                Some(40) => "smx-dual",
-                Some(41) => "smx-full",
-                Some(42) => "smx-team",
-                _ => return Ok(None),
-            };
-            kind.to_owned()
-        }
-        _ => return Ok(None),
-    };
-    let selected = match fields.get("DefaultChartIndex") {
-        None => 0,
-        Some(value) => match value.as_u64() {
-            Some(value) => value,
-            None => return Ok(None),
-        },
-    };
-    let chart = document
-        .charts()
-        .get(deleted)
-        .ok_or_else(|| Error::InvalidEdit("Invalid deleted chart".into()))?;
-    if chart.steps_type != kind {
-        return Ok(None);
-    }
-    let typed = document
-        .charts()
-        .iter()
-        .enumerate()
-        .filter(|(_, c)| c.steps_type == kind)
-        .map(|(i, _)| i)
-        .collect::<Vec<_>>();
-    if usize::try_from(selected).is_err() || selected as usize >= typed.len() {
-        return Ok(None);
-    }
-    let position = typed.iter().position(|i| *i == deleted).unwrap();
-    if position as u64 > selected {
-        return Ok(None);
-    }
-    if position as u64 == selected {
-        fields.insert("DefaultChartType".into(), Value::Null);
-        fields.insert("DefaultChartIndex".into(), Value::from(0));
-    } else {
-        fields.insert("DefaultChartIndex".into(), Value::from(selected - 1));
-    }
-    Ok(Some(
-        serde_json::to_string(&fields).map_err(|e| Error::InvalidFormat(e.to_string()))?,
-    ))
-}
-
+/// Song-level widgets moved by the source keyboard callbacks.
+#[derive(Clone,Copy,Debug,PartialEq,Eq)]
+pub enum Marker { Preview, EndHint }
 pub struct SampleAudio {
     pub path: std::path::PathBuf,
     pub start: f64,
@@ -131,11 +64,17 @@ pub struct SampleAudio {
 
 pub struct Draft {
     token: ContentToken,
+    timing_choice:crate::song_timing_chart::Choice,
+    original_timing_choice:crate::song_timing_chart::Choice,
+    original_selectable: Selectable,
+    original_selectable_raw: Option<String>,
+    selectable_explicit: bool,
+    selectable: Selectable,
     original: f64,
     offset: f64,
     original_music_offset: f64,
     music_offset: f64,
-    last_second_hint: Option<[f64; 2]>,
+    last_second_hint: [f64; 2],
     original_sample: [f64; 2],
     sample: [f64; 2],
     fields: Map<String, Value>,
@@ -173,7 +112,7 @@ impl Draft {
                 .transpose()?
                 .unwrap_or(0.0);
         }
-        let last_second_hint = if session.document().format == crate::document::Format::Ssc {
+        let last_second_hint = {
             let value = session
                 .document()
                 .text(None, "LASTSECONDHINT")
@@ -187,12 +126,13 @@ impl Draft {
                 })
                 .transpose()?
                 .unwrap_or(0.0);
-            Some([value, value])
-        } else {
-            None
+            [value, value]
         };
+        let selectable=Selectable::read(session.document().text(None,"SELECTABLE").as_deref());
         Ok(Self {
+            original_selectable:selectable,original_selectable_raw:session.document().text(None,"SELECTABLE"),selectable_explicit:false,selectable,
             token: session.content_token(),
+            timing_choice:session.song_timing_choice()?,original_timing_choice:session.song_timing_choice()?,
             original: offset,
             offset,
             original_music_offset: music_offset,
@@ -201,7 +141,7 @@ impl Draft {
             original_sample: sample,
             sample,
             fields,
-            text: crate::song_text::Text::read(session.document()),
+            text: crate::song_text::Text::try_read(session.document())?,
         })
     }
     pub fn stage_assets(
@@ -220,9 +160,13 @@ impl Draft {
     pub fn set_text(&mut self, field: crate::song_text::Field, value: &str) -> Result<(), Error> {
         self.text.set(field, value)
     }
+    pub fn selectable(&self)->Selectable{self.selectable}
+    pub fn set_selectable(&mut self,value:Selectable){self.selectable=value;self.selectable_explicit=true;}
+    fn selectable_changed(&self)->bool{self.selectable!=self.original_selectable || self.selectable_explicit && self.original_selectable_raw.as_deref()!=Some(self.selectable.source_name().as_str())}
     pub fn has_changes(&self) -> bool {
-        self.last_second_hint
-            .is_some_and(|[original, value]| !crate::number::reference_equal(original, value))
+        if self.selectable_changed(){return true;}
+        if self.timing_choice!=self.original_timing_choice{return true;}
+        !crate::number::reference_equal(self.last_second_hint[0], self.last_second_hint[1])
             || self.text.has_changes()
             || !crate::number::reference_equal(self.original, self.offset)
             || !crate::number::reference_equal(self.original_music_offset, self.music_offset)
@@ -233,18 +177,16 @@ impl Draft {
                 .any(|(value, original)| !crate::number::reference_equal(*value, original))
     }
     pub fn supports_last_second_hint(&self) -> bool {
-        self.last_second_hint.is_some()
+        true
     }
     pub fn last_second_hint(&self) -> f64 {
-        self.last_second_hint.map_or(0.0, |values| values[1])
+        self.last_second_hint[1]
     }
     pub fn set_last_second_hint(&mut self, value: f64) -> Result<(), Error> {
         if !value.is_finite() {
             return invalid("Last second hint must be finite");
         }
-        let Some(values) = self.last_second_hint.as_mut() else {
-            return Err(Error::Unsupported("Last second hint requires SSC".into()));
-        };
+        let values = &mut self.last_second_hint;
         if !crate::number::reference_equal(values[1], value) {
             values[1] = value;
         }
@@ -261,6 +203,13 @@ impl Draft {
             self.music_offset
         };
         Ok(crate::playback::Clock::capture(session, chart)?.with_song_draft(offset, self.offset))
+    }
+    pub fn move_marker_to_time(&mut self, marker: Marker, seconds: f64) -> Result<(), Error> {
+        if !seconds.is_finite(){return invalid("Song marker time must be finite");}
+        match marker {
+            Marker::Preview => self.set_sample_start_from_time(seconds),
+            Marker::EndHint => self.set_last_second_hint(seconds.max(0.0)),
+        }
     }
     pub fn set_sample_start_from_time(&mut self, seconds: f64) -> Result<(), Error> {
         if !seconds.is_finite() {
@@ -286,8 +235,7 @@ impl Draft {
         if !session.accepts_content_token(&self.token) {
             return invalid("Song properties draft is stale or belongs to another document");
         }
-        let dedicated = (session.document().format == crate::document::Format::Ssc)
-            .then(|| self.text(crate::song_text::Field::PreviewMusic).to_owned())
+        let dedicated = Some(self.text(crate::song_text::Field::PreviewMusic).to_owned())
             .filter(|value| !value.is_empty());
         let (name, start, length) = if let Some(name) = dedicated {
             (name, 0.0, None)
@@ -296,10 +244,13 @@ impl Draft {
                 return invalid("Preview length must be positive");
             }
             self.sample_end()?;
-            let name = session
-                .document()
-                .text(Some(chart), "MUSIC")
-                .filter(|value| !value.is_empty())
+            // Song previews remain valid with no charts. A chart override is
+            // only meaningful when a chart actually exists; invalid indices in
+            // a nonempty document still go through the typed validation.
+            let local = if session.document().charts().is_empty() {None} else {
+                crate::chart_text::local_value(session.document(),chart,crate::chart_text::Field::Music)?
+            };
+            let name = local.filter(|value| !value.is_empty())
                 .unwrap_or_else(|| self.text(crate::song_text::Field::Music).to_owned());
             (name, self.sample_start(), Some(self.sample_length()))
         };
@@ -318,6 +269,7 @@ impl Draft {
         })
     }
     /// Fractional chart positions of the preview region; no cursor quantization.
+    pub fn widgets(&self,session:&Session,chart:usize)->Result<Vec<crate::event_clipboard::SongWidget>,Error>{crate::event_clipboard::song_widget::capture_draft(self,session,chart)}
     pub fn sample_positions(&self, session: &Session, chart: usize) -> Result<[f64; 2], Error> {
         let clock = self.clock(session, chart)?;
         Ok([
@@ -366,10 +318,22 @@ impl Draft {
         }
         Ok(())
     }
+    /// The source inspector enables its migration button only at zero SyncOffset
+    /// using Fumen DoubleEquals (one ULP, signed zero equal).
+    pub fn can_apply_itg_offset(&self) -> bool {
+        crate::number::reference_equal(self.sync_offset(), 0.0)
+    }
     /// GrooveAuthor's explicit, non-idempotent ITG migration action.
     pub fn apply_itg_offset(&mut self) -> Result<(), Error> {
         self.set_music_offset(self.music_offset + DEFAULT_SYNC_OFFSET)?;
         self.set_sync_offset(DEFAULT_SYNC_OFFSET)
+    }
+    pub fn timing_chart(&self,session:&Session)->Result<Option<usize>,Error>{
+        self.timing_choice.identity().map(|id|session.chart_ids().iter().position(|candidate|candidate==id).ok_or_else(||Error::InvalidEdit("Song timing chart no longer exists".into()))).transpose()
+    }
+    pub fn set_timing_chart(&mut self,session:&Session,chart:Option<usize>)->Result<bool,Error>{
+        if !session.accepts_content_token(&self.token){return invalid("Song properties draft is stale");}
+        self.timing_choice.set(&session.song_timing_snapshot()?,chart)
     }
     pub fn sync_offset(&self) -> f64 {
         self.offset
@@ -381,6 +345,25 @@ impl Draft {
         self.offset = offset;
         Ok(())
     }
+    pub fn is_current(&self,session:&Session)->bool{session.accepts_content_token(&self.token)}
+    /// Only a closed chart-event copy may carry an unchanged song draft across
+    /// its chart-only content transition; this is not a clock receipt.
+    pub fn rebind_chart_event_copy(&mut self,session:&Session,receipt:&crate::chart_event_copy::live::Receipt)->Result<(),Error>{self.token=receipt.rebind_token(&self.token,session)?;Ok(())}
+    pub fn requires_live_handoff(&self)->bool { !self.preserves_presentation_clock() || !self.preserves_presentation_audio() }
+    pub(crate) fn preserves_presentation_clock(&self)->bool {
+        crate::number::reference_equal(self.original,self.offset)
+            && crate::number::reference_equal(self.original_music_offset,self.music_offset)
+    }
+    pub(crate) fn preserves_presentation_audio(&self)->bool {
+        use crate::song_text::Field;
+        // Preview changes reload/stop the dedicated audition, not main music.
+        self.text.original(Field::Music)==self.text.get(Field::Music)
+    }
+    /// Mint a presentation proof only for a real commit which leaves the clock intact.
+    /// No public constructor or arbitrary-edit receipt exists.
+    pub fn apply_with_presentation_receipt(&self,session:&mut Session)->Result<Application,Error>{
+        crate::history::song_presentation::apply(self,session)
+    }
     pub fn apply(&self, session: &mut Session) -> Result<bool, Error> {
         if !session.accepts_content_token(&self.token) {
             return invalid("Song properties draft is stale or belongs to another document");
@@ -391,17 +374,20 @@ impl Draft {
         let text_changes = self.text.changes();
         let mut properties = text_changes
             .iter()
-            .map(|(name, value)| {
-                (
+            .map(|(name, value)| -> Result<_, Error> {
+                Ok((
                     None,
-                    (*name).to_owned(),
-                    std::sync::Arc::<[u8]>::from(crate::document::escape_text(value)),
-                )
+                    if *name == "PREVIEW" && session.document().format == crate::document::Format::Sm {
+                        crate::song_text::resident::TAG.to_owned()
+                    } else { (*name).to_owned() },
+                    if *name == "PREVIEW" && session.document().format == crate::document::Format::Sm {
+                        crate::song_text::resident::encode(value)?
+                    } else { std::sync::Arc::<[u8]>::from(crate::document::escape_text(value)) },
+                ))
             })
-            .collect::<Vec<_>>();
-        let hint_changed = self
-            .last_second_hint
-            .is_some_and(|[original, value]| !crate::number::reference_equal(original, value));
+            .collect::<Result<Vec<_>, _>>()?;
+        if self.selectable_changed(){properties.push((None,"SELECTABLE".into(),std::sync::Arc::from(self.selectable.source_name().into_bytes())));}
+        let hint_changed = !crate::number::reference_equal(self.last_second_hint[0], self.last_second_hint[1]);
         if hint_changed {
             properties.push((
                 None,
@@ -429,9 +415,10 @@ impl Draft {
                 std::sync::Arc::from(self.music_offset.to_string().into_bytes()),
             ));
         }
-        if !crate::number::reference_equal(self.original, self.offset) {
+        if !crate::number::reference_equal(self.original, self.offset) || self.timing_choice!=self.original_timing_choice {
             let mut fields = self.fields.clone();
             fields.insert("SyncOffset".into(), Value::from(self.offset));
+            if self.timing_choice!=self.original_timing_choice{let snapshot=session.song_timing_snapshot()?;fields.extend(self.timing_choice.output_fields(&snapshot,snapshot.source_indices())?);}
             let json =
                 serde_json::to_string(&fields).map_err(|e| Error::InvalidFormat(e.to_string()))?;
             properties.push((None, custom::key(session.document(), VERSION), std::sync::Arc::from(&b"1"[..])));
@@ -463,20 +450,45 @@ impl Draft {
                 }
             }
         }
-        session.set_property_bytes_atomic(
-            &properties,
+        let changed=session.set_song_properties_and_timing(
+            &properties,self.timing_choice.clone(),
             if text_changes.is_empty() && !music_changed && !sample_changed && !hint_changed {
                 "Change editor sync offset"
             } else {
                 "Change song properties"
             },
-        )
+        )?;
+        if changed && self.requires_live_handoff(){ session.wrap_song_properties_live(); }
+        Ok(changed)
     }
 }
 fn invalid<T>(message: &str) -> Result<T, Error> {
     Err(Error::InvalidEdit(message.into()))
 }
 
-/// Effective source spelling for structural chart deletion; no other alias is removed.
-pub(crate) fn custom_data_key(document: &Document) -> String { custom::key(document, DATA) }
 pub(crate) fn custom_property_key(document: &Document, name: &str) -> String { custom::key(document, name) }
+
+#[derive(Clone,Copy)]
+pub(crate) enum OutputContext{NativeLossless,SourceCompatible}
+enum OutputMetadata{Absent,Known(Map<String,Value>,f64),Opaque(Error)}
+fn output_metadata(document:&Document)->Result<OutputMetadata,Error>{
+    match(custom::text(document,VERSION),custom::text(document,DATA)){
+        (None,None)=>Ok(OutputMetadata::Absent),
+        (Some(version),Some(_)) if version.trim().parse::<i32>().ok()!=Some(1)=>Ok(OutputMetadata::Opaque(Error::Unsupported("Unknown GrooveAuthor song metadata version".into()))),
+        (Some(_),Some(_))=>match read(document){Ok((fields,offset))=>Ok(OutputMetadata::Known(fields,offset)),Err(error@Error::InvalidFormat(_))|Err(error@Error::InvalidEdit(_))=>Ok(OutputMetadata::Opaque(error)),Err(error)=>Err(error)},
+        _=>Ok(OutputMetadata::Opaque(Error::InvalidFormat("Incomplete GrooveAuthor song metadata".into()))),
+    }
+}
+pub(crate) fn materialize_output_context(document:&mut Document,timing:Map<String,Value>,mode:OutputContext)->Result<(),Error>{
+    let(mut metadata,offset)=match output_metadata(document)?{
+        OutputMetadata::Absent=>(Map::new(),document.load_context().open_sync_offset()),
+        OutputMetadata::Known(fields,offset)=>(fields,offset),
+        OutputMetadata::Opaque(error)=>return match mode{OutputContext::NativeLossless=>Ok(()),OutputContext::SourceCompatible=>Err(error)},
+    };
+    metadata.entry("SyncOffset").or_insert_with(||Value::from(offset));metadata.extend(timing);
+    install_output_custom(document,VERSION,std::sync::Arc::from(b"1".as_slice()))?;
+    install_output_custom(document,DATA,std::sync::Arc::from(crate::document::escape_text(&serde_json::to_string(&metadata).map_err(|e|Error::InvalidEdit(e.to_string()))?)))?;
+    Ok(())
+}
+
+fn install_output_custom(document:&mut Document,name:&str,bytes:std::sync::Arc<[u8]>)->Result<(),Error>{let key=custom::key(document,name);if document.added_property(None,&key).is_some(){document.set_added_property(None,&key,Some(bytes))}else if let Some(tag)=document.tag(None,&key){document.replace(tag.value.clone(),Some(bytes))}else{document.set_added_property(None,&key,Some(bytes))}}

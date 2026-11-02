@@ -113,12 +113,14 @@ fn cancelling_checked_timing_review_returns_to_original_checked_event_picker() {
     // Picker identities survived Cancel: deleting checked miscellaneous events
     // leaves the unchecked Warp at3 and the existing initial BPM untouched.
     press(&mut s, KeyCode::Delete);
+    let document=s.workspace().file().session.document();
+    let origin=deadsync_editor::timing_edit::uses_chart_timing(document,0).then_some(0);
     assert_eq!(
         s.workspace()
             .file()
             .session
             .document()
-            .text(None, "WARPS")
+            .text(origin, "WARPS")
             .as_deref(),
         Some("3=1")
     );
@@ -127,7 +129,7 @@ fn cancelling_checked_timing_review_returns_to_original_checked_event_picker() {
             .file()
             .session
             .document()
-            .text(None, "BPMS")
+            .text(origin, "BPMS")
             .as_deref(),
         Some("0=120")
     );

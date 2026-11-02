@@ -1,0 +1,14 @@
+{
+  "editor_pin": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen_pin": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "source_sha256": "c08d4e2f18a3c8cdb576e6872bad6cbd9db149fa2f5bbd645cab835824a744cc",
+  "fumen_dll_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "harness_sha256": "55654148937da272e13fb38649e598545ca60c7f6b3366474b6a6e13c4af829a",
+  "fixture_sha256": "0eb67f97de8efeed69a7e8c995c470b5d4d969769f6fd8c5b5b94623d1422e03",
+  "derived_bits_sha256": "c7abaa62b710f157b6d2d587648a9a4630e10aad66124b24fb6a18be0cd3e523",
+  "cases": 1728,
+  "boundary": "Original ProcessSound and real Fumen Hermite; float PCM only",
+  "limits": [
+    "No codec decoding, callback scheduling, native transport, or source rate=1 bypass execution"
+  ]
+}

@@ -2,12 +2,13 @@
 use super::{Panel, State};
 impl State {
     pub fn wants_text_input(&self) -> bool {
-        matches!(self.panel, Some(Panel::ProfileText))
+        self.assistant.open || self.stream_character_active() || matches!(self.panel, Some(Panel::ProfileText))
             || self.text_target().is_some()
             || (matches!(self.panel, Some(Panel::Timing(2)))
                 && self.timing.as_ref().is_some_and(|s| s.is_label()))
     }
     pub fn text_input(&mut self, text: &str) -> bool {
+        if self.assistant.open { return self.assistant_text(text); }
         if !self.wants_text_input()
             || self.control
             || text.is_empty()
@@ -15,6 +16,7 @@ impl State {
         {
             return false;
         }
+        if self.stream_character_active(){return self.stream_text_input(text);}
         if matches!(self.panel, Some(Panel::ProfileText)) {
             return self.profile_text_input(text);
         }

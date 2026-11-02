@@ -191,6 +191,7 @@ fn model_depth_isolation() {
             alpha: true,
             depth: true,
             preserve: false,
+            postprocess: None,
             cameras: vec![projection],
             sprite_instances: vec![],
             mesh_vertices: vec![],
@@ -360,6 +361,7 @@ fn assert_depth_capture(
             alpha: false,
             depth: false,
             preserve: false,
+            postprocess: None,
             cameras: vec![],
             sprite_instances: vec![SpriteInstanceRaw {
                 center: [-0.95, 0.95, 0.0, 1.0],
@@ -607,6 +609,7 @@ fn assert_float_capture(
         alpha: false,
         depth: true,
         preserve: false,
+        postprocess: None,
         cameras: vec![Mat4::IDENTITY],
         sprite_instances: vec![],
         mesh_vertices: [
@@ -881,6 +884,7 @@ fn assert_padded_capture(
             alpha: true,
             depth: false,
             preserve: false,
+            postprocess: None,
             cameras: vec![Mat4::IDENTITY],
             sprite_instances: vec![],
             mesh_vertices: vertices,

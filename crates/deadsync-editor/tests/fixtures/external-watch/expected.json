@@ -1,0 +1,105 @@
+[
+  {
+    "name": "normal",
+    "shown": true,
+    "modal_count": 1,
+    "reload_count": 0,
+    "reload_forced": false,
+    "suppressed": false,
+    "warnings": []
+  },
+  {
+    "name": "no_song",
+    "shown": false,
+    "modal_count": 0,
+    "reload_count": 0,
+    "reload_forced": false,
+    "suppressed": false,
+    "warnings": []
+  },
+  {
+    "name": "saving",
+    "shown": false,
+    "modal_count": 0,
+    "reload_count": 0,
+    "reload_forced": false,
+    "suppressed": false,
+    "warnings": []
+  },
+  {
+    "name": "grace",
+    "shown": false,
+    "modal_count": 0,
+    "reload_count": 0,
+    "reload_forced": false,
+    "suppressed": false,
+    "warnings": []
+  },
+  {
+    "name": "already_showing",
+    "shown": true,
+    "modal_count": 0,
+    "reload_count": 0,
+    "reload_forced": false,
+    "suppressed": false,
+    "warnings": []
+  },
+  {
+    "name": "suppressed",
+    "shown": false,
+    "modal_count": 0,
+    "reload_count": 0,
+    "reload_forced": false,
+    "suppressed": true,
+    "warnings": []
+  },
+  {
+    "name": "ignore",
+    "shown": false,
+    "modal_count": 1,
+    "reload_count": 0,
+    "reload_forced": false,
+    "suppressed": false,
+    "warnings": []
+  },
+  {
+    "name": "reload_dirty_song",
+    "shown": false,
+    "modal_count": 1,
+    "reload_count": 1,
+    "reload_forced": true,
+    "suppressed": false,
+    "warnings": [
+      "Warning: There are unsaved changes. Reloading will lose these changes."
+    ]
+  },
+  {
+    "name": "reload_dirty_both",
+    "shown": false,
+    "modal_count": 1,
+    "reload_count": 1,
+    "reload_forced": true,
+    "suppressed": false,
+    "warnings": [
+      "Warning: There are unsaved changes to song.ssc and Pack.ini. Reloading will lose these changes."
+    ]
+  },
+  {
+    "name": "suppress_checkbox",
+    "shown": true,
+    "modal_count": 1,
+    "reload_count": 0,
+    "reload_forced": false,
+    "suppressed": true,
+    "warnings": []
+  },
+  {
+    "name": "created_event",
+    "shown": false,
+    "modal_count": 0,
+    "reload_count": 0,
+    "reload_forced": false,
+    "suppressed": false,
+    "warnings": []
+  }
+]

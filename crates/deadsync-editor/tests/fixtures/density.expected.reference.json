@@ -1,0 +1,19 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "LibraryCommit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourcesSha256": {
+    "Preferences/PreferencesDensityGraph.cs": "0f171981a2044ebf46bb25ebd00818f8a7293a88ef288806b4c91bf956201cf6",
+    "Preferences/PreferencesStream.cs": "d3c9fe3fc9a5bd075b03a454b16cad648713c12de0a706a20f9e9bac1863a29a",
+    "SubdivisionType.cs": "1fe40d0283e50cf2a7a69dbd5a67d16f6dcc699972fef638efd648e2af28e63b",
+    "StepDensity.cs": "0dc93fb63b7596e062f7babd26c0398b135ee701a34b603d5f8f3583cfa1c72e",
+    "StepDensityEffect.cs": "ea38dff4ae8ef54ff285d748c5d962c189d741b01458dd8eeeefbd3d1d066c07",
+    "Utils.cs": "0ac380bdd1742b1856bd0ccbc0650e334e16b489a3da47ecb8775b9bde145de7",
+    "Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+    "EditorEvents/EditorRateAlteringEvent.cs": "65df864234461b543af99e6f640e43998be9343ba64829f3d0d28cb027e481ce"
+  },
+  "AdapterSha256": "a2db082f79405056bf6a41314059b64c365da6a8073fed0ef0b0638a3e32b860",
+  "AssemblySha256": "dc84a71abf01f7e7f4f3e27c5a61d19318ca2a840ef1337c0e13226df1a7464a",
+  "Scope": "Whole original DensityGraph/Stream preference classes/default actions with real Fumen queue/permissive JSON converter; original count/stream, RecomputeMeasureTiming and rate conversion, NPS sample fragments, six original bounds branches. Event fake flags and initialized rates are explicit inputs; GPU rasterization is not executed.",
+  "FumenAssemblySha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639"
+}

@@ -72,7 +72,7 @@ fn decode(wav: &Wav, cut: Cut, rate: f32, hz: u32) -> (Vec<i16>, Vec<MusicMapSeg
         std::iter::empty(),
     );
     let mut timing = Vec::new();
-    while let Some((tag, segment)) = stream.played_map.pop() {
+    while let Some((tag, _asset_epoch, segment)) = stream.played_map.pop() {
         assert_eq!(tag, generation);
         timing.push(segment);
     }
@@ -192,7 +192,8 @@ fn live_and_looped_playback() {
     );
     let mut generation = music_map_generation();
     runtime.handle(StreamCommand::PlayMusic {
-        decode_options: Default::default(),
+        asset_epoch:deadlib_audio_core::music_asset_epoch(),
+decode_options: Default::default(),
         path: wav.0.clone(),
         cut: Cut::default(),
         looping: true,
@@ -238,7 +239,7 @@ fn live_and_looped_playback() {
                 },
                 std::iter::empty(),
             );
-            while let Some((tag, segment)) = stream.played_map.pop() {
+            while let Some((tag, _asset_epoch, segment)) = stream.played_map.pop() {
                 if tag != generation {
                     assert!(
                         timing.is_empty(),
@@ -293,7 +294,7 @@ fn live_and_looped_playback() {
     // The caller invalidates queued audio before the asynchronous stop handoff.
     reset_music_stream_clock_state();
     bump_music_map_generation();
-    runtime.handle(StreamCommand::StopMusic);
+    runtime.handle(StreamCommand::StopMusic{asset_epoch:deadlib_audio_core::music_asset_epoch()});
     assert!(!deadlib_audio_core::music_track_active());
     output.fill(123);
     renderer.render(
@@ -330,7 +331,8 @@ fn retained_seek_playback() {
     );
     let mut generation = music_map_generation();
     runtime.handle(StreamCommand::PlayMusic {
-        decode_options: Default::default(),
+        asset_epoch:deadlib_audio_core::music_asset_epoch(),
+decode_options: Default::default(),
         path: wav.0.clone(),
         cut: Cut::default(),
         looping: false,
@@ -359,7 +361,7 @@ fn retained_seek_playback() {
                 },
                 std::iter::empty(),
             );
-            while let Some((tag, segment)) = stream.played_map.pop() {
+            while let Some((tag, _asset_epoch, segment)) = stream.played_map.pop() {
                 if tag != generation {
                     assert!(timing.is_empty(), "stale audio resumed after seek");
                     continue;
@@ -432,7 +434,7 @@ fn retained_seek_playback() {
     assert_eq!(timing[0].music_start_sec, 0.3);
     assert!(pcm.iter().all(|v| *v == 4_000));
     bump_music_map_generation();
-    runtime.handle(StreamCommand::StopMusic);
+    runtime.handle(StreamCommand::StopMusic{asset_epoch:deadlib_audio_core::music_asset_epoch()});
 }
 
 fn negative_loop_lead_in() {
@@ -454,7 +456,8 @@ fn negative_loop_lead_in() {
     );
     let generation = music_map_generation();
     runtime.handle(StreamCommand::PlayMusic {
-        decode_options: Default::default(),
+        asset_epoch:deadlib_audio_core::music_asset_epoch(),
+decode_options: Default::default(),
         path: wav.0.clone(),
         cut: Cut {
             start_sec: -0.01,
@@ -481,7 +484,7 @@ fn negative_loop_lead_in() {
             },
             std::iter::empty(),
         );
-        while let Some((tag, segment)) = stream.played_map.pop() {
+        while let Some((tag, _asset_epoch, segment)) = stream.played_map.pop() {
             assert_eq!(tag, generation);
             let first = (segment.stream_frame_start as u64
                 - start.saturating_sub(music_track_start_frame())) as usize
@@ -496,5 +499,5 @@ fn negative_loop_lead_in() {
         "ordinary loop repeated its initial silence"
     );
     bump_music_map_generation();
-    runtime.handle(StreamCommand::StopMusic);
+    runtime.handle(StreamCommand::StopMusic{asset_epoch:deadlib_audio_core::music_asset_epoch()});
 }

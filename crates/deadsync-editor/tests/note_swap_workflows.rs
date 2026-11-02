@@ -64,6 +64,7 @@ fn original_forty_actions_match_or_refuse_the_twenty_proven_chart_dropping_readb
         .iter()
         .zip(expected["Cases"].as_array().unwrap())
     {
+        assert_eq!(case["Name"], oracle["Name"]);
         for format in [Format::Sm, Format::Ssc] {
             let mut s = session(format);
             let mut notes = BTreeMap::new();
@@ -112,24 +113,29 @@ fn original_forty_actions_match_or_refuse_the_twenty_proven_chart_dropping_readb
                 continue;
             }
             let changed = result.unwrap();
-            for event in oracle["After"].as_array().unwrap() {
-                if event["Kind"] == "Tempo" {
-                    continue;
-                }
-                let p = position(
-                    event["Row"].as_u64().unwrap(),
-                    event["Lane"].as_u64().unwrap() as u16,
-                    event["Player"].as_u64().unwrap() as u32,
-                );
-                let actual = s.grid(0).unwrap().get(p).unwrap();
-                assert_eq!(
-                    actual.kind,
-                    kind(event["Kind"].as_str().unwrap()),
-                    "{}",
-                    case["Name"]
-                );
-                assert_eq!(actual.end, event["End"].as_u64());
-            }
+            let expected_notes: BTreeMap<_, _> = oracle["After"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|event| event["Kind"] != "Tempo")
+                .map(|event| {
+                    (
+                        position(
+                            event["Row"].as_u64().unwrap(),
+                            event["Lane"].as_u64().unwrap() as u16,
+                            event["Player"].as_u64().unwrap() as u32,
+                        ),
+                        (kind(event["Kind"].as_str().unwrap()), event["End"].as_u64()),
+                    )
+                })
+                .collect();
+            let actual_notes: BTreeMap<_, _> = s
+                .grid(0)
+                .unwrap()
+                .iter()
+                .map(|(position, note)| (position, (note.kind, note.end)))
+                .collect();
+            assert_eq!(actual_notes, expected_notes, "{}", case["Name"]);
             let after = s.serialize().unwrap();
             let mut reopened =
                 Session::new(Document::parse(Arc::<[u8]>::from(after.clone()), format).unwrap());

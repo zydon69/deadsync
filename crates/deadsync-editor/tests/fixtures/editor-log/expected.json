@@ -1,0 +1,1922 @@
+[
+  {
+    "culture": "en-US",
+    "date": 0,
+    "level": -1,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 0,
+    "level": -1,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 0,
+    "level": 0,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 0,
+    "level": 0,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 0,
+    "level": 1,
+    "wrap": false,
+    "text": "Attention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 0,
+    "level": 1,
+    "wrap": true,
+    "text": "Attention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 0,
+    "level": 2,
+    "wrap": false,
+    "text": "Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 0,
+    "level": 2,
+    "wrap": true,
+    "text": "Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 0,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 0,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 1,
+    "level": -1,
+    "wrap": false,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 1,
+    "level": -1,
+    "wrap": true,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 1,
+    "level": 0,
+    "wrap": false,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 1,
+    "level": 0,
+    "wrap": true,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 1,
+    "level": 1,
+    "wrap": false,
+    "text": "12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 1,
+    "level": 1,
+    "wrap": true,
+    "text": "12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 1,
+    "level": 2,
+    "wrap": false,
+    "text": "12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 1,
+    "level": 2,
+    "wrap": true,
+    "text": "12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 1,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 1,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 2,
+    "level": -1,
+    "wrap": false,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 2,
+    "level": -1,
+    "wrap": true,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 2,
+    "level": 0,
+    "wrap": false,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 2,
+    "level": 0,
+    "wrap": true,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 2,
+    "level": 1,
+    "wrap": false,
+    "text": "12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 2,
+    "level": 1,
+    "wrap": true,
+    "text": "12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 2,
+    "level": 2,
+    "wrap": false,
+    "text": "12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 2,
+    "level": 2,
+    "wrap": true,
+    "text": "12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 2,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 2,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 3,
+    "level": -1,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 3,
+    "level": -1,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 3,
+    "level": 0,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 3,
+    "level": 0,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 3,
+    "level": 1,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 3,
+    "level": 1,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 3,
+    "level": 2,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 3,
+    "level": 2,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 3,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "en-US",
+    "date": 3,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 0,
+    "level": -1,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 0,
+    "level": -1,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 0,
+    "level": 0,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 0,
+    "level": 0,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 0,
+    "level": 1,
+    "wrap": false,
+    "text": "Attention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 0,
+    "level": 1,
+    "wrap": true,
+    "text": "Attention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 0,
+    "level": 2,
+    "wrap": false,
+    "text": "Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 0,
+    "level": 2,
+    "wrap": true,
+    "text": "Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 0,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 0,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 1,
+    "level": -1,
+    "wrap": false,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 1,
+    "level": -1,
+    "wrap": true,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 1,
+    "level": 0,
+    "wrap": false,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 1,
+    "level": 0,
+    "wrap": true,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 1,
+    "level": 1,
+    "wrap": false,
+    "text": "12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 1,
+    "level": 1,
+    "wrap": true,
+    "text": "12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 1,
+    "level": 2,
+    "wrap": false,
+    "text": "12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 1,
+    "level": 2,
+    "wrap": true,
+    "text": "12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 1,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 1,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 2,
+    "level": -1,
+    "wrap": false,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 2,
+    "level": -1,
+    "wrap": true,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 2,
+    "level": 0,
+    "wrap": false,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 2,
+    "level": 0,
+    "wrap": true,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 2,
+    "level": 1,
+    "wrap": false,
+    "text": "12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 2,
+    "level": 1,
+    "wrap": true,
+    "text": "12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 2,
+    "level": 2,
+    "wrap": false,
+    "text": "12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 2,
+    "level": 2,
+    "wrap": true,
+    "text": "12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 2,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 2,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 3,
+    "level": -1,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 3,
+    "level": -1,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 3,
+    "level": 0,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 3,
+    "level": 0,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 3,
+    "level": 1,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 3,
+    "level": 1,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 3,
+    "level": 2,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 3,
+    "level": 2,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 3,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "fr-FR",
+    "date": 3,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 0,
+    "level": -1,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 0,
+    "level": -1,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 0,
+    "level": 0,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 0,
+    "level": 0,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 0,
+    "level": 1,
+    "wrap": false,
+    "text": "Attention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 0,
+    "level": 1,
+    "wrap": true,
+    "text": "Attention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 0,
+    "level": 2,
+    "wrap": false,
+    "text": "Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 0,
+    "level": 2,
+    "wrap": true,
+    "text": "Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 0,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 0,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 1,
+    "level": -1,
+    "wrap": false,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 1,
+    "level": -1,
+    "wrap": true,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 1,
+    "level": 0,
+    "wrap": false,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 1,
+    "level": 0,
+    "wrap": true,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 1,
+    "level": 1,
+    "wrap": false,
+    "text": "12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 1,
+    "level": 1,
+    "wrap": true,
+    "text": "12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 1,
+    "level": 2,
+    "wrap": false,
+    "text": "12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 1,
+    "level": 2,
+    "wrap": true,
+    "text": "12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 1,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 1,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 2,
+    "level": -1,
+    "wrap": false,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 2,
+    "level": -1,
+    "wrap": true,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 2,
+    "level": 0,
+    "wrap": false,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 2,
+    "level": 0,
+    "wrap": true,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 2,
+    "level": 1,
+    "wrap": false,
+    "text": "12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 2,
+    "level": 1,
+    "wrap": true,
+    "text": "12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 2,
+    "level": 2,
+    "wrap": false,
+    "text": "12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 2,
+    "level": 2,
+    "wrap": true,
+    "text": "12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 2,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 2,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 3,
+    "level": -1,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 3,
+    "level": -1,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 3,
+    "level": 0,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 3,
+    "level": 0,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.123 Info français\nsecond line\n2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 3,
+    "level": 1,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 3,
+    "level": 1,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.124 Attention é\n2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 3,
+    "level": 2,
+    "wrap": false,
+    "text": "2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 3,
+    "level": 2,
+    "wrap": true,
+    "text": "2026-10-29 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 3,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "sv-SE",
+    "date": 3,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "fi-FI",
+    "date": 0,
+    "level": -1,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 0,
+    "level": -1,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 0,
+    "level": 0,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 0,
+    "level": 0,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 0,
+    "level": 1,
+    "wrap": false,
+    "text": "Attention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 0,
+    "level": 1,
+    "wrap": true,
+    "text": "Attention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 0,
+    "level": 2,
+    "wrap": false,
+    "text": "Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 0,
+    "level": 2,
+    "wrap": true,
+    "text": "Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 0,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 0,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 1,
+    "level": -1,
+    "wrap": false,
+    "text": "12.34.56 Info français\nsecond line\n12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 1,
+    "level": -1,
+    "wrap": true,
+    "text": "12.34.56 Info français\nsecond line\n12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 1,
+    "level": 0,
+    "wrap": false,
+    "text": "12.34.56 Info français\nsecond line\n12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 1,
+    "level": 0,
+    "wrap": true,
+    "text": "12.34.56 Info français\nsecond line\n12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 1,
+    "level": 1,
+    "wrap": false,
+    "text": "12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 1,
+    "level": 1,
+    "wrap": true,
+    "text": "12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 1,
+    "level": 2,
+    "wrap": false,
+    "text": "12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 1,
+    "level": 2,
+    "wrap": true,
+    "text": "12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 1,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 1,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 2,
+    "level": -1,
+    "wrap": false,
+    "text": "12.34.56.123 Info français\nsecond line\n12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 2,
+    "level": -1,
+    "wrap": true,
+    "text": "12.34.56.123 Info français\nsecond line\n12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 2,
+    "level": 0,
+    "wrap": false,
+    "text": "12.34.56.123 Info français\nsecond line\n12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 2,
+    "level": 0,
+    "wrap": true,
+    "text": "12.34.56.123 Info français\nsecond line\n12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 2,
+    "level": 1,
+    "wrap": false,
+    "text": "12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 2,
+    "level": 1,
+    "wrap": true,
+    "text": "12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 2,
+    "level": 2,
+    "wrap": false,
+    "text": "12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 2,
+    "level": 2,
+    "wrap": true,
+    "text": "12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 2,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 2,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 3,
+    "level": -1,
+    "wrap": false,
+    "text": "2026-10-29 12.34.56.123 Info français\nsecond line\n2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 3,
+    "level": -1,
+    "wrap": true,
+    "text": "2026-10-29 12.34.56.123 Info français\nsecond line\n2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 3,
+    "level": 0,
+    "wrap": false,
+    "text": "2026-10-29 12.34.56.123 Info français\nsecond line\n2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 3,
+    "level": 0,
+    "wrap": true,
+    "text": "2026-10-29 12.34.56.123 Info français\nsecond line\n2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 3,
+    "level": 1,
+    "wrap": false,
+    "text": "2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 3,
+    "level": 1,
+    "wrap": true,
+    "text": "2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 3,
+    "level": 2,
+    "wrap": false,
+    "text": "2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 3,
+    "level": 2,
+    "wrap": true,
+    "text": "2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 3,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "fi-FI",
+    "date": 3,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "ar-SA",
+    "date": 0,
+    "level": -1,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 0,
+    "level": -1,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 0,
+    "level": 0,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 0,
+    "level": 0,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 0,
+    "level": 1,
+    "wrap": false,
+    "text": "Attention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 0,
+    "level": 1,
+    "wrap": true,
+    "text": "Attention é\nErreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 0,
+    "level": 2,
+    "wrap": false,
+    "text": "Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 0,
+    "level": 2,
+    "wrap": true,
+    "text": "Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 0,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 0,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 1,
+    "level": -1,
+    "wrap": false,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 1,
+    "level": -1,
+    "wrap": true,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 1,
+    "level": 0,
+    "wrap": false,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 1,
+    "level": 0,
+    "wrap": true,
+    "text": "12:34:56 Info français\nsecond line\n12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 1,
+    "level": 1,
+    "wrap": false,
+    "text": "12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 1,
+    "level": 1,
+    "wrap": true,
+    "text": "12:34:56 Attention é\n12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 1,
+    "level": 2,
+    "wrap": false,
+    "text": "12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 1,
+    "level": 2,
+    "wrap": true,
+    "text": "12:34:56 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 1,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 1,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 2,
+    "level": -1,
+    "wrap": false,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 2,
+    "level": -1,
+    "wrap": true,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 2,
+    "level": 0,
+    "wrap": false,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 2,
+    "level": 0,
+    "wrap": true,
+    "text": "12:34:56.123 Info français\nsecond line\n12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 2,
+    "level": 1,
+    "wrap": false,
+    "text": "12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 2,
+    "level": 1,
+    "wrap": true,
+    "text": "12:34:56.124 Attention é\n12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 2,
+    "level": 2,
+    "wrap": false,
+    "text": "12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 2,
+    "level": 2,
+    "wrap": true,
+    "text": "12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 2,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 2,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 3,
+    "level": -1,
+    "wrap": false,
+    "text": "1448-05-18 12:34:56.123 Info français\nsecond line\n1448-05-18 12:34:56.124 Attention é\n1448-05-18 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 3,
+    "level": -1,
+    "wrap": true,
+    "text": "1448-05-18 12:34:56.123 Info français\nsecond line\n1448-05-18 12:34:56.124 Attention é\n1448-05-18 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 3,
+    "level": 0,
+    "wrap": false,
+    "text": "1448-05-18 12:34:56.123 Info français\nsecond line\n1448-05-18 12:34:56.124 Attention é\n1448-05-18 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 3,
+    "level": 0,
+    "wrap": true,
+    "text": "1448-05-18 12:34:56.123 Info français\nsecond line\n1448-05-18 12:34:56.124 Attention é\n1448-05-18 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 3,
+    "level": 1,
+    "wrap": false,
+    "text": "1448-05-18 12:34:56.124 Attention é\n1448-05-18 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 3,
+    "level": 1,
+    "wrap": true,
+    "text": "1448-05-18 12:34:56.124 Attention é\n1448-05-18 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 3,
+    "level": 2,
+    "wrap": false,
+    "text": "1448-05-18 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 3,
+    "level": 2,
+    "wrap": true,
+    "text": "1448-05-18 12:34:56.125 Erreur 😀",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 3,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "ar-SA",
+    "date": 3,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": ":"
+  },
+  {
+    "culture": "da-DK",
+    "date": 0,
+    "level": -1,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 0,
+    "level": -1,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 0,
+    "level": 0,
+    "wrap": false,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 0,
+    "level": 0,
+    "wrap": true,
+    "text": "Info français\nsecond line\nAttention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 0,
+    "level": 1,
+    "wrap": false,
+    "text": "Attention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 0,
+    "level": 1,
+    "wrap": true,
+    "text": "Attention é\nErreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 0,
+    "level": 2,
+    "wrap": false,
+    "text": "Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 0,
+    "level": 2,
+    "wrap": true,
+    "text": "Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 0,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 0,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 1,
+    "level": -1,
+    "wrap": false,
+    "text": "12.34.56 Info français\nsecond line\n12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 1,
+    "level": -1,
+    "wrap": true,
+    "text": "12.34.56 Info français\nsecond line\n12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 1,
+    "level": 0,
+    "wrap": false,
+    "text": "12.34.56 Info français\nsecond line\n12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 1,
+    "level": 0,
+    "wrap": true,
+    "text": "12.34.56 Info français\nsecond line\n12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 1,
+    "level": 1,
+    "wrap": false,
+    "text": "12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 1,
+    "level": 1,
+    "wrap": true,
+    "text": "12.34.56 Attention é\n12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 1,
+    "level": 2,
+    "wrap": false,
+    "text": "12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 1,
+    "level": 2,
+    "wrap": true,
+    "text": "12.34.56 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 1,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 1,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 2,
+    "level": -1,
+    "wrap": false,
+    "text": "12.34.56.123 Info français\nsecond line\n12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 2,
+    "level": -1,
+    "wrap": true,
+    "text": "12.34.56.123 Info français\nsecond line\n12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 2,
+    "level": 0,
+    "wrap": false,
+    "text": "12.34.56.123 Info français\nsecond line\n12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 2,
+    "level": 0,
+    "wrap": true,
+    "text": "12.34.56.123 Info français\nsecond line\n12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 2,
+    "level": 1,
+    "wrap": false,
+    "text": "12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 2,
+    "level": 1,
+    "wrap": true,
+    "text": "12.34.56.124 Attention é\n12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 2,
+    "level": 2,
+    "wrap": false,
+    "text": "12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 2,
+    "level": 2,
+    "wrap": true,
+    "text": "12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 2,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 2,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 3,
+    "level": -1,
+    "wrap": false,
+    "text": "2026-10-29 12.34.56.123 Info français\nsecond line\n2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 3,
+    "level": -1,
+    "wrap": true,
+    "text": "2026-10-29 12.34.56.123 Info français\nsecond line\n2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 3,
+    "level": 0,
+    "wrap": false,
+    "text": "2026-10-29 12.34.56.123 Info français\nsecond line\n2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 3,
+    "level": 0,
+    "wrap": true,
+    "text": "2026-10-29 12.34.56.123 Info français\nsecond line\n2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 3,
+    "level": 1,
+    "wrap": false,
+    "text": "2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 3,
+    "level": 1,
+    "wrap": true,
+    "text": "2026-10-29 12.34.56.124 Attention é\n2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 3,
+    "level": 2,
+    "wrap": false,
+    "text": "2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 3,
+    "level": 2,
+    "wrap": true,
+    "text": "2026-10-29 12.34.56.125 Erreur 😀",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 3,
+    "level": 99,
+    "wrap": false,
+    "text": "",
+    "separator": "."
+  },
+  {
+    "culture": "da-DK",
+    "date": 3,
+    "level": 99,
+    "wrap": true,
+    "text": "",
+    "separator": "."
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "CallbackSha256": [
+    "bd01bc7cdfb42509944c5fbab966082d6f438f46503ec5db4c289342176f2432",
+    "36edb15f663d9c4dff58053ca1e76242ea80327f66c667e9394f17e9c764da16",
+    "f81c5315c31fa629f342c418cb751643754ec7b880c9d722b363eece420eb9c9",
+    "a5994d2a61342912b04019481068e1569582d67667b6dde58f65ae442682db84"
+  ],
+  "PropertySha256": [
+    "c809a4241c7274a7c2014d5704a595005731a42408b35cf2cc791ea56eb770b8",
+    "7de17f7dbcd61a6412f4ce5b84edfebd9a721143d914620ceb636670faf2ec39"
+  ],
+  "ProgramSha256": "6a7c84bc149ca2d15e614fc64977bed292d33a152a7ddb4369e0be08600fce35",
+  "AssemblySha256": "2ef5bf8f5412587f8a20f727dede2d8898fe4994e9746fc605b76d8fa0f5942f",
+  "FumenDllSha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "Scope": "Complete original4 methods and2 EditorSong property setters, actual Fumen reflection action and undo queue. Position/editability/preview-event update dependencies are host stubs. Actual original Fumen SSCReader and SM/SSC writers for complete song assets with/without fallback chart. Not whole Game/EditorSong execution."
+}

@@ -1,0 +1,92 @@
+[
+  {
+    "format": "sm",
+    "raw": " ",
+    "input": "#TITLE: ;#BANNER: ;#CREDIT: ;#JACKET: ;#BPMS:0=120;#NOTES:dance-single::Easy:1::0000;",
+    "title": " ",
+    "banner": " ",
+    "credit": " ",
+    "jacket": " "
+  },
+  {
+    "format": "sm",
+    "raw": "  edge.png  ",
+    "input": "#TITLE:  edge.png  ;#BANNER:  edge.png  ;#CREDIT:  edge.png  ;#JACKET:  edge.png  ;#BPMS:0=120;#NOTES:dance-single::Easy:1::0000;",
+    "title": "  edge.png  ",
+    "banner": "  edge.png  ",
+    "credit": "  edge.png  ",
+    "jacket": "  edge.png  "
+  },
+  {
+    "format": "sm",
+    "raw": "a\\/b\\;c",
+    "input": "#TITLE:a\\/b\\;c;#BANNER:a\\/b\\;c;#CREDIT:a\\/b\\;c;#JACKET:a\\/b\\;c;#BPMS:0=120;#NOTES:dance-single::Easy:1::0000;",
+    "title": "a/b;c",
+    "banner": "a/b;c",
+    "credit": "a/b;c",
+    "jacket": "a/b;c"
+  },
+  {
+    "format": "sm",
+    "raw": " // comment\n  edge.png  ",
+    "input": "#TITLE: // comment\n  edge.png  ;#BANNER: // comment\n  edge.png  ;#CREDIT: // comment\n  edge.png  ;#JACKET: // comment\n  edge.png  ;#BPMS:0=120;#NOTES:dance-single::Easy:1::0000;",
+    "title": " \n  edge.png  ",
+    "banner": " \n  edge.png  ",
+    "credit": " \n  edge.png  ",
+    "jacket": " \n  edge.png  "
+  },
+  {
+    "format": "sm",
+    "raw": "\tname\t",
+    "input": "#TITLE:\tname\t;#BANNER:\tname\t;#CREDIT:\tname\t;#JACKET:\tname\t;#BPMS:0=120;#NOTES:dance-single::Easy:1::0000;",
+    "title": "\tname\t",
+    "banner": "\tname\t",
+    "credit": "\tname\t",
+    "jacket": "\tname\t"
+  },
+  {
+    "format": "ssc",
+    "raw": " ",
+    "input": "#TITLE: ;#BANNER: ;#CREDIT: ;#JACKET: ;#BPMS:0=120;#VERSION:0.83;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;",
+    "title": " ",
+    "banner": " ",
+    "credit": " ",
+    "jacket": " "
+  },
+  {
+    "format": "ssc",
+    "raw": "  edge.png  ",
+    "input": "#TITLE:  edge.png  ;#BANNER:  edge.png  ;#CREDIT:  edge.png  ;#JACKET:  edge.png  ;#BPMS:0=120;#VERSION:0.83;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;",
+    "title": "  edge.png  ",
+    "banner": "  edge.png  ",
+    "credit": "  edge.png  ",
+    "jacket": "  edge.png  "
+  },
+  {
+    "format": "ssc",
+    "raw": "a\\/b\\;c",
+    "input": "#TITLE:a\\/b\\;c;#BANNER:a\\/b\\;c;#CREDIT:a\\/b\\;c;#JACKET:a\\/b\\;c;#BPMS:0=120;#VERSION:0.83;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;",
+    "title": "a/b;c",
+    "banner": "a/b;c",
+    "credit": "a/b;c",
+    "jacket": "a/b;c"
+  },
+  {
+    "format": "ssc",
+    "raw": " // comment\n  edge.png  ",
+    "input": "#TITLE: // comment\n  edge.png  ;#BANNER: // comment\n  edge.png  ;#CREDIT: // comment\n  edge.png  ;#JACKET: // comment\n  edge.png  ;#BPMS:0=120;#VERSION:0.83;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;",
+    "title": " \n  edge.png  ",
+    "banner": " \n  edge.png  ",
+    "credit": " \n  edge.png  ",
+    "jacket": " \n  edge.png  "
+  },
+  {
+    "format": "ssc",
+    "raw": "\tname\t",
+    "input": "#TITLE:\tname\t;#BANNER:\tname\t;#CREDIT:\tname\t;#JACKET:\tname\t;#BPMS:0=120;#VERSION:0.83;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;",
+    "title": "\tname\t",
+    "banner": "\tname\t",
+    "credit": "\tname\t",
+    "jacket": "\tname\t"
+  }
+]

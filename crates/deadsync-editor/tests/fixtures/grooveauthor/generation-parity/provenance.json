@@ -1,0 +1,5 @@
+{
+  "assembly_sha256": "227eb2c776199f5199bfab7453389d36205c5d647b6246180b840cfa20c655e4",
+  "mutations": 113,
+  "notice": "Original source search executed once per leaf. No Rust execution. observable_change=false means no demonstrated effect for this witness, never parity coverage."
+}

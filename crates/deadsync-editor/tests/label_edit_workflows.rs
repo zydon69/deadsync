@@ -120,7 +120,7 @@ fn scoped_unicode_labels_keep_escaped_legacy_text_and_timing_through_rssp_and_un
     assert_eq!(session.serialize().unwrap(), changed);
 }
 #[test]
-fn noops_stale_foreign_scope_and_sm_export_guards_preserve_data() {
+fn noops_stale_foreign_scope_and_sm_source_eligibility_preserve_data() {
     let mut session = Session::new(Document::parse(source(), Format::Ssc).unwrap());
     let mut draft = Draft::capture(&session, 0, Scope::Song).unwrap();
     assert_eq!(draft.affected_charts(), &[0]);
@@ -142,7 +142,7 @@ fn noops_stale_foreign_scope_and_sm_export_guards_preserve_data() {
         .unwrap(),
     );
     let bytes = sm.serialize().unwrap();
-    assert!(Draft::capture(&sm, 0, Scope::Song).is_err());
+    assert!(Draft::capture(&sm, 0, Scope::Song).unwrap().labels().values().is_empty(), "original unsupported SM tag stays ignored");
     assert!(
         Labels::from_document(sm.document(), 0)
             .unwrap()

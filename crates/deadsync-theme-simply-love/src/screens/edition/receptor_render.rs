@@ -98,7 +98,7 @@ fn sprite(
     z: i16,
 ) {
     let [a, b, w, h] = atlas::rect(name).expect("verified source receptor texture");
-    actors.push(act!(sprite(TEXTURE): xy(x,y): setsize(size,size): customtexturerect(a as f32/1280.0,b as f32/1280.0,(a+w) as f32/1280.0,(b+h) as f32/1280.0): rotationz(rotation): diffuse(color[0],color[1],color[2],color[3]): z(z)));
+    actors.push(act!(sprite(TEXTURE): xy(x,y): setsize(size,size): customtexturerect(a as f32/1280.0,b as f32/1280.0,(a+w) as f32/1280.0,(b+h) as f32/1280.0): rotationz(-rotation): diffuse(color[0],color[1],color[2],color[3]): z(z)));
 }
 pub(super) fn actors(
     actors: &mut Vec<Actor>,
@@ -211,6 +211,28 @@ mod tests {
         assert!(graphic("kb7-single", 0).is_err());
     }
     #[test]
+    fn all_source_layout_lanes_keep_mapping_and_convert_only_sprite_handedness() {
+        for layout in deadsync_editor::chart_order::TYPE_ORDER {
+            let columns = deadsync_editor::notes::layout_columns(layout).unwrap();
+            for lane in 0..columns {
+                let source = graphic(layout, lane).unwrap();
+                let hold = super::super::hold_render::graphics::graphic(layout, lane, false, false).unwrap();
+                assert_eq!(source.rotation, hold.head_rotation, "{layout}/{lane}");
+                let mut receptors = Vec::new();
+                sprite(&mut receptors, source.base, 100., 160., 48., source.rotation, [1.;4], 8001);
+                let notes = super::super::short_note_render::render(super::super::short_note_render::Request {
+                    layout, lane, kind: super::super::short_note_render::Kind::Tap,
+                    selected: false, fake: false, center: [100.,160.], width:48., fill:[255;4], alpha:1.,
+                }).unwrap();
+                for actor in receptors.iter().chain(notes.iter()) {
+                    let Actor::Sprite {rot_z_deg,offset,..}=actor else {panic!("sprite");};
+                    assert_eq!(*rot_z_deg,-source.rotation,"{layout}/{lane}");
+                    assert_eq!(*offset,[100.,160.]);
+                }
+            }
+        }
+    }
+    #[test]
     fn receptor_actors_keep_lane_rotations_and_separate_foreground_effect_layers() {
         let geometry = Geometry {
             source: 0,
@@ -258,7 +280,16 @@ mod tests {
                     panic!("expected receptor sprite")
                 };
                 assert_eq!(*offset, [355.0 + 48.0 * lane as f32, 160.0]);
-                assert_eq!(*rot_z_deg, [90.0, 0.0, 180.0, 270.0][lane]);
+                // Source SpriteBatch uses screen Y-down; native actors rotate in world Y-up.
+                let source = [90.0_f32, 0.0, 180.0, 270.0][lane];
+                assert_eq!(*rot_z_deg, -source);
+                let angle = rot_z_deg.to_radians();
+                // Base atlas arrow points down. Apply the actual native world
+                // rotation, then project world Y back to screen Y.
+                let screen_tip = [angle.sin(), angle.cos()];
+                let expected = [[-1.0,0.0],[0.0,1.0],[0.0,-1.0],[1.0,0.0]][lane];
+                assert!((screen_tip[0]-expected[0]).abs()<1e-5);
+                assert!((screen_tip[1]-expected[1]).abs()<1e-5);
                 assert_eq!(*z, [8001, 8009, 8010][layer]);
                 assert!(
                     uv_rect

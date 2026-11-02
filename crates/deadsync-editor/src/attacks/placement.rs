@@ -37,7 +37,7 @@ struct Input {
 }
 impl Timeline {
     pub fn capture(session: &Session, chart: usize) -> Result<Self, Error> {
-        let scope = if crate::timing_edit::supports_chart_timing(session.document()) {
+        let scope = if super::supports_resident_chart_attacks(session.document()) {
             Scope::Chart
         } else {
             Scope::Song
@@ -70,11 +70,9 @@ impl Timeline {
         } else {
             None
         };
+        let source=super::property::read(session.document(),origin)?;
+        let raw=source.as_deref().unwrap_or_default();
         if use_resident {
-            let raw = session
-                .document()
-                .raw_property(origin, "ATTACKS")
-                .unwrap_or_default();
             if let Some(events) = super::resident::read(session, chart, origin.is_some(), raw)? {
                 let markers = events
                     .into_iter()
@@ -92,12 +90,7 @@ impl Timeline {
                 return Self::from_grouped(session, chart, markers, true);
             }
         }
-        let source_order = Attacks::parse_source_order(
-            session
-                .document()
-                .raw_property(origin, "ATTACKS")
-                .unwrap_or_default(),
-        )?;
+        let source_order = Attacks::parse_source_order(raw)?;
         let source_indices: Vec<usize> = source_order
             .events()
             .iter()

@@ -1,0 +1,15 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "LibraryCommit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourceHashes": {
+    "EditorChart.cs": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd",
+    "EditorEvents/EditorPatternEvent.cs": "c4b41425fb9d78c4030edf3d7a681c44ce3cbd25e0a65c2659b99f1b18989f34",
+    "AutogenConfig/ConfigManager.cs": "69c63bd720fd134630e87e838956cec668f6d20746c06dc8381036157560ad67",
+    "AutogenConfig/ConfigData.cs": "ec883ed081a8871eced9e054d7bc5bee0676c07f350c4afddbf0d4501179192d"
+  },
+  "ModelsSha256": "1818d0609d5c2abb7e47b651279a28938634d19bcfb1e4dc1c0676baea6e834f",
+  "PlumbingSha256": "ee53cafa12d50af03eeaee0dd8672dcc137f053e44da1e844d82c3f0e451221f",
+  "FixtureSha256": "0ba8936229509b619e45bab983126ccda9243a14033fbcb82125996b2bdfde79",
+  "Scope": "Unchanged original entire EditorChart(Chart) constructor, original ExpressedChartConfig property, custom deserialize/serialize methods, Definition and CustomData types. Unchanged original ConfigManager.GetConfig and ConfigData.GetConfig bodies in generic containers. Real Fumen WorkQueue/Extras/types. Explicit plumbing seeds known manager dictionaries; does not execute full manager disk initialization or defaults construction. Original CanBeEdited with real empty WorkQueue; density/event factories/notification/scheduler stubs as metadata oracle. No action generation engine or output parity claim."
+}

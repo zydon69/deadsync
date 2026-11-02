@@ -86,6 +86,8 @@ struct PipelineSet {
     multiply: RenderPipelineState,
     subtract: RenderPipelineState,
     no_effect: RenderPipelineState,
+    replace: RenderPipelineState,
+    premultiplied_alpha: RenderPipelineState,
 }
 
 impl PipelineSet {
@@ -97,6 +99,8 @@ impl PipelineSet {
             BlendMode::Multiply => &self.multiply,
             BlendMode::Subtract => &self.subtract,
             BlendMode::NoEffect => &self.no_effect,
+            BlendMode::Replace => &self.replace,
+            BlendMode::PremultipliedAlpha => &self.premultiplied_alpha,
         }
     }
 }
@@ -190,6 +194,8 @@ struct OffscreenTarget {
     frames: [FrameBuffers; FRAMES_IN_FLIGHT],
     uploads: TexturedMeshUploads,
     initialized: bool,
+    fxaa: Option<(Texture, FramePass)>,
+    postprocessed: bool,
 }
 
 #[derive(Default)]
@@ -230,6 +236,7 @@ pub struct State {
     depth_states: [DepthStencilState; 6],
     depth_clear: DepthStencilState,
     depth_clear_pipeline: RenderPipelineState,
+    fxaa_pipeline: RenderPipelineState,
     depth: metal::Texture,
     render_pass: FramePass,
     offscreen_targets: Vec<OffscreenTarget>,
@@ -323,6 +330,16 @@ pub fn init(
         "textured_mesh_fragment",
         false,
     )?;
+    let fxaa_options = CompileOptions::new();
+    fxaa_options.set_fast_math_enabled(false);
+    let fxaa_library = device.new_library_with_source(include_str!("shaders/fxaa.metal"), &fxaa_options).map_err(std::io::Error::other)?;
+    let fxaa_desc = RenderPipelineDescriptor::new();
+    let fxaa_vertex = fxaa_library.get_function("fxaa_vertex", None).map_err(std::io::Error::other)?;
+    let fxaa_fragment = fxaa_library.get_function("fxaa_fragment", None).map_err(std::io::Error::other)?;
+    fxaa_desc.set_vertex_function(Some(&fxaa_vertex));
+    fxaa_desc.set_fragment_function(Some(&fxaa_fragment));
+    fxaa_desc.color_attachments().object_at(0).expect("FXAA attachment").set_pixel_format(COLOR_FORMAT);
+    let fxaa_pipeline = device.new_render_pipeline_state(&fxaa_desc).map_err(std::io::Error::other)?;
     let depth_states = build_depth_states(&device);
     let clear_desc = DepthStencilDescriptor::new();
     clear_desc.set_depth_compare_function(MTLCompareFunction::Always);
@@ -365,6 +382,7 @@ pub fn init(
         depth_states,
         depth_clear,
         depth_clear_pipeline,
+        fxaa_pipeline,
         depth,
         render_pass,
         offscreen_targets: Vec::new(),
@@ -670,6 +688,7 @@ fn draw_inner(
     let command = state.queue.new_command_buffer();
     command.set_label("DeadSync native Metal frame");
     let mut offscreen_vertices = 0u32;
+    for target in &mut state.offscreen_targets { target.postprocessed = false; }
     for (index, target_frame) in frame.render_targets.iter().enumerate() {
         let target = &state.offscreen_targets[index];
         target
@@ -699,6 +718,26 @@ fn draw_inner(
         ));
         target_encoder.end_encoding();
         state.offscreen_targets[index].initialized = true;
+        if let Some(effect) = target_frame.postprocess {
+            let target = &state.offscreen_targets[index];
+            let source = match effect.source {
+                Some(handle) => resolved_texture(state, textures, handle),
+                None => Some(&target.texture),
+            };
+            if let (Some(source), Some((_, output))) = (source, target.fxaa.as_ref()) {
+                if let TextureImages::Rgba(source) = &source.images {
+                    let encoder = command.new_render_command_encoder(&output.descriptor);
+                    encoder.set_label("DeadSync source FXAA quality39 pass");
+                    encoder.set_render_pipeline_state(&state.fxaa_pipeline);
+                    encoder.set_fragment_texture(0, Some(source));
+                    let quality = [effect.quality.subpix, effect.quality.edge_threshold, effect.quality.edge_threshold_min, if target_frame.alpha {0.0} else {1.0}];
+                    encoder.set_fragment_bytes(0, mem::size_of_val(&quality) as u64, quality.as_ptr().cast());
+                    encoder.draw_primitives(MTLPrimitiveType::Triangle, 0, 3);
+                    encoder.end_encoding();
+                    state.offscreen_targets[index].postprocessed = true;
+                }
+            }
+        }
     }
     let encoder = command.new_render_command_encoder(&state.render_pass.descriptor);
     clear_render_target(&state.render_pass.color);
@@ -1103,6 +1142,8 @@ fn build_pipeline_set(
         multiply: build_pipeline(device, &vertex, &fragment, BlendMode::Multiply, write_alpha)?,
         subtract: build_pipeline(device, &vertex, &fragment, BlendMode::Subtract, write_alpha)?,
         no_effect: build_pipeline(device, &vertex, &fragment, BlendMode::NoEffect, write_alpha)?,
+        replace: build_pipeline(device, &vertex, &fragment, BlendMode::Replace, write_alpha)?,
+        premultiplied_alpha: build_pipeline(device, &vertex, &fragment, BlendMode::PremultipliedAlpha, write_alpha)?,
     })
 }
 
@@ -1139,6 +1180,8 @@ fn build_pipeline(
 
 fn configure_blend(attachment: &RenderPipelineColorAttachmentDescriptorRef, blend: BlendMode) {
     let (src, dst, op, src_alpha, dst_alpha, alpha_op) = match blend {
+        BlendMode::Replace => (MTLBlendFactor::One,MTLBlendFactor::Zero,MTLBlendOperation::Add,MTLBlendFactor::One,MTLBlendFactor::Zero,MTLBlendOperation::Add),
+        BlendMode::PremultipliedAlpha => (MTLBlendFactor::One,MTLBlendFactor::OneMinusSourceAlpha,MTLBlendOperation::Add,MTLBlendFactor::One,MTLBlendFactor::OneMinusSourceAlpha,MTLBlendOperation::Add),
         BlendMode::NoEffect => (
             MTLBlendFactor::Zero,
             MTLBlendFactor::One,
@@ -1303,6 +1346,8 @@ fn create_offscreen_target(state: &mut State, pass: &RenderTargetFrame) -> Offsc
         frames: std::array::from_fn(|_| FrameBuffers::new(&state.device)),
         uploads: TexturedMeshUploads::with_capacity(1024, 64),
         initialized: false,
+        fxaa: None,
+        postprocessed: false,
     }
 }
 
@@ -1318,6 +1363,7 @@ fn ensure_offscreen_targets(state: &mut State, passes: &[RenderTargetFrame]) {
                     && target.height == pass.height.max(1)
             });
     if matches {
+        ensure_fxaa_targets(state, passes);
         return;
     }
     if !state.offscreen_targets.is_empty() {
@@ -1328,6 +1374,31 @@ fn ensure_offscreen_targets(state: &mut State, passes: &[RenderTargetFrame]) {
     for pass in passes {
         let target = create_offscreen_target(state, pass);
         state.offscreen_targets.push(target);
+    }
+    ensure_fxaa_targets(state, passes);
+}
+
+/// Separate attachments avoid sampling a texture currently bound for writing.
+/// Targets and both passes stay cached across preference toggles.
+fn ensure_fxaa_targets(state: &mut State, passes: &[RenderTargetFrame]) {
+    for (index, pass) in passes.iter().enumerate() {
+        if pass.postprocess.is_none() || state.offscreen_targets[index].fxaa.is_some() { continue; }
+        let desc = TextureDescriptor::new();
+        desc.set_texture_type(MTLTextureType::D2);
+        desc.set_pixel_format(COLOR_FORMAT);
+        desc.set_width(u64::from(pass.width.max(1)));
+        desc.set_height(u64::from(pass.height.max(1)));
+        desc.set_storage_mode(MTLStorageMode::Private);
+        desc.set_usage(MTLTextureUsage::RenderTarget | MTLTextureUsage::ShaderRead);
+        let raw = state.device.new_texture(&desc);
+        let sampler_desc = SamplerDesc { filter: SamplerFilter::Linear, wrap: SamplerWrap::Clamp, mipmaps: false };
+        let samplers = create_texture_samplers(state, sampler_desc);
+        let id = state.next_texture_id;
+        state.next_texture_id = state.next_texture_id.wrapping_add(1).max(1);
+        let descriptor = RenderPassDescriptor::new().to_owned();
+        let color = descriptor.color_attachments().object_at(0).expect("FXAA attachment").to_owned();
+        color.set_texture(Some(&raw));color.set_load_action(MTLLoadAction::DontCare);color.set_store_action(MTLStoreAction::Store);
+        state.offscreen_targets[index].fxaa = Some((Texture {id, images: TextureImages::Rgba(raw), sampler_desc, samplers, mipmaps: false}, FramePass {descriptor, color}));
     }
 }
 
@@ -1342,7 +1413,7 @@ fn resolved_texture<'a>(
             .offscreen_targets
             .iter()
             .find(|target| target.handle == handle)
-            .map(|target| &target.texture)
+            .map(|target| if target.postprocessed { target.fxaa.as_ref().map_or(&target.texture, |(texture, _)| texture) } else { &target.texture })
     } else {
         textures.metal_texture(handle)
     }
@@ -1911,6 +1982,8 @@ const fn blend_key(blend: BlendMode) -> u8 {
         BlendMode::Multiply => 2,
         BlendMode::Subtract => 3,
         BlendMode::NoEffect => 4,
+        BlendMode::Replace => 5,
+        BlendMode::PremultipliedAlpha => 6,
     }
 }
 

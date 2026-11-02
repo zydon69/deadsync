@@ -92,6 +92,9 @@ fn batch_matches_individual_conversions_and_round_trips_as_one_action() {
             )
             .unwrap();
         let before = source.serialize().unwrap();
+        let original_grids: Vec<_> = (0..3)
+            .map(|index| source.grid(index).unwrap().clone())
+            .collect();
         let result = preview(&source);
         assert_eq!(result.report().total, 2);
         assert_eq!(result.report().generated, 2);
@@ -109,6 +112,16 @@ fn batch_matches_individual_conversions_and_round_trips_as_one_action() {
         assert_eq!(source.serialize().unwrap(), before);
         assert_eq!(result.apply(&mut source).unwrap(), vec![3, 4]);
         let after = source.serialize().unwrap();
+        for (index, expected) in original_grids.iter().enumerate() {
+            assert_eq!(source.grid(index).unwrap(), expected, "original chart {index}");
+        }
+        for (index, entry) in [3, 4].into_iter().zip(result.entries()) {
+            assert_eq!(
+                source.grid(index).unwrap(),
+                entry.preview().unwrap().grid(),
+                "applied chart {index} differs from its reviewed preview"
+            );
+        }
         for (new, old) in [(3, 0), (4, 2)] {
             assert_eq!(
                 source.document().charts()[new].difficulty,

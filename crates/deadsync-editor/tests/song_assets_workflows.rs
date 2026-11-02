@@ -170,7 +170,7 @@ fn batch_reuses_candidates_and_lyrics_uses_first_exact_lowercase_extension() {
     assert_eq!(assets.lyrics.as_deref(), Some("Été.lrc"));
 }
 #[test]
-fn batch_stages_only_candidates_respects_unset_and_sm_and_validates_atomically() {
+fn batch_stages_only_candidates_respects_unset_in_both_formats_and_validates_atomically() {
     let assets = Assets {
         images: vec![
             (I::Background, "new.png".into()),
@@ -188,19 +188,12 @@ fn batch_stages_only_candidates_respects_unset_and_sm_and_validates_atomically()
         assert_eq!(assets.stage(&mut text, true).unwrap(), 1);
         assert_eq!(text.get(Field::Background), "old.png");
         assert_eq!(text.get(Field::Jacket), "legacy.png");
-        assert_eq!(
-            assets.stage(&mut text, false).unwrap(),
-            if format == Format::Sm { 1 } else { 2 }
-        );
+        assert_eq!(assets.stage(&mut text, false).unwrap(), 2);
         assert_eq!(text.get(Field::Background), "new.png");
-        assert_eq!(
-            text.get(Field::Jacket),
-            if format == Format::Sm {
-                "legacy.png"
-            } else {
-                "jacket.png"
-            }
-        );
+        // EditorSong stages all image paths before the selected writer decides
+        // their output representation, including Jacket for an SM document.
+        assert_eq!(text.get(Field::Jacket), "jacket.png");
+        assert_eq!(text.get(Field::Lyrics), "words.lrc");
         assert_eq!(assets.stage(&mut text, false).unwrap(), 0);
         let invalid = Assets {
             images: vec![(I::Background, "other.png".into())],
@@ -208,6 +201,9 @@ fn batch_stages_only_candidates_respects_unset_and_sm_and_validates_atomically()
         };
         assert!(invalid.stage(&mut text, false).is_err());
         assert_eq!(text.get(Field::Background), "new.png");
+        assert_eq!(text.get(Field::Jacket), "jacket.png");
+        assert_eq!(text.get(Field::Lyrics), "words.lrc");
+        assert_eq!(text.get(Field::Title), "Keep");
     }
 }
 #[test]

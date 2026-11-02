@@ -87,7 +87,8 @@ pub const fn screen_light_context(screen: Screen) -> ScreenLightContext {
         Screen::Mappings | Screen::Input => ScreenLightContext::OperatorLocked,
         Screen::SmxAssignPads => ScreenLightContext::SmxAssignPads,
         Screen::SelectMusic | Screen::SelectCourse => ScreenLightContext::SongSelect,
-        Screen::Menu
+        Screen::Edition
+        | Screen::Menu
         | Screen::ContentBrowser
         | Screen::Credits
         | Screen::ManageLocalProfiles

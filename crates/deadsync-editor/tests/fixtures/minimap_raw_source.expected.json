@@ -1,0 +1,263 @@
+[
+  {
+    "name": "spacing-ConstantTime",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapSpacingModeForVariable\": \"ConstantTime\"}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    }
+  },
+  {
+    "name": "spacing-ConstantRow",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapSpacingModeForVariable\": \"ConstantRow\"}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantRow",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    }
+  },
+  {
+    "name": "spacing-Variable",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapSpacingModeForVariable\": \"Variable\"}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "Variable",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    }
+  },
+  {
+    "name": "spacing-99",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapSpacingModeForVariable\": \"99\"}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "99",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    }
+  },
+  {
+    "name": "spacing-bad",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapSpacingModeForVariable\": \"bad\"}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    }
+  },
+  {
+    "name": "spacing-99-number",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapSpacingModeForVariable\": 99}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 240,
+      "MiniMapVisibleRowRange": 24576,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    }
+  },
+  {
+    "name": "range-0",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapVisibleTimeRange\": 0, \"MiniMapVisibleRowRange\": 0}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 0,
+      "MiniMapVisibleRowRange": 0,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    }
+  },
+  {
+    "name": "range-1",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapVisibleTimeRange\": 1, \"MiniMapVisibleRowRange\": 1}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 1,
+      "MiniMapVisibleRowRange": 1,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    }
+  },
+  {
+    "name": "range-4294967295",
+    "raw": "{\"Player\": 3, \"PreferencesMiniMap\": {\"MiniMapVisibleTimeRange\": 4294967295, \"MiniMapVisibleRowRange\": 4294967295}}",
+    "accepted": true,
+    "minimap": {
+      "ShowMiniMapPreferencesWindow": false,
+      "ShowMiniMap": true,
+      "MiniMapSelectMode": "MoveToCursor",
+      "MiniMapWidth": 90,
+      "MiniMapNoteWidth": 2,
+      "MiniMapNoteSpacing": 3,
+      "MiniMapPosition": "LeftSideOfWindow",
+      "MiniMapSpacingModeForVariable": "ConstantTime",
+      "MiniMapVisibleTimeRange": 4294967295,
+      "MiniMapVisibleRowRange": 4294967295,
+      "ShowPatterns": true,
+      "PatternsWidth": 8,
+      "ShowPreview": true,
+      "PreviewWidth": 8,
+      "ShowLabels": true,
+      "QuantizePositions": false,
+      "PositionOffsets": {
+        "RightSideOfWindow": 110,
+        "LeftSideOfWindow": 110,
+        "FocusedChartWithoutScaling": 10,
+        "FocusedChartWithScaling": 10
+      }
+    }
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "scope": "Original chart-copy action executed unchanged with loader-normalized source/destination events. Original loader code inspected, not executed by this action-only adapter. Native test starts from raw nonzero initial positions and must perform its own normalization.",
+  "editor_revision": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen_revision": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "load_preconditions": [
+    "Fumen SMCommon.AddTimeSignatures inserts 4/4 at row zero before late signatures.",
+    "EditorChart.cs load loop detects missing row-zero Tempo and CreateDefaultTempo adds EditorSong.GetBestChartStartingTempo at zero.",
+    "This fixture song has BPM120 at zero; no earlier charts supply a different initial tempo, so both added tempos are120."
+  ],
+  "normalization": "For this exact valid input, prepend Tempo120 and Signature4/4 at row0. Keep all authored later nodes.",
+  "assembly_sha256": "6b8602374bb5616133c71f18d200703ab7cf45934f365fb207f121ad9955d947",
+  "files_sha256": {
+    "chart-copy-loaded-initial.normalized.request.json": "5481df13ce7acf1f3d99b2c910446e277427694bb47181705e556be0d941e1ff",
+    "chart-copy-loaded-initial.request.json": "0a474c8a1e764e23e2eebc19dd97e5d610d34b5229ff56028187faf08d393dd8",
+    "chart-copy-loaded-initial.expected.json": "caea59c2cd2b50135b1a5d51a53f6a988bf5b8da85f6721d21626b3b190a89ec"
+  },
+  "command": "dotnet scripts/editor-chart-copy-oracle/bin/Release/net10.0/ChartCopyOracle.dll crates/deadsync-editor/tests/fixtures/grooveauthor/chart-copy-loaded-initial.normalized.request.json"
+}

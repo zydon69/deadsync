@@ -1,5 +1,6 @@
 //! Source-faithful row shifts for an explicit mixed event selection.
 //! Negative destinations delete movable events; immutable initial nodes remain.
+pub mod reviewed;
 use crate::{
     Error,
     event_clipboard::{Clipboard, Event, Selection, TimingKind},
@@ -26,6 +27,7 @@ pub struct Plan {
     destination: u64,
     player: u32,
     report: Report,
+    originals: Vec<Event>,
 }
 impl Plan {
     pub fn capture(session: &mut Session, selection: &Selection, rows: i64) -> Result<Self, Error> {
@@ -48,8 +50,13 @@ impl Plan {
         let mut remove = BTreeSet::new();
         let mut owners = BTreeSet::new();
         let mut report = Report::default();
+        let mut originals = Vec::new();
         for (index, &event) in selection.events().iter().enumerate() {
             if !selection.is_selected(index) {
+                continue;
+            }
+            if matches!(event, Event::SongWidget(_)) {
+                report.immutable += 1;
                 continue;
             }
             if matches!(
@@ -63,6 +70,7 @@ impl Plan {
                 continue;
             }
             let row = i128::from(event.row()) + i128::from(rows);
+            originals.push(event);
             if row < 0 || (unsupported_patterns && matches!(event, Event::Pattern { .. })) {
                 remove.insert(event);
                 report.deleted += 1;
@@ -99,6 +107,9 @@ impl Plan {
                 }
                 Event::Timing { kind, .. } => Event::Timing { row, kind },
                 Event::Attack { .. } => Event::Attack { row },
+                Event::SongWidget(_) => {
+                    unreachable!("immutable widgets excluded before row arithmetic")
+                }
             };
             valid.insert(event);
             if rows != 0 {
@@ -132,9 +143,12 @@ impl Plan {
             destination,
             player,
             report,
+            originals,
         })
     }
-    pub fn report(&self) -> &Report { &self.report }
+    pub fn report(&self) -> &Report {
+        &self.report
+    }
     pub fn apply(self, session: &mut Session) -> Result<Report, Error> {
         if !session.accepts_token(&self.token) {
             return Err(invalid(
@@ -142,7 +156,10 @@ impl Plan {
             ));
         }
         let mut report = self.report;
+        let before = crate::history::SelectionEffect::capture(session, self.chart, self.originals);
         if self.remove.is_empty() {
+            let after = crate::history::SelectionEffect::capture(session, self.chart, report.selection_after.clone());
+            session.record_event_selection(crate::history::selection_effect::SelectionHistory { before, after }, false);
             return Ok(report);
         }
         report.changed =
@@ -163,6 +180,8 @@ impl Plan {
                 }
                 Ok(())
             })?;
+        let after = crate::history::SelectionEffect::capture(session, self.chart, report.selection_after.clone());
+        session.record_event_selection(crate::history::selection_effect::SelectionHistory { before, after }, report.changed);
         Ok(report)
     }
 }
@@ -189,4 +208,34 @@ fn checked_end(row: u64, rows: i64) -> Result<u64, Error> {
 }
 fn invalid(message: &str) -> Error {
     Error::InvalidEdit(message.into())
+}
+
+#[cfg(test)]
+mod selection_history_tests {
+    use super::*;
+    use crate::{document::{Document, Format}, notes::Position};
+    #[test]
+    fn mixed_shift_history_restores_deleted_originals_and_excludes_initial_tempo() {
+        let mut session = Session::new(Document::parse(b"#VERSION:0.83;#BPMS:0=120,2=150;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0000\n0000;".to_vec(), Format::Ssc).unwrap());
+        let mut selected = Selection::capture(&mut session, 0, 0, 192).unwrap();
+        selected.select_all(true);
+        let before = session.serialize().unwrap();
+        let report = Plan::capture(&mut session, &selected, -48).unwrap().apply(&mut session).unwrap();
+        assert!(report.changed);
+        assert_eq!(report.deleted, 1);
+        let after = session.serialize().unwrap();
+        let effect = session.take_event_selection_update().unwrap();
+        assert!(effect.is_current(&session));
+        assert_eq!(effect.events(), &report.selection_after);
+        session.undo().unwrap();
+        assert_eq!(session.serialize().unwrap(), before);
+        assert_eq!(session.take_event_selection_update().unwrap().events(), &[
+            Event::Note(Position { row: 0, lane: 0, player: 0 }),
+            Event::Note(Position { row: 48, lane: 1, player: 0 }),
+            Event::Timing { row: 96, kind: TimingKind::Tempo },
+        ]);
+        session.redo().unwrap();
+        assert_eq!(session.serialize().unwrap(), after);
+        assert_eq!(session.take_event_selection_update().unwrap().events(), &report.selection_after);
+    }
 }

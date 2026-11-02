@@ -1,3 +1,5 @@
+#[path = "support/source_output_context.rs"]
+mod source_output_context;
 use deadsync_editor::{
     chart_text::{self, Field as ChartField},
     document::{Document, Format},
@@ -64,15 +66,25 @@ fn media_fields_commit_clear_save_reopen_and_undo_without_losing_peer_notes_or_l
         let after = file.session.serialize().unwrap();
         assert_eq!(file.session.grid(1).unwrap(), &peer);
         assert!(String::from_utf8_lossy(&after).contains("#VENDOR:keep;"));
-        if format == Format::Sm {
-            assert!(String::from_utf8_lossy(&after).contains("#JACKET:legacy.png;"));
-        }
+        // Source Song Properties permits explicit Jacket edits for both
+        // formats. The pre-existing legacy value is restored by Undo below,
+        // rather than retained after the accepted replacement.
+        assert_eq!(
+            Text::read(file.session.document()).get(Field::Jacket),
+            "art/Été; 日本語 # JACKET.png"
+        );
+        assert!(!String::from_utf8_lossy(&after).contains("#JACKET:legacy.png;"));
         file.session.undo().unwrap();
         assert_eq!(file.session.serialize().unwrap(), pending);
         file.session.redo().unwrap();
         assert_eq!(file.session.serialize().unwrap(), after);
         file.save().unwrap();
+        assert_eq!(file.session.serialize().unwrap(), after);
+        let published = fs::read(&path).unwrap();
+        source_output_context::assert_context_only(&after, &published, format);
         let mut reopened = FileSession::open(&path).unwrap();
+        assert_eq!(reopened.session.serialize().unwrap(), published);
+        assert_eq!(reopened.session.grid(1).unwrap(), &peer);
         let text = Text::read(reopened.session.document());
         for &field in &media {
             if text.supports(field) {
@@ -113,8 +125,12 @@ fn media_fields_commit_clear_save_reopen_and_undo_without_losing_peer_notes_or_l
                 );
             }
         }
+        let cleared = reopened.session.serialize().unwrap();
         reopened.session.undo().unwrap();
-        assert_eq!(reopened.session.serialize().unwrap(), after);
+        assert_eq!(reopened.session.serialize().unwrap(), published);
+        reopened.session.redo().unwrap();
+        assert_eq!(reopened.session.serialize().unwrap(), cleared);
+        assert_eq!(reopened.session.grid(1).unwrap(), &peer);
     }
 }
 

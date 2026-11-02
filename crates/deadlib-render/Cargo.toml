@@ -22,3 +22,6 @@ deadlib-render-backend-metal = { path = "../deadlib-render-backend-metal" }
 perf = { level = "warn", priority = -1 }
 
 inline_always = "allow"
+
+[features]
+test-util = ["deadlib-render-backend-software/test-util"]

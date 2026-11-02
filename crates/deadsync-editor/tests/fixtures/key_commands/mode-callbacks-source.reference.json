@@ -1,0 +1,12 @@
+{
+  "SourceCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "EditorSha256": "77246efb397b70390f458d3c9a9f1ffbf65be5048c142391674743ac27bbc830",
+  "Declarations": [
+    "b082dd47112daf71ab857da4b697fc0298e65b89ee78adea1a822ab94de53496",
+    "b1be68857bbdd40df1f494a20fa77fdae0811a94436937e4295721ed2421ba8a",
+    "bfd2b1da1b2423101b5b975415bca127a82d673a9a3e8de68b10ce228b6766e4",
+    "b5240b823cc3a8d3b14483ef23d062633cf38dd8374237d23a9f49d02e19cbe6"
+  ],
+  "HostSha256": "e2fcce429059f98f04a07806beaf1c21b8f9cfd47c18e6ca67e9b4ea1b11f6d7",
+  "Scope": "Complete original two callbacks and two enum declarations; Preferences and Logger host stubs only. Original callbacks do not invoke an undo queue or lane/transport APIs. Not a whole Editor runtime execution."
+}

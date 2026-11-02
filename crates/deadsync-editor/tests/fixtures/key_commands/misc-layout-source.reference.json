@@ -1,0 +1,16 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourceSha256": {
+    "ActiveEditorChart.cs": "60bde1681bba77f08a7c4d772c247c0b6725901fd8b0e2225f3e02e5d728ac3a",
+    "EditorEvents/Containers/RateAlteringEventTree.cs": "bd7eab4ce5a62e8c5c300f20e47298ea19c65f55b590978bb99d3d653441d736",
+    "EditorEvents/Containers/EventTreeUtils.cs": "debc87e321265b4b694fe902cb9147e66804e75669fef7a842830a925a6ecdee",
+    "EditorEvents/EditorRateAlteringEvent.cs": "65df864234461b543af99e6f640e43998be9343ba64829f3d0d28cb027e481ce",
+    "Preferences/PreferencesSelection.cs": "070fa20688a9753e9e6c38a1a70d791a1c717c7004679271315918999ebc5765",
+    "EventSpacingHelper.cs": "67deae613750c28f54442f4379f65f7c7e7728b8603bb5ea16c25807bc35fd5b",
+    "MiscEventWidgetLayoutManager.cs": "24817f6067ea447abcd17f324cb5e7c31cb506bc516ee5a647938f90a3bc8216"
+  },
+  "AdapterSha256": "b593a90c1f4915440e3df929530939ffde02f485acf1a6fa28471962ef063ce6",
+  "ProgramSha256": "41f51d90762917659a12888fd0cf6823bb3f1441440e4920695b6f739792a0a4",
+  "Scope": "Unmodified entire MiscEventWidgetLayoutManager; every insertion snapshot includes displaced old objects, duplicate type replacement, left/right independent wrap, BeginFrame reset. Scalar geometry explicit; no native simulation."
+}

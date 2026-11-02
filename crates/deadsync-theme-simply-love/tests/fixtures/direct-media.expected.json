@@ -1,0 +1,889 @@
+{
+  "source": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "source_sha256": {
+    "Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+    "Utils.cs": "0ac380bdd1742b1856bd0ccbc0650e334e16b489a3da47ecb8775b9bde145de7",
+    "EditorSongImageUtils.cs": "573be36d261fcfbec601bac2b7c7e40be817edb9130ddbba0311b61c072d2e2a"
+  },
+  "methods_sha256": "0eaf7587d11936acf6a13205c73fc027f7db46c5eadb94b2115f743e815ceb3f",
+  "scope": "Five original routing/open callbacks + original pending assignment block + complete image selector; actual Fumen.Path; injected image dimensions, field setter adapters and New stub. Not Undo/render/OS-drop proof.",
+  "cases": [
+    {
+      "active": false,
+      "extension": "mp3",
+      "created": 1,
+      "properties": {
+        "MusicPath": "/media/banner.mp3",
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "oga",
+      "created": 1,
+      "properties": {
+        "MusicPath": "/media/banner.oga",
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "ogg",
+      "created": 1,
+      "properties": {
+        "MusicPath": "/media/banner.ogg",
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "opus",
+      "created": 1,
+      "properties": {
+        "MusicPath": "/media/banner.opus",
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "wav",
+      "created": 1,
+      "properties": {
+        "MusicPath": "/media/banner.wav",
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "bmp",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "/media/banner.bmp",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "gif",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "/media/banner.gif",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "jpeg",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "/media/banner.jpeg",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "jpg",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "/media/banner.jpg",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "png",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "/media/banner.png",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "tif",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "/media/banner.tif",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "tiff",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "/media/banner.tiff",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "webp",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "/media/banner.webp",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "avi",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "/media/banner.avi",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "f4v",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "/media/banner.f4v",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "flv",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "/media/banner.flv",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "mkv",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "/media/banner.mkv",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "mp4",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "/media/banner.mp4",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "mpeg",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "/media/banner.mpeg",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "mpg",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "/media/banner.mpg",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "mov",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "/media/banner.mov",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "ogv",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "/media/banner.ogv",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "webm",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "/media/banner.webm",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "wmv",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "/media/banner.wmv",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": false,
+      "extension": "lrc",
+      "created": 1,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": "/media/banner.lrc"
+      }
+    },
+    {
+      "active": false,
+      "extension": "OGG",
+      "created": 0,
+      "properties": null
+    },
+    {
+      "active": false,
+      "extension": "PNG",
+      "created": 0,
+      "properties": null
+    },
+    {
+      "active": false,
+      "extension": "MP4",
+      "created": 0,
+      "properties": null
+    },
+    {
+      "active": false,
+      "extension": "LRC",
+      "created": 0,
+      "properties": null
+    },
+    {
+      "active": false,
+      "extension": "flac",
+      "created": 0,
+      "properties": null
+    },
+    {
+      "active": false,
+      "extension": "txt",
+      "created": 0,
+      "properties": null
+    },
+    {
+      "active": true,
+      "extension": "mp3",
+      "created": 0,
+      "properties": {
+        "MusicPath": "../../media/banner.mp3",
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "oga",
+      "created": 0,
+      "properties": {
+        "MusicPath": "../../media/banner.oga",
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "ogg",
+      "created": 0,
+      "properties": {
+        "MusicPath": "../../media/banner.ogg",
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "opus",
+      "created": 0,
+      "properties": {
+        "MusicPath": "../../media/banner.opus",
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "wav",
+      "created": 0,
+      "properties": {
+        "MusicPath": "../../media/banner.wav",
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "bmp",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "../../media/banner.bmp",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "gif",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "../../media/banner.gif",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "jpeg",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "../../media/banner.jpeg",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "jpg",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "../../media/banner.jpg",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "png",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "../../media/banner.png",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "tif",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "../../media/banner.tif",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "tiff",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "../../media/banner.tiff",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "webp",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": "../../media/banner.webp",
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "avi",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "../../media/banner.avi",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "f4v",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "../../media/banner.f4v",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "flv",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "../../media/banner.flv",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "mkv",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "../../media/banner.mkv",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "mp4",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "../../media/banner.mp4",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "mpeg",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "../../media/banner.mpeg",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "mpg",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "../../media/banner.mpg",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "mov",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "../../media/banner.mov",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "ogv",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "../../media/banner.ogv",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "webm",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "../../media/banner.webm",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "wmv",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": "../../media/banner.wmv",
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "lrc",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": "../../media/banner.lrc"
+      }
+    },
+    {
+      "active": true,
+      "extension": "OGG",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "PNG",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "MP4",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "LRC",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "flac",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    },
+    {
+      "active": true,
+      "extension": "txt",
+      "created": 0,
+      "properties": {
+        "MusicPath": null,
+        "BackgroundPath": null,
+        "BannerPath": null,
+        "CDTitlePath": null,
+        "JacketPath": null,
+        "CDImagePath": null,
+        "DiscImagePath": null,
+        "LyricsPath": null
+      }
+    }
+  ]
+}

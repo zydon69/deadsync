@@ -67,7 +67,7 @@ impl State {
             self.open_timing_migration();
             return;
         }
-        let scope = if deadsync_editor::timing_edit::supports_chart_timing(source) {
+        let scope = if deadsync_editor::timing_edit::supports_resident_chart_timing(source) {
             Scope::Chart
         } else {
             Scope::Song
@@ -83,14 +83,14 @@ impl State {
         }
     }
     fn timing_error(&mut self, error: deadsync_editor::Error) {
-        self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
+        self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
     }
     fn timing_attacks(&mut self) {
         if self.timing.as_ref().is_some_and(|settings| settings.pending || settings.draft.has_changes()) {
             self.status = i18n::tr("Edition", "AttacksTimingPending");
             return;
         }
-        let scope = self.timing.as_ref().map_or(Scope::Song, |settings| settings.draft.scope());
+        let scope = if deadsync_editor::attacks::supports_resident_chart_attacks(self.workspace.file().session.document()) {self.timing.as_ref().map_or(Scope::Song, |settings| settings.draft.scope())} else {Scope::Song};
         self.open_attacks(scope);
     }
     pub(super) fn timing_key(&mut self, index: usize, code: KeyCode) {
@@ -422,18 +422,7 @@ impl State {
             self.status = i18n::tr("Edition", settings.draft.key("TimingInputPending"));
             return;
         }
-        let mut kind = settings.draft.kind().step(self.shift);
-        if self.workspace.file().session.document().format == deadsync_editor::document::Format::Sm
-        {
-            while kind.is_region()
-                || matches!(
-                    kind,
-                    EventKind::Scroll | EventKind::Combo | EventKind::Speed | EventKind::Label
-                )
-            {
-                kind = kind.step(self.shift);
-            }
-        }
+        let kind = settings.draft.kind().step(self.shift);
         let row = settings.row().unwrap_or(self.workspace.row());
         let same_family = matches!(
             (&settings.draft, kind),
@@ -493,7 +482,7 @@ impl State {
             Ok(draft) => self.timing = Some(Settings::new(draft, self.workspace.row())),
             Err(_)
                 if scope == Scope::Chart
-                    && !deadsync_editor::timing_edit::supports_chart_timing(
+                    && !deadsync_editor::timing_edit::supports_resident_chart_timing(
                         self.workspace.file().session.document(),
                     ) =>
             {
@@ -646,9 +635,7 @@ impl State {
             settings.beat = beat_text(row);
             settings.value = value;
             settings.fresh = true;
-            if let Err(error) = self.workspace.execute(Command::Seek(row)) {
-                self.timing_error(error);
-            }
+            self.navigate_exact_position(row as f64, true);
             self.refresh();
         } else {
             self.status = i18n::tr("Edition", settings.draft.key("TimingMissing"));
@@ -663,10 +650,19 @@ impl State {
         {
             return;
         }
-        let Some(settings) = &self.timing else {
+        let Some(settings) = self.timing.take() else {
             return;
         };
-        match settings.draft.apply(&mut self.workspace) {
+        let result=(|| {
+            let before=self.capture_timing_presentation()?;
+            let plan=settings.draft.live_edit().prepare(&self.workspace.file().session,self.workspace.chart(),before.anchor())?;
+            let application=self.workspace.apply_timing_live_plan(plan)?;
+            let changed=application.changed();
+            if changed {self.finish_timing_presentation(before,application.into_position())?;}
+            Ok::<_,deadsync_editor::Error>(changed)
+        })();
+        self.timing=Some(settings);
+        match result {
             Ok(changed) => {
                 self.timing = None;
                 self.panel = None;

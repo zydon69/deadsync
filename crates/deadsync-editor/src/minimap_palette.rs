@@ -13,23 +13,29 @@ pub enum ColorMethod {
     Stepmania,
     Note,
     Beat,
+    Unknown(i32),
 }
 impl ColorMethod {
+    pub fn read_source(value:Option<&serde_json::Value>)->Result<Self,Error>{let names=["Stepmania".to_owned(),"Note".to_owned(),"Beat".to_owned()];let value=crate::open_preferences::enum_value(value,&names,0)?;Ok(match value{0=>Self::Stepmania,1=>Self::Note,2=>Self::Beat,value=>Self::Unknown(value)})}
+    pub fn raw(self)->i32{match self{Self::Stepmania=>0,Self::Note=>1,Self::Beat=>2,Self::Unknown(value)=>value}}
+    pub fn effective(self)->Self{match self.raw(){1=>Self::Note,2=>Self::Beat,_=>Self::Stepmania}}
+    pub fn source_name(self)->String{match self.raw(){0=>"Stepmania".into(),1=>"Note".into(),2=>"Beat".into(),value=>value.to_string()}}
+
     pub fn color_row(
         self,
         row: u64,
         relative_to_measure: u64,
         signature_denominator: u32,
     ) -> Result<u8, Error> {
-        let value = match self {
-            Self::Stepmania => row,
-            Self::Note => relative_to_measure,
-            Self::Beat => {
+        let value = match self.raw() {
+            1 => relative_to_measure,
+            2 => {
                 relative_to_measure
                     .checked_mul(signature_denominator as u64)
                     .ok_or_else(|| Error::InvalidEdit("Color row overflow".into()))?
                     / 4
             }
+            _=>row,
         };
         Ok((value % 48) as u8)
     }
@@ -127,7 +133,7 @@ impl Palette {
             || preferences.players.len() > 64
             || colors
                 .flatten()
-                .any(|channel| !channel.is_finite() || !(0.0..=1.0).contains(channel))
+                .any(|channel| !channel.is_finite())
             || [
                 preferences.normal_multiplier,
                 preferences.selected_multiplier,
@@ -135,8 +141,7 @@ impl Palette {
                 preferences.piu_hold_saturation,
             ]
             .iter()
-            .any(|value| !value.is_finite() || *value < 0.0)
-            || preferences.routine_alpha > 1.0
+            .any(|value| !value.is_finite())
         {
             return Err(Error::InvalidEdit(
                 "Invalid minimap palette preferences".into(),
@@ -260,7 +265,9 @@ fn subdivision_index(row: u8) -> usize {
 fn ui(rgb: Rgb, multiplier: f32) -> u32 {
     let mut packed = 0xff000000;
     for (i, channel) in rgb.into_iter().enumerate() {
-        let byte = (channel * 255.0) as u8;
+        // Original Utils.ToRGBA converts float to int32 then to unchecked
+        // byte. Values outside0..1 wrap the low byte; this is not UNORM.
+        let byte = ((channel * 255.0) as i32) as u8;
         packed |= ((byte as f32 * multiplier).min(255.0) as u32) << (8 * i);
     }
     packed

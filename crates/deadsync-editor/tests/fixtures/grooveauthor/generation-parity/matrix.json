@@ -1,0 +1,1628 @@
+[
+  {
+    "name": "policy-parity-defaultbracketparsingmethod",
+    "family": "expression",
+    "path": [
+      "DefaultBracketParsingMethod"
+    ],
+    "before": "balanced",
+    "after": "aggressive",
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "policy-parity-bracketparsingdetermination",
+    "family": "expression",
+    "path": [
+      "BracketParsingDetermination"
+    ],
+    "before": "chooseMethodDynamically",
+    "after": "useDefaultMethod",
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "policy-parity-minlevelforbrackets",
+    "family": "expression",
+    "path": [
+      "MinLevelForBrackets"
+    ],
+    "before": 9,
+    "after": 8,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "policy-parity-useaggressivebracketswhenmoresimultaneousnotesthancanbecoveredwithoutbrackets",
+    "family": "expression",
+    "path": [
+      "UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets"
+    ],
+    "before": false,
+    "after": true,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "policy-parity-balancedbracketsperminuteforaggressivebrackets",
+    "family": "expression",
+    "path": [
+      "BalancedBracketsPerMinuteForAggressiveBrackets"
+    ],
+    "before": 10000.0,
+    "after": 9000.0,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "policy-parity-balancedbracketsperminutefornobrackets",
+    "family": "expression",
+    "path": [
+      "BalancedBracketsPerMinuteForNoBrackets"
+    ],
+    "before": 0.0,
+    "after": 0.05,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-pattern-beatsubdivision",
+    "family": "pattern",
+    "path": [
+      "BeatSubDivision"
+    ],
+    "before": 4,
+    "after": 2,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-pattern-startingfootchoice",
+    "family": "pattern",
+    "path": [
+      "StartingFootChoice"
+    ],
+    "before": "automatic",
+    "after": "random",
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-pattern-startingfootspecified",
+    "family": "pattern",
+    "path": [
+      "StartingFootSpecified"
+    ],
+    "before": 0,
+    "after": 1,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-pattern-leftfootstartchoice",
+    "family": "pattern",
+    "path": [
+      "LeftFootStartChoice"
+    ],
+    "before": "automaticSameOrNewLane",
+    "after": "specifiedLane",
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-pattern-leftfootstartlanespecified",
+    "family": "pattern",
+    "path": [
+      "LeftFootStartLaneSpecified"
+    ],
+    "before": 0,
+    "after": 1,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-pattern-leftfootendchoice",
+    "family": "pattern",
+    "path": [
+      "LeftFootEndChoice"
+    ],
+    "before": "automaticSameOrNewLaneAsFollowing",
+    "after": "specifiedLane",
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-pattern-leftfootendlanespecified",
+    "family": "pattern",
+    "path": [
+      "LeftFootEndLaneSpecified"
+    ],
+    "before": 0,
+    "after": 1,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-pattern-rightfootstartchoice",
+    "family": "pattern",
+    "path": [
+      "RightFootStartChoice"
+    ],
+    "before": "automaticSameOrNewLane",
+    "after": "specifiedLane",
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": false,
+    "observable_change": true
+  },
+  {
+    "name": "parity-pattern-rightfootstartlanespecified",
+    "family": "pattern",
+    "path": [
+      "RightFootStartLaneSpecified"
+    ],
+    "before": 0,
+    "after": 1,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-pattern-rightfootendchoice",
+    "family": "pattern",
+    "path": [
+      "RightFootEndChoice"
+    ],
+    "before": "automaticSameOrNewLaneAsFollowing",
+    "after": "specifiedLane",
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-pattern-rightfootendlanespecified",
+    "family": "pattern",
+    "path": [
+      "RightFootEndLaneSpecified"
+    ],
+    "before": 0,
+    "after": 1,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-pattern-samearrowstepweight",
+    "family": "pattern",
+    "path": [
+      "SameArrowStepWeight"
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-pattern-newarrowstepweight",
+    "family": "pattern",
+    "path": [
+      "NewArrowStepWeight"
+    ],
+    "before": 75,
+    "after": 74,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-pattern-steptypecheckperiod",
+    "family": "pattern",
+    "path": [
+      "StepTypeCheckPeriod"
+    ],
+    "before": 16,
+    "after": 15,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-pattern-limitsamearrowsinarowperfoot",
+    "family": "pattern",
+    "path": [
+      "LimitSameArrowsInARowPerFoot"
+    ],
+    "before": true,
+    "after": false,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-pattern-maxsamearrowsinarowperfoot",
+    "family": "pattern",
+    "path": [
+      "MaxSameArrowsInARowPerFoot"
+    ],
+    "before": 3,
+    "after": 2,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-facing-maxinwardpercentage",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "MaxInwardPercentage"
+    ],
+    "before": 1.0,
+    "after": 0.9,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-facing-inwardpercentagecutoff",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "InwardPercentageCutoff"
+    ],
+    "before": 0.34,
+    "after": 0.30600000000000005,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-facing-maxoutwardpercentage",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "MaxOutwardPercentage"
+    ],
+    "before": 1.0,
+    "after": 0.9,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-facing-outwardpercentagecutoff",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "OutwardPercentageCutoff"
+    ],
+    "before": 0.34,
+    "after": 0.30600000000000005,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-steptightening-speedtighteningenabled",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "SpeedTighteningEnabled"
+    ],
+    "before": true,
+    "after": false,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-steptightening-speedmintimeseconds",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "SpeedMinTimeSeconds"
+    ],
+    "before": 0.17647058823529413,
+    "after": 0.15882352941176472,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-steptightening-speedmaxtimeseconds",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "SpeedMaxTimeSeconds"
+    ],
+    "before": 0.24,
+    "after": 0.216,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-steptightening-speedtighteningmindistance",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "SpeedTighteningMinDistance"
+    ],
+    "before": 0,
+    "after": 1,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-steptightening-distancetighteningenabled",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "DistanceTighteningEnabled"
+    ],
+    "before": true,
+    "after": false,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-steptightening-distancemin",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "DistanceMin"
+    ],
+    "before": 1.4,
+    "after": 1.26,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-steptightening-distancemax",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "DistanceMax"
+    ],
+    "before": 2.333333,
+    "after": 2.0999997,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-steptightening-stretchtighteningenabled",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "StretchTighteningEnabled"
+    ],
+    "before": true,
+    "after": false,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-steptightening-stretchdistancemin",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "StretchDistanceMin"
+    ],
+    "before": 2.333333,
+    "after": 2.0999997,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-steptightening-stretchdistancemax",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "StretchDistanceMax"
+    ],
+    "before": 3.333333,
+    "after": 2.9999997,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-steptightening-lateralminpaneldistance",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "LateralMinPanelDistance"
+    ],
+    "before": 0.166667,
+    "after": 0.1500003,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-steptightening-longitudinalminpaneldistance",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "LongitudinalMinPanelDistance"
+    ],
+    "before": -0.125,
+    "after": -0.1125,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-lateraltightening-enabled",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "Enabled"
+    ],
+    "before": true,
+    "after": false,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-lateraltightening-relativenps",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "RelativeNPS"
+    ],
+    "before": 1.65,
+    "after": 1.4849999999999999,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-lateraltightening-absolutenps",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "AbsoluteNPS"
+    ],
+    "before": 12,
+    "after": 11,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-lateraltightening-speed",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "Speed"
+    ],
+    "before": 3,
+    "after": 2,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-transitions-enabled",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "Enabled"
+    ],
+    "before": false,
+    "after": true,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-transitions-stepspertransitionmin",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "StepsPerTransitionMin"
+    ],
+    "before": 0,
+    "after": 1,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-transitions-stepspertransitionmax",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "StepsPerTransitionMax"
+    ],
+    "before": 1024,
+    "after": 1023,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-transitions-minimumpadwidth",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "MinimumPadWidth"
+    ],
+    "before": 5,
+    "after": 4,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-transitions-transitioncutoffpercentage",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "TransitionCutoffPercentage"
+    ],
+    "before": 0.5,
+    "after": 0.45,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": false
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-single-0",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-single",
+      0
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-single-1",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-single",
+      1
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-single-2",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-single",
+      2
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-single-3",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-single",
+      3
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "dance-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-double-0",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-double",
+      0
+    ],
+    "before": 6,
+    "after": 5,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-double-1",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-double",
+      1
+    ],
+    "before": 12,
+    "after": 11,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-double-2",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-double",
+      2
+    ],
+    "before": 10,
+    "after": 9,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-double-3",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-double",
+      3
+    ],
+    "before": 22,
+    "after": 21,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-double-4",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-double",
+      4
+    ],
+    "before": 22,
+    "after": 21,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-double-5",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-double",
+      5
+    ],
+    "before": 12,
+    "after": 11,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-double-6",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-double",
+      6
+    ],
+    "before": 10,
+    "after": 9,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-double-7",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-double",
+      7
+    ],
+    "before": 6,
+    "after": 5,
+    "layout": "dance-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-solo-0",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-solo",
+      0
+    ],
+    "before": 13,
+    "after": 12,
+    "layout": "dance-solo",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-solo-1",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-solo",
+      1
+    ],
+    "before": 12,
+    "after": 11,
+    "layout": "dance-solo",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-solo-2",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-solo",
+      2
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "dance-solo",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-solo-3",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-solo",
+      3
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "dance-solo",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-solo-4",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-solo",
+      4
+    ],
+    "before": 12,
+    "after": 11,
+    "layout": "dance-solo",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-solo-5",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-solo",
+      5
+    ],
+    "before": 13,
+    "after": 12,
+    "layout": "dance-solo",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-threepanel-0",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-threepanel",
+      0
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "dance-threepanel",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-threepanel-1",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-threepanel",
+      1
+    ],
+    "before": 50,
+    "after": 49,
+    "layout": "dance-threepanel",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-dance-threepanel-2",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "dance-threepanel",
+      2
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "dance-threepanel",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-single-0",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-single",
+      0
+    ],
+    "before": 17,
+    "after": 16,
+    "layout": "pump-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-single-1",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-single",
+      1
+    ],
+    "before": 16,
+    "after": 15,
+    "layout": "pump-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-single-2",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-single",
+      2
+    ],
+    "before": 34,
+    "after": 33,
+    "layout": "pump-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-single-3",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-single",
+      3
+    ],
+    "before": 16,
+    "after": 15,
+    "layout": "pump-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-single-4",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-single",
+      4
+    ],
+    "before": 17,
+    "after": 16,
+    "layout": "pump-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-halfdouble-0",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-halfdouble",
+      0
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "pump-halfdouble",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-halfdouble-1",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-halfdouble",
+      1
+    ],
+    "before": 12,
+    "after": 11,
+    "layout": "pump-halfdouble",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-halfdouble-2",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-halfdouble",
+      2
+    ],
+    "before": 13,
+    "after": 12,
+    "layout": "pump-halfdouble",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-halfdouble-3",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-halfdouble",
+      3
+    ],
+    "before": 13,
+    "after": 12,
+    "layout": "pump-halfdouble",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-halfdouble-4",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-halfdouble",
+      4
+    ],
+    "before": 12,
+    "after": 11,
+    "layout": "pump-halfdouble",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-halfdouble-5",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-halfdouble",
+      5
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "pump-halfdouble",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-double-0",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-double",
+      0
+    ],
+    "before": 4,
+    "after": 3,
+    "layout": "pump-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-double-1",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-double",
+      1
+    ],
+    "before": 4,
+    "after": 3,
+    "layout": "pump-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-double-2",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-double",
+      2
+    ],
+    "before": 17,
+    "after": 16,
+    "layout": "pump-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-double-3",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-double",
+      3
+    ],
+    "before": 12,
+    "after": 11,
+    "layout": "pump-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-double-4",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-double",
+      4
+    ],
+    "before": 13,
+    "after": 12,
+    "layout": "pump-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-double-5",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-double",
+      5
+    ],
+    "before": 13,
+    "after": 12,
+    "layout": "pump-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-double-6",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-double",
+      6
+    ],
+    "before": 12,
+    "after": 11,
+    "layout": "pump-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-double-7",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-double",
+      7
+    ],
+    "before": 17,
+    "after": 16,
+    "layout": "pump-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-double-8",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-double",
+      8
+    ],
+    "before": 4,
+    "after": 3,
+    "layout": "pump-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-pump-double-9",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "pump-double",
+      9
+    ],
+    "before": 4,
+    "after": 3,
+    "layout": "pump-double",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-beginner-0",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-beginner",
+      0
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "smx-beginner",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-beginner-1",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-beginner",
+      1
+    ],
+    "before": 50,
+    "after": 49,
+    "layout": "smx-beginner",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-beginner-2",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-beginner",
+      2
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "smx-beginner",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-single-0",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-single",
+      0
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "smx-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-single-1",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-single",
+      1
+    ],
+    "before": 21,
+    "after": 20,
+    "layout": "smx-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-single-2",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-single",
+      2
+    ],
+    "before": 8,
+    "after": 7,
+    "layout": "smx-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-single-3",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-single",
+      3
+    ],
+    "before": 21,
+    "after": 20,
+    "layout": "smx-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-single-4",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-single",
+      4
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "smx-single",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-dual-0",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-dual",
+      0
+    ],
+    "before": 8,
+    "after": 7,
+    "layout": "smx-dual",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-dual-1",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-dual",
+      1
+    ],
+    "before": 17,
+    "after": 16,
+    "layout": "smx-dual",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-dual-2",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-dual",
+      2
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "smx-dual",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-dual-3",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-dual",
+      3
+    ],
+    "before": 25,
+    "after": 24,
+    "layout": "smx-dual",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-dual-4",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-dual",
+      4
+    ],
+    "before": 17,
+    "after": 16,
+    "layout": "smx-dual",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-dual-5",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-dual",
+      5
+    ],
+    "before": 8,
+    "after": 7,
+    "layout": "smx-dual",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-full-0",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-full",
+      0
+    ],
+    "before": 6,
+    "after": 5,
+    "layout": "smx-full",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-full-1",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-full",
+      1
+    ],
+    "before": 8,
+    "after": 7,
+    "layout": "smx-full",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-full-2",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-full",
+      2
+    ],
+    "before": 7,
+    "after": 6,
+    "layout": "smx-full",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-full-3",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-full",
+      3
+    ],
+    "before": 8,
+    "after": 7,
+    "layout": "smx-full",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-full-4",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-full",
+      4
+    ],
+    "before": 22,
+    "after": 21,
+    "layout": "smx-full",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-full-5",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-full",
+      5
+    ],
+    "before": 22,
+    "after": 21,
+    "layout": "smx-full",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-full-6",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-full",
+      6
+    ],
+    "before": 8,
+    "after": 7,
+    "layout": "smx-full",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-full-7",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-full",
+      7
+    ],
+    "before": 7,
+    "after": 6,
+    "layout": "smx-full",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-full-8",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-full",
+      8
+    ],
+    "before": 8,
+    "after": 7,
+    "layout": "smx-full",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  },
+  {
+    "name": "parity-performed-arrowweights-smx-full-9",
+    "family": "performed",
+    "path": [
+      "ArrowWeights",
+      "smx-full",
+      9
+    ],
+    "before": 6,
+    "after": 5,
+    "layout": "smx-full",
+    "status": "source_executed",
+    "success": true,
+    "observable_change": true
+  }
+]

@@ -149,44 +149,39 @@ fn plans_reject_stale_foreign_or_invalid_destinations_without_erasing_history() 
     assert!(plan.apply(&mut foreign).is_err());
 }
 #[test]
-fn sm_and_legacy_ssc_shared_types_are_reported_without_rewriting_source() {
-    for format in [Format::Sm, Format::Ssc] {
-        let bytes = if format == Format::Sm {
-            "#TITLE:Keep;#BPMS:0=120,4=180;#NOTES:dance-single::Hard:9::1000;#NOTES:dance-single::Hard:9::0100;"
-        } else {
-            "#VERSION:0.6;#TITLE:Keep;#BPMS:0=120,4=180;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0100;"
-        };
-        let mut s = Session::new(Document::parse(bytes.as_bytes(), format).unwrap());
-        let before = s.serialize().unwrap();
-        let report = Plan::capture(&mut s, 0, [1], [Type::Tempo, Type::Attack])
+fn legacy_ssc_shared_types_are_reported_without_rewriting_source() {
+    let bytes = "#VERSION:0.6;#TITLE:Keep;#BPMS:0=120,4=180;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0100;";
+    let format = Format::Ssc;
+    let mut s = Session::new(Document::parse(bytes.as_bytes(), format).unwrap());
+    let before = s.serialize().unwrap();
+    let report = Plan::capture(&mut s, 0, [1], [Type::Tempo, Type::Attack])
+        .unwrap()
+        .apply(&mut s)
+        .unwrap();
+    assert!(!report.changed);
+    assert_eq!(report.destinations_changed, 0);
+    assert_eq!(report.shared_types_unchanged.len(), 2);
+    assert_eq!(s.serialize().unwrap(), before);
+    pattern(&mut s, 0, 48, 42);
+    pattern(&mut s, 1, 96, 7);
+    let before = s.serialize().unwrap();
+    let report = Plan::capture(&mut s, 0, [1], [Type::Tempo, Type::Pattern])
+        .unwrap()
+        .apply(&mut s)
+        .unwrap();
+    assert!(report.changed);
+    assert_eq!(report.shared_types_unchanged.len(), 1);
+    assert_eq!(
+        ChartData::read(s.document(), 1)
             .unwrap()
-            .apply(&mut s)
-            .unwrap();
-        assert!(!report.changed);
-        assert_eq!(report.destinations_changed, 0);
-        assert_eq!(report.shared_types_unchanged.len(), 2);
-        assert_eq!(s.serialize().unwrap(), before);
-        pattern(&mut s, 0, 48, 42);
-        pattern(&mut s, 1, 96, 7);
-        let before = s.serialize().unwrap();
-        let report = Plan::capture(&mut s, 0, [1], [Type::Tempo, Type::Pattern])
             .unwrap()
-            .apply(&mut s)
-            .unwrap();
-        assert!(report.changed);
-        assert_eq!(report.shared_types_unchanged.len(), 1);
-        assert_eq!(
-            ChartData::read(s.document(), 1)
-                .unwrap()
-                .unwrap()
-                .patterns
-                .unwrap()[&48]
-                .random_seed,
-            42
-        );
-        s.undo().unwrap();
-        assert_eq!(s.serialize().unwrap(), before);
-    }
+            .patterns
+            .unwrap()[&48]
+            .random_seed,
+        42
+    );
+    s.undo().unwrap();
+    assert_eq!(s.serialize().unwrap(), before);
 }
 
 fn fixture_session(case: &serde_json::Value) -> Session {
@@ -362,15 +357,13 @@ fn original_chart_wide_action_matches_representable_ssc_cases_and_undo_redo() {
     for (case, expected) in input["Cases"].as_array().unwrap().iter().zip(expected) {
         assert_eq!(case["Name"], expected["Name"]);
         if case["Name"] == "first-event-destination-position-preserved" {
-            // The unchanged action preserves the existing first event position.
-            // Resident Rust/file timing normalizes missing initial nodes to row0.
-            assert!(
-                expected["After"][0]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .any(|v| v["Kind"] == "Tempo" && v["Row"] == 48 && v["Bpm"] == 180)
-            );
+            // This action-only fixture bypasses EditorChart's load invariant:
+            // real charts acquire row-zero initial nodes before this action.
+            // The separate loaded_initial_nodes test executes the source action
+            // after those load preconditions, then compares native behavior.
+            assert!(expected["After"][0].as_array().unwrap().iter().any(|event| {
+                event["Kind"] == "Tempo" && event["Row"] == 48 && event["Bpm"] == 180
+            }));
             continue;
         }
         let charts: Vec<_> = std::iter::once(&case["Source"])
@@ -610,4 +603,167 @@ fn net_identical_replacement_preserves_redo_token_and_dirty_resident_notes() {
     let plan = Plan::capture(&mut fresh, 0, [1], [Type::Label]).unwrap();
     assert!(fresh.loaded_grid(1).is_none());
     assert!(!plan.apply(&mut fresh).unwrap().changed);
+}
+
+#[test]
+fn sm_copy_replaces_resident_timing_and_attacks_per_chart_without_activating_raw_unsupported_tags()
+{
+    use deadsync_editor::{
+        attacks::{self, placement::Timeline},
+        timing_edit::{Scope, TempoDraft},
+    };
+    let raw=b"#TITLE:Keep;#BPMS:0=120,4=180;#WARPS:1=999;#LABELS:1=Ignored;#ATTACKS:TIME=1:LEN=1:MODS=100% Drunk;#NOTES:dance-single::Hard:9::1000,0100;#NOTES:dance-single::Easy:2::0010,0001;#NOTES:dance-single::Medium:5::0100,0010;";
+    let mut s = Session::new(Document::parse(raw.as_slice(), Format::Sm).unwrap());
+    let mut tempo = TempoDraft::capture(&s, 1, Scope::Chart).unwrap();
+    tempo.set(0, 240.).unwrap();
+    tempo.apply(&mut s, 1).unwrap();
+    let mut attack = attacks::Draft::capture(&s, 1, Scope::Chart).unwrap();
+    let mut modifier = attack.attacks().events()[0].modifiers[0].clone();
+    modifier.name = "Reverse".into();
+    attack.attacks_mut().set(0, 0, 2., modifier).unwrap();
+    attack.apply(&mut s, 1).unwrap();
+    let source_tempos = TempoDraft::capture(&s, 0, Scope::Chart)
+        .unwrap()
+        .tempos()
+        .clone();
+    let source_attacks = attacks::Draft::capture(&s, 0, Scope::Chart)
+        .unwrap()
+        .attacks()
+        .clone();
+    let source_rows: Vec<_> = Timeline::capture(&s, 0)
+        .unwrap()
+        .markers()
+        .iter()
+        .map(|m| m.row)
+        .collect();
+    let before = s.serialize().unwrap();
+    let target_notes = s.grid(1).unwrap().clone();
+    let report = Plan::capture(&mut s, 0, [1], [Type::Tempo, Type::Attack])
+        .unwrap()
+        .apply(&mut s)
+        .unwrap();
+    assert!(report.changed);
+    assert_eq!(report.destinations_changed, 1);
+    assert!(report.shared_types_unchanged.is_empty());
+    assert_eq!(
+        TempoDraft::capture(&s, 1, Scope::Chart).unwrap().tempos(),
+        &source_tempos
+    );
+    assert_eq!(
+        attacks::Draft::capture(&s, 1, Scope::Chart)
+            .unwrap()
+            .attacks(),
+        &source_attacks
+    );
+    assert_eq!(
+        Timeline::capture(&s, 1)
+            .unwrap()
+            .markers()
+            .iter()
+            .map(|m| m.row)
+            .collect::<Vec<_>>(),
+        source_rows
+    );
+    assert_eq!(
+        TempoDraft::capture(&s, 0, Scope::Chart).unwrap().tempos(),
+        &source_tempos
+    );
+    assert_eq!(
+        attacks::Draft::capture(&s, 0, Scope::Chart)
+            .unwrap()
+            .attacks(),
+        &source_attacks
+    );
+    assert_eq!(
+        TempoDraft::capture(&s, 2, Scope::Chart).unwrap().tempos(),
+        &source_tempos
+    );
+    assert_eq!(
+        attacks::Draft::capture(&s, 2, Scope::Chart)
+            .unwrap()
+            .attacks(),
+        &source_attacks
+    );
+    assert_eq!(s.grid(1).unwrap(), &target_notes);
+    assert_eq!(
+        s.document().raw_property(None, "BPMS"),
+        Some(b"0=120,4=180".as_slice())
+    );
+    assert_eq!(
+        s.document().raw_property(None, "ATTACKS"),
+        Some(b"TIME=1:LEN=1:MODS=100% Drunk".as_slice())
+    );
+    assert_eq!(
+        s.document().raw_property(None, "WARPS"),
+        Some(b"1=999".as_slice())
+    );
+    assert_eq!(
+        s.document().raw_property(None, "LABELS"),
+        Some(b"1=Ignored".as_slice())
+    );
+    let regions =
+        deadsync_editor::timing_edit::region::Draft::capture(&s, 1, Scope::Chart).unwrap();
+    assert!(
+        regions
+            .regions(deadsync_editor::timing_edit::region::Kind::Warp)
+            .values()
+            .is_empty()
+    );
+    assert!(
+        deadsync_editor::timing_edit::label::Draft::capture(&s, 1, Scope::Chart)
+            .unwrap()
+            .labels()
+            .values()
+            .is_empty()
+    );
+    let after = s.serialize().unwrap();
+    let reopened = Session::new(Document::parse(after.clone(), Format::Sm).unwrap());
+    assert_eq!(
+        attacks::Draft::capture(&reopened, 1, Scope::Chart)
+            .unwrap()
+            .attacks(),
+        &source_attacks
+    );
+    assert_eq!(
+        TempoDraft::capture(&reopened, 1, Scope::Chart)
+            .unwrap()
+            .tempos(),
+        &source_tempos
+    );
+    s.undo().unwrap();
+    assert_eq!(s.serialize().unwrap(), before);
+    s.redo().unwrap();
+    assert_eq!(s.serialize().unwrap(), after);
+}
+
+#[test]
+fn loaded_initial_nodes_and_copy_match_original_action_with_real_load_preconditions() {
+    let request: serde_json::Value = serde_json::from_str(include_str!(
+        "fixtures/grooveauthor/chart-copy-loaded-initial.request.json"
+    )).unwrap();
+    let expected: Vec<serde_json::Value> = serde_json::from_str(include_str!(
+        "fixtures/grooveauthor/chart-copy-loaded-initial.expected.json"
+    )).unwrap();
+    let case = &request["Cases"][0];
+    let reference = &expected[0];
+    assert_eq!(case["Name"], reference["Name"]);
+    let kinds = ["Tempo".to_owned(), "Signature".to_owned()].into_iter().collect();
+    let mut session = fixture_session(case);
+    let source = fixture_projection(&mut session, 0, &kinds);
+    assert_eq!(source, canonical(reference["SourceBefore"].as_array().unwrap().clone()));
+    assert_eq!(fixture_projection(&mut session, 1, &kinds), canonical(reference["Before"][0].as_array().unwrap().clone()));
+    let before = session.serialize().unwrap();
+    let notes: Vec<_> = (0..2).map(|chart| session.grid(chart).unwrap().clone()).collect();
+    Plan::capture(&mut session, 0, [1], [Type::Tempo, Type::Signature]).unwrap().apply(&mut session).unwrap();
+    let after = session.serialize().unwrap();
+    let expected_after = canonical(reference["After"][0].as_array().unwrap().clone());
+    assert_eq!(fixture_projection(&mut session, 1, &kinds), expected_after);
+    assert_eq!(fixture_projection(&mut session, 0, &kinds), source);
+    for (chart, grid) in notes.iter().enumerate() { assert_eq!(session.grid(chart).unwrap(), grid); }
+    let mut reopened = Session::new(Document::parse(after.clone(), Format::Ssc).unwrap());
+    assert_eq!(fixture_projection(&mut reopened, 1, &kinds), expected_after);
+    session.undo().unwrap();
+    assert_eq!(session.serialize().unwrap(), before);
+    session.redo().unwrap();
+    assert_eq!(session.serialize().unwrap(), after);
 }

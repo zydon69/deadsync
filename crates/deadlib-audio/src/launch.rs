@@ -2,6 +2,9 @@ use deadlib_audio_core::{
     AudioOutputMode, AudioStreamHandle, MixControls, OutputBackendReady, OutputDeviceInfo,
     RenderState, SfxReceiver, SfxSender, music_transport, sfx_transport,
 };
+use deadlib_audio_core::{BufferCapabilities, BufferRequest, OutputBufferState};
+#[cfg(any(target_os = "linux", target_os = "freebsd"))]
+use deadlib_audio_core::BufferNegotiation;
 
 #[cfg(target_os = "linux")]
 use deadlib_audio_backend_alsa as linux_alsa;
@@ -75,10 +78,12 @@ fn output_transport(
     controls: &Arc<MixControls>,
 ) -> (AudioStreamHandle, RenderState, SfxSender, SfxReceiver) {
     let (stream_handle, render_handle) = music_transport(sample_rate_hz, device_channels);
-    let (sfx_sender, sfx_receiver) = sfx_transport(SFX_QUEUE_CAP);
+    let (sfx_sender, mut sfx_receiver) = sfx_transport(SFX_QUEUE_CAP);
+    let mut renderer=RenderState::new(render_handle,Arc::clone(controls),device_channels);
+    renderer.attach_sfx_retirement(sfx_receiver.take_retirement());
     (
         stream_handle,
-        RenderState::new(render_handle, Arc::clone(controls), device_channels),
+        renderer,
         sfx_sender,
         sfx_receiver,
     )
@@ -220,23 +225,37 @@ enum NativeOutputBackend {
 /// Preparing a plan performs discovery on the caller thread. Opening it moves
 /// all backend-specific state into this crate and starts exactly one output
 /// session.
+#[derive(Clone)]
 pub struct OutputPlan {
     devices: Vec<OutputDeviceInfo>,
     launch: NativeBackendLaunch,
     controls: Arc<MixControls>,
+    buffers: BufferRequest,
+    exact_backend: Option<&'static str>,
 }
 
 impl OutputPlan {
+    /// Subsequent context opens must use the already selected backend, never
+    /// silently fall through to a different native API after a failed request.
+    pub fn pin_backend(&mut self, backend: &'static str) {
+        self.exact_backend = Some(backend);
+    }
+    pub fn with_buffers(&self, buffers: BufferRequest) -> Self {
+        let mut plan = self.clone();
+        plan.buffers = buffers;
+        plan
+    }
     #[must_use]
     pub fn devices(&self) -> &[OutputDeviceInfo] {
         &self.devices
     }
 
     pub fn open(self) -> Result<OpenedOutput, String> {
-        let (backend, ready, sfx_sender, stream_handle) =
-            start_output_backend(self.launch, self.controls)?;
+        let (backend, ready, sfx_sender, stream_handle, buffers) =
+            start_output_backend(self.launch, self.controls, self.buffers, self.exact_backend)?;
         Ok(OpenedOutput {
             session: OutputSession { _backend: backend },
+            buffers,
             ready,
             sfx_sender,
             stream_handle,
@@ -249,7 +268,29 @@ pub struct OutputSession {
     _backend: NativeOutputBackend,
 }
 
+impl OutputSession {
+    pub fn shutdown(&mut self) -> Result<(), String> {
+        match &mut self._backend {
+            #[cfg(target_os = "linux")]
+            NativeOutputBackend::Alsa { _stream } => _stream.shutdown(),
+            #[cfg(target_os = "linux")]
+            NativeOutputBackend::Jack { _stream } => _stream.shutdown(),
+            #[cfg(target_os = "linux")]
+            NativeOutputBackend::PipeWire { _stream } => _stream.shutdown(),
+            #[cfg(target_os = "linux")]
+            NativeOutputBackend::Pulse { _stream } => _stream.shutdown(),
+            #[cfg(target_os = "macos")]
+            NativeOutputBackend::CoreAudio { _stream } => _stream.shutdown(),
+            #[cfg(windows)]
+            NativeOutputBackend::Wasapi { _stream } => _stream.shutdown(),
+            #[cfg(target_os = "freebsd")]
+            NativeOutputBackend::FreeBsdPcm { _stream } => _stream.shutdown(),
+        }
+    }
+}
+
 pub struct OpenedOutput {
+    buffers: OutputBufferState,
     session: OutputSession,
     ready: OutputBackendReady,
     sfx_sender: SfxSender,
@@ -264,22 +305,34 @@ impl OpenedOutput {
         OutputBackendReady,
         SfxSender,
         AudioStreamHandle,
+        OutputBufferState,
     ) {
         (
             self.session,
             self.ready,
             self.sfx_sender,
             self.stream_handle,
+            self.buffers,
         )
     }
 }
 
 pub fn prepare_output(cfg: &InitConfig, controls: Arc<MixControls>) -> OutputPlan {
+    prepare_output_with_buffers(cfg, controls, BufferRequest::default())
+}
+
+pub fn prepare_output_with_buffers(
+    cfg: &InitConfig,
+    controls: Arc<MixControls>,
+    buffers: BufferRequest,
+) -> OutputPlan {
     let (probes, launch) = build_audio_launch(cfg);
     OutputPlan {
         devices: probes.into_iter().map(|probe| probe.info).collect(),
         launch,
         controls,
+        buffers,
+        exact_backend: None,
     }
 }
 
@@ -687,36 +740,47 @@ fn build_audio_launch(cfg: &InitConfig) -> (Vec<OutputDeviceProbe>, NativeBacken
 fn start_linux_alsa_backend(
     alsa: AlsaBackendHint,
     controls: &Arc<MixControls>,
+    buffers: BufferRequest,
 ) -> Result<
     (
         NativeOutputBackend,
         OutputBackendReady,
         SfxSender,
         AudioStreamHandle,
+        OutputBufferState,
     ),
     String,
 > {
+    validate_buffer_request(buffers, "alsa-shared")?;
     let access_mode = match alsa.output_mode {
         AudioOutputMode::Exclusive => linux_alsa::AlsaAccessMode::Exclusive,
         AudioOutputMode::Auto | AudioOutputMode::Shared => linux_alsa::AlsaAccessMode::Shared,
     };
-    let prep = linux_alsa::prepare(
+    let prep = linux_alsa::prepare_with_buffers(
         alsa.pcm_id.clone(),
         alsa.device_name.clone(),
         alsa.sample_rate_hz,
         alsa.channels,
         access_mode,
+        buffers,
     )?;
     let mut ready = prep.ready();
     ready.requested_output_mode = alsa.output_mode;
     let (stream_handle, render, sfx_sender, sfx_receiver) =
         output_transport(ready.device_sample_rate, ready.device_channels, controls);
     let stream = linux_alsa::start(prep, render, sfx_receiver)?;
+    let negotiated = stream.buffer_negotiation();
+    let buffer_state = OutputBufferState {
+        capabilities: BufferCapabilities::for_backend(ready.backend_name),
+        requested: buffers,
+        negotiated,
+    };
     Ok((
         NativeOutputBackend::Alsa { _stream: stream },
         ready,
         sfx_sender,
         stream_handle,
+        buffer_state,
     ))
 }
 
@@ -725,15 +789,18 @@ fn start_linux_alsa_backend(
 fn start_linux_jack_backend(
     jack: JackBackendHint,
     controls: &Arc<MixControls>,
+    buffers: BufferRequest,
 ) -> Result<
     (
         NativeOutputBackend,
         OutputBackendReady,
         SfxSender,
         AudioStreamHandle,
+        OutputBufferState,
     ),
     String,
 > {
+    validate_buffer_request(buffers, "jack-shared")?;
     if matches!(jack.output_mode, AudioOutputMode::Exclusive) {
         return Err("JACK does not expose a separate exclusive output mode.".to_string());
     }
@@ -742,12 +809,19 @@ fn start_linux_jack_backend(
     ready.requested_output_mode = jack.output_mode;
     let (stream_handle, render, sfx_sender, sfx_receiver) =
         output_transport(ready.device_sample_rate, ready.device_channels, controls);
+    let negotiated = prep.buffer_negotiation();
     let stream = linux_jack::start(prep, render, sfx_receiver)?;
+    let buffer_state = OutputBufferState {
+        capabilities: BufferCapabilities::for_backend(ready.backend_name),
+        requested: buffers,
+        negotiated,
+    };
     Ok((
         NativeOutputBackend::Jack { _stream: stream },
         ready,
         sfx_sender,
         stream_handle,
+        buffer_state,
     ))
 }
 
@@ -755,15 +829,18 @@ fn start_linux_jack_backend(
 fn start_linux_pipewire_backend(
     pipewire: PipeWireBackendHint,
     controls: &Arc<MixControls>,
+    buffers: BufferRequest,
 ) -> Result<
     (
         NativeOutputBackend,
         OutputBackendReady,
         SfxSender,
         AudioStreamHandle,
+        OutputBufferState,
     ),
     String,
 > {
+    validate_buffer_request(buffers, "pipewire-shared")?;
     if matches!(pipewire.output_mode, AudioOutputMode::Exclusive) {
         return Err("PipeWire does not support a separate exclusive output mode.".to_string());
     }
@@ -783,11 +860,18 @@ fn start_linux_pipewire_backend(
     let (stream_handle, render, sfx_sender, sfx_receiver) =
         output_transport(ready.device_sample_rate, ready.device_channels, controls);
     let stream = linux_pipewire::start(prep, render, sfx_receiver)?;
+    let negotiated = BufferNegotiation::default();
+    let buffer_state = OutputBufferState {
+        capabilities: BufferCapabilities::for_backend(ready.backend_name),
+        requested: buffers,
+        negotiated,
+    };
     Ok((
         NativeOutputBackend::PipeWire { _stream: stream },
         ready,
         sfx_sender,
         stream_handle,
+        buffer_state,
     ))
 }
 
@@ -796,15 +880,18 @@ fn start_linux_pipewire_backend(
 fn start_linux_pulse_backend(
     pulse: PulseBackendHint,
     controls: &Arc<MixControls>,
+    buffers: BufferRequest,
 ) -> Result<
     (
         NativeOutputBackend,
         OutputBackendReady,
         SfxSender,
         AudioStreamHandle,
+        OutputBufferState,
     ),
     String,
 > {
+    validate_buffer_request(buffers, "pulse-shared")?;
     if matches!(pulse.output_mode, AudioOutputMode::Exclusive) {
         return Err("PulseAudio does not support exclusive output.".to_string());
     }
@@ -814,21 +901,29 @@ fn start_linux_pulse_backend(
             name
         );
     }
-    let prep = linux_pulse::prepare(
+    let prep = linux_pulse::prepare_with_buffer(
         pulse.requested_device_name.clone(),
         pulse.sample_rate_hz,
         pulse.channels,
+        buffers.period_frames,
     )?;
     let mut ready = prep.ready();
     ready.requested_output_mode = pulse.output_mode;
     let (stream_handle, render, sfx_sender, sfx_receiver) =
         output_transport(ready.device_sample_rate, ready.device_channels, controls);
     let stream = linux_pulse::start(prep, render, sfx_receiver)?;
+    let negotiated = stream.buffer_negotiation();
+    let buffer_state = OutputBufferState {
+        capabilities: BufferCapabilities::for_backend(ready.backend_name),
+        requested: buffers,
+        negotiated,
+    };
     Ok((
         NativeOutputBackend::Pulse { _stream: stream },
         ready,
         sfx_sender,
         stream_handle,
+        buffer_state,
     ))
 }
 
@@ -836,15 +931,18 @@ fn start_linux_pulse_backend(
 fn start_freebsd_pcm_backend(
     pcm: FreeBsdPcmBackendHint,
     controls: &Arc<MixControls>,
+    buffers: BufferRequest,
 ) -> Result<
     (
         NativeOutputBackend,
         OutputBackendReady,
         SfxSender,
         AudioStreamHandle,
+        OutputBufferState,
     ),
     String,
 > {
+    validate_buffer_request(buffers, "freebsd-pcm")?;
     if matches!(pcm.output_mode, AudioOutputMode::Exclusive) {
         return Err("FreeBSD PCM exclusive output is not implemented yet.".to_string());
     }
@@ -859,11 +957,18 @@ fn start_freebsd_pcm_backend(
     let (stream_handle, render, sfx_sender, sfx_receiver) =
         output_transport(ready.device_sample_rate, ready.device_channels, controls);
     let stream = freebsd_pcm::start(prep, render, sfx_receiver)?;
+    let negotiated = BufferNegotiation::default();
+    let buffer_state = OutputBufferState {
+        capabilities: BufferCapabilities::for_backend(ready.backend_name),
+        requested: buffers,
+        negotiated,
+    };
     Ok((
         NativeOutputBackend::FreeBsdPcm { _stream: stream },
         ready,
         sfx_sender,
         stream_handle,
+        buffer_state,
     ))
 }
 
@@ -871,46 +976,61 @@ fn start_freebsd_pcm_backend(
 fn start_macos_coreaudio_backend(
     coreaudio: CoreAudioBackendHint,
     controls: &Arc<MixControls>,
+    buffers: BufferRequest,
 ) -> Result<
     (
         NativeOutputBackend,
         OutputBackendReady,
         SfxSender,
         AudioStreamHandle,
+        OutputBufferState,
     ),
     String,
 > {
+    validate_buffer_request(buffers, "coreaudio-shared")?;
     if matches!(coreaudio.output_mode, AudioOutputMode::Exclusive) {
         return Err("CoreAudio exclusive output is not implemented yet.".to_string());
     }
-    let prep = macos_coreaudio::prepare(
+    let prep = macos_coreaudio::prepare_with_buffer(
         coreaudio.device_uid.clone(),
         coreaudio.device_name.clone(),
         coreaudio.requested_rate_hz,
         coreaudio.channels,
+        buffers.period_frames,
     )?;
+    let capabilities = prep.buffer_capabilities();
     let mut ready = prep.ready();
     ready.requested_output_mode = coreaudio.output_mode;
     let (stream_handle, render, sfx_sender, sfx_receiver) =
         output_transport(ready.device_sample_rate, ready.device_channels, controls);
+    let negotiated = prep.buffer_negotiation();
     let stream = macos_coreaudio::start(prep, render, sfx_receiver)?;
+    let buffer_state = OutputBufferState {
+        capabilities,
+        requested: buffers,
+        negotiated,
+    };
     Ok((
         NativeOutputBackend::CoreAudio { _stream: stream },
         ready,
         sfx_sender,
         stream_handle,
+        buffer_state,
     ))
 }
 
 fn start_output_backend(
     launch: NativeBackendLaunch,
     controls: Arc<MixControls>,
+    buffers: BufferRequest,
+    exact_backend: Option<&'static str>,
 ) -> Result<
     (
         NativeOutputBackend,
         OutputBackendReady,
         SfxSender,
         AudioStreamHandle,
+        OutputBufferState,
     ),
     String,
 > {
@@ -936,6 +1056,40 @@ fn start_output_backend(
         #[cfg(windows)]
         wasapi,
     } = launch;
+    #[cfg(target_os = "linux")]
+    if let Some(backend) = exact_backend {
+        if backend.starts_with("alsa-") {
+            return start_linux_alsa_backend(
+                alsa.ok_or("pinned ALSA configuration missing")?,
+                &controls,
+                buffers,
+            );
+        }
+        if backend.starts_with("pulse-") {
+            return start_linux_pulse_backend(
+                pulse.ok_or("pinned Pulse configuration missing")?,
+                &controls,
+                buffers,
+            );
+        }
+        if backend.starts_with("jack-") {
+            return start_linux_jack_backend(
+                jack.ok_or("pinned JACK configuration missing")?,
+                &controls,
+                buffers,
+            );
+        }
+        if backend.starts_with("pipewire-") {
+            return start_linux_pipewire_backend(
+                pipewire.ok_or("pinned PipeWire configuration missing")?,
+                &controls,
+                buffers,
+            );
+        }
+        return Err("pinned audio backend is unsupported".into());
+    }
+    #[cfg(not(target_os = "linux"))]
+    let _ = exact_backend;
     #[cfg(target_os = "linux")]
     let requested_output_mode = alsa
         .as_ref()
@@ -986,7 +1140,7 @@ fn start_output_backend(
             let Some(alsa) = alsa else {
                 return Err("Linux ALSA backend hint unavailable for exclusive output.".to_string());
             };
-            return start_linux_alsa_backend(alsa, &controls);
+            return start_linux_alsa_backend(alsa, &controls, buffers);
         }
         if explicit_device_requested {
             let Some(alsa) = alsa else {
@@ -995,7 +1149,7 @@ fn start_output_backend(
                         .to_string(),
                 );
             };
-            return start_linux_alsa_backend(alsa, &controls).map_err(|err| {
+            return start_linux_alsa_backend(alsa, &controls, buffers).map_err(|err| {
                 format!("failed to start native ALSA output for the selected Sound Device: {err}")
             });
         }
@@ -1004,7 +1158,7 @@ fn start_output_backend(
         if linux_pulse::is_available()
             && let Some(pulse) = pulse
         {
-            match start_linux_pulse_backend(pulse, &controls) {
+            match start_linux_pulse_backend(pulse, &controls, buffers) {
                 Ok(output) => return Ok(output),
                 Err(err) => {
                     warn!(
@@ -1014,13 +1168,13 @@ fn start_output_backend(
             }
         }
         if let Some(alsa) = alsa {
-            match start_linux_alsa_backend(alsa, &controls) {
+            match start_linux_alsa_backend(alsa, &controls, buffers) {
                 Ok(output) => return Ok(output),
                 Err(err) => {
                     if linux_jack::is_available()
                         && let Some(jack) = jack
                     {
-                        match start_linux_jack_backend(jack, &controls) {
+                        match start_linux_jack_backend(jack, &controls, buffers) {
                             Ok(output) => return Ok(output),
                             Err(jack_err) => {
                                 return Err(format!(
@@ -1041,7 +1195,7 @@ fn start_output_backend(
             let Some(alsa) = alsa else {
                 return Err("Linux ALSA backend hint unavailable.".to_string());
             };
-            start_linux_alsa_backend(alsa, &controls)
+            start_linux_alsa_backend(alsa, &controls, buffers)
         }
         LinuxAudioBackend::Jack => {
             #[cfg(target_os = "linux")]
@@ -1049,7 +1203,7 @@ fn start_output_backend(
                 let Some(jack) = jack else {
                     return Err("JACK backend hint unavailable.".to_string());
                 };
-                start_linux_jack_backend(jack, &controls)
+                start_linux_jack_backend(jack, &controls, buffers)
             }
             #[cfg(not(target_os = "linux"))]
             {
@@ -1060,7 +1214,7 @@ fn start_output_backend(
             let Some(pipewire) = pipewire else {
                 return Err("PipeWire backend hint unavailable.".to_string());
             };
-            match start_linux_pipewire_backend(pipewire, &controls) {
+            match start_linux_pipewire_backend(pipewire, &controls, buffers) {
                 Ok(output) => Ok(output),
                 Err(err) => {
                     warn!(
@@ -1076,7 +1230,7 @@ fn start_output_backend(
                 let Some(pulse) = pulse else {
                     return Err("PulseAudio backend hint unavailable.".to_string());
                 };
-                start_linux_pulse_backend(pulse, &controls)
+                start_linux_pulse_backend(pulse, &controls, buffers)
             }
             #[cfg(not(target_os = "linux"))]
             {
@@ -1089,28 +1243,32 @@ fn start_output_backend(
     }
     #[cfg(target_os = "freebsd")]
     if let Some(pcm) = freebsd_pcm {
-        return start_freebsd_pcm_backend(pcm.clone(), &controls)
+        return start_freebsd_pcm_backend(pcm.clone(), &controls, buffers)
             .map_err(|err| format!("failed to start native FreeBSD PCM output: {err}"));
     }
 
     #[cfg(target_os = "macos")]
     if let Some(coreaudio) = coreaudio {
-        return start_macos_coreaudio_backend(coreaudio.clone(), &controls).map_err(|err| {
-            format!(
-                "failed to start native CoreAudio output for '{}': {err}",
-                coreaudio.device_name
-            )
-        });
+        return start_macos_coreaudio_backend(coreaudio.clone(), &controls, buffers).map_err(
+            |err| {
+                format!(
+                    "failed to start native CoreAudio output for '{}': {err}",
+                    coreaudio.device_name
+                )
+            },
+        );
     }
 
     #[cfg(windows)]
     if let Some(wasapi) = wasapi {
-        let (stream, ready, sfx_sender, stream_handle) = start_wasapi_backend(wasapi, &controls)?;
+        let (stream, ready, sfx_sender, stream_handle, buffer_state) =
+            start_wasapi_backend(wasapi, &controls, buffers)?;
         return Ok((
             NativeOutputBackend::Wasapi { _stream: stream },
             ready,
             sfx_sender,
             stream_handle,
+            buffer_state,
         ));
     }
 
@@ -1124,24 +1282,28 @@ fn start_output_backend(
 fn start_wasapi_backend(
     wasapi: WasapiBackendHint,
     controls: &Arc<MixControls>,
+    buffers: BufferRequest,
 ) -> Result<
     (
         windows_wasapi::WasapiOutputStream,
         OutputBackendReady,
         SfxSender,
         AudioStreamHandle,
+        OutputBufferState,
     ),
     String,
 > {
+    validate_buffer_request(buffers, "wasapi-shared")?;
     let access_mode = match wasapi.output_mode {
         AudioOutputMode::Exclusive => windows_wasapi::WasapiAccessMode::Exclusive,
         AudioOutputMode::Auto | AudioOutputMode::Shared => windows_wasapi::WasapiAccessMode::Shared,
     };
-    let prep = windows_wasapi::prepare(
+    let prep = windows_wasapi::prepare_with_buffer(
         wasapi.device_id.clone(),
         wasapi.device_name.clone(),
         wasapi.requested_rate_hz,
         access_mode,
+        buffers.period_frames,
     )
     .map_err(|err| {
         format!(
@@ -1149,6 +1311,7 @@ fn start_wasapi_backend(
             wasapi.device_name
         )
     })?;
+    let capabilities = prep.buffer_capabilities();
     let mut ready = prep.ready();
     ready.requested_output_mode = wasapi.output_mode;
     let (stream_handle, render, sfx_sender, sfx_receiver) =
@@ -1159,7 +1322,21 @@ fn start_wasapi_backend(
             wasapi.device_name
         )
     })?;
-    Ok((stream, ready, sfx_sender, stream_handle))
+    let buffer_state = OutputBufferState {
+        capabilities,
+        requested: buffers,
+        negotiated: stream.buffer_negotiation(),
+    };
+    Ok((stream, ready, sfx_sender, stream_handle, buffer_state))
+}
+
+fn validate_buffer_request(request: BufferRequest, backend: &str) -> Result<(), String> {
+    if request == BufferRequest::default() {
+        return Ok(());
+    }
+    request
+        .validate(BufferCapabilities::for_backend(backend))
+        .map_err(|error| format!("buffer request refused by {backend}: {error:?}"))
 }
 
 #[cfg(test)]

@@ -45,7 +45,7 @@ fn sprite(
     Ok(deadlib_present::__act_from_builder!(
         (xy(center[0],center[1]):setsize(w as f32*scale,h as f32*scale):
          customtexturerect(x as f32/1280.0,y as f32/1280.0,(x+w) as f32/1280.0,(y+h) as f32/1280.0):
-         rotationz(rotation):diffuse(color[0],color[1],color[2],color[3]):z(8004))
+         rotationz(-rotation):diffuse(color[0],color[1],color[2],color[3]):z(8004))
         ::deadsync_assets::present_dsl::SpriteBuilder::static_texture("editor-grooveauthor/atlas.png")
     ))
 }

@@ -54,6 +54,19 @@ fn fixture(case: &Value, format: Format) -> Session {
         }
     }
     let mut s = Session::new(Document::parse(text.as_bytes(), format).unwrap());
+    // Raw SM LABELS remain ignored on import. Model source chart events via
+    // the actual format-independent chart owner, never enable those raw tags.
+    if format == Format::Sm {
+        let mut labels =
+            deadsync_editor::timing_edit::label::Draft::capture(&s, 0, Scope::Chart).unwrap();
+        assert!(labels.labels().values().is_empty());
+        for event in events.iter().filter(|event| event["Kind"] == "Label") {
+            labels
+                .set(event["Row"].as_u64().unwrap(), "marker")
+                .unwrap();
+        }
+        labels.apply(&mut s, 0).unwrap();
+    }
     let definitions: BTreeMap<_, _> = events
         .iter()
         .filter(|v| v["Kind"] == "Pattern")
@@ -109,12 +122,11 @@ fn fixture(case: &Value, format: Format) -> Session {
     }
     s
 }
-fn scope(format: Format) -> Scope {
-    if format == Format::Ssc {
-        Scope::Chart
-    } else {
-        Scope::Song
-    }
+fn scope(_format: Format) -> Scope {
+    // Source ActionShiftSelectionRow owns one EditorChart in either format.
+    // The same chart owner drives Selection, mutation and value inspection;
+    // SM song timing is only the inherited starting state.
+    Scope::Chart
 }
 fn key(v: &Value) -> Event {
     let row = v["Row"].as_u64().unwrap();
@@ -240,9 +252,6 @@ fn twelve_original_shift_actions_match_business_results_selection_and_history() 
         for (case, expected) in input["Cases"].as_array().unwrap().iter().zip(&expected) {
             assert_eq!(case["Name"], expected["Name"]);
             let events = case["Events"].as_array().unwrap();
-            if format == Format::Sm && events.iter().any(|v| v["Kind"] == "Label") {
-                continue;
-            }
             let kinds = events
                 .iter()
                 .map(|v| v["Kind"].as_str().unwrap().to_owned())
@@ -294,7 +303,7 @@ fn twelve_original_shift_actions_match_business_results_selection_and_history() 
             compared += 1;
         }
     }
-    assert_eq!(compared, 19);
+    assert_eq!(compared, 24);
 }
 
 #[test]

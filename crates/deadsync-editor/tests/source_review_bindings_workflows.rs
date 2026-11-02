@@ -33,30 +33,35 @@ fn reviewed_source_callbacks_are_explicitly_available_without_native_default_ass
                 );
             }
         }
-        assert_eq!(added, 54);
+        assert_eq!(added, 58);
         for id in [
             "ShiftEarlier",
             "ShiftLater",
-            "ConvertSelectedWarpsToNegativeStops",
-            "ConvertSelectedNegativeStopsToWarps",
         ] {
-            assert!(
-                Action::from_id(id).is_none(),
-                "Mixed timing callback must not silently become notes-only"
-            );
+            let action = Action::from_id(id).expect("selected mixed-event callback is ported");
+            assert!(action.is_selected_review());
+            assert!(source_ids.contains(&id));
+            assert!(prepared.report.applied.iter().any(|applied| applied == id));
+            assert!(!prepared.preferences.source_blockers.contains_key(id));
         }
-        // Preserve the unmigrated minimap context rather than silently stealing it.
         assert_eq!(
             prepared.preferences.commands["Mirror"],
-            vec![Vec::<String>::new()]
+            vec![vec![
+                if platform == Platform::Mac {
+                    "LeftWindows"
+                } else {
+                    "LeftControl"
+                },
+                "LeftShift",
+                "M"
+            ]]
         );
         assert!(
-            prepared
+            !prepared
                 .report
                 .rejected
                 .iter()
-                .any(|entry| entry.id == "Mirror"
-                    && entry.reason == "Chord is owned by an unmigrated native context")
+                .any(|entry| entry.id == "Mirror")
         );
         for id in ["ShiftAllEarlier", "ShiftAllLater"] {
             assert!(!source_ids.contains(&id));

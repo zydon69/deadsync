@@ -77,7 +77,13 @@ fn review_is_immutable_atomic_and_bound_to_exact_session_content() {
     );
     let p = plan(&mut s, Format::Ssc, Options::default());
     assert!(p.issues().is_empty());
-    assert_eq!(p.source_bytes(), before);
+    assert_eq!(s.serialize().unwrap(), before);
+    assert_eq!(p.source_bytes(), s.serialize_for_source_compatible().unwrap());
+    let prepared_document = Document::parse(p.source_bytes(), Format::Ssc).unwrap();
+    let metadata: Value = serde_json::from_str(&prepared_document.text(None, "GASongData").unwrap()).unwrap();
+    assert_eq!(metadata["SyncOffset"], json!(0));
+    assert_eq!(metadata["DefaultChartType"], json!("dance_single"));
+    assert_eq!(metadata["DefaultChartIndex"], json!(0));
     p.validate_review(&s, &BTreeSet::new()).unwrap();
     assert_eq!(
         state,

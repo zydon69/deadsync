@@ -1,0 +1,642 @@
+[
+  {
+    "Snap": 48,
+    "Later": false,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": -48,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 48,
+    "Later": false,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 48,
+    "Later": false,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 48,
+    "Later": false,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 48,
+    "Later": true,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": 48,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 48,
+    "Later": true,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 48,
+    "Later": true,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 48,
+    "Later": true,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 24,
+    "Later": false,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": -24,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 24,
+    "Later": false,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 24,
+    "Later": false,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 24,
+    "Later": false,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 24,
+    "Later": true,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": 24,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 24,
+    "Later": true,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 24,
+    "Later": true,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 24,
+    "Later": true,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 16,
+    "Later": false,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": -16,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 16,
+    "Later": false,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 16,
+    "Later": false,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 16,
+    "Later": false,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 16,
+    "Later": true,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": 16,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 16,
+    "Later": true,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 16,
+    "Later": true,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 16,
+    "Later": true,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 12,
+    "Later": false,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": -12,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 12,
+    "Later": false,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 12,
+    "Later": false,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 12,
+    "Later": false,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 12,
+    "Later": true,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": 12,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 12,
+    "Later": true,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 12,
+    "Later": true,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 12,
+    "Later": true,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 8,
+    "Later": false,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": -8,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 8,
+    "Later": false,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 8,
+    "Later": false,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 8,
+    "Later": false,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 8,
+    "Later": true,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": 8,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 8,
+    "Later": true,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 8,
+    "Later": true,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 8,
+    "Later": true,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 6,
+    "Later": false,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": -6,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 6,
+    "Later": false,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 6,
+    "Later": false,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 6,
+    "Later": false,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 6,
+    "Later": true,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": 6,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 6,
+    "Later": true,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 6,
+    "Later": true,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 6,
+    "Later": true,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 4,
+    "Later": false,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": -4,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 4,
+    "Later": false,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 4,
+    "Later": false,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 4,
+    "Later": false,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 4,
+    "Later": true,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": 4,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 4,
+    "Later": true,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 4,
+    "Later": true,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 4,
+    "Later": true,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 3,
+    "Later": false,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": -3,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 3,
+    "Later": false,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 3,
+    "Later": false,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 3,
+    "Later": false,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 3,
+    "Later": true,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": 3,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 3,
+    "Later": true,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 3,
+    "Later": true,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 3,
+    "Later": true,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 1,
+    "Later": false,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": -1,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 1,
+    "Later": false,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 1,
+    "Later": false,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 1,
+    "Later": false,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 1,
+    "Later": true,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": 1,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 1,
+    "Later": true,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 1,
+    "Later": true,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 1,
+    "Later": true,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 0,
+    "Later": false,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": -48,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 0,
+    "Later": false,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 0,
+    "Later": false,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 0,
+    "Later": false,
+    "Mode": "unfocused",
+    "Calls": []
+  },
+  {
+    "Snap": 0,
+    "Later": true,
+    "Mode": "selected",
+    "Calls": [
+      {
+        "Rows": 48,
+        "Selected": [
+          96,
+          24
+        ]
+      }
+    ]
+  },
+  {
+    "Snap": 0,
+    "Later": true,
+    "Mode": "empty",
+    "Calls": []
+  },
+  {
+    "Snap": 0,
+    "Later": true,
+    "Mode": "readonly",
+    "Calls": []
+  },
+  {
+    "Snap": 0,
+    "Later": true,
+    "Mode": "unfocused",
+    "Calls": []
+  }
+]

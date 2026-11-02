@@ -144,7 +144,7 @@ impl State {
                     Ok(range) => range,
                     Err(error) => {
                         self.status =
-                            i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
+                            i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
                         return;
                     }
                 }
@@ -213,5 +213,26 @@ impl State {
             _ => return i18n::tr("Edition", key),
         };
         i18n::tr_fmt("Edition", key, &[("value", &value)])
+    }
+}
+
+#[cfg(test)]
+mod sm_local_display_tests {
+    use super::*;
+    #[test]
+    fn real_sm_display_dialog_stages_applies_locally_and_undo_restores_global_input() {
+        for language in ["en","fr"] {
+            i18n::init(deadsync_assets::language::load_for_tests(language));
+            let root=tempfile::tempdir().unwrap();let path=root.path().join("display.sm");
+            std::fs::write(&path,b"#BPMS:0=120,4=180;#DISPLAYBPM:*;#NOTES:dance-single::Hard:9::1000,0100;#NOTES:dance-single::Easy:2::0010,0001;").unwrap();
+            let mut state=State::open(&path,0).unwrap();let before=state.workspace.file().session.serialize().unwrap();state.open_chart_properties();state.open_display_tempo();
+            state.display_tempo_key(0,KeyCode::ArrowRight);assert_eq!(state.display_tempo_draft.as_ref().unwrap().mode(),Mode::Specified);
+            state.display_tempo_key(4,KeyCode::Enter);assert_eq!(state.workspace.file().session.serialize().unwrap(),before);
+            state.apply_chart_properties();let session=&state.workspace.file().session;
+            assert_eq!(deadsync_editor::chart_properties::Draft::capture(session,0).unwrap().display_tempo().serialize(),"120.000000:180.000000");
+            assert_eq!(deadsync_editor::chart_properties::Draft::capture(session,1).unwrap().display_tempo().mode(),Mode::Random);
+            assert_eq!(session.document().raw_property(None,"DISPLAYBPM"),Some(b"*".as_slice()));
+            state.command(deadsync_editor::workspace::Command::Undo);assert_eq!(state.workspace.file().session.serialize().unwrap(),before);
+        }
     }
 }

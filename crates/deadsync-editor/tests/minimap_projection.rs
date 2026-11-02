@@ -1,5 +1,4 @@
-#[path = "../src/minimap_projection.rs"]
-mod projection;
+use deadsync_editor::minimap_projection as projection;
 use projection::Projection;
 
 #[test]

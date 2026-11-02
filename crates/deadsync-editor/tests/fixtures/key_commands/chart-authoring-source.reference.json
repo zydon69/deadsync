@@ -1,0 +1,14 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "PropertySha256": [
+    "82a524556824a59dcc6154e86c130aa6271fa79e9b966a41939eb772d8bb3861",
+    "5337fcf9d043bec03962985d451cfd09570def8fec3199c75e31397d329e3460",
+    "cf778433056da19177f4b49d06f6c35841257a4288afb414254feb6f819fdd46",
+    "de790d08ea685033fd124f7e252523a5291240b1e06f65821dd7888b9df7b8c5",
+    "ce2d64015d9eac7dce41cbd7918f2f5cd687e9c76b8044f4584de83e33518e2c"
+  ],
+  "HostSha256": "6077f89005cd35389bcf8cfeae396cfbd5a8634d3dfe9d06e08117425f0dea44",
+  "DllSha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "Scope": "Five complete original EditorChart setters; actual Fumen reflection string action + undo/redo queue. Host editability always true and notifications stubbed. Format labels demonstrate the setters have no format gate; no claim whole original EditorChart or writers executes."
+}

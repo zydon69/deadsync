@@ -1,0 +1,169 @@
+[
+  {
+    "Mode": "mixed",
+    "Order": [
+      {
+        "Kind": "EditorWarpEvent",
+        "Row": 96
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 24
+      },
+      {
+        "Kind": "EditorWarpEvent",
+        "Row": 48
+      },
+      {
+        "Kind": "EditorStopEvent",
+        "Row": 96
+      },
+      {
+        "Kind": "EditorStopEvent",
+        "Row": 72
+      },
+      {
+        "Kind": "EditorStopEvent",
+        "Row": 48
+      }
+    ],
+    "Calls": [
+      {
+        "Kind": "ActionChangeWarpsToNegativeStops",
+        "Rows": [
+          96,
+          48
+        ]
+      },
+      {
+        "Kind": "ActionChangeNegativeStopsToWarps",
+        "Rows": [
+          96,
+          48
+        ]
+      }
+    ]
+  },
+  {
+    "Mode": "empty",
+    "Order": [],
+    "Calls": []
+  },
+  {
+    "Mode": "readonly",
+    "Order": [
+      {
+        "Kind": "EditorWarpEvent",
+        "Row": 96
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 24
+      },
+      {
+        "Kind": "EditorWarpEvent",
+        "Row": 48
+      },
+      {
+        "Kind": "EditorStopEvent",
+        "Row": 96
+      },
+      {
+        "Kind": "EditorStopEvent",
+        "Row": 72
+      },
+      {
+        "Kind": "EditorStopEvent",
+        "Row": 48
+      }
+    ],
+    "Calls": []
+  },
+  {
+    "Mode": "missing",
+    "Order": [
+      {
+        "Kind": "EditorWarpEvent",
+        "Row": 96
+      },
+      {
+        "Kind": "EditorEvent",
+        "Row": 24
+      },
+      {
+        "Kind": "EditorWarpEvent",
+        "Row": 48
+      },
+      {
+        "Kind": "EditorStopEvent",
+        "Row": 96
+      },
+      {
+        "Kind": "EditorStopEvent",
+        "Row": 72
+      },
+      {
+        "Kind": "EditorStopEvent",
+        "Row": 48
+      }
+    ],
+    "Calls": []
+  },
+  {
+    "Mode": "reused",
+    "Order": [
+      {
+        "Kind": "EditorWarpEvent",
+        "Row": 192
+      },
+      {
+        "Kind": "EditorWarpEvent",
+        "Row": 240
+      },
+      {
+        "Kind": "EditorWarpEvent",
+        "Row": 144
+      }
+    ],
+    "Calls": [
+      {
+        "Kind": "ActionChangeWarpsToNegativeStops",
+        "Rows": [
+          192,
+          240,
+          144
+        ]
+      },
+      {
+        "Kind": "ActionChangeNegativeStopsToWarps",
+        "Rows": []
+      }
+    ]
+  },
+  {
+    "Mode": "cleared",
+    "Order": [
+      {
+        "Kind": "EditorWarpEvent",
+        "Row": 96
+      },
+      {
+        "Kind": "EditorWarpEvent",
+        "Row": 48
+      }
+    ],
+    "Calls": [
+      {
+        "Kind": "ActionChangeWarpsToNegativeStops",
+        "Rows": [
+          96,
+          48
+        ]
+      },
+      {
+        "Kind": "ActionChangeNegativeStopsToWarps",
+        "Rows": []
+      }
+    ]
+  }
+]

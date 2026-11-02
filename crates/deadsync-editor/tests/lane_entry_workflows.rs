@@ -1,7 +1,5 @@
-// Isolated model compilation before declaring a production module.
 pub use deadsync_editor::{Error, chart_order, history, notes};
-#[path = "../src/lane_entry.rs"]
-mod lane_entry;
+use deadsync_editor::lane_entry;
 use deadsync_editor::{
     document::{Document, Format},
     history::Session,

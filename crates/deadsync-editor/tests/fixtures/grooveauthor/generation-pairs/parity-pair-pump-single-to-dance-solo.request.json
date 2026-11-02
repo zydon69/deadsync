@@ -1,0 +1,229 @@
+{
+  "Operation": "Convert",
+  "SourceLayout": "pump-single",
+  "Layout": "dance-solo",
+  "Notes": [
+    [
+      0,
+      0,
+      "2"
+    ],
+    [
+      12,
+      2,
+      "4"
+    ],
+    [
+      24,
+      1,
+      "M"
+    ],
+    [
+      36,
+      0,
+      "3"
+    ],
+    [
+      36,
+      1,
+      "F"
+    ],
+    [
+      48,
+      2,
+      "3"
+    ],
+    [
+      48,
+      0,
+      "M"
+    ],
+    [
+      60,
+      2,
+      "L"
+    ],
+    [
+      72,
+      0,
+      "1"
+    ],
+    [
+      72,
+      1,
+      "1"
+    ],
+    [
+      84,
+      2,
+      "1"
+    ],
+    [
+      96,
+      1,
+      "1"
+    ],
+    [
+      108,
+      1,
+      "M"
+    ],
+    [
+      120,
+      0,
+      "1"
+    ],
+    [
+      132,
+      2,
+      "1"
+    ],
+    [
+      144,
+      0,
+      "1"
+    ],
+    [
+      144,
+      1,
+      "1"
+    ],
+    [
+      144,
+      2,
+      "1"
+    ],
+    [
+      156,
+      1,
+      "K"
+    ]
+  ],
+  "Seed": 42,
+  "FallbackMode": "none",
+  "PerformedConfig": {
+    "Facing": {
+      "MaxInwardPercentage": 1.0,
+      "InwardPercentageCutoff": 0.34,
+      "MaxOutwardPercentage": 1.0,
+      "OutwardPercentageCutoff": 0.34
+    },
+    "StepTightening": {
+      "SpeedTighteningEnabled": true,
+      "SpeedMinTimeSeconds": 0.17647058823529413,
+      "SpeedMaxTimeSeconds": 0.24,
+      "SpeedTighteningMinDistance": 0,
+      "DistanceTighteningEnabled": true,
+      "DistanceMin": 1.4,
+      "DistanceMax": 2.333333,
+      "StretchTighteningEnabled": true,
+      "StretchDistanceMin": 2.333333,
+      "StretchDistanceMax": 3.333333,
+      "LateralMinPanelDistance": 0.166667,
+      "LongitudinalMinPanelDistance": -0.125
+    },
+    "LateralTightening": {
+      "Enabled": true,
+      "RelativeNPS": 1.65,
+      "AbsoluteNPS": 12,
+      "Speed": 3
+    },
+    "Transitions": {
+      "Enabled": false,
+      "StepsPerTransitionMin": 0,
+      "StepsPerTransitionMax": 1024,
+      "MinimumPadWidth": 5,
+      "TransitionCutoffPercentage": 0.5
+    },
+    "ArrowWeights": {
+      "dance-single": [
+        25,
+        25,
+        25,
+        25
+      ],
+      "dance-double": [
+        6,
+        12,
+        10,
+        22,
+        22,
+        12,
+        10,
+        6
+      ],
+      "dance-solo": [
+        13,
+        12,
+        25,
+        25,
+        12,
+        13
+      ],
+      "dance-threepanel": [
+        25,
+        50,
+        25
+      ],
+      "pump-single": [
+        17,
+        16,
+        34,
+        16,
+        17
+      ],
+      "pump-halfdouble": [
+        25,
+        12,
+        13,
+        13,
+        12,
+        25
+      ],
+      "pump-double": [
+        4,
+        4,
+        17,
+        12,
+        13,
+        13,
+        12,
+        17,
+        4,
+        4
+      ],
+      "smx-beginner": [
+        25,
+        50,
+        25
+      ],
+      "smx-single": [
+        25,
+        21,
+        8,
+        21,
+        25
+      ],
+      "smx-dual": [
+        8,
+        17,
+        25,
+        25,
+        17,
+        8
+      ],
+      "smx-full": [
+        6,
+        8,
+        7,
+        8,
+        22,
+        22,
+        8,
+        7,
+        8,
+        6
+      ]
+    }
+  }
+}

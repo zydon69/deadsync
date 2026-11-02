@@ -24,6 +24,8 @@ fn format(value: &Value) -> Result<Format, Error> {
 fn policy_value(policy: &OutputPolicy) -> Value {
     match policy {
         OutputPolicy::NativeLossless => serde_json::json!({"kind":"native_lossless"}),
+        OutputPolicy::AdvancedSongTiming{format,options}=>{let mut fields=Map::new();options.write(&mut fields);serde_json::json!({"kind":"advanced_song_timing","format":format.extension(),"options":fields})},
+        OutputPolicy::AdvancedChartless{format,options}=>{let mut fields=Map::new();options.write(&mut fields);serde_json::json!({"kind":"advanced_chartless","format":format.extension(),"options":fields})},
         OutputPolicy::Advanced {
             format,
             options,
@@ -41,7 +43,7 @@ fn read_policy(value: &Value) -> Result<OutputPolicy, Error> {
         .ok_or_else(|| invalid("Invalid recovery output policy"))?;
     match fields.get("kind").and_then(Value::as_str) {
         Some("native_lossless") => Ok(OutputPolicy::NativeLossless),
-        Some("advanced") => {
+        Some("advanced"|"advanced_chartless"|"advanced_song_timing") => {
             let options = fields
                 .get("options")
                 .and_then(Value::as_object)
@@ -54,6 +56,11 @@ fn read_policy(value: &Value) -> Result<OutputPolicy, Error> {
                 .any(|name| !options.contains_key(*name))
             {
                 return Err(invalid("Incomplete recovery output options"));
+            }
+            if fields.get("kind").and_then(Value::as_str)==Some("advanced_song_timing"){if fields.contains_key("timing_chart"){return Err(invalid("Song timing policy must not contain an override identity"));}return Ok(OutputPolicy::AdvancedSongTiming{format:format(fields.get("format").ok_or_else(||invalid("Missing recovery output format"))?)?,options:crate::advanced_export::Options::read(options)?});}
+            if fields.get("kind").and_then(Value::as_str)==Some("advanced_chartless"){
+                if fields.contains_key("timing_chart"){return Err(invalid("Chartless recovery policy must not contain a chart identity"));}
+                return Ok(OutputPolicy::AdvancedChartless{format:format(fields.get("format").ok_or_else(||invalid("Missing recovery output format"))?)?,options:crate::advanced_export::Options::read(options)?});
             }
             Ok(OutputPolicy::Advanced {
                 format: format(
@@ -94,7 +101,7 @@ fn path_value(path: &Path) -> Result<Value, Error> {
 }
 pub(super) fn encode(snapshot: &RecoverySnapshot) -> Result<Vec<u8>, Error> {
     if snapshot.content.len()>MAX_PAYLOAD{return Err(invalid("Native recovery payload limit exceeded"));}
-    let header = serde_json::json!({"version":2,"source_format":snapshot.source_format.extension(),"policy":policy_value(&snapshot.policy),"target":path_value(&snapshot.source)?,"chart_ids":snapshot.chart_ids.iter().map(ToString::to_string).collect::<Vec<_>>(),"expected_length":snapshot.expected.len(),"content_length":snapshot.content.len()});
+    let header = serde_json::json!({"version":2,"open_sync_offset":snapshot.load_context.open_sync_offset(),"timing_preferences":snapshot.load_context.timing_preferences(),"song_timing_chart":snapshot.song_timing.identity().map(ToString::to_string),"output_requires_review":snapshot.output_requires_review,"source_format":snapshot.source_format.extension(),"policy":policy_value(&snapshot.policy),"target":path_value(&snapshot.source)?,"chart_ids":snapshot.chart_ids.iter().map(ToString::to_string).collect::<Vec<_>>(),"expected_length":snapshot.expected.len(),"content_length":snapshot.content.len()});
     let header =
         serde_json::to_vec(&header).map_err(|error| Error::InvalidFormat(error.to_string()))?;
     if header.len() > MAX_HEADER {
@@ -227,11 +234,20 @@ pub(super) fn decode(
     let content_end=baseline_end.checked_add(content_length).ok_or_else(||invalid("Native recovery payload length overflow"))?;
     if content_end!=bytes.len(){return Err(invalid("Native recovery payload length mismatch"));}
     let content=bytes.get(baseline_end..content_end).ok_or_else(||invalid("Incomplete native recovery payload"))?;
-    let session = Session::recovered_output_snapshot(
-        Document::parse(Arc::<[u8]>::from(content), source_format)?,
+    let context=match header.get("open_sync_offset"){None=>Default::default(),Some(value)=>crate::document::LoadContext::new(value.as_f64().ok_or_else(||invalid("Invalid recovery open-song sync offset"))?)?};
+    let context=match header.get("timing_preferences"){None=>context,Some(value)=>{let values=value.as_array().filter(|values|values.len()==2).ok_or_else(||invalid("Invalid recovery timing preferences"))?;let number=|value:&Value|value.as_i64().and_then(|number|i32::try_from(number).ok()).ok_or_else(||invalid("Invalid recovery timing preference"));context.with_timing_preferences(number(&values[0])?,number(&values[1])?)}};
+    let mut session = Session::recovered_output_snapshot(
+        Document::parse_with_context(Arc::<[u8]>::from(content), source_format,context)?,
         identities,
     )?;
-    policy.timing_chart(&session)?;
+    if let Some(value)=header.get("song_timing_chart"){let identity=if value.is_null(){None}else{Some(value.as_str().ok_or_else(||invalid("Invalid recovery song timing identity"))?.parse::<Guid>()?)};session.install_song_timing_choice(crate::song_timing_chart::Choice::restored(identity))?;}
+    let declared_review = match header.get("output_requires_review") {
+        None => false,
+        Some(value) => value.as_bool().ok_or_else(|| invalid("Invalid recovery output review state"))?,
+    };
+    if declared_review != policy.timing_chart(&session).is_err() {
+        return Err(invalid("Recovery output review state does not match native chart identities"));
+    }
     Ok(Decoded { session, policy })
 }
 
@@ -355,6 +371,38 @@ mod tests {
     #[test]
     fn v1_legacy_payload_remains_readable_without_v2_length_metadata() {
         let(_root,file)=file();let expected=file.expected.as_ref().unwrap();let content=file.session.serialize().unwrap();let mut bytes=V1.to_vec();bytes.extend_from_slice(&(expected.len()as u64).to_le_bytes());bytes.extend_from_slice(expected);bytes.extend_from_slice(&content);let decoded=decode(&bytes,expected,file.require_existing_path().unwrap(),Format::Ssc).unwrap();assert_eq!(decoded.session.serialize().unwrap(),content);assert!(matches!(decoded.policy,OutputPolicy::NativeLossless));
+    }
+
+    #[test]
+    fn chartless_policy_rejects_nonempty_payload_even_with_valid_chart_identities(){
+        let(_root,file)=file();let snapshot=file.recovery_snapshot().unwrap().unwrap();let bytes=encode(&snapshot).unwrap();let altered=changed_header(&bytes,|header|header["policy"]=policy_value(&OutputPolicy::AdvancedChartless{format:Format::Ssc,options:Default::default()}));
+        assert!(decode(&altered,file.expected.as_ref().unwrap(),file.require_existing_path().unwrap(),Format::Ssc).is_err());
+    }
+    #[test]
+    fn chartless_policy_envelope_has_no_fake_guid_and_rejects_injected_identity(){
+        let root=tempfile::tempdir().unwrap();let path=root.path().join("empty.ssc");fs::write(&path,b"#VERSION:0.83;#TITLE:Empty;").unwrap();let file=FileSession::open(&path).unwrap();let mut snapshot=file.recovery_snapshot().unwrap().unwrap();snapshot.policy=OutputPolicy::AdvancedChartless{format:Format::Ssc,options:Default::default()};let bytes=encode(&snapshot).unwrap();let(size,start)=length(&bytes,V2.len()).unwrap();let header:Value=serde_json::from_slice(&bytes[start..start+size]).unwrap();assert_eq!(header["policy"]["kind"],"advanced_chartless");assert!(header["policy"].get("timing_chart").is_none());assert_eq!(header["chart_ids"],serde_json::json!([]));assert!(decode(&bytes,file.expected.as_ref().unwrap(),file.require_existing_path().unwrap(),Format::Ssc).is_ok());
+        let altered=changed_header(&bytes,|header|header["policy"]["timing_chart"]=serde_json::json!(Guid::random().to_string()));assert!(decode(&altered,file.expected.as_ref().unwrap(),file.require_existing_path().unwrap(),Format::Ssc).is_err());
+    }
+
+    #[test]
+    fn v2_review_state_is_optional_for_ready_policies_and_strict_for_unresolved_policies(){
+        let(_root,file)=file();let snapshot=file.recovery_snapshot().unwrap().unwrap();let bytes=encode(&snapshot).unwrap();
+        let expected=file.expected.as_ref().unwrap();let path=file.require_existing_path().unwrap();
+        let legacy=changed_header(&bytes,|header|{header.as_object_mut().unwrap().remove("output_requires_review");});
+        assert!(decode(&legacy,expected,path,Format::Ssc).is_ok());
+        for value in [serde_json::json!(true),serde_json::json!("false"),Value::Null]{
+            let altered=changed_header(&bytes,|header|header["output_requires_review"]=value);
+            assert!(decode(&altered,expected,path,Format::Ssc).is_err());
+        }
+        let unresolved=changed_header(&bytes,|header|{
+            header["policy"]=policy_value(&OutputPolicy::Advanced{format:Format::Ssc,options:Default::default(),timing_chart:Guid::random()});
+            header["output_requires_review"]=serde_json::json!(true);
+        });
+        assert!(decode(&unresolved,expected,path,Format::Ssc).is_ok());
+        let false_ready=changed_header(&unresolved,|header|header["output_requires_review"]=serde_json::json!(false));
+        assert!(decode(&false_ready,expected,path,Format::Ssc).is_err());
+        let wrong_extension=changed_header(&unresolved,|header|header["policy"]["format"]=serde_json::json!("sm"));
+        assert!(decode(&wrong_extension,expected,path,Format::Ssc).is_err());
     }
 
 }

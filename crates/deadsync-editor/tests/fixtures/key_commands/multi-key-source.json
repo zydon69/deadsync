@@ -1,0 +1,1917 @@
+{
+  "commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "path": "StepManiaEditor/KeyCommandManager.cs",
+  "sha256": "592d0bd8f812e3d0ccbb2e276d413bbb3d9cd450800e1f2f86080a9022bffd62",
+  "policyPath": "StepManiaEditor/Preferences/PreferencesKeyBinds.cs",
+  "policySha256": "f40d92783185b63e6feec09a157db8961a18b3f92139cdd16fdea53b9b9ed500",
+  "method": "Unmodified complete original manager and complete original PreferencesKeyBinds.BlocksInput policy; keyboard/preferences storage/observer stubs only. Activation callbacks include repeats; generic alternatives remain separate.",
+  "cases": [
+    {
+      "name": "three-ordinary-ABC",
+      "conflicts": [
+        {
+          "id": "Three",
+          "keys": [
+            "A",
+            "B",
+            "C"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "B",
+            "C"
+          ],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.6,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.7,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.8,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.9,
+          "down": [
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 1,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 1.1,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "three-ordinary-ACB",
+      "conflicts": [
+        {
+          "id": "Three",
+          "keys": [
+            "A",
+            "B",
+            "C"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "A",
+            "C",
+            "B"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "C",
+            "B"
+          ],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "B"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.6,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.7,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.8,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.9,
+          "down": [
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 1,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 1.1,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "three-ordinary-BAC",
+      "conflicts": [
+        {
+          "id": "Three",
+          "keys": [
+            "A",
+            "B",
+            "C"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "B"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "B",
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "B",
+            "A",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "A",
+            "C"
+          ],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.6,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.7,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.8,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.9,
+          "down": [
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 1,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 1.1,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "three-ordinary-BCA",
+      "conflicts": [
+        {
+          "id": "Three",
+          "keys": [
+            "A",
+            "B",
+            "C"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "B"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "B",
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "B",
+            "C",
+            "A"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "C",
+            "A"
+          ],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.6,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.7,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.8,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.9,
+          "down": [
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 1,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 1.1,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "three-ordinary-CAB",
+      "conflicts": [
+        {
+          "id": "Three",
+          "keys": [
+            "A",
+            "B",
+            "C"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "C",
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "C",
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "B"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.6,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.7,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.8,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.9,
+          "down": [
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 1,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 1.1,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "three-ordinary-CBA",
+      "conflicts": [
+        {
+          "id": "Three",
+          "keys": [
+            "A",
+            "B",
+            "C"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "C",
+            "B"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "C",
+            "B",
+            "A"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "B",
+            "A"
+          ],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.6,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.7,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 0.8,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        },
+        {
+          "time": 0.9,
+          "down": [
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 1,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Three"
+          ]
+        },
+        {
+          "time": 1.1,
+          "down": [],
+          "effects": [
+            "release:Three"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "two-ordinary-final-first-and-prefix-repress",
+      "conflicts": [
+        {
+          "id": "Pair",
+          "keys": [
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "B"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Pair"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "B"
+          ],
+          "effects": [
+            "release:Pair"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Pair"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [],
+          "effects": [
+            "release:Pair"
+          ]
+        },
+        {
+          "time": 0.6,
+          "down": [
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.7,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Pair"
+          ]
+        },
+        {
+          "time": 0.8,
+          "down": [
+            "A"
+          ],
+          "effects": [
+            "release:Pair"
+          ]
+        },
+        {
+          "time": 0.9,
+          "down": [],
+          "effects": []
+        }
+      ]
+    },
+    {
+      "name": "equal-inputs-preserve-registration-order",
+      "conflicts": [
+        {
+          "id": "First",
+          "keys": [
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "Second"
+          ]
+        },
+        {
+          "id": "Second",
+          "keys": [
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "First"
+          ]
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:First",
+            "activate:Second"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "B"
+          ],
+          "effects": [
+            "release:First",
+            "release:Second"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:First",
+            "activate:Second"
+          ]
+        },
+        {
+          "time": 0.6,
+          "down": [],
+          "effects": [
+            "release:First",
+            "release:Second"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "equal-sets-different-final-order",
+      "conflicts": [
+        {
+          "id": "AB",
+          "keys": [
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "BA"
+          ]
+        },
+        {
+          "id": "BA",
+          "keys": [
+            "B",
+            "A"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "AB"
+          ]
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "B"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:AB",
+            "activate:BA"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "A"
+          ],
+          "effects": [
+            "release:AB",
+            "release:BA"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:AB",
+            "activate:BA"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [],
+          "effects": [
+            "release:AB",
+            "release:BA"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "longer-set-wins-simultaneous",
+      "conflicts": [
+        {
+          "id": "Short",
+          "keys": [
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "Long"
+          ]
+        },
+        {
+          "id": "Long",
+          "keys": [
+            "A",
+            "B",
+            "C"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "Short"
+          ]
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Long"
+          ]
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "release:Long"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.4,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Short"
+          ]
+        },
+        {
+          "time": 0.6,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.7,
+          "down": [],
+          "effects": [
+            "release:Short"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "earlier-shorter-blocks-later-superset",
+      "conflicts": [
+        {
+          "id": "Long",
+          "keys": [
+            "A",
+            "B",
+            "C"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "Short"
+          ]
+        },
+        {
+          "id": "Short",
+          "keys": [
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "Long"
+          ]
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Short"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "A",
+            "C"
+          ],
+          "effects": [
+            "release:Short"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Short"
+          ]
+        },
+        {
+          "time": 0.6,
+          "down": [],
+          "effects": [
+            "release:Short"
+          ]
+        },
+        {
+          "time": 0.7,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Long"
+          ]
+        },
+        {
+          "time": 0.8,
+          "down": [],
+          "effects": [
+            "release:Long"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "overlap-without-subset-is-independent",
+      "conflicts": [
+        {
+          "id": "AB",
+          "keys": [
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": []
+        },
+        {
+          "id": "AC",
+          "keys": [
+            "A",
+            "C"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:AB"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:AC"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "A",
+            "C"
+          ],
+          "effects": [
+            "release:AB"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [],
+          "effects": [
+            "release:AC"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "nonblocking-ordinary-modifier",
+      "conflicts": [
+        {
+          "id": "Modifier",
+          "keys": [
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "Lane"
+          ]
+        },
+        {
+          "id": "Lane",
+          "keys": [
+            "A",
+            "B",
+            "C"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Modifier"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "A",
+            "B",
+            "C"
+          ],
+          "effects": [
+            "activate:Lane"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "A",
+            "C"
+          ],
+          "effects": [
+            "release:Lane",
+            "release:Modifier"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [],
+          "effects": []
+        }
+      ]
+    },
+    {
+      "name": "multiple-ordinary-alternatives-same-id",
+      "conflicts": [
+        {
+          "id": "Lane",
+          "keys": [
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": []
+        },
+        {
+          "id": "Lane",
+          "keys": [
+            "C",
+            "D"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Lane"
+          ]
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ],
+          "effects": [
+            "activate:Lane"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "C",
+            "D"
+          ],
+          "effects": [
+            "release:Lane"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [],
+          "effects": [
+            "release:Lane"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ordinary-prefix-modifier-final",
+      "conflicts": [
+        {
+          "id": "ModifierFinal",
+          "keys": [
+            "A",
+            "LeftShift"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "Other"
+          ]
+        },
+        {
+          "id": "Other",
+          "keys": [
+            "A",
+            "LeftShift",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "RightShift"
+          ],
+          "effects": [
+            "activate:ModifierFinal"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "A",
+            "RightShift",
+            "B"
+          ],
+          "effects": [
+            "activate:Other"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "release:Other",
+            "release:ModifierFinal"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [],
+          "effects": []
+        }
+      ]
+    },
+    {
+      "name": "modifier-only-general-callback",
+      "conflicts": [
+        {
+          "id": "ModifierOnly",
+          "keys": [
+            "LeftControl",
+            "LeftShift"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "RightControl"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "RightControl",
+            "RightShift"
+          ],
+          "effects": [
+            "activate:ModifierOnly"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "LeftControl",
+            "RightControl",
+            "LeftShift",
+            "RightShift"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "LeftControl",
+            "RightShift"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "RightShift"
+          ],
+          "effects": [
+            "release:ModifierOnly"
+          ]
+        },
+        {
+          "time": 0.6,
+          "down": [],
+          "effects": []
+        }
+      ]
+    },
+    {
+      "name": "physical-control-vs-super-alternatives",
+      "conflicts": [
+        {
+          "id": "Lane",
+          "keys": [
+            "LeftControl",
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": []
+        },
+        {
+          "id": "Lane",
+          "keys": [
+            "LeftWindows",
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "LeftControl",
+            "LeftWindows",
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "LeftControl",
+            "LeftWindows",
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Lane",
+            "activate:Lane"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "LeftWindows",
+            "A",
+            "B"
+          ],
+          "effects": [
+            "release:Lane"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "release:Lane"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [],
+          "effects": []
+        }
+      ]
+    },
+    {
+      "name": "reserved-rescue-key-is-valid-in-original-engine",
+      "conflicts": [
+        {
+          "id": "Menu",
+          "keys": [
+            "F1"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "Other"
+          ]
+        },
+        {
+          "id": "Other",
+          "keys": [
+            "F1",
+            "F13"
+          ],
+          "blocksInput": true,
+          "ids": [
+            "Menu"
+          ]
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "F13"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "F1",
+            "F13"
+          ],
+          "effects": [
+            "activate:Other"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [],
+          "effects": [
+            "release:Other"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "F1"
+          ],
+          "effects": [
+            "activate:Menu"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "F1",
+            "F13"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.6,
+          "down": [],
+          "effects": [
+            "release:Menu"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ten-key-set-has-no-eight-key-source-limit",
+      "conflicts": [
+        {
+          "id": "Ten",
+          "keys": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "F13",
+            "F14",
+            "D1",
+            "S",
+            "Enter",
+            "LeftShift"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "F13",
+            "F14",
+            "D1",
+            "S",
+            "Enter",
+            "LeftShift"
+          ],
+          "effects": [
+            "activate:Ten"
+          ]
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "F13",
+            "F14",
+            "D1",
+            "S",
+            "Enter"
+          ],
+          "effects": [
+            "release:Ten"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [],
+          "effects": []
+        }
+      ]
+    },
+    {
+      "name": "repeated-prefix-key-release",
+      "conflicts": [
+        {
+          "id": "Pair",
+          "keys": [
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.2,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Pair"
+          ]
+        },
+        {
+          "time": 0.3,
+          "down": [
+            "A"
+          ],
+          "effects": [
+            "release:Pair"
+          ]
+        },
+        {
+          "time": 0.4,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Pair"
+          ]
+        },
+        {
+          "time": 0.5,
+          "down": [
+            "B"
+          ],
+          "effects": [
+            "release:Pair"
+          ]
+        },
+        {
+          "time": 0.6,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Pair"
+          ]
+        },
+        {
+          "time": 0.7,
+          "down": [],
+          "effects": [
+            "release:Pair"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "repeat-strict-boundary-arbitrary-set",
+      "conflicts": [
+        {
+          "id": "Repeat",
+          "keys": [
+            "A",
+            "B"
+          ],
+          "blocksInput": true,
+          "ids": []
+        }
+      ],
+      "frames": [
+        {
+          "time": 0,
+          "down": [],
+          "effects": []
+        },
+        {
+          "time": 0.1,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Repeat"
+          ]
+        },
+        {
+          "time": 0.6,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.601,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Repeat"
+          ]
+        },
+        {
+          "time": 0.62,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": []
+        },
+        {
+          "time": 0.621,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Repeat"
+          ]
+        },
+        {
+          "time": 5,
+          "down": [
+            "A",
+            "B"
+          ],
+          "effects": [
+            "activate:Repeat"
+          ]
+        },
+        {
+          "time": 5.1,
+          "down": [],
+          "effects": [
+            "release:Repeat"
+          ]
+        }
+      ]
+    }
+  ]
+}

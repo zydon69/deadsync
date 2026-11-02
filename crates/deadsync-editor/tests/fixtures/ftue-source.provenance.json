@@ -1,0 +1,7 @@
+{
+  "revision": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source": "StepManiaEditor/UI/UIFTUE.cs",
+  "sha256": "39e9b2c3ebb94a8048b0373154efb76194eb518068b9c48a74710c4196eadb90",
+  "cases": 384,
+  "scope": "unchanged original Draw/navigation; UIOptions editors stubbed"
+}

@@ -181,12 +181,14 @@ fn song_scope_sm_support_noop_and_foreign_stale_guards_preserve_history() {
     assert!(session.redo_label().is_some());
     let sm = b"#BPMS:0=120;#NOTES:dance-single::Hard:9::1000\n0000\n0000\n0000;";
     let mut session = Session::new(Document::parse(sm.as_slice(), Format::Sm).unwrap());
-    assert!(Draft::capture(&session, 0, Scope::Chart).is_err());
+    assert!(Draft::capture(&session, 0, Scope::Chart).unwrap().inherited());
     let mut draft = Draft::capture(&session, 0, Scope::Song).unwrap();
     draft.set(0, Signature::parse("3/4").unwrap()).unwrap();
     draft.apply(&mut session, 0).unwrap();
     let reopened = Document::parse(session.serialize().unwrap(), Format::Sm).unwrap();
-    assert_eq!(reopened.text(None, "TIMESIGNATURES").unwrap(), "0=3=4");
+    assert!(reopened.raw_property(None,"TIMESIGNATURES").is_none());
+    let reopened=Session::new(reopened);
+    assert_eq!(Draft::capture(&reopened,0,Scope::Song).unwrap().signatures().serialize(),"0=3=4");
 }
 #[test]
 fn invalid_signatures_collisions_and_unsafe_arithmetic_leave_maps_unchanged() {

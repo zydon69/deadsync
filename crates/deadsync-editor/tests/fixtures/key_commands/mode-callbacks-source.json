@@ -1,0 +1,266 @@
+[
+  {
+    "Frames": [
+      {
+        "Operation": "initial",
+        "Note": "Normal",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "note",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "note",
+        "Note": "Normal",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "note",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantRow"
+      }
+    ]
+  },
+  {
+    "Frames": [
+      {
+        "Operation": "initial",
+        "Note": "Normal",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "note",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "note",
+        "Note": "Normal",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "note",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "Variable"
+      }
+    ]
+  },
+  {
+    "Frames": [
+      {
+        "Operation": "initial",
+        "Note": "Normal",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "note",
+        "Note": "AdvanceBySnap",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "note",
+        "Note": "Normal",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "note",
+        "Note": "AdvanceBySnap",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantTime"
+      }
+    ]
+  },
+  {
+    "Frames": [
+      {
+        "Operation": "initial",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "note",
+        "Note": "Normal",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "note",
+        "Note": "AdvanceBySnap",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "note",
+        "Note": "Normal",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "ConstantRow"
+      }
+    ]
+  },
+  {
+    "Frames": [
+      {
+        "Operation": "initial",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "note",
+        "Note": "Normal",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "note",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "note",
+        "Note": "Normal",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "Variable"
+      }
+    ]
+  },
+  {
+    "Frames": [
+      {
+        "Operation": "initial",
+        "Note": "AdvanceBySnap",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "note",
+        "Note": "Normal",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "ConstantTime"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "note",
+        "Note": "AdvanceBySnap",
+        "Spacing": "ConstantRow"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "AdvanceBySnap",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "note",
+        "Note": "Normal",
+        "Spacing": "Variable"
+      },
+      {
+        "Operation": "spacing",
+        "Note": "Normal",
+        "Spacing": "ConstantTime"
+      }
+    ]
+  }
+]

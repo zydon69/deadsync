@@ -139,6 +139,7 @@ pub fn offscreen(mut f: RenderFrame) -> RenderFrame {
         alpha: true,
         depth: true,
         preserve: false,
+        postprocess: None,
         cameras: std::mem::take(&mut f.cameras),
         sprite_instances: std::mem::take(&mut f.sprite_instances),
         mesh_vertices: std::mem::take(&mut f.mesh_vertices),

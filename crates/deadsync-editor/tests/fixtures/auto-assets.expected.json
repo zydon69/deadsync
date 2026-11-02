@@ -1,0 +1,411 @@
+[
+  {
+    "Name": "all",
+    "OnlyUnset": false,
+    "CanEdit": true,
+    "Inventory": [
+      "cdtitle.png",
+      "banner.png",
+      "jacket.png",
+      "words.lrc",
+      "background.png",
+      "cover-cd.png",
+      "cover disc.png"
+    ],
+    "Before": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "After": {
+      "BackgroundPath": "background.png",
+      "BannerPath": "banner.png",
+      "CDTitlePath": "cdtitle.png",
+      "JacketPath": "jacket.png",
+      "CDImagePath": "cover-cd.png",
+      "DiscImagePath": "cover disc.png",
+      "LyricsPath": "words.lrc"
+    },
+    "Undo": "ActionSetSongAssets",
+    "AfterUndo": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "SecondUndo": null,
+    "AfterRedo": {
+      "BackgroundPath": "background.png",
+      "BannerPath": "banner.png",
+      "CDTitlePath": "cdtitle.png",
+      "JacketPath": "jacket.png",
+      "CDImagePath": "cover-cd.png",
+      "DiscImagePath": "cover disc.png",
+      "LyricsPath": "words.lrc"
+    },
+    "Messages": []
+  },
+  {
+    "Name": "unset",
+    "OnlyUnset": true,
+    "CanEdit": true,
+    "Inventory": [
+      "cdtitle.png",
+      "banner.png",
+      "jacket.png",
+      "words.lrc",
+      "background.png",
+      "cover-cd.png",
+      "cover disc.png"
+    ],
+    "Before": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "",
+      "CDTitlePath": "old-2",
+      "JacketPath": " ",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "",
+      "LyricsPath": "old-6"
+    },
+    "After": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "banner.png",
+      "CDTitlePath": "old-2",
+      "JacketPath": " ",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "cover disc.png",
+      "LyricsPath": "old-6"
+    },
+    "Undo": "ActionSetSongAssets",
+    "AfterUndo": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "",
+      "CDTitlePath": "old-2",
+      "JacketPath": " ",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "",
+      "LyricsPath": "old-6"
+    },
+    "SecondUndo": null,
+    "AfterRedo": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "banner.png",
+      "CDTitlePath": "old-2",
+      "JacketPath": " ",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "cover disc.png",
+      "LyricsPath": "old-6"
+    },
+    "Messages": []
+  },
+  {
+    "Name": "same",
+    "OnlyUnset": false,
+    "CanEdit": true,
+    "Inventory": [
+      "cdtitle.png",
+      "banner.png",
+      "jacket.png",
+      "words.lrc",
+      "background.png",
+      "cover-cd.png",
+      "cover disc.png"
+    ],
+    "Before": {
+      "BackgroundPath": "background.png",
+      "BannerPath": "banner.png",
+      "CDTitlePath": "cdtitle.png",
+      "JacketPath": "jacket.png",
+      "CDImagePath": "cover-cd.png",
+      "DiscImagePath": "cover disc.png",
+      "LyricsPath": "words.lrc"
+    },
+    "After": {
+      "BackgroundPath": "background.png",
+      "BannerPath": "banner.png",
+      "CDTitlePath": "cdtitle.png",
+      "JacketPath": "jacket.png",
+      "CDImagePath": "cover-cd.png",
+      "DiscImagePath": "cover disc.png",
+      "LyricsPath": "words.lrc"
+    },
+    "Undo": null,
+    "AfterUndo": {
+      "BackgroundPath": "background.png",
+      "BannerPath": "banner.png",
+      "CDTitlePath": "cdtitle.png",
+      "JacketPath": "jacket.png",
+      "CDImagePath": "cover-cd.png",
+      "DiscImagePath": "cover disc.png",
+      "LyricsPath": "words.lrc"
+    },
+    "SecondUndo": null,
+    "AfterRedo": {
+      "BackgroundPath": "background.png",
+      "BannerPath": "banner.png",
+      "CDTitlePath": "cdtitle.png",
+      "JacketPath": "jacket.png",
+      "CDImagePath": "cover-cd.png",
+      "DiscImagePath": "cover disc.png",
+      "LyricsPath": "words.lrc"
+    },
+    "Messages": [
+      "All assets are already set to their best values."
+    ]
+  },
+  {
+    "Name": "empty",
+    "OnlyUnset": false,
+    "CanEdit": true,
+    "Inventory": [],
+    "Before": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "After": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "Undo": null,
+    "AfterUndo": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "SecondUndo": null,
+    "AfterRedo": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "Messages": [
+      "All assets are already set to their best values."
+    ]
+  },
+  {
+    "Name": "missing",
+    "OnlyUnset": false,
+    "CanEdit": true,
+    "Inventory": [],
+    "Before": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "After": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "Undo": null,
+    "AfterUndo": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "SecondUndo": null,
+    "AfterRedo": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "Messages": [
+      "All assets are already set to their best values."
+    ]
+  },
+  {
+    "Name": "blocked",
+    "OnlyUnset": false,
+    "CanEdit": false,
+    "Inventory": [
+      "cdtitle.png",
+      "banner.png",
+      "jacket.png",
+      "words.lrc",
+      "background.png",
+      "cover-cd.png",
+      "cover disc.png"
+    ],
+    "Before": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "After": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "Undo": null,
+    "AfterUndo": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "SecondUndo": null,
+    "AfterRedo": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "Messages": []
+  },
+  {
+    "Name": "chartless",
+    "OnlyUnset": false,
+    "CanEdit": true,
+    "Inventory": [
+      "cdtitle.png",
+      "banner.png",
+      "jacket.png",
+      "words.lrc",
+      "background.png",
+      "cover-cd.png",
+      "cover disc.png"
+    ],
+    "Before": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "After": {
+      "BackgroundPath": "background.png",
+      "BannerPath": "banner.png",
+      "CDTitlePath": "cdtitle.png",
+      "JacketPath": "jacket.png",
+      "CDImagePath": "cover-cd.png",
+      "DiscImagePath": "cover disc.png",
+      "LyricsPath": "words.lrc"
+    },
+    "Undo": "ActionSetSongAssets",
+    "AfterUndo": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "SecondUndo": null,
+    "AfterRedo": {
+      "BackgroundPath": "background.png",
+      "BannerPath": "banner.png",
+      "CDTitlePath": "cdtitle.png",
+      "JacketPath": "jacket.png",
+      "CDImagePath": "cover-cd.png",
+      "DiscImagePath": "cover disc.png",
+      "LyricsPath": "words.lrc"
+    },
+    "Messages": []
+  },
+  {
+    "Name": "links",
+    "OnlyUnset": false,
+    "CanEdit": true,
+    "Inventory": [
+      "cdtitle.png",
+      "background.png"
+    ],
+    "Before": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "After": {
+      "BackgroundPath": "background.png",
+      "BannerPath": "old-1",
+      "CDTitlePath": "cdtitle.png",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "Undo": "ActionSetSongAssets",
+    "AfterUndo": {
+      "BackgroundPath": "old-0",
+      "BannerPath": "old-1",
+      "CDTitlePath": "old-2",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "SecondUndo": null,
+    "AfterRedo": {
+      "BackgroundPath": "background.png",
+      "BannerPath": "old-1",
+      "CDTitlePath": "cdtitle.png",
+      "JacketPath": "old-3",
+      "CDImagePath": "old-4",
+      "DiscImagePath": "old-5",
+      "LyricsPath": "old-6"
+    },
+    "Messages": []
+  }
+]

@@ -61,7 +61,9 @@ fn content_and_mount_share_one_save_and_invalid_drafts_never_mutate_file() {
     let mut file = File::open(&path).unwrap();
     let original = file.minimap_content().unwrap();
     let mut invalid = original;
-    invalid.width = 2;
+    // Width 2 is the source slider minimum and a valid raster. Width 1
+    // cannot represent the native raster's two border columns.
+    invalid.width = 1;
     assert!(file.set_minimap_content(invalid).is_err());
     assert_eq!(file.minimap_content().unwrap(), original);
     assert!(!file.has_changes());
@@ -125,4 +127,18 @@ fn shared_options_merge_preserves_staged_color_arc_snap_and_receptors() {
     assert_eq!(json["Options"]["MiniMapMaxNotesToDraw"], 731);
     assert_eq!(json["Options"]["Keep"], 42);
     assert_eq!(json["NoteColor"]["Future"], 19);
+}
+
+#[test]
+fn source_minimum_width_and_zero_note_spacing_save_and_reopen() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("preferences.json");
+    let mut file = File::open(&path).unwrap();
+    let mut content = file.minimap_content().unwrap();
+    content.width = 2;
+    content.note_spacing = 0;
+    file.set_minimap_content(content).unwrap();
+    assert!(file.save().unwrap());
+    assert_eq!(File::open(&path).unwrap().minimap_content().unwrap(), content);
+    assert!(!file.has_changes());
 }

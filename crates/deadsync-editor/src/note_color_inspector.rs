@@ -150,15 +150,28 @@ impl Draft {
             return Ok(value.to_string());
         }
         Ok(match self.field {
-            33 => match p.step_color_method {
-                ColorMethod::Stepmania => "Stepmania",
-                ColorMethod::Note => "Note",
-                ColorMethod::Beat => "Beat",
-            }
-            .to_owned(),
+            33 => p.step_color_method.source_name(),
             34 => self.preset.name().to_owned(),
             _ => unreachable!(),
         })
+    }
+    /// Exact initial value for keyboard editing; display rounding must not alter a no-op.
+    pub fn component_value(&self, component:usize)->Option<f32>{
+        if component>=self.components(){return None;}
+        let mut p=(*self.staged).clone();
+        if let Some(rgb)=rgb(&mut p,self.field){return Some(rgb[component]);}
+        scalar(&mut p,self.field).copied()
+    }
+    /// Exact component entry uses the same bounded, non-HDR controls as the source UI.
+    pub fn set_component(&mut self, component: usize, value: f32) -> Result<bool, Error> {
+        if component>=self.components() || !value.is_finite(){return Err(Error::InvalidEdit("Invalid note color component".into()));}
+        let mut next=(*self.staged).clone();
+        if let Some(rgb)=rgb(&mut next,self.field){rgb[component]=value.clamp(0.0,1.0);}
+        else if let Some(target)=scalar(&mut next,self.field){*target=value;}
+        else{return Err(Error::InvalidEdit("Invalid note color component".into()));}
+        next.validate()?;let changed=next!=*self.staged;
+        if changed{self.staged=Arc::new(next);}
+        Ok(changed)
     }
     pub fn adjust(&mut self, component: usize, later: bool, fine: bool) -> Result<bool, Error> {
         if component >= self.components() {

@@ -34,7 +34,6 @@ const ROWS: [&str; 8] = [
 impl State {
     pub(super) fn open_key_binding_settings(&mut self) {
         self.release_input();
-        self.stop_audio();
         match Draft::capture(Arc::clone(&self.command_bindings.preferences)) {
             Ok(draft) => {
                 self.key_binding_draft = Some(Settings {
@@ -52,20 +51,18 @@ impl State {
         }
     }
     fn key_binding_error(&mut self, error: deadsync_editor::Error) {
-        self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
+        self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
     }
     pub(super) fn sync_key_binding_preferences_history(&mut self) {
         if let Some(update) = self.workspace.take_key_binding_preferences_update() {
             self.configure_key_binding_preferences(update.preferences);
-            if let Some(file) = &update.file {
-                self.audio_preferences_path = Some(file.path().to_owned());
-            }
-            self.audio_preferences_file = update.file;
+            if let Some(file) = update.file {self.publish_application_preferences_owner(file);}
         }
     }
     /// Full raw events reach this before modifier/modal early returns. Capture
     /// finishes when its chord is released; Enter/Escape then act in Review.
     pub(super) fn key_binding_capture_event(&mut self, event: &RawKeyboardEvent) -> bool {
+        if self.scroll_modifier_capture_event(event){return true;}
         let Some(settings) = self.key_binding_draft.as_mut() else {
             return false;
         };
@@ -114,6 +111,7 @@ impl State {
         let mut details = Vec::new();
         for (key, ids) in [
             ("KeyProfileAvailable", &report.applied),
+            ("KeyProfileAppliedModifiers", &report.applied_modifiers),
             ("KeyProfileUnavailable", &report.unavailable_commands),
             ("KeyProfileBlocked", &report.blocked_unavailable),
             ("KeyProfileNativeContext", &report.retained_native_contexts),
@@ -136,7 +134,7 @@ impl State {
                 "Duplicate modifier/key after physical alias normalization" => {
                     "KeyProfileReasonDuplicate"
                 }
-                "Native dispatch requires modifiers then one final ordinary key" => {
+                "Unsupported native key chord" => {
                     "KeyProfileReasonPrefix"
                 }
                 _ => "KeyProfileReasonReserved",
@@ -214,6 +212,7 @@ impl State {
             self.panel = None;
             return;
         }
+        if code==KeyCode::F10 {self.open_scroll_modifiers();return;}
         if matches!(
             code,
             KeyCode::F5 | KeyCode::F6 | KeyCode::F7 | KeyCode::F8 | KeyCode::F9
@@ -310,16 +309,9 @@ impl State {
                 let before = settings.draft.baseline();
                 let after = settings.draft.staged();
                 let result = (|| -> Result<(), deadsync_editor::Error> {
-                    let file = match self.audio_preferences_file.clone() {
-                        Some(file) => Some(file),
-                        None => self
-                            .audio_preferences_path
-                            .as_ref()
-                            .map(|path| deadsync_editor::audio_preferences::File::open(path))
-                            .transpose()?,
-                    };
+                    let file = self.capture_application_preferences_file()?;
                     self.workspace
-                        .set_key_binding_preferences(before, after, file.as_ref())?;
+                        .set_key_binding_preferences(before, after, Some(&file))?;
                     self.sync_key_binding_preferences_history();
                     Ok(())
                 })();
@@ -348,6 +340,7 @@ impl State {
         let alternatives = settings.draft.alternatives();
         let chord = &alternatives[settings.draft.alternative];
         for (row, key) in ROWS.iter().enumerate() {
+            let ui_row_start=actors.len();
             let label = match row {
                 0 => i18n::tr_fmt(
                     "Edition",
@@ -379,6 +372,8 @@ impl State {
                 _ => i18n::tr("Edition", key),
             };
             actors.push(act!(text:font("miso"):settext(label):xy(x,top+row as f32*30.):zoom(0.62):maxwidth(580.):diffuse(1.,if row==index{0.8}else{1.},if row==index{0.3}else{1.},1.):z(8051)));
+
+            self.ui_row(actors,ui_row_start,row==index&&settings.capture.is_none(),30.);
         }
         let conflicts = &settings.conflicts;
         if !conflicts.is_empty() {
@@ -405,6 +400,7 @@ impl State {
             actors.push(act!(text:font("miso"):settext(help):xy(x,top+285.):zoom(0.45):maxwidth(580.):maxheight(32.):z(8052)));
         }
         if let Some(capture) = &settings.capture {
+            let ui_row_start=actors.len();
             let help = i18n::tr_fmt(
                 "Edition",
                 if capture.phase() == CapturePhase::Review {
@@ -418,6 +414,12 @@ impl State {
                 )],
             );
             actors.push(act!(text:font("miso"):settext(help):xy(x,top+270.):zoom(0.55):maxwidth(580.):z(8052)));
+            self.ui_row(actors,ui_row_start,true,32.);
         }
     }
 }
+
+impl Settings{pub(super) fn is_capturing(&self)->bool{self.capture.is_some()}}
+
+#[cfg(test)]
+mod source_reset_tests;

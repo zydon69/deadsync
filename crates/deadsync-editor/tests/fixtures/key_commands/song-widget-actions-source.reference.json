@@ -1,0 +1,23 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourceSha256": {
+    "EditorSong.cs": "066bd606d5138343b444fb0355a125929c7b19baef4832202775eb419a5c60ff",
+    "EditorEvents/EditorEvent.cs": "28dbffa43902c9704850bae1fcdaf22b3d29317625ddf82934f71c9fc12eb18c",
+    "Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+    "ActiveEditorChart.cs": "60bde1681bba77f08a7c4d772c247c0b6725901fd8b0e2225f3e02e5d728ac3a",
+    "EditorPosition.cs": "67cb938ce0b597bb46d4b1c3c94c735a2a22a6befbfafa8b39d7e8deb2c5f0b3",
+    "EditorEvents/EditorRateAlteringEvent.cs": "65df864234461b543af99e6f640e43998be9343ba64829f3d0d28cb027e481ce",
+    "EditorChart.cs": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd",
+    "EditorEvents/EditorPreviewRegionEvent.cs": "8f1edf1b0dc900b020185209062920a5d1bf3967f70937e4ffd036ef95425673",
+    "EditorEvents/EditorLastSecondHintEvent.cs": "fbc3171890bcbd4888b65fe8b1f106f98a6dd574b64d8f2f5e3de9c8fdcba548",
+    "Selection.cs": "e7090aab08b8677ee724f0502c520ffebf0c39f7e449cc6f4fd4d53df45ffd46",
+    "EditorActions/ActionPasteEvents.cs": "1c86460f2388d8fb413b5e97b297f5db24e2ef305baaa43e4a0ff3a949137534",
+    "EditorActions/ActionDeleteEditorEvents.cs": "0bd4e0f1858c67d583f02d812749ca182bdb54b6160a19caf051422ffbada5d3",
+    "EditorActions/ActionShiftSelectionRow.cs": "d77d9d5c2085fbd957def646bb68093572eb8bf38788b7f37b45de991b14d025",
+    "EditorActions/ForceAddSideEffect.cs": "e2e8fc1fc2038e3f93d7208fe9858142271f97d3b54907f0d9618717890adc64"
+  },
+  "AdapterSha256": "32373c78fc1bb635740a7576fb28e03b92414c5fa97b192eb8de4f61e9435d0f",
+  "ProgramSha256": "f4727bda9ccb7bb17b29e3448015bf7dd655626d0d791724381895d4b841d826",
+  "Scope": "Original complete copy/cut/delete/paste callbacks, original complete Selection and Paste/Delete/Shift actions, base Clone/SetRow/capability methods, original widget SetChartTime/GetChartTime and original clock conversions/setters. Host factories/scalar chart/tree add/delete and notification/row refresh adapter are explicit. Does not reproduce full force-add conflicts/observers; demonstrates direct action-owned metadata writes and missing explicit inverse."
+}

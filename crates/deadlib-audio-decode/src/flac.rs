@@ -323,3 +323,86 @@ impl Reader {
         }
     }
 }
+
+/// Editor lossless float view, before the streaming reader's i16 conversion.
+/// Symphonia left-aligns FLAC signed samples in i32; undo that alignment before
+/// applying Fumen's reciprocal for the actual container bit depth.
+pub(crate) fn load_editor_pcm(
+    path: &Path,
+    cancelled: &std::sync::atomic::AtomicBool,
+    max_samples: usize,
+) -> Result<(usize, u32, Vec<f32>), Box<dyn std::error::Error + Send + Sync>> {
+    use std::sync::atomic::Ordering;
+    let mut format = probe_format(path)?;
+    let (track_id, channels, hz, bits, mut decoder) = {
+        let (track, params) = flac_track(format.tracks()).ok_or("Missing FLAC track")?;
+        let channels = params
+            .channels
+            .as_ref()
+            .map(symphonia::core::audio::Channels::count)
+            .ok_or("Missing FLAC channels")?;
+        let hz = params.sample_rate.ok_or("Missing FLAC sample rate")?;
+        let bits = params
+            .bits_per_sample
+            .ok_or("Missing FLAC sample precision")?;
+        if channels == 0 || hz == 0 || !matches!(bits, 8 | 16 | 24 | 32) {
+            return Err("Unsupported editor FLAC PCM format".into());
+        }
+        (
+            track.id,
+            channels,
+            hz,
+            bits,
+            symphonia::default::get_codecs()
+                .make_audio_decoder(params, &AudioDecoderOptions::default())?,
+        )
+    };
+    let mut samples = Vec::new();
+    let mut packet_pcm = Vec::<i32>::new();
+    loop {
+        if cancelled.load(Ordering::Acquire) {
+            return Err("Editor FLAC load cancelled".into());
+        }
+        let packet = match format.next_packet() {
+            Ok(Some(packet)) => packet,
+            Ok(None) => break,
+            Err(SymphoniaError::IoError(e)) if e.kind() == std::io::ErrorKind::UnexpectedEof => {
+                break;
+            }
+            Err(e) => return Err(e.into()),
+        };
+        if packet.track_id != track_id {
+            continue;
+        }
+        let audio = match decoder.decode(&packet) {
+            Ok(audio) => audio,
+            Err(SymphoniaError::DecodeError(_)) => continue,
+            Err(e) => return Err(e.into()),
+        };
+        audio.copy_to_vec_interleaved::<i32>(&mut packet_pcm);
+        if samples
+            .len()
+            .checked_add(packet_pcm.len())
+            .is_none_or(|len| len > max_samples)
+        {
+            return Err("Editor FLAC PCM memory limit exceeded".into());
+        }
+        samples.try_reserve(packet_pcm.len())?;
+        let reciprocal = match bits {
+            8 => 1.0f32 / 128.,
+            16 => 1.0f32 / 32767.,
+            24 => 1.0f32 / 8388607.,
+            32 => 1.0f32 / i32::MAX as f32,
+            _ => unreachable!(),
+        };
+        samples.extend(
+            packet_pcm
+                .iter()
+                .map(|value| (*value >> (32 - bits)) as f32 * reciprocal),
+        );
+    }
+    if samples.is_empty() || samples.len() % channels != 0 {
+        return Err("Incomplete editor FLAC PCM".into());
+    }
+    Ok((channels, hz, samples))
+}

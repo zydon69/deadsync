@@ -1,5 +1,8 @@
 //! Audio codecs, packet seeking, channel mapping, and resampling primitives.
 
+pub mod prepared;
+pub mod editor_time_stretch;
+mod hermite;
 pub mod flac;
 pub mod mp3;
 pub mod ogg_vorbis;
@@ -185,3 +188,7 @@ pub fn snap_start_forward_to_packet(path: &Path, start_sec: f64) -> Result<Optio
     }
     Ok(None)
 }
+
+pub mod preview;
+
+pub mod editor_ticks;

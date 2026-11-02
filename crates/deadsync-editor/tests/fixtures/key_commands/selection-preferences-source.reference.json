@@ -1,0 +1,7 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourceSha256": "070fa20688a9753e9e6c38a1a70d791a1c717c7004679271315918999ebc5765",
+  "ProgramSha256": "1d6184ba41341bdee662df46458a9d03ea1a28486244e11681df24c886486141",
+  "Scope": "Entire original PreferencesSelection and restore action, actual Fumen enum converter and undo queue. Preferences singleton host only. Six valid-mode restore histories and ten field deserializations; not complete Preferences file import."
+}

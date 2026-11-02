@@ -18,8 +18,8 @@ use log::{info, warn};
 use mach2::mach_time::{mach_absolute_time, mach_timebase_info, mach_timebase_info_data_t};
 use objc2_core_audio::{
     AudioDeviceID, AudioObjectAddPropertyListener, AudioObjectGetPropertyData,
-    AudioObjectPropertyAddress, AudioObjectRemovePropertyListener, AudioStreamID,
-    kAudioDevicePropertyBufferFrameSize, kAudioDevicePropertyDeviceUID,
+    AudioObjectIsPropertySettable, AudioObjectPropertyAddress, AudioObjectRemovePropertyListener,
+    AudioStreamID, kAudioDevicePropertyBufferFrameSize, kAudioDevicePropertyDeviceUID,
     kAudioDevicePropertyLatency, kAudioDevicePropertyNominalSampleRate,
     kAudioDevicePropertySafetyOffset, kAudioDevicePropertyStreams, kAudioHardwareNoError,
     kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyElementMain,
@@ -43,6 +43,37 @@ pub struct CoreAudioOutputPrep {
 }
 
 impl CoreAudioOutputPrep {
+    pub fn buffer_capabilities(&self) -> deadlib_audio_core::BufferCapabilities {
+        let address = AudioObjectPropertyAddress {
+            mSelector: kAudioDevicePropertyBufferFrameSize,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain,
+        };
+        let mut settable = 0;
+        let available = unsafe {
+            AudioObjectIsPropertySettable(
+                self.device_id,
+                NonNull::from(&address),
+                NonNull::from(&mut settable),
+            )
+        } == kAudioHardwareNoError
+            && settable != 0;
+        deadlib_audio_core::BufferCapabilities {
+            period_frames: if available {
+                deadlib_audio_core::BufferControl::Adjustable
+            } else {
+                deadlib_audio_core::BufferControl::Unsupported
+            },
+            num_buffers: deadlib_audio_core::BufferControl::Unsupported,
+        }
+    }
+
+    pub fn buffer_negotiation(&self) -> deadlib_audio_core::BufferNegotiation {
+        deadlib_audio_core::BufferNegotiation {
+            period_frames: Some(self.buffer_frames),
+            num_buffers: None,
+        }
+    }
     pub fn ready(&self) -> OutputBackendReady {
         OutputBackendReady {
             device_sample_rate: self.sample_rate_hz,
@@ -76,14 +107,24 @@ struct OutputLatency {
     nanos: u64,
 }
 
-impl Drop for CoreAudioOutputStream {
-    fn drop(&mut self) {
+impl CoreAudioOutputStream {
+    pub fn shutdown(&mut self) -> Result<(), String> {
         if let Some(listener) = self.listener.take() {
             listener.unregister();
         }
         if let Some(audio_unit) = self.audio_unit.as_mut() {
-            let _ = audio_unit.stop();
+            audio_unit
+                .stop()
+                .map_err(|error| format!("CoreAudio stop failed: {error}"))?;
         }
+        drop(self.audio_unit.take());
+        Ok(())
+    }
+}
+
+impl Drop for CoreAudioOutputStream {
+    fn drop(&mut self) {
+        let _ = self.shutdown();
     }
 }
 
@@ -200,6 +241,19 @@ pub fn prepare(
     requested_rate_hz: Option<u32>,
     channels: usize,
 ) -> Result<CoreAudioOutputPrep, String> {
+    prepare_with_buffer(device_uid, device_name, requested_rate_hz, channels, None)
+}
+
+pub fn prepare_with_buffer(
+    device_uid: Option<String>,
+    device_name: String,
+    requested_rate_hz: Option<u32>,
+    channels: usize,
+    period_frames: Option<u32>,
+) -> Result<CoreAudioOutputPrep, String> {
+    if period_frames == Some(0) {
+        return Err("invalid CoreAudio buffer-frame request".into());
+    }
     let device_id = select_device_id(device_uid.as_deref(), &device_name)?;
     let resolved_name = get_device_name(device_id).unwrap_or(device_name);
     let sample_rate_hz = requested_rate_hz
@@ -207,6 +261,25 @@ pub fn prepare(
         .map_or_else(|| device_nominal_sample_rate_hz(device_id), Ok)?;
     let mut audio_unit = audio_unit_from_device_id(device_id, false)
         .map_err(|e| format!("failed to create CoreAudio HAL output unit: {e}"))?;
+    let current_frames: u32 = audio_unit
+        .get_property(
+            kAudioDevicePropertyBufferFrameSize,
+            Scope::Global,
+            Element::Output,
+        )
+        .map_err(|error| {
+            format!("failed to query original CoreAudio buffer frame size: {error}")
+        })?;
+    if let Some(frames) = period_frames.filter(|frames| *frames != current_frames) {
+        audio_unit
+            .set_property(
+                kAudioDevicePropertyBufferFrameSize,
+                Scope::Global,
+                Element::Output,
+                Some(&frames),
+            )
+            .map_err(|error| format!("failed to request CoreAudio buffer frame size: {error}"))?;
+    }
     let actual = configure_output_unit(&mut audio_unit, sample_rate_hz, channels)?;
     let latency = try_output_latency(device_id).unwrap_or_else(|| {
         warn!("failed to query CoreAudio output latency; assuming zero");

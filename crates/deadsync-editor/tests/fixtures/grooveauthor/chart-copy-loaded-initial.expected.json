@@ -1,0 +1,223 @@
+[
+  {
+    "Name": "loaded-initial-node-normalization",
+    "Before": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Signature",
+          "Row": 48,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 48,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Bpm": 110
+        },
+        {
+          "Kind": "Signature",
+          "Row": 192,
+          "N": 5,
+          "D": 8
+        }
+      ]
+    ],
+    "After": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Signature",
+          "Row": 16,
+          "N": 2,
+          "D": 2
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 16,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        },
+        {
+          "Kind": "Signature",
+          "Row": 384,
+          "N": 3,
+          "D": 4
+        }
+      ]
+    ],
+    "Undone": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Signature",
+          "Row": 48,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 48,
+          "Bpm": 90
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 96,
+          "Bpm": 110
+        },
+        {
+          "Kind": "Signature",
+          "Row": 192,
+          "N": 5,
+          "D": 8
+        }
+      ]
+    ],
+    "Redone": [
+      [
+        {
+          "Kind": "Signature",
+          "Row": 0,
+          "N": 4,
+          "D": 4
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 0,
+          "Bpm": 120
+        },
+        {
+          "Kind": "Signature",
+          "Row": 16,
+          "N": 2,
+          "D": 2
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 16,
+          "Bpm": 180
+        },
+        {
+          "Kind": "Tempo",
+          "Row": 192,
+          "Bpm": 240
+        },
+        {
+          "Kind": "Signature",
+          "Row": 384,
+          "N": 3,
+          "D": 4
+        }
+      ]
+    ],
+    "SourceBefore": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Signature",
+        "Row": 16,
+        "N": 2,
+        "D": 2
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 16,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 192,
+        "Bpm": 240
+      },
+      {
+        "Kind": "Signature",
+        "Row": 384,
+        "N": 3,
+        "D": 4
+      }
+    ],
+    "SourceAfter": [
+      {
+        "Kind": "Signature",
+        "Row": 0,
+        "N": 4,
+        "D": 4
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 0,
+        "Bpm": 120
+      },
+      {
+        "Kind": "Signature",
+        "Row": 16,
+        "N": 2,
+        "D": 2
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 16,
+        "Bpm": 180
+      },
+      {
+        "Kind": "Tempo",
+        "Row": 192,
+        "Bpm": 240
+      },
+      {
+        "Kind": "Signature",
+        "Row": 384,
+        "N": 3,
+        "D": 4
+      }
+    ]
+  }
+]

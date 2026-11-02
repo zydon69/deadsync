@@ -1,0 +1,10 @@
+{
+  "commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_files": {
+    "Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+    "Preferences/PreferencesReceptors.cs": "8f5f44f6ef15d87fcfe367c483f798127fa7e60d2bf7bfb08dd8bc31df3674a3"
+  },
+  "cases": 48,
+  "scope": "Actual unchanged UpdateChartPositions method, exact focal adjustment block from SetChartFocused, and whole PreferencesReceptors class. Width adapter supplies fixed chart lane widths and full/header offsets (42 left,30 right) matching native geometry; no source texture/docking claim. Source area1800x900, .NET10 execution, no OS calls.",
+  "native_mapping": "Native PositionX=842+(source adjusted rawX-source centered900) for CenterHoriz true; ordinary focal anchor842 maps directly. Actual focal rendering remains centered while true; toggling false reveals cached displacement."
+}

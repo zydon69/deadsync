@@ -1,0 +1,20 @@
+{
+  "source_pin": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_path": "StepManiaEditor/Content/fxaa.fx",
+  "source_branch": "clang -E with pinned defaults: active HLSL5 gather-emulation scalar splats and original unscaled (-1,-1) offset",
+  "source_adaptations": [
+    "sampler2D parameter becomes Metal texture2d<float>",
+    "tex2D(texture,float4) uses normalized linear clamp-to-edge sampler at coordinate.xy",
+    "HLSL int2 constants promote to float2 for mixed vector arithmetic",
+    "independent fullscreen triangle and matching fragment ABI; original body called directly, never generated through production GLSL"
+  ],
+  "input": {"width":31,"height":19,"formula":"v=f32(x>y?0.9:0.1); rgba=[v,f32(((x*7+y*13)%29)/28),f32(1-v),f32(((y*31+x)%17)/16)]"},
+  "input_formats": ["rgba32Float","rgba16Float","rgba8Unorm"],
+  "output_formats": ["rgba32Float","rgba16Float","rgba8Unorm"],
+  "destination_dimensions": [[31,19],[7,11],[53,23]],
+  "qualities": [[0.75,0.166,0.0833,0],[0.2,0.166,0.0833,0],[0,0,0,0],[1,0.01,0,0]],
+  "expected_gpu_cases":108,
+  "comparison":"bitwise readback equality, no tolerance; CPU comparison diagnostic only",
+  "compile_options":{"fast_math":false},
+  "scope_limit":"Metal kernel and fullscreen sampling on the reported device/OS only; no D3D, Vulkan, GL, WGPU, complete engine render-target lifecycle, or universal CPU/GPU parity claim"
+}

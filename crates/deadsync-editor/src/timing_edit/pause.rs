@@ -130,15 +130,15 @@ impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
         let document = session.document();
-        let origin = target.origin();
+        let properties = super::resident::Properties::capture(document,target.origin())?;
         let current = [
             Pauses::parse(
                 Kind::Stop,
-                &document.text(origin, "STOPS").unwrap_or_default(),
+                &properties.text("STOPS"),
             )?,
             Pauses::parse(
                 Kind::Delay,
-                &document.text(origin, "DELAYS").unwrap_or_default(),
+                &properties.text("DELAYS"),
             )?,
         ];
         Ok(Self {

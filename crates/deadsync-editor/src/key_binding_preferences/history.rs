@@ -20,20 +20,24 @@ impl std::fmt::Debug for Change {
     }
 }
 impl Change {
-    pub fn apply(&mut self, forward: bool) -> Result<Update, Error> {
+    pub fn apply(&mut self, forward: bool, live: Option<&File>) -> Result<Update, Error> {
         let (expected, target) = if forward {
             (&self.before, &self.after)
         } else {
             (&self.after, &self.before)
         };
-        let mut preferences = Arc::clone(target);
-        if let Some(previous) = &self.file {
-            let mut file = File::open(previous.path())?;
-            preferences = Arc::new(inspector::merge(&file.key_bindings(), expected, target)?);
-            file.set_key_bindings(Arc::clone(&preferences))?;
-            file.save()?;
-            self.file = Some(file);
-        }
+        let preferences = crate::audio_preferences::publication::publish(
+            &mut self.file,
+            live,
+            Arc::clone(target),
+            |current| {
+                let mut file = current.clone();
+                let preferences = Arc::new(inspector::merge(&file.key_bindings(), expected, target)?);
+                file.set_key_bindings(Arc::clone(&preferences))?;
+
+                Ok((preferences, file))
+            },
+        )?;
         Ok(Update {
             preferences,
             file: self.file.clone(),

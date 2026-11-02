@@ -1,0 +1,54 @@
+[
+  {
+    "raw": null,
+    "expected": "YES"
+  },
+  {
+    "raw": "",
+    "expected": "YES"
+  },
+  {
+    "raw": "YES",
+    "expected": "YES"
+  },
+  {
+    "raw": "no",
+    "expected": "NO"
+  },
+  {
+    "raw": "roulette",
+    "expected": "ROULETTE"
+  },
+  {
+    "raw": "ES",
+    "expected": "ES"
+  },
+  {
+    "raw": "OMES",
+    "expected": "OMES"
+  },
+  {
+    "raw": "future",
+    "expected": "YES"
+  },
+  {
+    "raw": "99",
+    "expected": "99"
+  },
+  {
+    "raw": "-1",
+    "expected": "-1"
+  },
+  {
+    "raw": "NO,ROULETTE",
+    "expected": "ES"
+  },
+  {
+    "raw": "5",
+    "expected": "5"
+  },
+  {
+    "raw": " 3 ",
+    "expected": "ES"
+  }
+]

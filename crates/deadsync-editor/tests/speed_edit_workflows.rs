@@ -120,7 +120,7 @@ fn inherited_speed_changes_keep_both_units_signed_source_and_rssp_readback_throu
     assert_eq!(session.serialize().unwrap(), changed);
 }
 #[test]
-fn scope_noop_foreign_stale_and_sm_rejection_preserve_history_and_source() {
+fn scope_noop_foreign_stale_and_sm_source_eligibility_preserve_history_and_source() {
     let mut session = Session::new(Document::parse(source(), Format::Ssc).unwrap());
     let mut draft = Draft::capture(&session, 0, Scope::Song).unwrap();
     assert_eq!(draft.affected_charts(), &[0]);
@@ -142,7 +142,7 @@ fn scope_noop_foreign_stale_and_sm_rejection_preserve_history_and_source() {
         .unwrap(),
     );
     let before = sm.serialize().unwrap();
-    assert!(Draft::capture(&sm, 0, Scope::Song).is_err());
+    assert!(Draft::capture(&sm, 0, Scope::Song).unwrap().speeds().values().is_empty(), "original unsupported SM tag stays ignored");
     assert_eq!(sm.serialize().unwrap(), before);
 }
 #[test]

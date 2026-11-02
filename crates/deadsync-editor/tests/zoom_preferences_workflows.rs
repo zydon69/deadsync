@@ -76,9 +76,6 @@ fn malformed_and_future_zoom_settings_never_rewrite_the_source() {
         "null",
         "[]",
         "true",
-        r#"{"SizeCap":0}"#,
-        r#"{"ZoomMultiplier":4.1}"#,
-        r#"{"ScrollInterpolationDuration":-0.1}"#,
         r#"{"LimitZoomToSize":1}"#,
         r#"{"SizeCap":"1"}"#,
     ] {
@@ -105,4 +102,13 @@ fn missing_files_and_external_modifications_keep_zoom_writes_explicit() {
     assert!(matches!(file.save(), Err(Error::ExternalChange)));
     assert!(file.has_changes());
     assert_eq!(fs::read_to_string(&path).unwrap(), external);
+}
+
+#[test]
+fn finite_loaded_source_values_survive_native_roundtrip_while_ui_setters_remain_bounded(){
+ let root=tempfile::tempdir().unwrap();let path=root.path().join("preferences.json");
+ for(duration,multiplier,cap)in[(2.5,0.3,4.0),(-2.0,-1.0,-3.0),(0.0,0.0,0.0)]{
+  fs::write(&path,serde_json::to_vec(&serde_json::json!({"Version":1,"Zoom":{"ScrollInterpolationDuration":duration,"ZoomMultiplier":multiplier,"SizeCap":cap}})).unwrap()).unwrap();let mut file=File::open(&path).unwrap();let p=file.zoom();assert_eq!(p.duration(),duration);assert_eq!(p.multiplier(),multiplier);assert_eq!(p.size_cap(),cap);
+  let mut audio=file.audio();audio.set_fade_out(2.0).unwrap();file.set_audio(audio);file.save().unwrap();let reopened=File::open(&path).unwrap();assert_eq!(reopened.zoom(),p);
+ }
 }

@@ -1,0 +1,5527 @@
+{
+  "source": "48e18f71655d0f0d86144c63239331833501fda2",
+  "wheel_sha256": "68a384a4c77a24041424b48df53607b67c8dfc01fafeac026ebbdd3be06f34dc",
+  "zoom_sha256": "bbbcc7606f421711eb56dba4055176c8e2905f1b72dca2d6f34518e8dc2a006b",
+  "cases": [
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Time",
+          "time": 9.975,
+          "delta": 0.25
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Time",
+          "time": 9.975,
+          "delta": -0.0010416667209938169
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Time",
+          "time": 9.975,
+          "delta": -0.125
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Time",
+          "time": 9.975,
+          "delta": -0.25
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Time",
+          "time": 9.975,
+          "delta": 0.0010416667209938169
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Time",
+          "time": 9.975,
+          "delta": 0.125
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.25
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.9989583332790062
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.875
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.75
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.001041666720994
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.125
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.25
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.9989583332790062
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.875
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.75
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.001041666720994
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.125
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "TimeSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 0,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": 48
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": -0.20000001043081284
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": -24
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": -48
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": 0.20000001043081284
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": 24
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.25
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.9989583332790062
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.875
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.75
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.001041666720994
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.125
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.25
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.9989583332790062
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.875
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.75
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.001041666720994
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.125
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "RowSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 1,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": 48
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": -0.20000001043081284
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": -24
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": -48
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": 0.20000001043081284
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": 24
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.25
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.9989583332790062
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.875
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.75
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.001041666720994
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.125
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.25
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.9989583332790062
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.875
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.75
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.001041666720994
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.125
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "VariableSpacing",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 2,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": 48
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": -0.20000001043081284
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": -24
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": -48
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": 0.20000001043081284
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Rows",
+          "time": 9.975,
+          "delta": 24
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Earlier"
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Later"
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.25
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.9989583332790062
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.875
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.75
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.001041666720994
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.125
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.25
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.9989583332790062
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.875
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 1.75
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.001041666720994
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 0,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "PlayingTime",
+          "time": 2.125
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 1,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 2,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": []
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": false,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": false,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": false,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": -240,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": -1.2
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 1,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.00166666675359
+        }
+      ]
+    },
+    {
+      "mode": 99,
+      "modifiers": 3,
+      "playing": true,
+      "snapped": true,
+      "reverse": true,
+      "delta": 120,
+      "trace": [
+        {
+          "kind": "Zoom",
+          "time": 9.975,
+          "multiplier": 1.2
+        }
+      ]
+    }
+  ]
+}

@@ -20,13 +20,8 @@ impl Timeline {
         if chart >= document.charts().len() {
             return Err(Error::InvalidEdit("Invalid speed chart".into()));
         }
-        let text = if document.format == Format::Sm {
-            String::new()
-        } else {
-            let scope =
-                crate::timing_edit::reference_uses_chart_timing(document, chart).then_some(chart);
-            document.text(scope, "SPEEDS").unwrap_or_default()
-        };
+        let own=if document.format==Format::Sm {crate::timing_edit::uses_chart_timing(document,chart)} else {crate::timing_edit::reference_uses_chart_timing(document,chart)};
+        let text=crate::timing_edit::resident::text(document,own.then_some(chart),"SPEEDS")?;
         let speeds = Speeds::parse(&text)?;
         let mut origins = BTreeMap::new();
         if speeds

@@ -1,0 +1,96 @@
+{
+  "cases": [
+    {
+      "name": "before",
+      "maximum": 4,
+      "files": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "name": "reduce",
+      "maximum": 2,
+      "files": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "name": "undo",
+      "maximum": 4,
+      "files": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "name": "redo",
+      "maximum": 2,
+      "files": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "name": "no-active",
+      "maximum": 2,
+      "files": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "name": "record-C",
+      "maximum": 2,
+      "files": [
+        "C",
+        "A"
+      ]
+    },
+    {
+      "name": "undo-after-record",
+      "maximum": 4,
+      "files": [
+        "C",
+        "A"
+      ]
+    },
+    {
+      "name": "redo-after-record",
+      "maximum": 2,
+      "files": [
+        "C",
+        "A"
+      ]
+    },
+    {
+      "name": "zero",
+      "maximum": 0,
+      "files": [
+        "C",
+        "A"
+      ]
+    },
+    {
+      "name": "record-zero",
+      "maximum": 0,
+      "files": []
+    },
+    {
+      "name": "undo-zero",
+      "maximum": 2,
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "editor": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "callbacks_sha256": "3b57568bcef8353273bdbb83db4e088f33d44f2fd470518b2eeaf4f11aa51d71",
+  "audio_sha256": "632c6858a100bfd471f3ae0b5d34900e24c66a74c170ad742ea538fe4ae5a012",
+  "harness_sha256": "a08a6a60a2a7067bb90caf602d714b50ee62045f6962004107357c36ce35900b",
+  "assembly_sha256": "34fb0f102928e1a46e2a0cc1c8bdafb88812a842ab7ce31fe72b841b00b02cec",
+  "fumen_assembly_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "scope": "Run pinned rate shortcuts, complete PreferencesAudio and real Fumen actions."
+}

@@ -2,7 +2,7 @@
 //! enter one Target transaction, so attacks are anchored against the final clock.
 use super::{Scope, Target, combo, label, pause, region, scroll, signature, speed, tempo, tick};
 use crate::event_clipboard::{Event, TimingKind};
-use crate::{Error, document::Format, history::Session};
+use crate::{Error,  history::Session};
 #[derive(Clone)]
 enum Value {
     Tempo(f64),
@@ -55,23 +55,15 @@ struct Models {
 impl Models {
     fn capture(session: &Session, chart: usize, scope: Scope) -> Result<(Target, Self), Error> {
         let target = Target::capture(session, chart, scope)?;
-        let text = |tag| {
-            session
-                .document()
-                .text(target.origin(), tag)
-                .unwrap_or_default()
-        };
-        let extended = |tag| {
-            if session.document().format == Format::Ssc {
-                text(tag)
-            } else {
-                String::new()
-            }
-        };
+        let models=Self::read(session,target.origin(),super::TempoDraft::capture(session,chart,scope)?.tempos().clone())?;
+        Ok((target,models))
+    }
+    fn read(session:&Session,origin:Option<usize>,tempo:tempo::Tempos)->Result<Self,Error>{
+        let properties=super::resident::Properties::capture(session.document(),origin)?;
+        let text=|tag|properties.text(tag);
+        let extended=|tag|properties.text(tag);
         let models = Self {
-            tempo: super::TempoDraft::capture(session, chart, scope)?
-                .tempos()
-                .clone(),
+            tempo,
             stop: pause::Pauses::parse(pause::Kind::Stop, &text("STOPS"))?,
             delay: pause::Pauses::parse(pause::Kind::Delay, &text("DELAYS"))?,
             signature: signature::Signatures::parse(&text("TIMESIGNATURES"))?,
@@ -83,7 +75,7 @@ impl Models {
             speed: speed::Speeds::parse(&extended("SPEEDS"))?,
             label: label::Labels::parse(&extended("LABELS"))?,
         };
-        Ok((target, models))
+        Ok(models)
     }
     fn changes(&self, original: &Self) -> Vec<(&'static str, String)> {
         let mut changes = Vec::new();
@@ -124,6 +116,15 @@ impl Models {
     }
 }
 impl Clipboard {
+    pub(crate) fn is_empty(&self)->bool{self.events.is_empty()}
+    pub(crate) fn display_values(&self)->impl Iterator<Item=(Event,String)>+'_ {
+        self.events.iter().map(|(row,value)|{let text=match value{
+            Value::Tempo(v)|Value::Stop(v)|Value::Delay(v)|Value::Scroll(v)=>v.to_string(),
+            Value::Tick(v)=>v.to_string(),Value::Warp(v)|Value::Fake(v)=>(*v as f64/48.0).to_string(),
+            Value::Signature(v)=>format!("{}/{}",v.numerator,v.denominator),Value::Combo(v)=>format!("{}/{}",v.hit,v.miss),
+            Value::Speed(v)=>v.rate.to_string(),Value::Label(v)=>v.clone(),
+        };(Event::Timing{row:*row,kind:value.kind()},text)})
+    }
     pub(crate) fn keys(&self) -> impl Iterator<Item = Event> + '_ {
         self.events.iter().map(|(row, value)| Event::Timing {
             row: *row,
@@ -146,6 +147,23 @@ impl Clipboard {
         end: u64,
     ) -> Result<Self, Error> {
         let (_, models) = Models::capture(session, chart, scope)?;
+        Self::from_models(models,start,end)
+    }
+    /// Read-only identities use the effective playback timing. Legacy SSC local
+    /// timing is retained as opaque data until explicit migration; it is never
+    /// exposed here as though it were active. Mutation constructors still use
+    /// Target::capture and retain the legacy migration guard.
+    pub(crate) fn capture_inventory(session:&Session,chart:usize,scope:Scope,start:u64,end:u64)->Result<Self,Error>{
+        let document=session.document();
+        if chart>=document.charts().len(){return Err(crate::Error::InvalidEdit("Timing inventory chart does not exist".into()));}
+        if scope==Scope::Chart&&!super::supports_resident_chart_timing(document){return Err(crate::Error::InvalidEdit("Legacy timing inventory requires the effective song timing".into()));}
+        let origin=(scope==Scope::Chart&&super::uses_chart_timing(document,chart)).then_some(chart);
+        let raw=super::resident::text(document,origin,"BPMS")?;
+        let mut tempo=tempo::Tempos::parse(&raw,120.)?;
+        if tempo.source_lacked_initial(){let fallback=if scope==Scope::Chart{super::chart_fallback(document,chart)?}else{super::song_fallback(document)};tempo=tempo::Tempos::parse(&raw,fallback)?;}
+        Self::from_models(Models::read(session,origin,tempo)?,start,end)
+    }
+    fn from_models(models:Models,start:u64,end:u64)->Result<Self,Error>{
         let mut events = Vec::new();
         events.extend(
             models
@@ -266,21 +284,6 @@ impl Clipboard {
                     .ok_or_else(|| Error::InvalidEdit("Timing paste exceeds editor rows".into()))?,
                 None => *source,
             };
-            if session.document().format == Format::Sm
-                && matches!(
-                    value,
-                    Value::Combo(..)
-                        | Value::Warp(..)
-                        | Value::Fake(..)
-                        | Value::Scroll(..)
-                        | Value::Speed(..)
-                        | Value::Label(..)
-                )
-            {
-                return Err(Error::Unsupported(
-                    "These timing events require SSC export".into(),
-                ));
-            }
             match value {
                 Value::Tempo(value) => {
                     if placement.is_some() {

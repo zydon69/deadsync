@@ -702,3 +702,6 @@ impl Backend {
         }
     }
 }
+
+#[cfg(feature="test-util")]
+pub use deadlib_render_backend_software::test_util;

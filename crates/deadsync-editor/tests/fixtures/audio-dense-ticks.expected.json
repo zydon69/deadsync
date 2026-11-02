@@ -1,0 +1,44 @@
+[
+  {
+    "Name": "huge-warp",
+    "WarpRows": 144000000,
+    "Bpm": 120,
+    "Summary": {
+      "Assist": null,
+      "BeatCount": 3000002,
+      "BeatFirst": 0,
+      "BeatLast": 24000,
+      "BeatSum": 72000024000,
+      "BeatDistinct": 2,
+      "BeatDigest": 9232288633774450093
+    }
+  },
+  {
+    "Name": "huge-warp-skip-assist",
+    "WarpRows": 144000000,
+    "Bpm": 120,
+    "Summary": {
+      "Assist": null,
+      "BeatCount": 3000002,
+      "BeatFirst": 0,
+      "BeatLast": 24000,
+      "BeatSum": 72000024000,
+      "BeatDistinct": 2,
+      "BeatDigest": 9232288633774450093
+    }
+  },
+  {
+    "Name": "fast-tempo",
+    "WarpRows": 144000000,
+    "Bpm": 1000000,
+    "Summary": {
+      "Assist": null,
+      "BeatCount": 16667,
+      "BeatFirst": -9599,
+      "BeatLast": 38399,
+      "BeatSum": 240000000,
+      "BeatDistinct": 16667,
+      "BeatDigest": 18221065126160966991
+    }
+  }
+]

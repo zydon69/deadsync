@@ -1,4 +1,5 @@
 pub mod cache;
+pub mod rhythm;
 
 use deadlib_audio_decode as decode;
 use ebur128::{EbuR128, Mode};

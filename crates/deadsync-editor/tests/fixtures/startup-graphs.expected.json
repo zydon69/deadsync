@@ -1,0 +1,168 @@
+[
+  {
+    "Selected": [
+      0,
+      1
+    ],
+    "MissingPads": [],
+    "Layouts": [
+      "dance-single",
+      "dance-double"
+    ]
+  },
+  {
+    "Selected": [
+      0,
+      1
+    ],
+    "MissingPads": [
+      0,
+      3,
+      41
+    ],
+    "Layouts": [
+      "dance-double"
+    ]
+  },
+  {
+    "Selected": [],
+    "MissingPads": [],
+    "Layouts": []
+  },
+  {
+    "Selected": [],
+    "MissingPads": [
+      0,
+      3,
+      41
+    ],
+    "Layouts": []
+  },
+  {
+    "Selected": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      38,
+      39,
+      40,
+      41,
+      42,
+      999
+    ],
+    "MissingPads": [],
+    "Layouts": [
+      "dance-single",
+      "dance-double",
+      "dance-solo",
+      "dance-threepanel",
+      "pump-single",
+      "pump-halfdouble",
+      "pump-double",
+      "smx-beginner",
+      "smx-single",
+      "smx-dual",
+      "smx-full"
+    ]
+  },
+  {
+    "Selected": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      38,
+      39,
+      40,
+      41,
+      42,
+      999
+    ],
+    "MissingPads": [
+      0,
+      3,
+      41
+    ],
+    "Layouts": [
+      "dance-double",
+      "dance-threepanel",
+      "pump-single",
+      "pump-halfdouble",
+      "pump-double",
+      "smx-beginner",
+      "smx-single",
+      "smx-dual"
+    ]
+  },
+  {
+    "Selected": [
+      3,
+      38,
+      41
+    ],
+    "MissingPads": [],
+    "Layouts": [
+      "dance-solo",
+      "smx-beginner",
+      "smx-full"
+    ]
+  },
+  {
+    "Selected": [
+      3,
+      38,
+      41
+    ],
+    "MissingPads": [
+      0,
+      3,
+      41
+    ],
+    "Layouts": [
+      "smx-beginner"
+    ]
+  },
+  {
+    "Selected": [
+      2,
+      5,
+      9,
+      10,
+      42,
+      999
+    ],
+    "MissingPads": [],
+    "Layouts": []
+  },
+  {
+    "Selected": [
+      2,
+      5,
+      9,
+      10,
+      42,
+      999
+    ],
+    "MissingPads": [
+      0,
+      3,
+      41
+    ],
+    "Layouts": []
+  }
+]

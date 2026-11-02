@@ -101,7 +101,7 @@ fn local_combo_edits_copy_inherited_timing_and_round_trip_through_rssp_and_undo(
     assert_eq!(session.serialize().unwrap(), changed);
 }
 #[test]
-fn scope_guards_noop_history_and_sm_rejection_preserve_original_bytes() {
+fn scope_guards_noop_history_and_sm_source_eligibility_preserve_original_bytes() {
     let mut session = Session::new(Document::parse(source(), Format::Ssc).unwrap());
     let mut draft = Draft::capture(&session, 0, Scope::Song).unwrap();
     assert_eq!(draft.affected_charts(), &[0]);
@@ -123,7 +123,7 @@ fn scope_guards_noop_history_and_sm_rejection_preserve_original_bytes() {
         .unwrap(),
     );
     let bytes = sm.serialize().unwrap();
-    assert!(Draft::capture(&sm, 0, Scope::Song).is_err());
+    assert!(Draft::capture(&sm, 0, Scope::Song).unwrap().combos().values().is_empty(), "original unsupported SM tag stays ignored");
     assert_eq!(sm.serialize().unwrap(), bytes);
 }
 #[test]

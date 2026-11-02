@@ -68,6 +68,7 @@ fn offscreen_camera_uses_logical_bounds_without_window_centering() {
         alpha: true,
         depth: false,
         preserve: false,
+        postprocess: None,
         children: Arc::from([]),
     });
     let frame = build_passes(

@@ -123,10 +123,18 @@ impl Draft {
         })
     }
     pub fn reset_action(&mut self) -> Result<(), Error> {
-        let defaults = Preferences::default()
-            .commands
-            .remove(self.action().id())
-            .expect("default action");
+        // Source controls reset to the original defaults of the running
+        // platform, even when the archived import came from another platform.
+        // Keep the archive, ordering mode and unrelated staged commands intact.
+        let mut profile = if self.staged.source_order {
+            super::source_profile::preset(
+                &self.staged,
+                super::source_profile::Platform::current(),
+            )?.preferences
+        } else {
+            Preferences::default()
+        };
+        let defaults = profile.commands.remove(self.action().id()).expect("default action");
         self.update(|alternatives| *alternatives = defaults)
     }
 }
@@ -138,6 +146,7 @@ pub fn merge(
     after: &Preferences,
 ) -> Result<Preferences, Error> {
     let mut result = current.clone();
+    result.scroll_modifiers=super::scroll_modifiers::Preferences::merge(&current.scroll_modifiers,&before.scroll_modifiers,&after.scroll_modifiers)?;
     for action in Action::ALL {
         let id = action.id();
         if before.commands[id] == after.commands[id] {

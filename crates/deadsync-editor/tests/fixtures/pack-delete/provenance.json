@@ -1,0 +1,8 @@
+{
+  "commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source": "StepManiaEditor/EditorItgManiaPack.cs",
+  "source_sha256": "33501312bbc2c7775468fd73bfd86c2cb7d3965c0c39081fb3d25813a9533711",
+  "method_sha256": "097108cf6005cc710946d9a9b73d02d5e9e60d61fdcc7b2cbfffadc3fb767271",
+  "scope": "Unchanged original Delete method; real filesystem. StopObservingFile and Logger are explicit recording adapters. No original watcher or editor-owner queue execution; dirty label uses same disk operation, no GUI simulation.",
+  "sdk": "10.0.403"
+}

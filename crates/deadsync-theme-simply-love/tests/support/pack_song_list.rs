@@ -151,14 +151,14 @@ fn dirty_keep_cancels_open_and_save_open_saves_exact_current_edits() {
     assert!(state.workspace().file().session.is_dirty());
     open(&mut state, false);
     choose_target(&mut state);
-    pump(&mut state, |s| text(s).contains(&tr("PackSongsUnsaved")));
+    pump(&mut state, |s| text(s).contains(&tr("FileUnsavedHelp")));
     press(&mut state, KeyCode::Enter);
     assert_current(&state, &a);
     assert!(state.workspace().file().session.is_dirty());
     let edited = state.workspace().file().session.serialize().unwrap();
     open(&mut state, false);
     choose_target(&mut state);
-    pump(&mut state, |s| text(s).contains(&tr("PackSongsUnsaved")));
+    pump(&mut state, |s| text(s).contains(&tr("FileUnsavedHelp")));
     press(&mut state, KeyCode::ArrowDown);
     press(&mut state, KeyCode::Enter);
     assert_current(&state, &b);
@@ -171,20 +171,19 @@ fn discard_requires_separate_confirmation_and_does_not_write_source() {
     press(&mut state, KeyCode::Digit2);
     open(&mut state, false);
     choose_target(&mut state);
-    pump(&mut state, |s| text(s).contains(&tr("PackSongsUnsaved")));
+    pump(&mut state, |s| text(s).contains(&tr("FileUnsavedHelp")));
     for _ in 0..2 {
         press(&mut state, KeyCode::ArrowDown);
     }
     press(&mut state, KeyCode::Enter);
-    assert!(text(&state).contains(&tr("PackSongsDiscardConfirm")));
-    press(&mut state, KeyCode::Enter);
+    assert!(text(&state).contains(&tr("FileDiscardConfirm")));
+    press(&mut state, KeyCode::Escape); // Cancel the separate discard confirmation.
     assert_current(&state, &a);
-    for _ in 0..2 {
-        press(&mut state, KeyCode::ArrowDown);
-    }
-    press(&mut state, KeyCode::Enter);
-    press(&mut state, KeyCode::ArrowDown);
-    press(&mut state, KeyCode::Enter);
+    open(&mut state,false);choose_target(&mut state);
+    pump(&mut state,|s|text(s).contains(&tr("FileUnsavedHelp")));
+    for _ in 0..2 {press(&mut state,KeyCode::ArrowDown);}
+    press(&mut state,KeyCode::Enter);
+    press(&mut state,KeyCode::Enter); // Explicit common File discard confirmation.
     assert_current(&state, &b);
     assert_eq!(fs::read(a).unwrap(), original);
 }
@@ -209,7 +208,7 @@ fn changed_target_during_dirty_confirmation_cannot_replace_source() {
     press(&mut state, KeyCode::Digit2);
     open(&mut state, false);
     choose_target(&mut state);
-    pump(&mut state, |s| text(s).contains(&tr("PackSongsUnsaved")));
+    pump(&mut state, |s| text(s).contains(&tr("FileUnsavedHelp")));
     fs::write(&b, TARGET.replace("Target marker", "External marker")).unwrap();
     for _ in 0..2 {
         press(&mut state, KeyCode::ArrowDown);
@@ -222,8 +221,8 @@ fn changed_target_during_dirty_confirmation_cannot_replace_source() {
     assert!(fs::read_to_string(&b).unwrap().contains("External marker"));
 }
 #[test]
-fn pack_draft_guard_preserves_edits_and_blocks_song_transition() {
-    let (root, a, _b, mut state) = fixture(false, TARGET);
+fn same_pack_dirty_metadata_survives_song_transition_without_publishing_pack() {
+    let (root, _a, b, mut state) = fixture(false, TARGET);
     fs::write(
         root.path().join("Pack/Pack.ini"),
         "[Group]\nVersion=1\nDisplayTitle=Pack\n",
@@ -240,8 +239,10 @@ fn pack_draft_guard_preserves_edits_and_blocks_song_transition() {
     press(&mut state, KeyCode::Escape);
     open(&mut state, false);
     choose_target(&mut state);
-    assert_current(&state, &a);
-    assert!(text(&state).contains(&tr("PackSongsPackGuard")));
+    pump(&mut state,|s|s.workspace().file().require_existing_path().unwrap()==b);
+    assert_current(&state,&b);
+    press(&mut state,KeyCode::F1);for _ in 0..18{press(&mut state,KeyCode::ArrowDown);}press(&mut state,KeyCode::Enter);
+    assert!(text(&state).contains("changed"));assert!(text(&state).contains(&tr("PackDirty")));
     assert_eq!(
         fs::read_to_string(root.path().join("Pack/Pack.ini")).unwrap(),
         "[Group]\nVersion=1\nDisplayTitle=Pack\n"
@@ -263,7 +264,7 @@ fn save_conflict_keeps_dirty_song_and_does_not_publish_candidate() {
     press(&mut state, KeyCode::Digit2);
     open(&mut state, false);
     choose_target(&mut state);
-    pump(&mut state, |s| text(s).contains(&tr("PackSongsUnsaved")));
+    pump(&mut state, |s| text(s).contains(&tr("FileUnsavedHelp")));
     let external = fs::read_to_string(&a)
         .unwrap()
         .replace("Active marker", "External marker");
@@ -344,7 +345,9 @@ fn custom_preference_path_survives_open_and_invalid_reload_keeps_current_editor(
     open(&mut state, false);
     choose_target(&mut state);
     fs::write(&preferences, "invalid external preferences").unwrap();
-    let failure = tr("PackSongsFailed");
+    // Candidate publication now shares the canonical File controller, including
+    // its preference-loading failure, rather than a private pack opener.
+    let failure = tr("FileFailed");
     let prefix = failure.split("{message}").next().unwrap().to_owned();
     pump(&mut state, |s| text(s).contains(&prefix));
     assert_current(&state, &a);

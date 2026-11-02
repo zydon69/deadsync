@@ -1,0 +1,13 @@
+{
+  "source_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "methods": {
+    "EditorPatternConfig.cs": "8abc09c3e1c9a7cf2844829b3e9c9791b58cd03911b5522177ba52e7be703e73",
+    "EditorPerformedChartConfig.cs": "880ddddd3efe61b338bff083caa6534b93425c7f04fd0d2deaf9347e55075d1f"
+  },
+  "execution": "Original Rebuild* and GetPatternConfig* method bodies, .NET10, pinned StepManiaLibrary. PatternType adapter is already selected measure denominator16; Notify is no-op. Only text rebuilding covered, no algorithms certified.",
+  "cultures": [
+    "en-US",
+    "fr-FR",
+    "sv-SE"
+  ]
+}

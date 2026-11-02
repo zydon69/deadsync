@@ -14,6 +14,40 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parent.parent
 
+EDITOR_ASSETS = (
+    "assets/graphics/editor-grooveauthor/LICENSE",
+    "assets/graphics/editor-grooveauthor/PROVENANCE.json",
+    "assets/graphics/editor-grooveauthor/THIRD_PARTY_NOTICES.txt",
+    "assets/graphics/editor-grooveauthor/atlas.json",
+    "assets/graphics/editor-grooveauthor/atlas.png",
+    "assets/graphics/editor-grooveauthor/receptors.json",
+    "assets/sounds/editor_assist_tick.wav",
+    "assets/sounds/editor_beat_tick.wav",
+    "assets/shaders/editor/fxaa-quality39.glsl",
+    "assets/shaders/editor/fxaa-source.fx",
+)
+EDITOR_NOTICES = (
+    "GrooveAuthor-MIT.txt",
+    "StepManiaLibrary-MIT.txt",
+    "Fumen-MIT.txt",
+    "dotnet-runtime-MIT.txt",
+)
+
+
+def copy_editor_resources(resources):
+    """Include the editor's explicit source assets, including local review builds."""
+    files = [(ROOT / relative, resources / relative) for relative in EDITOR_ASSETS]
+    files.extend(
+        (ROOT / "docs/editor/licenses" / name, resources / "licenses/editor" / name)
+        for name in EDITOR_NOTICES
+    )
+    for source, _ in files:
+        if not source.is_file():
+            raise RuntimeError(f"Missing editor resource: {source}")
+    for source, destination in files:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+
 
 def run(*args, capture=False, cwd=None):
     result = subprocess.run([str(arg) for arg in args], check=True, cwd=cwd,
@@ -136,6 +170,14 @@ def make_app(args):
         run("cargo", "build", "--locked", "--package", "deadsync", "--profile", args.profile, cwd=ROOT)
         directory = "debug" if args.profile == "dev" else args.profile
         executable = Path(metadata["target_directory"]) / directory / "deadsync"
+    mcp_executable = args.mcp_binary.resolve() if args.mcp_binary else None
+    if not args.binary and mcp_executable is None:
+        run("cargo", "build", "--locked", "--package", "deadsync-editor", "--bin", "deadsync-mcp",
+            "--features", "assistant-audio", "--profile", args.profile, cwd=ROOT)
+        directory = "debug" if args.profile == "dev" else args.profile
+        mcp_executable = Path(metadata["target_directory"]) / directory / "deadsync-mcp"
+    if mcp_executable is not None and not mcp_executable.is_file():
+        raise RuntimeError(f"Missing MCP executable: {mcp_executable}")
     if not executable.is_file() or not os.access(executable, os.X_OK):
         raise RuntimeError(f"Missing executable: {executable}")
     architectures = set(run("lipo", "-archs", executable, capture=True).split())
@@ -159,14 +201,23 @@ def make_app(args):
             shutil.copy2(source, destination)
         shutil.copy2(ROOT / "assets/graphics/icon/icon.icns", resources / "DeadSync.icns")
         driver, library_sources = embed_libraries(executable, binary, frameworks)
+        helpers = []
+        if mcp_executable is not None:
+            helper = macos / "deadsync-mcp"
+            shutil.copy2(mcp_executable, helper)
+            helper.chmod(0o755)
+            _, helper_sources = embed_libraries(mcp_executable, helper, frameworks)
+            library_sources.update(helper_sources)
+            helpers.append(helper)
         licenses = resources / "licenses"
         licenses.mkdir()
+        copy_editor_resources(resources)
         for name, source in library_sources.items():
             for filename in ["LICENSE", "LICENSE.txt", "COPYING"]:
                 notice = source.parent.parent / filename
                 if notice.is_file():
                     shutil.copy2(notice, licenses / f"{name}-{filename}")
-        images = [binary, *frameworks.glob("*.dylib")]
+        images = [binary, *helpers, *frameworks.glob("*.dylib")]
         for image in images:
             if not architectures <= set(run("lipo", "-archs", image, capture=True).split()):
                 raise RuntimeError(f"Architecture mismatch in {image}")
@@ -194,7 +245,7 @@ def make_app(args):
         }
         with (contents / "Info.plist").open("wb") as stream:
             plistlib.dump(plist, stream)
-        for image in [*frameworks.glob("*.dylib"), binary, bundle]:
+        for image in [*frameworks.glob("*.dylib"), *helpers, binary, bundle]:
             command = ["codesign", "--force", "--sign", args.sign, "--identifier", args.identifier]
             if args.sign != "-":
                 command.extend(["--options", "runtime", "--timestamp"])
@@ -235,6 +286,7 @@ def make_app(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profile", choices=["dev", "local", "release"], default="release")
+    parser.add_argument("--mcp-binary", type=Path, help="Bundle an already built deadsync-mcp helper")
     parser.add_argument("--binary", type=Path, help="Package an already built native executable")
     parser.add_argument("--output", type=Path, default=ROOT / "dist/DeadSync.app")
     parser.add_argument("--identifier", default="org.deadsync.game")

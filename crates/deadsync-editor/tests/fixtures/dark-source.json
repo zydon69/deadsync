@@ -1,0 +1,572 @@
+[
+  {
+    "name": "Size-99",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"Size\": \"99\"}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "99",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 0.8
+        }
+      }
+    },
+    "color": 3422552064,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 0,
+        "visible": true,
+        "after_background": false,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 0,
+        "visible": true,
+        "after_background": false,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Size--99",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"Size\": \"-99\"}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "-99",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 0.8
+        }
+      }
+    },
+    "color": 3422552064,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 0,
+        "visible": true,
+        "after_background": false,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 0,
+        "visible": true,
+        "after_background": false,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Size-bad",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"Size\": \"bad\"}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Window",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 0.8
+        }
+      }
+    },
+    "color": 3422552064,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Size-99-number",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"Size\": 99}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Charts",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 0.8
+        }
+      }
+    },
+    "color": 3422552064,
+    "draw": [
+      {
+        "focused": false,
+        "x": 10,
+        "width": 500,
+        "visible": false,
+        "after_background": false,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 10,
+        "width": 500,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Size-Charts",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"Size\": \"Charts\"}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Charts",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 0.8
+        }
+      }
+    },
+    "color": 3422552064,
+    "draw": [
+      {
+        "focused": false,
+        "x": 10,
+        "width": 500,
+        "visible": false,
+        "after_background": false,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 10,
+        "width": 500,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "DarkBgDrawOrder-99",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"DarkBgDrawOrder\": \"99\"}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Window",
+        "DarkBgDrawOrder": "99",
+        "Color": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 0.8
+        }
+      }
+    },
+    "color": 3422552064,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": false,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": false,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "DarkBgDrawOrder--99",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"DarkBgDrawOrder\": \"-99\"}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Window",
+        "DarkBgDrawOrder": "-99",
+        "Color": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 0.8
+        }
+      }
+    },
+    "color": 3422552064,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": false,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": false,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "DarkBgDrawOrder-bad",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"DarkBgDrawOrder\": \"bad\"}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Window",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 0.8
+        }
+      }
+    },
+    "color": 3422552064,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "DarkBgDrawOrder-99-number",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"DarkBgDrawOrder\": 99}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Window",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 0.8
+        }
+      }
+    },
+    "color": 3422552064,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "DarkBgDrawOrder-AfterWaveForm",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"DarkBgDrawOrder\": \"AfterWaveForm\"}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Window",
+        "DarkBgDrawOrder": "AfterWaveForm",
+        "Color": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 0.8
+        }
+      }
+    },
+    "color": 3422552064,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": false,
+        "after_waveform": true
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": false,
+        "after_waveform": true
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "color-0",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"Color\": {\"X\": 0.251, \"Y\": 0.647, \"Z\": 0.419, \"W\": 0}}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Window",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 0
+        }
+      }
+    },
+    "color": 6988864,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "color-1",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"Color\": {\"X\": 0.251, \"Y\": 0.647, \"Z\": 0.419, \"W\": 0.5}}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Window",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 0.5
+        }
+      }
+    },
+    "color": 2137695296,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "color-2",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"Color\": {\"X\": -2, \"Y\": 3, \"Z\": 0.5, \"W\": 0.8}}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Window",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": -2,
+          "Y": 3,
+          "Z": 0.5,
+          "W": 0.8
+        }
+      }
+    },
+    "color": 3430940416,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "color-3",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"Color\": {\"X\": 1e+20, \"Y\": -1e+20, \"Z\": 0.25, \"W\": 0}}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Window",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": 1e+20,
+          "Y": -1e+20,
+          "Z": 0.25,
+          "W": 0
+        }
+      }
+    },
+    "color": 4129023,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "color-4",
+    "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true, \"Color\": {\"X\": 3.4028234663852886e+38, \"Y\": -3.4028234663852886e+38, \"Z\": 0.99999994, \"W\": 1}}}",
+    "value": {
+      "PreferencesDark": {
+        "ShowDarkPreferencesWindow": false,
+        "ShowDarkBg": true,
+        "Size": "Window",
+        "DarkBgDrawOrder": "AfterBackground",
+        "Color": {
+          "X": 3.4028235e+38,
+          "Y": -3.4028235e+38,
+          "Z": 0.99999994,
+          "W": 1
+        }
+      }
+    },
+    "color": 4294836479,
+    "draw": [
+      {
+        "focused": false,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      },
+      {
+        "focused": true,
+        "x": 0,
+        "width": 1280,
+        "visible": true,
+        "after_background": true,
+        "after_waveform": false
+      }
+    ],
+    "accepted": true
+  }
+]

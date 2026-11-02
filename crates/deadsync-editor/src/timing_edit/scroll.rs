@@ -3,7 +3,7 @@ use super::{
     Scope, Target,
     tempo::{beat_row, parse_pairs},
 };
-use crate::{Error, document::Format, history::Session};
+use crate::{Error, history::Session};
 use std::collections::BTreeMap;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Scrolls {
@@ -84,16 +84,9 @@ pub struct Draft {
 impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
-        if session.document().format == Format::Sm {
-            return Err(error(
-                "Scroll export requires SSC; convert the file before editing scroll events",
-            ));
-        }
+
         let current = Scrolls::parse(
-            &session
-                .document()
-                .text(target.origin(), "SCROLLS")
-                .unwrap_or_default(),
+            &super::resident::text(session.document(),target.origin(),"SCROLLS")?,
         )?;
         Ok(Self {
             target,

@@ -1,0 +1,16 @@
+--- a/crates/deadsync-editor/src/advanced_export/preflight.rs
++++ b/crates/deadsync-editor/src/advanced_export/preflight.rs
+@@ -1,3 +1,5 @@
++mod writer;
++pub use writer::Output;
+ use super::Options;
+ use crate::{
+     Error,
+--- a/crates/deadsync-editor/src/advanced_export.rs
++++ b/crates/deadsync-editor/src/advanced_export.rs
+@@ -3,4 +3,4 @@
+ pub mod options;
+ mod preflight;
+ pub use options::Options;
+-pub use preflight::{Issue, IssueKind, Limits, Plan, Severity};
++pub use preflight::{Output, Issue, IssueKind, Limits, Plan, Severity};

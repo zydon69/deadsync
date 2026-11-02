@@ -1,0 +1,1016 @@
+{
+  "provenance": {
+    "source_revision": "48e18f71655d0f0d86144c63239331833501fda2",
+    "policy": "Reviewed native admission expectations; not output from the original writer. Original writer success bypasses EditorSong/EditorChart pre-save validation.",
+    "source_guards": [
+      "StepManiaEditor/EditorSong.cs:1488-1588",
+      "StepManiaEditor/EditorChart.cs:3395-3578"
+    ],
+    "native_guards": "StepF2 Pump Couple layout and overlapping ownership are rejected to preserve notes; original writer readback can lose notes or omit charts.",
+    "classification_counts": {
+      "accepted": 28,
+      "source_editor_guard": 20,
+      "source_reader_exclusion": 6,
+      "source_writer_loss": 6
+    },
+    "policy_scope": "Every one of these 60 fixtures is classified. Source editor guards were inspected statically; source writer and reader outcomes come from pinned executed fixtures. No claim about every possible export input.",
+    "inspected_source_sha256": {
+      "StepManiaEditor/EditorSong.cs": "066bd606d5138343b444fb0355a125929c7b19baef4832202775eb419a5c60ff",
+      "StepManiaEditor/EditorChart.cs": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd"
+    }
+  },
+  "cases": [
+    {
+      "name": "timing-0-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "timing-0-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "timing-0-force-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "timing-0-force-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "timing-4-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "UnequalTiming",
+          "field": "BPMS",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalTiming",
+          "field": "OFFSET",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset."
+        ]
+      }
+    },
+    {
+      "name": "timing-4-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "timing-4-force-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "UnequalTiming",
+          "field": "BPMS",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalTiming",
+          "field": "OFFSET",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset."
+        ]
+      }
+    },
+    {
+      "name": "timing-4-force-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "UnequalTiming",
+          "field": "BPMS",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalTiming",
+          "field": "OFFSET",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset."
+        ]
+      }
+    },
+    {
+      "name": "timing-8-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "OmittedEvent",
+          "field": "WARPS",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalTiming",
+          "field": "WARPS",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset.",
+          "EditorChart.PerformPreSaveChecks: Warps in SM or negative Stops in SSC are errors."
+        ]
+      }
+    },
+    {
+      "name": "timing-8-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "timing-8-force-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "OmittedEvent",
+          "field": "WARPS",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalTiming",
+          "field": "WARPS",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset.",
+          "EditorChart.PerformPreSaveChecks: Warps in SM or negative Stops in SSC are errors."
+        ]
+      }
+    },
+    {
+      "name": "timing-8-force-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "UnequalTiming",
+          "field": "WARPS",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset."
+        ]
+      }
+    },
+    {
+      "name": "timing-12-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "UnequalTiming",
+          "field": "STOPS",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset."
+        ]
+      }
+    },
+    {
+      "name": "timing-12-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "OmittedEvent",
+          "field": "STOPS",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorChart.PerformPreSaveChecks: Warps in SM or negative Stops in SSC are errors."
+        ]
+      }
+    },
+    {
+      "name": "timing-12-force-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "UnequalTiming",
+          "field": "STOPS",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset."
+        ]
+      }
+    },
+    {
+      "name": "timing-12-force-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "OmittedEvent",
+          "field": "STOPS",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalTiming",
+          "field": "STOPS",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset.",
+          "EditorChart.PerformPreSaveChecks: Warps in SM or negative Stops in SSC are errors."
+        ]
+      }
+    },
+    {
+      "name": "timing-16-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "UnequalTiming",
+          "field": "SCROLLS",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalTiming",
+          "field": "SPEEDS",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset."
+        ]
+      }
+    },
+    {
+      "name": "timing-16-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "timing-16-force-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "UnequalTiming",
+          "field": "SCROLLS",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalTiming",
+          "field": "SPEEDS",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset."
+        ]
+      }
+    },
+    {
+      "name": "timing-16-force-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "UnequalSharedEvent",
+          "field": "COMBOS",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalSharedEvent",
+          "field": "FAKES",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalSharedEvent",
+          "field": "LABELS",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalTiming",
+          "field": "SCROLLS",
+          "chart": 1
+        },
+        {
+          "kind": "UnequalTiming",
+          "field": "SPEEDS",
+          "chart": 1
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorSong.PerformPreSaveChecks: SM RequireIdenticalTiming or SSC OmitChartTiming; DoTimingAndScrollEventsMatch includes offset.",
+          "EditorSong.PerformPreSaveChecks: SSC OmitChartTiming non-timing split-event compatibility."
+        ]
+      }
+    },
+    {
+      "name": "timing-20-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "timing-20-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "timing-20-force-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "timing-20-force-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "pump-routine-24-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "pump-routine-24-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "pump-routine-26-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2NoteKind",
+          "field": "NOTES",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorChart.PerformPreSaveChecks: StepF2 Routine rolls/lifts or player count above four are errors."
+        ]
+      }
+    },
+    {
+      "name": "pump-routine-26-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2NoteKind",
+          "field": "NOTES",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorChart.PerformPreSaveChecks: StepF2 Routine rolls/lifts or player count above four are errors."
+        ]
+      }
+    },
+    {
+      "name": "pump-routine-28-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2NoteKind",
+          "field": "NOTES",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorChart.PerformPreSaveChecks: StepF2 Routine rolls/lifts or player count above four are errors."
+        ]
+      }
+    },
+    {
+      "name": "pump-routine-28-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2NoteKind",
+          "field": "NOTES",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorChart.PerformPreSaveChecks: StepF2 Routine rolls/lifts or player count above four are errors."
+        ]
+      }
+    },
+    {
+      "name": "pump-routine-30-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2Collision",
+          "field": "NOTES",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_reader_exclusion",
+        "basis": "Input chart is already excluded by the original reader; writer success does not establish a supported editor workflow. Native refuses unsafe StepF2 layout/ownership.",
+        "before": {
+          "charts": 0,
+          "note_symbols": 0
+        },
+        "after": {
+          "charts": 0,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "pump-routine-30-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2Collision",
+          "field": "NOTES",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_reader_exclusion",
+        "basis": "Input chart is already excluded by the original reader; writer success does not establish a supported editor workflow. Native refuses unsafe StepF2 layout/ownership.",
+        "before": {
+          "charts": 0,
+          "note_symbols": 0
+        },
+        "after": {
+          "charts": 0,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "pump-routine-32-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2Players",
+          "field": "NOTES",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorChart.PerformPreSaveChecks: StepF2 Routine rolls/lifts or player count above four are errors."
+        ]
+      }
+    },
+    {
+      "name": "pump-routine-32-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2Players",
+          "field": "NOTES",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorChart.PerformPreSaveChecks: StepF2 Routine rolls/lifts or player count above four are errors."
+        ]
+      }
+    },
+    {
+      "name": "pump-couple-34-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2Layout",
+          "field": "STEPSTYPE",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_writer_loss",
+        "basis": "Additional native guard: original writer reports success but readback loses notes or chart.",
+        "before": {
+          "charts": 1,
+          "note_symbols": 2
+        },
+        "after": {
+          "charts": 1,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "pump-couple-34-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2Layout",
+          "field": "STEPSTYPE",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_writer_loss",
+        "basis": "Additional native guard: original writer reports success but readback loses notes or chart.",
+        "before": {
+          "charts": 1,
+          "note_symbols": 2
+        },
+        "after": {
+          "charts": 1,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "pump-couple-36-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2NoteKind",
+          "field": "NOTES",
+          "chart": 0
+        },
+        {
+          "kind": "StepF2Layout",
+          "field": "STEPSTYPE",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_writer_loss",
+        "basis": "Additional native guard: original writer reports success but readback loses notes or chart.",
+        "before": {
+          "charts": 1,
+          "note_symbols": 3
+        },
+        "after": {
+          "charts": 0,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "pump-couple-36-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2NoteKind",
+          "field": "NOTES",
+          "chart": 0
+        },
+        {
+          "kind": "StepF2Layout",
+          "field": "STEPSTYPE",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_writer_loss",
+        "basis": "Additional native guard: original writer reports success but readback loses notes or chart.",
+        "before": {
+          "charts": 1,
+          "note_symbols": 3
+        },
+        "after": {
+          "charts": 0,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "pump-couple-38-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2NoteKind",
+          "field": "NOTES",
+          "chart": 0
+        },
+        {
+          "kind": "StepF2Layout",
+          "field": "STEPSTYPE",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_writer_loss",
+        "basis": "Additional native guard: original writer reports success but readback loses notes or chart.",
+        "before": {
+          "charts": 1,
+          "note_symbols": 2
+        },
+        "after": {
+          "charts": 1,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "pump-couple-38-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2NoteKind",
+          "field": "NOTES",
+          "chart": 0
+        },
+        {
+          "kind": "StepF2Layout",
+          "field": "STEPSTYPE",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_writer_loss",
+        "basis": "Additional native guard: original writer reports success but readback loses notes or chart.",
+        "before": {
+          "charts": 1,
+          "note_symbols": 2
+        },
+        "after": {
+          "charts": 1,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "pump-couple-40-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2Collision",
+          "field": "NOTES",
+          "chart": 0
+        },
+        {
+          "kind": "StepF2Layout",
+          "field": "STEPSTYPE",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_reader_exclusion",
+        "basis": "Input chart is already excluded by the original reader; writer success does not establish a supported editor workflow. Native refuses unsafe StepF2 layout/ownership.",
+        "before": {
+          "charts": 0,
+          "note_symbols": 0
+        },
+        "after": {
+          "charts": 0,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "pump-couple-40-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2Collision",
+          "field": "NOTES",
+          "chart": 0
+        },
+        {
+          "kind": "StepF2Layout",
+          "field": "STEPSTYPE",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_reader_exclusion",
+        "basis": "Input chart is already excluded by the original reader; writer success does not establish a supported editor workflow. Native refuses unsafe StepF2 layout/ownership.",
+        "before": {
+          "charts": 0,
+          "note_symbols": 0
+        },
+        "after": {
+          "charts": 0,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "pump-couple-42-sm",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2Players",
+          "field": "NOTES",
+          "chart": 0
+        },
+        {
+          "kind": "StepF2Layout",
+          "field": "STEPSTYPE",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_reader_exclusion",
+        "basis": "Input chart is already excluded by the original reader; writer success does not establish a supported editor workflow. Native refuses unsafe StepF2 layout/ownership.",
+        "before": {
+          "charts": 0,
+          "note_symbols": 0
+        },
+        "after": {
+          "charts": 0,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "pump-couple-42-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "StepF2Players",
+          "field": "NOTES",
+          "chart": 0
+        },
+        {
+          "kind": "StepF2Layout",
+          "field": "STEPSTYPE",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_reader_exclusion",
+        "basis": "Input chart is already excluded by the original reader; writer success does not establish a supported editor workflow. Native refuses unsafe StepF2 layout/ownership.",
+        "before": {
+          "charts": 0,
+          "note_symbols": 0
+        },
+        "after": {
+          "charts": 0,
+          "note_symbols": 0
+        }
+      }
+    },
+    {
+      "name": "smx-dual-True-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "smx-dual-True-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "smx-dual-False-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "smx-dual-False-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "smx-full-True-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "smx-full-True-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "smx-full-False-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "smx-full-False-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "smx-team-True-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "smx-team-True-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "smx-team-False-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "smx-team-False-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "custom-omit-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "custom-omit-ssc",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "sm-promote-sm",
+      "source_writer_saved": true,
+      "errors": [],
+      "review": {
+        "kind": "accepted",
+        "basis": "Native output note/layout/player readback compared with original writer fixture."
+      }
+    },
+    {
+      "name": "sm-promote-ssc",
+      "source_writer_saved": true,
+      "errors": [
+        {
+          "kind": "OmittedEvent",
+          "field": "STOPS",
+          "chart": 0
+        }
+      ],
+      "review": {
+        "kind": "source_editor_guard",
+        "basis": "Statically matched source pre-save control, not an executed source pre-save oracle.",
+        "guards": [
+          "EditorChart.PerformPreSaveChecks: Warps in SM or negative Stops in SSC are errors."
+        ]
+      }
+    }
+  ]
+}

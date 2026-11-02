@@ -82,12 +82,14 @@ pub(super) fn load(document: &Document, chart: usize) -> Result<GenerationTiming
             ));
         }
     }
-    let own = timing_edit::reference_uses_chart_timing(document, chart);
+    let own = if document.format==Format::Sm {timing_edit::uses_chart_timing(document,chart)} else {timing_edit::reference_uses_chart_timing(document, chart)};
     let scope = own.then_some(chart);
+    let properties=timing_edit::resident::Properties::capture(document,scope)?;
     let mut file = Vec::new();
     for kind in FIELDS {
         // These properties are not handled by the original SMReader.
         if document.format == Format::Sm
+            && !properties.is_resident()
             && matches!(
                 kind,
                 Field::Warp
@@ -100,7 +102,7 @@ pub(super) fn load(document: &Document, chart: usize) -> Result<GenerationTiming
         {
             continue;
         }
-        let rows = records(document, scope, kind)?;
+        let rows = records_with_properties(document, scope, kind, &properties)?;
         let replacement = rows
             .values()
             .find_map(|data| match data {
@@ -188,7 +190,11 @@ fn records(
     scope: Option<usize>,
     kind: Field,
 ) -> Result<BTreeMap<i64, Data>, Error> {
-    let pairs = source_pairs(document, scope, kind)?;
+    let properties=timing_edit::resident::Properties::capture(document,scope)?;
+    records_with_properties(document,scope,kind,&properties)
+}
+fn records_with_properties(document:&Document,scope:Option<usize>,kind:Field,properties:&timing_edit::resident::Properties)->Result<BTreeMap<i64,Data>,Error> {
+    let pairs = source_pairs_with_properties(document, scope, kind,properties)?;
     let mut rows = BTreeMap::new();
     for (beat, data) in pairs {
         let row = beat_row(beat)?;
@@ -203,6 +209,10 @@ fn source_pairs(
     scope: Option<usize>,
     kind: Field,
 ) -> Result<Vec<(f64, Data)>, Error> {
+    let properties=timing_edit::resident::Properties::capture(document,scope)?;
+    source_pairs_with_properties(document,scope,kind,&properties)
+}
+fn source_pairs_with_properties(document:&Document,scope:Option<usize>,kind:Field,resident:&timing_edit::resident::Properties)->Result<Vec<(f64,Data)>,Error> {
     let tag = kind.tag();
     let mut sources = document
         .tags()
@@ -228,6 +238,7 @@ fn source_pairs(
             .into_iter()
             .collect();
     }
+    if resident.is_resident() {sources=vec![std::borrow::Cow::Owned(resident.text(tag))];}
     let mut pairs = Vec::new();
     for source in &sources {
         let cleaned = if kind == Field::Label {
@@ -308,7 +319,8 @@ fn source_pairs(
 }
 
 fn initial(document: &Document, chart: usize) -> Result<Option<f64>, Error> {
-    let scope = timing_edit::reference_uses_chart_timing(document, chart).then_some(chart);
+    let own=if document.format==Format::Sm {timing_edit::uses_chart_timing(document,chart)} else {timing_edit::reference_uses_chart_timing(document,chart)};
+    let scope = own.then_some(chart);
     let rows = records(document, scope, Field::Tempo)?;
     let replacement = rows
         .values()

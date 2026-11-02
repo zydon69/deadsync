@@ -1,6 +1,5 @@
 use deadsync_editor::notes;
-#[path = "../src/minimap_event_policy.rs"]
-mod minimap_event_policy;
+use deadsync_editor::minimap_event_policy;
 use minimap_event_policy::*;
 use notes::Kind;
 #[test]

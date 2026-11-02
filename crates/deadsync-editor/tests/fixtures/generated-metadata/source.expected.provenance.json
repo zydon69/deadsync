@@ -1,0 +1,18 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "LibraryCommit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourceHashes": {
+    "EditorChart.cs": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd",
+    "EditorEvents/EditorPatternEvent.cs": "c4b41425fb9d78c4030edf3d7a681c44ce3cbd25e0a65c2659b99f1b18989f34",
+    "EditorActions/ActionAutoGenerateCharts.cs": "82f6005112c6a5b065d980f69533264b859a18820e3f1f3516cae7122c7dcf06"
+  },
+  "OriginalConstructorSha256": "da137f3bf1da353d4984af8705608a26f32c8701a80146fbdd745a5e9959a019",
+  "OriginalMethodsSha256": "b8ce322f42dbebd1a6a5ea19b9909f7c9d7a590d9b57a11417d7fe643c377621",
+  "ModelsSha256": "de2b26a614eee9bff891c300838eb41aefe0245260d178108c4dc9aeb70acd2c",
+  "PlumbingSha256": "b05ac6addbda17a3037c77308daecd36087bcae2d984e13d8211c41797b8b528",
+  "ProgramSha256": "0acddc82460bfe4fe3290a1e6a64636c2591dc4a560d40371e6770fc938d4e9d",
+  "PerformedConfigFixtureSha256": "1f75c094e3959a43838ac7bb8d1848909da52a5f4d67e3a06dd2541a91fd00e4",
+  "FixtureSha256": "5d3e6d8a89a9493b5cd0098b818e9222e769a4558e7806235da8901d958d3bcf",
+  "Scope": "Entire original ActionAutoGenerateCharts class, entire original EditorChart(Chart) constructor, exact SaveToChart/custom serialization/deserialization/GetMusicOffset methods and Definition/CustomSaveData types. Real Fumen WorkQueue, Extras, typed events, graph and actual expressed/performed engine. Declared plumbing: containers/notifications/step-density no-op, GenerateSmEvents clones the unedited fixture events, graph-root loader, known config manager accessors (no invalid-profile normalization proof), synchronous UI dispatcher, action completion/focus recorder. Constructor random seed observed then overridden via reflection to42 for reproducibility; algorithm body unchanged. No full editor timing/event-factory, UI scheduling, full profile manager or general generated-note parity claim. Source data-loss behavior is an explicit native correction, not desired native expected output."
+}

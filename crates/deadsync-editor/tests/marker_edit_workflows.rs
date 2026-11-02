@@ -111,9 +111,36 @@ fn marker_properties_move_save_reopen_regenerate_and_undo_without_touching_notes
         reopened_draft.start = draft.start;
         reopened_draft.definition = draft.definition.clone();
         reopened_draft.apply(&mut file.session, 0).unwrap();
+        assert_eq!(file.session.serialize().unwrap(), after);
+        let output = file.session.serialize_for_output().unwrap();
+        let peer = file.session.grid(1).unwrap().clone();
         file.save().unwrap();
+        assert_eq!(fs::read(&path).unwrap(), output);
         let mut reopened = FileSession::open(&path).unwrap();
-        assert_eq!(reopened.session.serialize().unwrap(), after);
+        let resident = Document::parse(after.as_slice(), format).unwrap();
+        for tag in resident.tags() {
+            assert_eq!(
+                reopened
+                    .session
+                    .document()
+                    .raw_property(tag.chart, &tag.name),
+                resident.raw_property(tag.chart, &tag.name),
+                "Resident field changed: {:?}/{}",
+                tag.chart,
+                tag.name
+            );
+        }
+        assert_eq!(reopened.session.grid(0).unwrap(), &grid);
+        assert_eq!(reopened.session.grid(1).unwrap(), &peer);
+        assert_eq!(
+            serde_json::to_value(
+                ChartData::read(reopened.session.document(), 0)
+                    .unwrap()
+                    .unwrap()
+            )
+            .unwrap(),
+            serde_json::to_value(&data).unwrap()
+        );
         let preview = Task::capture_saved(&reopened.session, 0, 48, &Registry::builtin())
             .unwrap()
             .run(&AtomicBool::new(false), |_, _| {})
@@ -257,4 +284,30 @@ fn overlapping_markers_choose_latest_start_and_allow_zero_length_at_exact_row() 
     draft.apply(&mut source, 0).unwrap();
     assert_eq!(Draft::at_cursor(&source, 0, 192).unwrap().start, 192);
     assert_eq!(Draft::at_cursor(&source, 0, 193).unwrap().start, 0);
+}
+
+#[test]
+fn inspected_generation_admission_uses_captured_marker_and_rejects_pending_stale_foreign_or_deleted()
+ {
+    let mut source = session(Format::Sm);
+    let before = source.serialize().unwrap();
+    let mut draft = Draft::at_cursor(&source, 0, 192).unwrap();
+    assert!(draft.generation_task(&source, 0, None).is_ok());
+    assert!(draft.generation_task(&source, 1, None).is_err());
+    assert_eq!(source.serialize().unwrap(), before);
+    draft.start = 240;
+    assert!(draft.generation_task(&source, 0, None).is_err());
+    assert_eq!(source.serialize().unwrap(), before);
+    draft.start = 192;
+    source.set_text(None, "TITLE", "New revision").unwrap();
+    let changed = source.serialize().unwrap();
+    assert!(draft.generation_task(&source, 0, None).is_err());
+    assert_eq!(source.serialize().unwrap(), changed);
+    let fresh = Draft::at_cursor(&source, 0, 192).unwrap();
+    fresh.delete(&mut source, 0).unwrap();
+    let removed = source.serialize().unwrap();
+    assert!(fresh.generation_task(&source, 0, None).is_err());
+    assert_eq!(source.serialize().unwrap(), removed);
+    let foreign = session(Format::Sm);
+    assert!(fresh.generation_task(&foreign, 0, None).is_err());
 }

@@ -1,0 +1,16 @@
+{
+  "scope": "Actual pinned Fumen SMEventComparer and RedBlackTree insertion for two same-type/same-row initial-copy nodes. Not full GUI/action execution. For these non-editing same-class EditorEvents, position/custom-event-order ties leave exactly this comparer result.",
+  "fumen_revision": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "editor_revision": "48e18f71655d0f0d86144c63239331833501fda2",
+  "command": "dotnet run --project scripts/editor-initial-copy-collision-oracle --configuration Release -p:ReferenceAssembly=/path/to/pinned/Fumen.dll",
+  "program_sha256": "0fb21dbcca562694ae7bd5cc5136a0b6c1125d1b76a8639a931eef5820c12eae",
+  "assembly_sha256": "8ad56ca41602bfb0bd98edca9c4081577e11e737a19aad106d41c2e4d0887045",
+  "expected_sha256": "405f2988d89a33f566a67f22de7c602cd7573d8945845937fd8ee9cdebffecbe",
+  "source_chain": [
+    "EditorChart.AddEventInternal calls EditorEvents.Insert",
+    "EventTree derives RedBlackTree<EditorEvent>",
+    "EditorEvent.CompareTo delegates tied same-kind positions to SMEventComparer",
+    "RedBlackTree.Insert throws ArgumentException for comparer equality"
+  ],
+  "observed": "All four combinations reject; value equality does not resolve same-row node identity."
+}

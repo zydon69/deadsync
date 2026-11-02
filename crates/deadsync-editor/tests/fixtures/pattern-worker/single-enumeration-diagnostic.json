@@ -1,0 +1,74 @@
+{
+  "VariantCompiledWorkerSha256": "4557488b8ed64ae2be00238f5dbf74804b0d19fd772b807b947cb899d7ea062d",
+  "Change": "Only Patterns.AddRange(allPatterns) omitted in diagnostic copy, never in original oracle or native correction.",
+  "Cases": [
+    {
+      "Request": "pattern-batch-adjacent.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-all-empty.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-delayed-origin-sm.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-delayed-origin.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-disjoint.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-empty-final.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-empty-next-context.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-empty-next-double.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-empty-next.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-ignore-distribution.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-nested-short.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-off-grid.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-overlap.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-shared-transitions.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-single-row.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-spacing-one.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    },
+    {
+      "Request": "pattern-batch-unsorted.request.json",
+      "SingleEnumerationMatchesReconstructedWorker": true
+    }
+  ]
+}

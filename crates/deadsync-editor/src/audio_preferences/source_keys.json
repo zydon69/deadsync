@@ -1,0 +1,802 @@
+[
+  {
+    "name": "None",
+    "value": 0,
+    "valid": false
+  },
+  {
+    "name": "Back",
+    "value": 8,
+    "valid": true
+  },
+  {
+    "name": "Tab",
+    "value": 9,
+    "valid": true
+  },
+  {
+    "name": "Enter",
+    "value": 13,
+    "valid": true
+  },
+  {
+    "name": "Pause",
+    "value": 19,
+    "valid": true
+  },
+  {
+    "name": "CapsLock",
+    "value": 20,
+    "valid": false
+  },
+  {
+    "name": "Kana",
+    "value": 21,
+    "valid": false
+  },
+  {
+    "name": "Kanji",
+    "value": 25,
+    "valid": false
+  },
+  {
+    "name": "Escape",
+    "value": 27,
+    "valid": true
+  },
+  {
+    "name": "ImeConvert",
+    "value": 28,
+    "valid": false
+  },
+  {
+    "name": "ImeNoConvert",
+    "value": 29,
+    "valid": false
+  },
+  {
+    "name": "Space",
+    "value": 32,
+    "valid": true
+  },
+  {
+    "name": "PageUp",
+    "value": 33,
+    "valid": true
+  },
+  {
+    "name": "PageDown",
+    "value": 34,
+    "valid": true
+  },
+  {
+    "name": "End",
+    "value": 35,
+    "valid": true
+  },
+  {
+    "name": "Home",
+    "value": 36,
+    "valid": true
+  },
+  {
+    "name": "Left",
+    "value": 37,
+    "valid": true
+  },
+  {
+    "name": "Up",
+    "value": 38,
+    "valid": true
+  },
+  {
+    "name": "Right",
+    "value": 39,
+    "valid": true
+  },
+  {
+    "name": "Down",
+    "value": 40,
+    "valid": true
+  },
+  {
+    "name": "Select",
+    "value": 41,
+    "valid": true
+  },
+  {
+    "name": "Print",
+    "value": 42,
+    "valid": true
+  },
+  {
+    "name": "Execute",
+    "value": 43,
+    "valid": true
+  },
+  {
+    "name": "PrintScreen",
+    "value": 44,
+    "valid": true
+  },
+  {
+    "name": "Insert",
+    "value": 45,
+    "valid": true
+  },
+  {
+    "name": "Delete",
+    "value": 46,
+    "valid": true
+  },
+  {
+    "name": "Help",
+    "value": 47,
+    "valid": true
+  },
+  {
+    "name": "D0",
+    "value": 48,
+    "valid": true
+  },
+  {
+    "name": "D1",
+    "value": 49,
+    "valid": true
+  },
+  {
+    "name": "D2",
+    "value": 50,
+    "valid": true
+  },
+  {
+    "name": "D3",
+    "value": 51,
+    "valid": true
+  },
+  {
+    "name": "D4",
+    "value": 52,
+    "valid": true
+  },
+  {
+    "name": "D5",
+    "value": 53,
+    "valid": true
+  },
+  {
+    "name": "D6",
+    "value": 54,
+    "valid": true
+  },
+  {
+    "name": "D7",
+    "value": 55,
+    "valid": true
+  },
+  {
+    "name": "D8",
+    "value": 56,
+    "valid": true
+  },
+  {
+    "name": "D9",
+    "value": 57,
+    "valid": true
+  },
+  {
+    "name": "A",
+    "value": 65,
+    "valid": true
+  },
+  {
+    "name": "B",
+    "value": 66,
+    "valid": true
+  },
+  {
+    "name": "C",
+    "value": 67,
+    "valid": true
+  },
+  {
+    "name": "D",
+    "value": 68,
+    "valid": true
+  },
+  {
+    "name": "E",
+    "value": 69,
+    "valid": true
+  },
+  {
+    "name": "F",
+    "value": 70,
+    "valid": true
+  },
+  {
+    "name": "G",
+    "value": 71,
+    "valid": true
+  },
+  {
+    "name": "H",
+    "value": 72,
+    "valid": true
+  },
+  {
+    "name": "I",
+    "value": 73,
+    "valid": true
+  },
+  {
+    "name": "J",
+    "value": 74,
+    "valid": true
+  },
+  {
+    "name": "K",
+    "value": 75,
+    "valid": true
+  },
+  {
+    "name": "L",
+    "value": 76,
+    "valid": true
+  },
+  {
+    "name": "M",
+    "value": 77,
+    "valid": true
+  },
+  {
+    "name": "N",
+    "value": 78,
+    "valid": true
+  },
+  {
+    "name": "O",
+    "value": 79,
+    "valid": true
+  },
+  {
+    "name": "P",
+    "value": 80,
+    "valid": true
+  },
+  {
+    "name": "Q",
+    "value": 81,
+    "valid": true
+  },
+  {
+    "name": "R",
+    "value": 82,
+    "valid": true
+  },
+  {
+    "name": "S",
+    "value": 83,
+    "valid": true
+  },
+  {
+    "name": "T",
+    "value": 84,
+    "valid": true
+  },
+  {
+    "name": "U",
+    "value": 85,
+    "valid": true
+  },
+  {
+    "name": "V",
+    "value": 86,
+    "valid": true
+  },
+  {
+    "name": "W",
+    "value": 87,
+    "valid": true
+  },
+  {
+    "name": "X",
+    "value": 88,
+    "valid": true
+  },
+  {
+    "name": "Y",
+    "value": 89,
+    "valid": true
+  },
+  {
+    "name": "Z",
+    "value": 90,
+    "valid": true
+  },
+  {
+    "name": "LeftWindows",
+    "value": 91,
+    "valid": true
+  },
+  {
+    "name": "RightWindows",
+    "value": 92,
+    "valid": true
+  },
+  {
+    "name": "Apps",
+    "value": 93,
+    "valid": false
+  },
+  {
+    "name": "Sleep",
+    "value": 95,
+    "valid": false
+  },
+  {
+    "name": "NumPad0",
+    "value": 96,
+    "valid": true
+  },
+  {
+    "name": "NumPad1",
+    "value": 97,
+    "valid": true
+  },
+  {
+    "name": "NumPad2",
+    "value": 98,
+    "valid": true
+  },
+  {
+    "name": "NumPad3",
+    "value": 99,
+    "valid": true
+  },
+  {
+    "name": "NumPad4",
+    "value": 100,
+    "valid": true
+  },
+  {
+    "name": "NumPad5",
+    "value": 101,
+    "valid": true
+  },
+  {
+    "name": "NumPad6",
+    "value": 102,
+    "valid": true
+  },
+  {
+    "name": "NumPad7",
+    "value": 103,
+    "valid": true
+  },
+  {
+    "name": "NumPad8",
+    "value": 104,
+    "valid": true
+  },
+  {
+    "name": "NumPad9",
+    "value": 105,
+    "valid": true
+  },
+  {
+    "name": "Multiply",
+    "value": 106,
+    "valid": true
+  },
+  {
+    "name": "Add",
+    "value": 107,
+    "valid": true
+  },
+  {
+    "name": "Separator",
+    "value": 108,
+    "valid": true
+  },
+  {
+    "name": "Subtract",
+    "value": 109,
+    "valid": true
+  },
+  {
+    "name": "Decimal",
+    "value": 110,
+    "valid": true
+  },
+  {
+    "name": "Divide",
+    "value": 111,
+    "valid": true
+  },
+  {
+    "name": "F1",
+    "value": 112,
+    "valid": true
+  },
+  {
+    "name": "F2",
+    "value": 113,
+    "valid": true
+  },
+  {
+    "name": "F3",
+    "value": 114,
+    "valid": true
+  },
+  {
+    "name": "F4",
+    "value": 115,
+    "valid": true
+  },
+  {
+    "name": "F5",
+    "value": 116,
+    "valid": true
+  },
+  {
+    "name": "F6",
+    "value": 117,
+    "valid": true
+  },
+  {
+    "name": "F7",
+    "value": 118,
+    "valid": true
+  },
+  {
+    "name": "F8",
+    "value": 119,
+    "valid": true
+  },
+  {
+    "name": "F9",
+    "value": 120,
+    "valid": true
+  },
+  {
+    "name": "F10",
+    "value": 121,
+    "valid": true
+  },
+  {
+    "name": "F11",
+    "value": 122,
+    "valid": true
+  },
+  {
+    "name": "F12",
+    "value": 123,
+    "valid": true
+  },
+  {
+    "name": "F13",
+    "value": 124,
+    "valid": true
+  },
+  {
+    "name": "F14",
+    "value": 125,
+    "valid": true
+  },
+  {
+    "name": "F15",
+    "value": 126,
+    "valid": true
+  },
+  {
+    "name": "F16",
+    "value": 127,
+    "valid": true
+  },
+  {
+    "name": "F17",
+    "value": 128,
+    "valid": true
+  },
+  {
+    "name": "F18",
+    "value": 129,
+    "valid": true
+  },
+  {
+    "name": "F19",
+    "value": 130,
+    "valid": true
+  },
+  {
+    "name": "F20",
+    "value": 131,
+    "valid": true
+  },
+  {
+    "name": "F21",
+    "value": 132,
+    "valid": true
+  },
+  {
+    "name": "F22",
+    "value": 133,
+    "valid": true
+  },
+  {
+    "name": "F23",
+    "value": 134,
+    "valid": true
+  },
+  {
+    "name": "F24",
+    "value": 135,
+    "valid": true
+  },
+  {
+    "name": "NumLock",
+    "value": 144,
+    "valid": true
+  },
+  {
+    "name": "Scroll",
+    "value": 145,
+    "valid": true
+  },
+  {
+    "name": "LeftShift",
+    "value": 160,
+    "valid": true
+  },
+  {
+    "name": "RightShift",
+    "value": 161,
+    "valid": true
+  },
+  {
+    "name": "LeftControl",
+    "value": 162,
+    "valid": true
+  },
+  {
+    "name": "RightControl",
+    "value": 163,
+    "valid": true
+  },
+  {
+    "name": "LeftAlt",
+    "value": 164,
+    "valid": true
+  },
+  {
+    "name": "RightAlt",
+    "value": 165,
+    "valid": true
+  },
+  {
+    "name": "BrowserBack",
+    "value": 166,
+    "valid": false
+  },
+  {
+    "name": "BrowserForward",
+    "value": 167,
+    "valid": false
+  },
+  {
+    "name": "BrowserRefresh",
+    "value": 168,
+    "valid": false
+  },
+  {
+    "name": "BrowserStop",
+    "value": 169,
+    "valid": false
+  },
+  {
+    "name": "BrowserSearch",
+    "value": 170,
+    "valid": false
+  },
+  {
+    "name": "BrowserFavorites",
+    "value": 171,
+    "valid": false
+  },
+  {
+    "name": "BrowserHome",
+    "value": 172,
+    "valid": false
+  },
+  {
+    "name": "VolumeMute",
+    "value": 173,
+    "valid": true
+  },
+  {
+    "name": "VolumeDown",
+    "value": 174,
+    "valid": true
+  },
+  {
+    "name": "VolumeUp",
+    "value": 175,
+    "valid": true
+  },
+  {
+    "name": "MediaNextTrack",
+    "value": 176,
+    "valid": true
+  },
+  {
+    "name": "MediaPreviousTrack",
+    "value": 177,
+    "valid": true
+  },
+  {
+    "name": "MediaStop",
+    "value": 178,
+    "valid": true
+  },
+  {
+    "name": "MediaPlayPause",
+    "value": 179,
+    "valid": true
+  },
+  {
+    "name": "LaunchMail",
+    "value": 180,
+    "valid": false
+  },
+  {
+    "name": "SelectMedia",
+    "value": 181,
+    "valid": true
+  },
+  {
+    "name": "LaunchApplication1",
+    "value": 182,
+    "valid": false
+  },
+  {
+    "name": "LaunchApplication2",
+    "value": 183,
+    "valid": false
+  },
+  {
+    "name": "OemSemicolon",
+    "value": 186,
+    "valid": true
+  },
+  {
+    "name": "OemPlus",
+    "value": 187,
+    "valid": true
+  },
+  {
+    "name": "OemComma",
+    "value": 188,
+    "valid": true
+  },
+  {
+    "name": "OemMinus",
+    "value": 189,
+    "valid": true
+  },
+  {
+    "name": "OemPeriod",
+    "value": 190,
+    "valid": true
+  },
+  {
+    "name": "OemQuestion",
+    "value": 191,
+    "valid": true
+  },
+  {
+    "name": "OemTilde",
+    "value": 192,
+    "valid": true
+  },
+  {
+    "name": "ChatPadGreen",
+    "value": 202,
+    "valid": false
+  },
+  {
+    "name": "ChatPadOrange",
+    "value": 203,
+    "valid": false
+  },
+  {
+    "name": "OemOpenBrackets",
+    "value": 219,
+    "valid": true
+  },
+  {
+    "name": "OemPipe",
+    "value": 220,
+    "valid": true
+  },
+  {
+    "name": "OemCloseBrackets",
+    "value": 221,
+    "valid": true
+  },
+  {
+    "name": "OemQuotes",
+    "value": 222,
+    "valid": true
+  },
+  {
+    "name": "Oem8",
+    "value": 223,
+    "valid": false
+  },
+  {
+    "name": "OemBackslash",
+    "value": 226,
+    "valid": true
+  },
+  {
+    "name": "ProcessKey",
+    "value": 229,
+    "valid": false
+  },
+  {
+    "name": "OemCopy",
+    "value": 242,
+    "valid": false
+  },
+  {
+    "name": "OemAuto",
+    "value": 243,
+    "valid": false
+  },
+  {
+    "name": "OemEnlW",
+    "value": 244,
+    "valid": false
+  },
+  {
+    "name": "Attn",
+    "value": 246,
+    "valid": false
+  },
+  {
+    "name": "Crsel",
+    "value": 247,
+    "valid": false
+  },
+  {
+    "name": "Exsel",
+    "value": 248,
+    "valid": false
+  },
+  {
+    "name": "EraseEof",
+    "value": 249,
+    "valid": false
+  },
+  {
+    "name": "Play",
+    "value": 250,
+    "valid": true
+  },
+  {
+    "name": "Zoom",
+    "value": 251,
+    "valid": false
+  },
+  {
+    "name": "Pa1",
+    "value": 253,
+    "valid": false
+  },
+  {
+    "name": "OemClear",
+    "value": 254,
+    "valid": false
+  }
+]

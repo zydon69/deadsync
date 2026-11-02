@@ -1,0 +1,14 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "MaxValidDenominator": 48,
+  "SourcesSha256": {
+    "Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+    "ActiveEditorChart.cs": "60bde1681bba77f08a7c4d772c247c0b6725901fd8b0e2225f3e02e5d728ac3a",
+    "Selection.cs": "e7090aab08b8677ee724f0502c520ffebf0c39f7e449cc6f4fd4d53df45ffd46",
+    "Fumen/SMCommon.cs": "8517ace018aeb788808be9e584f289620c00f59e94ac114ffec130952f65160a"
+  },
+  "AdapterSha256": "c8fced56b60cf6c0847cf809854a2f431a3ee5db597a302a36878c1b09d2fce6",
+  "AssemblySha256": "c5604b5923a4a1a9bc81a23ae4b17d0a13effd0743da03b53172f0d25db19f63",
+  "Scope": "Original whole Selection, Editor.GetShiftNotesRows and both selected callbacks, four ActiveEditorChart forwarding methods. Adapter supplies edit guard, snap rows, focused chart and recording action constructor. No movement arithmetic, UI, history or chart parser executed; separate event-shift original-action oracle covers arithmetic."
+}

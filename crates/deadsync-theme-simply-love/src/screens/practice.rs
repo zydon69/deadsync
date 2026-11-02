@@ -665,6 +665,13 @@ pub fn process_editor_clipboard(
 }
 /// OS close and shell reload share the editor's explicit save/discard guard.
 /// A refusal keeps the editor alive with its confirmation panel visible.
+/// Genuine application shutdown intent; completed editor review is observed by the host.
+pub fn request_editor_application_exit(state:&mut State)->crate::screens::edition::ApplicationExit{
+    state.edition.as_mut().map_or(crate::screens::edition::ApplicationExit::Ready,|editor|editor.request_application_exit())
+}
+pub fn take_editor_application_exit(state:&mut State)->Option<crate::screens::edition::ApplicationExit>{
+    state.edition.as_mut().and_then(|editor|editor.take_application_exit())
+}
 pub fn request_editor_close(state: &mut State) -> bool {
     state
         .edition
@@ -719,6 +726,7 @@ fn update_inner(
         for command in update_editor_audio(editor, audio_snapshot) {
             state.gameplay.push_audio_command(command);
         }
+        if editor.take_editor_audio_close() {state.edition=None;}
         return ThemeEffect::None;
     }
     if let Some((_, remaining)) = state.flash.as_mut() {
@@ -759,17 +767,7 @@ fn update_editor_audio(
     editor: &mut crate::screens::edition::State,
     snapshot: GameplayAudioSnapshot,
 ) -> Vec<GameplayAudioCommand> {
-    editor.update();
-    let mut commands = editor.take_audio_commands();
-    let changing_transport = commands.iter().any(|command| matches!(command,
-        GameplayAudioCommand::PlayMusic { .. } | GameplayAudioCommand::StopMusic
-        | GameplayAudioCommand::SeekMusic(_) | GameplayAudioCommand::SetMusicRate(_)
-    ));
-    // New commands have not reached the backend, so this snapshot still belongs
-    // to the preceding request even if its timestamp was sampled just now.
-    if !changing_transport { editor.update_audio(snapshot); }
-    commands.extend(editor.take_audio_commands());
-    commands
+    editor.update_host_audio(snapshot)
 }
 
 pub fn handle_input(
@@ -878,13 +876,11 @@ fn handle_raw_key_event_inner(
 ) -> (bool, ThemeEffect) {
     if let Some(editor) = state.edition.as_mut() {
         let close = editor.raw_key(raw_key);
+        if close {editor.release_editor_audio_scope();}
         for command in editor.take_audio_commands() {
             state.gameplay.push_audio_command(command);
         }
-        if close {
-            state.gameplay.push_audio_command(GameplayAudioCommand::StopMusic);
-            state.edition = None;
-        }
+        if close {state.edition = None;}
         return (true, ThemeEffect::None);
     }
     if raw_key.pressed && !raw_key.repeat && raw_key.code == KeyCode::F2 {
@@ -1144,7 +1140,7 @@ fn set_offset_adjust_flash(state: &mut State) {
 pub fn editor_image_preview_request(state: &State) -> Option<crate::screens::edition::image_previews::PreviewRequest> {
     state.edition.as_ref().and_then(|editor| editor.image_preview_request())
 }
-pub fn set_editor_image_preview_views(state: &mut State, views: [crate::screens::edition::image_previews::PreviewView; 2]) {
+pub fn set_editor_image_preview_views(state: &mut State, views: [crate::screens::edition::image_previews::PreviewView; 3]) {
     if let Some(editor) = state.edition.as_mut() { editor.set_image_preview_views(views); }
 }
 
@@ -3094,7 +3090,7 @@ mod tests {
     #[test]
     fn editor_pending_transport_commands_are_forwarded_before_another_snapshot_can_move_it() {
         use deadlib_platform::input::RawKeyboardEvent;
-        use deadsync_gameplay::{GameplayAudioCommand, GameplayAudioSnapshot};
+        use deadsync_gameplay::{EditorBufferControl, EditorLogicalMusicClock, GameplayAudioCommand, GameplayAudioSnapshot};
         use std::time::Instant;
         crate::i18n::init_for_tests();
         let directory = tempfile::tempdir().unwrap();
@@ -3102,30 +3098,68 @@ mod tests {
         let path = directory.path().join("song.ssc");
         std::fs::write(&path, "#VERSION:0.83;#MUSIC:music.ogg;#BPMS:0=120;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
         let mut editor = crate::screens::edition::State::open(&path, 0).unwrap();
+        let owner = editor.take_audio_commands().iter().find_map(|command| match command {
+            GameplayAudioCommand::EditorBeginAudio { owner, .. } => Some(*owner),
+            _ => None,
+        }).expect("editor acquires its own audio scope");
         let key = |editor: &mut crate::screens::edition::State, code, pressed| {
             editor.raw_key(&RawKeyboardEvent { code, pressed, repeat: false, timestamp: Instant::now(), host_nanos: 0 });
         };
-        let snapshot = |seconds: f64| {
+        let snapshot = |mapped_seconds: f64, logical: Option<(u64,u64,f64)>| {
             let mut value = GameplayAudioSnapshot::default();
             value.stream_clock.valid_at = Instant::now();
+            // This mapping can still belong to an earlier gameplay request.
+            // Current editor advancement is authenticated by its logical phase.
             value.stream_clock.has_music_mapping = true;
-            value.stream_clock.music_nanos = (seconds * 1e9).round() as i64;
+            value.stream_clock.music_nanos = (mapped_seconds * 1e9).round() as i64;
+            value.stream_clock.music_seconds_per_second = 1.0;
+            value.editor.owner = owner;
+            value.editor.output.available = true;
+            value.editor.output.leased = true;
+            value.editor.output.period_control = EditorBufferControl::Adjustable;
+            value.editor.output.requested_period = Some(512);
+            value.editor.output.negotiated_period = Some(512);
+            value.editor.logical_music=logical.map(|(generation,asset_epoch,seconds)|EditorLogicalMusicClock{generation,asset_epoch,music_nanos:(seconds*1e9).round()as i64});
             value
         };
+        // Lease acknowledgement is required before raw Enter can start MAIN.
+        assert!(super::update_editor_audio(&mut editor, snapshot(0.0,None)).is_empty());
         key(&mut editor, KeyCode::Enter, true);
         key(&mut editor, KeyCode::Enter, false);
-        let commands = super::update_editor_audio(&mut editor, snapshot(10.0));
-        assert!(matches!(&commands[..], [GameplayAudioCommand::PlayMusic { .. }]));
-        assert_eq!(editor.workspace().row(), 0);
-        assert!(super::update_editor_audio(&mut editor, snapshot(1.0)).is_empty());
-        assert_eq!(editor.workspace().row(), 96);
+        // No current editor generation has been bound yet. Keep the old mapped
+        // snapshot eligible to move an unguarded transport: command ordering,
+        // not a mismatched logical receipt, must protect row0 here.
+        let commands = super::update_editor_audio(&mut editor, snapshot(10.0,None));
+        assert!(matches!(&commands[..], [GameplayAudioCommand::EditorStartMusic { owner: actual,path:Some(main),seconds,rate }] if *actual == owner && main.file_name()==Some(std::ffi::OsStr::new("music.ogg")) && *seconds==0.0 && *rate==1.0),"{commands:?}");
+        assert_eq!(editor.workspace().row(), 0,"pending MAIN must drain before old mapped snapshot");
+        editor.bind_decoder_generation(Some(42));
+        editor.bind_decoder_asset_epoch(Some(owner),Some(17));
+        // A wrong generation/epoch cannot become the new baseline. No decoder
+        // Producing/PCM-ready success is fabricated: pending MAIN owns a real
+        // logical clock independently of its eventual codec result.
+        for phase in [(41,17,9.0),(42,16,9.0)]{
+            assert!(super::update_editor_audio(&mut editor,snapshot(9.0,Some(phase))).is_empty());
+            assert_eq!(editor.workspace().row(),0,"stale logical transport identity");
+        }
+        assert!(super::update_editor_audio(&mut editor, snapshot(10.0,Some((42,17,1.0)))).is_empty());
+        assert_eq!(editor.workspace().row(), 96,"current logical phase, not old mapped clock");
         key(&mut editor, KeyCode::ShiftLeft, true);
         key(&mut editor, KeyCode::ArrowRight, true);
         key(&mut editor, KeyCode::ArrowRight, false);
         key(&mut editor, KeyCode::ShiftLeft, false);
-        let commands = super::update_editor_audio(&mut editor, snapshot(20.0));
-        assert!(matches!(&commands[..], [GameplayAudioCommand::SetMusicRate(_)]));
-        assert_eq!(editor.workspace().row(), 96);
+        // This logical receipt still matches the previous command generation.
+        // It would advance to20s if observed before forwarding the queued rate.
+        let commands = super::update_editor_audio(&mut editor, snapshot(20.0,Some((42,17,20.0))));
+        assert!(matches!(&commands[..], [
+            GameplayAudioCommand::EditorUpdateAudio { owner: gains_owner, .. },
+            GameplayAudioCommand::EditorSetMusicRate { owner: rate_owner, rate },
+        ] if *gains_owner == owner && *rate_owner == owner && (*rate - 1.1).abs() < f64::EPSILON),"{commands:?}");
+        assert_eq!(editor.workspace().row(), 96,"pending rate must drain before previous valid logical snapshot");
+        assert!(editor.is_playing());
+        editor.bind_decoder_generation(Some(43));
+        editor.bind_decoder_asset_epoch(Some(owner),Some(17));
+        assert!(super::update_editor_audio(&mut editor,snapshot(20.0,Some((43,17,1.25)))).is_empty());
+        assert_eq!(editor.workspace().row(),120,"fresh rate-generation phase advances after command publication");
         assert!(editor.is_playing());
         assert!(!editor.workspace().file().session.is_dirty());
     }
@@ -3840,3 +3874,11 @@ mod tests {
         }
     }
 }
+
+/// Called only after the shared File close controller and audio restore ACK.
+pub fn finish_editor_host_close(state:&mut State){state.edition=None;}
+/// Shared host access; standalone never constructs a Practice gameplay state.
+pub fn editor(state:&State)->Option<&crate::screens::edition::State>{state.edition.as_ref()}
+pub fn editor_mut(state:&mut State)->Option<&mut crate::screens::edition::State>{state.edition.as_mut()}
+
+pub fn process_editor_profile_order(state:&mut State,culture:&str,orderer:&mut impl deadsync_editor::generation::profile_catalog::Orderer)->bool{state.edition.as_mut().is_some_and(|editor|editor.process_profile_order(culture,orderer))}

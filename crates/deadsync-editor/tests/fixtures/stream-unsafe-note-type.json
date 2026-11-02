@@ -1,0 +1,22 @@
+[
+  {
+    "raw": 0,
+    "result": 4,
+    "error": null
+  },
+  {
+    "raw": 8,
+    "result": 192,
+    "error": null
+  },
+  {
+    "raw": 99,
+    "result": null,
+    "error": "IndexOutOfRangeException"
+  },
+  {
+    "raw": -99,
+    "result": null,
+    "error": "IndexOutOfRangeException"
+  }
+]

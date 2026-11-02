@@ -1,0 +1,32 @@
+{
+  "source_pin": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen_pin": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "model_path": "StepManiaEditor/DisplayTempo.cs",
+  "model_sha256": "cb6603ef554a0467ea1511e7e2b66871a0958821ed8ae49865198c475f63eee2",
+  "routing_source": {
+    "StepManiaEditor/Editor.cs": {
+      "source_sha256": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+      "wiring": "431-432: InvariantCulture startup"
+    },
+    "StepManiaEditor/EditorSong.cs": {
+      "source_sha256": "066bd606d5138343b444fb0355a125929c7b19baef4832202775eb419a5c60ff",
+      "wiring": "734-779: per-chart copy; 1803-1812: fallback SM / remove global SSC"
+    },
+    "StepManiaEditor/EditorChart.cs": {
+      "source_sha256": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd",
+      "wiring": "3197-3200: new DisplayTempo copy; 3886: chart.Tempo serialization"
+    },
+    "StepManiaEditor/ImGui/ImGuiLayoutUtils.cs": {
+      "source_sha256": "26db419be4f6ab04e9e518019dd7a463ed49904b2e45b2b5b24dde9d5861ba59",
+      "wiring": "2332-2363: chart-local display UI callback"
+    }
+  },
+  "fumen_source_archive_sha256": "044027e32278d31494be9a9e557425e4dee5cd719e47465231743e3a06af6bc9",
+  "fumen_project_sha256": "756615a794e45cce33b201eb21ae24411eab1a8caba9cbbb6a470212270c4502",
+  "harness_sha256": "e8220cc920f3cdf334f42686d4028164d11c3e2b7dc1adb252167b1413d8971f",
+  "fixture_sha256": "8bc4e3c2cb3cf80b4f2b8bb6af5ee782aa6ef14cf9ef4e3277063c91e6d81476",
+  "dotnet_sdk": "10.0.403",
+  "cases": 5,
+  "culture": "InvariantCulture as Editor startup",
+  "scope": "Actual pinned DisplayTempo and actual Fumen; source EditorSong routing reproduced, no full graphical Editor execution"
+}

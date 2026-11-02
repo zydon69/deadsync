@@ -217,6 +217,7 @@ impl Snapshot {
         if cancelled() { return Err(Error::InvalidEdit("Song opening cancelled".into())); }
         Ok((Self { keys, source_indices }, failures))
     }
+    pub(crate) fn without_source(&self,source:usize)->Self{let mut keys=Vec::new();let mut source_indices=Vec::new();for (index,key) in self.source_indices.iter().zip(&self.keys){if *index!=source{source_indices.push(*index);keys.push(key.clone());}}Self{keys,source_indices}}
     pub fn keys(&self) -> &[Key] {
         &self.keys
     }

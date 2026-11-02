@@ -176,9 +176,21 @@ fn selecting_profiles_stages_one_marker_gesture_preserves_metadata_and_drives_re
             .select_profiles(&file.session, 0, &catalog, pattern.guid(), performed.guid())
             .unwrap();
         draft.apply(&mut file.session, 0).unwrap();
+        assert_eq!(file.session.serialize().unwrap(), after);
+        let output = file.session.serialize_for_output().unwrap();
+        assert_eq!(file.session.serialize().unwrap(), after);
         file.save().unwrap();
+        assert_eq!(file.session.serialize().unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), output);
         let mut reopened = FileSession::open(&path).unwrap();
-        assert_eq!(reopened.session.serialize().unwrap(), after);
+        assert_eq!(reopened.session.serialize().unwrap(), output);
+        let reopened_metadata = ChartData::read(reopened.session.document(), 0)
+            .unwrap()
+            .unwrap();
+        assert_eq!(
+            serde_json::to_value(reopened_metadata).unwrap(),
+            serde_json::to_value(new).unwrap()
+        );
         let registry = Loaded::directory(&folder).unwrap().registry;
         let options = ChartData::read(reopened.session.document(), 0)
             .unwrap()

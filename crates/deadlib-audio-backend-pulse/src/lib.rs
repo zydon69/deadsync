@@ -9,23 +9,13 @@ use deadlib_audio_core::{
 use deadlib_platform::host_time::now_nanos;
 use libloading::Library;
 use log::{info, warn};
-use std::ffi::{CStr, CString, c_char, c_int, c_void};
-use std::ptr;
+use std::ffi::c_int;
 use std::sync::Arc;
-use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{Sender, channel};
 use std::thread::{self, JoinHandle};
 
-const PA_STREAM_PLAYBACK: c_int = 1;
-const PA_SAMPLE_S16LE: c_int = 3;
 const PULSE_FALLBACK_BUFFER_FRAMES: u32 = 2048;
-
-#[repr(C)]
-struct PaSimple {
-    _private: [u8; 0],
-}
-
 #[repr(C)]
 #[derive(Clone, Copy)]
 struct PaSampleSpec {
@@ -33,7 +23,6 @@ struct PaSampleSpec {
     rate: u32,
     channels: u8,
 }
-
 #[repr(C)]
 #[derive(Clone, Copy)]
 struct PaBufferAttr {
@@ -43,82 +32,10 @@ struct PaBufferAttr {
     minreq: u32,
     fragsize: u32,
 }
-
-// SAFETY: These function-pointer types model PulseAudio's C ABI exactly. Callers must only invoke
-// them with live PulseAudio handles, valid optional pointers, and any required NUL-terminated
-// strings exactly as the PulseAudio API specifies.
-type PaSimpleNewFn = unsafe extern "C" fn(
-    server: *const c_char,
-    name: *const c_char,
-    dir: c_int,
-    dev: *const c_char,
-    stream_name: *const c_char,
-    sample_spec: *const PaSampleSpec,
-    channel_map: *const c_void,
-    attr: *const PaBufferAttr,
-    error: *mut c_int,
-) -> *mut PaSimple;
-// SAFETY: Same FFI contract as above; the stream handle must come from PulseAudio.
-type PaSimpleFreeFn = unsafe extern "C" fn(stream: *mut PaSimple);
-// SAFETY: Same FFI contract as above; the stream handle and data buffer must be valid for the
-// duration of the call.
-type PaSimpleWriteFn = unsafe extern "C" fn(
-    stream: *mut PaSimple,
-    data: *const c_void,
-    bytes: usize,
-    error: *mut c_int,
-) -> c_int;
-// SAFETY: Same FFI contract as above; the stream handle must come from PulseAudio.
-type PaSimpleDrainFn = unsafe extern "C" fn(stream: *mut PaSimple, error: *mut c_int) -> c_int;
-// SAFETY: Same FFI contract as above; the stream handle must come from PulseAudio.
-type PaSimpleGetLatencyFn = unsafe extern "C" fn(stream: *mut PaSimple, error: *mut c_int) -> u64;
-// SAFETY: Same FFI contract as above; the error code must be one produced by PulseAudio.
-type PaStrErrorFn = unsafe extern "C" fn(error: c_int) -> *const c_char;
-
-struct PulseApi {
-    _simple: Library,
-    _pulse: Library,
-    pa_simple_new: PaSimpleNewFn,
-    pa_simple_free: PaSimpleFreeFn,
-    pa_simple_write: PaSimpleWriteFn,
-    pa_simple_drain: PaSimpleDrainFn,
-    pa_simple_get_latency: PaSimpleGetLatencyFn,
-    pa_strerror: PaStrErrorFn,
-}
-
-static PULSE_API: OnceLock<Result<PulseApi, String>> = OnceLock::new();
-
+mod async_connection;
+use async_connection::PulseConnection;
 pub fn is_available() -> bool {
-    pulse_api().is_ok()
-}
-
-fn pulse_api() -> Result<&'static PulseApi, String> {
-    match PULSE_API.get_or_init(load_pulse_api) {
-        Ok(api) => Ok(api),
-        Err(err) => Err(err.clone()),
-    }
-}
-
-fn load_pulse_api() -> Result<PulseApi, String> {
-    let simple = load_library(&["libpulse-simple.so.0", "libpulse-simple.so"])?;
-    let pulse = load_library(&["libpulse.so.0", "libpulse.so"])?;
-    Ok(PulseApi {
-        // SAFETY: the loaded shared object stays owned by the `PulseApi` struct for
-        // at least as long as these copied function pointers are used.
-        pa_simple_new: unsafe { load_symbol(&simple, b"pa_simple_new\0")? },
-        // SAFETY: same lifetime reasoning as above for the symbol resolution.
-        pa_simple_free: unsafe { load_symbol(&simple, b"pa_simple_free\0")? },
-        // SAFETY: same lifetime reasoning as above for the symbol resolution.
-        pa_simple_write: unsafe { load_symbol(&simple, b"pa_simple_write\0")? },
-        // SAFETY: same lifetime reasoning as above for the symbol resolution.
-        pa_simple_drain: unsafe { load_symbol(&simple, b"pa_simple_drain\0")? },
-        // SAFETY: same lifetime reasoning as above for the symbol resolution.
-        pa_simple_get_latency: unsafe { load_symbol(&simple, b"pa_simple_get_latency\0")? },
-        // SAFETY: same lifetime reasoning as above for the symbol resolution.
-        pa_strerror: unsafe { load_symbol(&pulse, b"pa_strerror\0")? },
-        _simple: simple,
-        _pulse: pulse,
-    })
+    async_connection::available()
 }
 
 fn load_library(names: &[&str]) -> Result<Library, String> {
@@ -173,16 +90,29 @@ impl PulseOutputPrep {
 }
 
 pub struct PulseOutputStream {
+    negotiated: deadlib_audio_core::BufferNegotiation,
     stop_flag: Arc<AtomicBool>,
     thread: Option<JoinHandle<()>>,
 }
 
+impl PulseOutputStream {
+    pub fn buffer_negotiation(&self) -> deadlib_audio_core::BufferNegotiation {
+        self.negotiated
+    }
+    pub fn shutdown(&mut self) -> Result<(), String> {
+        self.stop_flag.store(true, Ordering::Release);
+        if let Some(thread) = self.thread.take() {
+            thread
+                .join()
+                .map_err(|_| "Pulse render thread panicked during shutdown".to_string())?;
+        }
+        Ok(())
+    }
+}
+
 impl Drop for PulseOutputStream {
     fn drop(&mut self) {
-        self.stop_flag.store(true, Ordering::Relaxed);
-        if let Some(thread) = self.thread.take() {
-            let _ = thread.join();
-        }
+        let _ = self.shutdown();
     }
 }
 
@@ -191,9 +121,21 @@ pub fn prepare(
     sample_rate_hz: u32,
     channels: usize,
 ) -> Result<PulseOutputPrep, String> {
+    prepare_with_buffer(requested_device_name, sample_rate_hz, channels, None)
+}
+
+pub fn prepare_with_buffer(
+    requested_device_name: Option<String>,
+    sample_rate_hz: u32,
+    channels: usize,
+    requested_period: Option<u32>,
+) -> Result<PulseOutputPrep, String> {
+    if requested_period.is_some_and(|value| !(32..=8192).contains(&value)) {
+        return Err("invalid Pulse buffer-frame request".into());
+    }
     let sample_rate_hz = sample_rate_hz.max(1);
     let channels = channels.clamp(1, 32);
-    let period_frames = suggested_period_frames(sample_rate_hz);
+    let period_frames = requested_period.unwrap_or_else(|| suggested_period_frames(sample_rate_hz));
     let buffer_frames = period_frames.saturating_mul(4).max(period_frames);
     let device_name = match requested_device_name {
         Some(name) if !name.is_empty() => {
@@ -217,13 +159,14 @@ pub fn start(
 ) -> Result<PulseOutputStream, String> {
     let stop_flag = Arc::new(AtomicBool::new(false));
     let stop_flag_thread = stop_flag.clone();
-    let (ready_tx, ready_rx) = channel::<Result<(), String>>();
+    let (ready_tx, ready_rx) = channel::<Result<deadlib_audio_core::BufferNegotiation, String>>();
     let thread = thread::Builder::new()
         .name("pulse_out".to_string())
         .spawn(move || render_thread(prep, render, sfx_receiver, stop_flag_thread, ready_tx))
         .map_err(|e| format!("failed to spawn PulseAudio render thread: {e}"))?;
     match ready_rx.recv() {
-        Ok(Ok(())) => Ok(PulseOutputStream {
+        Ok(Ok(negotiated)) => Ok(PulseOutputStream {
+            negotiated,
             stop_flag,
             thread: Some(thread),
         }),
@@ -235,107 +178,6 @@ pub fn start(
             let _ = thread.join();
             Err("PulseAudio render thread exited during startup".to_string())
         }
-    }
-}
-
-struct PulseConnection {
-    api: &'static PulseApi,
-    raw: *mut PaSimple,
-}
-
-impl PulseConnection {
-    fn open(prep: &PulseOutputPrep) -> Result<Self, String> {
-        let api = pulse_api()?;
-        let app_name = CString::new("audio-output")
-            .expect("static PulseAudio application name contains no NUL");
-        let stream_name = CString::new("Gameplay").unwrap();
-        let sample_spec = PaSampleSpec {
-            format: PA_SAMPLE_S16LE,
-            rate: prep.sample_rate_hz,
-            channels: prep.channels as u8,
-        };
-        let buffer_attr = PaBufferAttr {
-            maxlength: u32::MAX,
-            tlength: frames_to_bytes(prep.buffer_frames, prep.channels),
-            prebuf: u32::MAX,
-            minreq: frames_to_bytes(prep.period_frames, prep.channels),
-            fragsize: u32::MAX,
-        };
-        let mut error = 0;
-        // SAFETY: all pointers passed to PulseAudio come from stack locals or
-        // owned `CString`s that remain alive for the duration of the call, and the
-        // sample/buffer descriptors are fully initialized.
-        let raw = unsafe {
-            (api.pa_simple_new)(
-                ptr::null(),
-                app_name.as_ptr(),
-                PA_STREAM_PLAYBACK,
-                ptr::null(),
-                stream_name.as_ptr(),
-                &sample_spec,
-                ptr::null(),
-                &buffer_attr,
-                &mut error,
-            )
-        };
-        if raw.is_null() {
-            return Err(format!(
-                "failed to open PulseAudio playback stream: {}",
-                pulse_error(api, error)
-            ));
-        }
-        Ok(Self { api, raw })
-    }
-
-    #[inline(always)]
-    fn write_i16(&self, data: &[i16]) -> Result<(), String> {
-        let mut error = 0;
-        // SAFETY: `self.raw` is a live PulseAudio stream owned by this
-        // connection, and `data` is a valid contiguous i16 slice whose byte length
-        // we pass explicitly.
-        let rc = unsafe {
-            (self.api.pa_simple_write)(
-                self.raw,
-                data.as_ptr().cast::<c_void>(),
-                std::mem::size_of_val(data),
-                &mut error,
-            )
-        };
-        if rc < 0 {
-            return Err(format!(
-                "PulseAudio write failed: {}",
-                pulse_error(self.api, error)
-            ));
-        }
-        Ok(())
-    }
-
-    #[inline(always)]
-    fn drain(&self) {
-        let mut error = 0;
-        // SAFETY: `self.raw` remains a valid PulseAudio stream until `Drop`, and
-        // `error` points to writable stack storage for the call.
-        let _ = unsafe { (self.api.pa_simple_drain)(self.raw, &mut error) };
-    }
-
-    #[inline(always)]
-    fn latency_nanos(&self) -> Result<u64, String> {
-        let mut error = 0;
-        // SAFETY: `self.raw` remains a valid PulseAudio stream until `Drop`, and
-        // `error` points to writable stack storage for the call.
-        let latency_usec = unsafe { (self.api.pa_simple_get_latency)(self.raw, &mut error) };
-        if latency_usec == u64::MAX {
-            return Err(pulse_error(self.api, error));
-        }
-        Ok(usec_to_nanos(latency_usec))
-    }
-}
-
-impl Drop for PulseConnection {
-    fn drop(&mut self) {
-        // SAFETY: `raw` is allocated by `pa_simple_new` and owned uniquely by this
-        // connection, so freeing it once in `Drop` is correct.
-        unsafe { (self.api.pa_simple_free)(self.raw) };
     }
 }
 
@@ -365,7 +207,7 @@ fn render_thread(
     render: RenderState,
     sfx_receiver: SfxReceiver,
     stop_flag: Arc<AtomicBool>,
-    ready_tx: Sender<Result<(), String>>,
+    ready_tx: Sender<Result<deadlib_audio_core::BufferNegotiation, String>>,
 ) {
     if let Err(err) = render_thread_inner(prep, render, sfx_receiver, &stop_flag, &ready_tx) {
         let _ = ready_tx.send(Err(err));
@@ -373,13 +215,15 @@ fn render_thread(
 }
 
 fn render_thread_inner(
-    prep: PulseOutputPrep,
+    mut prep: PulseOutputPrep,
     mut render: RenderState,
     mut sfx_receiver: SfxReceiver,
     stop_flag: &AtomicBool,
-    ready_tx: &Sender<Result<(), String>>,
+    ready_tx: &Sender<Result<deadlib_audio_core::BufferNegotiation, String>>,
 ) -> Result<(), String> {
-    let stream = PulseConnection::open(&prep)?;
+    let stream = PulseConnection::open(&prep, stop_flag)?;
+    prep.period_frames = stream.period_frames;
+    prep.buffer_frames = stream.buffer_frames;
     let period_ns = frames_to_nanos(prep.sample_rate_hz, prep.period_frames);
     let buffer_ns = frames_to_nanos(prep.sample_rate_hz, prep.buffer_frames);
     info!("PulseAudio '{}' using shared output.", prep.device_name);
@@ -392,7 +236,13 @@ fn render_thread_inner(
         prep.buffer_frames,
         buffer_ns,
     );
-    if ready_tx.send(Ok(())).is_err() {
+    // minreq is the negotiated client write quantum, not hardware period or
+    // number of native buffers. Render exactly that verified quantum.
+    let negotiated = deadlib_audio_core::BufferNegotiation {
+        period_frames: Some(prep.period_frames),
+        num_buffers: None,
+    };
+    if ready_tx.send(Ok(negotiated)).is_err() {
         return Ok(());
     }
 
@@ -409,7 +259,7 @@ fn render_thread_inner(
             sfx_receiver.try_iter(),
         );
         report_audio_render_callback(result, log::log_enabled!(log::Level::Trace), now_nanos);
-        stream.write_i16(&mix)?;
+        stream.write_i16(&mix, stop_flag)?;
         let timing_after = playback_timing(&stream, prep.sample_rate_hz, &mut clock_health);
         publish_output_timing_quality(worst_quality(
             timing_before.timing_quality,
@@ -425,7 +275,6 @@ fn render_thread_inner(
             timing_after.latency_ns,
         );
     }
-    stream.drain();
     Ok(())
 }
 
@@ -459,21 +308,6 @@ fn playback_timing(
 }
 
 #[inline(always)]
-fn pulse_error(api: &PulseApi, error: c_int) -> String {
-    // SAFETY: `pa_strerror` returns either null or a valid NUL-terminated static
-    // PulseAudio error string for the duration of the call.
-    let ptr = unsafe { (api.pa_strerror)(error) };
-    if ptr.is_null() {
-        return format!("PulseAudio error {error}");
-    }
-    // SAFETY: the pointer was checked for null above and PulseAudio documents it
-    // as a valid C string.
-    unsafe { CStr::from_ptr(ptr) }
-        .to_string_lossy()
-        .into_owned()
-}
-
-#[inline(always)]
 fn frames_to_bytes(frames: u32, channels: usize) -> u32 {
     let bytes = u64::from(frames)
         .saturating_mul(channels.max(1) as u64)
@@ -496,11 +330,6 @@ fn nanos_to_frames(sample_rate_hz: u32, nanos: u64) -> u32 {
     }
     ((u128::from(sample_rate_hz) * u128::from(nanos)) / 1_000_000_000u128)
         .min((u32::MAX - 1) as u128) as u32
-}
-
-#[inline(always)]
-fn usec_to_nanos(usec: u64) -> u64 {
-    usec.saturating_mul(1_000)
 }
 
 #[inline(always)]

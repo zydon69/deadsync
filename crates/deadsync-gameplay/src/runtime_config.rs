@@ -815,8 +815,38 @@ impl Default for GameplayStreamClockSnapshot {
     }
 }
 
+pub const EDITOR_ASSIST_TICK_SFX_PATH: &str = "assets/sounds/editor_assist_tick.wav";
+pub const EDITOR_BEAT_TICK_SFX_PATH: &str = "assets/sounds/editor_beat_tick.wav";
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct EditorAudioGains { pub main:f32, pub music:f32, pub assist:f32, pub beat:f32 }
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EditorTickKind { Assist, Beat }
+/// An editor-owned source musical clock. It does not attest decoder opening
+/// or PCM readiness; those remain separate backend acknowledgements.
+#[derive(Clone,Copy,Debug,PartialEq,Eq)]
+pub struct EditorLogicalMusicClock {
+    pub generation:u64,
+    pub asset_epoch:u64,
+    pub music_nanos:i64,
+}
+#[derive(Clone,Copy,Debug,PartialEq,Eq)]
+pub enum EditorAssetKind {Main,DedicatedPreview}
+#[derive(Clone,Copy,Debug,PartialEq)]
+pub struct EditorPreviewCursor{pub suspended:bool,pub rendered:bool,pub owner:u64,pub kind:EditorAssetKind,pub registration:u64,pub revision:u64,pub generation:u64,pub asset_epoch:u64,pub next_music_seconds:f64,pub rendered_frame:u64,pub source_frame:Option<i64>,pub sample_rate_hz:u32}
+#[derive(Clone,Copy,Debug,Default,PartialEq,Eq)]
+pub struct EditorAssetReadiness {pub owner:u64,pub registration:u64,pub main:bool,pub dedicated_preview:bool}
+#[derive(Clone, Copy, Debug, Default)]
+pub struct EditorAudioSnapshot {
+    pub assets:EditorAssetReadiness,
+    pub logical_music:Option<EditorLogicalMusicClock>,
+    pub output:EditorOutputSnapshot,
+    pub owner:u64, pub tick_generation:u64, pub sample_rate:u32,
+    pub assist_duration:Option<f64>, pub beat_duration:Option<f64>,
+}
+
 #[derive(Clone, Copy, Debug, Default)]
 pub struct GameplayAudioSnapshot {
+    pub editor:EditorAudioSnapshot,
     pub stream_clock: GameplayStreamClockSnapshot,
     pub assist_sfx_generation: u64,
     pub output_delay_seconds: f32,
@@ -977,6 +1007,31 @@ impl Default for GameplayMusicCut {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum GameplayAudioCommand {
+    EditorSetPreviewFades{owner:u64,fade_in:f64,fade_out:f64},
+    EditorSetPreviewRegion{owner:u64,start:f64,length:f64},
+    EditorRetargetTicks{owner:u64},
+    EditorRegisterAsset{owner:u64,kind:EditorAssetKind,path:Option<PathBuf>},
+    EditorSuspendPreview{owner:u64,cursor:EditorPreviewCursor},
+    EditorResumePreview{owner:u64,kind:EditorAssetKind,path:PathBuf,cut:GameplayMusicCut,looping:bool,rate:f32,cursor:EditorPreviewCursor},
+    EditorPlayPreview{owner:u64,kind:EditorAssetKind,path:PathBuf,cut:GameplayMusicCut,looping:bool,rate:f32},
+    EditorStartMusic{owner:u64,path:Option<PathBuf>,seconds:f64,rate:f64},
+    EditorClearMusicAsset{owner:u64},
+    EditorPauseMusic{owner:u64,seconds:f64},
+    EditorResumeMusic{owner:u64,path:PathBuf,seconds:f64,rate:f64},
+    EditorSwapMusicAsset{owner:u64,path:PathBuf},
+    EditorInitializeOutput {owner:u64,id:u64,period_frames:Option<u32>,num_buffers:Option<u32>},
+    EditorRestoreOutputLease {owner:u64,id:u64},
+    EditorAbandonOutputLease {owner:u64},
+    EditorBeginAudio { owner:u64, gains:EditorAudioGains },
+    EditorUpdateAudio { owner:u64, gains:EditorAudioGains },
+    EditorEndAudio { owner:u64 },
+    EditorInvalidateTicks { owner:u64 },
+    EditorStopMusic { owner:u64 },
+    EditorSetMusicRate { owner:u64, rate:f64 },
+    EditorSeekMusic { owner:u64, seconds:f64 },
+    EditorPlayMusic { owner:u64, path:PathBuf, cut:GameplayMusicCut, looping:bool, rate:f64 },
+    EditorTickWindow { owner:u64, tick_generation:u64, music_generation:u64, kind:EditorTickKind, samples:std::sync::Arc<[i64]> },
+
     StopMusic,
     SetMusicRate(f32),
     /// Reposition the active track without changing its rate, gain or decoder.
@@ -1050,5 +1105,55 @@ impl GameplayCommandQueue {
     #[inline(always)]
     pub fn drain_session(&mut self) -> std::vec::Drain<'_, GameplaySessionCommand> {
         self.session.drain(..)
+    }
+}
+
+/// Copy-only UI projection; backend restoration receipts stay in AudioControl.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum EditorBufferControl {
+    Adjustable,
+    ServerControlled,
+    #[default]
+    Unsupported,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EditorOutputOutcome {
+    Applied,
+    FailedRestored,
+    FailedUnavailable,
+    Unsupported,
+    Cancelled,
+    Busy,
+    InvalidRequest,
+    StaleOwner,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct EditorOutputAck {
+    pub owner: u64,
+    pub id: u64,
+    pub outcome: EditorOutputOutcome,
+}
+#[derive(Clone, Copy, Debug, Default)]
+pub struct EditorOutputSnapshot {
+    pub available: bool,
+    pub leased: bool,
+    pub period_control: EditorBufferControl,
+    pub count_control: EditorBufferControl,
+    pub requested_period: Option<u32>,
+    pub requested_count: Option<u32>,
+    pub negotiated_period: Option<u32>,
+    pub negotiated_count: Option<u32>,
+    pub ack: Option<EditorOutputAck>,
+}
+
+#[cfg(test)]
+mod editor_logical_music_protocol_tests {
+    use super::*;
+    #[test]
+    fn default_editor_snapshot_does_not_claim_a_logical_music_clock(){
+        assert!(EditorAudioSnapshot::default().logical_music.is_none());
+        let clock=EditorLogicalMusicClock{generation:17,asset_epoch:29,music_nanos:-123_456_789};
+        let snapshot=EditorAudioSnapshot{logical_music:Some(clock),..Default::default()};
+        assert_eq!(snapshot.logical_music,Some(clock));
     }
 }

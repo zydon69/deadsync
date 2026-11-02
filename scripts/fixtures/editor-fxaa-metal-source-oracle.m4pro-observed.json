@@ -1,0 +1,123 @@
+{
+  "provenance": {
+    "source_pin": "48e18f71655d0f0d86144c63239331833501fda2",
+    "source_path": "StepManiaEditor/Content/fxaa.fx",
+    "source_branch": "clang -E with pinned defaults: active HLSL5 gather-emulation scalar splats and original unscaled (-1,-1) offset",
+    "source_adaptations": [
+      "sampler2D parameter becomes Metal texture2d<float>",
+      "tex2D(texture,float4) uses normalized linear clamp-to-edge sampler at coordinate.xy",
+      "HLSL int2 constants promote to float2 for mixed vector arithmetic",
+      "independent fullscreen triangle and matching fragment ABI; original body called directly, never generated through production GLSL"
+    ],
+    "input": {
+      "width": 31,
+      "height": 19,
+      "formula": "v=f32(x>y?0.9:0.1); rgba=[v,f32(((x*7+y*13)%29)/28),f32(1-v),f32(((y*31+x)%17)/16)]"
+    },
+    "input_formats": [
+      "rgba32Float",
+      "rgba16Float",
+      "rgba8Unorm"
+    ],
+    "output_formats": [
+      "rgba32Float",
+      "rgba16Float",
+      "rgba8Unorm"
+    ],
+    "destination_dimensions": [
+      [
+        31,
+        19
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        53,
+        23
+      ]
+    ],
+    "qualities": [
+      [
+        0.75,
+        0.166,
+        0.0833,
+        0
+      ],
+      [
+        0.2,
+        0.166,
+        0.0833,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0.01,
+        0,
+        0
+      ]
+    ],
+    "expected_gpu_cases": 108,
+    "comparison": "bitwise readback equality, no tolerance; CPU comparison diagnostic only",
+    "compile_options": {
+      "fast_math": false
+    },
+    "scope_limit": "Metal kernel and fullscreen sampling on the reported device/OS only; no D3D, Vulkan, GL, WGPU, complete engine render-target lifecycle, or universal CPU/GPU parity claim",
+    "source_sha256": "54a209126e12dcae02a7f8dab29deae48155c6114aca92b420ccc4748b483e56",
+    "original_preprocessed_body_sha256": "e953d0fc91551fd5347d108310493d7a3fdb4e9753144ab6f77ed6cde03ac0ea",
+    "production_shader_sha256": "e4b351f16c26b6fe944ef29e77a562627a09ba770107ede183e2536c62195f67",
+    "input_sha256": "1c5db31bb365d474121ecbb0fa7e6c6fa3feb679d4cf2c1cfdd08441d8757565",
+    "clang_version": "Apple clang version 17.0.0 (clang-1700.6.3.2)",
+    "swift_version": "Apple Swift version 6.2.3 (swiftlang-6.2.3.3.21 clang-1700.6.3.2)",
+    "exit_status": 0
+  },
+  "device_environment": {
+    "comparison": "original independently preprocessed HLSL5\u2192MSL vs production MSL",
+    "device": "Apple M4 Pro",
+    "fastMath": false,
+    "os": "Version 26.6.2 (Build 25G83)",
+    "sourcePin": "48e18f71655d0f0d86144c63239331833501fda2"
+  },
+  "gpu_summary": {
+    "cases": 108,
+    "casesWithDifferentBytes": 0,
+    "totalDifferentBytes": 0
+  },
+  "cpu_diagnostics": [
+    {
+      "comparison": "independent original GPU vs original C++ CPU diagnostics only",
+      "componentIndex": 1697,
+      "height": 19,
+      "maxFiniteError": 0.04977220296859741,
+      "originalCPU": 0.8289945125579834,
+      "originalGPU": 0.8787667155265808,
+      "width": 31
+    },
+    {
+      "comparison": "independent original GPU vs original C++ CPU diagnostics only",
+      "componentIndex": 169,
+      "height": 11,
+      "maxFiniteError": 0.08689573407173157,
+      "originalCPU": 0.48690447211265564,
+      "originalGPU": 0.5738002061843872,
+      "width": 7
+    },
+    {
+      "comparison": "independent original GPU vs original C++ CPU diagnostics only",
+      "componentIndex": 4805,
+      "height": 23,
+      "maxFiniteError": 0.08503586053848267,
+      "originalCPU": 0.8019460439682007,
+      "originalGPU": 0.716910183429718,
+      "width": 53
+    }
+  ],
+  "scope": "Observed result, not a device-independent golden pixel array. Re-run scripts to establish parity on another Metal device/driver."
+}

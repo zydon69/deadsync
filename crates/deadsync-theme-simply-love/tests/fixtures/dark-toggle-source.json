@@ -1,0 +1,100 @@
+{
+  "cases": [
+    {
+      "name": "False-before",
+      "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": false}}",
+      "show": false,
+      "value": {
+        "Player": 3,
+        "PreferencesDark": {
+          "ShowDarkBg": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-toggle",
+      "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": false}}",
+      "show": true,
+      "value": {
+        "Player": 3,
+        "PreferencesDark": {
+          "ShowDarkBg": true
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-toggle-back",
+      "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": false}}",
+      "show": false,
+      "value": {
+        "Player": 3,
+        "PreferencesDark": {
+          "ShowDarkBg": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": false}}",
+      "show": false,
+      "value": {
+        "Player": 3,
+        "PreferencesDark": {
+          "ShowDarkBg": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-before",
+      "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true}}",
+      "show": true,
+      "value": {
+        "Player": 3,
+        "PreferencesDark": {
+          "ShowDarkBg": true
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-toggle",
+      "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true}}",
+      "show": false,
+      "value": {
+        "Player": 3,
+        "PreferencesDark": {
+          "ShowDarkBg": false
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-toggle-back",
+      "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true}}",
+      "show": true,
+      "value": {
+        "Player": 3,
+        "PreferencesDark": {
+          "ShowDarkBg": true
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesDark\": {\"ShowDarkBg\": true}}",
+      "show": true,
+      "value": {
+        "Player": 3,
+        "PreferencesDark": {
+          "ShowDarkBg": true
+        }
+      },
+      "accepted": true
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+[
+  {
+    "scenario": "Known",
+    "input": {
+      "ExpressedChartConfig": "0c0ba200-8f90-4060-8912-e9ea65831ebc",
+      "Patterns": {
+        "96": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 48,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": true
+        }
+      }
+    },
+    "Expression": "0c0ba200-8f90-4060-8912-e9ea65831ebc",
+    "Patterns": [
+      {
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 48,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": true,
+          "IgnorePrecedingDistribution": false
+        }
+      }
+    ],
+    "Dirty": false,
+    "Warnings": []
+  },
+  {
+    "scenario": "MissingExpression",
+    "input": {
+      "ExpressedChartConfig": "12345678-9abc-4def-8123-456789abcdef",
+      "Patterns": {
+        "96": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 48,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": true
+        }
+      }
+    },
+    "Expression": "a19d532e-b0ce-4759-ad1c-02ecbbdf2efd",
+    "Patterns": [
+      {
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 48,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": true,
+          "IgnorePrecedingDistribution": false
+        }
+      }
+    ],
+    "Dirty": false,
+    "Warnings": []
+  },
+  {
+    "scenario": "MissingAll",
+    "input": {
+      "ExpressedChartConfig": "12345678-9abc-4def-8123-456789abcdef",
+      "Patterns": {
+        "96": {
+          "PatternConfigGuid": "12345678-9abc-4def-8123-456789abcdef",
+          "PerformedChartConfigGuid": "12345678-9abc-4def-8123-456789abcdef",
+          "Length": 48,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": true
+        }
+      }
+    },
+    "Expression": "a19d532e-b0ce-4759-ad1c-02ecbbdf2efd",
+    "Patterns": [
+      {
+        "Row": 96,
+        "Definition": {
+          "PatternConfigGuid": "03de57bd-4329-4de6-a722-a171c11fdd16",
+          "PerformedChartConfigGuid": "41a7f76e-596a-4fbe-bf6e-6a77a898e4a1",
+          "Length": 48,
+          "RandomSeed": 42,
+          "StartPositionInclusive": true,
+          "EndPositionInclusive": true,
+          "IgnorePrecedingDistribution": false
+        }
+      }
+    ],
+    "Dirty": true,
+    "Warnings": [
+      "Pattern at row 96 uses unknown pattern config with guid 12345678-9abc-4def-8123-456789abcdef. Updating this pattern to use Sixteenths.",
+      "Pattern at row 96 uses unknown performed chart config with guid 12345678-9abc-4def-8123-456789abcdef. Updating this pattern to use Balanced."
+    ]
+  }
+]

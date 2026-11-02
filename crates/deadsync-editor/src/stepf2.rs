@@ -339,6 +339,7 @@ fn cells(line: &str) -> Result<Vec<Cell>, Error> {
 /// Strict export: errors are returned before any destination is written.
 /// GrooveAuthor warns and flattens non-P1 mines; here that data loss is refused.
 pub fn serialize(grid: &Grid) -> Result<Vec<u8>, Error> {
+    grid.require_no_opaque_cells()?;
     if grid.columns() != 10 || grid.players() > 4 {
         return Err(Error::InvalidEdit(
             "StepF2 needs ten lanes and at most four participants".into(),

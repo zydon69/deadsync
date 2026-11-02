@@ -14,6 +14,24 @@ pub(super) struct InitializedClient {
     pub path: &'static str,
 }
 
+pub(super) fn supports_requested_period(client: &Audio::IAudioClient, format: &[u8]) -> bool {
+    let Ok(client) = client.cast::<Audio::IAudioClient3>() else {
+        return false;
+    };
+    let (mut default, mut fundamental, mut min, mut max) = (0, 0, 0, 0);
+    unsafe {
+        client.GetSharedModeEnginePeriod(
+            waveformat(format),
+            &mut default,
+            &mut fundamental,
+            &mut min,
+            &mut max,
+        )
+    }
+    .is_ok()
+        && minimum_period(fundamental, min, max).is_some()
+}
+
 pub(super) fn initialize_client(
     device: &Audio::IMMDevice,
     prep: &WasapiOutputPrep,
@@ -21,10 +39,14 @@ pub(super) fn initialize_client(
     let client = build_audio_client(device)?;
     match prep.mode {
         WasapiAccessMode::Shared => {
-            initialize_shared_client(client, &prep.format, || build_audio_client(device))
+            initialize_shared_client(client, &prep.format, prep.requested_period_frames, || {
+                build_audio_client(device)
+            })
         }
         WasapiAccessMode::Exclusive => {
-            initialize_exclusive(client, &prep.format, || build_audio_client(device))
+            initialize_exclusive(client, &prep.format, prep.requested_period_frames, || {
+                build_audio_client(device)
+            })
         }
     }
 }
@@ -32,12 +54,13 @@ pub(super) fn initialize_client(
 fn initialize_shared_client(
     mut client: Audio::IAudioClient,
     format: &[u8],
+    requested_period: Option<u32>,
     mut activate: impl FnMut() -> Result<Audio::IAudioClient, String>,
 ) -> Result<InitializedClient, String> {
     // QueryInterface is available on Windows 7; the newer interface is reached
     // through its COM vtable, without importing any Windows 10 DLL entry points.
     let attempt = match client.cast::<Audio::IAudioClient3>() {
-        Ok(client3) => Some(initialize_low_period(&client3, format)),
+        Ok(client3) => Some(initialize_low_period(&client3, format, requested_period)),
         Err(err) if err.code() == Foundation::E_NOINTERFACE => None,
         Err(err) => Some(Err(format!("IAudioClient3 query failed: {err}"))),
     };
@@ -50,6 +73,9 @@ fn initialize_shared_client(
             });
         }
         Some(Err(err)) => {
+            if requested_period.is_some() {
+                return Err(err);
+            }
             warn!(
                 "WASAPI low-period shared initialization unavailable: {err}. Using legacy shared mode."
             );
@@ -57,6 +83,9 @@ fn initialize_shared_client(
             // references must be released before activating the fallback client.
             drop(client);
             client = activate()?;
+        }
+        None if requested_period.is_some() => {
+            return Err("WASAPI requested period requires IAudioClient3".into());
         }
         None => debug!("WASAPI IAudioClient3 unavailable; using legacy shared mode."),
     }
@@ -68,7 +97,11 @@ fn initialize_shared_client(
     })
 }
 
-fn initialize_low_period(client: &Audio::IAudioClient3, format: &[u8]) -> Result<u32, String> {
+fn initialize_low_period(
+    client: &Audio::IAudioClient3,
+    format: &[u8],
+    requested_period: Option<u32>,
+) -> Result<u32, String> {
     let properties = Audio::AudioClientProperties {
         cbSize: size_of::<Audio::AudioClientProperties>() as u32,
         bIsOffload: false.into(),
@@ -95,9 +128,10 @@ fn initialize_low_period(client: &Audio::IAudioClient3, format: &[u8]) -> Result
             )
             .map_err(|e| format!("GetSharedModeEnginePeriod failed: {e}"))?;
     }
-    let period = minimum_period(fundamental, min, max).ok_or_else(|| {
-        format!("invalid shared periods: fundamental={fundamental}, min={min}, max={max}")
-    })?;
+    let period =
+        select_requested_period(fundamental, min, max, requested_period).ok_or_else(|| {
+            format!("invalid shared periods: fundamental={fundamental}, min={min}, max={max}")
+        })?;
     // SAFETY: the period is within the reported bounds and is a multiple of the
     // fundamental period. The format is the one used for the period query.
     unsafe {
@@ -113,6 +147,18 @@ fn initialize_low_period(client: &Audio::IAudioClient3, format: &[u8]) -> Result
     Ok(period)
 }
 
+fn select_requested_period(
+    fundamental: u32,
+    min: u32,
+    max: u32,
+    requested: Option<u32>,
+) -> Option<u32> {
+    let minimum = minimum_period(fundamental, min, max)?;
+    let target = requested.unwrap_or(minimum).max(minimum);
+    let selected = target.div_ceil(fundamental).checked_mul(fundamental)?;
+    (selected <= max).then_some(selected)
+}
+
 fn minimum_period(fundamental: u32, min: u32, max: u32) -> Option<u32> {
     if fundamental == 0 || min == 0 || min > max {
         return None;
@@ -124,10 +170,15 @@ fn minimum_period(fundamental: u32, min: u32, max: u32) -> Option<u32> {
 fn initialize_exclusive(
     mut client: Audio::IAudioClient,
     format: &[u8],
+    requested_period: Option<u32>,
     mut activate: impl FnMut() -> Result<Audio::IAudioClient, String>,
 ) -> Result<InitializedClient, String> {
     let (default, min) = query_device_periods_hns(&client)?;
-    let period = selected_device_period_hns(WasapiAccessMode::Exclusive, default, min);
+    let period = match requested_period {
+        Some(frames) => aligned_period_hns(frames, waveformat(format).nSamplesPerSec)
+            .ok_or_else(|| "invalid WASAPI requested exclusive period".to_string())?,
+        None => selected_device_period_hns(WasapiAccessMode::Exclusive, default, min),
+    };
     match initialize_exclusive_period(&client, format, period) {
         Ok(()) => {}
         Err(err) if err.code() == Audio::AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED => {
@@ -287,3 +338,16 @@ fn select_exclusive_format(
 #[cfg(test)]
 #[path = "../tests/negotiation/mod.rs"]
 mod tests;
+
+#[cfg(test)]
+mod requested_period_tests {
+    use super::*;
+    #[test]
+    fn explicit_request_negotiates_fundamental_and_refuses_unrepresentable_period() {
+        assert_eq!(select_requested_period(48, 96, 960, Some(130)), Some(144));
+        assert_eq!(select_requested_period(48, 96, 960, Some(32)), Some(96));
+        assert_eq!(select_requested_period(48, 96, 960, Some(961)), None);
+        assert_eq!(select_requested_period(0, 96, 960, Some(256)), None);
+        assert_eq!(select_requested_period(48, 96, 960, None), Some(96));
+    }
+}

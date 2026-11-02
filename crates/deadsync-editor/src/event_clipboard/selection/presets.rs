@@ -2,7 +2,6 @@
 //! Replace and Remove are explicit native conveniences, never default behavior.
 use super::{Event, Kind, Selection};
 use crate::{Error, history::Session};
-use std::collections::BTreeSet;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Preset {
     Notes,
@@ -45,6 +44,9 @@ impl Preset {
         )
     }
     pub fn matches(self, event: Event, note_kind: Option<Kind>, player: Option<u32>) -> bool {
+        if matches!(event, Event::SongWidget(_)) {
+            return false;
+        }
         let owner_matches = match event {
             Event::Note(position) => player.is_none_or(|p| p == position.player),
             _ => player.is_none(),
@@ -107,19 +109,12 @@ impl Selection {
                 )
             })
             .collect();
-        let mut selected = if mode == Mode::Replace {
-            BTreeSet::new()
-        } else {
-            self.selected.clone()
-        };
-        for event in &matches {
-            if mode == Mode::Remove {
-                selected.remove(event);
-            } else {
-                selected.insert(*event);
-            }
+        if mode == Mode::Replace {
+            self.select_all(false);
         }
-        self.selected = selected;
+        for event in &matches {
+            self.choose(*event, mode != Mode::Remove);
+        }
         Ok(Report {
             matched: matches.len(),
             selected: self.selected.len(),
@@ -130,10 +125,17 @@ impl Selection {
     /// prior identities survive; the source revision is validated before capture.
     pub fn expand_to_chart(&self, session: &mut Session) -> Result<Self, Error> {
         self.validate(session)?;
-        let mut expanded = Self::capture(session, self.chart, 0, i32::MAX as u64)?;
-        expanded
-            .selected
-            .retain(|event| self.selected.contains(event));
+        let mut expanded = Self::capture_inventory(session,self.chart,true)?;
+        if self
+            .events
+            .iter()
+            .any(|event| matches!(event, Event::SongWidget(_)))
+        {
+            expanded.include_song_widgets(session)?;
+        }
+        expanded.selected = self.selected.clone();
+        expanded.order = self.order.clone();
+        expanded.last_selected = self.last_selected;
         Ok(expanded)
     }
 }

@@ -16,3 +16,8 @@ GEMINI.md
 __pycache__/
 optimize.*
 rust-performance.md
+
+# Local editor migration scratch and .NET build artifacts
+/patches/
+/scripts/**/obj/
+/scripts/**/bin/

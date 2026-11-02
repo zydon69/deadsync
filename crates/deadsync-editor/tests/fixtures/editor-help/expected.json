@@ -1,0 +1,20 @@
+{
+  "debug": [
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/main/StepManiaEditor/docs/TableOfContents.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/main/StepManiaEditor/docs/PatternGeneration.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/main/StepManiaEditor/docs/PatternConfigs.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/main/StepManiaEditor/docs/PerformedChartConfigs.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/main/StepManiaEditor/docs/ExpressedChartConfigs.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/main/StepManiaEditor/docs/SongSync.md",
+    "https://github.com/PerryAsleep/GrooveAuthor"
+  ],
+  "release": [
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/v0.1.0/StepManiaEditor/docs/TableOfContents.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/v0.1.0/StepManiaEditor/docs/PatternGeneration.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/v0.1.0/StepManiaEditor/docs/PatternConfigs.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/v0.1.0/StepManiaEditor/docs/PerformedChartConfigs.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/v0.1.0/StepManiaEditor/docs/ExpressedChartConfigs.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/v0.1.0/StepManiaEditor/docs/SongSync.md",
+    "https://github.com/PerryAsleep/GrooveAuthor"
+  ]
+}

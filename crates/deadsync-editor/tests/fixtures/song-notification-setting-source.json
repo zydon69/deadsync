@@ -1,0 +1,94 @@
+{
+  "cases": [
+    {
+      "name": "False-before",
+      "raw": "{\"Player\": 3, \"PreferencesOptions\": {\"SuppressExternalSongModificationNotification\": false}}",
+      "suppressed": false,
+      "value": {
+        "Player": 3
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-toggle",
+      "raw": "{\"Player\": 3, \"PreferencesOptions\": {\"SuppressExternalSongModificationNotification\": false}}",
+      "suppressed": true,
+      "value": {
+        "Player": 3
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-undo",
+      "raw": "{\"Player\": 3, \"PreferencesOptions\": {\"SuppressExternalSongModificationNotification\": false}}",
+      "suppressed": false,
+      "value": {
+        "Player": 3
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-redo",
+      "raw": "{\"Player\": 3, \"PreferencesOptions\": {\"SuppressExternalSongModificationNotification\": false}}",
+      "suppressed": true,
+      "value": {
+        "Player": 3
+      },
+      "accepted": true
+    },
+    {
+      "name": "False-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesOptions\": {\"SuppressExternalSongModificationNotification\": false}}",
+      "suppressed": true,
+      "value": {
+        "Player": 3
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-before",
+      "raw": "{\"Player\": 3, \"PreferencesOptions\": {\"SuppressExternalSongModificationNotification\": true}}",
+      "suppressed": true,
+      "value": {
+        "Player": 3
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-toggle",
+      "raw": "{\"Player\": 3, \"PreferencesOptions\": {\"SuppressExternalSongModificationNotification\": true}}",
+      "suppressed": false,
+      "value": {
+        "Player": 3
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-undo",
+      "raw": "{\"Player\": 3, \"PreferencesOptions\": {\"SuppressExternalSongModificationNotification\": true}}",
+      "suppressed": true,
+      "value": {
+        "Player": 3
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-redo",
+      "raw": "{\"Player\": 3, \"PreferencesOptions\": {\"SuppressExternalSongModificationNotification\": true}}",
+      "suppressed": false,
+      "value": {
+        "Player": 3
+      },
+      "accepted": true
+    },
+    {
+      "name": "True-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesOptions\": {\"SuppressExternalSongModificationNotification\": true}}",
+      "suppressed": false,
+      "value": {
+        "Player": 3
+      },
+      "accepted": true
+    }
+  ]
+}

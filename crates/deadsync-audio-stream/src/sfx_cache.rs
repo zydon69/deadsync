@@ -8,7 +8,26 @@ use std::sync::Arc;
 
 /// Validated session-lifetime sound data resolved before a hot submission.
 #[derive(Clone)]
-pub struct SfxId(Arc<[i16]>);
+pub struct SfxId(Arc<[i16]>,Option<EditorTickClip>);
+#[derive(Clone)]struct EditorTickClip{pcm:Arc<[f32]>,hz:u32,channels:usize}
+impl SfxId {
+    pub(crate) fn editor_pcm(&self, output: OutputFormat) -> Option<Arc<[f32]>> {
+        self.1
+            .as_ref()
+            .filter(|clip| clip.hz == output.sample_rate_hz && clip.channels == output.channels)
+            .map(|clip| clip.pcm.clone())
+    }
+
+    pub(crate) fn valid_editor_output(&self, output: OutputFormat) -> bool {
+        self.1
+            .as_ref()
+            .is_none_or(|clip| clip.hz == output.sample_rate_hz && clip.channels == output.channels)
+    }
+    pub(crate) fn duration(&self, output: OutputFormat) -> f64 {
+        if let Some(clip)=self.1.as_ref().filter(|clip|clip.hz==output.sample_rate_hz&&clip.channels==output.channels){return clip.pcm.len()as f64/(f64::from(clip.hz)*clip.channels as f64);}
+        self.0.len() as f64 / (f64::from(output.sample_rate_hz) * output.channels as f64)
+    }
+}
 
 /// Session-lifetime SFX cache owned by the application thread's audio control.
 ///
@@ -20,15 +39,17 @@ pub struct SfxId(Arc<[i16]>);
 /// allocation, or I/O.
 pub struct SfxCache {
     sounds: HashMap<PathBuf, SfxId>,
+    editor_sounds:HashMap<(PathBuf,u32,usize),SfxId>,
     sender: SfxSender,
     controls: Arc<MixControls>,
     owned_voices: HashMap<u64, Arc<SfxVoiceControl>>,
 }
 
 impl SfxCache {
+    pub(crate) fn reclaim_schedules(&self){self.sender.reclaim_schedules();}
     pub fn new(controls: Arc<MixControls>, sender: SfxSender) -> Self {
         Self {
-            sounds: HashMap::new(),
+            sounds: HashMap::new(),editor_sounds:HashMap::new(),
             sender,
             controls,
             owned_voices: HashMap::new(),
@@ -52,10 +73,51 @@ impl SfxCache {
         };
 
         debug!("Cached SFX: {}", path.display());
-        let sound = SfxId(decoded);
+        let sound = SfxId(decoded,None);
         self.sounds.insert(path.to_owned(), sound.clone());
         Some(sound)
     }
+
+    /// Startup/control-only preparation. Editor float PCM never crosses i16
+    /// after resampling; the legacy half remains available to generic callers.
+    pub(crate) fn prepare_editor_tick(
+        &mut self,
+        path: &Path,
+        output: OutputFormat,
+    ) -> Option<SfxId> {
+        let key = (path.to_owned(), output.sample_rate_hz, output.channels);
+        if let Some(sound) = self.editor_sounds.get(&key) {
+            return Some(sound.clone());
+        }
+        let raw = self.prepare(path, output)?;
+        let pcm = match deadlib_audio_decode::editor_ticks::prepare(
+            path,
+            crate::DECODE_OPTIONS,
+            output.sample_rate_hz,
+            output.channels,
+            &std::sync::atomic::AtomicBool::new(false),
+        ) {
+            Ok(pcm) => pcm,
+            Err(error) => {
+                warn!(
+                    "Failed to prepare editor tick '{}': {error}",
+                    path.display()
+                );
+                return None;
+            }
+        };
+        let sound = SfxId(
+            raw.0,
+            Some(EditorTickClip {
+                pcm,
+                hz: output.sample_rate_hz,
+                channels: output.channels,
+            }),
+        );
+        self.editor_sounds.insert(key, sound.clone());
+        Some(sound)
+    }
+    pub(crate) fn controls(&self)->std::sync::Arc<MixControls> {self.controls.clone()}
 
     /// Enqueues prepared samples on `bus` without loading or looking up a path.
     pub fn play(&mut self, sound: &SfxId, bus: MixBus, target_stream_frame: u64) {
@@ -81,7 +143,7 @@ impl SfxCache {
             generation: self.controls.bus_generation(bus),
             restart_slot,
             pan,
-            target_stream_frame,
+            target_stream_frame: deadlib_audio_core::SfxOnset::from_legacy(target_stream_frame), schedule: None,
             voice: None,
         });
     }
@@ -97,7 +159,7 @@ impl SfxCache {
         let voice = Arc::new(SfxVoiceControl::new());
         if self.sender.try_send(QueuedSfx {
             data: Arc::clone(&sound.0), bus,
-            generation: self.controls.bus_generation(bus), target_stream_frame: 0,
+            generation: self.controls.bus_generation(bus), target_stream_frame: deadlib_audio_core::SfxOnset::Immediate, schedule: None,
             restart_slot: None,
             pan: SfxPan::Center,
             voice: Some(Arc::clone(&voice)),
@@ -118,6 +180,21 @@ impl SfxCache {
         for (_, voice) in self.owned_voices.drain() { voice.stop(); }
     }
 
+    pub(super) fn rebind_output(&mut self,sender:SfxSender) {
+        self.stop_owned_voices();
+        self.sender=sender;
+    }
+
+    pub(crate) fn replace_schedule(&mut self, sound: &SfxId, bus: MixBus, mut schedule: deadlib_audio_core::SfxSchedule) -> bool {
+        if sound.1.is_some(){schedule.retain_pcm_storage(sound.0.clone());}
+        self.sender.try_send(QueuedSfx {
+            data: Arc::clone(&sound.0), bus,
+            generation: self.controls.bus_generation(bus), restart_slot: Some(0),
+            pan: SfxPan::Center, target_stream_frame: deadlib_audio_core::SfxOnset::Immediate,
+            schedule: Some(schedule), voice: None,
+        }).is_ok()
+    }
+
     pub fn play_assist_tick(&mut self, sound: &SfxId, target_stream_frame: u64) {
         self.play(sound, ASSIST_TICK_BUS, target_stream_frame);
     }
@@ -134,7 +211,7 @@ mod tests {
         let controls = Arc::new(MixControls::new());
         let (sender, mut receiver) = sfx_transport(8);
         let mut cache = SfxCache::new(Arc::clone(&controls), sender);
-        let sound = SfxId(Arc::from([1000_i16; 64]));
+        let sound = SfxId(Arc::from([1000_i16; 64]),None);
         let bus = MixBus::new(1);
         cache.play_owned(11, &sound, bus);
         cache.play_owned(22, &sound, bus);
@@ -210,9 +287,9 @@ mod tests {
         assert!(Arc::ptr_eq(&queued[0].data, &queued[2].data));
         assert_eq!(queued[0].bus, screen);
         assert_eq!(queued[1].bus, effect);
-        assert_eq!(queued[2].target_stream_frame, 960);
-        assert_eq!(queued[0].target_stream_frame, 480);
-        assert_eq!(queued[1].target_stream_frame, 0);
+        assert_eq!(queued[2].target_stream_frame, deadlib_audio_core::SfxOnset::At(960));
+        assert_eq!(queued[0].target_stream_frame, deadlib_audio_core::SfxOnset::At(480));
+        assert_eq!(queued[1].target_stream_frame, deadlib_audio_core::SfxOnset::Immediate);
         assert!(!controls.is_current(screen, queued[0].generation));
         assert!(controls.is_current(effect, queued[1].generation));
         assert!(controls.is_current(screen, queued[2].generation));

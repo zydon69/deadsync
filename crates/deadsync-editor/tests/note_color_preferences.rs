@@ -1,6 +1,5 @@
-use deadsync_editor::{Error, minimap_palette};
-#[path = "../src/note_color_preferences.rs"]
-mod note_color_preferences;
+use deadsync_editor::minimap_palette;
+use deadsync_editor::note_color_preferences;
 use note_color_preferences::Preferences;
 #[test]
 fn source_keys_and_vector_objects_preserve_distinct_groups_and_unknown_values() {
@@ -31,10 +30,10 @@ fn source_keys_and_vector_objects_preserve_distinct_groups_and_unknown_values() 
     assert_eq!(reopened.colors.subdivisions, settings.colors.subdivisions);
 }
 #[test]
-fn invalid_rgb_types_bounds_and_nonfinite_multipliers_are_rejected() {
+fn invalid_rgb_types_float32_overflow_and_nonfinite_multipliers_are_rejected() {
     for invalid in [
         serde_json::json!({"QuarterColor":[0.0,1.0,0.0]}),
-        serde_json::json!({"QuarterColor":{"X":2.0,"Y":0.0,"Z":0.0}}),
+        serde_json::json!({"QuarterColor":{"X":1e50,"Y":0.0,"Z":0.0}}),
         serde_json::json!({"ArrowUIColorMultiplier":"bad"}),
     ] {
         assert!(Preferences::read(invalid.as_object().unwrap(), &Default::default()).is_err());

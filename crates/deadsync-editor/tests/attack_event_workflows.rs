@@ -147,7 +147,7 @@ fn chart_attack_inheritance_is_independent_of_split_timing_and_sibling_charts() 
     assert_eq!(session.serialize().unwrap(), current);
     session.undo().unwrap();
     assert_eq!(session.serialize().unwrap(), before);
-    assert!(Draft::capture(&Session::new(document(Format::Sm)), 0, Scope::Chart).is_err());
+    assert!(Draft::capture(&Session::new(document(Format::Sm)), 0, Scope::Chart).unwrap().inherited());
 }
 #[test]
 fn names_are_escaped_once_without_tag_comment_or_parameter_injection() {

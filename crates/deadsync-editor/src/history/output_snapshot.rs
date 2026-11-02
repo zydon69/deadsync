@@ -5,6 +5,7 @@ impl Session {
     pub(crate) fn detached_output_snapshot(&self, document: Document) -> Result<Self, Error> {
         let mut snapshot = Self::staged(document);
         snapshot.install_snapshot_chart_ids(self.chart_ids.clone())?;
+        snapshot.song_timing=Some(self.song_timing_choice()?);
         Ok(snapshot)
     }
     pub(crate) fn recovered_output_snapshot(

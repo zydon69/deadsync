@@ -1,0 +1,102 @@
+[
+  {
+    "Custom": false,
+    "Scale": 1,
+    "Monitor": 2,
+    "First": 2,
+    "ScaledTwo": 4,
+    "CloseWidth": 36,
+    "FontPixels": 30,
+    "AfterPreferenceAndMonitorChange": 2
+  },
+  {
+    "Custom": true,
+    "Scale": 1.5,
+    "Monitor": 2,
+    "First": 1.5,
+    "ScaledTwo": 3,
+    "CloseWidth": 27,
+    "FontPixels": 22,
+    "AfterPreferenceAndMonitorChange": 1.5
+  },
+  {
+    "Custom": true,
+    "Scale": 0,
+    "Monitor": 2,
+    "First": 2,
+    "ScaledTwo": 4,
+    "CloseWidth": 36,
+    "FontPixels": 30,
+    "AfterPreferenceAndMonitorChange": 2
+  },
+  {
+    "Custom": true,
+    "Scale": -1,
+    "Monitor": 2,
+    "First": 1,
+    "ScaledTwo": 2,
+    "CloseWidth": 18,
+    "FontPixels": 15,
+    "AfterPreferenceAndMonitorChange": 1
+  },
+  {
+    "Custom": true,
+    "Scale": 0,
+    "Monitor": -1,
+    "First": 1,
+    "ScaledTwo": 2,
+    "CloseWidth": 18,
+    "FontPixels": 15,
+    "AfterPreferenceAndMonitorChange": 1
+  },
+  {
+    "Custom": false,
+    "Scale": 1,
+    "Monitor": 0,
+    "First": 1,
+    "ScaledTwo": 2,
+    "CloseWidth": 18,
+    "FontPixels": 15,
+    "AfterPreferenceAndMonitorChange": 1
+  },
+  {
+    "Custom": true,
+    "Scale": 1e-10,
+    "Monitor": 2,
+    "First": 1e-10,
+    "ScaledTwo": 0,
+    "CloseWidth": 0,
+    "FontPixels": 0,
+    "AfterPreferenceAndMonitorChange": 1e-10
+  },
+  {
+    "Custom": true,
+    "Scale": 8,
+    "Monitor": 2,
+    "First": 8,
+    "ScaledTwo": 16,
+    "CloseWidth": 144,
+    "FontPixels": 120,
+    "AfterPreferenceAndMonitorChange": 8
+  },
+  {
+    "Custom": true,
+    "Scale": 0.25,
+    "Monitor": 2,
+    "First": 0.25,
+    "ScaledTwo": 0,
+    "CloseWidth": 4,
+    "FontPixels": 3,
+    "AfterPreferenceAndMonitorChange": 0.25
+  },
+  {
+    "Custom": true,
+    "Scale": 1.99999999,
+    "Monitor": 2,
+    "First": 1.99999999,
+    "ScaledTwo": 3,
+    "CloseWidth": 35,
+    "FontPixels": 29,
+    "AfterPreferenceAndMonitorChange": 1.99999999
+  }
+]

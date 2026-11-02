@@ -8,6 +8,8 @@ use crate::{
 use std::ops::Range;
 pub struct Draft {
     token: RevisionToken,
+    intent:crate::history::file_intent::IntentGuard,
+    timing_after:Option<crate::song_timing_chart::Choice>,
     chart: usize,
     layout: String,
     description: String,
@@ -15,18 +17,27 @@ pub struct Draft {
 }
 impl Draft {
     pub fn capture(session: &Session, chart: usize) -> Result<Self, Error> {
-        let snapshot = Document::parse(session.serialize()?, session.document().format)?;
+        let snapshot = session.snapshot_document()?;
         let descriptor = snapshot
             .charts()
             .get(chart)
             .ok_or_else(|| invalid("No chart selected for deletion"))?;
         Ok(Self {
-            token: session.revision_token(),
+            token: session.revision_token(),intent:crate::history::file_intent::IntentGuard::capture(session),timing_after:None,
             chart,
             layout: descriptor.steps_type.clone(),
             description: descriptor.description.clone(),
             last: session.document().charts().len() == 1,
         })
+    }
+    pub fn prepare_song_timing(&mut self,session:&Session,preferences:&crate::open_preferences::Preferences,cultural_order:&[usize])->Result<(),Error>{
+        self.check(session,self.chart)?;
+        let snapshot=session.song_timing_snapshot()?;
+        // Validate the complete current order before removing our source index.
+        preferences.select(&snapshot,cultural_order)?;
+        let remaining=snapshot.without_source(self.chart);
+        let order=cultural_order.iter().copied().filter(|index|*index!=self.chart).collect::<Vec<_>>();
+        let mut choice=session.song_timing_choice()?;choice.reconcile_after_deletion(&remaining,preferences,&order)?;self.timing_after=Some(choice);Ok(())
     }
     pub fn layout(&self) -> &str {
         &self.layout
@@ -38,7 +49,7 @@ impl Draft {
         self.last
     }
     pub(crate) fn check(&self, session: &Session, chart: usize) -> Result<(), Error> {
-        if chart != self.chart || !session.accepts_token(&self.token) {
+        if chart != self.chart || !session.accepts_token(&self.token) || !self.intent.is_current(session) {
             return Err(invalid(
                 "Chart deletion belongs to another chart or revision",
             ));
@@ -47,7 +58,7 @@ impl Draft {
     }
     pub fn apply(&self, session: &mut Session) -> Result<(), Error> {
         self.check(session, self.chart)?;
-        session.remove_chart(self.chart)
+        session.remove_chart(self.chart,self.timing_after.as_ref())
     }
 }
 /// Original SelectBestChart type/difficulty priorities, with file order for ties.
@@ -104,6 +115,9 @@ pub(crate) fn prepare(document: &Document, chart: usize) -> Result<Vec<u8>, Erro
                 ("GACHARTDATAVERSIONCHART", "GAChartDataVersionCHART"),
                 ("GACHARTDATACHART", "GAChartDataCHART"),
                 ("DSATTACKROWSCHART", "DSAttackRowsCHART"),
+                ("DSATTACKROWSLOCALCHART", "DSAttackRowsLocalCHART"),
+                ("DSCHARTATTACKSCHART", "DSChartAttacksCHART"),
+                ("DSTIMINGCHART", "DSTimingCHART"),
             ] {
                 let Some(suffix) = tag.name.strip_prefix(prefix) else {
                     continue;
@@ -128,12 +142,6 @@ pub(crate) fn prepare(document: &Document, chart: usize) -> Result<Vec<u8>, Erro
                 }
             }
         }
-    }
-    if let Some(value) = crate::song_properties::after_chart_deletion(document, chart)? {
-        let tag = document
-            .tag(None, &crate::song_properties::custom_data_key(document))
-            .ok_or_else(|| invalid("Missing song metadata"))?;
-        edits.push((tag.value.clone(), crate::document::escape_text(&value)));
     }
     splice(document.source(), edits)
 }

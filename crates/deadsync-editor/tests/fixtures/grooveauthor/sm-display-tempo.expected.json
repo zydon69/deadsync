@@ -1,0 +1,108 @@
+{
+  "sourcePin": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumenPin": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "culture": "InvariantCulture (Editor.cs431-432)",
+  "executedParts": [
+    "actual pinned DisplayTempo.cs constructors, FromString, ToString",
+    "actual pinned Fumen SMReader/SMWriter/SSCReader/SSCWriter",
+    "EditorSong load-copy/save routing wired from cited source, not the full graphical Editor runtime"
+  ],
+  "input": "#TITLE:Display;#BPMS:0=120,4=180;#DISPLAYBPM:*;#NOTES:dance-single::Hard:9:0,0,0,0,0:1000,0100;#NOTES:dance-single::Easy:2:0,0,0,0,0:0010,0001;",
+  "cases": [
+    {
+      "name": "ssc-local-specified",
+      "sm": false,
+      "omit": false,
+      "first": "90.000000:180.000000",
+      "second": "*",
+      "independent": true,
+      "output": "#VERSION:0.83;\n#TITLE:Display;\n#SUBTITLE:;\n#ARTIST:;\n#TITLETRANSLIT:;\n#SUBTITLETRANSLIT:;\n#ARTISTTRANSLIT:;\n#GENRE:;\n#ORIGIN:;\n#CREDIT:;\n#BANNER:;\n#BACKGROUND:;\n#PREVIEWVID:;\n#JACKET:;\n#CDIMAGE:;\n#DISCIMAGE:;\n#LYRICSPATH:;\n#CDTITLE:;\n#MUSIC:;\n#OFFSET:0.000000;\n#SAMPLESTART:0.000000;\n#SAMPLELENGTH:0.000000;\n#SELECTABLE:;\n#BPMS:0.000000=120.000000,\r\n4.000000=180.000000;\n#STOPS:;\n#DELAYS:;\n#WARPS:;\n#TIMESIGNATURES:0.000000=4=4;\n#TICKCOUNTS:;\n#COMBOS:;\n#SPEEDS:;\n#SCROLLS:;\n#FAKES:;\n#LABELS:;\n#KEYSOUNDS:;\n#ATTACKS:;\n\n//---------------dance-single - ----------------\n#NOTEDATA:;\n#CHARTNAME:;\n#STEPSTYPE:dance-single;\n#DESCRIPTION:;\n#CHARTSTYLE:;\n#DIFFICULTY:Hard;\n#METER:9;\n#RADARVALUES:System.Collections.Generic.List`1[System.Double];\n#CREDIT:;\n#OFFSET:0.000000;\n#BPMS:0.000000=120.000000,\r\n4.000000=180.000000;\n#STOPS:;\n#DELAYS:;\n#WARPS:;\n#TIMESIGNATURES:0.000000=4=4;\n#TICKCOUNTS:;\n#COMBOS:;\n#SPEEDS:;\n#SCROLLS:;\n#FAKES:;\n#LABELS:;\n#ATTACKS:;\n#DISPLAYBPM:90.000000:180.000000;\n#NOTES:\n1000\n0000\n0000\n0000\n,\n0100\n0000\n0000\n0000\n;\n\n\n//---------------dance-single - ----------------\n#NOTEDATA:;\n#CHARTNAME:;\n#STEPSTYPE:dance-single;\n#DESCRIPTION:;\n#CHARTSTYLE:;\n#DIFFICULTY:Easy;\n#METER:2;\n#RADARVALUES:System.Collections.Generic.List`1[System.Double];\n#CREDIT:;\n#OFFSET:0.000000;\n#BPMS:0.000000=120.000000,\r\n4.000000=180.000000;\n#STOPS:;\n#DELAYS:;\n#WARPS:;\n#TIMESIGNATURES:0.000000=4=4;\n#TICKCOUNTS:;\n#COMBOS:;\n#SPEEDS:;\n#SCROLLS:;\n#FAKES:;\n#LABELS:;\n#ATTACKS:;\n#DISPLAYBPM:*;\n#NOTES:\n0010\n0000\n0000\n0000\n,\n0001\n0000\n0000\n0000\n;\n\n",
+      "charts": [
+        {
+          "chart": 0,
+          "display": "90.000000:180.000000"
+        },
+        {
+          "chart": 1,
+          "display": "*"
+        }
+      ]
+    },
+    {
+      "name": "ssc-local-actual",
+      "sm": false,
+      "omit": false,
+      "first": "",
+      "second": "*",
+      "independent": true,
+      "output": "#VERSION:0.83;\n#TITLE:Display;\n#SUBTITLE:;\n#ARTIST:;\n#TITLETRANSLIT:;\n#SUBTITLETRANSLIT:;\n#ARTISTTRANSLIT:;\n#GENRE:;\n#ORIGIN:;\n#CREDIT:;\n#BANNER:;\n#BACKGROUND:;\n#PREVIEWVID:;\n#JACKET:;\n#CDIMAGE:;\n#DISCIMAGE:;\n#LYRICSPATH:;\n#CDTITLE:;\n#MUSIC:;\n#OFFSET:0.000000;\n#SAMPLESTART:0.000000;\n#SAMPLELENGTH:0.000000;\n#SELECTABLE:;\n#BPMS:0.000000=120.000000,\r\n4.000000=180.000000;\n#STOPS:;\n#DELAYS:;\n#WARPS:;\n#TIMESIGNATURES:0.000000=4=4;\n#TICKCOUNTS:;\n#COMBOS:;\n#SPEEDS:;\n#SCROLLS:;\n#FAKES:;\n#LABELS:;\n#KEYSOUNDS:;\n#ATTACKS:;\n\n//---------------dance-single - ----------------\n#NOTEDATA:;\n#CHARTNAME:;\n#STEPSTYPE:dance-single;\n#DESCRIPTION:;\n#CHARTSTYLE:;\n#DIFFICULTY:Hard;\n#METER:9;\n#RADARVALUES:System.Collections.Generic.List`1[System.Double];\n#CREDIT:;\n#OFFSET:0.000000;\n#BPMS:0.000000=120.000000,\r\n4.000000=180.000000;\n#STOPS:;\n#DELAYS:;\n#WARPS:;\n#TIMESIGNATURES:0.000000=4=4;\n#TICKCOUNTS:;\n#COMBOS:;\n#SPEEDS:;\n#SCROLLS:;\n#FAKES:;\n#LABELS:;\n#ATTACKS:;\n#DISPLAYBPM:;\n#NOTES:\n1000\n0000\n0000\n0000\n,\n0100\n0000\n0000\n0000\n;\n\n\n//---------------dance-single - ----------------\n#NOTEDATA:;\n#CHARTNAME:;\n#STEPSTYPE:dance-single;\n#DESCRIPTION:;\n#CHARTSTYLE:;\n#DIFFICULTY:Easy;\n#METER:2;\n#RADARVALUES:System.Collections.Generic.List`1[System.Double];\n#CREDIT:;\n#OFFSET:0.000000;\n#BPMS:0.000000=120.000000,\r\n4.000000=180.000000;\n#STOPS:;\n#DELAYS:;\n#WARPS:;\n#TIMESIGNATURES:0.000000=4=4;\n#TICKCOUNTS:;\n#COMBOS:;\n#SPEEDS:;\n#SCROLLS:;\n#FAKES:;\n#LABELS:;\n#ATTACKS:;\n#DISPLAYBPM:*;\n#NOTES:\n0010\n0000\n0000\n0000\n,\n0001\n0000\n0000\n0000\n;\n\n",
+      "charts": [
+        {
+          "chart": 0,
+          "display": ""
+        },
+        {
+          "chart": 1,
+          "display": "*"
+        }
+      ]
+    },
+    {
+      "name": "ssc-omit-equal",
+      "sm": false,
+      "omit": true,
+      "first": "90.000000:180.000000",
+      "second": "90.000000:180.000000",
+      "independent": true,
+      "output": "#VERSION:0.83;\n#TITLE:Display;\n#SUBTITLE:;\n#ARTIST:;\n#TITLETRANSLIT:;\n#SUBTITLETRANSLIT:;\n#ARTISTTRANSLIT:;\n#GENRE:;\n#ORIGIN:;\n#CREDIT:;\n#BANNER:;\n#BACKGROUND:;\n#PREVIEWVID:;\n#JACKET:;\n#CDIMAGE:;\n#DISCIMAGE:;\n#LYRICSPATH:;\n#CDTITLE:;\n#MUSIC:;\n#OFFSET:0.000000;\n#SAMPLESTART:0.000000;\n#SAMPLELENGTH:0.000000;\n#SELECTABLE:;\n#BPMS:0.000000=120.000000,\r\n4.000000=180.000000;\n#STOPS:;\n#DELAYS:;\n#WARPS:;\n#TIMESIGNATURES:0.000000=4=4;\n#TICKCOUNTS:;\n#COMBOS:;\n#SPEEDS:;\n#SCROLLS:;\n#FAKES:;\n#LABELS:;\n#KEYSOUNDS:;\n#ATTACKS:;\n\n//---------------dance-single - ----------------\n#NOTEDATA:;\n#CHARTNAME:;\n#STEPSTYPE:dance-single;\n#DESCRIPTION:;\n#CHARTSTYLE:;\n#DIFFICULTY:Hard;\n#METER:9;\n#RADARVALUES:System.Collections.Generic.List`1[System.Double];\n#CREDIT:;\n#ATTACKS:;\n#DISPLAYBPM:90.000000:180.000000;\n#NOTES:\n1000\n0000\n0000\n0000\n,\n0100\n0000\n0000\n0000\n;\n\n\n//---------------dance-single - ----------------\n#NOTEDATA:;\n#CHARTNAME:;\n#STEPSTYPE:dance-single;\n#DESCRIPTION:;\n#CHARTSTYLE:;\n#DIFFICULTY:Easy;\n#METER:2;\n#RADARVALUES:System.Collections.Generic.List`1[System.Double];\n#CREDIT:;\n#ATTACKS:;\n#DISPLAYBPM:90.000000:180.000000;\n#NOTES:\n0010\n0000\n0000\n0000\n,\n0001\n0000\n0000\n0000\n;\n\n",
+      "charts": [
+        {
+          "chart": 0,
+          "display": "90.000000:180.000000"
+        },
+        {
+          "chart": 1,
+          "display": "90.000000:180.000000"
+        }
+      ]
+    },
+    {
+      "name": "sm-fallback-specified",
+      "sm": true,
+      "omit": false,
+      "first": "90.000000:180.000000",
+      "second": "*",
+      "independent": true,
+      "output": "#TITLE:Display;\n#SUBTITLE:;\n#ARTIST:;\n#TITLETRANSLIT:;\n#SUBTITLETRANSLIT:;\n#ARTISTTRANSLIT:;\n#GENRE:;\n#CREDIT:;\n#BANNER:;\n#BACKGROUND:;\n#LYRICSPATH:;\n#CDTITLE:;\n#MUSIC:;\n#OFFSET:0.000000;\n#SAMPLESTART:0.000000;\n#SAMPLELENGTH:0.000000;\n#SELECTABLE:;\n#DISPLAYBPM:90.000000:180.000000;\n#BPMS:0.000000=120.000000,\r\n4.000000=180.000000;\n#STOPS:;\n#DELAYS:;\n#TIMESIGNATURES:0.000000=4=4;\n#TICKCOUNTS:;\n#KEYSOUNDS:;\n#ATTACKS:;\n\n\n//---------------dance-single - ----------------\n#NOTES:\n     dance-single:\n     :\n     Hard:\n     9:\n     0.000000,0.000000,0.000000,0.000000,0.000000:\n1000\n0000\n0000\n0000\n,\n0100\n0000\n0000\n0000\n;\n\n//---------------dance-single - ----------------\n#NOTES:\n     dance-single:\n     :\n     Easy:\n     2:\n     0.000000,0.000000,0.000000,0.000000,0.000000:\n0010\n0000\n0000\n0000\n,\n0001\n0000\n0000\n0000\n;\n",
+      "charts": [
+        {
+          "chart": 0,
+          "display": "90.000000:180.000000"
+        },
+        {
+          "chart": 1,
+          "display": "90.000000:180.000000"
+        }
+      ]
+    },
+    {
+      "name": "sm-fallback-actual",
+      "sm": true,
+      "omit": false,
+      "first": "",
+      "second": "*",
+      "independent": true,
+      "output": "#TITLE:Display;\n#SUBTITLE:;\n#ARTIST:;\n#TITLETRANSLIT:;\n#SUBTITLETRANSLIT:;\n#ARTISTTRANSLIT:;\n#GENRE:;\n#CREDIT:;\n#BANNER:;\n#BACKGROUND:;\n#LYRICSPATH:;\n#CDTITLE:;\n#MUSIC:;\n#OFFSET:0.000000;\n#SAMPLESTART:0.000000;\n#SAMPLELENGTH:0.000000;\n#SELECTABLE:;\n#DISPLAYBPM:;\n#BPMS:0.000000=120.000000,\r\n4.000000=180.000000;\n#STOPS:;\n#DELAYS:;\n#TIMESIGNATURES:0.000000=4=4;\n#TICKCOUNTS:;\n#KEYSOUNDS:;\n#ATTACKS:;\n\n\n//---------------dance-single - ----------------\n#NOTES:\n     dance-single:\n     :\n     Hard:\n     9:\n     0.000000,0.000000,0.000000,0.000000,0.000000:\n1000\n0000\n0000\n0000\n,\n0100\n0000\n0000\n0000\n;\n\n//---------------dance-single - ----------------\n#NOTES:\n     dance-single:\n     :\n     Easy:\n     2:\n     0.000000,0.000000,0.000000,0.000000,0.000000:\n0010\n0000\n0000\n0000\n,\n0001\n0000\n0000\n0000\n;\n",
+      "charts": [
+        {
+          "chart": 0,
+          "display": ""
+        },
+        {
+          "chart": 1,
+          "display": ""
+        }
+      ]
+    }
+  ]
+}

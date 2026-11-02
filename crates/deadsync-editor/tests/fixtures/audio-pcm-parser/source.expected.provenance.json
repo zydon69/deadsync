@@ -1,0 +1,8 @@
+{
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourcePath": "Fumen/Sound/SoundManager.cs",
+  "SourceSha256": "1de6394f04684390c3e1a31587908920d251746e12c1cbc0b3eef837785c7eb3",
+  "MethodSha256": "86c4522d0cebc5f4d3d8aefb306ede58933652d9834893c9c3a7a39274f12cfe",
+  "Scope": "Unmodified GetParseSampleFunc with minimal SOUND_FORMAT enum names and explicit raw byte input. No FMOD container decode, resampling, channel mapping or playback is executed. PCM8 follows the unsigned original contract; float nonfinite payload bits are observed, not certified safe for downstream playback.",
+  "Samples": 35
+}

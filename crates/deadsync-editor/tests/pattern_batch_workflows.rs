@@ -189,72 +189,32 @@ fn sequential_pattern_sets_match_original_context_generation_clipping_and_insert
                 result.average_nps(),
                 expected["Nps"]
             );
-            for (actual, expected) in result
-                .entries()
-                .iter()
-                .zip(expected["Stages"].as_array().unwrap())
-            {
-                assert_eq!(actual.row, expected["Row"].as_u64().unwrap());
-                assert_eq!(
-                    if actual.is_empty() {
-                        "empty"
-                    } else if actual.error().is_some() {
-                        "failed"
-                    } else {
-                        "generated"
-                    },
-                    expected["Status"].as_str().unwrap(),
-                    "{name} {:?} {:?}",
-                    format,
-                    actual.error()
-                );
-                if let Some(generated) = actual.generated() {
-                    assert_eq!(
-                        actual.trimmed_steps as u64,
-                        expected["Trimmed"].as_u64().unwrap(),
-                        "{name} trimmed"
-                    );
-                    let mut actual_notes = Vec::new();
-                    for step in &generated.steps {
-                        for foot in 0..2 {
-                            for portion in 0..2 {
-                                if step.link.feet[foot][portion].valid {
-                                    actual_notes.push(json!({"Row":step.row,"Lane":step.feet[foot][portion].lane.unwrap(),"Symbol":"1"}));
-                                }
-                            }
-                        }
-                    }
-                    assert_eq!(
-                        actual_notes,
-                        expected["Notes"].as_array().unwrap().clone(),
-                        "{name} {format:?} generated notes at {}",
-                        actual.row
-                    );
-                }
+            // The complete original worker, including constructor enumeration,
+            // is the output oracle. The older Stages fixture executes a reconstructed
+            // single-enumeration loop and remains only a helper/NPS comparison.
+            assert_eq!(result.entries().len(), input["Schedule"].as_array().unwrap().len());
+            for actual in result.entries() {
+                assert!(actual.error().is_none(), "{name}: {:?}", actual.error());
             }
+            let worker_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/pattern-worker");
+            let worker: Value = serde_json::from_slice(&fs::read(worker_root.join(format!("pattern-batch-{name}.expected.json"))).unwrap()).unwrap();
+            assert_eq!(worker["Before"], worker["Undo"], "{name} original Undo");
+            assert_eq!(worker["NoteData"], worker["Redo"], "{name} original Redo");
             let expected_grid =
-                Grid::parse(expected["NoteData"].as_str().unwrap().as_bytes(), 4).unwrap();
+                Grid::parse(worker["NoteData"].as_str().unwrap().as_bytes(), 4).unwrap();
             assert_eq!(
                 result.grid(),
                 &expected_grid,
                 "{name} {format:?} complete exported grid"
             );
             assert_eq!(
-                result.report().repeated_taps,
-                expected["Notes"].as_array().unwrap().len() - expected_grid.iter().count(),
-                "{name} repeated taps"
-            );
-            assert_eq!(
                 result.report().notes,
-                expected["Stages"]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .filter_map(|stage| stage["Notes"].as_array())
-                    .map(Vec::len)
-                    .sum::<usize>(),
-                "{name} raw generated notes"
+                result.entries().iter().filter_map(|entry| entry.generated()).map(|generated| generated.steps.len()).sum::<usize>(),
+                "{name} emitted tap count (reports stay per selected marker)"
             );
+            if name == "adjacent" {
+                assert_ne!(worker["NoteData"], expected["NoteData"], "source constructor double enumeration is observable");
+            }
             assert_eq!(source.serialize().unwrap(), before);
             let changed = result.apply(&mut source, 0).unwrap();
             assert_eq!(changed, result.has_changes());
@@ -285,6 +245,9 @@ fn pattern_set_save_reopen_and_workspace_history_preserve_markers_and_other_char
         let before = source.serialize().unwrap();
         fs::write(&path, &before).unwrap();
         let mut workspace = Workspace::open(&path, 0).unwrap();
+        let document = workspace.file().session.document();
+        let descriptor = &document.charts()[1];
+        let other_chart = Grid::parse_layout(document.value(descriptor.notes.clone()), &descriptor.steps_type).unwrap();
         let metadata =
             serde_json::to_value(ChartData::read(workspace.file().session.document(), 0).unwrap())
                 .unwrap();
@@ -311,10 +274,18 @@ fn pattern_set_save_reopen_and_workspace_history_preserve_markers_and_other_char
         workspace.execute(Command::Undo).unwrap();
         assert_eq!(workspace.file().session.serialize().unwrap(), before);
         workspace.execute(Command::Redo).unwrap();
+        let output = workspace.file().session.serialize_for_output().unwrap();
         workspace.execute(Command::Save).unwrap();
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), output);
         let mut reopened = FileSession::open(&path).unwrap();
+        // Native Save inserts the required song ownership metadata. Every
+        // resident field and the unrelated chart must still be preserved.
+        let resident = Document::parse(after.as_slice(), format).unwrap();
+        for tag in resident.tags() {
+            assert_eq!(reopened.session.document().raw_property(tag.chart, &tag.name), resident.raw_property(tag.chart, &tag.name), "Resident field changed: {:?}/{}", tag.chart, tag.name);
+        }
         assert_eq!(reopened.session.grid(0).unwrap(), result.grid());
+        assert_eq!(reopened.session.grid(1).unwrap(), &other_chart);
         assert_eq!(
             serde_json::to_value(ChartData::read(reopened.session.document(), 0).unwrap()).unwrap(),
             metadata
@@ -497,4 +468,27 @@ fn all_patterns_share_the_loaded_profile_snapshot_and_report_unrelated_invalid_f
     assert_eq!(result.profile_issues().len(), 1);
     assert_eq!(result.grid(), expected.grid());
     assert_eq!(run(&source, folder.path()).report().failed, 2);
+}
+
+#[test]
+fn single_marker_task_matches_original_action_constructor_and_undo_redo() {
+    let (mut input, _) = fixture("adjacent");
+    input["Schedule"].as_array_mut().unwrap().truncate(1);
+    let expected: Value = serde_json::from_str(include_str!("fixtures/pattern-worker/pattern-single-adjacent.expected.json")).unwrap();
+    for format in [Format::Sm, Format::Ssc] {
+        let folder = tempfile::tempdir().unwrap();
+        let mut session = source(&input, format, folder.path());
+        let before = session.serialize().unwrap();
+        let registry = deadsync_editor::generation::profiles::Loaded::directory(folder.path()).unwrap().registry;
+        let row = input["Schedule"][0][0].as_u64().unwrap();
+        let options = ChartData::read(session.document(), 0).unwrap().unwrap().options(row, &registry).unwrap();
+        let preview = deadsync_editor::generation::pattern_job::Task::capture(&session, 0, options).unwrap().run(&AtomicBool::new(false), |_, _| {}).unwrap();
+        let expected_grid = Grid::parse(expected["NoteData"].as_str().unwrap().as_bytes(), 4).unwrap();
+        assert_eq!(preview.grid(), &expected_grid, "{format:?}");
+        assert_eq!(session.serialize().unwrap(), before);
+        assert!(preview.apply(&mut session, 0).unwrap());
+        let after = session.serialize().unwrap();
+        session.undo().unwrap();assert_eq!(session.serialize().unwrap(), before);
+        session.redo().unwrap();assert_eq!(session.serialize().unwrap(), after);
+    }
 }

@@ -1,0 +1,69 @@
+[
+  {
+    "kind": "integer",
+    "raw": -2147483648,
+    "uintRange": 300,
+    "intRange": 0
+  },
+  {
+    "kind": "integer",
+    "raw": -1,
+    "uintRange": 300,
+    "intRange": 0
+  },
+  {
+    "kind": "integer",
+    "raw": 0,
+    "uintRange": 30,
+    "intRange": 0
+  },
+  {
+    "kind": "integer",
+    "raw": 57,
+    "uintRange": 57,
+    "intRange": 57
+  },
+  {
+    "kind": "integer",
+    "raw": 128,
+    "uintRange": 128,
+    "intRange": 128
+  },
+  {
+    "kind": "integer",
+    "raw": 301,
+    "uintRange": 300,
+    "intRange": 301
+  },
+  {
+    "kind": "integer",
+    "raw": 2147483647,
+    "uintRange": 300,
+    "intRange": 384
+  },
+  {
+    "kind": "double",
+    "raw": -100,
+    "result": 0
+  },
+  {
+    "kind": "double",
+    "raw": 0,
+    "result": 0
+  },
+  {
+    "kind": "double",
+    "raw": 0.123456,
+    "result": 0.123456
+  },
+  {
+    "kind": "double",
+    "raw": 1,
+    "result": 1
+  },
+  {
+    "kind": "double",
+    "raw": 12,
+    "result": 10
+  }
+]

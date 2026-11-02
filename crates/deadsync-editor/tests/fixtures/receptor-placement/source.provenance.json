@@ -1,0 +1,11 @@
+{
+  "commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_files": {
+    "Preferences/PreferencesReceptors.cs": "8f5f44f6ef15d87fcfe367c483f798127fa7e60d2bf7bfb08dd8bc31df3674a3",
+    "Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+    "UI/UIReceptorPreferences.cs": "91c36c07c8aef3e6ef0ae2960aa70bd706db5bbdc641811f44620069bcfb0b3f"
+  },
+  "cases": 576,
+  "execution": "Whole unchanged PreferencesReceptors.cs; actual focal-point methods and initial permission block extracted unchanged from Editor.cs; explicit Editor chart area 1800x900 at origin0 and recording adapters. .NET10.0. No OS calls.",
+  "native_adaptation": "Native horizontal center + (source raw X - 842), unless CenterHorizontally then center. Native unreflected receptor distance 55 + (source raw Y - 110). Clamp only rendered viewport; reverse reflects that distance within top/bottom. Keyboard axes replace drag and axis modifier; explicit header movement obeys source exception."
+}

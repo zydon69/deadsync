@@ -30,7 +30,7 @@ fn editor_bootstrap_loads_application_preferences_and_keeps_unknown_version_read
     assert_eq!(state.audio_preferences(), Audio::default());
     let mut actors = Vec::new();
     state.actors(&mut actors);
-    assert!(actors.iter().any(|actor| matches!(actor,Actor::Text{content,..} if content.to_string().contains("Unknown editor preferences version"))));
+    assert!(actors.iter().any(|actor| matches!(actor,Actor::Text{content,..} if content.to_string().contains(i18n::tr("Edition", "DiagnosticPreferencesVersion").as_ref()))));
     assert_eq!(fs::read(&prefs).unwrap(), br#"{"Version":2,"Future":true}"#);
     assert_eq!(fs::read_to_string(&song).unwrap(), source);
 }

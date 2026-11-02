@@ -6,7 +6,6 @@ use super::{
 };
 use crate::{
     Error,
-    document::Format,
     generation::{
         editor_timing::EditorTimeline,
         timing::{Event, EventKind, GenerationTiming},
@@ -46,6 +45,8 @@ impl From<Failure> for Error { fn from(failure: Failure) -> Self { failure.error
 pub struct Plan {
     target: Target,
     chart: usize,
+    originals:Vec<crate::event_clipboard::Event>,
+    direction:Direction,
     stops: String,
     warps: String,
     report: Report,
@@ -68,7 +69,7 @@ impl Plan {
     }
     fn prepare_inner(session: &Session, chart: usize, direction: Direction, selected: Option<&[u64]>, reason: &mut Option<Refusal>) -> Result<Self, Error> {
         let document = session.document();
-        let scope = if super::uses_chart_timing(document, chart) {
+        let scope = if super::supports_resident_chart_timing(document) {
             Scope::Chart
         } else {
             Scope::Song
@@ -77,11 +78,11 @@ impl Plan {
         let origin = target.origin();
         let mut stops = Pauses::parse(
             PauseKind::Stop,
-            &document.text(origin, "STOPS").unwrap_or_default(),
+            &super::resident::text(document,origin,"STOPS")?,
         )?;
         let mut warps = Regions::parse(
             RegionKind::Warp,
-            &document.text(origin, "WARPS").unwrap_or_default(),
+            &super::resident::text(document,origin,"WARPS")?,
         )?;
         let timing = GenerationTiming::from_document(document, chart)?;
         let original = timeline(&timing)?;
@@ -116,15 +117,7 @@ impl Plan {
                 .filter(|row| eligible.contains_key(row) && seen.insert(*row))
                 .collect(),
         };
-        if direction == Direction::NegativeStopsToWarps
-            && !rows.is_empty()
-            && document.format == Format::Sm
-        {
-            *reason = Some(Refusal::TargetFormat);
-            return Err(invalid(
-                "Warp results require SSC; convert the file format explicitly before applying this timing conversion",
-            ));
-        }
+        let originals=rows.iter().map(|&row|crate::event_clipboard::Event::Timing{row,kind:match direction {Direction::WarpsToNegativeStops=>crate::event_clipboard::TimingKind::Warp,Direction::NegativeStopsToWarps=>crate::event_clipboard::TimingKind::Stop}}).collect();
         let chosen: BTreeSet<_> = rows.iter().copied().collect();
         let mut events: Vec<_> = timing
             .editor_events()
@@ -199,6 +192,8 @@ impl Plan {
         Ok(Self {
             target,
             chart,
+            originals,
+            direction,
             stops: stops.serialize(),
             warps: warps.serialize(),
             report,
@@ -236,7 +231,7 @@ impl Plan {
         // Typed equality avoids canonicalizing untouched formatting on no-op.
         if Pauses::parse(
             PauseKind::Stop,
-            &document.text(origin, "STOPS").unwrap_or_default(),
+            &super::resident::text(document,origin,"STOPS")?,
         )?
         .serialize()
             != self.stops
@@ -245,19 +240,24 @@ impl Plan {
         }
         if Regions::parse(
             RegionKind::Warp,
-            &document.text(origin, "WARPS").unwrap_or_default(),
+            &super::resident::text(document,origin,"WARPS")?,
         )?
         .serialize()
             != self.warps
         {
             changes.push(("WARPS", self.warps.clone()));
         }
-        self.target.apply(
+        let before=crate::history::SelectionEffect::capture(session,self.chart,self.originals.clone());
+        let changed=self.target.apply(
             session,
             self.chart,
             &changes,
             "Convert Warps and negative Stops",
-        )
+        )?;
+        let events=self.report.selection_after.iter().map(|&row|crate::event_clipboard::Event::Timing {row,kind:match self.direction {Direction::WarpsToNegativeStops=>crate::event_clipboard::TimingKind::Stop,Direction::NegativeStopsToWarps=>crate::event_clipboard::TimingKind::Warp}}).collect();
+        let after=crate::history::SelectionEffect::capture(session,self.chart,events);
+        session.record_event_selection(crate::history::selection_effect::SelectionHistory{before,after},changed);
+        Ok(changed)
     }
 }
 fn matches_direction(kind: EventKind, direction: Direction) -> bool {

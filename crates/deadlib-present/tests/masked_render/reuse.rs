@@ -123,6 +123,7 @@ fn target_scene(count: usize) -> Vec<actors::RenderTarget> {
             alpha: i % 2 == 0,
             depth: i % 3 == 0,
             preserve: i % 4 == 0,
+            postprocess: None,
             children: Arc::from(children),
         });
     }

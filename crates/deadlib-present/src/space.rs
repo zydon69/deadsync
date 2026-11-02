@@ -258,3 +258,19 @@ mod tests {
         assert!((cols[5] - MIN_OVERSCAN_SCALE).abs() < 1e-6);
     }
 }
+
+/// Temporarily installs logical UI bounds on this thread. Nested scopes and
+/// unwinding restore exactly the previous metrics; pixel dimensions do not change.
+pub fn with_metrics<T>(metrics:Metrics,render:impl FnOnce()->T)->T{
+ struct Restore(Metrics);impl Drop for Restore{fn drop(&mut self){set_current_metrics(self.0);}}
+ let previous=CURRENT_METRICS.with(|current|current.replace(metrics));let _restore=Restore(previous);render()
+}
+#[cfg(test)]mod scoped_metrics_tests{
+ use super::*;
+ #[test]fn nested_scopes_and_unwind_restore_previous_bounds_and_pixel_dimensions(){
+  struct Restore(Metrics,(u32,u32));impl Drop for Restore{fn drop(&mut self){set_current_metrics(self.0);set_current_window_px(self.1.0,self.1.1);}}let _restore=Restore(CURRENT_METRICS.with(|v|v.get()),current_window_px());
+  set_current_metrics(Metrics::centered(854.,480.));set_current_window_px(1708,960);
+  with_metrics(Metrics::centered(427.,240.),||{assert_eq!(screen_width(),427.);assert_eq!(screen_height(),240.);with_metrics(Metrics::centered(100.,50.),||assert_eq!(screen_width(),100.));assert_eq!(screen_width(),427.);assert_eq!(current_window_px(),(1708,960));});assert_eq!((screen_width(),screen_height()),(854.,480.));
+  assert!(std::panic::catch_unwind(||with_metrics(Metrics::centered(1.,1.),||panic!("exercise RAII"))).is_err());assert_eq!((screen_width(),screen_height()),(854.,480.));assert_eq!(current_window_px(),(1708,960));
+ }
+}

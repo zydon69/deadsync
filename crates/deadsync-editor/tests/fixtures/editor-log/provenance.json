@@ -1,0 +1,13 @@
+{
+  "commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "fumen_logger_sha256": "a98c6f394b4ef1d5446a9bdfeb05362c989c195bca6cec685acff2f274cb9308",
+  "fumen_assembly_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "source": "StepManiaEditor/UI/UILog.cs",
+  "source_sha256": "441223fccc406c5e8a1d3c76670d937be84474b630ff48ad8323f6e048258626",
+  "loop_sha256": "e385e3cfb2b31a5f47e81b2873151fd3e13788e8e64adbf7a581c4ab3cd70ed8",
+  "dates_sha256": "3d6148767b9f9440a9428df8086731e2e192057623382e9bdb9b80337aa88b06",
+  "colors_sha256": "846c1e43a2a9b93922e7773ed48f767ba08576bfcd88b871e9c71a6dcf95e5f1",
+  "scope": "Original filtering/timestamp/copy while loop unchanged with original Fumen.LogMessage/LogLevel and explicit no-op ImGui rendering adapters. Fixed local DateTime inputs; no clipboard or OS launch. 6 cultures \u00d74 date modes\u00d75 thresholds\u00d72 wrap modes. Actual Fumen.Logger synchronous/queued Info/Warn/Error, eviction1024, ClearBuffer and global Warn emission threshold also executed; no console/file sinks.",
+  "sdk": "10.0.403"
+}

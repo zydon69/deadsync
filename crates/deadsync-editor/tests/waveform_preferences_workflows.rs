@@ -12,15 +12,18 @@ fn original_defaults_ranges_and_missing_file_noop_are_explicit() {
     assert_eq!(file.waveform(), defaults);
     assert!(!file.save().unwrap());
     assert!(!path.exists());
-    for number in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, -0.1, 11.0] {
+    for number in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, f64::MAX] {
         let mut value = defaults;
         assert!(value.set_channel_width(number).is_err());
         assert!(value.set_dense_scale(number).is_err());
         assert_eq!(value, defaults);
     }
     let mut value = defaults;
-    assert!(value.set_channel_width(1.01).is_err());
-    assert!(value.set_dense_scale(10.01).is_err());
+    value.set_channel_width(1.01).unwrap();
+    assert_eq!(value.channel_width(), 1.01);
+    assert_eq!(value.effective_channel_width(), 1.0);
+    value.set_dense_scale(10.01).unwrap();
+    assert_eq!(value.dense_scale(), 10.01);
     value.set_channel_width(0.0).unwrap();
     value.set_dense_scale(10.0).unwrap();
     assert_eq!(value.channel_width(), 0.0);
@@ -87,8 +90,8 @@ fn invalid_waveform_fields_never_rewrite_preference_source() {
         "[]",
         r#"{"ShowWaveForm":1}"#,
         r#"{"EnableWaveForm":"yes"}"#,
-        r#"{"WaveFormMaxXPercentagePerChannel":1.1}"#,
-        r#"{"DenseScale":-1}"#,
+        r#"{"WaveFormMaxXPercentagePerChannel":1e50}"#,
+        r#"{"DenseScale":-1e50}"#,
         r#"{"DenseScale":1e400}"#,
     ] {
         let source = format!("{{\"Version\":1,\"Waveform\":{fields}}}");
@@ -96,6 +99,19 @@ fn invalid_waveform_fields_never_rewrite_preference_source() {
         assert!(File::open(&path).is_err(), "{source}");
         assert_eq!(fs::read_to_string(&path).unwrap(), source);
     }
+}
+
+#[test]
+fn finite_source_values_outside_slider_ranges_remain_raw_and_noop_preserves_bytes() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("prefs.json");
+    let source = r#"{ "Version":1,"Waveform":{"WaveFormMaxXPercentagePerChannel":1.1,"DenseScale":-1},"Vendor":{"keep":true} }"#;
+    fs::write(&path, source).unwrap();
+    let mut file = File::open(&path).unwrap();
+    assert_eq!(file.waveform().channel_width(), 1.1);
+    assert_eq!(file.waveform().dense_scale(), -1.0);
+    assert!(!file.save().unwrap());
+    assert_eq!(fs::read_to_string(&path).unwrap(), source);
 }
 
 #[test]

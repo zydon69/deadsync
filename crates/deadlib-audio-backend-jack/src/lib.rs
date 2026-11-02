@@ -49,7 +49,6 @@ type JackClientCloseFn = unsafe extern "C" fn(client: *mut JackClientRaw) -> c_i
 // SAFETY: Same FFI contract as above; the passed client handle must come from JACK.
 type JackActivateFn = unsafe extern "C" fn(client: *mut JackClientRaw) -> c_int;
 // SAFETY: Same FFI contract as above; the passed client handle must come from JACK.
-type JackDeactivateFn = unsafe extern "C" fn(client: *mut JackClientRaw) -> c_int;
 // SAFETY: Same FFI contract as above; the callback and user-data pointer must stay valid for as
 // long as JACK may invoke the process callback.
 type JackSetProcessCallbackFn = unsafe extern "C" fn(
@@ -102,7 +101,6 @@ struct JackApi {
     jack_client_open: JackClientOpenFn,
     jack_client_close: JackClientCloseFn,
     jack_activate: JackActivateFn,
-    jack_deactivate: JackDeactivateFn,
     jack_set_process_callback: JackSetProcessCallbackFn,
     jack_get_sample_rate: JackGetSampleRateFn,
     jack_get_buffer_size: JackGetBufferSizeFn,
@@ -160,7 +158,6 @@ fn load_jack_api() -> Result<JackApi, String> {
         // SAFETY: same lifetime reasoning as above for the symbol resolution.
         jack_activate: unsafe { load_symbol(&lib, b"jack_activate\0")? },
         // SAFETY: same lifetime reasoning as above for the symbol resolution.
-        jack_deactivate: unsafe { load_symbol(&lib, b"jack_deactivate\0")? },
         // SAFETY: same lifetime reasoning as above for the symbol resolution.
         jack_set_process_callback: unsafe { load_symbol(&lib, b"jack_set_process_callback\0")? },
         // SAFETY: same lifetime reasoning as above for the symbol resolution.
@@ -221,6 +218,12 @@ pub struct JackOutputPrep {
 }
 
 impl JackOutputPrep {
+    pub fn buffer_negotiation(&self) -> deadlib_audio_core::BufferNegotiation {
+        deadlib_audio_core::BufferNegotiation {
+            period_frames: Some(self.period_frames),
+            num_buffers: None,
+        }
+    }
     pub fn ready(&self) -> OutputBackendReady {
         OutputBackendReady {
             device_sample_rate: self.sample_rate_hz,
@@ -240,14 +243,23 @@ pub struct JackOutputStream {
     callback_state: *mut JackCallbackState,
 }
 
-impl Drop for JackOutputStream {
-    fn drop(&mut self) {
-        self.client.deactivate();
+impl JackOutputStream {
+    pub fn shutdown(&mut self) -> Result<(), String> {
+        self.client.close()?;
         if !self.callback_state.is_null() {
-            // SAFETY: `callback_state` came from `Box::into_raw` in `start()` and
-            // ownership returns to Rust exactly once here after JACK is deactivated.
+            // jack_client_close confirmed that callbacks no longer own this box.
             unsafe { drop(Box::from_raw(self.callback_state)) };
             self.callback_state = ptr::null_mut();
+        }
+        Ok(())
+    }
+}
+
+impl Drop for JackOutputStream {
+    fn drop(&mut self) {
+        // On failed close, retain callback memory rather than freeing live state.
+        if let Err(error) = self.shutdown() {
+            warn!("{error}");
         }
     }
 }
@@ -257,37 +269,35 @@ struct JackClient {
     raw: *mut JackClientRaw,
     port_l: *mut JackPortRaw,
     port_r: *mut JackPortRaw,
-    activated: bool,
+    close_failure: Option<c_int>,
 }
 
 impl JackClient {
-    #[inline(always)]
-    fn deactivate(&mut self) {
-        if self.activated && !self.raw.is_null() {
-            // SAFETY: `raw` is the live JACK client owned by this struct, and
-            // `deactivate` is only called while that client is still valid.
-            unsafe { (self.api.jack_deactivate)(self.raw) };
-            self.activated = false;
+    fn close(&mut self) -> Result<(), String> {
+        if let Some(status) = self.close_failure {
+            return Err(format!("JACK client close remains unconfirmed: {status}"));
         }
+        if self.raw.is_null() {
+            return Ok(());
+        }
+        // On failure the API does not promise reusable client ownership. Never
+        // retry an ambiguous close or reclaim callback memory without success.
+        let raw = std::mem::replace(&mut self.raw, ptr::null_mut());
+        self.port_l = ptr::null_mut();
+        self.port_r = ptr::null_mut();
+        let status = unsafe { (self.api.jack_client_close)(raw) };
+        if status != 0 {
+            self.close_failure = Some(status);
+            return Err(format!("JACK client close failed: {status}"));
+        }
+        Ok(())
     }
 }
 
 impl Drop for JackClient {
     fn drop(&mut self) {
-        self.deactivate();
-        if !self.raw.is_null() {
-            // SAFETY: `port_l`, `port_r`, and `raw` are all owned by this client.
-            // Each non-null port is unregistered at most once before the client is
-            // closed exactly once here.
-            unsafe {
-                if !self.port_r.is_null() {
-                    (self.api.jack_port_unregister)(self.raw, self.port_r);
-                }
-                if !self.port_l.is_null() {
-                    (self.api.jack_port_unregister)(self.raw, self.port_l);
-                }
-                (self.api.jack_client_close)(self.raw);
-            }
+        if let Err(error) = self.close() {
+            warn!("{error}");
         }
     }
 }
@@ -437,7 +447,7 @@ pub fn prepare(
             raw: client,
             port_l,
             port_r,
-            activated: false,
+            close_failure: None,
         },
         device_name: "JACK system playback".to_string(),
         sample_rate_hz,
@@ -491,7 +501,6 @@ pub fn start(
         unsafe { drop(Box::from_raw(callback_state)) };
         return Err("Couldn't activate JACK client.".to_string());
     }
-    client.activated = true;
     if let Err(err) = connect_physical_playback(&client) {
         warn!("JACK backend left ports unconnected: {err}");
     }

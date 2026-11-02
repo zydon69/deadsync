@@ -5,11 +5,13 @@ pub mod conversion;
 pub(crate) mod clipboard;
 pub mod label;
 pub mod migration;
+pub mod live;
 pub mod pause;
 pub mod region;
 pub mod signature;
 pub mod speed;
 pub mod tick;
+pub(crate) mod resident;
 pub mod scroll;
 pub mod tempo;
 use crate::{
@@ -55,7 +57,7 @@ impl Target {
             return Err(invalid("Timing chart does not exist"));
         }
         migration::require_compatible(document)?;
-        if scope == Scope::Chart && !supports_chart_timing(document) {
+        if scope == Scope::Chart && !supports_resident_chart_timing(document) {
             return Err(invalid(
                 "Chart timing requires SSC version 0.7 or newer; use shared timing until legacy migration is implemented",
             ));
@@ -102,6 +104,9 @@ impl Target {
         if changes.is_empty() {
             return Ok(false);
         }
+        if session.document().format == Format::Sm {
+            return resident::apply(session,chart,self.scope,changes,label);
+        }
         let target = if self.scope == Scope::Chart {
             Some(self.chart)
         } else {
@@ -128,7 +133,7 @@ impl TempoDraft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
         let document = session.document();
-        let raw = document.text(target.origin(), "BPMS").unwrap_or_default();
+        let raw = resident::text(document,target.origin(),"BPMS")?;
         let mut tempos = Tempos::parse(&raw, 120.0)?;
         if tempos.source_lacked_initial() {
             let fallback = if scope == Scope::Chart {
@@ -213,7 +218,12 @@ pub fn reference_uses_chart_timing(document: &Document, chart: usize) -> bool {
             .any(|tag| document.raw_property(Some(chart), tag).is_some())
 }
 pub fn uses_chart_timing(document: &Document, chart: usize) -> bool {
-    supports_chart_timing(document) && reference_uses_chart_timing(document, chart)
+    resident::has_local(document,chart) || (supports_chart_timing(document) && reference_uses_chart_timing(document, chart))
+}
+/// Editing capacity is independent of the original file reader's capability.
+/// Legacy SSC retains its separate, explicit activation/migration boundary.
+pub fn supports_resident_chart_timing(document:&Document)->bool {
+    document.format==Format::Sm || supports_chart_timing(document)
 }
 /// Whether the file version supports a separate timing set per SSC chart.
 pub fn supports_chart_timing(document: &Document) -> bool {
@@ -228,8 +238,8 @@ pub fn supports_chart_timing(document: &Document) -> bool {
 }
 fn song_fallback(document: &Document) -> f64 {
     // Match the song/default fallback after the earlier-chart histogram.
-    let first = document
-        .text(None, "BPMS")
+    let first = resident::Properties::capture(document,None).ok()
+        .map(|properties|properties.text("BPMS"))
         .and_then(|text| tempo::parse_pairs(&text).ok())
         .and_then(|pairs| {
             pairs
@@ -261,7 +271,7 @@ fn chart_fallback(document: &Document, chart: usize) -> Result<f64, Error> {
     for index in 0..chart {
         let histogram = grouped_histogram(&groups);
         let scope = uses_chart_timing(document, index).then_some(index);
-        let raw = document.text(scope, "BPMS").unwrap_or_default();
+        let raw = resident::text(document,scope,"BPMS")?;
         let mut values = Tempos::parse(&raw, 120.0)?;
         if values.source_lacked_initial() {
             values = Tempos::parse(

@@ -1,0 +1,38 @@
+--- a/crates/deadsync-editor/src/advanced_export/preflight.rs
++++ b/crates/deadsync-editor/src/advanced_export/preflight.rs
+@@ -36,6 +36,7 @@
+     StepF2Collision,
+     StepF2Attributes,
+     UnknownProperty,
++    ChartAttacksWithoutSplitTiming,
+ }
+ #[derive(Clone, Debug, PartialEq, Eq)]
+ pub struct Issue {
+@@ -184,6 +185,16 @@
+             };
+             plan.inspect_grid(chart, &layout, grid, &mut count, limits, cancelled)?;
+             plan.inspect_properties(staged.document(), chart, limits)?;
++        }
++        // EditorSong's writer deliberately omits song ATTACKS for SSC. Once
++        // chart timing is omitted too, StepMania ignores these chart attacks
++        // even though the editor's own reader can still recover the tags.
++        if target == Format::Ssc && options.omit_chart_timing {
++            for (chart, signature) in signatures.iter().enumerate() {
++                if signature.as_ref().is_some_and(|fields|fields.iter().any(|(name,value)|*name=="ATTACKS"&&!value.is_empty())) {
++                    plan.add(Some(chart),Severity::Warning,IssueKind::ChartAttacksWithoutSplitTiming,"ATTACKS",None,"Chart attacks are ignored by StepMania without split timing; the editor's tag round-trip does not preserve their effect in game",limits)?;
++                }
++            }
+         }
+         if let Some(Some(base)) = signatures.get(timing_chart) {
+             for (chart, signature) in signatures.iter().enumerate() {
+--- a/crates/deadsync-editor/tests/advanced_export_workflows.rs
++++ b/crates/deadsync-editor/tests/advanced_export_workflows.rs
+@@ -162,7 +162,7 @@
+             ..Options::default()
+         },
+     );
+-    assert!(!p.issues().iter().any(|i| i.field == "ATTACKS"));
++    assert!(!p.issues().iter().any(|i| i.field == "ATTACKS" && i.kind == IssueKind::UnequalSharedEvent));
+     assert!(kind(
+         &plan(&mut attacks, Format::Sm, Options::default()),
+         IssueKind::UnequalSharedEvent

@@ -1,0 +1,156 @@
+--- a/crates/deadsync-theme-simply-love/src/screens/edition/pack_properties.rs
++++ b/crates/deadsync-theme-simply-love/src/screens/edition/pack_properties.rs
+@@ -94,6 +94,7 @@
+     ReloadConfirm,
+     Pending,
+     SourceChanged,
++    ReleaseConfirm,
+ }
+ pub(super) struct Settings {
+     binding: SessionBinding,
+@@ -180,7 +181,7 @@
+         match self.mode {
+             Mode::Edit => 9,
+             Mode::Conflict => 3,
+-            Mode::SourceChanged if self.pending() => 1,
++            Mode::Pending => 3,
+             _ => 2,
+         }
+     }
+@@ -219,19 +220,28 @@
+                 }
+             }
+             Mode::SourceChanged => {
+-                if index == 0 && !self.pending() {
+-                    "PackCancel"
++                if index == 0 {
++                    if self.pending() {
++                        "PackReleaseOpen"
++                    } else {
++                        "PackCancel"
++                    }
+                 } else {
+                     "PackClose"
+                 }
+             }
+-            Mode::Pending => {
++            Mode::ReleaseConfirm => {
+                 if index == 0 {
+-                    "PackRetry"
+-                } else {
+-                    "PackClosePending"
+-                }
+-            }
++                    "PackKeepPending"
++                } else {
++                    "PackReleaseConfirm"
++                }
++            }
++            Mode::Pending => match index {
++                0 => "PackRetry",
++                1 => "PackClosePending",
++                _ => "PackReleaseOpen",
++            },
+         }
+     }
+     fn notice_key(&self) -> &'static str {
+@@ -242,6 +252,7 @@
+             Mode::ReloadConfirm => "PackReloadWarning",
+             Mode::Pending => "PackPending",
+             Mode::SourceChanged => "PackSourceChanged",
++            Mode::ReleaseConfirm => "PackReleaseWarning",
+             Mode::Edit => {
+                 if self.is_dirty() {
+                     "PackDirty"
+@@ -331,6 +342,14 @@
+         let Some(settings) = &self.pack_properties else {
+             return;
+         };
++        if code == KeyCode::Escape && settings.mode == Mode::ReleaseConfirm {
++            let settings = self.pack_properties.as_mut().unwrap();
++            settings.mode = Mode::Pending;
++            settings.index = 2;
++            self.status = i18n::tr("Edition", "PackPending");
++            self.focus_text();
++            return;
++        }
+         if code == KeyCode::Escape {
+             self.sync_text();
+             self.close_pack_panel();
+@@ -340,8 +359,10 @@
+             || !settings.binding.belongs_to(&self.workspace.file().session)
+         {
+             let settings = self.pack_properties.as_mut().unwrap();
+-            settings.mode = Mode::SourceChanged;
+-            settings.index = settings.index.min(settings.count() - 1);
++            if settings.mode != Mode::ReleaseConfirm {
++                settings.mode = Mode::SourceChanged;
++                settings.index = settings.index.min(settings.count() - 1);
++            }
+             self.status = i18n::tr("Edition", "PackSourceChanged");
+             if (self.control && code == KeyCode::KeyS) || code == KeyCode::F5 {
+                 return;
+@@ -401,6 +422,7 @@
+         let save = action && settings.mode == Mode::Edit && settings.index == 7;
+         let mut close = false;
+         let mut discard = false;
++        let mut released_status = None;
+         if settings.mode == Mode::Edit
+             && settings.index == 6
+             && matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight)
+@@ -427,8 +449,30 @@
+         } else if action {
+             match settings.mode {
+                 Mode::SourceChanged => {
+-                    discard = settings.index == 0 && !settings.pending();
+-                    close = true;
++                    if settings.index == 0 && settings.pending() {
++                        settings.mode = Mode::ReleaseConfirm;
++                        settings.index = 0;
++                    } else {
++                        discard = settings.index == 0;
++                        close = true;
++                    }
++                }
++                Mode::ReleaseConfirm => {
++                    if settings.index == 0 {
++                        settings.mode = Mode::Pending;
++                        settings.index = 2;
++                    } else {
++                        // Releasing this local receipt does not acknowledge it
++                        // and never writes, rolls back or removes the disk file.
++                        released_status =
++                            Some(match settings.file.as_ref().map(|file| file.external()) {
++                                Some(Ok(true)) => "PackReleasedExternal",
++                                Some(Ok(false)) => "PackReleasedPublished",
++                                _ => "PackReleasedUnknown",
++                            });
++                        discard = true;
++                        close = true;
++                    }
+                 }
+                 Mode::Edit => match settings.index {
+                     7 => {}
+@@ -503,8 +547,11 @@
+                                 Err(_) => self.status = i18n::tr("Edition", "PackPending"),
+                             }
+                         }
++                    } else if settings.index == 1 {
++                        close = true
+                     } else {
+-                        close = true
++                        settings.mode = Mode::ReleaseConfirm;
++                        settings.index = 0;
+                     }
+                 }
+             }
+@@ -515,6 +562,9 @@
+         }
+         if close {
+             self.close_pack_panel();
++            if let Some(key) = released_status {
++                self.status = i18n::tr("Edition", key);
++            }
+             return;
+         }
+         if save {

@@ -1,0 +1,10 @@
+{
+  "commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "cases": 180,
+  "files": {
+    "EditorChart.cs": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd",
+    "EditorEvents/EditorEvent.cs": "28dbffa43902c9704850bae1fcdaf22b3d29317625ddf82934f71c9fc12eb18c",
+    "EditorEvents/EditorSelectedRowsEvent.cs": "4a73dd776a600dc8109483818b5f88f848b04e0ca5fe7c2d2fe50ed3ca1c60b7"
+  },
+  "execution": "Original GetEndPosition, SetSelectionRows/GetEndRow and actual EditorEvent custom-order dictionary/comparison prefix executed unchanged under .NET10. Recording tree enumerator and one ordinary event supply the external tree/model boundary; no claim about same-row ordering among ordinary Fumen event types. Preview is the original identified runtime type. Negative signed ranges and last-start-versus-long-end cases included."
+}

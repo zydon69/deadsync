@@ -74,7 +74,8 @@ impl Signatures {
             return invalid("Time signature chart does not exist");
         }
         let scope = super::reference_uses_chart_timing(document, chart).then_some(chart);
-        Self::parse(&document.text(scope, "TIMESIGNATURES").unwrap_or_default())
+        let scope=if document.format==crate::document::Format::Sm {super::uses_chart_timing(document,chart).then_some(chart)} else {scope};
+        Self::parse(&super::resident::text(document,scope,"TIMESIGNATURES")?)
     }
     pub fn parse(text: &str) -> Result<Self, Error> {
         let mut source = Vec::new();
@@ -260,10 +261,7 @@ impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
         let current = Signatures::parse(
-            &session
-                .document()
-                .text(target.origin(), "TIMESIGNATURES")
-                .unwrap_or_default(),
+            &super::resident::text(session.document(),target.origin(),"TIMESIGNATURES")?,
         )?;
         Ok(Self {
             target,

@@ -82,14 +82,10 @@ fn presets_use_executed_platform_defaults_and_neutralize_native_extensions_expli
             prepared.report.unavailable_commands.len(),
             source_ids.len() - implemented
         );
-        assert_eq!(prepared.report.retained_modifiers.len(), 6);
+        assert!(prepared.report.retained_modifiers.is_empty());
+        assert_eq!(prepared.report.applied_modifiers, ["ScrollZoom", "ScrollSpacing","MouseSelectionAltBehavior","MouseSelectionControlBehavior","MouseSelectionShiftBehavior","LockReceptorMoveAxis"]);
         assert!(
-            prepared
-                .report
-                .rejected
-                .iter()
-                .all(|entry| entry.id == "Mirror"
-                    && entry.reason == "Chord is owned by an unmigrated native context"),
+            prepared.report.rejected.is_empty(),
             "{:?}",
             prepared.report.rejected
         );
@@ -113,12 +109,9 @@ fn source_jsonc_import_retains_exact_unhandled_data_and_uses_physical_key_names(
         prepared.preferences.commands["PlayPause"],
         vec![vec!["Space"]]
     );
-    assert!(
-        prepared
-            .report
-            .unavailable_commands
-            .contains(&"SelectAllNotes".to_owned())
-    );
+    assert!(prepared.report.applied.contains(&"SelectAllNotes".to_owned()));
+    assert!(!prepared.report.unavailable_commands.contains(&"SelectAllNotes".to_owned()));
+    assert_eq!(prepared.preferences.commands["SelectAllNotes"], vec![vec!["LeftWindows", "A"]]);
     assert!(
         prepared
             .report
@@ -128,7 +121,7 @@ fn source_jsonc_import_retains_exact_unhandled_data_and_uses_physical_key_names(
     assert!(
         prepared
             .report
-            .unavailable_commands
+            .applied
             .contains(&"ArrowModification".to_owned())
     );
     // Editor.cs registers ArrowModification with press/release callbacks.
@@ -136,7 +129,7 @@ fn source_jsonc_import_retains_exact_unhandled_data_and_uses_physical_key_names(
     assert!(
         prepared
             .report
-            .retained_modifiers
+            .applied_modifiers
             .contains(&"ScrollZoom".to_owned())
     );
     assert!(
@@ -148,13 +141,15 @@ fn source_jsonc_import_retains_exact_unhandled_data_and_uses_physical_key_names(
 }
 #[test]
 fn unsupported_alternative_is_disabled_whole_instead_of_dropping_its_modifier() {
-    let raw = r#"{"Save":[["Ctrl","S"],["LeftWindows","F13"]],"Undo":[["A","B"]],"Copy":[["Escape"]],"Cut":[["OemPlus","C"]]}"#;
+    let raw = r#"{"Save":[["Ctrl","S"],["LeftWindows","F13"]],"Undo":[["A","B"]],"Copy":[["D1"]],"Cut":[["OemPlus","C"]]}"#;
     let prepared = source_profile::import(&Preferences::default(), raw, Platform::Mac).unwrap();
     assert_eq!(
         prepared.preferences.commands["Save"],
         vec![vec!["LeftWindows", "F13"]]
     );
-    for id in ["Undo", "Copy", "Cut"] {
+    assert_eq!(prepared.preferences.commands["Copy"], vec![vec!["D1"]]);
+    assert_eq!(prepared.preferences.commands["Undo"], vec![vec!["A", "B"]]);
+    for id in ["Cut"] {
         assert_eq!(
             prepared.preferences.commands[id],
             vec![Vec::<String>::new()]
@@ -167,7 +162,7 @@ fn unsupported_alternative_is_disabled_whole_instead_of_dropping_its_modifier() 
             .iter()
             .filter(|entry| matches!(entry.id.as_str(), "Save" | "Undo" | "Copy" | "Cut"))
             .count(),
-        4
+        2
     );
     assert_eq!(prepared.preferences.source_import_raw.as_deref(), Some(raw));
 }
@@ -284,18 +279,15 @@ fn imported_equal_priority_commands_keep_original_callback_declaration_order() {
 }
 
 #[test]
-fn unavailable_source_chords_block_shorter_callbacks_without_owning_native_contexts() {
+fn newly_available_marker_callback_blocks_shorter_callbacks_without_an_unavailable_marker() {
     use deadsync_editor::key_commands::{Key, Registry};
-    let prepared = source_profile::preset(&Preferences::default(), Platform::Other).unwrap();
+    let prepared = source_profile::import(&Preferences::default(),
+        r#"{"MoveEventPreview":[["LeftControl","LeftShift","W"]],"Close":[[]]}"#,
+        Platform::Other).unwrap();
+    assert!(prepared.report.applied.iter().any(|id|id=="MoveEventPreview"));
+    assert!(!prepared.report.blocked_unavailable.iter().any(|id|id=="MoveEventPreview"));
     assert!(
-        prepared
-            .report
-            .blocked_unavailable
-            .iter()
-            .any(|id| id == "Close")
-    );
-    assert!(
-        prepared
+        !prepared
             .report
             .retained_native_contexts
             .iter()
@@ -306,7 +298,13 @@ fn unavailable_source_chords_block_shorter_callbacks_without_owning_native_conte
         registry.update(0., ["LeftControl", "LeftShift"].map(Key::named));
         let effects = registry.update(0.1, ["LeftControl", "LeftShift", terminal].map(Key::named));
         assert!(!registry.is_active(available), "{effects:?}");
-        assert!(registry.is_active_prefix(source_profile::BLOCKER_PREFIX));
+        if terminal == "W" {
+            assert!(registry.is_active("MoveEventPreview"));
+            assert!(!registry.is_active_prefix(source_profile::BLOCKER_PREFIX));
+        } else {
+            assert!(registry.is_active("OpenContainingFolder"), "{effects:?}");
+            assert!(!registry.is_active_prefix(source_profile::BLOCKER_PREFIX));
+        }
     }
     for blocker in source_profile::blockers(&prepared.preferences) {
         for chord in blocker.alternatives {
@@ -319,9 +317,16 @@ fn unavailable_source_chords_block_shorter_callbacks_without_owning_native_conte
 #[test]
 fn blockers_round_trip_and_are_owned_by_the_global_draft() {
     let native = Preferences::default();
-    let source = source_profile::preset(&native, Platform::Other)
+    let mut source = source_profile::preset(&native, Platform::Other)
         .unwrap()
         .preferences;
+    // Ported source callbacks no longer necessarily produce any blockers.
+    // Exercise the archived field owner with a deterministic, valid dormant
+    // entry. This synthetic ID is not claimed to be an original callback and
+    // must never become a live binding.
+    source.source_blockers.insert("ArchivedCASFixture".into(),vec![vec!["LeftControl".into(),"F12".into()]]);
+    assert_ne!(source.source_blockers,native.source_blockers);
+    assert!(source_profile::blockers(&source).iter().all(|binding|!binding.id.contains("ArchivedCASFixture")));
     let mut fields = serde_json::Map::new();
     source.write(&mut fields).unwrap();
     assert_eq!(Preferences::read(&fields).unwrap(), source);
@@ -342,8 +347,8 @@ fn blockers_round_trip_and_are_owned_by_the_global_draft() {
     assert!(source_profile::blockers(&reset).is_empty());
 }
 #[test]
-fn source_import_cannot_steal_f1_or_silently_narrow_unavailable_chords() {
-    let prepared = source_profile::import(&Preferences::default(), r#"{"New":[["F1"]],"Close":[["LeftControl","LeftShift","F13"],["LeftControl","OemTilde"],["D1"]]}"#, Platform::Other).unwrap();
+fn source_import_cannot_steal_f1_or_silently_narrow_marker_chords() {
+    let prepared = source_profile::import(&Preferences::default(), r#"{"New":[["F1"]],"MoveEventPreview":[["LeftControl","LeftShift","F13"],["LeftControl","OemTilde"],["D1"]]}"#, Platform::Other).unwrap();
     assert_eq!(
         prepared.preferences.commands["New"],
         vec![Vec::<String>::new()]
@@ -353,8 +358,8 @@ fn source_import_cannot_steal_f1_or_silently_narrow_unavailable_chords() {
         vec![vec!["F1"]]
     );
     assert_eq!(
-        prepared.preferences.source_blockers["Close"],
-        vec![vec!["LeftControl", "LeftShift", "F13"]]
+        prepared.preferences.commands["MoveEventPreview"],
+        vec![vec!["LeftControl", "LeftShift", "F13"],vec!["D1"]]
     );
     assert!(
         prepared
@@ -363,13 +368,9 @@ fn source_import_cannot_steal_f1_or_silently_narrow_unavailable_chords() {
             .iter()
             .any(|rejected| rejected.id == "New")
     );
-    assert!(
-        prepared
-            .report
-            .retained_native_contexts
-            .iter()
-            .any(|id| id == "Close")
-    );
+    assert!(!prepared.report.retained_native_contexts.iter().any(|id| id == "MoveEventPreview"));
+    assert!(!prepared.report.blocked_unavailable.iter().any(|id|id=="MoveEventPreview"));
+    assert!(prepared.report.rejected.iter().any(|item|item.id=="MoveEventPreview"));
 }
 #[test]
 fn malformed_persisted_blockers_fail_before_runtime_and_unknown_ids_never_activate() {
@@ -382,10 +383,12 @@ fn malformed_persisted_blockers_fail_before_runtime_and_unknown_ids_never_activa
     assert!(source_profile::blockers(&prefs).is_empty());
     prefs
         .source_blockers
-        .insert("Close".into(), vec![vec!["D1".into()]]);
-    assert!(prefs.validate().is_err());
+        .insert("MoveEventPreview".into(), vec![vec!["D1".into()]]);
+    prefs.validate().unwrap(); // opaque archive can contain a former unavailable command
+    assert!(source_profile::blockers(&prefs).is_empty());
+
     prefs
         .source_blockers
-        .insert("Close".into(), vec![vec!["F1".into()]]);
+        .insert("MoveEventPreview".into(), vec![vec!["F1".into()]]);
     assert!(prefs.validate().is_err());
 }

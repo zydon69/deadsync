@@ -1,0 +1,7 @@
+{
+  "commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source": "StepManiaEditor/Documentation.cs",
+  "source_sha256": "3507c422a78c95a5e1b76d57b8dc3919b0fa699532217def6c6a074f6c8dc3e4",
+  "scope": "Whole original Documentation.cs unchanged, Debug and RELEASE builds. Explicit IEditorPlatform recording adapter; Utils.GetAppVersion injected0.1.0. No browser/OS calls. Native adapts tree to pinned source and clearly identifies GA references.",
+  "sdk": "10.0.403"
+}

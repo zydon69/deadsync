@@ -1,6 +1,6 @@
 //! Resident row-bound attack editing. File-time normalization happens only on Apply.
 use super::{Draft as FileDraft, Modifier, placement::Timeline, resident};
-use crate::{Error, document::Document, history::Session, playback::Clock, timing_edit::Scope};
+use crate::{Error, history::Session, playback::Clock, timing_edit::Scope};
 use std::collections::BTreeMap;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Event {
@@ -36,6 +36,7 @@ pub struct Draft {
     current: Events,
     original: Events,
     sources: BTreeMap<usize, u64>,
+    original_sources: BTreeMap<usize, u64>,
     hints: BTreeMap<u64, Vec<f64>>,
 }
 impl Draft {
@@ -54,7 +55,7 @@ impl Draft {
                 modifiers: marker.modifiers.clone(),
             })
             .collect();
-        let sources = placed
+        let sources: BTreeMap<usize, u64> = placed
             .markers()
             .iter()
             .flat_map(|marker| {
@@ -85,10 +86,7 @@ impl Draft {
             })
             .collect();
         let rows: Vec<_> = events.iter().map(|event| event.row).collect();
-        let snapshot = Session::new(Document::parse(
-            session.serialize()?,
-            session.document().format,
-        )?);
+        let snapshot = Session::new(session.snapshot_document()?);
         let clock = Clock::capture_with_attacks(&snapshot, chart, &rows)?;
         let current = Events { events };
         Ok(Self {
@@ -99,9 +97,19 @@ impl Draft {
             clock,
             original: current.clone(),
             current,
+            original_sources: sources.clone(),
             sources,
             hints,
         })
+    }
+    pub fn is_current_for(&self, session: &Session, chart: usize) -> bool {
+        self.chart == chart && session.accepts_token(&self.file.token)
+    }
+    /// Origin identity of an existing event; pasted/replaced/new events have none.
+    pub fn original_row(&self, event: usize) -> Option<u64> {
+        let row = self.current.events.get(event)?.row;
+        self.sources.iter().find_map(|(source, current)|
+            (*current == row).then(|| self.original_sources.get(source).copied()).flatten())
     }
     pub fn scope(&self) -> Scope {
         self.file.scope()
@@ -386,11 +394,19 @@ impl Draft {
         if chart != self.chart || !session.accepts_token(&self.file.token) {
             return Err(invalid("Attack inspector draft is stale"));
         }
-        if !self.has_changes() {
+        let lifecycle = super::selection::Lifecycle::from_sources(
+            chart, session.chart_ids()[chart].clone(), self.scope(),
+            &self.original_sources, &self.sources,
+            self.current.events.iter().map(|event| event.row));
+        if !self.has_changes() && !lifecycle.has_changes() {
             return Ok(false);
         }
-        if self.scope() == Scope::Chart && self.current.events.is_empty() && self.file.song_has_attacks {
-            return super::inheritance::clear_chart(session, chart);
+        if self.scope() == Scope::Chart && self.current.events.is_empty() && self.file.song_has_attacks && session.document().format!=crate::document::Format::Sm {
+            return session.edit_chart_atomic(chart, "Edit attacks", |staged| {
+                super::inheritance::clear_chart(staged, chart)?;
+                staged.commit_attack_lifecycle(lifecycle.clone())?;
+                Ok(())
+            });
         }
         let events: Vec<_> = self
             .current
@@ -402,15 +418,8 @@ impl Draft {
             })
             .collect();
         let bytes = resident::encode(&self.snapshot, chart, &events, &self.hints)?;
-        let mut preview = Session::new(Document::parse(
-            self.snapshot.serialize()?,
-            self.snapshot.document().format,
-        )?);
-        preview.set_property_bytes(
-            (self.scope() == Scope::Chart).then_some(chart),
-            "ATTACKS",
-            bytes.clone().into(),
-        )?;
+        let mut preview = Session::new(self.snapshot.snapshot_document()?);
+        super::property::write(&mut preview,(self.scope()==Scope::Chart).then_some(chart),bytes.clone().into())?;
         resident::reconcile(&mut preview, chart, self.scope(), &events)?;
         let placed = Timeline::capture_scope(&preview, chart, self.scope())?;
         if placed.markers().len() != self.current.events.len()
@@ -426,16 +435,16 @@ impl Draft {
                 "Attack rows cannot round-trip through this file timing",
             ));
         }
-        let mut properties = vec![(
-            (self.scope() == Scope::Chart).then_some(chart),
-            "ATTACKS".to_owned(),
-            std::sync::Arc::from(bytes),
-        )];
+        let mut properties=vec![super::property::change(session.document(),(self.scope()==Scope::Chart).then_some(chart),std::sync::Arc::from(bytes))?];
         let (scope, name) = resident::tag(session.document(), chart, self.scope() == Scope::Chart)?;
         if let Some(raw) = preview.document().raw_property(scope, &name) {
             properties.push((scope, name, std::sync::Arc::from(raw)));
         }
-        session.set_property_bytes_atomic(&properties, "Edit attacks")
+        session.edit_chart_atomic(chart, "Edit attacks", |staged| {
+            staged.set_property_bytes_atomic(&properties, "Edit attacks")?;
+            staged.commit_attack_lifecycle(lifecycle.clone())?;
+            Ok(())
+        })
     }
 }
 fn invalid(message: &str) -> Error {

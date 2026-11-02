@@ -1,0 +1,30 @@
+using System.Text.Json;using System.Text.Json.Serialization;using Fumen;using Fumen.ChartDefinition;using static Fumen.Converters.SMCommon;using StepManiaEditor.AutogenConfig;using static StepManiaEditor.EditorSong;
+namespace StepManiaEditor;
+class EditorSong {public double MusicOffset=1.25;public class SaveParameters(FileFormatType type,object unused){public bool OmitCustomSaveData;public bool AnonymizeSaveData;}}
+class EditorPatternEvent {DEFINITION public int Row;Definition value=new();public int GetRow()=>Row;public Definition GetDefinition()=>value;public void SetDefinition(Definition d)=>value=d;}
+class EventConfig {public int Row;public static EventConfig CreatePatternConfig(EditorChart chart,int row)=>new(){Row=row};}
+class EditorEvent {public static object CreateEvent(EventConfig config)=>new EditorPatternEvent{Row=config.Row};}
+class StepTotals(EditorChart chart){public void InitializeStepDensity(){}}
+class Props(int num){public int GetNumInputs()=>num;public int GetNumPlayers()=>1;}
+class DisplayTempo {string value="";public void FromString(string s)=>value=s;public override string ToString()=>value;}
+class EditorChart:Fumen.IObserver<WorkQueue> {
+CUSTOM
+const int CustomSaveDataVersion=1;const string TagCustomChartDataVersion="ChartDataVersion",TagCustomChartData="ChartData";
+static readonly JsonSerializerOptions CustomSaveDataSerializationOptions=new(){IncludeFields=true,ReadCommentHandling=JsonCommentHandling.Skip,Converters={new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)}};
+static string GetCustomPropertyName(string key)=>"GA"+key;
+public Guid Id;public WorkQueue WorkQueue;public Guid ExpressedChartConfigInternal;public Guid ExpressedChartConfig {get=>ExpressedChartConfigInternal;set=>ExpressedChartConfigInternal=value;}
+public Extras OriginalChartExtras;public EditorSong EditorSong;public ChartType ChartTypeInternal;public ChartType ChartType=>ChartTypeInternal;public ChartDifficultyType ChartDifficultyTypeInternal;public ChartDifficultyType ChartDifficultyType=>ChartDifficultyTypeInternal;
+public int RatingInternal;public int Rating=>RatingInternal;public int NumInputs,DefaultNumPlayers,MaxPlayersInternal;public int MaxPlayers{get=>MaxPlayersInternal;set=>MaxPlayersInternal=value;}
+public StepTotals StepTotals;public string NameInternal,DescriptionInternal,StyleInternal,CreditInternal,MusicPathInternal;public string Name=>NameInternal;public string Description=>DescriptionInternal;public string Style=>StyleInternal;public string Credit=>CreditInternal;public string MusicPath=>MusicPathInternal;
+public bool UsesChartMusicOffsetInternal;public bool UsesChartMusicOffset{get=>UsesChartMusicOffsetInternal;set=>UsesChartMusicOffsetInternal=value;}public double MusicOffsetInternal;public double MusicOffset{get=>MusicOffsetInternal;set=>MusicOffsetInternal=value;}
+public bool DisplayTempoFromChart;public DisplayTempo DisplayTempo=new();public List<EditorPatternEvent> Patterns=[];public Chart Raw;
+static Props GetChartProperties(ChartType type)=>new(type==ChartType.dance_double?8:4);
+public EditorSong GetEditorSong()=>EditorSong;
+public void OnNotify(string id,WorkQueue q,object payload){}
+void SetUpEditorEvents(Chart chart)=>Raw=chart;
+List<Event> GenerateSmEvents()=>Raw.Layers[0].Events.Select(e=>(Event)e.Clone()).ToList();
+void AddEvent(EditorPatternEvent e)=>Patterns.Add(e);void LogWarn(string s)=>Logger.Error(s);
+CTOR
+METHODS
+public object Snapshot()=>new{MusicOffset,EffectiveOffset=GetMusicOffset(),UsesChartMusicOffset,ExpressedChartConfig,MaxPlayers,PatternRows=Patterns.Select(p=>p.GetRow()).ToArray(),MusicPath,Description,Credit,Name,Style,Display=DisplayTempo.ToString()};
+}

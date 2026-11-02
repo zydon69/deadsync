@@ -190,6 +190,7 @@ fn sphere_material_pixels() {
             alpha: true,
             depth: true,
             preserve: false,
+            postprocess: None,
             cameras: vec![Mat4::IDENTITY],
             sprite_instances: vec![],
             mesh_vertices: vec![],

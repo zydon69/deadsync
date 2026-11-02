@@ -1,0 +1,12 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "SourcesSha256": {
+    "Selection.cs": "639081efe173a8ede080a4f11844561d0cd4e60d911ef49c6be5036728b051f5",
+    "UI/UIEditEvents.cs": "08352aa85c8479d41fe6b85b32051249479e3b2425482a7221f52718b3eeecc8",
+    "EditorActions/ActionChangeWarpsToNegativeStops.cs": "3ced8e8e4e0c71b5d57b28a719124f3c46adaa87853da4ba510ad1af1cb22aa2",
+    "EditorActions/ActionChangeNegativeStopsToWarps.cs": "9b1512a5982efa84bc48eb3b53c8fc0687802b9dd327b112cc0ec886d47aec34"
+  },
+  "AdapterSha256": "5024441b8955cfd2fe02efc860899d5b49b388a2cd3d538f474ae77d66c1d55a",
+  "AssemblySha256": "86b95113b9e4800ebee1b49d1226d1b41c9211f415ad1b37b642f46f28158550",
+  "Scope": "Whole source Selection; original TryGetFocusedChartSelection, both selected callbacks, both conversion routing helpers and all four original constructors. Recording action queue only. Arithmetic/Undo engine covered by pre-existing original full-action timing-conversion oracle; not executed here."
+}

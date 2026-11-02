@@ -1,6 +1,5 @@
-use deadsync_editor::{Error, minimap_projection};
-#[path = "../src/minimap_content.rs"]
-mod minimap_content;
+use deadsync_editor::minimap_projection;
+use deadsync_editor::minimap_content;
 use minimap_content::{AddResult, Raster};
 #[test]
 fn pinned_csharp_visibility_lane_layout_and_raster_match_168_cases() {
@@ -100,9 +99,21 @@ fn crossing_hold_roll_colors_zero_width_and_invalid_input_are_bounded() {
     assert!(raster.short_note(4, 3.0, 1).is_err());
     assert!(raster.short_note(0, f64::NAN, 1).is_err());
     assert!(raster.rect(1, 16, 2.0, 4.0, 1).is_err());
-    assert!(Raster::new(2, 16, 4, 2, 3, false, 1).is_err());
+    assert!(Raster::new(1, 16, 4, 2, 3, false, 1).is_err());
     assert!(Raster::new(1025, 16, 4, 2, 3, false, 1).is_err());
     let mut empty = Raster::new(16, 16, 4, 0, 3, true, 42).unwrap();
     assert_eq!(empty.hold(0, 2.0, 5.0, 1, 2).unwrap(), AddResult::InRange);
     assert!(empty.pixels().iter().all(|p| *p == 42));
+}
+
+#[test]
+fn minimum_width_clips_independent_note_width_to_empty_interior() {
+    let mut raster = Raster::new(2, 16, 4, 32, 3, false, 42).unwrap();
+    assert_eq!(raster.lane_positions(), &[1, 1, 1, 1]);
+    for lane in 0..4 {
+        raster.short_note(lane, 3.0, 7).unwrap();
+        raster.hold(lane, -10.0, 20.0, 8, 9).unwrap();
+    }
+    assert_eq!(raster.pixels().len(), 32);
+    assert!(raster.pixels().iter().all(|pixel| *pixel == 42));
 }

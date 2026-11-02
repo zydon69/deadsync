@@ -1,3 +1,5 @@
+#[path = "support/source_output_context.rs"]
+mod source_output_context;
 use deadsync_editor::{
     chart_properties::Draft,
     chart_text::{Field, Text},
@@ -100,7 +102,15 @@ fn music_rating_offset_apply_together_and_clear_restores_song_audio_after_save_a
     file.session.redo().unwrap();
     assert_eq!(file.session.serialize().unwrap(), after);
     file.save().unwrap();
+    assert_eq!(file.session.serialize().unwrap(), after, "Save output must not rewrite resident Undo bytes");
+    let published = fs::read(&path).unwrap();
+    source_output_context::assert_context_only(&after, &published, Format::Ssc);
     let mut reopened = FileSession::open(&path).unwrap();
+    assert_eq!(reopened.session.serialize().unwrap(), published);
+    let saved = Draft::capture(&reopened.session, 0).unwrap();
+    assert_eq!(saved.rating(), 13);
+    assert_eq!(saved.music_offset(), 0.2);
+    assert!(saved.uses_chart_offset());
     assert_eq!(
         Preview::capture(&reopened.session, 0, &path)
             .unwrap()
@@ -116,10 +126,14 @@ fn music_rating_offset_apply_together_and_clear_restores_song_audio_after_save_a
             .music(),
         dir.path().join("song.ogg")
     );
+    let cleared = reopened.session.serialize().unwrap();
     reopened.session.undo().unwrap();
-    assert_eq!(reopened.session.serialize().unwrap(), after);
+    assert_eq!(reopened.session.serialize().unwrap(), published);
     reopened.session.redo().unwrap();
+    assert_eq!(reopened.session.serialize().unwrap(), cleared);
     reopened.save().unwrap();
+    assert_eq!(reopened.session.serialize().unwrap(), cleared);
+    source_output_context::assert_context_only(&cleared, &fs::read(&path).unwrap(), Format::Ssc);
     let final_file = FileSession::open(&path).unwrap();
     assert_eq!(
         Preview::capture(&final_file.session, 0, &path)
@@ -127,6 +141,19 @@ fn music_rating_offset_apply_together_and_clear_restores_song_audio_after_save_a
             .music(),
         dir.path().join("song.ogg")
     );
+    let final_draft = Draft::capture(&final_file.session, 0).unwrap();
+    assert_eq!(final_draft.rating(), 13);
+    assert_eq!(final_draft.music_offset(), 0.2);
+    assert!(final_draft.uses_chart_offset());
+    assert_eq!(Text::read(final_file.session.document(), 1).unwrap().get(Field::Music), "other.ogg");
+    for (chart, expected) in [b"1000".as_slice(), b"0001".as_slice()].into_iter().enumerate() {
+        let descriptor = &final_file.session.document().charts()[chart];
+        assert_eq!(final_file.session.document().value(descriptor.notes.clone()), expected);
+    }
+    assert_eq!(final_file.session.document().text(None, "MUSIC").as_deref(), Some("song.ogg"));
+    assert_eq!(final_file.session.document().text(None, "OFFSET").as_deref(), Some("0"));
+    assert_eq!(final_file.session.document().text(None, "VENDOR").as_deref(), Some("keep"));
+    assert_eq!(fs::read(dir.path().join("song.ogg")).unwrap(), b"song");
     assert_eq!(fs::read(dir.path().join("chart.ogg")).unwrap(), b"chart");
 }
 #[test]
@@ -145,7 +172,7 @@ fn lexical_paths_match_original_fumen_helper_including_outside_dots_unicode_and_
     }
 }
 #[test]
-fn selected_files_are_validated_without_copying_or_changing_originals_and_sm_override_is_rejected()
+fn selected_files_are_validated_without_copying_originals_and_sm_override_is_authored()
 {
     let dir = tempfile::tempdir().unwrap();
     let folder = dir.path().join("Song");
@@ -163,9 +190,11 @@ fn selected_files_are_validated_without_copying_or_changing_originals_and_sm_ove
     let bytes = b"#MUSIC:song.ogg;#BPMS:0=120;#NOTES:dance-single::Hard:9::1000;";
     let mut s = Session::new(Document::parse(&bytes[..], Format::Sm).unwrap());
     let mut draft = Draft::capture(&s, 0).unwrap();
-    assert!(!draft.supports_text(Field::Music));
-    assert!(draft.set_text(Field::Music, "chart.ogg").is_err());
-    assert!(!draft.apply(&mut s, 0).unwrap());
+    assert!(draft.supports_text(Field::Music));
+    draft.set_text(Field::Music, "chart.ogg").unwrap();
+    assert!(draft.apply(&mut s, 0).unwrap());
+    assert_eq!(deadsync_editor::chart_text::Text::read(s.document(),0).unwrap().get(Field::Music),"chart.ogg");
+    assert!(s.undo().unwrap());
     assert_eq!(s.serialize().unwrap(), bytes);
     #[cfg(unix)]
     {

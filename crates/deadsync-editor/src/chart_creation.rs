@@ -43,7 +43,7 @@ impl Draft {
             return Err(invalid("Review legacy SSC timing before creating a chart"));
         }
         // Flush working timing/notes to an isolated source for stable descriptors.
-        let document = Document::parse(session.serialize()?, session.document().format)?;
+        let document = session.snapshot_document()?;
         let tempo = GenerationTiming::new_chart_tempo(&document)?;
         let signature = starting_signature(&document)?;
         let song_offset = document
@@ -92,7 +92,10 @@ impl Draft {
             max_player_index: players - 1,
             ..Default::default()
         };
-        session.insert_empty_chart(block, &grid, metadata)
+        let resident=if session.document().format==Format::Sm {
+            Some(crate::timing_edit::resident::initial_chart(self.defaults.tempo,self.defaults.signature,self.defaults.song_offset)?)
+        }else{None};
+        session.insert_empty_chart(block, &grid, metadata,resident)
     }
 }
 fn starting_signature(document: &Document) -> Result<Signature, Error> {

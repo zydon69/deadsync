@@ -1,0 +1,10 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "callback_sha256": "50788e3719df6be15fd0370bced20a92fb40eb8e1281d29536fcc4e944dae3cd",
+  "property_sha256": "5337fcf9d043bec03962985d451cfd09570def8fec3199c75e31397d329e3460",
+  "program_sha256": "33997e94acc947447b90ce2071658e3d542ced4de36e698f71e1220b5ff71fba",
+  "assembly_sha256": "efffddf5bc3968cd0086b1efb87afb2003145cc1fe8347ff247aed09f4fabcf2",
+  "fumen_dll_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "scope": "Complete original CopyChartStreamToDescription and Description property, real Fumen reflection action/Undo/Redo. Stream calculation and notification host are explicit adapters; stream calculation has its separate original density oracle."
+}

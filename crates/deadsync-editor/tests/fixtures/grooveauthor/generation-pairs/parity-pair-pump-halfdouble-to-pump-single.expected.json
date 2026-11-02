@@ -1,0 +1,5 @@
+{
+  "SourceException": true,
+  "Scope": "Robustness only: not parity",
+  "Original": "MineUtils.FindBestNthMostRecentArrow IndexOutOfRange"
+}

@@ -1,7 +1,4 @@
-use deadsync_editor::Error;
-#[path = "../src/minimap_palette.rs"]
-mod minimap_palette;
-use minimap_palette::{ColorMethod, Family, Palette, Preferences};
+use deadsync_editor::minimap_palette::{ColorMethod, Family, Palette, Preferences};
 fn rgb(value: &serde_json::Value) -> [f32; 3] {
     std::array::from_fn(|i| value[i].as_f64().unwrap() as f32)
 }

@@ -378,18 +378,9 @@ impl Draft {
             Self::Regions { draft, kind } => draft.move_node(*kind, from, to),
         }
     }
-    pub(super) fn apply(&self, workspace: &mut Workspace) -> Result<bool, Error> {
-        match self {
-            Self::Bpm(d) => workspace.apply_tempo(d),
-            Self::Labels(d) => workspace.apply_labels(d),
-            Self::Speeds(d) => workspace.apply_speeds(d),
-            Self::Combos(d) => workspace.apply_combos(d),
-            Self::Ticks(d) => workspace.apply_ticks(d),
-            Self::Scrolls(d) => workspace.apply_scrolls(d),
-            Self::Signatures(d) => workspace.apply_signatures(d),
-            Self::Pauses { draft, .. } => workspace.apply_pauses(draft),
-            Self::Regions { draft, .. } => workspace.apply_regions(draft),
-        }
+    pub(super) fn live_edit(&self) -> deadsync_editor::timing_edit::live::Edit<'_> {
+        use deadsync_editor::timing_edit::live::Edit;
+        match self { Self::Bpm(d)=>Edit::Tempo(d), Self::Labels(d)=>Edit::Labels(d), Self::Speeds(d)=>Edit::Speeds(d), Self::Combos(d)=>Edit::Combos(d), Self::Ticks(d)=>Edit::Ticks(d), Self::Scrolls(d)=>Edit::Scrolls(d), Self::Signatures(d)=>Edit::Signatures(d), Self::Pauses{draft,..}=>Edit::Pauses(draft), Self::Regions{draft,..}=>Edit::Regions(draft) }
     }
     pub(super) fn valid_value_at(&self, row: u64, text: &str) -> bool {
         if self.kind() == EventKind::Label {

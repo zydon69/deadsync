@@ -1,0 +1,19 @@
+{
+  "pin": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source": "StepManiaEditor/ActiveEditorChart.cs",
+  "sha256": "7aadac1e1f9ad4ce48a1b7013abfe35b4733c43dbc41a8dfe0cb98196ecbc538",
+  "method": "UpdateChartEvents unchanged scan-forward while block",
+  "cases": 298,
+  "host": [
+    "pre-discovered holds",
+    "ordered events/rates",
+    "Y coordinates and dimensions",
+    "region/beat/hold callbacks no-op"
+  ],
+  "not_proved": [
+    "start-row search",
+    "hold discovery",
+    "source full event comparer",
+    "native rendering"
+  ]
+}

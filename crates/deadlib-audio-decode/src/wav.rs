@@ -485,3 +485,351 @@ mod tests {
         );
     }
 }
+
+/// Explicit editor-only raw PCM view. Reuses the container parser and validates
+/// complete packets before publication; gameplay's quantized Reader is untouched.
+pub(crate) fn load_editor_pcm(
+    path: &Path,
+    cancelled: &std::sync::atomic::AtomicBool,
+    max_samples: usize,
+) -> Result<(usize, u32, Vec<f32>), Box<dyn std::error::Error + Send + Sync>> {
+    use std::sync::atomic::Ordering;
+    let mut reader = BufReader::new(File::open(path)?);
+    let spec = parse_spec(&mut reader)?;
+    let sample_count = usize::try_from(spec.frames_total)?
+        .checked_mul(spec.channels)
+        .ok_or("Editor WAV too large")?;
+    if sample_count > max_samples {
+        return Err("Editor WAV PCM memory limit exceeded".into());
+    }
+    let mut result = Vec::new();
+    result.try_reserve_exact(sample_count)?;
+    let packet_frames = (262144 / spec.block_align).clamp(1, WAV_PACKET_FRAMES);
+    let mut packet = vec![
+        0u8;
+        packet_frames
+            .checked_mul(spec.block_align)
+            .ok_or("Editor WAV packet overflow")?
+    ];
+    let mut frames_left = spec.frames_total;
+    while frames_left > 0 {
+        if cancelled.load(Ordering::Acquire) {
+            return Err("Editor WAV load cancelled".into());
+        }
+        let frames = frames_left.min(packet_frames as u64) as usize;
+        let bytes = frames
+            .checked_mul(spec.block_align)
+            .ok_or("Editor WAV packet overflow")?;
+        reader.read_exact(&mut packet[..bytes])?;
+        for sample in packet[..bytes].chunks_exact(spec.encoding.sample_bytes()) {
+            result.push(editor_sample(spec.encoding, sample)?);
+        }
+        frames_left -= frames as u64;
+    }
+    if cancelled.load(Ordering::Acquire) {
+        return Err("Editor WAV load cancelled".into());
+    }
+    if result.is_empty() {
+        return Err("Empty editor WAV source".into());
+    }
+    Ok((spec.channels, spec.sample_rate_hz, result))
+}
+
+fn editor_sample(
+    encoding: Encoding,
+    sample: &[u8],
+) -> Result<f32, Box<dyn std::error::Error + Send + Sync>> {
+    // Fumen GetParseSampleFunc multiplies by a float reciprocal. Keep that
+    // expression order (division after integer→float can differ by one bit).
+    let value = match encoding {
+        // Deliberate host correction: original PCM8 parser is unsigned DC.
+        Encoding::Pcm8 => (f32::from(sample[0]) - 128.) * (1.0f32 / 128.),
+        Encoding::Pcm16 => f32::from(i16::from_le_bytes(sample.try_into()?)) * (1.0f32 / 32767.),
+        Encoding::Pcm24 => {
+            let raw = i32::from_le_bytes([
+                sample[0],
+                sample[1],
+                sample[2],
+                if sample[2] & 128 != 0 { 255 } else { 0 },
+            ]);
+            raw as f32 * (1.0f32 / 8388607.)
+        }
+        Encoding::Pcm32 => {
+            i32::from_le_bytes(sample.try_into()?) as f32 * (1.0f32 / i32::MAX as f32)
+        }
+        Encoding::Float32 => f32::from_le_bytes(sample.try_into()?),
+        // Source FMOD format validation only accepts FLOAT32. Keep the existing
+        // native FLOAT64 capability as an explicit conversion adaptation.
+        Encoding::Float64 => f64::from_le_bytes(sample.try_into()?) as f32,
+    };
+    // Raw parser provenance includes nonfinite patterns, but publishing NaN/Inf
+    // into a physical mixer is unsafe. Reject atomically; never silently clip.
+    if !value.is_finite() {
+        return Err("Nonfinite editor WAV sample".into());
+    }
+    Ok(value)
+}
+
+#[cfg(test)]
+mod editor_parser_tests {
+    use super::*;
+    #[test]
+    fn original_raw_parser_and_explicit_adaptations() {
+        assert_eq!(
+            editor_sample(Encoding::Pcm16, &[0, 0]).unwrap().to_bits(),
+            0x00000000,
+            "Pcm16 sample0"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm16, &[1, 0]).unwrap().to_bits(),
+            0x38000100,
+            "Pcm16 sample1"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm16, &[255, 127])
+                .unwrap()
+                .to_bits(),
+            0x3f800000,
+            "Pcm16 sample2"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm16, &[0, 128]).unwrap().to_bits(),
+            0xbf800100,
+            "Pcm16 sample3"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm16, &[255, 255])
+                .unwrap()
+                .to_bits(),
+            0xb8000100,
+            "Pcm16 sample4"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm16, &[210, 4]).unwrap().to_bits(),
+            0x3d1a4134,
+            "Pcm16 sample5"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm16, &[46, 251])
+                .unwrap()
+                .to_bits(),
+            0xbd1a4134,
+            "Pcm16 sample6"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm24, &[0, 0, 0])
+                .unwrap()
+                .to_bits(),
+            0x00000000,
+            "Pcm24 sample0"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm24, &[1, 0, 0])
+                .unwrap()
+                .to_bits(),
+            0x34000001,
+            "Pcm24 sample1"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm24, &[255, 255, 127])
+                .unwrap()
+                .to_bits(),
+            0x3f800000,
+            "Pcm24 sample2"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm24, &[0, 0, 128])
+                .unwrap()
+                .to_bits(),
+            0xbf800001,
+            "Pcm24 sample3"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm24, &[255, 255, 255])
+                .unwrap()
+                .to_bits(),
+            0xb4000001,
+            "Pcm24 sample4"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm24, &[18, 52, 86])
+                .unwrap()
+                .to_bits(),
+            0x3f2c6825,
+            "Pcm24 sample5"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm24, &[239, 205, 171])
+                .unwrap()
+                .to_bits(),
+            0xbf286423,
+            "Pcm24 sample6"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm32, &[0, 0, 0, 0])
+                .unwrap()
+                .to_bits(),
+            0x00000000,
+            "Pcm32 sample0"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm32, &[1, 0, 0, 0])
+                .unwrap()
+                .to_bits(),
+            0x30000000,
+            "Pcm32 sample1"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm32, &[255, 255, 255, 127])
+                .unwrap()
+                .to_bits(),
+            0x3f800000,
+            "Pcm32 sample2"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm32, &[0, 0, 0, 128])
+                .unwrap()
+                .to_bits(),
+            0xbf800000,
+            "Pcm32 sample3"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm32, &[255, 255, 255, 255])
+                .unwrap()
+                .to_bits(),
+            0xb0000000,
+            "Pcm32 sample4"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm32, &[18, 52, 86, 120])
+                .unwrap()
+                .to_bits(),
+            0x3f70ac68,
+            "Pcm32 sample5"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Pcm32, &[239, 205, 171, 137])
+                .unwrap()
+                .to_bits(),
+            0xbf6ca864,
+            "Pcm32 sample6"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Float32, &[0, 0, 0, 0])
+                .unwrap()
+                .to_bits(),
+            0x00000000,
+            "Float32 sample0"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Float32, &[0, 0, 0, 128])
+                .unwrap()
+                .to_bits(),
+            0x80000000,
+            "Float32 sample1"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Float32, &[0, 0, 128, 63])
+                .unwrap()
+                .to_bits(),
+            0x3f800000,
+            "Float32 sample2"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Float32, &[0, 0, 128, 191])
+                .unwrap()
+                .to_bits(),
+            0xbf800000,
+            "Float32 sample3"
+        );
+        assert_eq!(
+            editor_sample(Encoding::Float32, &[0, 0, 0, 63])
+                .unwrap()
+                .to_bits(),
+            0x3f000000,
+            "Float32 sample4"
+        );
+        assert!(editor_sample(Encoding::Float32, &[0, 0, 128, 127]).is_err());
+        assert!(editor_sample(Encoding::Float32, &[0, 0, 128, 255]).is_err());
+        assert!(editor_sample(Encoding::Float32, &[1, 0, 192, 127]).is_err());
+        assert_eq!(editor_sample(Encoding::Pcm8, &[0]).unwrap(), -1.);
+        assert_eq!(editor_sample(Encoding::Pcm8, &[128]).unwrap(), 0.);
+        assert_eq!(editor_sample(Encoding::Pcm8, &[255]).unwrap(), 127. / 128.);
+    }
+}
+
+#[cfg(test)]
+mod editor_container_tests {
+    use super::*;
+    use std::sync::atomic::AtomicBool;
+    #[test]
+    fn raw_wav_precision_survives_container_decode_and_cancellation_is_not_published() {
+        let root = std::env::temp_dir().join(format!(
+            "editor-raw-wav-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&root).unwrap();
+        for (format, bits, raw, expected) in [
+            (1u16, 8u16, vec![0, 128, 255], vec![-1., 0., 127. / 128.]),
+            (
+                1,
+                16,
+                vec![1, 0, 255, 127, 0, 128],
+                vec![1f32 / 32767., 1., -32768f32 * (1f32 / 32767.)],
+            ),
+            (
+                1,
+                24,
+                vec![1, 0, 0, 255, 255, 127, 0, 0, 128],
+                vec![1f32 / 8388607., 1., -8388608f32 * (1f32 / 8388607.)],
+            ),
+            (
+                1,
+                32,
+                vec![1, 0, 0, 0, 255, 255, 255, 127, 0, 0, 0, 128],
+                vec![1f32 / i32::MAX as f32, 1., -1.],
+            ),
+            (
+                3,
+                32,
+                vec![1, 0, 0, 63, 0, 0, 0, 128],
+                vec![f32::from_bits(0x3f000001), -0.],
+            ),
+        ] {
+            let path = root.join(format!("{format}-{bits}.wav"));
+            let mut bytes = Vec::new();
+            let pad = raw.len() % 2;
+            bytes.extend(b"RIFF");
+            bytes.extend((36 + raw.len() as u32 + pad as u32).to_le_bytes());
+            bytes.extend(b"WAVEfmt ");
+            bytes.extend(16u32.to_le_bytes());
+            bytes.extend(format.to_le_bytes());
+            bytes.extend(1u16.to_le_bytes());
+            bytes.extend(48000u32.to_le_bytes());
+            bytes.extend((48000 * u32::from(bits) / 8).to_le_bytes());
+            bytes.extend((bits / 8).to_le_bytes());
+            bytes.extend(bits.to_le_bytes());
+            bytes.extend(b"data");
+            bytes.extend((raw.len() as u32).to_le_bytes());
+            bytes.extend(raw);
+            if pad != 0 {
+                bytes.push(0);
+            }
+            std::fs::write(&path, bytes).unwrap();
+            let (ch, hz, pcm) =
+                load_editor_pcm(&path, &AtomicBool::new(false), usize::MAX).unwrap();
+            assert_eq!((ch, hz), (1, 48000));
+            assert_eq!(
+                pcm.iter().map(|v| v.to_bits()).collect::<Vec<_>>(),
+                expected.iter().map(|v| v.to_bits()).collect::<Vec<_>>()
+            );
+            assert!(load_editor_pcm(&path, &AtomicBool::new(true), usize::MAX).is_err());
+            assert!(load_editor_pcm(&path, &AtomicBool::new(false), pcm.len() - 1).is_err());
+        }
+        std::fs::remove_dir_all(root).unwrap();
+    }
+}

@@ -1,0 +1,1450 @@
+[
+  {
+    "Name": "uniform-and-break",
+    "Rows": [
+      {
+        "Position": -1,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 0,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 0,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 0,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 0.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 7,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 7.25,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 12,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 12.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 18,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 24,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 36,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 24.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": 36,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 36,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": 60,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": 60,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 60
+        }
+      },
+      {
+        "Position": 47.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": 60,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": 60,
+          "OnMoveToStartOfStream": 36,
+          "OnMoveToEndOfStream": 60
+        }
+      },
+      {
+        "Position": 48,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": 60,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": 60,
+          "OnMoveToStartOfStream": 36,
+          "OnMoveToEndOfStream": 60
+        }
+      },
+      {
+        "Position": 60,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": 72,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": 72,
+          "OnMoveToStartOfStream": 36,
+          "OnMoveToEndOfStream": 72
+        }
+      },
+      {
+        "Position": 72,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 60,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 60,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 60,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 100,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 72,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 72,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 60,
+          "OnMoveToEndOfStream": null
+        }
+      }
+    ]
+  },
+  {
+    "Name": "chords-and-zero-spacing",
+    "Rows": [
+      {
+        "Position": -1,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 0,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 0,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 0
+        }
+      },
+      {
+        "Position": 0,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 24
+        }
+      },
+      {
+        "Position": 0.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 24
+        }
+      },
+      {
+        "Position": 7,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 24
+        }
+      },
+      {
+        "Position": 7.25,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 24
+        }
+      },
+      {
+        "Position": 12,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 24
+        }
+      },
+      {
+        "Position": 12.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 24
+        }
+      },
+      {
+        "Position": 18,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 24
+        }
+      },
+      {
+        "Position": 24,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 36,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 24.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": 36,
+          "OnMoveToStartOfStream": 24,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 36,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 24,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 47.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 24,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 48,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 24,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 60,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 24,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 72,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 24,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 100,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 24,
+          "OnMoveToEndOfStream": null
+        }
+      }
+    ]
+  },
+  {
+    "Name": "fake-lift-hold-mine",
+    "Rows": [
+      {
+        "Position": -1,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 0,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 0,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 0,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 0.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 7,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 7.25,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 12,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 18,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 12.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 18,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 18,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 24,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 18,
+          "OnMoveToNextRowWithEvents": 36,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 24.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": 36,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 36,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 47.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 48,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 60,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 72,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 100,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      }
+    ]
+  },
+  {
+    "Name": "mixed-editor-events",
+    "Rows": [
+      {
+        "Position": -1,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 0,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 0,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 0,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 7.25,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 0.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 7.25,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 7,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 7.25,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 7.25,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 10,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 12,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 10,
+          "OnMoveToNextRowWithEvents": 15,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 12.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 15,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 18,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 15,
+          "OnMoveToNextRowWithEvents": 20,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 24,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 20,
+          "OnMoveToNextRowWithEvents": 31.75,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 24.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": 31.75,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 36,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 31.75,
+          "OnMoveToNextRowWithEvents": 48,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 47.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": 48,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 48,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 60,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 48,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 72,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 48,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 100,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 48,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      }
+    ]
+  },
+  {
+    "Name": "singleton",
+    "Rows": [
+      {
+        "Position": -1,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 0,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 12
+        }
+      },
+      {
+        "Position": 0,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 12
+        }
+      },
+      {
+        "Position": 0.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 12
+        }
+      },
+      {
+        "Position": 7,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 12
+        }
+      },
+      {
+        "Position": 7.25,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 12
+        }
+      },
+      {
+        "Position": 12,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 12.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 12,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 18,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 12,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 24,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 12,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 24.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 12,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 36,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 12,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 47.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 12,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 48,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 12,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 60,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 12,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 72,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 12,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 100,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 12,
+          "OnMoveToEndOfStream": null
+        }
+      }
+    ]
+  },
+  {
+    "Name": "no-steps",
+    "Rows": [
+      {
+        "Position": -1,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 0,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 0,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 7.25,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 0.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 7.25,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 7,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 7.25,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 7.25,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 12,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 7.25,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 12.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 7.25,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 18,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 7.25,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 24,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 7.25,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 24.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 36,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 47.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 48,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 60,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 72,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 100,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": null
+        }
+      }
+    ]
+  },
+  {
+    "Name": "selected-row-widget",
+    "Rows": [
+      {
+        "Position": -1,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 0,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 0,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 0,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 0.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 7,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 7.25,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 12,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 13,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 12.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 13,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 18,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 13,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 24,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 13,
+          "OnMoveToNextRowWithEvents": 36,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 24.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": 36,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 36,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 47.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 48,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 60,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 72,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 100,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      }
+    ]
+  },
+  {
+    "Name": "all-faked-still-steps",
+    "Rows": [
+      {
+        "Position": -1,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 0,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 0,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 0,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": null,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": null,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": null,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 0.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 7,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 7.25,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 12,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 12,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 12,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 0,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 0,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 12.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 18,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 24,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 24,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 24,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 12,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 12,
+          "OnMoveToNextRowWithEvents": 36,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 24.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": 36,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": 36,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": 36
+        }
+      },
+      {
+        "Position": 36,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 24,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 24,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 47.5,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 48,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 60,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 72,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      },
+      {
+        "Position": 100,
+        "Commands": {
+          "OnMoveToPreviousRowWithSteps": 36,
+          "OnMoveToNextRowWithSteps": null,
+          "OnMoveToPreviousRowWithEvents": 36,
+          "OnMoveToNextRowWithEvents": null,
+          "OnMoveToStartOfStream": 0,
+          "OnMoveToEndOfStream": null
+        }
+      }
+    ]
+  }
+]

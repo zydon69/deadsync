@@ -1,0 +1,12 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourceSha256": {
+    "Preferences/PreferencesStream.cs": "d3c9fe3fc9a5bd075b03a454b16cad648713c12de0a706a20f9e9bac1863a29a",
+    "SubdivisionType.cs": "1fe40d0283e50cf2a7a69dbd5a67d16f6dcc699972fef638efd648e2af28e63b"
+  },
+  "AdapterSha256": "3bd1b50367cfe9f370e7838d68d3d4acfafa50c674713bfe875bc9fd47938180",
+  "AssemblySha256": "3c8c758be13fed02a6c9a8d234a8e63feade6d3ded961f7a5e389e8e4e07fbf4",
+  "FumenAssemblySha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "Scope": "Whole unchanged PreferencesStream/SubdivisionType, real Fumen notifier/converter/Undo queue. No PostLoad method exists in source. UI immediate editing not executed."
+}

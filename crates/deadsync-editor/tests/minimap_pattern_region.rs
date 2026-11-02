@@ -4,8 +4,7 @@ use deadsync_editor::{
     history::Session,
     minimap_event_policy, playback,
 };
-#[path = "../src/minimap_pattern_region.rs"]
-mod minimap_pattern_region;
+use deadsync_editor::minimap_pattern_region;
 #[test]
 fn source_pattern_start_after_tap_and_end_before_equal_row_delay_stop_and_tempo() {
     for (tempo, events) in [

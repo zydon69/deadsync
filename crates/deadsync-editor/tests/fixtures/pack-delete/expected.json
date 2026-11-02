@@ -1,0 +1,44 @@
+[
+  {
+    "name": "regular",
+    "stopped": true,
+    "errors": 0,
+    "entryExists": false,
+    "targetBytes": "original target"
+  },
+  {
+    "name": "dirty",
+    "stopped": true,
+    "errors": 0,
+    "entryExists": false,
+    "targetBytes": "original target"
+  },
+  {
+    "name": "cancel",
+    "stopped": false,
+    "errors": 0,
+    "entryExists": true,
+    "targetBytes": "original target"
+  },
+  {
+    "name": "missing",
+    "stopped": true,
+    "errors": 0,
+    "entryExists": false,
+    "targetBytes": "original target"
+  },
+  {
+    "name": "directory",
+    "stopped": true,
+    "errors": 1,
+    "entryExists": true,
+    "targetBytes": "original target"
+  },
+  {
+    "name": "symlink",
+    "stopped": true,
+    "errors": 0,
+    "entryExists": false,
+    "targetBytes": "original target"
+  }
+]

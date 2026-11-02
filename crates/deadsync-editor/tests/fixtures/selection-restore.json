@@ -1,0 +1,394 @@
+{
+  "cases": [
+    {
+      "name": "OverlapAny-TimeOrPosition-before",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAny\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": false,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapAny",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAny-TimeOrPosition-restore",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAny\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAny-TimeOrPosition-undo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAny\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": false,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapAny",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAny-TimeOrPosition-redo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAny\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAny-TimeOrPosition-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAny\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAny-TimeOrPositionAndLane-before",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAny\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": false,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapAny",
+          "RegionMode": "TimeOrPositionAndLane"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAny-TimeOrPositionAndLane-restore",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAny\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAny-TimeOrPositionAndLane-undo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAny\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": false,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapAny",
+          "RegionMode": "TimeOrPositionAndLane"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAny-TimeOrPositionAndLane-redo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAny\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAny-TimeOrPositionAndLane-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAny\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapCenter-TimeOrPosition-before",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapCenter\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapCenter-TimeOrPosition-restore",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapCenter\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapCenter-TimeOrPosition-undo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapCenter\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapCenter-TimeOrPosition-redo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapCenter\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapCenter-TimeOrPosition-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapCenter\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapCenter-TimeOrPositionAndLane-before",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapCenter\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": false,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPositionAndLane"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapCenter-TimeOrPositionAndLane-restore",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapCenter\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapCenter-TimeOrPositionAndLane-undo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapCenter\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": false,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPositionAndLane"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapCenter-TimeOrPositionAndLane-redo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapCenter\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapCenter-TimeOrPositionAndLane-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapCenter\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAll-TimeOrPosition-before",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAll\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": false,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapAll",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAll-TimeOrPosition-restore",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAll\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAll-TimeOrPosition-undo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAll\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": false,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapAll",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAll-TimeOrPosition-redo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAll\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAll-TimeOrPosition-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAll\", \"RegionMode\": \"TimeOrPosition\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAll-TimeOrPositionAndLane-before",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAll\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": false,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapAll",
+          "RegionMode": "TimeOrPositionAndLane"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAll-TimeOrPositionAndLane-restore",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAll\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAll-TimeOrPositionAndLane-undo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAll\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": false,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapAll",
+          "RegionMode": "TimeOrPositionAndLane"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAll-TimeOrPositionAndLane-redo",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAll\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "OverlapAll-TimeOrPositionAndLane-reopen",
+      "raw": "{\"Player\": 3, \"PreferencesSelection\": {\"Mode\": \"OverlapAll\", \"RegionMode\": \"TimeOrPositionAndLane\"}}",
+      "using_defaults": true,
+      "value": {
+        "PreferencesSelection": {
+          "ShowSelectionControlPreferencesWindow": false,
+          "Mode": "OverlapCenter",
+          "RegionMode": "TimeOrPosition"
+        }
+      },
+      "accepted": true
+    }
+  ]
+}

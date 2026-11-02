@@ -45,7 +45,9 @@ fn setup(hint: f64, sync: f64) -> (tempfile::TempDir, State, Vec<u8>) {
     let path = dir.path().join("hint.ssc");
     let bytes=format!("#VERSION:0.83;#BPMS:0=120;#OFFSET:0;#LASTSECONDHINT:{hint};#GASongDataVersion:1;#GASongData:{{\"SyncOffset\":{sync}}};#VENDOR:keep;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-double;#BPMS:0=60;#OFFSET:0.25;#NOTES:10000000;").into_bytes();
     fs::write(&path, &bytes).unwrap();
-    let state = State::open(&path, 0).unwrap();
+    let preferences=dir.path().join("prefs.json");
+    fs::write(&preferences,r#"{"Version":1,"Scroll":{"SpacingMode":"ConstantRow","RowBasedPixelsPerRow":1.0}}"#).unwrap();
+    let state = State::open_with_preferences(&path, 0,&preferences).unwrap();
     (dir, state, bytes)
 }
 fn hints(state: &State) -> Vec<(String, f32, f32)> {
@@ -53,7 +55,7 @@ fn hints(state: &State) -> Vec<(String, f32, f32)> {
         match a {
             Actor::Text {
                 content, offset, z, ..
-            } if *z == 8007 => out.push((content.to_string(), offset[0], offset[1])),
+            } if *z == 8004 && content.as_str().starts_with(i18n::tr("Edition","ChartEndHint").split("{seconds}").next().unwrap()) => out.push((content.to_string(), offset[0], offset[1])),
             Actor::Frame { children, .. } => {
                 for child in children {
                     walk(child, out)
@@ -89,7 +91,7 @@ fn end_hint_maps_song_seconds_through_each_chart_offset_bpm_and_sync() {
             let values = hints(&state);
             assert_eq!(values.len(), 2, "{values:?}");
             let label = i18n::tr_fmt("Edition", "ChartEndHint", &[("seconds", "0.500")]);
-            for (x, y) in [(526.0, ys[0]), (262.0, ys[1])] {
+            for (x, y) in [(529.0, ys[0]-9.0), (265.0, ys[1]-9.0)] {
                 assert!(
                     values.iter().any(|(text, a, b)| text == &*label
                         && (*a - x).abs() < 0.01
@@ -99,7 +101,7 @@ fn end_hint_maps_song_seconds_through_each_chart_offset_bpm_and_sync() {
             }
         }
         ctrl(&mut state, KeyCode::KeyT, false);
-        let expected_y = if sync == 0.0 { 310.0 } else { 280.0 };
+        let expected_y = if sync == 0.0 { 301.0 } else { 271.0 };
         let timed = hints(&state);
         assert_eq!(timed.len(), 2);
         assert!(

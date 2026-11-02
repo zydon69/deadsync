@@ -1,0 +1,644 @@
+{
+  "scope": "21-flow inventory with retained historical evidence; current checkpoint is final-validation-2026-11-02.json, not complete parity certification",
+  "source_pin": "48e18f71655d0f0d86144c63239331833501fda2",
+  "native_log": "/tmp/deadsync-editor-final-runtime-evidence-20261102/native-frozen-paste-selection-20261102.log",
+  "native_log_sha256": "8ad3b0106a46f37d31c8ae7cde713d44ebcb7ac9088b83edec421219db4db0bc",
+  "native_total": 617,
+  "flows": [
+    {
+      "flow": "File: New/Open/Recent/Reload/Close/Exit",
+      "source_requirement": "Create a real untitled document; load a chosen file; preserve recent views/zoom; modal Save/Discard/Cancel before replacement or exit.",
+      "source": "StepManiaEditor/Editor.cs:3813",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/file_menu.rs",
+      "executed_native_tests": [
+        "screens::edition::file_menu::direct_media_extension_tests::exact_source_extension_membership_reaches_concrete_destinations",
+        "screens::edition::file_menu::direct_media_tests::keyboard_media_open_without_song_creates_real_untitled_and_preserves_originals_en_fr",
+        "screens::edition::file_menu::direct_media_tests::media_validation_and_staged_draft_refusal_do_not_replace_document_en_fr",
+        "screens::edition::file_menu::direct_media_tests::opening_media_into_dirty_song_is_one_undoable_edit_not_a_replacement_en_fr",
+        "screens::edition::file_menu::directory_open_tests::confirmed_file_open_remembers_directory_in_pathless_owner_before_load_and_authenticates_history",
+        "screens::edition::file_menu::live_media_transport_tests::direct_media_open_and_automatic_assets_use_the_live_song_publication_boundary_en_fr",
+        "screens::edition::file_menu::published_audio_binding_tests::publishing_chartless_document_rebinds_main_even_with_identical_song_music",
+        "screens::edition::file_menu::tests::application_exit_becomes_ready_only_after_explicit_durable_pack_save",
+        "screens::edition::file_menu::tests::application_exit_is_distinct_from_editor_close_and_cancel_revokes_it",
+        "screens::edition::file_menu::tests::cancelled_open_keeps_worker_slot_until_drained_and_never_reorders_recent_in_both_languages",
+        "screens::edition::file_menu::tests::cancelling_save_as_revokes_close_and_first_save_can_resume_close_in_both_languages",
+        "screens::edition::file_menu::tests::clean_preferences_close_does_not_probe_or_rewrite_external_file",
+        "screens::edition::file_menu::tests::coupled_pack_close_cancel_discard_and_save_are_explicit_en_fr",
+        "screens::edition::file_menu::tests::coupled_pack_edit_then_return_revokes_old_intent_en_fr",
+        "screens::edition::file_menu::tests::dirty_new_review_cancel_retains_session_guids_and_undo_in_both_languages",
+        "screens::edition::file_menu::tests::keyboard_menu_creates_true_untitled_with_no_starter_chart_in_both_languages",
+        "screens::edition::file_menu::tests::new_edit_after_exit_ready_revokes_host_authority_before_event_loop_consumes_it",
+        "screens::edition::file_menu::tests::no_song_f1_opens_file_menu_and_source_close_is_distinct_from_close_editor",
+        "screens::edition::file_menu::tests::no_song_new_is_a_real_untitled_document_and_open_restores_loaded_song",
+        "screens::edition::file_menu::tests::no_song_rejects_save_recovery_and_notes_but_keeps_global_settings_and_exit",
+        "screens::edition::file_menu::tests::open_path_ime_and_failed_load_retain_original_in_both_languages",
+        "screens::edition::file_menu::tests::open_recent_and_reload_preserve_fractional_row_zoom_in_both_languages",
+        "screens::edition::file_menu::tests::ordinary_publication_records_current_fractional_views_and_zoom_en_fr",
+        "screens::edition::file_menu::tests::pinned_pack_unsaved_modal_oracle_has_all_sixty_source_cases",
+        "screens::edition::file_menu::tests::prepared_current_pack_song_after_own_save_reopens_fresh_bytes_through_common_job",
+        "screens::edition::file_menu::tests::prepared_current_pack_song_external_change_does_not_reclassify_discard_as_own_save",
+        "screens::edition::file_menu::tests::prepared_pack_candidate_busy_refusal_retains_source_and_worker_lease_until_completion",
+        "screens::edition::file_menu::tests::published_reopen_final_barrier_rejects_identical_inode_replacement_without_moving_pack",
+        "screens::edition::file_menu::tests::reload_cli_with_empty_recent_explicitly_keeps_current_view",
+        "screens::edition::file_menu::tests::reload_uses_mru_zero_when_it_is_not_the_current_song",
+        "screens::edition::file_menu::tests::same_pack_transition_retains_exact_dirty_pack_and_rebinds_to_new_song",
+        "screens::edition::file_menu::tests::saved_mru_close_reopens_and_conflict_keeps_saved_song_retryable_en_fr",
+        "screens::edition::file_menu::tests::source_analysis_blocks_file_publication_until_drained_in_both_languages",
+        "screens::edition::file_menu::tests::source_close_dirty_cancel_and_discard_preserve_original_disk_en_fr",
+        "screens::edition::file_menu::tests::source_close_enters_explicit_no_song_without_creating_file_or_leaving_editor_en_fr",
+        "screens::edition::file_menu::tests::source_close_preserves_application_preferences_but_resets_song_zoom",
+        "screens::edition::file_menu::tests::source_close_save_writes_song_then_enters_no_song_without_returning_to_practice",
+        "screens::edition::file_menu::tests::untitled_save_as_publishes_new_mru_then_reload_targets_new_song_en_fr"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Graphical OS chooser, IME paths, failed load, coupled dirty pack, and application quit in actual app.",
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/save-as-disk.json",
+          "sha256": "02919214a2035e540b6b7fda34fcc5067201081f6c281539543aac1c7abf1794",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/close-cancel-disk.json",
+          "sha256": "911f052a86d1e934724b55ee90f99a7c22a98357bc5ab7b221993cfc6253fbf3",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        }
+      ]
+    },
+    {
+      "flow": "File: direct media / best assets",
+      "source_requirement": "Open a media path into current or new song; auto-fill all or only unset media without replacing song.",
+      "source": "StepManiaEditor/Editor.cs:4117",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/file_menu.rs",
+      "executed_native_tests": [
+        "screens::edition::file_menu::direct_media_extension_tests::exact_source_extension_membership_reaches_concrete_destinations",
+        "screens::edition::file_menu::direct_media_tests::keyboard_media_open_without_song_creates_real_untitled_and_preserves_originals_en_fr",
+        "screens::edition::file_menu::direct_media_tests::media_validation_and_staged_draft_refusal_do_not_replace_document_en_fr",
+        "screens::edition::file_menu::direct_media_tests::opening_media_into_dirty_song_is_one_undoable_edit_not_a_replacement_en_fr",
+        "screens::edition::file_menu::directory_open_tests::confirmed_file_open_remembers_directory_in_pathless_owner_before_load_and_authenticates_history",
+        "screens::edition::file_menu::live_media_transport_tests::direct_media_open_and_automatic_assets_use_the_live_song_publication_boundary_en_fr",
+        "screens::edition::file_menu::published_audio_binding_tests::publishing_chartless_document_rebinds_main_even_with_identical_song_music",
+        "screens::edition::file_menu::tests::application_exit_becomes_ready_only_after_explicit_durable_pack_save",
+        "screens::edition::file_menu::tests::application_exit_is_distinct_from_editor_close_and_cancel_revokes_it",
+        "screens::edition::file_menu::tests::cancelled_open_keeps_worker_slot_until_drained_and_never_reorders_recent_in_both_languages",
+        "screens::edition::file_menu::tests::cancelling_save_as_revokes_close_and_first_save_can_resume_close_in_both_languages",
+        "screens::edition::file_menu::tests::clean_preferences_close_does_not_probe_or_rewrite_external_file",
+        "screens::edition::file_menu::tests::coupled_pack_close_cancel_discard_and_save_are_explicit_en_fr",
+        "screens::edition::file_menu::tests::coupled_pack_edit_then_return_revokes_old_intent_en_fr",
+        "screens::edition::file_menu::tests::dirty_new_review_cancel_retains_session_guids_and_undo_in_both_languages",
+        "screens::edition::file_menu::tests::keyboard_menu_creates_true_untitled_with_no_starter_chart_in_both_languages",
+        "screens::edition::file_menu::tests::new_edit_after_exit_ready_revokes_host_authority_before_event_loop_consumes_it",
+        "screens::edition::file_menu::tests::no_song_f1_opens_file_menu_and_source_close_is_distinct_from_close_editor",
+        "screens::edition::file_menu::tests::no_song_new_is_a_real_untitled_document_and_open_restores_loaded_song",
+        "screens::edition::file_menu::tests::no_song_rejects_save_recovery_and_notes_but_keeps_global_settings_and_exit",
+        "screens::edition::file_menu::tests::open_path_ime_and_failed_load_retain_original_in_both_languages",
+        "screens::edition::file_menu::tests::open_recent_and_reload_preserve_fractional_row_zoom_in_both_languages",
+        "screens::edition::file_menu::tests::ordinary_publication_records_current_fractional_views_and_zoom_en_fr",
+        "screens::edition::file_menu::tests::pinned_pack_unsaved_modal_oracle_has_all_sixty_source_cases",
+        "screens::edition::file_menu::tests::prepared_current_pack_song_after_own_save_reopens_fresh_bytes_through_common_job",
+        "screens::edition::file_menu::tests::prepared_current_pack_song_external_change_does_not_reclassify_discard_as_own_save",
+        "screens::edition::file_menu::tests::prepared_pack_candidate_busy_refusal_retains_source_and_worker_lease_until_completion",
+        "screens::edition::file_menu::tests::published_reopen_final_barrier_rejects_identical_inode_replacement_without_moving_pack",
+        "screens::edition::file_menu::tests::reload_cli_with_empty_recent_explicitly_keeps_current_view",
+        "screens::edition::file_menu::tests::reload_uses_mru_zero_when_it_is_not_the_current_song",
+        "screens::edition::file_menu::tests::same_pack_transition_retains_exact_dirty_pack_and_rebinds_to_new_song",
+        "screens::edition::file_menu::tests::saved_mru_close_reopens_and_conflict_keeps_saved_song_retryable_en_fr",
+        "screens::edition::file_menu::tests::source_analysis_blocks_file_publication_until_drained_in_both_languages",
+        "screens::edition::file_menu::tests::source_close_dirty_cancel_and_discard_preserve_original_disk_en_fr",
+        "screens::edition::file_menu::tests::source_close_enters_explicit_no_song_without_creating_file_or_leaving_editor_en_fr",
+        "screens::edition::file_menu::tests::source_close_preserves_application_preferences_but_resets_song_zoom",
+        "screens::edition::file_menu::tests::source_close_save_writes_song_then_enters_no_song_without_returning_to_practice",
+        "screens::edition::file_menu::tests::untitled_save_as_publishes_new_mru_then_reload_targets_new_song_en_fr"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Actual image/audio/video/lyrics chooser and media refresh; test fixtures do not prove every OS decoder."
+    },
+    {
+      "flow": "File: Save/SaveAs/advanced output",
+      "source_requirement": "Six advanced options; source timing chart; compatibility failures/warnings before writing; ordinary and first save.",
+      "source": "StepManiaEditor/Editor.cs:3897",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/output_ui.rs",
+      "executed_native_tests": [
+        "screens::edition::output_ui::source_memory_output_tests::output_inspector_consumes_pathless_source_advanced_save_defaults",
+        "screens::edition::output_ui::tests::adding_chart_to_song_following_policy_adopts_first_typed_creation_and_keeps_override_explicit_en_fr",
+        "screens::edition::output_ui::tests::current_save_requires_each_loss_ack_and_keeps_native_private_fields_en_fr",
+        "screens::edition::output_ui::tests::edit_then_undo_revokes_settings_and_current_review_en_fr",
+        "screens::edition::output_ui::tests::empty_untitled_can_explicitly_save_as_sm_without_fabricating_chart_or_guid_en_fr",
+        "screens::edition::output_ui::tests::imported_global_options_publish_to_preferences_without_persisting_document_guid_en_fr",
+        "screens::edition::output_ui::tests::issue_classes_are_localized_for_both_languages",
+        "screens::edition::output_ui::tests::save_as_accepts_losses_then_requires_explicit_destination_confirmation_en_fr",
+        "screens::edition::output_ui::tests::saving_unresolved_chartless_policy_opens_explicit_timing_settings_en_fr",
+        "screens::edition::output_ui::tests::settings_cancel_and_loss_cancel_publish_nothing_en_fr"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Cross-format roundtrip with actual external reader; read-only directory and post-publication durability UI. SaveAs live lot excluded.",
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/save-as-relocation.json",
+          "sha256": "db19ede8d205f5321b2bab049a53510322aa5f24229c96c524bf417ef700a8f6",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        }
+      ]
+    },
+    {
+      "flow": "Recovery/autosave",
+      "source_requirement": "Recover an interrupted working song and still distinguish save/discard/close.",
+      "source": "StepManiaEditor/Editor.cs:3871",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/file_menu.rs",
+      "executed_native_tests": [
+        "screens::edition::command_bindings::tests::third_increment_save_as_recovery_and_chart_list_preserve_longer_siblings",
+        "screens::edition::file_menu::tests::no_song_rejects_save_recovery_and_notes_but_keeps_global_settings_and_exit",
+        "screens::edition::playback::save_as_transport_tests::relocated_save_as_uses_published_receipt_for_focus_paused_stamp_history_and_recovery",
+        "screens::edition::playback::source_visual::device_return_tests::another_owner_lease_cannot_release_source_recovery_start",
+        "screens::edition::playback::source_visual::no_device_sample_tests::no_device_sample_recovery_waits_for_real_owned_lease",
+        "screens::edition::playback::source_visual::preview_recovery_tests::callback_without_pcm_preserves_exact_signed_frame_through_suspend_and_resume",
+        "screens::edition::playback::source_visual::preview_recovery_tests::interrupted_preview_stop_drops_descriptor_and_cannot_resume",
+        "screens::edition::playback::source_visual::preview_recovery_tests::interrupted_preview_uses_frozen_callback_receipt_and_actual_owner_lease",
+        "screens::edition::save_as::tests::modal_autosave_poll_cannot_start_new_recovery_and_dirty_pack_can_review_save_as_en_fr",
+        "screens::edition::save_as::tests::pending_boundary_guards_close_open_recovery_and_retains_retry_after_failure_en_fr"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Kill/reopen application with scratch recovery, pre-existing recovery and external changes; recovery durability tests are separate from native517.",
+      "current_runtime_receipt": "/tmp/deadsync-recovery-runtime-20261102/runtime-verified.json"
+    },
+    {
+      "flow": "Song and chart metadata",
+      "source_requirement": "Edit labels/media/offsets and chart metadata; Apply/Cancel; preserve unknown fields and source bytes until Save.",
+      "source": "StepManiaEditor/UI/UISongProperties.cs:1",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/text_fields.rs",
+      "executed_native_tests": [
+        "screens::edition::text_fields::chart_authoring_tests::chart_metadata_preserves_exact_warp_focus_and_paused_stop_resume",
+        "screens::edition::text_fields::chart_authoring_tests::effective_music_and_offset_changes_keep_main_and_retarget_current_row",
+        "screens::edition::text_fields::chart_authoring_tests::keyboard_text_fields_are_all_editable_in_sm_and_ssc_en_fr"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Field-by-field rendered inspection still required. SongProperties live/ChartProperties offset live excluded entirely."
+    },
+    {
+      "flow": "Pack properties / song list",
+      "source_requirement": "Refresh banner; add/edit/delete ITGmania pack; title/sort/series/year/sync; select and open a song with dirty-source barrier.",
+      "source": "StepManiaEditor/UI/UIPackProperties.cs:94",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/pack_properties.rs",
+      "executed_native_tests": [
+        "screens::edition::pack_properties::file_intent_deactivation_tests::close_and_exit_capture_the_deactivated_field_but_keep_explicit_save_cancel_discard",
+        "screens::edition::pack_properties::file_intent_deactivation_tests::invalid_or_stale_deactivation_refuses_before_capturing_departure_or_publishing_history",
+        "screens::edition::pack_properties::staged_departure_tests::coupled_save_flushes_retained_field_even_after_panel_and_row_changed_and_undo_stays_memory_only",
+        "screens::edition::pack_properties::staged_departure_tests::departure_validates_all_retained_fields_before_any_property_or_disk_publication",
+        "screens::edition::pack_properties::staged_departure_tests::ignored_external_pack_accepts_cached_input_but_coupled_save_preserves_external_bytes_and_history",
+        "screens::edition::pack_properties::staged_departure_tests::invalid_retained_fields_keep_localized_diagnostics_and_publish_nothing_en_fr",
+        "screens::edition::pack_properties::tests::coupled_pack_only_retry_completes_exact_exit_intent_and_edit_return_revokes_it",
+        "screens::edition::pack_properties::tests::coupled_pending_pack_does_not_publish_song_or_complete_close_en_fr",
+        "screens::edition::pack_properties::tests::create_pack_uses_current_general_sync_preference_en_fr",
+        "screens::edition::pack_properties::tests::pack_delete_cancel_confirm_and_external_refusal_en_fr",
+        "screens::edition::pack_properties::tests::pack_help_is_unique_and_edit_rows_fit_small_and_large_panels_en_fr",
+        "screens::edition::pack_properties::tests::prepared_other_pack_waits_for_exact_pack_retry_and_rechecks_target_and_source",
+        "screens::edition::pack_properties::tests::published_pending_receipt_survives_close_guard_and_reopens_without_republication_en_fr",
+        "screens::edition::pack_properties::tests::source_close_waits_for_pack_durability_before_entering_no_song_then_os_exit_is_ready"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Real directory traversal/symlink, banner dimensions, transliteration IME and read-only pack directory.",
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/pack-discard-runtime.json",
+          "sha256": "1312ca073aecbc55ac4f26d604c29382ed75252bed031f3996bd970b8cf37846",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/pack-help-runtime.json",
+          "sha256": "fcfd5da0527da7d82734dbac9791afb8ad3325b4b06a46dcdbe498bd3797663d",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        }
+      ]
+    },
+    {
+      "flow": "Chart list / focus / tabs",
+      "source_requirement": "Show/focus/keep open/close a view; clone/delete/new/autogen context actions; preserve focused musical instant.",
+      "source": "StepManiaEditor/UI/UIChartList.cs:101",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/chart_views.rs",
+      "executed_native_tests": [
+        "screens::edition::chart_views::focus_geometry_tests::centered_focus_repositions_group_and_keeps_source_hidden_x_for_uncentering",
+        "screens::edition::chart_views::focus_geometry_tests::focused_tabs_preserve_group_position_ignore_axis_lock_and_keep_unowned_history_positions"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Multiple chart widths, temporary/dedicated tabs, close last view, focus while Main and while auditioning. Three live commits excluded."
+    },
+    {
+      "flow": "Note entry and edit actions",
+      "source_requirement": "Copy/Paste/Delete; taps/holds/rolls/lifts/mines/fakes; selected transform, row shift and participants with one undo.",
+      "source": "StepManiaEditor/Editor.cs:4018",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/command_bindings.rs",
+      "executed_native_tests": [
+        "screens::edition::command_bindings::end_selected_rows_tests::physical_end_reads_live_signed_selected_rows_nearest_end_without_editing_document_en_fr",
+        "screens::edition::command_bindings::tests::all_nineteen_source_presets_target_the_exact_kind_and_current_owner_across_the_chart",
+        "screens::edition::command_bindings::tests::an_executed_panel_callback_consumes_enter_even_with_an_equal_ignored_modifier_blocker",
+        "screens::edition::command_bindings::tests::cancel_checked_timing_review_keeps_exact_picker_identities_and_delete_removes_only_the_checked_warp",
+        "screens::edition::command_bindings::tests::cancelling_a_lane_draft_with_the_configured_close_key_is_quarantined_before_timer_update",
+        "screens::edition::command_bindings::tests::checked_selection_accepts_configured_source_review_keys_but_keeps_local_space_navigation",
+        "screens::edition::command_bindings::tests::close_final_without_its_ordinary_prefix_does_not_cancel_a_lane",
+        "screens::edition::command_bindings::tests::configurable_close_propagates_safe_host_decision_and_old_keys_do_not_close",
+        "screens::edition::command_bindings::tests::configured_lane_and_modifier_callbacks_extend_hold_change_roll_and_commit_only_on_release",
+        "screens::edition::command_bindings::tests::configured_lane_preserves_explicit_tools_and_os_repeat_never_toggles_twice",
+        "screens::edition::command_bindings::tests::configured_navigation_ordinary_prefix_does_not_cancel_a_held_lane",
+        "screens::edition::command_bindings::tests::context_priming_never_replays_modifier_final_actions_or_their_repeat_timer",
+        "screens::edition::command_bindings::tests::contextual_pattern_navigation_uses_configured_keys_and_source_repeat_without_global_leakage",
+        "screens::edition::command_bindings::tests::every_quick_add_source_callback_prepares_without_mutation_then_explicit_apply_is_undoable",
+        "screens::edition::command_bindings::tests::f1_rescue_opens_on_first_press_while_cancelling_a_held_lane_draft",
+        "screens::edition::command_bindings::tests::four_source_regenerate_callbacks_prepare_exact_scope_and_seed_mode_without_committing_seeds",
+        "screens::edition::command_bindings::tests::fourth_increment_modifiers_preempt_navigation_without_doubling_enter_or_waveform",
+        "screens::edition::command_bindings::tests::global_arbitrary_key_sets_cannot_block_allowed_selection_shortcuts",
+        "screens::edition::command_bindings::tests::immediate_auto_advance_entry_does_not_become_a_hold_on_owned_release",
+        "screens::edition::command_bindings::tests::limited_selection_panel_cancels_lane_ownership_even_while_other_shortcuts_remain_available",
+        "screens::edition::command_bindings::tests::local_selection_controls_and_f1_rescue_survive_global_multi_key_configuration",
+        "screens::edition::command_bindings::tests::marker_metadata_revision_cancels_pending_lane_without_committing_on_late_release",
+        "screens::edition::command_bindings::tests::marker_receipt_keeps_the_chosen_fractional_warp_row_at_equal_time",
+        "screens::edition::command_bindings::tests::migrated_mixed_clipboard_commands_preempt_plain_clipboard_actions",
+        "screens::edition::command_bindings::tests::minimap_focus_and_settings_accept_rebindings_while_focused_and_old_keys_do_not_reactivate",
+        "screens::edition::command_bindings::tests::missing_pattern_selection_and_stale_preset_expansion_refuse_without_replacing_choices",
+        "screens::edition::command_bindings::tests::modal_and_focus_cancellation_never_turn_a_late_release_into_a_commit",
+        "screens::edition::command_bindings::tests::modifier_only_shift_ownership_survives_individual_side_release",
+        "screens::edition::command_bindings::tests::native_default_digits_keep_tap_modifier_and_control_noop_policies",
+        "screens::edition::command_bindings::tests::native_shift_all_callbacks_keep_their_direction_and_do_not_mutate_before_review",
+        "screens::edition::command_bindings::tests::native_vertical_control_guards_preserve_remapped_navigation_and_source_stream_callbacks",
+        "screens::edition::command_bindings::tests::note_entry_source_and_native_control_share_one_persisted_preference",
+        "screens::edition::command_bindings::tests::ordinary_prefix_lane_and_modifier_sets_have_real_release_ownership",
+        "screens::edition::command_bindings::tests::ordinary_prefixes_and_modifier_finals_dispatch_in_en_fr_without_dropping_keys",
+        "screens::edition::command_bindings::tests::pause_marker_and_resume_preserve_stop_interior_time_without_seek_or_restart_during_edit",
+        "screens::edition::command_bindings::tests::physical_control_and_super_coalesce_lane_release_without_early_commit",
+        "screens::edition::command_bindings::tests::physical_control_and_super_sides_coalesce_and_release_individually",
+        "screens::edition::command_bindings::tests::physical_lane_keys_keep_left_and_right_in_their_chart_columns",
+        "screens::edition::command_bindings::tests::physical_names_preserve_key_identity_without_mapping_text_characters",
+        "screens::edition::command_bindings::tests::preset_uses_semantic_lane_callbacks_and_preserves_menu_rescue",
+        "screens::edition::command_bindings::tests::quarantined_ownership_cannot_start_another_held_lane_when_the_old_key_releases",
+        "screens::edition::command_bindings::tests::rebinding_a_held_lane_cancels_draft_and_unassigned_digits_have_no_legacy_route",
+        "screens::edition::command_bindings::tests::second_increment_longer_native_siblings_suppress_only_migrated_subsets",
+        "screens::edition::command_bindings::tests::second_increment_rate_repeats_from_source_timer_not_os_repeat",
+        "screens::edition::command_bindings::tests::selected_mirror_and_convert_use_the_checked_heads_and_defer_changes_until_apply",
+        "screens::edition::command_bindings::tests::selected_source_callbacks_require_checked_selection_and_never_default_to_all_or_row_range",
+        "screens::edition::command_bindings::tests::six_source_navigation_callbacks_use_complete_fractional_index_without_changing_checked_selection",
+        "screens::edition::command_bindings::tests::snap_none_raw_keys_move_the_real_chart_projection_with_signed_fractional_phase",
+        "screens::edition::command_bindings::tests::source_cancel_clears_pending_region_before_reopening_selection_picker",
+        "screens::edition::command_bindings::tests::source_cancel_go_back_clears_selection_without_closing_editor_or_editing_bytes",
+        "screens::edition::command_bindings::tests::source_delete_requires_selection_and_uses_selected_events_not_cursor_row",
+        "screens::edition::command_bindings::tests::source_event_navigation_preserves_fractional_widgets_range_and_no_wrap",
+        "screens::edition::command_bindings::tests::source_mode_callbacks_cycle_real_state_without_chart_edits_in_both_languages",
+        "screens::edition::command_bindings::tests::source_mode_changes_preserve_owned_lane_and_next_press_uses_real_advance_policy",
+        "screens::edition::command_bindings::tests::source_modes_do_not_stop_or_seek_active_chart_transport",
+        "screens::edition::command_bindings::tests::source_modes_remain_effective_without_a_song_in_en_fr",
+        "screens::edition::command_bindings::tests::source_pattern_navigation_uses_fractional_position_and_opens_the_exact_marker_inspector",
+        "screens::edition::command_bindings::tests::source_player3_and4_clamp_and_clear_peer_cache_even_when_solo_is_already_player1",
+        "screens::edition::command_bindings::tests::source_presets_add_to_checked_choices_and_never_implicitly_select_the_cursor_row",
+        "screens::edition::command_bindings::tests::source_selection_shortcuts_dispatch_once_in_both_languages_from_global_and_checked_contexts",
+        "screens::edition::command_bindings::tests::source_snap_setters_do_not_seek_and_explicit_players_never_wrap_invalid_owners",
+        "screens::edition::command_bindings::tests::source_song_markers_capture_playback_time_without_stopping_or_quantizing_it",
+        "screens::edition::command_bindings::tests::source_song_markers_clamp_negative_time_and_refuse_no_song_without_mutation",
+        "screens::edition::command_bindings::tests::source_song_markers_use_fresh_drafts_and_exact_fractional_focus_in_sm_ssc_en_fr",
+        "screens::edition::command_bindings::tests::source_stream_shortcuts_route_physical_control_in_both_languages",
+        "screens::edition::command_bindings::tests::third_increment_save_as_recovery_and_chart_list_preserve_longer_siblings",
+        "screens::edition::command_bindings::tests::two_physical_key_alternatives_own_one_lane_until_the_last_release",
+        "screens::edition::command_bindings::tests::unavailable_chord_is_consumed_without_callback_and_f1_rescue_remains_usable",
+        "screens::edition::command_bindings::tests::unavailable_markers_filter_equal_callbacks_and_only_their_active_final"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Real held-key entry and cancellation, controller vs keyboard ownership, long holds crossing viewport, unsupported opaque note data preservation."
+    },
+    {
+      "flow": "Mixed event/region selection",
+      "source_requirement": "Choose exact source event families/ranges; select/copy/cut/paste/delete/shift/convert with atomic refusal.",
+      "source": "StepManiaEditor/UI/UIEditEvents.cs:1",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/event_selection.rs",
+      "executed_native_tests": [
+        "screens::edition::event_selection::note_render_selection_tests::explicit_note_render_selection_is_bound_to_the_current_chart",
+        "screens::edition::event_selection::source_row_range_tests::event_page_keys_and_rendered_rows_share_small_screen_capacity_en_fr",
+        "screens::edition::event_selection::source_row_range_tests::event_pages_leave_room_for_help_at_supported_small_heights",
+        "screens::edition::event_selection::source_row_range_tests::selection_status_does_not_repeat_multiline_modal_help_en_fr",
+        "screens::edition::event_selection::source_row_range_tests::two_source_range_toggles_materialize_notes_for_transform_without_changing_focus_en_fr"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Keyboard held-region Cancel, copy to other chart/format, stop/warp boundary navigation and viewport highlights. Timing live excluded."
+    },
+    {
+      "flow": "Timing events / conversions",
+      "source_requirement": "Eleven timing types; typed bounds and conversion; local SM resident data; explicit legacy migration.",
+      "source": "StepManiaEditor/UI/UIEditEvents.cs:1",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/timing.rs",
+      "executed_native_tests": [
+        "screens::edition::timing_conversion::selected_callback_tests::configured_callbacks_use_global_mixed_selection_and_review_then_restore_source_selection_on_undo_redo",
+        "screens::edition::timing_conversion::selected_callback_tests::missing_checked_selection_never_falls_back_to_range_or_all",
+        "screens::edition::timing_conversion::selected_callback_tests::reverse_callback_filters_positive_stops_and_collision_review_is_explicit",
+        "screens::edition::timing_conversion::selected_callback_tests::undo_when_focus_is_another_chart_clears_selection_without_changing_focus"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Timing live lot excluded. Existing Stop0 source constructor anomaly remains separate documented question, not silently waived or newly modified."
+    },
+    {
+      "flow": "Advanced event copy",
+      "source_requirement": "Replace/copy chosen event types to selected/all charts; four source presets and stale destination refusal.",
+      "source": "StepManiaEditor/UI/UICopyEventsBetweenCharts.cs:1",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/chart_event_copy.rs",
+      "executed_native_tests": [
+        "screens::edition::chart_event_copy::source_presets_tests::source_open_and_four_presets_are_exact_and_apply_is_one_undo_en_fr"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Actual large song, mixed SM/SSC target warning review, all destinations and Undo/Redo."
+    },
+    {
+      "flow": "Attacks inspector",
+      "source_requirement": "Inspect selected event; edit/move/delete and retain last selected per chart without resurrection on Undo.",
+      "source": "StepManiaEditor/UI/UIAttackEvent.cs:1",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/attacks.rs",
+      "executed_native_tests": [
+        "screens::edition::attacks::selected_attack_tests::actual_attack_panel_follows_open_chart_memory_and_close_discards_it",
+        "screens::edition::attacks::selected_attack_tests::actual_panel_apply_tracks_moves_and_delete_undo_never_selects_a_readded_attack",
+        "screens::edition::attacks::sm_local_attack_tests::actual_sm_widget_inspector_apply_delete_and_refocus_preserve_peer"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Exact modifier entry/IME; long text wrapping; actual playback/preview while editing; do not infer gameplay effect preview from stored modifier text."
+    },
+    {
+      "flow": "Single chart autogen",
+      "source_requirement": "Choose eligible source independently of focus, destination type and config; start/cancel; inspect Preview then Apply.",
+      "source": "StepManiaEditor/UI/UIAutogenChart.cs:108",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/autogen_source.rs",
+      "executed_native_tests": [
+        "screens::edition::autogen_source::tests::actual_picker_expression_generation_preview_apply_and_history_keep_independent_source",
+        "screens::edition::autogen_source::tests::chosen_source_expression_applies_without_creating_a_chart_view_when_none_is_focused",
+        "screens::edition::autogen_source::tests::first_type_group_survives_removing_its_first_chart_and_empty_group_readd_moves_to_end",
+        "screens::edition::autogen_source::tests::independent_catalog_owner_survives_focus_change_but_stale_and_foreign_catalogs_refuse_stage",
+        "screens::edition::autogen_source::tests::independent_source_performed_catalog_keyboard_sort_stage_and_generate_without_active_view",
+        "screens::edition::autogen_source::tests::picker_cycle_uses_actual_host_order_without_changing_focus_or_selection_when_order_is_pending",
+        "screens::edition::autogen_source::tests::source_fallback_skips_multiplayer_and_cancel_or_pending_expression_never_changes_focus",
+        "screens::edition::autogen_source::tests::stable_source_identity_survives_reindex_but_removal_fallback_does_not_resurrect_and_new_document_rebinds",
+        "screens::edition::autogen_source::tests::stale_expression_of_independent_source_refuses_without_retargeting_focused_chart"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Actual graph warmup/progress/cancel; no-active-view source picker → Performed profile → Preview/Apply → save/reopen; generated note quality is not certified by UI tests.",
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/generation-cancel.json",
+          "sha256": "dd6b8f075b6d1560aa560b0426928f646c9ffb20d95026df1bc6302d2008ee1e",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/generation-apply-disk.json",
+          "sha256": "1e1e9e511fe4953d5825a19ef588dda99dc99b5ebdad08f875130d8188e4371b",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/chartless-generation-disk.json",
+          "sha256": "38c03907cdf22c1bab183f42e1f04250cd2a51d03d59a12de37af7931e1b5d76",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/chartless-generation-source-review.json",
+          "sha256": "8a765d186ef43e2fab5ac7e0ec291d17ecf01b2c2556fc38cbfa34c12e51e58e",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        }
+      ]
+    },
+    {
+      "flow": "Batch autogen",
+      "source_requirement": "Choose effective source type and count, destination/config, start/cancel and publish all valid generated charts atomically.",
+      "source": "StepManiaEditor/UI/UIAutogenChartsForChartType.cs:113",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/batch.rs",
+      "executed_native_tests": [
+        "screens::edition::batch::effective_source_tests::all_coop_does_not_advertise_an_unstartable_double_batch_or_rewrite_source",
+        "screens::edition::batch::effective_source_tests::cache_is_invalidated_by_content_history_and_another_session_with_equal_bytes",
+        "screens::edition::batch::effective_source_tests::mixed_coop_double_count_matches_real_worker_source_and_labels_do_not_rescan"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Mixed StepF2/co-op songs, graph warmup cancellation, long batch Preview and real exported chart layouts.",
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/coop-batch-result.json",
+          "sha256": "f334e832b43acfe79fdece37611bd3d42d2048904fcd92e22a7caea8a70b968c",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        }
+      ]
+    },
+    {
+      "flow": "Pattern marker inspector",
+      "source_requirement": "Start/end inclusivity, length/distribution, config GUIDs, seed/New/Generate/Clear, previous/next marker without cursor mis-targeting.",
+      "source": "StepManiaEditor/UI/UIPatternEvent.cs:59",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/marker_generation.rs",
+      "executed_native_tests": [
+        "screens::edition::marker_generation::note_preview_presentation_tests::common_pattern_clear_and_set_apply_rebind_fractional_signed_focus_and_history",
+        "screens::edition::marker_generation::note_preview_presentation_tests::displayed_marker_seed_callbacks_preserve_cursor_and_split_generation_history",
+        "screens::edition::marker_generation::note_preview_presentation_tests::new_seed_save_reopen_preserves_inspected_marker_and_other_marker",
+        "screens::edition::marker_generation::note_preview_presentation_tests::repeated_seed_is_explicit_history_without_fake_byte_mutation_and_stale_refuses",
+        "screens::edition::marker_generation::note_preview_presentation_tests::seed_ui_buttons_target_displayed_marker_and_pending_draft_refuses",
+        "screens::edition::marker_generation::tests::pending_deleted_stale_foreign_and_stale_preview_never_retarget_cursor_or_recreate_marker",
+        "screens::edition::marker_generation::tests::raw_inspector_generate_targets_b_without_seek_cancel_apply_and_history"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Cursor A / inspector B, partial viewport, actual seed labels; Generate/Cancel/Apply then save/reopen/UndoRedo.",
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/pattern-history.json",
+          "sha256": "d4ea1c9b63fd78a24b596d311a72b835f26916bfcc31a84c9eba61de5b2b473b",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/pattern-marker-parsed.json",
+          "sha256": "712c687656771dedc63ebcc0b8baaf8a1ea2bdbf667dc5cce1af1269be9b9c33",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/marker-clear-delete-parsed.json",
+          "sha256": "43afa5e0ec7a1b113d1460dd79f66e90db9516eaf0ed6ff7816c36600392d249",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/marker-interior-runtime.json",
+          "sha256": "b2eae2ac6846e1fb5f9f4dfc1669102c5ef55f30181e0ece5147a050797776a3",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        }
+      ]
+    },
+    {
+      "flow": "Pattern Set / source regenerate commands",
+      "source_requirement": "Regenerate all/selected fixed or new seeds; Clear all/selected; cancel/refuse without partial notes or hidden migration.",
+      "source": "StepManiaEditor/Editor.cs:4179",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/pattern_set.rs",
+      "executed_native_tests": [
+        "screens::edition::pattern_set::preview_layout_tests::lateral_preview_requires_room_for_overviews_and_scaled_notes"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Whole-chart generation in real UI with held keys, overlapping patterns, preview navigation and Clear Undo; prove selected marker independently of note selection.",
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/pattern-set-history.json",
+          "sha256": "d9f21e392222166624a2b57eedc33115160dfe4a8095de419f00be9195ec5b29",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/two-markers-result.json",
+          "sha256": "4f4aa6f2638b4a7bd48300cd65051c55c63ae5675b4e8e206106bbe0121b7ccc",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        }
+      ]
+    },
+    {
+      "flow": "Global three-family config manager",
+      "source_requirement": "Manage Expressed/Performed/Pattern with and without song; sort, create/clone/delete/import/export/restore; distinguish global edit from assigning chart GUID.",
+      "source": "StepManiaEditor/UI/UIAutogenConfigs.cs:44",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/profile_edit.rs",
+      "executed_native_tests": [
+        "screens::edition::profile_edit::application_manager_tests::application_catalog_stale_and_external_profile_change_preserve_pending_draft",
+        "screens::edition::profile_edit::application_manager_tests::global_manager_all_kinds_without_or_with_song_uses_real_crud_and_global_history",
+        "screens::edition::profile_edit::explicit_profile_export_tests::explicit_export_uses_no_clobber_and_keeps_inspector_and_song_history_en_fr",
+        "screens::edition::profile_edit::global_profile_history_tests::original_profile_save_and_f7_f8_share_the_global_note_history_cursor_en_fr",
+        "screens::edition::profile_edit::global_profile_history_tests::stale_save_original_keeps_pending_draft_global_history_and_external_profile",
+        "screens::edition::profile_edit::save_as::tests::detached_profile_history_keys_relocate_totally_without_changing_preference_serial_namespace",
+        "screens::edition::profile_edit::source_bounded_input_tests::actual_inspector_stage_clamps_source_text_and_travel_range_before_save_en_fr",
+        "screens::edition::profile_edit::source_gates::hidden_rows_are_absent_from_render_mapping_and_skipped_by_raw_navigation_then_reappear_intact",
+        "screens::edition::profile_edit::source_gates::raw_disabled_control_intentions_do_not_mutate_draft_document_history_or_start_input",
+        "screens::edition::profile_edit::source_gates::source_speed_gate_blocks_f4_panel_entry_and_stale_panel_edit_without_touching_bpm"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "No-song editor → manager → save profile → open song → assignment and global Undo/Redo; OS file dialogs and absent configured directory.",
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/profiles-three-families-chartless-roundtrip.json",
+          "sha256": "97232ffed6c221f46b9e752212d62652cb1c4021a07d37b50a542f69ac737997",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/profile-chartless-conflict.json",
+          "sha256": "ba4416df6f8ed963078c071dadb14a57bd4be8fcc746d9998347447547ab1b03",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/profile-chartless-delete-undo.json",
+          "sha256": "6593abbf780eb90e3747512bbbd0e8d4767d6f6da3f8e7ca8b468318dae70b6b",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        }
+      ]
+    },
+    {
+      "flow": "Profile fields / gates / weights",
+      "source_requirement": "Source numeric/text bounds, advanced settings, normalized weights, conditional disabled fields and Restore Defaults for all three families.",
+      "source": "StepManiaEditor/UI/UIExpressedChartConfig.cs:1",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/profile_edit.rs",
+      "executed_native_tests": [
+        "screens::edition::profile_edit::application_manager_tests::application_catalog_stale_and_external_profile_change_preserve_pending_draft",
+        "screens::edition::profile_edit::application_manager_tests::global_manager_all_kinds_without_or_with_song_uses_real_crud_and_global_history",
+        "screens::edition::profile_edit::explicit_profile_export_tests::explicit_export_uses_no_clobber_and_keeps_inspector_and_song_history_en_fr",
+        "screens::edition::profile_edit::global_profile_history_tests::original_profile_save_and_f7_f8_share_the_global_note_history_cursor_en_fr",
+        "screens::edition::profile_edit::global_profile_history_tests::stale_save_original_keeps_pending_draft_global_history_and_external_profile",
+        "screens::edition::profile_edit::save_as::tests::detached_profile_history_keys_relocate_totally_without_changing_preference_serial_namespace",
+        "screens::edition::profile_edit::source_bounded_input_tests::actual_inspector_stage_clamps_source_text_and_travel_range_before_save_en_fr",
+        "screens::edition::profile_edit::source_gates::hidden_rows_are_absent_from_render_mapping_and_skipped_by_raw_navigation_then_reappear_intact",
+        "screens::edition::profile_edit::source_gates::raw_disabled_control_intentions_do_not_mutate_draft_document_history_or_start_input",
+        "screens::edition::profile_edit::source_gates::source_speed_gate_blocks_f4_panel_entry_and_stale_panel_edit_without_touching_bpm"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "All active/inactive controls visually distinguishable at DPI1/2; long profiles paging, text IME and weighted generation outcomes; initial ImGui sort order not proven.",
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/profiles-three-families-chartless-roundtrip.json",
+          "sha256": "97232ffed6c221f46b9e752212d62652cb1c4021a07d37b50a542f69ac737997",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        }
+      ]
+    },
+    {
+      "flow": "Help / FTUE / About",
+      "source_requirement": "Controls/rebind, six docs pages, project link, real onboarding, version/attribution/licenses/update availability.",
+      "source": "StepManiaEditor/Editor.cs:4270",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/editor_help.rs",
+      "executed_native_tests": [
+        "screens::edition::editor_about::license_layout_tests::all_license_pages_stay_centered_and_inside_real_viewport_en_fr_dpi_one_and_two",
+        "screens::edition::editor_about::tests::raw_keyboard_reads_all_license_pages_and_returns_without_document_mutation_en_fr",
+        "screens::edition::editor_about::tests::raw_update_action_requires_real_knowledge_and_explicit_enter",
+        "screens::edition::editor_help::source_reference_tests::actual_original_documentation_pages_and_repository_are_preserved_as_pinned_references",
+        "screens::edition::editor_help::tests::no_song_help_urls_are_only_queued_by_explicit_action_en_fr",
+        "screens::edition::ftue::memory_ftue_publication::imported_ftue_progress_is_saved_without_path_or_history",
+        "screens::edition::ftue::tests::changing_onboarding_sync_defaults_preserves_loaded_song_clock_and_history",
+        "screens::edition::ftue::tests::onboarding_waits_for_modals_and_does_not_consume_update_once_latch",
+        "screens::edition::ftue::tests::six_pages_use_existing_options_and_preserve_document_en_fr"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Browser open and OS clipboard permissions; onboarding first-run/end/replay actual geometry. GPU frame observed previously is evidence only for that capture, not every DPI/locale.",
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/about-licenses-runtime.json",
+          "sha256": "7f30e84dee4577af56bb33e656b967af45023c23e81eb00573239f8f00ff374e",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/update-dpi-runtime.json",
+          "sha256": "76d04308d501e0f34b7b4914b73e7990b82aa38dc13d7106d6c9d1a7a9d80441",
+          "scope": "historical observed runtime; old binary, not current-source runtime certificate"
+        }
+      ]
+    },
+    {
+      "flow": "Log / Performance",
+      "source_requirement": "Log: level filter, four date styles, wrap, Clear, Copy and OS Open. Performance: real timing/FPS summaries and plots, pause, three scale modes, explicit maximum, frame count and Restore Defaults.",
+      "source": "StepManiaEditor/Editor.cs:4088",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/log_view.rs",
+      "executed_native_tests": [
+        "screens::edition::log_view::leaf_persistence_tests::unrelated_log_fields_are_preserved_across_new_file_baselines",
+        "screens::edition::log_view::locale_guard_tests::culture_change_during_format_or_before_clipboard_never_writes_stale_text",
+        "screens::edition::log_view::presentation_tests::opening_log_publishes_short_status_and_renders_help_once_en_fr",
+        "screens::edition::log_view::tests::log_preferences_survive_file_swaps_and_preserve_raw_vendor_fields",
+        "screens::edition::log_view::tests::no_song_log_copy_matches_filtered_visible_content_and_is_explicit_en_fr",
+        "screens::edition::log_view::tests::stale_copy_and_pending_document_review_are_preserved",
+        "screens::edition::log_view::tests::unknown_level_and_date_keep_their_real_distinct_semantics",
+        "screens::edition::performance::tests::actual_host_stages_pause_and_resume_without_recording_inactive_gap",
+        "screens::edition::performance::tests::chart_pages_expose_every_stage_and_cancel_draft_without_disk_or_song_changes",
+        "screens::edition::performance::tests::document_snapshot_retains_monitor_and_pause_cache_is_stable",
+        "screens::edition::performance::tests::no_song_keyboard_reaches_performance_log_and_help_and_restore_is_undoable_en_fr",
+        "screens::edition::performance::tests::profiling_panel_preserves_scoped_transport_and_keyboard_controls_playback"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "File open / clipboard on OS; long Unicode logs, tail update during playback and metrics under actual worker load.",
+      "static_consumer_audit": "/tmp/deadsync-editor-final-runtime-evidence-20261102/diagnostics-source-audit.json"
+    },
+    {
+      "flow": "Layout / resolutions",
+      "source_requirement": "Source layout presets and available resolutions; central chart and keyboard-on-demand panels are accepted adaptation.",
+      "source": "StepManiaEditor/Editor.cs:4236",
+      "native_file": "crates/deadsync-theme-simply-love/src/screens/edition/window_layout.rs",
+      "executed_native_tests": [
+        "screens::edition::window_layout::tests::host_modes_only_explicit_request_preserves_document"
+      ],
+      "evidence_scope": "test names matched to module; assertion relevance must be checked per requirement",
+      "historical_runtime_checklist": "Resolution switch on real monitor while editing; render scale, viewport edges and retained cursor; docking geometry is adapted, not identical ImGui docking."
+    }
+  ],
+  "current_runtime_receipts": [
+    "/tmp/deadsync-chart-copy-runtime-20261102/runtime-verified.json",
+    "/tmp/deadsync-profile-panel-runtime-20261102/runtime-verified.json",
+    "/tmp/deadsync-profile-panel-runtime-20261102/movement-runtime-verified.json",
+    "/tmp/deadsync-paste-selection-runtime-20261102/runtime-verified.json",
+    "/tmp/deadsync-note-selection-runtime-20261102/runtime-verified.json",
+    "/tmp/deadsync-editor-final-runtime-evidence-20261102/speed-runtime.json",
+    "/tmp/deadsync-editor-final-runtime-evidence-20261102/help-document-runtime.json",
+    "/tmp/deadsync-profile-panel-runtime-20261102/speed-weights-runtime-verified.json",
+    "/tmp/deadsync-timing-inspectors-runtime-20261102/runtime-verified.json",
+    "/tmp/deadsync-recovery-runtime-20261102/runtime-verified.json",
+    "/tmp/deadsync-recovery-runtime-20261102/auto-runtime-verified.json",
+    "/tmp/deadsync-diagnostics-runtime-20261102/runtime-verified.json",
+    "/tmp/deadsync-clipboard-runtime-20261102/runtime-verified.json"
+  ],
+  "remaining_work": [
+    "Physical held-lane/Down/Undo user review remains pending",
+    "Preserve broader theme failures and unverified OS automation limits"
+  ],
+  "current_review_application": "/Users/zydon/Sites/feetness/deadsync/dist/DeadSync-Editor-Final-20261102.app",
+  "historical_runtime_reconciliation": {
+    "receipts_checked": 22,
+    "missing_expected_receipts": [],
+    "limitation": "Receipt existence and valid JSON do not validate every assertion; content inspection recorded in parity-review journal. Older binaries cannot certify current code."
+  },
+  "next_independent_work": "Continue source requirement-by-requirement completion audit; actual Cmd automation observation inconclusive; user physical held-key test not yet done.",
+  "latest_native_gate": {
+    "passed": 629,
+    "failed": 0,
+    "ignored": 0,
+    "log": "/tmp/deadsync-editor-current-final-native-20261102.log",
+    "index": "docs/editor/final-validation-2026-11-02.json"
+  },
+  "current_review_application_limit": "Current build launched and verified visually; physical user trial still pending."
+}

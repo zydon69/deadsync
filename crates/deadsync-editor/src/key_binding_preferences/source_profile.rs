@@ -41,6 +41,7 @@ pub struct Rejected {
 pub struct Report {
     pub platform: Platform,
     pub applied: Vec<String>,
+    pub applied_modifiers: Vec<String>,
     pub unavailable_commands: Vec<String>,
     pub retained_modifiers: Vec<String>,
     pub retained_unknown: Vec<String>,
@@ -128,7 +129,7 @@ fn alternatives(id: &str, value: &Value, report: &mut Report) -> Vec<Vec<String>
             reject(report, Some(index), "Expected an ordered key array");
             continue;
         };
-        if chord.len() > 8 {
+        if chord.len() > super::reservations::MAX_CHORD_KEYS {
             reject(report, Some(index), "Chord exceeds native key limit");
             continue;
         }
@@ -156,15 +157,15 @@ fn alternatives(id: &str, value: &Value, report: &mut Report) -> Vec<Vec<String>
             }
             keys.push(key);
         }
-        if valid && !super::reservations::simple_chord(&keys) {
+        if valid && !Action::from_id(id).map_or_else(|| super::reservations::supported_chord(&keys), |action| action.accepts_chord(&keys)) {
             reject(
                 report,
                 Some(index),
-                "Native dispatch requires modifiers then one final ordinary key",
+                "Unsupported native key chord",
             );
             valid = false;
         }
-        if valid && keys.last().is_some_and(|key| key == "F1") {
+        if valid && keys.iter().any(|key| key == "F1") {
             reject(report, Some(index), "F1 is reserved for native menu rescue");
             valid = false;
         }
@@ -231,6 +232,7 @@ pub fn import(current: &Preferences, raw: &str, platform: Platform) -> Result<Pr
     let mut report = Report {
         platform,
         applied: vec![],
+        applied_modifiers: vec![],
         unavailable_commands: vec![],
         retained_modifiers: vec![],
         retained_unknown: vec![],
@@ -243,6 +245,14 @@ pub fn import(current: &Preferences, raw: &str, platform: Platform) -> Result<Pr
     let mut preferences = Preferences::default();
     preferences.source_import_raw = Some(Arc::from(raw));
     preferences.source_order = true;
+    for kind in super::scroll_modifiers::Kind::ALL {
+        let id=kind.source_name();
+        let value=fields.get(id).or_else(||defaults.get(id)).ok_or_else(||Error::InvalidFormat(format!("No original default for source modifier {id}")))?;
+        let raw=serde_json::value::RawValue::from_string(serde_json::to_string(value).map_err(|e|Error::InvalidFormat(e.to_string()))?).map_err(|e|Error::InvalidFormat(e.to_string()))?;
+        let normalized=super::source_post_load::normalize(&raw,id)?;
+        preferences.scroll_modifiers.set(kind,super::scroll_modifiers::Query::from_post_load(&normalized.value)?);
+        report.applied_modifiers.push(id.into());
+    }
     for action in Action::ALL {
         let id = action.id();
         if source_ids.contains(id) {
@@ -292,7 +302,7 @@ pub fn import(current: &Preferences, raw: &str, platform: Platform) -> Result<Pr
             .iter()
             .any(|c| c.id == id.as_str())
     }) {
-        report.retained_modifiers.push(id.clone());
+        if !super::scroll_modifiers::Kind::ALL.iter().any(|kind|kind.source_name()==id) {report.retained_modifiers.push(id.clone());}
     }
     for id in fields.keys().filter(|id| !defaults.contains_key(*id)) {
         report.retained_unknown.push(id.clone());
@@ -355,14 +365,14 @@ pub fn validate_blockers(preferences: &Preferences) -> Result<(), Error> {
         for chord in alternatives {
             let mut seen = BTreeSet::new();
             if chord.is_empty()
-                || chord.len() > 8
+                || chord.len() > super::reservations::MAX_CHORD_KEYS
                 || chord.iter().any(|key| {
                     source_key(key).as_deref() != Some(key.as_str())
                         || !seen.insert(Key::named(key))
                 })
-                || !super::reservations::simple_chord(chord)
+                || !super::reservations::supported_chord(chord)
                 || super::reservations::conflicts(chord)
-                || chord.last().is_some_and(|key| key == "F1")
+                || chord.iter().any(|key| key == "F1")
             {
                 return Err(Error::InvalidEdit(
                     "Invalid unavailable source chord".into(),

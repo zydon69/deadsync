@@ -1,0 +1,130 @@
+[
+  {
+    "name": "sm_sm_anon0_omit0",
+    "source": "sm",
+    "target": "sm",
+    "anonymize": false,
+    "omit": false,
+    "input": "#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "sm_sm_anon0_omit1",
+    "source": "sm",
+    "target": "sm",
+    "anonymize": false,
+    "omit": true,
+    "input": "#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "sm_sm_anon1_omit0",
+    "source": "sm",
+    "target": "sm",
+    "anonymize": true,
+    "omit": false,
+    "input": "#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "sm_sm_anon1_omit1",
+    "source": "sm",
+    "target": "sm",
+    "anonymize": true,
+    "omit": true,
+    "input": "#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "sm_ssc_anon0_omit0",
+    "source": "sm",
+    "target": "ssc",
+    "anonymize": false,
+    "omit": false,
+    "input": "#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "sm_ssc_anon0_omit1",
+    "source": "sm",
+    "target": "ssc",
+    "anonymize": false,
+    "omit": true,
+    "input": "#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "sm_ssc_anon1_omit0",
+    "source": "sm",
+    "target": "ssc",
+    "anonymize": true,
+    "omit": false,
+    "input": "#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "sm_ssc_anon1_omit1",
+    "source": "sm",
+    "target": "ssc",
+    "anonymize": true,
+    "omit": true,
+    "input": "#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "ssc_sm_anon0_omit0",
+    "source": "ssc",
+    "target": "sm",
+    "anonymize": false,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "ssc_sm_anon0_omit1",
+    "source": "ssc",
+    "target": "sm",
+    "anonymize": false,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "ssc_sm_anon1_omit0",
+    "source": "ssc",
+    "target": "sm",
+    "anonymize": true,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "ssc_sm_anon1_omit1",
+    "source": "ssc",
+    "target": "sm",
+    "anonymize": true,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "ssc_ssc_anon0_omit0",
+    "source": "ssc",
+    "target": "ssc",
+    "anonymize": false,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "ssc_ssc_anon0_omit1",
+    "source": "ssc",
+    "target": "ssc",
+    "anonymize": false,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "ssc_ssc_anon1_omit0",
+    "source": "ssc",
+    "target": "ssc",
+    "anonymize": true,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  },
+  {
+    "name": "ssc_ssc_anon1_omit1",
+    "source": "ssc",
+    "target": "ssc",
+    "anonymize": true,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Chartless;#ARTIST:Artist;#GENRE:Private genre;#CREDIT:Private author;#BANNER:private.png;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#STOPS:2=0.5;#DELAYS:3=0.125;#TIMESIGNATURES:0=3=4;#WARPS:4=1;#SCROLLS:0=1;#SPEEDS:0=1=0=0;#TICKCOUNTS:0=4;#FAKES:6=1;#COMBOS:0=1;#LABELS:0=Start;#ATTACKS:TIME=1:LEN=2:MODS=1.5x;#DISPLAYBPM:120;#LASTSECONDHINT:60;"
+  }
+]

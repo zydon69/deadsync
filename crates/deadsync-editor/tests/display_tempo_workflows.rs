@@ -59,7 +59,7 @@ fn session(format: Format, local: &str) -> Session {
     )
 }
 #[test]
-fn inherited_ssc_empty_override_and_sm_global_writes_are_atomic() {
+fn inherited_display_tempo_becomes_a_local_override_in_both_formats_atomically() {
     for format in [Format::Sm, Format::Ssc] {
         let mut session = session(format, "");
         let before = session.serialize().unwrap();
@@ -68,11 +68,9 @@ fn inherited_ssc_empty_override_and_sm_global_writes_are_atomic() {
         draft.set_display_tempo(Value::parse("90:180"));
         draft.set_rating(12).unwrap();
         assert!(draft.apply(&mut session, 0).unwrap());
-        let scope = (format == Format::Ssc).then_some(0);
-        assert_eq!(
-            session.document().text(scope, "DISPLAYBPM").as_deref(),
-            Some("90.000000:180.000000")
-        );
+        assert_eq!(Draft::capture(&session,0).unwrap().display_tempo().serialize(),"90.000000:180.000000");
+        assert_eq!(session.document().text(None,"DISPLAYBPM").as_deref(),Some("*"));
+        if format==Format::Ssc {assert_eq!(session.document().text(Some(0),"DISPLAYBPM").as_deref(),Some("90.000000:180.000000"));}
         let after = session.serialize().unwrap();
         session.undo().unwrap();
         assert_eq!(session.serialize().unwrap(), before);

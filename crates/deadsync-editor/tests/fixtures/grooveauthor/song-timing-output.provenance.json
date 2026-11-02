@@ -1,0 +1,7 @@
+{
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "harness": "scripts/editor-chartless-export-reference.py",
+  "program_sha256": "0ec5061c1627a3f677588eed06e7b3495a0a93edc31c4f9e8fa9685b08bde36a",
+  "assembly_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "scope": "Bounded H oracle: pinned actual Fumen writer, nonempty song, chosen/null fallback.\nReuses original chartless harness ABI/build, changes only request and fallback.\nDoes not simulate EditorSong history, chart sorting, preferences or validation.\n"
+}

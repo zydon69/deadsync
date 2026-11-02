@@ -1168,6 +1168,7 @@ where
             alpha: target.alpha,
             depth: target.depth,
             preserve: target.preserve,
+            postprocess: target.postprocess,
             cameras: target_render.cameras,
             sprite_instances: target_render.sprite_instances,
             mesh_vertices: target_render.mesh_vertices,
@@ -5227,6 +5228,8 @@ fn retained_frame_key(
             Some(BlendMode::Multiply) => 3,
             Some(BlendMode::Subtract) => 4,
             Some(BlendMode::NoEffect) => 5,
+            Some(BlendMode::Replace) => 6,
+            Some(BlendMode::PremultipliedAlpha) => 7,
         },
     }
 }
@@ -8136,7 +8139,7 @@ fn push_sprite_passes<T: TextureContext + ?Sized>(
         bool,
     ),
 ) {
-    if tints.iter().all(|tint| tint[3] <= 0.0) {
+    if !blend.requires_zero_alpha_fragments() && tints.iter().all(|tint| tint[3] <= 0.0) {
         return;
     }
 
@@ -8223,7 +8226,7 @@ fn push_sprite_passes<T: TextureContext + ?Sized>(
             false,
         );
         for (pass, &tint) in tints.iter().enumerate() {
-            if tint[3] <= 0.0 {
+            if tint[3] <= 0.0 && (pass!=0 || !blend.requires_zero_alpha_fragments()) {
                 continue;
             }
             let before = out.len();
@@ -8329,7 +8332,7 @@ fn push_sprite_passes<T: TextureContext + ?Sized>(
         texture_mask: 0.0,
     };
     for (pass, &tint) in tints.iter().enumerate() {
-        if tint[3] <= 0.0 {
+        if tint[3] <= 0.0 && (pass!=0 || !blend.requires_zero_alpha_fragments()) {
             continue;
         }
         let before = out.len();
@@ -10182,6 +10185,7 @@ mod tests {
                 alpha: false,
                 depth: false,
                 preserve: false,
+                postprocess: None,
                 children: Arc::from([test_sprite(SpriteSource::Solid)]),
             },
             crate::actors::RenderTarget {
@@ -10193,6 +10197,7 @@ mod tests {
                 alpha: true,
                 depth: false,
                 preserve: false,
+                postprocess: None,
                 children: Arc::from([target_sprite(screen)]),
             },
         ];

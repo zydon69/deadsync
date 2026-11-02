@@ -1,0 +1,58 @@
+[
+  {
+    "name": "normal",
+    "Seconds": 4
+  },
+  {
+    "name": "no_song",
+    "NoSong": true,
+    "Seconds": 4
+  },
+  {
+    "name": "saving",
+    "Saving": true,
+    "Seconds": 4
+  },
+  {
+    "name": "grace",
+    "Seconds": 1
+  },
+  {
+    "name": "already_showing",
+    "Showing": true,
+    "Seconds": 4
+  },
+  {
+    "name": "suppressed",
+    "Suppressed": true,
+    "Seconds": 4
+  },
+  {
+    "name": "ignore",
+    "Choice": "ignore",
+    "Seconds": 4
+  },
+  {
+    "name": "reload_dirty_song",
+    "Choice": "reload",
+    "DirtySong": true,
+    "Seconds": 4
+  },
+  {
+    "name": "reload_dirty_both",
+    "Choice": "reload",
+    "DirtySong": true,
+    "DirtyPack": true,
+    "Seconds": 4
+  },
+  {
+    "name": "suppress_checkbox",
+    "Toggle": true,
+    "Seconds": 4
+  },
+  {
+    "name": "created_event",
+    "Event": "Created",
+    "Seconds": 4
+  }
+]

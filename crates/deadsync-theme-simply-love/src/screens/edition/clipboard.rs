@@ -8,8 +8,83 @@ pub(super) struct Request {
     field: ClipboardTarget,
     operation: Operation,
 }
+
+#[cfg(test)]
+mod physical_modifier_tests {
+    use super::*;
+    use deadlib_platform::input::RawKeyboardEvent;
+    use std::time::Instant;
+
+    #[derive(Default)]
+    struct Clipboard {
+        text: String,
+        writes: Vec<String>,
+    }
+
+    impl TextClipboard for Clipboard {
+        fn read_text(&mut self) -> Result<String, deadsync_editor::clipboard::Error> {
+            Ok(self.text.clone())
+        }
+
+        fn write_text(&mut self, text: &str) -> Result<(), deadsync_editor::clipboard::Error> {
+            self.text = text.to_owned();
+            self.writes.push(self.text.clone());
+            Ok(())
+        }
+    }
+
+    fn chord(state: &mut State, modifier: KeyCode, key: KeyCode) {
+        for (code, pressed) in [(modifier, true), (key, true), (key, false), (modifier, false)] {
+            assert!(!state.raw_key(&RawKeyboardEvent {
+                code,
+                pressed,
+                repeat: false,
+                timestamp: Instant::now(),
+                host_nanos: 0,
+            }), "text shortcut must not request editor close");
+        }
+    }
+
+    #[test]
+    fn control_and_command_clipboard_chords_survive_release_without_executing_chart_actions_en_fr() {
+        for language in ["en", "fr"] {
+            i18n::init(deadsync_assets::language::load_for_tests(language));
+            i18n::set_locale(deadsync_assets::language::load_for_tests(language));
+            for modifier in [KeyCode::ControlLeft, KeyCode::ControlRight, KeyCode::SuperLeft, KeyCode::SuperRight] {
+                let root = tempfile::tempdir().unwrap();
+                let path = root.path().join("song.ssc");
+                std::fs::write(&path, b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
+                let mut state = State::open(&path, 0).unwrap();
+                let original = state.workspace.file().session.serialize().unwrap();
+                state.open_chart_properties();
+                state.open_chart_text();
+                assert!(state.text_input("Cmd clipboard ete"));
+                let mut clipboard = Clipboard::default();
+
+                chord(&mut state, modifier, KeyCode::KeyA);
+                chord(&mut state, modifier, KeyCode::KeyC);
+                // The host may service the request after both keys are released.
+                assert!(state.process_text_clipboard(&mut clipboard));
+                assert_eq!(clipboard.writes, ["Cmd clipboard ete"]);
+
+                chord(&mut state, modifier, KeyCode::KeyX);
+                assert!(state.process_text_clipboard(&mut clipboard));
+                assert_eq!(state.text_buffer.as_ref().unwrap().value(), "");
+                assert_eq!(clipboard.writes, ["Cmd clipboard ete", "Cmd clipboard ete"]);
+
+                chord(&mut state, modifier, KeyCode::KeyV);
+                assert!(state.process_text_clipboard(&mut clipboard));
+                assert_eq!(state.text_buffer.as_ref().unwrap().value(), "Cmd clipboard ete");
+                assert!(matches!(state.panel, Some(Panel::ChartText(0))));
+                assert_eq!(state.workspace.file().session.serialize().unwrap(), original);
+                assert!(!state.workspace.file().session.is_dirty());
+            }
+        }
+    }
+}
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum ClipboardTarget {
+    Log,
     Property(Target),
     ProfileText(super::profile_edit::TextField),
     KeyProfileImport,
@@ -22,6 +97,7 @@ enum Operation {
 }
 impl State {
     fn clipboard_target(&self) -> Option<ClipboardTarget> {
+        if matches!(self.panel,Some(Panel::Log)){return Some(ClipboardTarget::Log);}
         if matches!(self.panel, Some(Panel::KeyBindingSettings(_)))
             && self.key_binding_draft.is_some()
         {
@@ -54,6 +130,7 @@ impl State {
         matches!(self.panel, Some(Panel::ProfileText)) || self.sync_text()
     }
 
+    pub(super) fn queue_log_clipboard(&mut self,text:String){self.text_clipboard_request=Some(Request{serial:self.text_edit_serial,field:ClipboardTarget::Log,operation:Operation::Copy(text)});}
     pub(super) fn queue_text_clipboard(&mut self, code: KeyCode) {
         let Some(field) = self.clipboard_target() else {
             return;
@@ -113,6 +190,7 @@ impl State {
         {
             return false;
         }
+        if request.field==ClipboardTarget::Log&&!self.log_copy_context_current(){return false;}
         if let Operation::ImportKeyProfile(expected) = &request.operation {
             // No OS read after close/reopen, draft replacement or capture entry.
             if !self.key_profile_import_matches(expected) {
@@ -147,7 +225,7 @@ impl State {
             }),
         };
         match result {
-            Ok(Some(key)) => self.status = i18n::tr("Edition", key),
+            Ok(Some(key)) => {self.status = i18n::tr("Edition", key);if request.field==ClipboardTarget::Log{log::info!("Copied log to clipboard.");}},
             Ok(None) => {}
             Err(error) => {
                 self.status = i18n::tr(

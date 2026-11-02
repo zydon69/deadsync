@@ -2,8 +2,9 @@ use deadsync_editor::{
     document::{Document, Format},
     history::Session,
     timing_edit::{
+        Scope,
         conversion::{Direction, Plan},
-        region::{Kind, Regions},
+        region::{Draft, Kind},
     },
 };
 use std::collections::BTreeSet;
@@ -32,12 +33,13 @@ fn unchanged_original_warp_constructor_clamps_rounded_zero_to_one_row() {
     plan.apply(&mut s, &BTreeSet::new()).unwrap();
     let after = s.serialize().unwrap();
     let reopened = Session::new(Document::parse(after.clone(), Format::Ssc).unwrap());
-    let warps = Regions::parse(
-        Kind::Warp,
-        &reopened.document().text(None, "WARPS").unwrap(),
-    )
-    .unwrap();
-    assert_eq!(warps.values().get(&48), Some(&1));
+    let regions = Draft::capture(&reopened, 0, Scope::Chart).unwrap();
+    assert_eq!(regions.regions(Kind::Warp).values().get(&48), Some(&1));
+    assert_eq!(
+        reopened.document().text(None, "STOPS").as_deref(),
+        Some("1=-0.00001")
+    );
+    assert_eq!(reopened.document().text(None, "WARPS"), None);
     s.undo().unwrap();
     assert_eq!(s.serialize().unwrap(), before);
     s.redo().unwrap();
@@ -45,6 +47,9 @@ fn unchanged_original_warp_constructor_clamps_rounded_zero_to_one_row() {
 }
 #[test]
 fn original_covering_all_generates_zero_stop_and_native_refuses_without_half_publication() {
+    // The source action can construct zero despite EditorStopEvent's own
+    // IsStopLengthValid rule. This is an atomic validity correction, not an
+    // inability of floating-point arithmetic or the wire format to encode zero.
     let reference: serde_json::Value = serde_json::from_str(include_str!(
         "fixtures/grooveauthor/timing-conversion-constructor.expected.json"
     ))

@@ -36,6 +36,247 @@ reviewable and tested.
 
 ## Current implementation and verification
 
+### Current completion audit — 2 November 2026
+
+Use `completion-audit-2026-11-02.json` for concrete requirements, current-source
+comparisons and bounded evidence. `remaining-review-2026-11-02.md` lists the
+current open work. Older dated sections below are historical checkpoints;
+their remaining-work statements and test counts are not current by default.
+The initial-node chart-copy experiment was withdrawn after checking mandatory
+source load normalization; a regression now compares the valid loaded path.
+The production source again matches the validated review application's behavior.
+Full port completion is still unproven; no editor commit, push or PR was made.
+
+
+### Physical modifier clipboard regression — 2 November 2026
+
+Added an EN/FR raw-input regression for left/right Control and Super (Cmd)
+select/copy/cut/paste, servicing OS requests after key release and asserting
+no close request or committed chart mutation. The targeted test passes; the
+complete native editor suite passes 618 tests, zero failures/ignored, including
+all previous 617 names. All 8295 captured input hashes match after execution.
+Only a cfg(test) module changed from the prior frozen gate; removing that module
+reproduces the prior production file hash exactly. The prior 241 core / 1345
+public runs were not repeated and are not relabeled as fresh executions.
+Actual Ctrl clipboard roundtrip passes. Automated super+A unexpectedly exits
+even during shortcut capture, so that physical Cmd observation remains
+inconclusive. User held-key validation is still not performed. Receipt:
+`/tmp/deadsync-clipboard-runtime-20261102/raw-modifier-validation.json`.
+
+### Current parity review index — 2 November 2026
+
+`remaining-review-2026-11-02.md` and its JSON companion preserve the 21 source
+flows and map current native execution names. Module counts are evidence
+locations, not certificates of feature completion. `parity-review-2026-11-02.md`
+records the subsequent source inspections and real chart-copy/profile runtime
+checks, including exact saved Undo/Redo. These observations do not change the
+latest scoped gate below. The historical 517-test matrix and older pending
+statements must be reconciled with current receipts rather than treated as a
+current missing-feature list. `dist/DeadSync-Editor-Review-20261102.app` now contains the exact gated binary
+with the latest selection-history fixes. Strict signature verification and actual
+French launch with both bundled charts pass; it is open for user trials. The
+older undated review application is preserved. Receipt: `review-app-current.json`
+in the runtime evidence directory.
+
+### Paste selection follow-up — 2 November 2026
+
+Paste now records accepted target selections, clears the detached clipboard
+selection on Undo, and restores targets on Redo. The note backend owns lane/owner
+mapping; mixed paste reuses that outcome and collects supported other events
+inside the atomic transaction. Event ordering shares the selection model's key.
+All 241 core library tests pass, including narrower targets, Routine owner mapping
+and invalid destination refusal. The native EN/FR mixed/note-only Apply/Undo/Redo
+test passes with exact byte restoration and cursor preservation. The matching
+frozen validation passes 241 core, 617 native and 1,345 public tests (296 unchanged
+modules), with source/log/partition/artifact checks. A gated rebuilt app passes
+actual French Metal mixed shift and paste Save/Undo/Redo: deleted originals and
+survivors are selected correctly; pasted selection clears on Undo and all eight
+targets return on Redo. Saved states compare exactly; the isolated fixture is
+restored and the QA app closed. The generated harness is removed after final hash
+checks. Older application paths/gates below are historical. Authoritative
+index: `resume-validation-2026-10-28.json` → `paste_selection_2026_11_02`.
+
+### Mixed-event shift follow-up — 2 November 2026
+
+The shared mixed-event shift engine now carries original/result selection history.
+Previously only the reviewed checked wrapper supplied this receipt; direct shifts
+and global Shift All bypassed it. Receipt ownership is centralized in the engine,
+and the native global route consumes it. Undo reselects movable originals deleted
+by a negative destination while excluding immutable initial timing nodes.
+All 238 core library tests pass; native EN/FR checked/global history validation is
+running. Applications and frozen gates below predate this follow-up. Paste selection
+history remains under review. Current index:
+`resume-validation-2026-10-28.json` → `mixed_shift_selection_2026_11_02`.
+
+### Selection history follow-up — 2 November 2026
+
+The source parity review found that note conversion cleared the native selection,
+whereas GrooveAuthor selects the transformed notes on Apply, Undo and Redo.
+A strengthened native dispatcher regression reproduces this failure. The reviewed
+conversion model now publishes a chart/session-bound history selection receipt,
+preserving checked note enumeration and excluding nonmatching events. Reviewed
+spatial/owner transforms now also publish source/result selections, with source
+chronological sorting for spatial actions and checked order for owner changes.
+The direct legacy transform/swap APIs now use these same prepared transactions,
+retaining their history labels and existing scan policy. Their native panels also
+consume the selection receipt. All 237 core library tests and 615 native editor
+tests pass under a new frozen source manifest, including six core selection-history
+cases, stronger native Mirror/Convert assertions, and direct panel checks in both
+English and French. All 1,345 public tests across the unchanged 296 modules also
+pass; their execution names, partitions, artifact identity, logs and 8,295 frozen
+input hashes were independently verified. The older frozen results and review
+application below predate it and must not be reported as current-source gates.
+The unfiltered theme library run reports 2,066 passed, 15 failed and 54 ignored.
+Fourteen failure names match the 27 October checkpoint; the additional allocation
+budget test passes alone. Relevant browser/download source paths are unchanged
+against HEAD, but a clean HEAD execution and complete attribution are not proven.
+Do not describe the broader suite as green. The gated application build and
+signature/resource checks pass. Actual French Metal runtime verifies four-note
+Mirror and Tap-to-Mine conversion, preserved selected outlines, exact saved
+Undo/Redo states and unchanged cursor time; the isolated chart is restored.
+The temporary corpus harness was removed after final source-hash checks.
+Mixed-event shift and paste selection history still need the same source contract;
+the remaining parity review is open.
+Current index: `resume-validation-2026-10-28.json` →
+`note_selection_followup_2026_11_02`.
+
+### Latest validation and review application — 2 November 2026
+
+The port remains in progress; these results do not certify complete source parity.
+The frozen source validation passes 231 core library tests, 614 native editor
+tests and 1,345 public tests across 296 modules, with zero failures or ignored
+tests. Public bodies use one compiled artifact and a separate process per module;
+this does not certify independent Cargo target packaging or the whole workspace.
+Source hashes and complete execution logs were checked after the run. The
+temporary public corpus harness was then removed; its external sidecar is retained.
+
+A reproduced density lifecycle defect is fixed: preference-only history used to
+invalidate the report without scheduling another calculation. The host update
+now recovers it without further input, while retaining current reports and failed
+capture guards. Real Dark Apply, idle, Undo and Redo are verified on French Metal
+at a small window size, with cursor and exact preference restoration checked.
+The Dark panel also has dedicated localized action and status labels.
+
+`dist/DeadSync-Editor-Review.app` is a separate portable review application. It
+contains an isolated two-chart fixture and its music with a relative path. Actual
+launch detects the song and opens both charts with waveform and density visible.
+No editor commit, push or pull request was made. Full parity review and the
+remaining runtime evidence must still be closed before claiming completion.
+The current machine receipts are under
+`/tmp/deadsync-editor-final-runtime-evidence-20261102/`; the authoritative index is
+`resume-validation-2026-10-28.json` → `resume_2026_11_02`.
+
+### Latest runtime checkpoint — 31 October 2026
+
+The port remains in progress. This checkpoint supersedes the historical counts
+and pending lists below; it does not certify complete source parity.
+
+The latest completed native editor suite passes **613 tests, zero failures**.
+That application includes the note clipping, hold body budgeting, explicit note
+selection rendering, waveform destination sizing, and Pack properties layout
+fixes. Bounded runtime checks cover waveform rendering on OpenGL and Metal,
+reverse/all-chart waveform placement, and the Pack panel on a small Retina
+viewport. The subsequent overview caption fitting change passes its real-font geometry
+regression in English and French, at two DPI values and three sidebar widths.
+The complete native editor selection also passes with that change (612 tests).
+The caption correction is also visible in the application on OpenGL and Metal.
+A subsequent small-window DPI correction keeps the update notice URL on screen;
+its four targeted tests and the complete native editor suite (613 tests) pass.
+A new application build is in progress for runtime review of that notice fix.
+Builds retain existing warnings.
+
+Actual keyboard workflows now also cover profile creation and round trips for
+all three families, Performed and Pattern default restoration with exact disk
+Undo/Redo, and marker profile assignment. The latter changes only the target
+marker's Pattern/Performed GUIDs and its chart's Expressed GUID; notes, the peer
+marker and the other three charts remain unchanged. Undo restores the original
+file exactly and Redo restores the applied file exactly.
+
+The pinned source excludes multiplayer charts from automatic generation
+(`EditorChart.SupportsAutogenFeatures`). Multiplayer generation is therefore
+not a missing original feature. Admission must still preserve cooperative
+charts; the mixed StepF2 batch runtime check verifies that bounded case.
+
+The actual idle marker workflow now also targets a marker whose start differs
+from the cursor. Apply, deletion, Undo and Redo preserve the cursor; only the
+chosen metadata changes and final Undo restores the exact original file.
+
+Remaining work includes held-input cancellation, further render/audio/help/OS checks,
+and final validation and packaging from one frozen source state. Individual
+Retina checks do not certify every DPI or rendering backend. The complete
+requirements/evidence journal is `delivery-audit-2026-10-31.md`; current machine
+receipts and open work are indexed in
+`resume-validation-2026-10-28.json` → `latest_runtime_checkpoint_2026_10_31`.
+No editor commit, push or pull request has been made for this checkpoint.
+
+
+### Current scope checkpoint — 30 October 2026
+
+The complete port remains in progress. The current integration includes shared
+float source PCM for editor playback and waveform generation, editor ReplayGain
+exclusion, reversible external-song notification settings, immediate Pattern
+seed callbacks, inline profile creation and conditional profile controls.
+
+The integrated decoder library and MP3 duration regression pass 41 tests
+(3 ignored). The integrated audio service, mixer and streaming suites pass
+252 tests (4 ignored). The current core library and fifteen integration targets
+pass 246 tests; the complete public integration corpus is still being run.
+Native editor validation passes 474 tests after the four targeted corrections.
+These scoped results do not verify the final integrated application. The broader
+theme run still has fifteen out-of-editor failures matching an earlier run and
+a practice transport fixture whose correction still needs a rerun.
+Shell validation, wider regression coverage and a rebuilt application for
+in-game review remain required.
+
+See `resume-validation-2026-10-28.json` under `resume_2026_10_30` for scoped
+results, and `common-editor-pcm-2026-10-30.md` and
+`mp3-source-duration-2026-10-30.md` for decoder evidence and explicit source
+adaptations. The dated checkpoints below describe earlier states.
+
+### Integration follow-up — 31 October 2026
+
+A focused source review found and corrected three additional native defects:
+a disabled custom-DPI value trapped keyboard navigation, snapped wheel movement
+used a truncated edit-row delta instead of the exact source snap destination,
+and changing the snap subdivision stopped audio unnecessarily. Three new
+regression workflows have now passed in the 479-test native run. That run also
+includes both new About keyboard tests, with zero failures. It predates the
+subsequent six chart-order transport/list/chartless regressions.
+
+Help/About now opens a typed keyboard panel with the real DeadSync version,
+complete embedded DeadSync/retained editor licences and a coherent lightweight
+updater snapshot shared with passive notifications. Two native and two updater
+tests were added. Both native tests pass; the two updater tests and packaged
+rendering remain open. The complete public corpus continues in four disjoint
+executable batches. Shell integration passed 28 targeted tests and exact Practice
+transport passed one test. The app pipeline has built, packaged and verified the signature of the
+actual app, including the subsequent chart-order correction. The review bundle
+is `/tmp/DeadSync-Editor-Review-20261031-012547-74195.app`; its launched process
+has not yet produced a visible window, so runtime review remains unverified. A serialized fresh
+native run then requires all six new regressions and at least 485 passes.
+See `delivery-audit-2026-10-31.md` for the current requirements and evidence limits.
+
+### Historical scope checkpoint — 29 October 2026
+
+The complete port is still in progress. Older sections below are historical;
+the presence of a model, callback ID, source inventory or passing helper test
+does not prove a complete source workflow.
+
+Latest completed runs before the preference layout additions: 348 native editor
+tests, 164 editor core unit tests, and 64 audio backend unit tests (2 ignored).
+The real asset-service → AudioControl → shell → native waveform test also passes:
+file reload reaches the waveform; a new load reset clears obsolete data, and
+retained PCM remains usable after the original pathname is removed. This test
+uses no output device and makes no audible-playback claim.
+
+Confirmed work still includes waveform preference/render fidelity, resuming an
+already audible sample after output loss, per-chart attack inspector selection,
+and format-independent resident timing after opening SM. The last contract is
+documented in `format-independent-timing-gap-2026-10-29.md`. Wider public workflow
+validation and a rebuilt macOS application remain necessary. The currently
+running review application predates these latest integrations.
+
+
 ### Reprise après interruption — 28 octobre 2026
 
 La reprise utilise trois agents, avec une seule validation Cargo à la fois.
@@ -6407,7 +6648,11 @@ A dedicated oracle executes the complete pinned C# image utility with injected
 codec dimensions. Its 114 cases cover selection and classification; they do not
 validate Skia decoding. The native adapter uses image::image_dimensions. This
 discovery increment did not render media. Banner/CDTitle previews were added in
-the resumed increment above; video and lyrics rendering remain pending.
+the resumed increment above. Later source review (31 October) clarified that
+video/lyrics playback is not a missing pinned editor feature: EditorTexture
+explicitly skips video files, and LyricsPath/PreviewVideoPath are editable asset
+references without rendering consumers. Their import, editing, discovery,
+relocation and export remain part of the port's required behavior.
 
 Focused domain verification: 93 tests passed across song media/text/properties
 and lexical paths (31), StepF2/reference/attribute inspector (22), chart ordering
@@ -6440,3 +6685,75 @@ cargo test -p deadsync-shell --locked --jobs 2 --test editor_collation_contract 
 # Required by the broader shell gameplay harness:
 git submodule update --init --depth 1 -- tests/fixtures
 ```
+
+
+## Integration checkpoint: Density, Dark, Stream and source actions (2026-10-28)
+
+The editor branch now includes PatternActions regeneration reviews, File platform
+requests and initial-directory preferences, contextual command migration, the
+39 source callbacks described in source-actions39-plan.md, external file-change
+notifications, source DensityGraph settings and graph, Dark background settings,
+and the complete shared Stream preference model/keyboard inspector. RSSP remains
+independent of the source measure-density implementation.
+
+Chartless advanced output uses an explicit policy, source null-writer fallback
+and loss review, without inventing a timing-chart index. Recovery retains the
+native document when creating/deleting a chart makes the output policy require
+a fresh timing choice. See chartless-output-plan.md.
+
+Validation is in progress, with the exact completed targets and active Cargo
+session recorded in resume-validation-2026-10-28.json. The prior native snapshot
+passed92 editor unit tests; this does not certify the later integrations.
+Source fidelity oracles and prepared tests do not substitute for their Rust
+execution or physical keyboard/GPU/audio validation. No editor push or PR has
+been performed at this checkpoint. The full GrooveAuthor port is not complete.
+
+
+The source six-way note/event/stream navigation has now been integrated with
+fractional boundaries, original step multiplicity, checked selection preservation
+and the existing playback stop/seek policy. Its original-method oracle contains
+768 requests; execution of the new Rust tests is pending at this checkpoint.
+The source TogglePreview callback is also connected to the existing sample
+transport with source-profile P and an unbound native default. Its keyboard tests
+cover song-only and chartful documents, rebind and missing media without claiming
+audio-device or decoder validation.
+
+
+At Action195, the scoped native edition unit suite passed130/130. This includes
+source selected Warp/negative-Stop callbacks, source selection enumeration order,
+typed selection outcomes after Do/Undo/Redo, and pack/song save coupling with a
+distinct application Exit intent. The source preview shortcut captures current
+document properties directly, while the optional sample inspector retains its
+staged audition behavior. The shell Exit glue still requires shell validation.
+The source Close-to-NoSong and configurable lane-input follow-ups remain pending
+at this checkpoint. Dedicated EN/FR inspector workflows are not yet certified.
+
+
+At Action207, source Close publishes the explicit NoSong state after the common
+review, and all eleven lane/modifier callbacks own real press/release behavior.
+The complete scoped native edition suite passed150/150 after fixing immediate
+held-input cancellation on entry to the checked-selection context. The focused
+core lane/key/clipboard batch passed63/63, and the preceding history/selection
+batch passed110/110. These are scoped checks, not complete editor parity or
+proof of hardware/GPU/audio behavior. Dedicated EN/FR workflows are running
+separately; no result is claimed before their completion.
+
+### Selected mixed row shifts — integration pending validation
+
+`ShiftEarlier` / `ShiftLater` now consume the exact checked mixed selection through
+one shared reviewed `event_shift` boundary, also used by the existing whole-chart
+route. The checked route has no range/all fallback. Snap Off uses48 rows, as
+executed by80 original callback-routing cases (the pinned Fumen constant is48).
+Typed history receipts restore movable originals after Undo and surviving moved
+events after Do/Redo; immutable initial timing nodes remain excluded from the
+restored transformed selection. Native keyboard review has localized checked
+scope labels and Cancel returns to its originating panel. Four core regressions
+and three native EN/FR regressions have been added but have not yet run at this
+checkpoint. This is not a completion claim for editor parity.
+
+## Optional chart assistant
+
+The AI assistant is a separate extension of the editor, documented in
+[assistant.md](assistant.md). It shares the existing RSSP and GrooveAuthor
+commands through MCP and Codex App Server, and adds local audio onset analysis.
+It does not change the GrooveAuthor port's completion or validation records.

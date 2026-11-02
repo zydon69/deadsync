@@ -15,15 +15,11 @@ use std::{fs, path::PathBuf, sync::atomic::AtomicBool};
 fn fixture(name: &str, suffix: &str) -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/grooveauthor")
-        .join(format!("{name}.{suffix}.json"));
+        .join(if name.starts_with("parity-pair-"){format!("generation-pairs/{name}.{suffix}.json")}else{format!("{name}.{suffix}.json")});
     serde_json::from_slice(&fs::read(path).unwrap()).unwrap()
 }
-fn source_data(
-    input: &Value,
-) -> (
-    Vec<StepEvent>,
-    Vec<deadsync_editor::generation::mines::ExpressedMine>,
-) {
+fn source_data(input:&Value)->(Vec<StepEvent>,Vec<deadsync_editor::generation::mines::ExpressedMine>){source_data_checked(input).unwrap()}
+fn source_data_checked(input:&Value)->Result<(Vec<StepEvent>,Vec<deadsync_editor::generation::mines::ExpressedMine>),deadsync_editor::Error>{
     if let Some(events) = input["LinkEvents"].as_array() {
         let events = events
             .iter()
@@ -89,7 +85,7 @@ fn source_data(
                     .collect()
             })
             .unwrap_or_default();
-        return (events, mines);
+        return Ok((events, mines));
     }
     let source = input["SourceLayout"].as_str().unwrap();
     let columns = deadsync_editor::notes::layout_columns(source).unwrap();
@@ -149,10 +145,10 @@ fn source_data(
         &source_mines,
         &cancelled,
         |_, _, _| {},
-    )
-    .unwrap();
+    );
     assert_eq!(grid, before);
-    (result.events, result.mines)
+    let result=result?;
+    Ok((result.events, result.mines))
 }
 fn encode(
     graph: &StepGraph,
@@ -173,7 +169,9 @@ fn encode(
 fn compare(name: &str) {
     let input = fixture(name, "request");
     let expected = fixture(name, "expected");
-    let (events, mines) = source_data(&input);
+    let source=source_data_checked(&input);
+    if expected["Stage"]=="Expression" {assert!(source.is_err(),"{name}: original expression refused");return;}
+    let (events,mines)=source.unwrap_or_else(|error|panic!("{name}: {error}"));
     let config: PerformedConfig = serde_json::from_value(input["PerformedConfig"].clone()).unwrap();
     let identity;
     let fallbacks = match input["FallbackMode"].as_str().unwrap() {
@@ -205,6 +203,11 @@ fn compare(name: &str) {
         &AtomicBool::new(false),
         |_, _, _| {},
     );
+    if expected["SourceException"]==true {
+        // Original mine placement throws. Rust must return normally, without
+        // mutating source events; no successful-output parity is asserted.
+        if let Ok(performance)=result {assert_eq!(performance.dropped_mines,mines.len()-performance.mines.len());let columns=deadsync_editor::notes::layout_columns(layout).unwrap();assert!(performance.mines.iter().all(|mine|mine.lane<u16::from(columns)));}return;
+    }
     if !expected["Success"].as_bool().unwrap() {
         assert!(result.is_err(), "{name}");
         return;
@@ -598,4 +601,129 @@ fn actual_file_chart_generation_applies_once_saves_and_reopens_through_rssp() {
     assert_eq!(file.session.serialize().unwrap(), bytes);
     file.session.redo().unwrap();
     assert_eq!(file.session.grid(added).unwrap(), &assembled.grid);
+}
+
+#[test]
+fn all_eleven_layout_conversion_pairs_match_source_or_document_its_exception(){
+    compare("parity-pair-dance-single-to-dance-single");
+    compare("parity-pair-dance-single-to-dance-double");
+    compare("parity-pair-dance-single-to-dance-solo");
+    compare("parity-pair-dance-single-to-dance-threepanel");
+    compare("parity-pair-dance-single-to-pump-single");
+    compare("parity-pair-dance-single-to-pump-halfdouble");
+    compare("parity-pair-dance-single-to-pump-double");
+    compare("parity-pair-dance-single-to-smx-beginner");
+    compare("parity-pair-dance-single-to-smx-single");
+    compare("parity-pair-dance-single-to-smx-dual");
+    compare("parity-pair-dance-single-to-smx-full");
+    compare("parity-pair-dance-double-to-dance-single");
+    compare("parity-pair-dance-double-to-dance-double");
+    compare("parity-pair-dance-double-to-dance-solo");
+    compare("parity-pair-dance-double-to-dance-threepanel");
+    compare("parity-pair-dance-double-to-pump-single");
+    compare("parity-pair-dance-double-to-pump-halfdouble");
+    compare("parity-pair-dance-double-to-pump-double");
+    compare("parity-pair-dance-double-to-smx-beginner");
+    compare("parity-pair-dance-double-to-smx-single");
+    compare("parity-pair-dance-double-to-smx-dual");
+    compare("parity-pair-dance-double-to-smx-full");
+    compare("parity-pair-dance-solo-to-dance-single");
+    compare("parity-pair-dance-solo-to-dance-double");
+    compare("parity-pair-dance-solo-to-dance-solo");
+    compare("parity-pair-dance-solo-to-dance-threepanel");
+    compare("parity-pair-dance-solo-to-pump-single");
+    compare("parity-pair-dance-solo-to-pump-halfdouble");
+    compare("parity-pair-dance-solo-to-pump-double");
+    compare("parity-pair-dance-solo-to-smx-beginner");
+    compare("parity-pair-dance-solo-to-smx-single");
+    compare("parity-pair-dance-solo-to-smx-dual");
+    compare("parity-pair-dance-solo-to-smx-full");
+    compare("parity-pair-dance-threepanel-to-dance-single");
+    compare("parity-pair-dance-threepanel-to-dance-double");
+    compare("parity-pair-dance-threepanel-to-dance-solo");
+    compare("parity-pair-dance-threepanel-to-dance-threepanel");
+    compare("parity-pair-dance-threepanel-to-pump-single");
+    compare("parity-pair-dance-threepanel-to-pump-halfdouble");
+    compare("parity-pair-dance-threepanel-to-pump-double");
+    compare("parity-pair-dance-threepanel-to-smx-beginner");
+    compare("parity-pair-dance-threepanel-to-smx-single");
+    compare("parity-pair-dance-threepanel-to-smx-dual");
+    compare("parity-pair-dance-threepanel-to-smx-full");
+    compare("parity-pair-pump-single-to-dance-single");
+    compare("parity-pair-pump-single-to-dance-double");
+    compare("parity-pair-pump-single-to-dance-solo");
+    compare("parity-pair-pump-single-to-dance-threepanel");
+    compare("parity-pair-pump-single-to-pump-single");
+    compare("parity-pair-pump-single-to-pump-halfdouble");
+    compare("parity-pair-pump-single-to-pump-double");
+    compare("parity-pair-pump-single-to-smx-beginner");
+    compare("parity-pair-pump-single-to-smx-single");
+    compare("parity-pair-pump-single-to-smx-dual");
+    compare("parity-pair-pump-single-to-smx-full");
+    compare("parity-pair-pump-halfdouble-to-dance-single");
+    compare("parity-pair-pump-halfdouble-to-dance-double");
+    compare("parity-pair-pump-halfdouble-to-dance-solo");
+    compare("parity-pair-pump-halfdouble-to-dance-threepanel");
+    compare("parity-pair-pump-halfdouble-to-pump-single");
+    compare("parity-pair-pump-halfdouble-to-pump-halfdouble");
+    compare("parity-pair-pump-halfdouble-to-pump-double");
+    compare("parity-pair-pump-halfdouble-to-smx-beginner");
+    compare("parity-pair-pump-halfdouble-to-smx-single");
+    compare("parity-pair-pump-halfdouble-to-smx-dual");
+    compare("parity-pair-pump-halfdouble-to-smx-full");
+    compare("parity-pair-pump-double-to-dance-single");
+    compare("parity-pair-pump-double-to-dance-double");
+    compare("parity-pair-pump-double-to-dance-solo");
+    compare("parity-pair-pump-double-to-dance-threepanel");
+    compare("parity-pair-pump-double-to-pump-single");
+    compare("parity-pair-pump-double-to-pump-halfdouble");
+    compare("parity-pair-pump-double-to-pump-double");
+    compare("parity-pair-pump-double-to-smx-beginner");
+    compare("parity-pair-pump-double-to-smx-single");
+    compare("parity-pair-pump-double-to-smx-dual");
+    compare("parity-pair-pump-double-to-smx-full");
+    compare("parity-pair-smx-beginner-to-dance-single");
+    compare("parity-pair-smx-beginner-to-dance-double");
+    compare("parity-pair-smx-beginner-to-dance-solo");
+    compare("parity-pair-smx-beginner-to-dance-threepanel");
+    compare("parity-pair-smx-beginner-to-pump-single");
+    compare("parity-pair-smx-beginner-to-pump-halfdouble");
+    compare("parity-pair-smx-beginner-to-pump-double");
+    compare("parity-pair-smx-beginner-to-smx-beginner");
+    compare("parity-pair-smx-beginner-to-smx-single");
+    compare("parity-pair-smx-beginner-to-smx-dual");
+    compare("parity-pair-smx-beginner-to-smx-full");
+    compare("parity-pair-smx-single-to-dance-single");
+    compare("parity-pair-smx-single-to-dance-double");
+    compare("parity-pair-smx-single-to-dance-solo");
+    compare("parity-pair-smx-single-to-dance-threepanel");
+    compare("parity-pair-smx-single-to-pump-single");
+    compare("parity-pair-smx-single-to-pump-halfdouble");
+    compare("parity-pair-smx-single-to-pump-double");
+    compare("parity-pair-smx-single-to-smx-beginner");
+    compare("parity-pair-smx-single-to-smx-single");
+    compare("parity-pair-smx-single-to-smx-dual");
+    compare("parity-pair-smx-single-to-smx-full");
+    compare("parity-pair-smx-dual-to-dance-single");
+    compare("parity-pair-smx-dual-to-dance-double");
+    compare("parity-pair-smx-dual-to-dance-solo");
+    compare("parity-pair-smx-dual-to-dance-threepanel");
+    compare("parity-pair-smx-dual-to-pump-single");
+    compare("parity-pair-smx-dual-to-pump-halfdouble");
+    compare("parity-pair-smx-dual-to-pump-double");
+    compare("parity-pair-smx-dual-to-smx-beginner");
+    compare("parity-pair-smx-dual-to-smx-single");
+    compare("parity-pair-smx-dual-to-smx-dual");
+    compare("parity-pair-smx-dual-to-smx-full");
+    compare("parity-pair-smx-full-to-dance-single");
+    compare("parity-pair-smx-full-to-dance-double");
+    compare("parity-pair-smx-full-to-dance-solo");
+    compare("parity-pair-smx-full-to-dance-threepanel");
+    compare("parity-pair-smx-full-to-pump-single");
+    compare("parity-pair-smx-full-to-pump-halfdouble");
+    compare("parity-pair-smx-full-to-pump-double");
+    compare("parity-pair-smx-full-to-smx-beginner");
+    compare("parity-pair-smx-full-to-smx-single");
+    compare("parity-pair-smx-full-to-smx-dual");
+    compare("parity-pair-smx-full-to-smx-full");
 }

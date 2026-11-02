@@ -1,0 +1,428 @@
+{
+  "reference_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_bytes_verified": true,
+  "source_sha256": {
+    "StepManiaEditor/LaneEditState.cs": "119eacedc5217aa8174a6838307c290e5eeb3c019f3851d2052e0481d85ec2eb",
+    "StepManiaEditor/EditorActions/ActionAddEditorEvent.cs": "aaa8e895394b25536d99d8e74ce78b31c01a4a8c96dbf8da588dd3677d825df0",
+    "StepManiaEditor/EditorActions/ActionAddHoldEvent.cs": "f4304e54da9abbc1a2793b16df24cc87bf3338a3575eecbf0a17eb5676a6146e"
+  },
+  "scope": "Entire original LaneEditState, ActionAddEditorEvent and ActionAddHoldEvent. Explicit identity-list chart/event factory and undo-composition/queue host. Does not execute ActiveEditorChart.OnLaneInputUp overlap resolver, full tree comparator or Fumen reader. Establishes pending action timing, duplicate identities and cancellation only.",
+  "cases": [
+    {
+      "name": "duplicate-head",
+      "states": [
+        {
+          "active": false,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "overlap-held",
+      "states": [
+        {
+          "active": false,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": true
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 24,
+              "lane": 0,
+              "player": 0,
+              "kind": "Hold",
+              "end": 120,
+              "edited": true
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "initial-delete-return",
+      "states": [
+        {
+          "active": false,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": true,
+          "events": []
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 24,
+              "lane": 0,
+              "player": 0,
+              "kind": "Hold",
+              "end": 120,
+              "edited": true
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": true,
+          "events": []
+        }
+      ]
+    },
+    {
+      "name": "modifier",
+      "states": [
+        {
+          "active": false,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": true
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 24,
+              "lane": 0,
+              "player": 0,
+              "kind": "Hold",
+              "end": 120,
+              "edited": true
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 24,
+              "lane": 0,
+              "player": 0,
+              "kind": "Roll",
+              "end": 120,
+              "edited": true
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 24,
+              "lane": 0,
+              "player": 0,
+              "kind": "Hold",
+              "end": 120,
+              "edited": true
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cancel",
+      "states": [
+        {
+          "active": false,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": true
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 24,
+              "lane": 0,
+              "player": 0,
+              "kind": "Hold",
+              "end": 120,
+              "edited": true
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        },
+        {
+          "active": false,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "commit",
+      "states": [
+        {
+          "active": false,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": true
+            }
+          ]
+        },
+        {
+          "active": true,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 24,
+              "lane": 0,
+              "player": 0,
+              "kind": "Hold",
+              "end": 120,
+              "edited": true
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        },
+        {
+          "active": false,
+          "onlyDelete": false,
+          "events": [
+            {
+              "row": 24,
+              "lane": 0,
+              "player": 0,
+              "kind": "Hold",
+              "end": 120,
+              "edited": false
+            },
+            {
+              "row": 48,
+              "lane": 0,
+              "player": 0,
+              "kind": "Tap",
+              "end": null,
+              "edited": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

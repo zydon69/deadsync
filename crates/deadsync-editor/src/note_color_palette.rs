@@ -134,7 +134,7 @@ impl Palette {
     pub fn color_row(&self, row: u64, signatures: Option<&Signatures>) -> Result<u8, Error> {
         use crate::minimap_palette::ColorMethod;
         let method = self.source.step_color_method;
-        if method == ColorMethod::Stepmania {
+        if method.effective() == ColorMethod::Stepmania {
             return Ok((row % 48) as u8);
         }
         let signatures = signatures.ok_or_else(|| {

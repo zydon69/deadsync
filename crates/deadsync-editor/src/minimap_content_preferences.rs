@@ -105,8 +105,8 @@ impl Preferences {
             )
             .map_err(|_| Error::InvalidFormat("Invalid MiniMapMaxNotesToDraw".into()))?;
         }
-        if !(3..=1024).contains(&result.width)
-            || result.note_width > result.width - 2
+        if !(2..=1024).contains(&result.width)
+            || result.note_width > 1024
             || result.note_spacing > 1024
             || result.patterns_width > 1024
             || result.preview_width > 1024

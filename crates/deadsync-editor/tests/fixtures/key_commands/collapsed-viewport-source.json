@@ -1,0 +1,30 @@
+[
+  {
+    "reverse": false,
+    "negativeZero": false,
+    "query": "negativeInfinity",
+    "found": true,
+    "index": 0
+  },
+  {
+    "reverse": true,
+    "negativeZero": false,
+    "query": "negativeInfinity",
+    "found": true,
+    "index": 0
+  },
+  {
+    "reverse": false,
+    "negativeZero": true,
+    "query": "positiveInfinity",
+    "found": true,
+    "index": 3
+  },
+  {
+    "reverse": true,
+    "negativeZero": true,
+    "query": "positiveInfinity",
+    "found": true,
+    "index": 3
+  }
+]

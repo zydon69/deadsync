@@ -4,6 +4,23 @@ use crate::{
 };
 use glam::Mat4;
 
+/// FXAA 3.11 quality controls. Preset39 and green-as-luma follow the editor source.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct FxaaQuality {
+    pub subpix: f32,
+    pub edge_threshold: f32,
+    pub edge_threshold_min: f32,
+}
+
+/// A source FXAA draw. An explicit source samples an earlier target at the
+/// destination pixel centers; None filters this pass's raw color attachment.
+/// Source texel dimensions determine the shader's inverse-frame uniform.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct FxaaPass {
+    pub source: Option<TextureHandle>,
+    pub quality: FxaaQuality,
+}
+
 /// Complete backend-neutral output of one presentation pass.
 ///
 /// Geometry, instances, and commands are already in final painter order. GPU
@@ -47,6 +64,8 @@ pub struct RenderTargetFrame {
     pub alpha: bool,
     pub depth: bool,
     pub preserve: bool,
+    /// Optional source FXAA quality pass, evaluated after child rendering.
+    pub postprocess: Option<FxaaPass>,
     /// Draw cameras; missing indices use the backend's caller-supplied projection.
     pub cameras: Vec<Mat4>,
     pub sprite_instances: Vec<SpriteInstanceRaw>,

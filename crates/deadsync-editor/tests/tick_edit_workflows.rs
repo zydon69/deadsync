@@ -127,13 +127,15 @@ fn shared_sm_ticks_and_stale_foreign_noop_history_guards_work_without_format_con
     assert!(session.redo_label().is_some());
     let sm = b"#BPMS:0=120;#NOTES:dance-single::Hard:9::1000;";
     let mut session = Session::new(Document::parse(sm.as_slice(), Format::Sm).unwrap());
-    assert!(Draft::capture(&session, 0, Scope::Chart).is_err());
+    assert!(Draft::capture(&session, 0, Scope::Chart).unwrap().inherited());
     let mut draft = Draft::capture(&session, 0, Scope::Song).unwrap();
     draft.set(0, 0).unwrap();
     draft.set(48, 12).unwrap();
     draft.apply(&mut session, 0).unwrap();
     let reopened = Document::parse(session.serialize().unwrap(), Format::Sm).unwrap();
-    assert_eq!(reopened.text(None, "TICKCOUNTS").unwrap(), "0=0,1=12");
+    assert!(reopened.raw_property(None,"TICKCOUNTS").is_none());
+    let reopened=Session::new(reopened);
+    assert_eq!(Draft::capture(&reopened,0,Scope::Song).unwrap().counts().serialize(),"0=0,1=12");
 }
 #[test]
 fn integer_input_limits_legacy_negative_moves_and_source_lexical_filtering_are_explicit() {

@@ -31,6 +31,7 @@ fn image_preview_requests_follow_draft_and_cancel_without_source_changes() {
         original
     );
     state.set_image_preview_views(std::array::from_fn(|index| PreviewView {
+        document_identity:None,path:None,average_color:[0.0,0.0,0.0,1.0],
         status: Status::Ready,
         key: Arc::from(if index == 0 {
             "__editor_song_preview::banner"
@@ -80,6 +81,7 @@ fn image_preview_feedback_is_localized_and_header_does_not_overlap_fields() {
         ),
     ] {
         state.set_image_preview_views(std::array::from_fn(|index| PreviewView {
+        document_identity:None,path:None,average_color:[0.0,0.0,0.0,1.0],
             status: status.clone(),
             key: Arc::from(if index == 0 {
                 "__editor_song_preview::banner"
@@ -99,6 +101,7 @@ fn image_preview_feedback_is_localized_and_header_does_not_overlap_fields() {
         assert!(!actors.iter().any(|actor| matches!(actor, Actor::Text {content,..} if content.contains("private decoder details"))));
     }
     state.set_image_preview_views(std::array::from_fn(|index| PreviewView {
+        document_identity:None,path:None,average_color:[0.0,0.0,0.0,1.0],
         status: Status::Ready,
         key: Arc::from(if index == 0 {
             "__editor_song_preview::banner"

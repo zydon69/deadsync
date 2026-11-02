@@ -281,7 +281,6 @@ fn invalid_preferences_and_fade_values_are_rejected_without_rewriting_files() {
         "[]",
         r#"{"Version":2}"#,
         r#"{"Version":1,"Audio":null}"#,
-        r#"{"Version":1,"Audio":{"PreviewFadeOutTime":-1}}"#,
         r#"{"Version":1,"Audio":{"PreviewFadeInTime":"bad"}}"#,
     ] {
         fs::write(&path, source).unwrap();

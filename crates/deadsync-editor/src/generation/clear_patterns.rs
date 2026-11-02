@@ -24,6 +24,7 @@ use std::{
 pub struct Task {
     bytes: Arc<[u8]>,
     format: Format,
+    load_context:crate::document::LoadContext,
     token: RevisionToken,
     chart: usize,
     rows: Vec<u64>,
@@ -66,6 +67,7 @@ impl Task {
         Ok(Self {
             bytes: session.serialize()?.into(),
             format: session.document().format,
+            load_context:session.document().load_context(),
             token: session.revision_token(),
             chart,
             rows,
@@ -95,7 +97,7 @@ impl Task {
         mut progress: impl FnMut(usize, usize),
     ) -> Result<Preview, Error> {
         check(cancelled)?;
-        let document = Document::parse(self.bytes, self.format)?;
+        let document = Document::parse_with_context(self.bytes, self.format,self.load_context)?;
         let layout = document.charts()[self.chart].steps_type.clone();
         let data = ChartData::read(&document, self.chart)?
             .ok_or_else(|| invalid("No saved pattern markers in this chart"))?;

@@ -156,7 +156,18 @@ fn background_preview_is_read_only_and_applies_saves_and_undoes_through_workspac
     workspace.execute(Command::Save).unwrap();
     let mut reopened = FileSession::open(&path).unwrap();
     assert_eq!(reopened.session.grid(1).unwrap(), &grid);
-    assert!(reopened.session.serialize().unwrap().starts_with(&before));
+    // Native Save adds source-compatible GASongData before the first chart.
+    // Verify every original field and note byte instead of requiring a prefix
+    // that would prohibit those required song ownership fields.
+    let original = Document::parse(before.as_slice(), Format::Ssc).unwrap();
+    let saved = reopened.session.document();
+    for tag in original.tags() {
+        assert_eq!(saved.raw_property(tag.chart, &tag.name), original.raw_property(tag.chart, &tag.name), "Original field changed: {:?}/{}", tag.chart, tag.name);
+    }
+    let source_tags = |document: &Document| document.tags().iter().filter(|tag| tag.chart == Some(0)).map(|tag| tag.name.clone()).collect::<Vec<_>>();
+    assert_eq!(source_tags(saved), source_tags(&original));
+    let added_song_tags = saved.tags().iter().filter(|tag| tag.chart.is_none() && original.tag(None, &tag.name).is_none()).map(|tag| tag.name.as_str()).collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(added_song_tags, ["GASONGDATA", "GASONGDATAVERSION"].into_iter().collect());
 }
 #[test]
 fn preview_identity_rejects_equal_revisions_other_sessions_and_recovered_documents() {
@@ -351,7 +362,7 @@ fn snapshot_pipeline_matches_original_file_reader_interpretation_and_generated_n
 }
 
 #[test]
-fn applying_requires_selected_source_and_mine_merges_are_disclosed() {
+fn applying_independent_source_preserves_actual_previous_focus_and_discloses_mine_merges() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     let mut bytes = SONG.to_vec();
@@ -366,10 +377,15 @@ fn applying_requires_selected_source_and_mine_merges_are_disclosed() {
         .run(&AtomicBool::new(false), |_| {})
         .unwrap();
     workspace.execute(Command::SelectChart(1)).unwrap();
-    assert!(workspace.apply_generated(&generated).is_err());
     assert_eq!(workspace.file().session.serialize().unwrap(), bytes);
-    workspace.execute(Command::SelectChart(0)).unwrap();
     assert_eq!(workspace.apply_generated(&generated).unwrap(), 2);
+    assert_eq!(workspace.chart(),2);
+    workspace.execute(Command::Undo).unwrap();
+    assert_eq!(workspace.chart(),1,"Undo restores the actually focused chart, not the independent source");
+    assert_eq!(workspace.file().session.serialize().unwrap(),bytes);
+    workspace.execute(Command::Redo).unwrap();
+    assert_eq!(workspace.chart(),2);
+    assert_eq!(workspace.file().session.document().charts().len(),3);
     let bytes = b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#METER:9;#NOTES:MM00\n00M0\n0000\n0000;";
     let source =
         Session::new(Document::parse(Arc::<[u8]>::from(bytes.as_slice()), Format::Ssc).unwrap());
@@ -401,4 +417,15 @@ fn cancellation_after_ready_discards_an_already_computed_result() {
     job.cancel();
     assert!(finish(&mut job).is_err());
     assert_eq!(source.serialize().unwrap(), SONG);
+}
+
+#[test]
+fn independent_source_task_does_not_focus_or_edit_and_apply_undo_can_restore_no_chart_view(){
+    let root=tempfile::tempdir().unwrap();let path=root.path().join("song.ssc");fs::write(&path,SONG).unwrap();
+    let mut workspace=Workspace::open(&path,0).unwrap();workspace.clear_active_chart();let before=workspace.file().session.serialize().unwrap();
+    let preview=workspace.generation_task_at_with_profiles(0,ChartOptions::balanced("dance-double"),None,Default::default()).unwrap().run(&AtomicBool::new(false),|_|{}).unwrap();
+    assert!(!workspace.has_chart());assert_eq!(workspace.file().session.serialize().unwrap(),before);assert!(workspace.file().session.undo_label().is_none());
+    assert_eq!(workspace.apply_generated(&preview).unwrap(),1);assert_eq!(workspace.chart(),1);
+    workspace.execute(Command::Undo).unwrap();assert!(!workspace.has_chart());assert_eq!(workspace.file().session.serialize().unwrap(),before);
+    workspace.execute(Command::Redo).unwrap();assert_eq!(workspace.chart(),1);
 }

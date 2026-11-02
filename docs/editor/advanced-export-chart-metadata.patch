@@ -1,0 +1,55 @@
+--- a/crates/deadsync-editor/src/advanced_export/preflight.rs
++++ b/crates/deadsync-editor/src/advanced_export/preflight.rs
+@@ -1,3 +1,4 @@
++mod chart_metadata;
+ mod writer;
+ pub use writer::Output;
+ use super::Options;
+@@ -29,6 +30,7 @@
+     UnequalTiming,
+     UnequalSharedEvent,
+     OmittedEvent,
++    OmittedChartMetadata,
+     OmittedCustomData,
+     AnonymizedField,
+     StepF2Players,
+@@ -463,6 +465,7 @@
+         chart: usize,
+         limits: Limits,
+     ) -> Result<(), Error> {
++        self.inspect_chart_metadata(document, chart, limits)?;
+         let origin = timing_edit::uses_chart_timing(document, chart).then_some(chart);
+         let raw = |field: &str| document.text(origin, field).unwrap_or_default();
+         if self.target == Format::Sm {
+--- a/crates/deadsync-editor/src/advanced_export/preflight/writer.rs
++++ b/crates/deadsync-editor/src/advanced_export/preflight/writer.rs
+@@ -421,8 +421,8 @@
+ 
+ fn require_scope_mappings(
+     document: &Document,
+-    target: Format,
+-    anonymize: bool,
++    _target: Format,
++    _anonymize: bool,
+ ) -> Result<(), Error> {
+     for tag in document.tags() {
+         let name = tag.name.as_str();
+@@ -446,16 +446,8 @@
+             continue;
+         }
+         if tag.chart.is_some() && CHART_FIELDS.contains(&name) {
+-            if target == Format::Sm
+-                && document
+-                    .text(tag.chart, name)
+-                    .is_some_and(|value| !value.is_empty())
+-                && !(anonymize && matches!(name, "CHARTNAME" | "CHARTSTYLE" | "CREDIT"))
+-            {
+-                return Err(invalid(
+-                    "SM cannot preserve this chart-scoped property; explicit reviewed mapping is required",
+-                ));
+-            }
++            // Known SSC-only metadata has an explicit preflight warning.
++            // Plan::generate validates all acknowledgements before reaching here.
+             continue;
+         }
+         return Err(invalid(

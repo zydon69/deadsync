@@ -79,8 +79,22 @@ fn transform_workflow_saves_and_reopens_sustains_and_has_one_undo_per_gesture() 
     let reopened = Workspace::open(&path, 0).unwrap();
     assert_eq!(reopened.grid(), editor.grid());
     editor.execute(Command::Undo).unwrap();
+    // Undo restores the exact authoring document. Saving separately materializes
+    // source-compatible opening context, as EditorSong.SerializeCustomSongData does.
+    assert_eq!(editor.file().session.serialize().unwrap(), SSC);
     editor.execute(Command::Save).unwrap();
-    assert_eq!(fs::read(&path).unwrap(), SSC);
+    assert_eq!(editor.file().session.serialize().unwrap(), SSC);
+    let output = fs::read(&path).unwrap();
+    let saved = Document::parse(output, Format::Ssc).unwrap();
+    assert_eq!(saved.value(saved.charts()[0].notes.clone()), b"\n2000\n0000\n3000\n0000\n");
+    let metadata: serde_json::Value = serde_json::from_str(
+        &saved.text(None, "GASongData").unwrap()).unwrap();
+    assert_eq!(metadata, serde_json::json!({
+        "SyncOffset": 0.009, "DefaultChartType": "dance_single", "DefaultChartIndex": 0
+    }));
+    assert_eq!(saved.text(None, "GASongDataVersion").as_deref(), Some("1"));
+    let reopened = Workspace::open(&path, 0).unwrap();
+    assert_eq!(reopened.grid(), editor.grid());
 }
 
 #[test]

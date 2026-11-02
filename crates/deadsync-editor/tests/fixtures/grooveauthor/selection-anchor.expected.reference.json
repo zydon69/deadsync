@@ -1,0 +1,26 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_sha256": "e7090aab08b8677ee724f0502c520ffebf0c39f7e449cc6f4fd4d53df45ffd46",
+  "assembly_sha256": "f7447a0ad54c1ba720e83e648faced35eec10b585f8a435517bff3c97b211e64",
+  "scope": "Complete original Selection class. Event adapter supplies only identity/selected flag. Sixteen actual select, reselect, deselect and clear operations; no GUI or region geometry is claimed.",
+  "adapter_sha256": "f05b698ba5a190e6962b62f4212cc204e6a6dff8238231d6956bc271526ee556",
+  "program_sha256": "277b6f2601f237eb7cddc998acfb6ffc0bc9f6a3a1493effecac76b7b3c5e452",
+  "operations": [
+    "S0",
+    "S2",
+    "S0",
+    "D2",
+    "D0",
+    "D3",
+    "S3",
+    "Clear",
+    "S1",
+    "S1",
+    "S2",
+    "D1",
+    "D2",
+    "S3",
+    "S0",
+    "Clear"
+  ]
+}

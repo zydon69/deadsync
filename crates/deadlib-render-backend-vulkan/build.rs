@@ -7,6 +7,7 @@ use std::{
 
 fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=src/shaders");
+    println!("cargo:rerun-if-changed=../../assets/shaders/editor/fxaa-quality39.glsl");
 
     let mut compiler = Compiler::new()?;
     let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
@@ -52,9 +53,20 @@ fn compile_vulkan_shaders(compiler: &Compiler, out_dir: &Path) -> Result<(), Box
             _ => continue,
         };
 
-        let src_mtime = fs::metadata(&path)?
+        let mut src_mtime = fs::metadata(&path)?
             .modified()
             .unwrap_or(SystemTime::UNIX_EPOCH);
+        let fxaa_source = Path::new("../../assets/shaders/editor/fxaa-quality39.glsl");
+        let is_fxaa = path
+            .file_name()
+            .is_some_and(|name| name == "vulkan_fxaa.frag");
+        if is_fxaa {
+            src_mtime = src_mtime.max(
+                fs::metadata(fxaa_source)?
+                    .modified()
+                    .unwrap_or(SystemTime::UNIX_EPOCH),
+            );
+        }
         let file_name = path.file_name().unwrap().to_string_lossy().to_string();
         let dest_path = out_dir.join(format!("{file_name}.spv"));
 
@@ -65,7 +77,13 @@ fn compile_vulkan_shaders(compiler: &Compiler, out_dir: &Path) -> Result<(), Box
             continue;
         }
 
-        let source = fs::read_to_string(&path)?;
+        let mut source = fs::read_to_string(&path)?;
+        if is_fxaa {
+            source = source.replace(
+                "// FXAA_QUALITY39_SOURCE",
+                &fs::read_to_string(fxaa_source)?,
+            );
+        }
         let src_name = path.to_string_lossy();
         let spirv = match compiler.compile_into_spirv(&source, kind, &src_name, "main", Some(&opts))
         {

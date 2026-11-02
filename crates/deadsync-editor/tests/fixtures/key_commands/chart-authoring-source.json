@@ -1,0 +1,402 @@
+[
+  {
+    "format": "sm",
+    "field": "Name",
+    "value": "",
+    "after": "",
+    "undone": "before",
+    "redone": "",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Name",
+    "value": " ",
+    "after": " ",
+    "undone": "before",
+    "redone": " ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Name",
+    "value": "  authored  ",
+    "after": "  authored  ",
+    "undone": "before",
+    "redone": "  authored  ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Name",
+    "value": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "after": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undone": "before",
+    "redone": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Description",
+    "value": "",
+    "after": "",
+    "undone": "before",
+    "redone": "",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Description",
+    "value": " ",
+    "after": " ",
+    "undone": "before",
+    "redone": " ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Description",
+    "value": "  authored  ",
+    "after": "  authored  ",
+    "undone": "before",
+    "redone": "  authored  ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Description",
+    "value": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "after": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undone": "before",
+    "redone": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Style",
+    "value": "",
+    "after": "",
+    "undone": "before",
+    "redone": "",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Style",
+    "value": " ",
+    "after": " ",
+    "undone": "before",
+    "redone": " ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Style",
+    "value": "  authored  ",
+    "after": "  authored  ",
+    "undone": "before",
+    "redone": "  authored  ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Style",
+    "value": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "after": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undone": "before",
+    "redone": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Credit",
+    "value": "",
+    "after": "",
+    "undone": "before",
+    "redone": "",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Credit",
+    "value": " ",
+    "after": " ",
+    "undone": "before",
+    "redone": " ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Credit",
+    "value": "  authored  ",
+    "after": "  authored  ",
+    "undone": "before",
+    "redone": "  authored  ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "Credit",
+    "value": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "after": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undone": "before",
+    "redone": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "MusicPath",
+    "value": "",
+    "after": "",
+    "undone": "before",
+    "redone": "",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "MusicPath",
+    "value": " ",
+    "after": " ",
+    "undone": "before",
+    "redone": " ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "MusicPath",
+    "value": "  authored  ",
+    "after": "  authored  ",
+    "undone": "before",
+    "redone": "  authored  ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "sm",
+    "field": "MusicPath",
+    "value": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "after": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undone": "before",
+    "redone": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Name",
+    "value": "",
+    "after": "",
+    "undone": "before",
+    "redone": "",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Name",
+    "value": " ",
+    "after": " ",
+    "undone": "before",
+    "redone": " ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Name",
+    "value": "  authored  ",
+    "after": "  authored  ",
+    "undone": "before",
+    "redone": "  authored  ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Name",
+    "value": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "after": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undone": "before",
+    "redone": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Description",
+    "value": "",
+    "after": "",
+    "undone": "before",
+    "redone": "",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Description",
+    "value": " ",
+    "after": " ",
+    "undone": "before",
+    "redone": " ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Description",
+    "value": "  authored  ",
+    "after": "  authored  ",
+    "undone": "before",
+    "redone": "  authored  ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Description",
+    "value": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "after": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undone": "before",
+    "redone": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Style",
+    "value": "",
+    "after": "",
+    "undone": "before",
+    "redone": "",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Style",
+    "value": " ",
+    "after": " ",
+    "undone": "before",
+    "redone": " ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Style",
+    "value": "  authored  ",
+    "after": "  authored  ",
+    "undone": "before",
+    "redone": "  authored  ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Style",
+    "value": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "after": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undone": "before",
+    "redone": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Credit",
+    "value": "",
+    "after": "",
+    "undone": "before",
+    "redone": "",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Credit",
+    "value": " ",
+    "after": " ",
+    "undone": "before",
+    "redone": " ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Credit",
+    "value": "  authored  ",
+    "after": "  authored  ",
+    "undone": "before",
+    "redone": "  authored  ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "Credit",
+    "value": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "after": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undone": "before",
+    "redone": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "MusicPath",
+    "value": "",
+    "after": "",
+    "undone": "before",
+    "redone": "",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "MusicPath",
+    "value": " ",
+    "after": " ",
+    "undone": "before",
+    "redone": " ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "MusicPath",
+    "value": "  authored  ",
+    "after": "  authored  ",
+    "undone": "before",
+    "redone": "  authored  ",
+    "undo": true,
+    "redo": true
+  },
+  {
+    "format": "ssc",
+    "field": "MusicPath",
+    "value": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "after": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undone": "before",
+    "redone": "\u00c9t\u00e9 : ; // \u65e5\u672c\u8a9e",
+    "undo": true,
+    "redo": true
+  }
+]

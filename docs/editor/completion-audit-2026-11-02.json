@@ -1,0 +1,2023 @@
+{
+  "scope": "21 source flows; incremental requirement audit; full completion unproven",
+  "source_pin": "48e18f71655d0f0d86144c63239331833501fda2",
+  "flows": {
+    "01_file_lifecycle": {
+      "source": "StepManiaEditor/Editor.cs:3813-3893; advanced Save reviewed separately",
+      "native_log": "/tmp/deadsync-clipboard-runtime-20261102/native-suite.log",
+      "native_log_sha256": "c7723f7349536d2e510d5174edd2b088718941912c411e9fd47fdc9d1db70b76",
+      "requirements": [
+        {
+          "requirement": "New: real untitled document with no starter chart",
+          "status": "native_workflow_verified_and_consumer_inspected",
+          "executed_tests": [
+            "screens::edition::file_menu::tests::keyboard_menu_creates_true_untitled_with_no_starter_chart_in_both_languages"
+          ]
+        },
+        {
+          "requirement": "Cancel replacement preserves session identities and undo",
+          "status": "native_workflow_verified_and_consumer_inspected",
+          "executed_tests": [
+            "screens::edition::file_menu::tests::dirty_new_review_cancel_retains_session_guids_and_undo_in_both_languages"
+          ]
+        },
+        {
+          "requirement": "Open: Unicode and IME paths; failed load retains original",
+          "status": "native_workflow_verified_and_consumer_inspected",
+          "executed_tests": [
+            "screens::edition::file_menu::tests::open_path_ime_and_failed_load_retain_original_in_both_languages"
+          ]
+        },
+        {
+          "requirement": "Recent and Reload: fractional row and zoom preserved",
+          "status": "native_workflow_verified_and_consumer_inspected",
+          "executed_tests": [
+            "screens::edition::file_menu::tests::open_recent_and_reload_preserve_fractional_row_zoom_in_both_languages",
+            "screens::edition::file_menu::tests::ordinary_publication_records_current_fractional_views_and_zoom_en_fr"
+          ]
+        },
+        {
+          "requirement": "Close Song: no-song state, dirty review, Save/Cancel/Discard",
+          "status": "native_workflow_verified_and_consumer_inspected",
+          "executed_tests": [
+            "screens::edition::file_menu::tests::source_close_enters_explicit_no_song_without_creating_file_or_leaving_editor_en_fr",
+            "screens::edition::file_menu::tests::source_close_dirty_cancel_and_discard_preserve_original_disk_en_fr",
+            "screens::edition::file_menu::tests::source_close_save_writes_song_then_enters_no_song_without_returning_to_practice"
+          ]
+        },
+        {
+          "requirement": "Exit: separate authority, durable coupled save and revocation",
+          "status": "native_workflow_verified_and_consumer_inspected",
+          "executed_tests": [
+            "screens::edition::file_menu::tests::application_exit_is_distinct_from_editor_close_and_cancel_revokes_it",
+            "screens::edition::file_menu::tests::application_exit_becomes_ready_only_after_explicit_durable_pack_save",
+            "screens::edition::file_menu::tests::new_edit_after_exit_ready_revokes_host_authority_before_event_loop_consumes_it"
+          ]
+        },
+        {
+          "requirement": "MRU durability conflict retains saved song and retryability",
+          "status": "native_workflow_verified_and_consumer_inspected",
+          "executed_tests": [
+            "screens::edition::file_menu::tests::saved_mru_close_reopens_and_conflict_keeps_saved_song_retryable_en_fr"
+          ]
+        },
+        {
+          "requirement": "Containing Folder: exact existing directory; untitled has none",
+          "status": "native_workflow_verified_and_consumer_inspected",
+          "executed_tests": [
+            "screens::edition::file_platform::tests::folder_request_passes_one_exact_existing_absolute_directory_and_preserves_edits",
+            "screens::edition::file_platform::tests::untitled_never_fabricates_or_creates_a_folder_request"
+          ]
+        }
+      ],
+      "consumer_files": [
+        "crates/deadsync-theme-simply-love/src/screens/edition/file_menu.rs",
+        "crates/deadsync-theme-simply-love/src/screens/edition/file_platform.rs",
+        "crates/deadlib-platform/src/open_path.rs"
+      ],
+      "runtime_receipts": [
+        "/tmp/deadsync-editor-final-runtime-evidence-20261031/close-cancel-disk.json",
+        "/tmp/deadsync-editor-final-runtime-evidence-20261031/generation-apply-disk.json",
+        "/tmp/deadsync-recovery-runtime-20261102/runtime-verified.json"
+      ],
+      "limit": "Actual Finder launch and every OS chooser/input method combination not certified"
+    },
+    "02_direct_media_assets": {
+      "source": "Editor.cs direct media open handlers and Edit/Automatically Apply Best Assets (All / Unset Only)",
+      "consumer_files": [
+        "file_menu.rs::try_open_direct_media",
+        "file_menu.rs::run_new_media",
+        "command_bindings.rs::command_auto_song_assets"
+      ],
+      "native_tests": [
+        "screens::edition::file_menu::direct_media_tests::keyboard_media_open_without_song_creates_real_untitled_and_preserves_originals_en_fr",
+        "screens::edition::file_menu::direct_media_tests::opening_media_into_dirty_song_is_one_undoable_edit_not_a_replacement_en_fr",
+        "screens::edition::file_menu::direct_media_tests::media_validation_and_staged_draft_refusal_do_not_replace_document_en_fr",
+        "screens::edition::file_menu::direct_media_extension_tests::exact_source_extension_membership_reaches_concrete_destinations",
+        "screens::edition::music_file::source_assets_tests::auto_assets_shortcuts_apply_all_or_only_unset_with_one_undo_en_fr_sm_ssc_and_chartless",
+        "screens::edition::music_file::source_assets_tests::auto_assets_preserve_fractional_focus_without_audio_commands",
+        "screens::edition::music_file::source_assets_tests::no_song_refuses_auto_assets_without_recreating_a_document"
+      ],
+      "public_log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/auto_assets_workflows.log",
+      "status": "inspected routes and verified native/public workflows; not every OS decoder observed"
+    },
+    "03_advanced_save": {
+      "source": "Editor.cs File/Advanced Save Options, six preferences",
+      "option_names": [
+        "RequireIdenticalTimingInSmFiles",
+        "OmitChartTimingData",
+        "OmitCustomSaveData",
+        "AnonymizeSaveData",
+        "UseStepF2ForPumpRoutine",
+        "UseOutfoxFormatForSmx"
+      ],
+      "consumer_files": [
+        "advanced_export/options.rs",
+        "advanced_export/preflight.rs",
+        "output_ui.rs"
+      ],
+      "executed_public_modules": {
+        "advanced_export_workflows": {
+          "passed": 8,
+          "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/advanced_export_workflows.log",
+          "sha256": "722c0f0301fb43ff05183f9f16846dae0b7e681831e59ab229b64ce90fb1c369"
+        },
+        "advanced_export_writer_workflows": {
+          "passed": 5,
+          "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/advanced_export_writer_workflows.log",
+          "sha256": "599c7687cf20ceafa450f2ab374566104fb54c3cd35827197e0de3cd846dbcc8"
+        },
+        "advanced_export_chart_metadata_workflows": {
+          "passed": 2,
+          "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/advanced_export_chart_metadata_workflows.log",
+          "sha256": "9790d5eb747fd0e6eccf8e84e6ba53401f63d9b7c1b8499f9da59aecc06a9382"
+        },
+        "advanced_export_attacks_workflows": {
+          "passed": 2,
+          "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/advanced_export_attacks_workflows.log",
+          "sha256": "456451a920b62a425bd4e1b94cb2a0e9f229cd8eda4b9c9f4f0a439b146414bd"
+        },
+        "auto_assets_workflows": {
+          "passed": 3,
+          "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/auto_assets_workflows.log",
+          "sha256": "b176bea3da42197e19d33e274a0055765a950798e4428e91e8b62df451cdafaa"
+        }
+      },
+      "status": "All 60 reference admissions classified at the stated scope: 28 accepted, 20 source editor guards, six writer-loss safeguards and six source-reader exclusions.",
+      "confirmed_evidence": [
+        "six defaults, typed edits and unrelated preference preservation",
+        "per-loss acknowledgement and session-bound review",
+        "128 original metadata cases classify omitted fields",
+        "generated cases compare native reopened note grids to original writer fixtures"
+      ],
+      "coverage_gap": "The prior arbitrary-error skip is closed by exact native errors, fixed category counts and independent writer-loss/reader-exclusion witness assertions. Source editor pre-save controls were matched statically, not executed by the low-level writer oracle.",
+      "required_next_action": "No unclassified case remains in this 60-case fixture. Broader source-command and delivery validation remain separate; this is not universal export parity.",
+      "admission_fixture": "crates/deadsync-editor/tests/fixtures/save-format-native-admission.json",
+      "latest_targeted_execution": {
+        "log": "/tmp/deadsync-export-admission-tests-20261102.log",
+        "exit_code": 0
+      },
+      "classified_execution": {
+        "log": "/tmp/deadsync-export-policy-classified-20261102.log",
+        "sha256": "d2796e0ee032b23ac188de831aba5efe96a60ad8dfe4d6362652b1ae775b5743",
+        "passed": 5,
+        "failed": 0,
+        "source_guard_cases": 20,
+        "source_writer_loss_cases": 6,
+        "source_reader_exclusion_cases": 6,
+        "accepted_cases": 28,
+        "fixture": "crates/deadsync-editor/tests/fixtures/save-format-native-admission.json",
+        "metadata_note": "Inspected source file provenance hashes were added after the test run; the case inputs, expected errors, classifications and witnesses are unchanged."
+      }
+    },
+    "04_attack_inspector": {
+      "source": "GrooveAuthor StepManiaEditor/UI/UIAttackEvent.cs, pinned 48e18f71655d0f0d86144c63239331833501fda2",
+      "requirements": [
+        {
+          "source": "Position",
+          "consumer": "AttackTime field and F2 cursor placement"
+        },
+        {
+          "source": "Add Modifier",
+          "consumer": "row 8; inherit first modifier length, otherwise active tempo seconds per beat"
+        },
+        {
+          "source": "Name / Level / Speed / Length",
+          "consumer": "fields 1 through 4; staged Draft::set"
+        },
+        {
+          "source": "Use Current Time",
+          "consumer": "F3 Draft::length_to_cursor; nonnegative chart time, clamped duration"
+        },
+        {
+          "source": "Go",
+          "consumer": "F4 Draft::end_row and workspace Seek"
+        },
+        {
+          "source": "Delete Modifier",
+          "consumer": "row 9; preserve empty attack event; explicit event deletion separate"
+        }
+      ],
+      "evidence": {
+        "endpoint_cursor_comparisons": 168,
+        "endpoint_test": "attack_endpoints_and_cursor_lengths_match_unchanged_grooveauthor_ui_methods",
+        "lifecycle_reference_cases": 8,
+        "test_log": "/tmp/deadsync-attack-source-review-20261102.log",
+        "execution": "passed",
+        "passed": 21,
+        "failed": 0,
+        "log_sha256": "01da2b8f7c16eb089574f2c8a53c1361178790593f3e240995819b077a7fab05",
+        "passed_test_names": [
+          "batch_cut_is_atomic_deduplicates_selection_and_keeps_relative_gaps_on_paste",
+          "detached_batch_paste_uses_destination_rows_replaces_attacks_and_preserves_other_events",
+          "pasted_empty_and_nonempty_events_keep_distinct_rows_inside_a_destination_warp",
+          "actual_pinned_fumen_attack_parser_matches_times_defaults_groups_and_all_modifier_values",
+          "attack_cursor_length_and_endpoint_use_chart_offset_but_ignore_audio_sync_offset",
+          "chart_attack_inheritance_is_independent_of_split_timing_and_sibling_charts",
+          "clearing_all_shared_and_local_attacks_is_reversible_when_no_inherited_effects_remain",
+          "invalid_mutations_collisions_and_stale_drafts_are_atomic",
+          "modifier_deletion_and_event_movement_preserve_other_modifiers_and_reorder_by_time",
+          "names_are_escaped_once_without_tag_comment_or_parameter_injection",
+          "sm_and_ssc_shared_attack_edit_is_one_undo_and_preserves_notes_unknown_tags_and_local_overrides",
+          "attack_endpoints_and_cursor_lengths_match_unchanged_grooveauthor_ui_methods",
+          "inspector_preserves_empty_modifiers_and_rejects_foreign_stale_invalid_or_colliding_drafts",
+          "resident_inspection_and_edits_preserve_reference_rows_through_save_reopen_and_exact_undo",
+          "transport_uses_mapped_start_and_preserves_warp_rows_through_resident_metadata",
+          "creation_delete_last_modifier_undo_redo_and_explicit_event_delete_match_original_actions",
+          "distinct_empty_events_survive_clock_changes_recovery_disk_save_and_structural_history",
+          "empty_event_time_and_row_edits_preserve_identity_and_reject_invalid_moves_atomically",
+          "attack_phase_precedes_same_row_delays_and_supports_unsaved_note_tails_and_offsets",
+          "attack_rows_snapped_times_and_coincident_groups_match_the_actual_fumen_file_readers",
+          "placement_index_finds_crossing_durations_wraps_navigation_and_never_mutates_source"
+        ]
+      },
+      "reviewed_sha256": {
+        "crates/deadsync-theme-simply-love/src/screens/edition/attacks.rs": "65b395364de0b24fec65cdb714700f45ddf9ee21147aa4766e400af43978e4f5",
+        "crates/deadsync-editor/src/attacks/inspector.rs": "afcf9806993ce6f5b99aba2780b8fa4eb43fb55351b2510b993d763a0172424d",
+        "crates/deadsync-editor/tests/attack_inspector_workflows.rs": "023990bd26f3067e17a100aace2482d5603bd4fca1cc4228efc1126ad3e774a3",
+        "crates/deadsync-editor/tests/attack_lifecycle_workflows.rs": "e409417e7eeea7aa748e0428ccd81c03f804501aa0a2993f78da9a66de860232"
+      },
+      "limits": [
+        "Keyboard staged Apply/Cancel is the approved UI adaptation; original immediate-action UI is not reproduced.",
+        "Engine reference tests do not prove every keyboard inspector interaction at runtime."
+      ]
+    },
+    "05_song_chart_properties": {
+      "source": [
+        "StepManiaEditor/UI/UISongProperties.cs",
+        "StepManiaEditor/UI/UIChartProperties.cs"
+      ],
+      "song_text_fields": [
+        "TITLE",
+        "SUBTITLE",
+        "ARTIST",
+        "CREDIT",
+        "GENRE",
+        "ORIGIN",
+        "TITLETRANSLIT",
+        "SUBTITLETRANSLIT",
+        "ARTISTTRANSLIT",
+        "MUSIC",
+        "PREVIEW",
+        "BANNER",
+        "BACKGROUND",
+        "CDTITLE",
+        "JACKET",
+        "CDIMAGE",
+        "DISCIMAGE",
+        "PREVIEWVID",
+        "LYRICSPATH"
+      ],
+      "song_actions": [
+        "Music offset",
+        "Apply 9ms offset",
+        "Preview start and length",
+        "End hint",
+        "Song sync",
+        "Timing chart",
+        "Selectable"
+      ],
+      "chart_fields": [
+        "Type (source read-only)",
+        "Difficulty",
+        "Rating",
+        "Name",
+        "Description",
+        "Credit",
+        "Display tempo",
+        "Style",
+        "Music",
+        "Music offset override",
+        "Players or expressed profile",
+        "Stream breakdown"
+      ],
+      "reviewed_routes": {
+        "text": "Field::ALL to text_fields::Target, native staged draft and apply",
+        "chart_offsets": "chart_properties::Draft::effective_music_offset, explicit override checkbox and stored value",
+        "description_stream": "stream_description::use_stream_description; asynchronous result guarded before commit",
+        "description_stream_keyboard": "edition.rs Panel::ChartProperties F5 invokes use_stream_description; F6 opens chart details",
+        "display_tempo_keyboard": "edition.rs Panel::ChartProperties row 10 invokes open_display_tempo",
+        "participant_count": "command_open_note_owners -> note_owners_key row 3 -> workspace.set_participants; source UI bounds 2..128, occupied owners preserved",
+        "sample_source_formulas": "UISongProperties.cs:599-639 compared to Draft::set_sample_start_from_time, set_sample_end_from_time, move_marker_to_time: same nonnegative clamps and endpoint formula."
+      },
+      "execution": {
+        "status": "passed",
+        "log": "/tmp/deadsync-metadata-source-review-20261102.log",
+        "passed": 32,
+        "failed": 0,
+        "log_sha256": "3fae7dc288a8bacf698fc28099f152256e69eec9041f0d49d89f6069c0632e4f",
+        "test_names": [
+          "chart_properties_keep_unknown_metadata_and_do_not_rewrite_offset_for_expression_only_edits",
+          "effective_audio_offset_matches_unchanged_grooveauthor_get_music_offset",
+          "offset_setter_follows_one_ulp_comparison_and_rejects_nonfinite_values",
+          "properties_without_markers_are_read_only_until_applied_and_save_reopen_in_sm_and_ssc",
+          "sm_chart_offset_stays_in_editor_metadata_without_changing_song_or_other_charts",
+          "ssc_offset_switch_and_value_export_with_metadata_in_one_undo_gesture",
+          "stale_foreign_missing_profiles_and_changed_custom_files_cannot_modify_source_or_redo",
+          "actual_fumen_chart_text_and_song_credit_inheritance_match_without_source_rewrites",
+          "restoring_legacy_control_text_is_a_lossless_noop_but_new_control_text_is_rejected",
+          "sm_description_edit_preserves_positional_headers_and_authors_native_metadata",
+          "ssc_all_text_fields_identity_offset_apply_atomically_with_unicode_escaping_and_reopen",
+          "text_draft_rejects_controls_stale_foreign_and_wrong_chart_without_changing_redo",
+          "dedicated_preview_draft_drives_audition_and_reversible_native_save_in_both_formats",
+          "default_noop_and_stale_foreign_invalid_drafts_do_not_change_history",
+          "future_incomplete_malformed_or_nonfinite_song_data_is_never_overwritten",
+          "last_second_hint_is_reversible_in_both_formats_and_preserves_unedited_legacy_values",
+          "sample_audio_uses_raw_file_seconds_and_dedicated_preview_precedence",
+          "sample_position_actions_use_draft_clock_without_audio_files_or_document_mutation",
+          "sample_region_changes_are_one_reversible_song_transaction_in_sm_and_ssc",
+          "sample_region_noops_and_invalid_values_do_not_create_history_or_erase_source",
+          "sample_region_positions_keep_fractional_boundaries_and_follow_tempo_changes",
+          "song_music_offset_and_itg_migration_are_atomic_preserve_source_and_drive_preview",
+          "song_music_offset_validation_and_noop_preserve_history_and_metadata_bytes",
+          "staged_sample_clock_keeps_chart_offset_override_and_switches_back_to_song_inheritance",
+          "sync_edits_preserve_other_song_data_and_timing_apply_once_undo_redo_and_reopen",
+          "sync_schema_and_both_time_conversions_match_original_csharp_methods",
+          "actual_fumen_song_fields_and_initial_chart_authors_match_without_rewriting_files",
+          "all_song_fields_and_sync_commit_once_preserve_chart_authors_pending_notes_and_unknown_json",
+          "invalid_stale_foreign_and_noop_drafts_preserve_source_and_redo_and_restore_legacy_text",
+          "media_fields_commit_clear_save_reopen_and_undo_without_losing_peer_notes_or_legacy_tags",
+          "media_picker_kinds_match_original_supported_extensions_and_format_scope",
+          "text_only_edits_work_in_sm_ssc_and_empty_files_without_creating_editor_metadata"
+        ],
+        "warnings": [
+          "Unused shared support::source_output_context::expected helper in two integration test crates."
+        ]
+      },
+      "reviewed_sha256": {
+        "crates/deadsync-editor/src/song_text.rs": "ea1e5422e2625678d4282ae4713b6218fc847ad5f57910c230c0bb10b1528c34",
+        "crates/deadsync-editor/src/chart_text.rs": "5abf3ba4fc530ff9b4263beb2f0c38abfbfb4ee57d2c778aa8f5eabb44356851",
+        "crates/deadsync-editor/src/chart_properties.rs": "ccb8ccf602ddd994387333c824351a33382009de94f69910847569e6f0cf7312",
+        "crates/deadsync-theme-simply-love/src/screens/edition/song_properties.rs": "e9b5485fe5bf0350e3073e703149c689fe9c27a1251dab27e0da3a1a47cba923",
+        "crates/deadsync-theme-simply-love/src/screens/edition/text_fields.rs": "44207a1f3d9459b471c8805e9e3fffc3381fae1e4cedc7cbccd251f22c8ec3b3",
+        "crates/deadsync-theme-simply-love/src/screens/edition/stream_description.rs": "333989edb53fcb3678569e57ccce52a6186a3772009e8677be592f011e207a1f",
+        "crates/deadsync-theme-simply-love/src/screens/edition.rs": "7048f49765098d709c5d20dbe1e329ddf4616a17cd0e91ae170b0a7b321afcf0",
+        "crates/deadsync-theme-simply-love/src/screens/edition/note_owners.rs": "dba04bbb800f76fd46bbb7136379b85d6002c94c6a51e10dc3ccf016c3dc18ed"
+      },
+      "limits": [
+        "This field inventory is not proof that every UI action works at runtime.",
+        "Player-count, display-tempo and stream-description controls require their separate named evidence; the four-module targeted run covers text, offsets, sync and sample properties."
+      ]
+    },
+    "06_pack_properties_song_list": {
+      "source": "StepManiaEditor/UI/UIPackProperties.cs",
+      "source_controls": [
+        "Pack name and refresh",
+        "Banner preview",
+        "Create ITGmania Pack.ini",
+        "Title and transliteration",
+        "Sort title",
+        "Series",
+        "Year",
+        "Banner file browse and clear",
+        "Sync offset enum",
+        "Save Pack.ini",
+        "Confirm deletion",
+        "Songs table: title, artist, credit, ratings, open"
+      ],
+      "native_routes": {
+        "metadata": "pack_properties::Field::ALL, sync setting and edit/save/delete states",
+        "song_list": "pack_song_list::open_pack_song_list, poll_pack_song_list, reconcile_pack_song_list ordering, pack_song_list_key",
+        "lifecycle": "worker result bound to session and source path; open uses guarded preparation; Escape drops workers",
+        "storage": "FileSession atomic saves retain draft after external changes and lock refusal"
+      },
+      "reference_scope": {
+        "pack_codec_cases": 37,
+        "creation_defaults_cases": 6,
+        "song_metadata": {
+          "total_cases": 116,
+          "loaded_cases": 115,
+          "excluded_case": "uppercase-only: song.SSC",
+          "exclusion_assertion": "direct_discovery_matches_source_formats_and_reports_the_explicit_ambiguity_policy asserts no uppercase-only row",
+          "ambiguity_policy": "Multiple same-extension files select deterministic z.ssc and emit explicit Ambiguous diagnostic; intentional native policy."
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "log": "/tmp/deadsync-pack-source-review-20261102.log",
+        "passed": 28,
+        "failed": 0,
+        "log_sha256": "00a838f2515661a1f364504625debab9abec6d9baf2455c41c3f85777f2a93c0",
+        "test_names": [
+          "creation_defaults_match_six_original_clock_injected_cases",
+          "dirty_nullable_values_and_save_snapshot_baselines_are_independent_of_live_edits",
+          "edits_preserve_boms_encoding_and_invalid_bytes_outside_the_changed_value",
+          "invalid_inputs_and_unrepresentable_null_edits_fail_without_mutation",
+          "original_reader_and_canonical_writer_match_37_real_cases",
+          "preservation_patches_first_effective_value_and_inserts_inside_first_group",
+          "cancellation_before_during_and_after_metadata_never_publishes_a_catalog",
+          "cultural_order_is_injected_and_invalid_permutations_are_rejected_atomically",
+          "direct_discovery_matches_source_formats_and_reports_the_explicit_ambiguity_policy",
+          "directory_entry_byte_and_output_limits_are_explicit_and_do_not_write",
+          "only_immediate_song_folders_are_read_and_notes_are_not_interpreted",
+          "real_original_metadata_cases_match_including_header_only_ssc_and_numeric_boundaries",
+          "selected_ssc_reader_failure_never_falls_back_to_sm",
+          "selection_reconciles_stable_path_and_open_guard_detects_a_changed_file",
+          "user_song_directory_symlinks_are_read_without_recursion_and_aliases_are_diagnosed",
+          "advisory_lock_blocks_second_writer_without_cleaning_its_draft",
+          "dangling_symlinks_and_symlink_locks_do_not_create_or_modify_their_targets",
+          "existing_save_preserves_unknown_bytes_and_future_version",
+          "existing_symlink_updates_target_and_retargeting_conflicts",
+          "external_atomic_replacement_with_identical_bytes_is_still_a_binding_conflict",
+          "external_edit_and_delete_are_conflicts_with_dirty_state_retained",
+          "foreign_snapshot_never_writes_another_pack",
+          "malformed_and_oversized_files_are_not_treated_as_missing",
+          "missing_discovery_is_read_only_and_creation_requires_explicit_save",
+          "newly_appeared_file_is_never_overwritten_by_explicit_creation",
+          "permissions_survive_atomic_replacement",
+          "prepared_snapshot_saves_its_payload_and_preserves_later_live_edits",
+          "rebound_parent_directory_is_a_conflict_even_with_identical_file_bytes"
+        ]
+      },
+      "reviewed_sha256": {
+        "crates/deadsync-theme-simply-love/src/screens/edition/pack_properties.rs": "fee39ecb783c680b0b9e167adf94cb27e1e0e48d73e4be0ddd6d4c846799b98e",
+        "crates/deadsync-theme-simply-love/src/screens/edition/pack_song_list.rs": "20cfb4d55d0316375c80fd9c68d0f24def20c2b4161bdd7cf2cd1513ed834de1",
+        "crates/deadsync-editor/tests/pack_metadata_workflows.rs": "52da8e330bd4f1e178af1900fcae71a28b6ce86187da2ceca3d112c3ffe56c6c",
+        "crates/deadsync-editor/tests/pack_song_list_workflows.rs": "6fc0748e3dcaf561ffe6b85bf87611a58dbb6e50122d1d8f9252c06275216de1",
+        "crates/deadsync-editor/tests/pack_storage_workflows.rs": "90c9e01ad3a09eeeb58f870591265fc8d964b23004d6bf6a11d5a1ba37c1ff29"
+      },
+      "limits": [
+        "Public tests do not certify banner image rendering or every physical keyboard panel path.",
+        "Native safety checks for concurrent disk edits exceed source storage behavior; this is deliberate preservation, not an oracle match."
+      ],
+      "native_assertions_inspected": {
+        "file_intent_deactivation_tests::close_and_exit_capture_the_deactivated_field_but_keep_explicit_save_cancel_discard": "Close and Exit each exercise Cancel, Save, Discard; field deactivation changes application guard but never implicitly writes Pack.ini.",
+        "file_intent_deactivation_tests::invalid_or_stale_deactivation_refuses_before_capturing_departure_or_publishing_history": "Invalid year and external edits preserve disk, song and intent guard; retained unsaved state remains."
+      },
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/pack-help-runtime.json",
+          "scope": "Older FR480 binary: all ten rows and final Delete fit, Escape closes, pack bytes unchanged; does not prove current full pack behavior."
+        }
+      ]
+    },
+    "07_chart_list_focus_tabs": {
+      "source": [
+        "StepManiaEditor/UI/UIChartList.cs",
+        "StepManiaEditor/Editor.cs:6989-7058",
+        "StepManiaEditor/Editor.cs:7173 onwards"
+      ],
+      "requirements": [
+        "Grouped ordered charts with difficulty, rating and description",
+        "Select chart at same song instant despite different timing or music offset",
+        "Pin dedicated tab; unique temporary view",
+        "Close focused view chooses adjacent view; closing final view preserves song",
+        "Cycle focus and move tabs independently of song serialization order",
+        "Stable identity across delete, duplicate, undo and redo",
+        "Reject invalid or stale focus transition before mutation"
+      ],
+      "native_routes": {
+        "list": "chart_list_view::chart_list_key Enter resolves current source index and chart_focus_time",
+        "focus": "chart_focus::focus_chart_at_time_with_placement uses Transition::open_at_time before applying audio handoff",
+        "tabs": "chart_views_apply mutates cloned registry before publishing; focus cycling preserves group left edge",
+        "last_close": "Workspace active chart cleared; empty active registry retains music_time for reopening",
+        "render": "view_render_screen consumes active_views; corrected outdated chart_views module comment claiming rendering was still pending"
+      },
+      "reference_scope": {
+        "ordering_key_count": 54,
+        "cultures": 3,
+        "pairwise_comparisons": 8748,
+        "test": "current_culture_reference_comparator_matches_all_pairs_and_tie_breaks",
+        "lifecycle_test": "show_close_and_unpin_follow_reference_adjacent_focus_policy",
+        "source_revision": "48e18f71655d0f0d86144c63239331833501fda2"
+      },
+      "execution": {
+        "status": "passed",
+        "log": "/tmp/deadsync-chart-navigation-source-review-20261102.log",
+        "passed": 28,
+        "failed": 0,
+        "log_sha256": "37c4ee5a82b6f0fb57e447bd20591c3aaacb9f11e6b663f3205ecb04c7ce83bf",
+        "test_names": [
+          "empty_undo_redo_does_not_reopen_a_closed_view_but_real_preference_history_still_executes",
+          "explicit_focus_preserves_music_time_across_offsets_and_bpm_without_content_history_edits",
+          "final_view_can_close_and_reopen_atomically_without_deleting_the_song",
+          "fractional_and_negative_focus_positions_keep_exact_time_separate_from_edit_cursor",
+          "invalid_conversion_or_target_grid_never_partially_changes_focus_or_cursor",
+          "legacy_select_chart_keeps_its_row_contract_and_position_anchor_expires_after_cursor_edit",
+          "song_level_binding_remains_specific_to_content_and_session_without_a_focused_chart",
+          "stale_cursor_content_focus_and_session_reject_deferred_focus_transitions",
+          "time_inside_stop_and_after_warp_is_preserved_without_ambiguous_row_roundtrip",
+          "current_culture_reference_comparator_matches_all_pairs_and_tie_breaks",
+          "fake_and_warped_heads_are_excluded_and_mismatched_identity_maps_rejected",
+          "live_note_counts_break_ties_before_resident_guids_without_serialization",
+          "overflowing_imported_ordering_keys_are_rejected_before_sorting",
+          "presentation_tracks_live_properties_undo_redo_and_preserves_original_sections",
+          "session_generated_batch_ids_and_failed_or_abandoned_history_keep_identity_invariants",
+          "stepf2_pump_double_uses_fumen_effective_routine_type_without_rewriting_source",
+          "unsupported_charts_are_retained_while_editable_keys_keep_original_source_indices",
+          "workspace_orders_live_properties_and_preserves_resident_ids_across_structural_history",
+          "active_view_order_and_focus_traversal_are_separate_from_song_and_source_order",
+          "dedicated_views_are_bounded_by_unique_eligible_charts_without_an_invented_tab_cap",
+          "empty_registry_still_belongs_to_exact_session_and_unknown_layouts_prune_by_identity",
+          "failed_clock_refresh_and_invalid_indices_leave_registry_atomically_unchanged",
+          "immutable_clocks_survive_time_focus_and_order_changes_without_recapture",
+          "shared_time_uses_per_chart_clocks_and_song_edits_refresh_inheriting_views",
+          "show_close_and_unpin_follow_reference_adjacent_focus_policy",
+          "structural_reconciliation_rebinds_ids_through_delete_undo_redo_and_duplicate",
+          "temporary_focus_is_unique_and_dedicated_views_keep_resident_identity",
+          "timing_and_undo_invalidate_clock_handles_and_another_session_is_rejected"
+        ]
+      },
+      "reviewed_sha256": {
+        "crates/deadsync-theme-simply-love/src/screens/edition/chart_list_view.rs": "87dd1649258e43fc2f13670fbd6c59c7deb25fec02f89112c95fdc22638d5c75",
+        "crates/deadsync-theme-simply-love/src/screens/edition/chart_views.rs": "cb702c5bd5681be4f66c619d761394266054dfa4ce612d02cc7a3d673df4b776",
+        "crates/deadsync-theme-simply-love/src/screens/edition/chart_focus.rs": "b15c5d52b7644fa1e2266132c3f697bf199fbf9de2f990110c9ca58e958da14f",
+        "crates/deadsync-theme-simply-love/src/screens/edition/view_render_screen.rs": "343277b7c22c18890eae2a86d75333cb4991e4ff3d7079844a7abf6c0a39d07c",
+        "crates/deadsync-editor/tests/chart_order_workflows.rs": "3b2446084964505adec96123aa3c0625e299d0dce0d9d9228bb4cb13084c0d81",
+        "crates/deadsync-editor/tests/chart_focus_workflows.rs": "4af2834b156fd5cc4e13a618046fc60b8a983b30c556493bfe821b3041be4cc8",
+        "crates/deadsync-editor/tests/chart_views_workflows.rs": "1245ee4c9849670203c9ef22faf65529969f5b503b9aa3728a7265435ec50cd4"
+      },
+      "limits": [
+        "Current targeted engine tests do not alone certify simultaneous rendered fields, every keyboard tab action or live decoder handoff.",
+        "New/clone/delete/autogen commands are separate flow requirements, not certified by navigation tests."
+      ],
+      "later_correction": {
+        "source": "StepManiaEditor/Editor.cs:6277-6280",
+        "defect": "Native Pin toggled dedicated state; original KeepChartOpen always sets true.",
+        "correction": "ViewAction::Pin sets dedicated=true idempotently.",
+        "test": "keep_chart_open_callback_is_idempotent_and_retains_views_when_focus_changes",
+        "log": "/tmp/deadsync-source-keep-chart-open-20261102.log",
+        "log_sha256": "878eff00b25579be5fceec103c160376046a4ccd9f060375f122570294d7ca3b",
+        "passed": 1,
+        "failed": 0,
+        "review_app_rebuild_pending": true
+      }
+    },
+    "08_note_operations_mixed_selection": {
+      "source": [
+        "StepManiaEditor/UI/UIEditEvents.cs",
+        "Editor.cs SelectAll and current-player command registrations"
+      ],
+      "requirements": [
+        "Fourteen scalar note conversions",
+        "Ten pairwise note-kind swaps",
+        "Eleven additive selection preset families with player scopes",
+        "Exact checked head transforms preserve unchecked same-row notes",
+        "Region selection overlap, visibility and modifier precedence",
+        "Mixed note/timing/attack/pattern copy, cut and deletion",
+        "Note attributes survive native SM/SSC authoring and undo"
+      ],
+      "consumer_files": [
+        "note_operation_review.rs",
+        "selected_transform_review.rs",
+        "event_selection.rs",
+        "event_selection/presets.rs",
+        "region_selection.rs"
+      ],
+      "engine_evidence": {
+        "mode": "Reused executed results only after current hash comparison, not a new test run",
+        "manifest": "/tmp/deadsync-public-final-pipeline/snapshot-paste-selection-20261102/manifest.json",
+        "manifest_sha256": "ba200ec59b42102e55a8bd1cf6749b27212cd8f4b4c78f47a8b648900cd7f463",
+        "unchanged_core_sources": 297,
+        "unchanged_support_sources": 2323,
+        "modules": {
+          "note_operation_workflows": {
+            "source_sha256": "485a7c9887a17102a80e3cd2dd4b51573f64c6af151c54cda447ca70892726ae",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/note_operation_workflows.log",
+            "log_sha256": "caf3d9577d9e49793aabb4b0bbc8320c1ebbc45a737d11924335f3f47d760687",
+            "passed": 4,
+            "test_names": [
+              "note_operation_workflows::all_and_exact_checked_heads_do_not_confuse_player_or_same_row_notes",
+              "note_operation_workflows::fourteen_original_conversions_in_56_cases_match_112_safe_sm_ssc_roundtrips",
+              "note_operation_workflows::preparation_limits_and_cancellation_preserve_content_and_history",
+              "note_operation_workflows::reviewed_swaps_refuse_zero_sustains_atomically_and_stale_history_preserves_redo"
+            ]
+          },
+          "selected_transform_workflows": {
+            "source_sha256": "e36b832f273d3ffe67b218354c1eaadc9c2a9c4aff6831ade355803c504b9667",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/selected_transform_workflows.log",
+            "log_sha256": "de46461df9f8c6334ef7040dcf01fa54a1fd0b241c7286020cccedd2222d51d8",
+            "passed": 6,
+            "test_names": [
+              "selected_transform_workflows::boundary_deletion_is_reviewed_and_invalid_extra_acknowledgement_is_refused",
+              "selected_transform_workflows::exact_public_engine_and_legacy_range_use_the_same_spatial_and_owner_rules",
+              "selected_transform_workflows::original_22_actions_match_or_refuse_three_proven_lossy_owner_cases_in_both_formats",
+              "selected_transform_workflows::original_shift_snap_off_is_one_beat_while_insertion_off_remains_one_row",
+              "selected_transform_workflows::stale_foreign_cancellation_and_limits_leave_content_and_redo_unchanged",
+              "selected_transform_workflows::unselected_hold_trim_requires_exact_individual_acknowledgement_and_restores_every_note"
+            ]
+          },
+          "selection_presets_workflows": {
+            "source_sha256": "5dd6cefcecca009ae838f7fdb2393fb0d645d52837fe4443846761fb5116305a",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/selection_presets_workflows.log",
+            "log_sha256": "6f02332231ec7320cc04183cb19ee5e3a4ce4af929f03bf73b28badb29fe1386",
+            "passed": 4,
+            "test_names": [
+              "selection_presets_workflows::exact_preset_cut_leaves_other_kinds_and_clock_then_undo_restores_bytes",
+              "selection_presets_workflows::expansion_keeps_exact_choices_and_add_replace_remove_do_not_edit_song",
+              "selection_presets_workflows::original_54_additive_presets_match_including_players_and_patterns_as_misc",
+              "selection_presets_workflows::stale_and_foreign_expansion_refuses_without_modifying_either_song"
+            ]
+          },
+          "event_selection_workflows": {
+            "source_sha256": "443ddba8b2e22a7a6ebec6820c38bc0eb32378b0a239a52b133a73066fd4836f",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/event_selection_workflows.log",
+            "log_sha256": "4ab9fbdcdce40f9a3820ed6d724b3078cb7701b44c4c3a44b47ffe2033835e0a",
+            "passed": 6,
+            "test_names": [
+              "event_selection_workflows::deleting_only_a_stop_keeps_unselected_attack_rows_labels_and_all_notes",
+              "event_selection_workflows::empty_and_protected_only_selections_are_noops_even_with_resident_attack_metadata",
+              "event_selection_workflows::exact_mixed_subset_copy_and_cut_leave_same_row_notes_and_other_timing_unselected",
+              "event_selection_workflows::excluding_earlier_candidates_reanchors_a_noteless_choice_to_its_first_selected_event",
+              "event_selection_workflows::stale_foreign_and_invalid_choices_preserve_document_redo_and_selection",
+              "event_selection_workflows::workspace_delete_retains_previous_clipboard_and_rejects_another_chart_selection"
+            ]
+          },
+          "region_selection_workflows": {
+            "source_sha256": "fe3a48c930e3a072438e13d19cf63c341f16925bc69b18d105c01d64ad3adfa1",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/region_selection_workflows.log",
+            "log_sha256": "55317a4cdfa5e4f68ccad2dc43f9fb7c4a9a566bd78b6dad61dab3d510de0907",
+            "passed": 3,
+            "test_names": [
+              "region_selection_workflows::actual_original_finish_region_modes_visibility_and_modifier_precedence_match",
+              "region_selection_workflows::interval_lane_policy_uses_real_anchor_and_visibility_does_not_refilter_shift_extension",
+              "region_selection_workflows::inventory_times_keep_delay_stop_and_widget_phases_and_invalidate_only_on_content"
+            ]
+          },
+          "note_attribute_inspector_workflows": {
+            "source_sha256": "d9fdaf9a1c3a4b835993a8a67dee5bf66b01323fae2d0e3cff85d54355cfd719",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/note_attribute_inspector_workflows.log",
+            "log_sha256": "30641f80192fb8a5d6e578586a3d57f487056fa67da732268fe0cd484e726347",
+            "passed": 4,
+            "test_names": [
+              "note_attribute_inspector_workflows::attributes_round_trip_all_note_kinds_in_sm_and_ssc_with_exact_undo",
+              "note_attribute_inspector_workflows::invalid_attributes_fail_atomically_and_draft_can_be_corrected",
+              "note_attribute_inspector_workflows::stale_foreign_missing_and_wrong_chart_drafts_do_not_modify_notes",
+              "note_attribute_inspector_workflows::workspace_inspects_only_current_row_and_active_routine_participant"
+            ]
+          }
+        },
+        "passed": 27
+      },
+      "reviewed_exceptions": [
+        "Three original owner-assignment cases produce duplicate addresses or sustain overlaps. Native refuses OwnerCollision, preserving content and revision; source writer output loses a note or the entire chart. This is a deliberate safety difference.",
+        "New zero-duration sustains are explicitly refused; unchanged imported data is handled separately."
+      ],
+      "limits": [
+        "Core test results do not prove every native keyboard gesture or every modifier/IME combination.",
+        "Warp/negative-stop conversion and global ShiftAll require their own flow evidence."
+      ],
+      "owner_collision_reference_readback": [
+        {
+          "name": "owner-assignment-duplicate-address",
+          "after_note_heads": 2,
+          "serialized": [
+            {
+              "format": "sm",
+              "charts": 1,
+              "note_symbols": 1
+            },
+            {
+              "format": "ssc",
+              "charts": 1,
+              "note_symbols": 1
+            }
+          ]
+        },
+        {
+          "name": "owner-assignment-selected-duplicate-address",
+          "after_note_heads": 2,
+          "serialized": [
+            {
+              "format": "sm",
+              "charts": 1,
+              "note_symbols": 1
+            },
+            {
+              "format": "ssc",
+              "charts": 1,
+              "note_symbols": 1
+            }
+          ]
+        },
+        {
+          "name": "owner-assignment-overlap-hold",
+          "after_note_heads": 2,
+          "serialized": [
+            {
+              "format": "sm",
+              "charts": 0,
+              "note_symbols": 0
+            },
+            {
+              "format": "ssc",
+              "charts": 0,
+              "note_symbols": 0
+            }
+          ]
+        }
+      ],
+      "stronger_swap_test": {
+        "file": "crates/deadsync-editor/tests/note_swap_workflows.rs",
+        "sha256": "ddeedb9a89e226ce8ad6e20025477b82f1703a3d0fac3e9989d232b000669d59",
+        "change": "Exact full note map comparison and request/oracle name correspondence",
+        "execution": "passed",
+        "log": "/tmp/deadsync-note-swap-exact-review-20261102.log",
+        "passed": 2,
+        "failed": 0,
+        "log_sha256": "6f9b30aebe7eb0c647f1f54a19921a172a12df4666d11eb090aa3afa0ad87447"
+      }
+    },
+    "09_timing_conversion_global_shift": {
+      "source": [
+        "UIEditEvents.cs:546-564",
+        "EditorActions/ActionShiftSelectionRow.cs",
+        "EditorActions/ActionChangeWarpsToNegativeStops.cs",
+        "EditorActions/ActionChangeNegativeStopsToWarps.cs"
+      ],
+      "requirements": [
+        "Warp to negative Stop and reverse, all or exact selected events",
+        "Preserve unchecked timing events and positive Stops",
+        "Preserve song and peer timing for chart-local changes",
+        "Review overwritten events before publishing conversion",
+        "Clamp rounded-zero Warp to one row as source constructor does",
+        "Global mixed shift protects initial BPM and time signature",
+        "Negative destinations and stale review refuse or report deletions atomically",
+        "Undo and redo restore exact serialized state"
+      ],
+      "conversion_evidence": {
+        "mode": "Reused executed results after matching current core, support and test hashes",
+        "unchanged_core_sources": 297,
+        "unchanged_support_sources": 2323,
+        "modules": {
+          "timing_conversion_workflows": {
+            "source_sha256": "0ec0160a64e6508df57887c239a6cdab7d6d278498f0e812d00371d1cd495073",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/timing_conversion_workflows.log",
+            "log_sha256": "5a063a1159cbe08e277256c521f74ac3cabbb0b2498a241a422b93eb33b3ace9",
+            "passed": 3,
+            "test_names": [
+              "timing_conversion_workflows::chart_local_timing_does_not_change_song_or_peer_timing",
+              "timing_conversion_workflows::original_23_actions_match_except_atomic_refusal_of_source_invalid_zero_stop",
+              "timing_conversion_workflows::stale_foreign_incomplete_review_and_zero_stop_preserve_existing_redo"
+            ]
+          },
+          "timing_conversion_constructor_workflows": {
+            "source_sha256": "22fbea89a61bc37dd22afed676f45f716869013236567a6e3f9500e6ee04189a",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/timing_conversion_constructor_workflows.log",
+            "log_sha256": "bc954529fb1e3ffeeccdf9570143d4635c8ab4a4990e53357c1aca583c58d864",
+            "passed": 2,
+            "test_names": [
+              "timing_conversion_constructor_workflows::original_covering_all_generates_zero_stop_and_native_refuses_without_half_publication",
+              "timing_conversion_constructor_workflows::unchanged_original_warp_constructor_clamps_rounded_zero_to_one_row"
+            ]
+          },
+          "checked_timing_workflows": {
+            "source_sha256": "7a72120fd2f6a9b86d1b9a0cd6bdccf5d4bb7d5638d851b651b4ff1e130bef3e",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/checked_timing_workflows.log",
+            "log_sha256": "f1890c5fd26badad0943345c15fbd59f44ed9ab4345584f555b9539167299ba7",
+            "passed": 3,
+            "test_names": [
+              "checked_timing_workflows::checked_stop_preset_converts_negative_only_and_preserves_positive_stop",
+              "checked_timing_workflows::checked_warp_heads_do_not_expand_to_other_events_in_same_row_interval",
+              "checked_timing_workflows::stale_foreign_or_empty_checked_choices_never_change_timing"
+            ]
+          }
+        },
+        "passed": 8
+      },
+      "ui_routes": {
+        "F7_mixed_checklist": "open_checked_timing_conversion scope 2 -> prepare_checked_timing_conversion; no range fallback",
+        "source_callback": "command_selected_timing_conversion requires nonempty live selection",
+        "apply": "workspace.apply_timing_conversion_detailed with exact collision acknowledgements; clears consumed selection",
+        "shift": "shift_all Plan reexports event_shift::reviewed shared engine"
+      },
+      "new_shift_regression": {
+        "file": "crates/deadsync-editor/tests/shift_all_workflows.rs",
+        "sha256": "e7cf8c2f38c8f1a178f2fd2ee67bb436309f4a995a000f887b396eceb375f23d",
+        "status": "passed",
+        "log": "/tmp/deadsync-shift-all-exact-review-20261102.log",
+        "purpose": "Exact positive-shift note positions, timing properties, protected nodes, save/reopen and exact undo/redo; replaces loose count bounds.",
+        "passed": 3,
+        "failed": 0,
+        "log_sha256": "11ad7a649adab913da9a33f7f5ac96cbe53429ff10969669c457a15ecbbf3af7"
+      },
+      "compatibility_limits": [
+        "SSC original reader ignores negative Stops: native authoring success is not target-format gameplay compatibility. Advanced output preflight separately rejects incompatible exports.",
+        "Source zero-length Stop output is rejected atomically; no claim of byte-identical unsafe behavior.",
+        "Physical UI interactions and rendered previews need their separate evidence."
+      ]
+    },
+    "10_autogen_patterns": {
+      "source": [
+        "UI/UIAutogenChart.cs",
+        "UI/UIAutogenChartsForChartType.cs",
+        "UI/UIPatternEvent.cs",
+        "EditorActions/ActionAutoGenerateCharts.cs",
+        "EditorActions/ActionAutoGeneratePatterns.cs"
+      ],
+      "requirements": [
+        "Select source chart and its expressed profile",
+        "Select supported single-player destination and performed profile",
+        "Single or type-based batch generation",
+        "Per-source timing and offset preserved in new charts",
+        "Pattern start/end/length and inclusivity",
+        "Pattern and performed profile references",
+        "Ignore preceding distribution",
+        "Seed, regenerate and clear pattern region",
+        "Previous/next marker navigation",
+        "Selected/all marker regeneration and seed history",
+        "Cancellation, stale preview refusal, atomic Apply and exact undo/redo"
+      ],
+      "consumer_files": [
+        "autogen_source.rs",
+        "batch.rs",
+        "marker_generation.rs",
+        "marker_metadata.rs",
+        "pattern_actions.rs"
+      ],
+      "engine_evidence": {
+        "mode": "Reused executed results after matching current core, support and test hashes",
+        "unchanged_core_sources": 297,
+        "unchanged_support_sources": 2323,
+        "modules": {
+          "autogen_source_targets": {
+            "source_sha256": "bec5b89d1492117705072314272a59b0f90d226cf83e8f89199942c4f59969e4",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/autogen_source_targets.log",
+            "log_sha256": "9ae4f41e08cbe3f2e4496616d80d44355ae5555ffe72cf628fec9cecd16b9727",
+            "passed": 1,
+            "test_names": [
+              "autogen_source_targets::generation_targets_match_actual_source_graph_families_not_all_editable_chart_types"
+            ]
+          },
+          "generation_capabilities_workflows": {
+            "source_sha256": "7e16779d5c82d80d852652b92f13ba04abda57b3424311f3f2feb6b8c15ffd91",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/generation_capabilities_workflows.log",
+            "log_sha256": "b360d9256bb9478e4ef3be2b13a3115734896665fc2293db96b7536093bf7e98",
+            "passed": 6,
+            "test_names": [
+              "generation_capabilities_workflows::batch_double_source_selection_uses_fumen_effective_layout_without_reclassifying_the_file",
+              "generation_capabilities_workflows::direct_pattern_generation_refuses_multiplayer_aliases_before_graph_search",
+              "generation_capabilities_workflows::graph_generation_inventory_matches_pinned_original_capabilities_without_editor_aliases",
+              "generation_capabilities_workflows::one_owner_multiplayer_families_and_legacy_stepf2_p1_sources_are_refused_atomically",
+              "generation_capabilities_workflows::ordinary_single_owner_sources_keep_all_eleven_original_layouts_including_double",
+              "generation_capabilities_workflows::public_prepared_source_cannot_bypass_layout_capability_or_stepf2_owner_checks"
+            ]
+          },
+          "pattern_actions_workflows": {
+            "source_sha256": "17bdb50262bfbbe08c6ce004cd407265628999e0a64422eb6d371d63135a298b",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/pattern_actions_workflows.log",
+            "log_sha256": "8310d6aa76d45522f4823bcd42f16021f94cb4e05ef7114b2f6e8b8080fffa46",
+            "passed": 6,
+            "test_names": [
+              "pattern_actions_workflows::actual_source_random_witness_seeds_preserve_selected_and_all_mapping",
+              "pattern_actions_workflows::clear_exact_set_preserves_unchecked_notes_and_marker_metadata",
+              "pattern_actions_workflows::exact_checked_patterns_exclude_intermediate_unchecked_marker_and_notes",
+              "pattern_actions_workflows::generated_notes_undo_then_seed_undo_restore_two_distinct_history_actions",
+              "pattern_actions_workflows::source_new_seed_history_is_separate_and_cancelled_worker_keeps_seed_commit",
+              "pattern_actions_workflows::stale_foreign_empty_and_inexact_review_refuse_without_reseed"
+            ]
+          },
+          "pattern_clipboard_workflows": {
+            "source_sha256": "1448fc1938076bfaa29adf92084a61f95ec8ff9e53d23f3cb661de58c0755a1f",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/pattern_clipboard_workflows.log",
+            "log_sha256": "be5f4ad0858414d5adcd3326b69e7589ac804c7bd83fd817780e483f57b5e809",
+            "passed": 6,
+            "test_names": [
+              "pattern_clipboard_workflows::cutting_and_deleting_marker_heads_never_clear_their_generated_notes",
+              "pattern_clipboard_workflows::detached_definition_preserves_every_field_extras_destination_settings_and_saved_history",
+              "pattern_clipboard_workflows::fifteen_original_action_and_force_add_cases_match_pattern_business_results_in_sm_and_ssc",
+              "pattern_clipboard_workflows::pattern_overflow_and_invalid_destination_metadata_roll_back_without_losing_redo",
+              "pattern_clipboard_workflows::stable_selection_order_preserves_original_phases_without_nontransitive_comparison",
+              "pattern_clipboard_workflows::unsupported_multiplayer_destinations_skip_only_markers_and_report_mixed_results"
+            ]
+          },
+          "pattern_context_workflows": {
+            "source_sha256": "6f0e4ee1a42358b1fc2c32a44128386d8a112b6c6e64c65f1aafdc722e6c4a03",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/pattern_context_workflows.log",
+            "log_sha256": "3c1c5cae336cf0c4e78596137d817eed22b91e961127ec075b6d3e8a90bce399",
+            "passed": 2,
+            "test_names": [
+              "pattern_context_workflows::invalid_or_cancelled_context_cannot_return_partial_footing",
+              "pattern_context_workflows::surrounding_footing_history_and_patterns_match_unmodified_grooveauthor_helpers"
+            ]
+          },
+          "clear_pattern_workflows": {
+            "source_sha256": "dcc9299e6f8fbefb62a6f11bacb8574f25ab8d86f89270e08627432c37e13885",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/clear_pattern_workflows.log",
+            "log_sha256": "627411174227fcf26dcedf4b44a2e0642d06322b4ec9d1e524ec1d939096fe83",
+            "passed": 6,
+            "test_names": [
+              "clear_pattern_workflows::cancelled_foreign_stale_wrong_chart_and_missing_profile_actions_are_read_only",
+              "clear_pattern_workflows::clear_shortens_crossing_holds_removes_all_participants_and_is_one_saveable_gesture",
+              "clear_pattern_workflows::clearing_saved_markers_matches_unchanged_original_deletion_and_bound_methods",
+              "clear_pattern_workflows::drafts_require_applied_settings_and_background_cancellation_never_changes_source",
+              "clear_pattern_workflows::empty_regions_and_already_cleared_regions_are_noops_preserving_redo",
+              "clear_pattern_workflows::navigation_is_strict_wraps_and_preserves_chart_history"
+            ]
+          },
+          "pattern_schedule_workflows": {
+            "source_sha256": "d8391615c25bb768c04adbe3bc76cb920f02b8dc9c8e7ac1772b81d68cb449bd",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/pattern_schedule_workflows.log",
+            "log_sha256": "45c6fa2d2809a290022612402480b9485c6eb1e9a7fa79d4f6d9674388f4ae2c",
+            "passed": 2,
+            "test_names": [
+              "pattern_schedule_workflows::batch_overlap_density_and_incremental_lane_tracking_match_original_helpers",
+              "pattern_schedule_workflows::invalid_schedules_and_cancelled_or_invalid_counter_updates_preserve_state"
+            ]
+          },
+          "persistent_pattern_workflows": {
+            "source_sha256": "a92021bcb6b8787b6b64c55d1dffeca0ae8dc8a4dc6612524bc05e5eb3dcabac",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/persistent_pattern_workflows.log",
+            "log_sha256": "59efc79083ecf57df26e3789dbd517c5feeb710904c97920d6273d413cf18ee7",
+            "passed": 8,
+            "test_names": [
+              "persistent_pattern_workflows::atomic_chart_failures_preserve_redo_and_reject_cross_chart_or_structural_notes",
+              "persistent_pattern_workflows::creating_marker_metadata_keeps_the_original_offset_override_comparison",
+              "persistent_pattern_workflows::custom_profile_creation_is_deferred_and_reacceptance_after_undo_is_idempotent",
+              "persistent_pattern_workflows::discarding_and_cancelling_ready_persistent_previews_never_create_profile_files",
+              "persistent_pattern_workflows::every_native_subdivision_can_persist_and_regenerate_with_exact_profile_references",
+              "persistent_pattern_workflows::file_failures_stale_results_and_duplicate_markers_do_not_mutate_the_document",
+              "persistent_pattern_workflows::inherited_expression_and_existing_custom_profiles_are_preserved_and_guarded",
+              "persistent_pattern_workflows::notes_and_marker_share_one_gesture_preserving_other_pending_charts_and_offsets"
+            ]
+          },
+          "pattern_region_workflows": {
+            "source_sha256": "878e8fe9f24da4d6be08e8d2dc47d02f62dd341ba7fe8fa4f4910d60f2cd30a3",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/pattern_region_workflows.log",
+            "log_sha256": "b1569851b69d1262992123d4b36ce123146ab645ddee95d20f1462d74dcbb393",
+            "passed": 4,
+            "test_names": [
+              "pattern_region_workflows::context_extraction_retains_whole_sustains_and_original_overlap_order",
+              "pattern_region_workflows::context_window_counts_step_heads_and_includes_entire_boundary_rows",
+              "pattern_region_workflows::generated_pattern_replaces_crossing_holds_in_one_apply_undo_save_workflow",
+              "pattern_region_workflows::region_deletion_shortens_crossing_holds_removes_full_heads_and_is_one_reversible_gesture"
+            ]
+          },
+          "generation_timing_workflows": {
+            "source_sha256": "d9f63d888b59b038f63cfe1009e6337316677a43e83961a89a9d957bd54396ae",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/generation_timing_workflows.log",
+            "log_sha256": "1abfba2e358d6826c9290a02b5280a0f4d713f007d3e3fd00a025fc8b8efecbe",
+            "passed": 6,
+            "test_names": [
+              "generation_timing_workflows::grouped_clock_rejects_unordered_input_and_checks_cancellation",
+              "generation_timing_workflows::note_and_interpretation_group_clocks_match_original_fumen",
+              "generation_timing_workflows::preparation_uses_one_unsaved_snapshot_and_rejects_cancelled_or_invalid_requests",
+              "generation_timing_workflows::real_sm_ssc_preparation_matches_original_reader_timestamps_and_event_span",
+              "generation_timing_workflows::scheduled_attack_events_keep_their_phase_before_same_row_delays",
+              "generation_timing_workflows::scheduled_attacks_extend_source_span_without_changing_movement_frames"
+            ]
+          },
+          "pattern_generation_workflows": {
+            "source_sha256": "bb858de71fad86b0da43461f2cda9745594f1efda4cce1bd2ca57524c11654f2",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/pattern_generation_workflows.log",
+            "log_sha256": "341b0894e04fe29c0fc6cc9864524917125b505a0721c22361086bc45e3e6f13",
+            "passed": 29,
+            "test_names": [
+              "pattern_generation_workflows::active_single_leaf_contexts_match_original_outputs_and_performed_costs",
+              "pattern_generation_workflows::cancellation_during_search_returns_no_partial_pattern",
+              "pattern_generation_workflows::double_baseline_matches_grooveauthor",
+              "pattern_generation_workflows::double_bpm_change_matches_grooveauthor",
+              "pattern_generation_workflows::double_context_and_bpm_change_match_grooveauthor",
+              "pattern_generation_workflows::double_lane_counts_match_grooveauthor",
+              "pattern_generation_workflows::double_previous_times_match_grooveauthor",
+              "pattern_generation_workflows::double_same_counts_match_grooveauthor",
+              "pattern_generation_workflows::double_total_steps_match_grooveauthor",
+              "pattern_generation_workflows::double_transitions_match_grooveauthor",
+              "pattern_generation_workflows::eighths_random_start_matches_grooveauthor",
+              "pattern_generation_workflows::every_original_graph_layout_matches_grooveauthor",
+              "pattern_generation_workflows::invalid_root_is_rejected_as_in_grooveauthor",
+              "pattern_generation_workflows::minimum_seed_matches_grooveauthor",
+              "pattern_generation_workflows::named_presets_are_independent_valid_and_round_trip_every_advanced_setting",
+              "pattern_generation_workflows::one_step_matches_grooveauthor",
+              "pattern_generation_workflows::original_double_path_has_matching_costs_at_each_step",
+              "pattern_generation_workflows::original_search_single_leaf_mutations_match_outputs_and_performed_costs",
+              "pattern_generation_workflows::overlapping_warps_match_grooveauthor",
+              "pattern_generation_workflows::preview_apply_undo_redo_save_reopen_preserves_other_notes_and_unknown_tags",
+              "pattern_generation_workflows::pump_matches_grooveauthor",
+              "pattern_generation_workflows::seeded_random_matches_original_dotnet_for_normal_negative_and_extreme_seeds",
+              "pattern_generation_workflows::simultaneous_timing_matches_grooveauthor",
+              "pattern_generation_workflows::single_balanced_matches_grooveauthor",
+              "pattern_generation_workflows::single_seed_zero_matches_grooveauthor",
+              "pattern_generation_workflows::specified_footing_matches_grooveauthor",
+              "pattern_generation_workflows::stepmaniax_matches_grooveauthor",
+              "pattern_generation_workflows::stops_and_delays_match_grooveauthor",
+              "pattern_generation_workflows::timing_preparation_checks_cancellation_between_rows_and_events"
+            ]
+          },
+          "generation_graph_workflows": {
+            "source_sha256": "5d32ee751c1f5ce1533a80d9ffb91a04e001082c2080f6687affa320c74cdeba",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/generation_graph_workflows.log",
+            "log_sha256": "8e0e60d58c312acc91b165cf22756b8807536c88867e569284021fe725c48664",
+            "passed": 3,
+            "test_names": [
+              "generation_graph_workflows::corrupt_graph_inputs_fail_without_installing_a_partial_graph",
+              "generation_graph_workflows::every_original_graph_loads_with_all_reference_nodes_reachable",
+              "generation_graph_workflows::original_graph_can_follow_taps_hold_release_and_brackets"
+            ]
+          },
+          "generation_job_workflows": {
+            "source_sha256": "ec0d358866e0444b269c53f1e950329dbbc2b8dc5c4b71ad02fccac08523fe95",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/generation_job_workflows.log",
+            "log_sha256": "da6d817614a5060e79f0dd1b7b0a3e0d5a591e5c170b68db114ac3c471c191ea",
+            "passed": 11,
+            "test_names": [
+              "generation_job_workflows::applying_independent_source_preserves_actual_previous_focus_and_discloses_mine_merges",
+              "generation_job_workflows::background_preview_is_read_only_and_applies_saves_and_undoes_through_workspace",
+              "generation_job_workflows::cancellation_after_ready_discards_an_already_computed_result",
+              "generation_job_workflows::cancellation_before_during_and_after_computation_never_publishes_a_preview",
+              "generation_job_workflows::generated_chart_keeps_an_editor_attack_inside_a_warp",
+              "generation_job_workflows::generated_charts_preserve_scheduled_attacks_in_sm_and_ssc_history",
+              "generation_job_workflows::ignored_keysounds_and_empty_results_are_explicit_in_preview_report",
+              "generation_job_workflows::independent_source_task_does_not_focus_or_edit_and_apply_undo_can_restore_no_chart_view",
+              "generation_job_workflows::preview_identity_rejects_equal_revisions_other_sessions_and_recovered_documents",
+              "generation_job_workflows::snapshot_is_immutable_and_capture_errors_do_not_change_redo_or_file_bytes",
+              "generation_job_workflows::snapshot_pipeline_matches_original_file_reader_interpretation_and_generated_notes"
+            ]
+          },
+          "pattern_navigation_workflows": {
+            "source_sha256": "70166327f066f83ec8b3ea5db983ac854e7ad9c953dcc9c14195e9cb94343061",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/pattern_navigation_workflows.log",
+            "log_sha256": "691f60316f491765bd5fc07036154965211eed2e67b4549014069401513aa8f4",
+            "passed": 3,
+            "test_names": [
+              "pattern_navigation_workflows::invalid_metadata_keeps_cursor_selection_and_history_unchanged",
+              "pattern_navigation_workflows::navigation_keeps_note_selection_and_reads_unsaved_marker_moves_deletions_and_undo",
+              "pattern_navigation_workflows::saved_pattern_neighbors_and_selected_rows_match_original_commands"
+            ]
+          },
+          "autogen_preferences_workflows": {
+            "source_sha256": "1ba5d3604c36802037acdbbb395809bde593fcb13e66c31a45b5ac54a98cd2c8",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/autogen_preferences_workflows.log",
+            "log_sha256": "03f64599da2249db9e6d1d8d458599dbf8883951ec2ed7fb46f7a2bccef2983e",
+            "passed": 3,
+            "test_names": [
+              "autogen_preferences_workflows::autogen_choices_roundtrip_and_unrelated_unknown_fields_remain",
+              "autogen_preferences_workflows::external_preferences_edit_refuses_publication_and_keeps_new_intent_in_memory",
+              "autogen_preferences_workflows::unsupported_source_target_is_preserved_until_a_supported_target_is_explicitly_chosen"
+            ]
+          },
+          "pattern_job_workflows": {
+            "source_sha256": "d490974f158c37797ff1c4d33bcd41a4ffef50823ef0c3cfd50d5fafb2947ba7",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/pattern_job_workflows.log",
+            "log_sha256": "9add12ca064ff241373b3157960d6d6a818c1e6d1c386f5120e79ce79f65aa80",
+            "passed": 8,
+            "test_names": [
+              "pattern_job_workflows::cancellation_and_invalid_spans_never_mutate_source",
+              "pattern_job_workflows::empty_surroundings_and_crossing_holds_are_prepared_without_partial_edits",
+              "pattern_job_workflows::endpoints_are_relative_to_marker_and_empty_patterns_are_rejected",
+              "pattern_job_workflows::pattern_generation_preserves_scheduled_attacks_and_peer_charts",
+              "pattern_job_workflows::pattern_preview_rejects_other_sessions_charts_and_modified_revisions",
+              "pattern_job_workflows::preview_applies_once_undoes_and_saves_through_real_session",
+              "pattern_job_workflows::worker_preview_and_cancelled_ready_result_use_bounded_shared_lifecycle",
+              "pattern_job_workflows::workspace_accepts_only_the_selected_chart_and_saves_one_gesture"
+            ]
+          },
+          "pattern_batch_workflows": {
+            "source_sha256": "ccf59103adf14c3dd26df3e0b7d76bca603da67a73546c8c6d9885d4c2064b6a",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/pattern_batch_workflows.log",
+            "log_sha256": "6c9fdc30d3c09e8b80f4683693e62d82ed27869bed6692ab4474ffc70693e1fc",
+            "passed": 8,
+            "test_names": [
+              "pattern_batch_workflows::all_patterns_share_the_loaded_profile_snapshot_and_report_unrelated_invalid_files",
+              "pattern_batch_workflows::cancellation_at_start_between_patterns_and_ready_never_changes_the_song",
+              "pattern_batch_workflows::empty_pattern_set_acceptance_is_a_noop_that_preserves_redo",
+              "pattern_batch_workflows::failures_keep_other_results_and_deleted_regions_require_explicit_acceptance",
+              "pattern_batch_workflows::pattern_set_save_reopen_and_workspace_history_preserve_markers_and_other_charts",
+              "pattern_batch_workflows::sequential_pattern_sets_match_original_context_generation_clipping_and_insertion",
+              "pattern_batch_workflows::single_marker_task_matches_original_action_constructor_and_undo_redo",
+              "pattern_batch_workflows::stale_foreign_and_missing_marker_requests_are_read_only_and_selection_is_normalized"
+            ]
+          },
+          "pattern_added_workflows": {
+            "source_sha256": "f8c14e5b42b80c53b3a4e7aaf8a17d91980acad90bb5be54dea2d691e3b0f60a",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/pattern_added_workflows.log",
+            "log_sha256": "2f324f090c6e027d0fe06196b09b920ecd1e79446a28df1f5fcd227ae98b898a",
+            "passed": 4,
+            "test_names": [
+              "pattern_added_workflows::add_undo_redo_and_existing_definition_edit_publish_only_actual_readds",
+              "pattern_added_workflows::atomic_order_is_operation_order_and_failed_outer_actions_publish_nothing",
+              "pattern_added_workflows::delete_then_undo_readds_deleted_pattern_and_invalid_quick_add_has_no_callback",
+              "pattern_added_workflows::multiple_paste_same_value_and_overwrite_history_retain_explicit_add_order"
+            ]
+          }
+        },
+        "passed": 116
+      },
+      "source_reference_notes": [
+        "pattern_batch_workflows compares the complete original worker output for 17 scenarios; reconstructed single-enumeration helper is not its output oracle.",
+        "Original source UI generates and adds immediately. Native detached preview/Apply is an approved interaction adaptation."
+      ],
+      "new_batch_regression": {
+        "file": "crates/deadsync-editor/tests/batch_generation_workflows.rs",
+        "sha256": "35923c05ba2c42d29b410c7772dec9f8428b545a5b13ff48ab4f8954174b0cd5",
+        "log": "/tmp/deadsync-batch-generation-exact-review-20261102.log",
+        "status": "passed",
+        "purpose": "Preserve all three original grids and match both new grids to the reviewed individual previews in SM and SSC.",
+        "passed": 10,
+        "failed": 0,
+        "log_sha256": "e5b1a206146bf1820997f007b58954ff4198598178e03f2eb4ef38b0a52fedb6",
+        "test_names": [
+          "all_failed_preview_does_not_erase_redo_or_append_anything",
+          "batch_matches_individual_conversions_and_round_trips_as_one_action",
+          "cancellation_at_start_between_charts_and_ready_never_changes_session",
+          "each_source_uses_its_own_saved_interpretation_with_one_shared_seed",
+          "failed_sources_remain_reviewable_and_successes_apply_together",
+          "foreign_and_stale_previews_cannot_append_charts",
+          "invalid_last_addition_preserves_document_and_redo",
+          "profile_snapshot_is_shared_even_if_files_disappear_between_sources",
+          "scheduled_attacks_survive_atomic_batch_conversion_in_song_scoped_formats",
+          "workspace_restores_previously_focused_chart_on_undo_and_first_result_on_redo"
+        ]
+      },
+      "historical_runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/generation-apply-disk.json",
+          "sha256": "1e1e9e511fe4953d5825a19ef588dda99dc99b5ebdad08f875130d8188e4371b"
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/chartless-generation-source-review.json",
+          "sha256": "8a765d186ef43e2fab5ac7e0ec291d17ecf01b2c2556fc38cbfa34c12e51e58e"
+        }
+      ],
+      "limits": [
+        "Historical runtime receipts are not new execution of every current UI route.",
+        "These workflow tests do not prove every possible graph, profile combination or random seed; configuration field coverage is a separate requirement."
+      ]
+    },
+    "11_generation_profile_management": {
+      "source": [
+        "UI/UIAutogenConfigs.cs",
+        "UI/UIExpressedChartConfigTable.cs",
+        "UI/UIPerformedChartConfigTable.cs",
+        "UI/UIPatternConfigTable.cs"
+      ],
+      "requirements": [
+        "Three-family global catalogue with ordering and stable identity",
+        "New, duplicate, edit and guarded save",
+        "Import/export preserving unknown metadata and Unicode text",
+        "Delete with reference updates and exact undo/redo",
+        "Defaults distinct from library deserialization defaults",
+        "All serialized configuration fields have typed controls",
+        "Dependent control gates, inheritance and nullable choices",
+        "Performed travel-speed conversion and per-layout arrow weights",
+        "Built-in profiles protected from destructive mutation",
+        "Unsaved drafts survive inline profile creation; stale files refuse publication"
+      ],
+      "consumer_files": [
+        "profile_new.rs",
+        "profile_edit.rs",
+        "profile_sort.rs",
+        "profile_order.rs",
+        "profile_edit/source_gates.rs",
+        "profile_edit/save_as.rs"
+      ],
+      "field_schema_review": {
+        "receipt": "/tmp/deadsync-editor-final-runtime-evidence-20261102/generation-config-audit.json",
+        "sha256": "f4c4e9111579e07e0f030681e5dd9323b1b82b5bbacc3b1a7c28968b8b15ce93",
+        "current_source_schema_hashes_verified": 7,
+        "schemas": {
+          "ExpressedConfig": {
+            "source": "ExpressedChart/Config.cs",
+            "fields": [
+              "DefaultBracketParsingMethod",
+              "BracketParsingDetermination",
+              "MinLevelForBrackets",
+              "UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets",
+              "BalancedBracketsPerMinuteForAggressiveBrackets",
+              "BalancedBracketsPerMinuteForNoBrackets"
+            ],
+            "source_sha256": "f46b222174c736550027183a3772176f5d04764eb0cad4e51ca028446681aaa2"
+          },
+          "PatternConfig": {
+            "source": "PerformedChart/PatternConfig.cs",
+            "fields": [
+              "BeatSubDivision",
+              "StartingFootChoice",
+              "StartingFootSpecified",
+              "LeftFootStartChoice",
+              "LeftFootStartLaneSpecified",
+              "LeftFootEndChoice",
+              "LeftFootEndLaneSpecified",
+              "RightFootStartChoice",
+              "RightFootStartLaneSpecified",
+              "RightFootEndChoice",
+              "RightFootEndLaneSpecified",
+              "SameArrowStepWeight",
+              "NewArrowStepWeight",
+              "StepTypeCheckPeriod",
+              "LimitSameArrowsInARowPerFoot",
+              "MaxSameArrowsInARowPerFoot"
+            ],
+            "source_sha256": "f61b1a5eae890afef40db9ff316480f1ed01c4134f2e4ec391df91ed2c27d6ce"
+          },
+          "PerformedConfig": {
+            "source": "PerformedChart/Config.cs",
+            "fields": [
+              "Transitions",
+              "Facing",
+              "LateralTightening",
+              "StepTightening",
+              "ArrowWeights"
+            ],
+            "source_sha256": "3192e7d10690504a9301bc700f40553ad0907f22a360f12a0bb8f5cee549ee90"
+          },
+          "FacingConfig": {
+            "source": "PerformedChart/FacingConfig.cs",
+            "fields": [
+              "MaxInwardPercentage",
+              "InwardPercentageCutoff",
+              "MaxOutwardPercentage",
+              "OutwardPercentageCutoff"
+            ],
+            "source_sha256": "848e28fdbd0390128ef1de568554db12b5449df4f7907a5fdf4c736708bb57ad"
+          },
+          "LateralConfig": {
+            "source": "PerformedChart/LateralTighteningConfig.cs",
+            "fields": [
+              "Enabled",
+              "RelativeNPS",
+              "AbsoluteNPS",
+              "Speed"
+            ],
+            "source_sha256": "b027cb92988dca1144e7c1c17afdd086b8d28fd762f9319f46e933ddcee12cd2"
+          },
+          "StepConfig": {
+            "source": "PerformedChart/StepTighteningConfig.cs",
+            "fields": [
+              "SpeedTighteningEnabled",
+              "SpeedMinTimeSeconds",
+              "SpeedMaxTimeSeconds",
+              "SpeedTighteningMinDistance",
+              "DistanceTighteningEnabled",
+              "DistanceMin",
+              "DistanceMax",
+              "StretchTighteningEnabled",
+              "StretchDistanceMin",
+              "StretchDistanceMax",
+              "LateralMinPanelDistance",
+              "LongitudinalMinPanelDistance"
+            ],
+            "source_sha256": "23f2197b965a26cd91ebe1cee78c4783f405810b1df12f7e2a27b8b44cfc5884"
+          },
+          "TransitionConfig": {
+            "source": "PerformedChart/TransitionConfig.cs",
+            "fields": [
+              "Enabled",
+              "StepsPerTransitionMin",
+              "StepsPerTransitionMax",
+              "MinimumPadWidth",
+              "TransitionCutoffPercentage"
+            ],
+            "source_sha256": "e7866fa2f27bd9fbb950160a2e168b727ac5e506770f89b2ddc4f0a1ac198cef"
+          }
+        },
+        "limit": "Field membership and control presence are separate from semantic coverage; referenced tests and runtime receipts establish their stated behaviors only."
+      },
+      "engine_evidence": {
+        "mode": "Reused executed results after matching current core, support and test hashes",
+        "unchanged_core_sources": 297,
+        "unchanged_support_sources": 2323,
+        "modules": {
+          "profile_editor_defaults": {
+            "source_sha256": "c66b49f3421e911a8623f89047350aaf4bdaf0c17dc08e700830461dd08c7a9b",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_editor_defaults.log",
+            "log_sha256": "6d511fc682cb69f4533d90f5dc63145395c94a8e7bd66bc0a681583757b73430",
+            "passed": 1,
+            "test_names": [
+              "profile_editor_defaults::all_new_editor_profiles_start_valid_and_roundtrip_complete_editor_defaults"
+            ]
+          },
+          "profile_reference_workflows": {
+            "source_sha256": "0963615989b0b5f70662f37db1cb4b5f011caa2e8255663bf9575c1c1469124b",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_reference_workflows.log",
+            "log_sha256": "0397db13faf8a0a303c2528a37c6551b85395fad4f1acb0426f0637e083b6616",
+            "passed": 3,
+            "test_names": [
+              "profile_reference_workflows::all_profile_families_reset_every_chart_in_one_exactly_undoable_action",
+              "profile_reference_workflows::malformed_later_chart_prevents_any_reference_rewrite",
+              "profile_reference_workflows::stale_plans_and_builtins_are_rejected_without_touching_history"
+            ]
+          },
+          "application_profile_catalog": {
+            "source_sha256": "b0af017ec6317d031a5b08058f38d50e009cc45f07a65cd7a93fef12501c67bb",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/application_profile_catalog.log",
+            "log_sha256": "8fb8180688924eedcaf8c656fd9ebcc85af65c1329bec9de94b17248108a4bc7",
+            "passed": 1,
+            "test_names": [
+              "application_profile_catalog::application_catalog_is_chartless_and_cannot_be_used_as_a_chart_selection"
+            ]
+          },
+          "profile_description_workflows": {
+            "source_sha256": "f31f785ca0bfa62232693a011ccdb7b0f11377e42a05b773aff51170cc22d8f2",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_description_workflows.log",
+            "log_sha256": "2cab71a84de022138fe6e18fd8a7b4787f0c1accbb98b16f2ecb1859bd8947e3",
+            "passed": 2,
+            "test_names": [
+              "profile_description_workflows::descriptions_preserve_missing_null_duplicates_unknown_numbers_and_effective_config",
+              "profile_description_workflows::descriptions_save_and_duplicate_for_all_profile_families_without_changing_source_identity"
+            ]
+          },
+          "profile_history_workflows": {
+            "source_sha256": "8009e2a9de8614c089d121f090c3a4d8c075219405069bab4dc07f1f37c1202d",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_history_workflows.log",
+            "log_sha256": "a2043916e2a0923f15adb86b70478bb3eb4060d8d2ae5ee4064defa42c3b805f",
+            "passed": 2,
+            "test_names": [
+              "profile_history_workflows::external_changes_leave_disk_and_history_intact_and_branching_drops_redo",
+              "profile_history_workflows::saved_profile_history_restores_exact_bytes_and_identity"
+            ]
+          },
+          "profile_load_resolution": {
+            "source_sha256": "a154fb6c91b93223e04ce33e0391d9ba82d38413a2e50cf9187e06628d33fad2",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_load_resolution.log",
+            "log_sha256": "8436495e29766202bfe8251c458bb30d569b5c78945146682794df824a0ef088",
+            "passed": 7,
+            "test_names": [
+              "profile_load_resolution::actual_original_load_matrix_is_one_effective_baseline_with_exact_raw_cas_and_no_hidden_undo",
+              "profile_load_resolution::configured_catalog_keeps_present_custom_profiles_and_guards_membership_bytes_context_and_cancel",
+              "profile_load_resolution::expression_clean_baseline_still_invalidates_an_earlier_resolution_plan",
+              "profile_load_resolution::preexisting_recovery_survives_automatic_marker_repair_but_real_user_edit_still_refuses",
+              "profile_load_resolution::repaired_metadata_feeds_real_chart_and_saved_pattern_workers_then_actual_apply_save_reopen",
+              "profile_load_resolution::saving_a_repaired_baseline_still_compares_against_the_exact_original_raw_file",
+              "profile_load_resolution::stale_session_user_edit_and_external_source_change_never_publish_partial_resolution"
+            ]
+          },
+          "profile_export_workflows": {
+            "source_sha256": "7874c1aeaeef56d8fb334bfea468daf3b04e20a25b1af20dd03403cd061d7af7",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_export_workflows.log",
+            "log_sha256": "ecaba2b2bfbc69ef1cf4b4275c6f90ace6144ecc8c9d83e7ec9ed9f74a3aabb6",
+            "passed": 2,
+            "test_names": [
+              "profile_export_workflows::explicit_export_preserves_identity_configuration_and_unknown_fields_for_every_family",
+              "profile_export_workflows::wrong_kind_filename_and_missing_directory_publish_nothing"
+            ]
+          },
+          "profile_workflows": {
+            "source_sha256": "cc1d3ce5e5abf4f1ebfde0757c53afb7467c2fd4194e3441ad9cb3a49b8d5b1b",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_workflows.log",
+            "log_sha256": "db9be87f487bf7faea90d25f8941b5b7c54024def3a1b74c1c29a8e87f5a1a49",
+            "passed": 9,
+            "test_names": [
+              "profile_workflows::absent_directories_are_lazy_and_cancelled_loads_do_not_read_or_publish_profiles",
+              "profile_workflows::all_profile_kinds_can_share_a_guid_and_resolve_in_their_own_namespaces",
+              "profile_workflows::all_subdivisions_can_be_exported_loaded_resolved_and_used_by_a_saved_marker",
+              "profile_workflows::directory_jobs_bind_the_song_snapshot_and_support_cancellation",
+              "profile_workflows::directory_load_preserves_bad_files_and_builtins_and_reports_duplicate_identities",
+              "profile_workflows::imported_unknown_fields_and_wrapper_order_survive_rename_and_guarded_save",
+              "profile_workflows::missing_ids_receive_stable_exported_identity_and_wrong_kind_files_are_rejected",
+              "profile_workflows::unknown_numeric_literals_are_preserved_without_rounding_or_overflow",
+              "profile_workflows::wrapper_setter_order_and_effective_configs_match_original_editor_bodies"
+            ]
+          },
+          "profile_weight_layout_workflows": {
+            "source_sha256": "fe19aa36f9288913865d0ce8403d97109bb5357c16420178b906e6d81f275644",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_weight_layout_workflows.log",
+            "log_sha256": "1f1e2087daa279a77409a72066c7ed8180190d077a16e4f158e1748f17a26ce0",
+            "passed": 4,
+            "test_names": [
+              "profile_weight_layout_workflows::descriptor_rebuild_keeps_invalid_staged_ranges_and_invalid_requests_are_atomic",
+              "profile_weight_layout_workflows::edited_panel_weights_match_original_widget_bounds_without_normalizing_imports_on_open",
+              "profile_weight_layout_workflows::every_layout_can_be_added_without_overwriting_existing_weights_or_other_values",
+              "profile_weight_layout_workflows::removal_inherits_preset_values_and_add_is_a_noop_for_custom_explicit_values"
+            ]
+          },
+          "conversion_profile_workflows": {
+            "source_sha256": "2b4e0d08193fd8836c0a805b2091b1e4b04e6f979f8b95eaa6297080fcefe7c3",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/conversion_profile_workflows.log",
+            "log_sha256": "2ae4ce8766d08d90ae04d999d66f4efcd598b546ef08892270c487180fbf467c",
+            "passed": 4,
+            "test_names": [
+              "conversion_profile_workflows::catalogs_missing_profiles_cancellation_and_stale_previews_are_read_only",
+              "conversion_profile_workflows::conversion_overrides_match_explicit_configs_and_save_new_charts_without_changing_source_profiles",
+              "conversion_profile_workflows::default_and_partial_overrides_keep_preset_and_chart_expression_independent",
+              "conversion_profile_workflows::explicit_expression_can_override_unresolved_source_identity_without_rewriting_it"
+            ]
+          },
+          "profile_edit_workflows": {
+            "source_sha256": "795261992ae7c3351c1c3b781c21068608d1d0211ef8aacca5c1a9d39a9bdfb7",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_edit_workflows.log",
+            "log_sha256": "ad4969b29fc5fc6c89e55030cad77f0d6d8a9326585e4b09b977353e7e75d2dc",
+            "passed": 6,
+            "test_names": [
+              "profile_edit_workflows::builtin_presets_can_only_be_exported_after_duplication",
+              "profile_edit_workflows::duplicate_has_new_identity_and_guarded_save_persists_effective_edits",
+              "profile_edit_workflows::edits_survive_original_wrapper_orders_and_repeated_edits_do_not_accumulate_config",
+              "profile_edit_workflows::nested_vendor_fields_survive_and_dynamic_dictionary_keys_can_be_removed",
+              "profile_edit_workflows::saved_configuration_edit_changes_generation_of_existing_marker",
+              "profile_edit_workflows::unknown_large_literals_are_preserved_and_invalid_edits_are_atomic"
+            ]
+          },
+          "profile_deletion_workflows": {
+            "source_sha256": "facf35e9e5e61ef49039c74385f158f73216a595545e2c3d5ad7c8edafbc4aa0",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_deletion_workflows.log",
+            "log_sha256": "4909c8545a90ee395534c7babc3b430e7fa956feb2a94ae0e1d81aeb67dfbbdb",
+            "passed": 11,
+            "test_names": [
+              "profile_deletion_workflows::a_staged_chart_operation_cannot_delete_an_external_profile",
+              "profile_deletion_workflows::builtin_identity_cannot_be_deleted_even_from_a_custom_filename",
+              "profile_deletion_workflows::combined_deletion_and_undo_restore_profile_and_all_chart_references",
+              "profile_deletion_workflows::conflicting_file_blocks_restore_and_external_edit_blocks_both_deletions",
+              "profile_deletion_workflows::deletion_restore_and_redo_preserve_exact_bytes_and_catalog_visibility",
+              "profile_deletion_workflows::global_history_keeps_unreferenced_deletion_separate_from_song_dirty_state",
+              "profile_deletion_workflows::global_redo_conflict_rolls_back_reference_changes_and_preserves_history",
+              "profile_deletion_workflows::invalid_song_metadata_prevents_disk_deletion",
+              "profile_deletion_workflows::replacing_the_song_redo_branch_cannot_redo_another_edit_as_a_deletion",
+              "profile_deletion_workflows::restore_retains_file_permissions",
+              "profile_deletion_workflows::unreferenced_deletion_never_consumes_unrelated_song_history_and_rejects_stale_undo"
+            ]
+          },
+          "profile_controls_workflows": {
+            "source_sha256": "6cb60651796e2fa3bb8f4b5bcea1697a696e7023cc0304e3d3ae0a1b6d6fceea",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_controls_workflows.log",
+            "log_sha256": "65e2e153b7697bbea7b09765744d52f74b535a1ae7da91e7bf7015e5132013d6",
+            "passed": 4,
+            "test_names": [
+              "profile_controls_workflows::every_serialized_field_of_every_preset_has_a_control_and_roundtrips",
+              "profile_controls_workflows::explicit_nullable_boolean_values_keep_the_inherit_choice",
+              "profile_controls_workflows::inherited_boolean_cycles_and_nonfinite_numbers_are_not_silently_normalized",
+              "profile_controls_workflows::pattern_choices_numbers_validation_and_repair_preserve_typed_configuration"
+            ]
+          },
+          "profile_defaults_workflows": {
+            "source_sha256": "158e19ee508ab75fcbe91e51399c5499f3b3fd0ca409e8bbe8bce2e624a6e4c2",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_defaults_workflows.log",
+            "log_sha256": "1a312b393eb28b6525b5ce6ce02dded45d3f811c2ba70b42c7171f7f2ead3374",
+            "passed": 3,
+            "test_names": [
+              "profile_defaults_workflows::editor_defaults_match_existing_reference_presets_not_library_deserialization_defaults",
+              "profile_defaults_workflows::reset_all_families_preserves_identity_text_unknown_fields_and_is_idempotent",
+              "profile_defaults_workflows::reset_repairs_pattern_wrapper_even_when_later_config_already_has_default_subdivision"
+            ]
+          },
+          "profile_snapshot_workflows": {
+            "source_sha256": "9f7da66f921d8cd1802c92d2a81bd40a14e90917b9e001dd80eaab85b5c2fd55",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_snapshot_workflows.log",
+            "log_sha256": "c40cdad8e7916b8f0caa490b6aeaa7ed4812acc6a34547456e19e8bd4db0b3d4",
+            "passed": 4,
+            "test_names": [
+              "profile_snapshot_workflows::anonymous_import_keeps_catalog_identity_when_captured_and_saved_in_place",
+              "profile_snapshot_workflows::changed_custom_file_cannot_be_captured_from_old_catalog",
+              "profile_snapshot_workflows::every_preset_can_be_captured_and_foreign_or_stale_sessions_are_refused",
+              "profile_snapshot_workflows::writable_capture_protects_presets_and_refuses_changes_before_capture_or_save"
+            ]
+          },
+          "profile_catalog_workflows": {
+            "source_sha256": "4851bdbe7ed718f90aee94f5e6439445e74548b16129b7768cd36689374bffb6",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_catalog_workflows.log",
+            "log_sha256": "25f6370c01e6e01051dcbef258385bf3a693ffba8c403a2935c3d7400e57d824",
+            "passed": 5,
+            "test_names": [
+              "profile_catalog_workflows::catalog_contains_all_builtins_is_read_only_and_keeps_kind_namespaces_and_custom_names",
+              "profile_catalog_workflows::selected_custom_file_changes_reject_apply_without_clearing_redo_or_altering_profiles",
+              "profile_catalog_workflows::selecting_profiles_stages_one_marker_gesture_preserves_metadata_and_drives_reopened_generation",
+              "profile_catalog_workflows::selection_guards_foreign_stale_wrong_kind_missing_and_manually_replaced_identities",
+              "profile_catalog_workflows::unresolved_current_profiles_are_preserved_until_explicit_replacement_and_catalog_cancel_is_read_only"
+            ]
+          },
+          "profile_creation_workflows": {
+            "source_sha256": "7c8a6756e6e45f327366f916ade85731bb7f67af298e658cc5d039567d19aec6",
+            "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/profile_creation_workflows.log",
+            "log_sha256": "a8caf7f20f925841b81283e8683c34e23e4473a9b404d8f13cf51987d052b217",
+            "passed": 5,
+            "test_names": [
+              "profile_creation_workflows::a_failed_creation_keeps_redo_and_discarding_the_creation_branch_keeps_the_file_absent",
+              "profile_creation_workflows::chart_and_marker_drafts_keep_pending_values_only_across_the_next_copy_creation",
+              "profile_creation_workflows::creation_for_every_family_orders_with_song_edits_and_retains_exact_bytes_on_redo",
+              "profile_creation_workflows::external_edits_block_undo_and_existing_destinations_block_redo_without_consuming_history",
+              "profile_creation_workflows::identity_collision_under_another_filename_and_nested_staging_publish_nothing"
+            ]
+          }
+        },
+        "passed": 73
+      },
+      "runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-profile-panel-runtime-20261102/runtime-verified.json",
+          "sha256": "ff86e0a51954f1e434b9f950dec8d783c225f73789163b67cb1cccd5967042c4",
+          "scope": "Previously observed isolated French native profile workflow; not a new run."
+        },
+        {
+          "path": "/tmp/deadsync-profile-panel-runtime-20261102/movement-runtime-verified.json",
+          "sha256": "09a97397fb63cdd6cfb8851e1cbacc6660a36ead5317c06c6774324651d2bc10",
+          "scope": "Previously observed isolated French native profile workflow; not a new run."
+        },
+        {
+          "path": "/tmp/deadsync-profile-panel-runtime-20261102/speed-weights-runtime-verified.json",
+          "sha256": "10b56d5f28b5efcc9baa3316c8a2e8db925fcd9d7315d1ccea0b0add5418f83e",
+          "scope": "Previously observed isolated French native profile workflow; not a new run."
+        }
+      ],
+      "limits": [
+        "Speed/weights runtime receipt covers one layout and subdivision; other combinations use automated tests.",
+        "Field schema equality does not certify every possible generated result.",
+        "Historical native receipts remain scoped to the recorded executable and inputs."
+      ]
+    },
+    "12_recovery_autosave": {
+      "requirements": [
+        "Periodic recovery never overwrites source or clears unsaved history",
+        "Protect preexisting sidecar until explicit recovery/replacement",
+        "Skip unchanged revisions but distinguish recovered session identity",
+        "External source changes and locks preserve last good draft",
+        "Recover full staged document after process termination",
+        "Explicit Save publishes recovered state separately"
+      ],
+      "engine_evidence": {
+        "source_sha256": "ffec8492e3bad42369b1c6236dd88947ce3138044946c91be0c997c7b1077ffb",
+        "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/auto_recovery_workflows.log",
+        "log_sha256": "fbaec829a0fa7fe2433fe05b16a79e17425d3f7f84ed61456434da1e194c5130",
+        "passed": 6,
+        "test_names": [
+          "auto_recovery_workflows::busy_save_lock_does_not_publish_a_partial_draft_or_mark_the_revision_saved",
+          "auto_recovery_workflows::existing_draft_is_preserved_until_explicit_recovery_or_manual_replacement",
+          "auto_recovery_workflows::external_changes_preserve_the_last_draft_and_retry_after_resolution",
+          "auto_recovery_workflows::interval_snapshot_survives_close_without_saving_or_clearing_history",
+          "auto_recovery_workflows::save_then_undo_rebases_even_a_previously_saved_recovery_revision",
+          "auto_recovery_workflows::unchanged_revisions_are_skipped_but_recovered_session_identity_is_not"
+        ]
+      },
+      "evidence_reuse": "Current core/support/test hashes match executed snapshot; no new run.",
+      "runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-recovery-runtime-20261102/runtime-verified.json",
+          "sha256": "5e070252b943f80f32deba4d57b0c7359d2600d344467557231f61368e90ab90"
+        },
+        {
+          "path": "/tmp/deadsync-recovery-runtime-20261102/auto-runtime-verified.json",
+          "sha256": "38106c168e386803a0141aff93b51cad56486265b69beabe3e299b165c0022b4"
+        }
+      ],
+      "limits": [
+        "Timed publication observed, but exact interval from last edit was not measured in GUI.",
+        "SIGKILL recovery is not proof against power loss."
+      ]
+    },
+    "13_chart_event_copy": {
+      "source": "UI/UICopyEventsBetweenCharts.cs and Editor.cs DrawCopyChartEventsMenuItems",
+      "requirements": [
+        "All thirteen source types individually selectable",
+        "StepMania preset twelve types excludes Pattern; Timing and Timing+Scroll presets",
+        "Source independent of focused chart; multiple destinations",
+        "Absent source type clears destination",
+        "Preserve lane notes, chart settings, audio offsets and focus",
+        "Atomic multi-destination publication and exact undo/redo"
+      ],
+      "engine_evidence": {
+        "chart_event_copy_workflows": {
+          "source_sha256": "e997a4e0abb3e1ea2859432605045dd1f843fcb4d15fba9d5e53d366f535239e",
+          "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/chart_event_copy_workflows.log",
+          "log_sha256": "5fbdd3d1fc9fb6a4a0c0957434035fa3cbe4591ad88ee074de975012c6db4b98",
+          "passed": 10,
+          "test_names": [
+            "chart_event_copy_workflows::absent_source_type_clears_destination_while_initial_nodes_and_notes_remain",
+            "chart_event_copy_workflows::all_thirteen_original_type_choices_copy_payloads_without_copying_notes_or_chart_settings",
+            "chart_event_copy_workflows::failure_in_last_destination_rolls_back_first_destination_and_preserves_redo",
+            "chart_event_copy_workflows::legacy_ssc_shared_types_are_reported_without_rewriting_source",
+            "chart_event_copy_workflows::net_identical_replacement_preserves_redo_token_and_dirty_resident_notes",
+            "chart_event_copy_workflows::original_chart_wide_action_matches_representable_ssc_cases_and_undo_redo",
+            "chart_event_copy_workflows::patterns_replace_entire_type_and_clear_old_patterns_on_unsupported_destination",
+            "chart_event_copy_workflows::plans_reject_stale_foreign_or_invalid_destinations_without_erasing_history",
+            "chart_event_copy_workflows::replace_types_on_multiple_destinations_preserves_unselected_data_and_has_one_undo",
+            "chart_event_copy_workflows::sm_copy_replaces_resident_timing_and_attacks_per_chart_without_activating_raw_unsupported_tags"
+          ]
+        },
+        "chart_event_copy_live_workflows": {
+          "source_sha256": "7754c408c144e0ec0efec4f49239136eaa3257c29d82e2a04a599cddd19727d6",
+          "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/chart_event_copy_live_workflows.log",
+          "log_sha256": "5e60c08ddd7e99239033bc41620e4d045467e2cc31e21a78046d536c622dc0b4",
+          "passed": 5,
+          "test_names": [
+            "chart_event_copy_live_workflows::chartless_copy_history_and_invalid_empty_types_preserve_noop_and_exact_bytes",
+            "chart_event_copy_live_workflows::divergent_or_nonfinite_anchor_payloads_are_refused_before_copy_and_history",
+            "chart_event_copy_live_workflows::plans_reject_edit_undo_aba_and_wrong_session_without_partial_publication",
+            "chart_event_copy_live_workflows::source_b_copies_to_focus_a_without_copying_music_offsets_or_song_timing_choice",
+            "chart_event_copy_live_workflows::unfocused_destination_preserves_stop_interior_time_and_chosen_equal_time_warp_row"
+          ]
+        }
+      },
+      "evidence_reuse": "Current core/support/test hashes match executed snapshot; no new run.",
+      "runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-chart-copy-runtime-20261102/runtime-verified.json",
+          "sha256": "9990342478148c46b905c18ceba1764555677ab117e0fc6a9978be0aa9b1bdc0"
+        }
+      ],
+      "limits": [
+        "The original action-only fixture with nonzero first nodes is not a valid loaded-editor state; the added regression covers its normalized loaded form.",
+        "The normalization source code was inspected; the action oracle does not itself execute the GUI loader.",
+        "Runtime receipt covers one idle SSC StepMania-preset copy; other payloads rely on their specific tests."
+      ],
+      "reference_case_resolution": {
+        "status": "Loaded-editor path validated; experimental raw-position correction withdrawn",
+        "raw_action_fixture": "first-event-destination-position-preserved bypasses loader invariants and remains explicitly excluded from loaded-editor parity comparisons.",
+        "new_fixture": "crates/deadsync-editor/tests/fixtures/grooveauthor/chart-copy-loaded-initial.reference.json",
+        "proof": "Original unchanged action executed on loader-normalized nodes; Rust starts with raw late-first positions, then compares full effective source/destination timing before and after copy, exact history and reopened output.",
+        "passed": 16,
+        "failed": 0,
+        "log": "/tmp/deadsync-chart-copy-load-preconditions-20261102.log",
+        "log_sha256": "24f401e92b008e1086389158823cc541d5ecde88c55c34b08c7edfb192688927",
+        "test_names": [
+          "chartless_copy_history_and_invalid_empty_types_preserve_noop_and_exact_bytes",
+          "divergent_or_nonfinite_anchor_payloads_are_refused_before_copy_and_history",
+          "plans_reject_edit_undo_aba_and_wrong_session_without_partial_publication",
+          "source_b_copies_to_focus_a_without_copying_music_offsets_or_song_timing_choice",
+          "unfocused_destination_preserves_stop_interior_time_and_chosen_equal_time_warp_row",
+          "absent_source_type_clears_destination_while_initial_nodes_and_notes_remain",
+          "all_thirteen_original_type_choices_copy_payloads_without_copying_notes_or_chart_settings",
+          "failure_in_last_destination_rolls_back_first_destination_and_preserves_redo",
+          "legacy_ssc_shared_types_are_reported_without_rewriting_source",
+          "loaded_initial_nodes_and_copy_match_original_action_with_real_load_preconditions",
+          "net_identical_replacement_preserves_redo_token_and_dirty_resident_notes",
+          "original_chart_wide_action_matches_representable_ssc_cases_and_undo_redo",
+          "patterns_replace_entire_type_and_clear_old_patterns_on_unsupported_destination",
+          "plans_reject_stale_foreign_or_invalid_destinations_without_erasing_history",
+          "replace_types_on_multiple_destinations_preserves_unselected_data_and_has_one_undo",
+          "sm_copy_replaces_resident_timing_and_attacks_per_chart_without_activating_raw_unsupported_tags"
+        ],
+        "prior_interpretation": {
+          "name": "first-event-destination-position-preserved",
+          "reason": "Original action retains destination first Tempo and Signature positions. Existing native oracle test skips this case citing normalization. Investigating actual native output before concluding parity.",
+          "probe_log": "/tmp/deadsync-chart-copy-initial-probe-20261102.log",
+          "status": "authored file-position correction validated; broader projection/collision checks remain open",
+          "probe_receipt": "/tmp/deadsync-chart-copy-initial-probe-20261102.json",
+          "probe_sha256": "f055008685c22225c8d24234d24dddbae7fd8b8e83321b9937c161facca9564c",
+          "native_output": {
+            "case": "first-event-destination-position-preserved",
+            "source_reference": [
+              [
+                {
+                  "Kind": "Signature",
+                  "Row": 48,
+                  "N": 2,
+                  "D": 2
+                },
+                {
+                  "Kind": "Tempo",
+                  "Row": 48,
+                  "Bpm": 180
+                },
+                {
+                  "Kind": "Tempo",
+                  "Row": 192,
+                  "Bpm": 240
+                },
+                {
+                  "Kind": "Signature",
+                  "Row": 384,
+                  "N": 3,
+                  "D": 4
+                }
+              ]
+            ],
+            "native_destination_bpm": "0=120,0.3333333333333333=180,4=240",
+            "native_destination_signature": "0=4=4,0.3333333333333333=2=2,8=3=4",
+            "before_destination_bpm": "1=90,2=110"
+          },
+          "required_fix": "Preserve destination first effective Tempo and Signature positions when replacing their values; distinguish synthetic row-zero fallback nodes from source-authored first nodes, without changing ordinary timing contracts. Reinstate the excluded oracle case with complete before/after/undo/redo/readback checks.",
+          "fix_receipt": "/tmp/deadsync-chart-copy-initial-validation-20261102.json",
+          "final_source_passed": 272,
+          "final_source_failed": 0,
+          "restored_oracle_cases": 10,
+          "additional_regression": "copying_either_initial_type_keeps_authored_destination_position_and_other_type",
+          "remaining_limits": [
+            "Authored initial BPM/signature positions now match restored ten-case oracle; editor fallback/visual projection is not certified by file-data comparison.",
+            "Collision with another source node at the destination initial row is explicitly refused pending a targeted original collision oracle.",
+            "Review application and broader native/public gate not rebuilt or rerun for this production change."
+          ],
+          "collision_followup": {
+            "source_evidence": "Actual pinned Fumen SMEventComparer and RedBlackTree reject all same-kind same-row duplicates, even equal values. Source EditorEvent comparer and EditorChart insertion paths inspected; full action/GUI not executed.",
+            "reference": "crates/deadsync-editor/tests/fixtures/grooveauthor/initial-copy-collision.reference.json",
+            "reproduced_output": "/tmp/deadsync-initial-copy-collision-reproduced-20261102.json",
+            "native_fix": "Refuse both equal and unequal duplicate nodes during capture, before any destination edit. Previously equal values could silently merge.",
+            "test_log": "/tmp/deadsync-initial-copy-collision-tests-20261102.log",
+            "status": "native regression passed",
+            "passed": 12,
+            "failed": 0,
+            "log_sha256": "7a0a51f7800120287bad80440fc667c3e0cd1fcd090b509cc173272c35d791d0",
+            "final_source_sha256": {
+              "crates/deadsync-editor/src/timing_edit/chart_copy_initial.rs": "43fb066929bab24e67c7ccff4c918b18aa8079603a516bea7fa44eebae9fd1c0",
+              "crates/deadsync-editor/tests/chart_event_copy_workflows.rs": "4b76b30c16c9539d58db8c5410e65b72129f8ade55405f1bc4968c3dd3707dca"
+            }
+          }
+        }
+      }
+    },
+    "14_help_ftue_about": {
+      "source": [
+        "UI/UIFTUE.cs",
+        "UI/UIAbout.cs",
+        "Documentation.cs"
+      ],
+      "requirements": [
+        "Keyboard controls help and pinned upstream documentation references",
+        "About shows real native version and applicable licenses",
+        "Release-link action requires real host update knowledge and explicit user action",
+        "Six-page onboarding and replay with persisted completion",
+        "Onboarding settings never change loaded song timing/history",
+        "Unknown preference fields and newer completion state preserved"
+      ],
+      "native_tests": [
+        "screens::edition::editor_about::license_layout_tests::all_license_pages_stay_centered_and_inside_real_viewport_en_fr_dpi_one_and_two",
+        "screens::edition::editor_about::tests::raw_keyboard_reads_all_license_pages_and_returns_without_document_mutation_en_fr",
+        "screens::edition::editor_about::tests::raw_update_action_requires_real_knowledge_and_explicit_enter",
+        "screens::edition::editor_help::source_reference_tests::actual_original_documentation_pages_and_repository_are_preserved_as_pinned_references",
+        "screens::edition::editor_help::tests::no_song_help_urls_are_only_queued_by_explicit_action_en_fr",
+        "screens::edition::ftue::memory_ftue_publication::imported_ftue_progress_is_saved_without_path_or_history",
+        "screens::edition::ftue::tests::changing_onboarding_sync_defaults_preserves_loaded_song_clock_and_history",
+        "screens::edition::ftue::tests::onboarding_waits_for_modals_and_does_not_consume_update_once_latch",
+        "screens::edition::ftue::tests::six_pages_use_existing_options_and_preserve_document_en_fr"
+      ],
+      "native_log": "/tmp/deadsync-clipboard-runtime-20261102/native-suite.log",
+      "consumer_hashes_match_native_execution": true,
+      "public_evidence": {
+        "passed": 3,
+        "source_sha256": "cd6af3e5cb30a38900e0287c02da8ea3b02ebabc95f130e55874a8a3934c014b",
+        "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/ftue_workflows.log",
+        "log_sha256": "8cf9372f746536d32901f56bce02d6a6fb52a3590195ff66f653241200cf0c2a",
+        "test_names": [
+          "ftue_workflows::original_six_step_navigation_matches_all_first_install_cases",
+          "ftue_workflows::progression_is_persistent_and_preserves_unknown_fields",
+          "ftue_workflows::stale_progress_save_refuses_to_overwrite_newer_completion"
+        ]
+      },
+      "runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/ftue-en-result.json",
+          "sha256": "d9685ff8cea84babb25c72451115cefefab81ef586a103a89b54d01908baf584",
+          "scope": "Recorded runtime only; no new GUI execution in this reconciliation."
+        },
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/ftue-replay-fr-completed.json",
+          "sha256": "e55b6c7fff0df773da98c5054a16e92ec92982686413ba7886702df61bdf7ced",
+          "scope": "Recorded runtime only; no new GUI execution in this reconciliation."
+        }
+      ],
+      "limits": [
+        "Source MonoGame/FMOD-specific UI is replaced by native host behavior; unused upstream runtime licenses are not presented as dependencies.",
+        "Help URL queuing is tested; external documentation pages are references to the source GUI, labelled accordingly."
+      ]
+    },
+    "15_log_performance": {
+      "source": [
+        "UI/UILog.cs",
+        "UI/UIPerformance.cs"
+      ],
+      "requirements": [
+        "Log level, date style, wrap, clear, copy and open real file",
+        "Copy is explicit and bound to current locale/visible filtered content",
+        "Real host performance samples and every measured stage",
+        "Pause freezes sampled data and avoids inactive resume gap",
+        "Plot frame count, scaling modes and fixed limit settings",
+        "Preferences preserve song, transport and unknown fields"
+      ],
+      "native_tests": [
+        "screens::edition::log_view::leaf_persistence_tests::unrelated_log_fields_are_preserved_across_new_file_baselines",
+        "screens::edition::log_view::locale_guard_tests::culture_change_during_format_or_before_clipboard_never_writes_stale_text",
+        "screens::edition::log_view::presentation_tests::opening_log_publishes_short_status_and_renders_help_once_en_fr",
+        "screens::edition::log_view::tests::log_preferences_survive_file_swaps_and_preserve_raw_vendor_fields",
+        "screens::edition::log_view::tests::no_song_log_copy_matches_filtered_visible_content_and_is_explicit_en_fr",
+        "screens::edition::log_view::tests::stale_copy_and_pending_document_review_are_preserved",
+        "screens::edition::log_view::tests::unknown_level_and_date_keep_their_real_distinct_semantics",
+        "screens::edition::performance::tests::actual_host_stages_pause_and_resume_without_recording_inactive_gap",
+        "screens::edition::performance::tests::chart_pages_expose_every_stage_and_cancel_draft_without_disk_or_song_changes",
+        "screens::edition::performance::tests::document_snapshot_retains_monitor_and_pause_cache_is_stable",
+        "screens::edition::performance::tests::no_song_keyboard_reaches_performance_log_and_help_and_restore_is_undoable_en_fr",
+        "screens::edition::performance::tests::profiling_panel_preserves_scoped_transport_and_keyboard_controls_playback"
+      ],
+      "native_log": "/tmp/deadsync-clipboard-runtime-20261102/native-suite.log",
+      "consumer_hashes_match_native_execution": true,
+      "public_evidence": {
+        "performance_monitor_source_workflows": {
+          "passed": 7,
+          "source_sha256": "ad0c81a5a6596493b11c2cbafbe696dedc609211b47f93b06c4071b2013725f4",
+          "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/performance_monitor_source_workflows.log",
+          "log_sha256": "b68f3e37e00808fae661c621a4bcb52760f465c1774649864799751f17441bf9",
+          "test_names": [
+            "performance_monitor_source_workflows::original_performance_restore_history_matches_and_keeps_chartless_song_clean",
+            "performance_monitor_source_workflows::original_preferences_defaults_conversion_and_restoration_match",
+            "performance_monitor_source_workflows::original_recorder_snapshots_match_ring_pause_resume_and_accumulation",
+            "performance_monitor_source_workflows::performance_file_round_trip_preserves_other_groups_and_checks_external_changes",
+            "performance_monitor_source_workflows::performance_history_merges_unowned_visibility_and_refuses_owned_external_changes",
+            "performance_monitor_source_workflows::performance_preferences_preserve_unknown_fields_and_reject_nonfinite_edits",
+            "performance_monitor_source_workflows::timed_operations_accumulate_and_paused_recording_is_inert"
+          ]
+        },
+        "performance_summary_source_workflows": {
+          "passed": 2,
+          "source_sha256": "375872b8aef74d7523bf751af0b380d930abeea87d3d63f4c8588c3276c4d9b3",
+          "log": "/tmp/deadsync-public-final-pipeline/combined-run-20261102T103114.176564Z/performance_summary_source_workflows.log",
+          "log_sha256": "ceec309f41c57c400609a9a61c807077f72cf732ddc4deac8e6987e070505606",
+          "test_names": [
+            "performance_summary_source_workflows::empty_recorder_and_missing_frequency_have_no_summary",
+            "performance_summary_source_workflows::whole_original_ui_summary_matches_sixty_recorded_draws"
+          ]
+        }
+      },
+      "runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-diagnostics-runtime-20261102/runtime-verified.json",
+          "sha256": "d9d2ebaa60a4cb57fc4a3fb4e3499ce1603582d00fbef9692719a45fb68173bc",
+          "scope": "Recorded runtime only; no new GUI execution in this reconciliation."
+        }
+      ],
+      "limits": [
+        "OS clipboard write acknowledgement observed; actual log text was not independently read back from OS clipboard.",
+        "No arbitrary workload performance benchmark claim."
+      ]
+    },
+    "16_layout_resolution": {
+      "requirements": [
+        "Only real host monitor modes exposed",
+        "Resolution changes queued by explicit action",
+        "Host applies request and returns actual outcome",
+        "Document and history preserved across layout request",
+        "Small viewport and DPI layouts keep controls/licence pages accessible"
+      ],
+      "native_tests": [
+        "screens::edition::window_layout::tests::host_modes_only_explicit_request_preserves_document",
+        "screens::edition::editor_about::license_layout_tests::all_license_pages_stay_centered_and_inside_real_viewport_en_fr_dpi_one_and_two"
+      ],
+      "native_log": "/tmp/deadsync-clipboard-runtime-20261102/native-suite.log",
+      "consumer_hashes_match_native_execution": true,
+      "runtime_receipts": [
+        {
+          "path": "/tmp/deadsync-editor-final-runtime-evidence-20261031/pack-help-runtime.json",
+          "sha256": "fcfd5da0527da7d82734dbac9791afb8ad3325b4b06a46dcdbe498bd3797663d",
+          "scope": "Recorded runtime only; no new GUI execution in this reconciliation."
+        }
+      ],
+      "limits": [
+        "Current evidence does not exercise every monitor or graphics-driver combination.",
+        "Dynamic minimap/overlay geometry has separate regression evidence; this entry alone does not certify all rendered editor panels."
+      ],
+      "host_consumer": "crates/deadsync-shell/src/app/editor_host.rs::sync_editor_window_layout rechecks requested mode against current monitor capabilities, applies it, updates config/options on success and reports result to editor."
+    },
+    "17_source_callback_review": {
+      "index": "docs/editor/command-coverage-2026-11-02.json",
+      "source_callbacks": 164,
+      "native_registry_variants": 217,
+      "reviewed_callbacks": 164,
+      "inventory_only_pending": 0,
+      "limits": [
+        "Reviewed routes combine exact native postconditions with inspected typed routing and public original-action workflows as recorded per row.",
+        "This is not a percentage of feature implementation or universal physical-key certification."
+      ],
+      "latest_native_receipt": "/tmp/deadsync-native-keep-chart-validation-20261102.json",
+      "additional_targeted_validation": {
+        "test": "measure_label_and_chart_edge_callbacks_keep_exact_positions_and_document",
+        "passed": 1,
+        "failed": 0,
+        "languages": [
+          "en",
+          "fr"
+        ],
+        "cases_per_language": 10,
+        "log": "/tmp/deadsync-source-navigation-callbacks-20261102.log",
+        "log_sha256": "9d85c7fd8903eeda384a1d2d7d27337919ffec00ba556d26d70c8efd9afffea4",
+        "source": "crates/deadsync-theme-simply-love/src/screens/edition/command_bindings/source_navigation_tests.rs",
+        "source_sha256": "f10751240d612f912824832ec50cff628460fc69e8536871058e8f3d70a19a19",
+        "production_unchanged": "Existing module matches latest full native source after removing only the added cfg(test) module declaration. New file is reachable only under cfg(test).",
+        "limit": "Targeted navigation case now also included in passing 621-test native suite."
+      },
+      "additional_history_callback_validation": {
+        "test": "undo_redo_callbacks_restore_exact_document_for_each_quick_add_non_pattern_kind",
+        "passed": 1,
+        "failed": 0,
+        "languages": [
+          "en",
+          "fr"
+        ],
+        "kinds_per_language": 12,
+        "cycles_per_kind": 2,
+        "log": "/tmp/deadsync-source-history-callbacks-20261102.log",
+        "log_sha256": "63f5e63369bd00373507929960b4e1a04e4e4e766b642b40b43d0622e8b38bbe",
+        "source": "crates/deadsync-theme-simply-love/src/screens/edition/command_bindings/source_navigation_tests.rs",
+        "source_sha256": "b8fe74a6f5db816c1bfc9b6ff4af30b3fc81a4101dbb21f368305039dada847a",
+        "limit": "Semantic callback coverage excludes pattern panel workflow; included in passing 621-test native suite."
+      },
+      "keep_chart_open_correction": {
+        "source": "StepManiaEditor/Editor.cs:6277-6280",
+        "defect": "Native Pin toggled dedicated state; original KeepChartOpen always sets true.",
+        "correction": "ViewAction::Pin sets dedicated=true idempotently.",
+        "test": "keep_chart_open_callback_is_idempotent_and_retains_views_when_focus_changes",
+        "log": "/tmp/deadsync-source-keep-chart-open-20261102.log",
+        "log_sha256": "878eff00b25579be5fceec103c160376046a4ccd9f060375f122570294d7ca3b",
+        "passed": 1,
+        "failed": 0,
+        "review_app_rebuild_pending": false,
+        "full_native_regression": {
+          "passed": 621,
+          "failed": 0,
+          "receipt": "/tmp/deadsync-native-keep-chart-validation-20261102.json"
+        }
+      },
+      "additional_chart_tab_validation": {
+        "test": "chart_tab_callbacks_move_without_wrap_cycle_focus_and_close_adjacent_views",
+        "passed": 1,
+        "failed": 0,
+        "languages": [
+          "en",
+          "fr"
+        ],
+        "log": "/tmp/deadsync-source-chart-tabs-20261102.log",
+        "log_sha256": "49bff0a1bd0089792782aa213ef5c1758dcacab489e5effdc780b8d35b952189",
+        "source_sha256": "e9a74b9652392fd3d28bbb62dc83a576ded27f2394abd385d862d654becffb18",
+        "limit": "One new test after full 621 suite, no product source changes since that suite."
+      },
+      "additional_chart_order_snap_validation": {
+        "passed": 6,
+        "failed": 0,
+        "log": "/tmp/deadsync-source-chart-order-snap-20261102.log",
+        "log_sha256": "d4336776fd652dbf8b696c120f3dfc9b3752719143f67c1ae977f9a39dd693c1",
+        "source_sha256": "d91b5db88e09e1b78317fd925b0fb6f2ce5803326f1161ad44b93360a0f89f4d",
+        "limit": "Targeted module run after full 621 suite; no production changes since full suite."
+      },
+      "additional_routine_owner_validation": {
+        "passed": 1,
+        "failed": 0,
+        "cases_per_language": 10,
+        "languages": [
+          "en",
+          "fr"
+        ],
+        "log": "/tmp/deadsync-source-owner-callbacks-20261102.log",
+        "log_sha256": "797879e01792f0cb029ed8244c051f1d67170942beaacc85e7b25ec2094ac640",
+        "source_sha256": "fee2728b3998e6662e7297f332760d3c91859d1db286b132630ad949366d291e",
+        "limits": [
+          "Collision-free fixture, literal entire-map comparison, separate Undo/Redo bytes.",
+          "New targeted test after 621 full native run; product sources unchanged."
+        ]
+      },
+      "additional_audio_player_validation": {
+        "passed": 9,
+        "failed": 0,
+        "languages": [
+          "en",
+          "fr"
+        ],
+        "log": "/tmp/deadsync-source-audio-player-callbacks-20261102.log",
+        "log_sha256": "1f10259b2eded1b04273380b3973369c98702c1fbc6c149ba939ed12eba51ab7",
+        "source_sha256": "b4ebb0cdf8ed37a3f99a4d0b0cc26408323d7d5cae4faf0988a03f8a195621d7",
+        "limit": "Targeted module run after full 621-test suite, no product changes."
+      },
+      "additional_ten_lane_validation": {
+        "passed": 1,
+        "failed": 0,
+        "cases": 80,
+        "languages": [
+          "en",
+          "fr"
+        ],
+        "log": "/tmp/deadsync-source-ten-lane-callbacks-20261102.log",
+        "log_sha256": "f09a3c0027dc3d4fdd9f6638f3752e47889de64a580de317ef553b0a93c356b8",
+        "source_sha256": "14dd093d729e72e7ca67fbbd826eaac137295ed73428fb0b15050b9116029802",
+        "limit": "Targeted test after 621 full native suite; no new product changes."
+      },
+      "additional_transport_validation": {
+        "passed": 1,
+        "failed": 0,
+        "languages": [
+          "en",
+          "fr"
+        ],
+        "log": "/tmp/deadsync-source-transport-callbacks-20261102.log",
+        "log_sha256": "4fbde038fb077a59f94fbf0ca9d982665c7c9137bed33c6b379cb77e78f6a50b",
+        "source_sha256": "612a84ff98af22d59d67adcf8740a8bf3969fc1e2331dff96accb2d3f4001cab",
+        "limit": "Explicit mocked backend readiness; not audible runtime validation."
+      },
+      "current_full_native_receipt": "docs/editor/final-validation-2026-11-02.json"
+    }
+  },
+  "withdrawn_initial_copy_experiment": {
+    "reason": "The action-only oracle bypassed mandatory source load normalization. Its nonzero-first nodes cannot be reached through the loaded editor path. The raw-position preservation change contradicted the real source path and was removed.",
+    "production_restored": "All three modified pre-existing production files match their original validated fingerprints; experimental module removed.",
+    "previous_revalidation_note": {
+      "reason": "Production timing/copy sources changed while correcting first authored initial-node positions. Earlier hash-matched reuse statements describe the inspection checkpoints, not a new certification of these changed sources.",
+      "changed": [
+        "src/chart_event_copy.rs",
+        "src/timing_edit.rs",
+        "src/timing_edit/signature.rs",
+        "src/timing_edit/chart_copy_initial.rs"
+      ],
+      "required": [
+        "Targeted copy, live-copy, signature/tempo and core tests",
+        "Refresh broader native/public gate after final production changes",
+        "Rebuild review app before claiming the fix is in the running application"
+      ],
+      "projection_limit": "The restored oracle comparison filters synthetic row-zero editor nodes when comparing authored file data. It does not prove source-equivalent native visual/clock behavior before the first authored node."
+    },
+    "source_evidence": [
+      "EditorChart.cs:682-686, 745-755, 823-841 adds missing row-zero tempo before use",
+      "Fumen SMCommon.cs:1187-1228 inserts default row-zero signature"
+    ],
+    "equivalence_receipt": "/tmp/deadsync-chart-copy-load-production-equivalence-20261102.json"
+  },
+  "current_open_items": [
+    {
+      "item": "Physical user review",
+      "action": "Held lane plus Down and Undo remains untested by user; OS-automation Command shortcut behavior is inconclusive while raw engine regression passes."
+    }
+  ],
+  "latest_native_validation": {
+    "passed": 629,
+    "failed": 0,
+    "ignored": 0,
+    "execution": "fresh full native editor run",
+    "log": "/tmp/deadsync-editor-current-final-native-20261102.log",
+    "log_sha256": "26a71ef09277743def44bfd116d272d3c9ee2ecc51162deaf434eb6e6d1b39dd",
+    "inputs": "/tmp/deadsync-editor-current-final-inputs-20261102.json",
+    "inputs_unchanged": 8303
+  },
+  "final_evidence_index": "docs/editor/final-validation-2026-11-02.json",
+  "current_review_app_receipt": "/tmp/deadsync-editor-final-app-receipt-20261102.json"
+}

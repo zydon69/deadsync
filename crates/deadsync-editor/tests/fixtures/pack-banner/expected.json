@@ -1,0 +1,131 @@
+[
+  {
+    "culture": "en-US",
+    "index": 0,
+    "files": [
+      "z.jpg",
+      "z.png",
+      "A.png",
+      "a.PNG"
+    ],
+    "selected": "A.png"
+  },
+  {
+    "culture": "en-US",
+    "index": 1,
+    "files": [
+      "é.png",
+      "e.png",
+      "Z.png",
+      "a.PNG"
+    ],
+    "selected": "Z.png"
+  },
+  {
+    "culture": "en-US",
+    "index": 2,
+    "files": [
+      ".png",
+      "𐀀.png"
+    ],
+    "selected": "𐀀.png"
+  },
+  {
+    "culture": "en-US",
+    "index": 3,
+    "files": [
+      "a.PNG",
+      "b.JPG"
+    ],
+    "selected": null
+  },
+  {
+    "culture": "fr-FR",
+    "index": 0,
+    "files": [
+      "z.jpg",
+      "z.png",
+      "A.png",
+      "a.PNG"
+    ],
+    "selected": "A.png"
+  },
+  {
+    "culture": "fr-FR",
+    "index": 1,
+    "files": [
+      "é.png",
+      "e.png",
+      "Z.png",
+      "a.PNG"
+    ],
+    "selected": "Z.png"
+  },
+  {
+    "culture": "fr-FR",
+    "index": 2,
+    "files": [
+      ".png",
+      "𐀀.png"
+    ],
+    "selected": "𐀀.png"
+  },
+  {
+    "culture": "fr-FR",
+    "index": 3,
+    "files": [
+      "a.PNG",
+      "b.JPG"
+    ],
+    "selected": null
+  },
+  {
+    "culture": "sv-SE",
+    "index": 0,
+    "files": [
+      "z.jpg",
+      "z.png",
+      "A.png",
+      "a.PNG"
+    ],
+    "selected": "A.png"
+  },
+  {
+    "culture": "sv-SE",
+    "index": 1,
+    "files": [
+      "é.png",
+      "e.png",
+      "Z.png",
+      "a.PNG"
+    ],
+    "selected": "Z.png"
+  },
+  {
+    "culture": "sv-SE",
+    "index": 2,
+    "files": [
+      ".png",
+      "𐀀.png"
+    ],
+    "selected": "𐀀.png"
+  },
+  {
+    "culture": "sv-SE",
+    "index": 3,
+    "files": [
+      "a.PNG",
+      "b.JPG"
+    ],
+    "selected": null
+  },
+  {
+    "culture": "links",
+    "index": 4,
+    "files": [
+      "0.png(directory symlink)",
+      "1.png(dangling file symlink)"
+    ],
+    "selected": "1.png"
+  }
+]

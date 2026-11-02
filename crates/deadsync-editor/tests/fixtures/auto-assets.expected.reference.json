@@ -1,0 +1,14 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourcesSha256": {
+    "Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+    "Utils.cs": "0ac380bdd1742b1856bd0ccbc0650e334e16b489a3da47ecb8775b9bde145de7",
+    "EditorSongImageUtils.cs": "573be36d261fcfbec601bac2b7c7e40be817edb9130ddbba0311b61c072d2e2a",
+    "EditorActions/ActionSetSongAssets.cs": "7db5ac1ae417e5756197848f005bbbf3e30373d348a76e35f90a34b2e97d2ae4"
+  },
+  "AdapterSha256": "cccd0fa1ee328f57d31dab6e74ffc0ad4cc00d0a310e2dddb622abe7a5f229e7",
+  "AssemblySha256": "b21d5b6b7ba536321a5f8e2d8b4ad64e1faa3a890dff5c088316396301ad7e4d",
+  "FumenAssemblySha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "Scope": "Original callback, complete ActionSetSongAssets, whole EditorSongImageUtils and three original reflection helpers; real pinned Fumen ActionQueue/UndoableAction, real temporary filesystem enumeration. Host supplies song string properties and CanEdit; Skia codec dimensions fixed1x1, so real image decoding is not proven (named candidates are used). Chartless is the same song callback with no chart dependency."
+}

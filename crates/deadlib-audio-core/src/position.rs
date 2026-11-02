@@ -100,6 +100,53 @@ static MUSIC_TRACK_ACTIVE: AtomicBool = AtomicBool::new(false);
 // Song-time fallback for the current/pending music stream. The precise
 // packet map is published by the audio callback, but gameplay can query the
 // clock before the first mapped packet has been consumed.
+// Asset identity is independent of seek/rate timeline identity. Never wrap:
+// an exhausted counter must not authenticate an old queued asset again.
+static MUSIC_PAUSED: AtomicBool = AtomicBool::new(false);
+static MUSIC_PAUSE_EPOCH: AtomicU64 = AtomicU64::new(1);
+/// Revoke queued audible data without changing asset ownership or track origin.
+/// The caller separately invalidates the timeline generation before resuming.
+pub fn pause_music_track()->u64{
+    MUSIC_PAUSED.store(true,Ordering::Release);
+    MUSIC_PAUSE_EPOCH.fetch_update(Ordering::AcqRel,Ordering::Acquire,|epoch|epoch.checked_add(1)).expect("Music pause epoch exhausted")+1
+}
+pub fn resume_music_track(){MUSIC_PAUSED.store(false,Ordering::Release);}
+pub fn music_track_paused()->bool{MUSIC_PAUSED.load(Ordering::Acquire)}
+pub fn music_pause_epoch()->u64{MUSIC_PAUSE_EPOCH.load(Ordering::Acquire)}
+
+// One atomic word publishes identity and its phase contract together. Readers
+// can never observe a new preview identity with the previous MAIN trim policy.
+static MUSIC_ASSET_STATE: AtomicU64 = AtomicU64::new(2);
+#[derive(Clone,Copy,Debug,Eq,PartialEq)]
+pub(crate) enum MusicAssetPhase { SourceClock, PreviewLoop }
+pub(crate) fn music_asset_state()->(u64,MusicAssetPhase) {
+    let word=MUSIC_ASSET_STATE.load(Ordering::Acquire);
+    (word>>1,if word&1==0{MusicAssetPhase::SourceClock}else{MusicAssetPhase::PreviewLoop})
+}
+#[inline(always)]
+pub fn music_asset_epoch()->u64{MUSIC_ASSET_STATE.load(Ordering::Acquire)>>1}
+fn advance_music_asset_with_phase(phase:MusicAssetPhase)->u64 {
+    let previous=MUSIC_ASSET_STATE.fetch_update(Ordering::AcqRel,Ordering::Acquire,|word|{
+        let epoch=(word>>1).checked_add(1)?;
+        if epoch>u64::MAX>>1{return None;}
+        Some((epoch<<1)|u64::from(phase==MusicAssetPhase::PreviewLoop))
+    }).expect("Music asset epoch exhausted");
+    (previous>>1)+1
+}
+#[inline(always)]
+pub fn advance_music_asset_epoch()->u64{advance_music_asset_with_phase(MusicAssetPhase::SourceClock)}
+/// Preview phase wraps inside its own cut. Its worker aligns the first PCM
+/// packet modulo that range; MAIN's unbounded source-clock trim is inapplicable.
+pub fn advance_music_preview_asset_epoch()->u64{advance_music_asset_with_phase(MusicAssetPhase::PreviewLoop)}
+/// Reanchor a live asset clock without resetting track start or map generation.
+/// Unlike normal preroll seeding, an exact zero is an authoritative anchor too.
+#[inline(always)]
+pub fn seed_music_asset_clock(cut_start_sec:f64,rate:f32){
+    MUSIC_CLOCK_CUT_START_BITS.store(cut_start_sec.to_bits(),Ordering::Relaxed);
+    MUSIC_CLOCK_RATE_BITS.store(normalized_music_rate(rate).to_bits(),Ordering::Relaxed);
+    MUSIC_CLOCK_SEEDED.store(cut_start_sec.is_finite(),Ordering::Release);
+}
+
 static MUSIC_CLOCK_SEEDED: AtomicBool = AtomicBool::new(false);
 static MUSIC_CLOCK_CUT_START_BITS: AtomicU64 = AtomicU64::new(0.0f64.to_bits());
 static MUSIC_CLOCK_RATE_BITS: AtomicU32 = AtomicU32::new(1.0f32.to_bits());
@@ -162,6 +209,7 @@ pub fn seeded_music_position(stream_seconds: f64) -> Option<(f64, f32)> {
 
 #[inline(always)]
 pub fn reset_music_stream_clock_state() {
+    crate::preview_envelope::clear();
     let total = MUSIC_TOTAL_FRAMES.load(Ordering::Acquire);
     MUSIC_TRACK_START_FRAME.store(total, Ordering::Release);
     MUSIC_TRACK_HAS_STARTED.store(false, Ordering::Release);

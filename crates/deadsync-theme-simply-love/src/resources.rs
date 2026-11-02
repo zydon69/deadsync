@@ -130,6 +130,8 @@ pub const FONT_ASSETS: [FontAssetSpec; 20] = [
 ];
 
 pub const BASE_TEXTURE_ASSETS: &[TextureAssetSpec] = &[
+    // Editor sprites are ordinary actors; they do not trigger deferred image loads.
+    texture_asset("editor-grooveauthor/atlas.png"),
     texture_asset("logo.png"),
     texture_asset("init_arrow.png"),
     texture_asset("dance.png"),
@@ -1211,6 +1213,22 @@ mod tests {
                 .iter()
                 .any(|asset| asset.key == SRPG10_ASSETS.shared_background)
         );
+    }
+
+    #[test]
+    fn editor_atlas_is_resident_under_the_actor_texture_key() {
+        let assets: Vec<_> = initial_texture_assets()
+            .filter(|asset| asset.key == "editor-grooveauthor/atlas.png")
+            .collect();
+        assert_eq!(assets.len(), 1);
+        assert_eq!(assets[0].path, "editor-grooveauthor/atlas.png");
+        let source = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../assets/graphics")
+            .join(assets[0].path);
+        let bytes = std::fs::read(source).expect("bundled editor atlas exists");
+        assert_eq!(&bytes[..8], b"\x89PNG\r\n\x1a\n");
+        assert_eq!(u32::from_be_bytes(bytes[16..20].try_into().unwrap()), 1280);
+        assert_eq!(u32::from_be_bytes(bytes[20..24].try_into().unwrap()), 1280);
     }
 
     #[test]

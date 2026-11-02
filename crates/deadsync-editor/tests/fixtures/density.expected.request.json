@@ -1,0 +1,1724 @@
+[
+  {
+    "Name": "steps-rows-fakes",
+    "Stream": {},
+    "Times": [
+      0,
+      2
+    ],
+    "FinalTime": 4,
+    "Events": [
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 12,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 24,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 36,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 48,
+        "Step": false,
+        "Fake": false
+      },
+      {
+        "Row": 60,
+        "Step": true,
+        "Fake": true
+      },
+      {
+        "Row": 72,
+        "Step": false,
+        "Fake": false
+      },
+      {
+        "Row": 84,
+        "Step": true,
+        "Fake": true
+      },
+      {
+        "Row": 192,
+        "Step": false,
+        "Fake": false
+      }
+    ]
+  },
+  {
+    "Name": "sparse-gap-source",
+    "Stream": {
+      "NoteType": "QuarterNotes"
+    },
+    "Times": [
+      0,
+      2,
+      4,
+      6
+    ],
+    "FinalTime": 8,
+    "Events": [
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 12,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 24,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 36,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 576,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 588,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 600,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 612,
+        "Step": true,
+        "Fake": false
+      }
+    ]
+  },
+  {
+    "Name": "sparse-gap-event-boundary",
+    "Stream": {
+      "NoteType": "QuarterNotes"
+    },
+    "Times": [
+      0,
+      2,
+      4,
+      6
+    ],
+    "FinalTime": 8,
+    "Events": [
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 12,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 24,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 36,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 192,
+        "Step": false,
+        "Fake": false
+      },
+      {
+        "Row": 576,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 588,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 600,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 612,
+        "Step": true,
+        "Fake": false
+      }
+    ]
+  },
+  {
+    "Name": "row-accumulation-no-stream",
+    "Stream": {
+      "NoteType": "QuarterNotes",
+      "AccumulationType": "Row"
+    },
+    "Times": [
+      0,
+      2
+    ],
+    "FinalTime": 4,
+    "Events": [
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      }
+    ]
+  },
+  {
+    "Name": "byte-overflow-source",
+    "Stream": {},
+    "Times": [
+      0,
+      2
+    ],
+    "FinalTime": 4,
+    "Events": [
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      }
+    ]
+  },
+  {
+    "Name": "empty-finite-native-required",
+    "Stream": {},
+    "Times": [
+      0,
+      2
+    ],
+    "FinalTime": 4,
+    "Events": [
+      {
+        "Row": 0,
+        "Step": false,
+        "Fake": false
+      }
+    ]
+  },
+  {
+    "Name": "warped-zero-measure",
+    "Stream": {},
+    "Times": [
+      0,
+      0,
+      2
+    ],
+    "FinalTime": 4,
+    "Events": [
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 192,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 384,
+        "Step": true,
+        "Fake": false
+      }
+    ]
+  },
+  {
+    "Name": "variable-bpm-periods",
+    "Stream": {},
+    "Times": [
+      0,
+      1,
+      3
+    ],
+    "FinalTime": 7,
+    "Events": [
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 192,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 384,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 384,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 384,
+        "Step": true,
+        "Fake": false
+      }
+    ]
+  },
+  {
+    "Name": "stop-at-measure-boundary",
+    "Stream": {},
+    "Times": [
+      0,
+      0,
+      0
+    ],
+    "FinalTime": 7,
+    "Events": [
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 192,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 384,
+        "Step": true,
+        "Fake": false
+      }
+    ],
+    "Rates": [
+      {
+        "Row": 0,
+        "Time": 0,
+        "Stop": 0,
+        "Warp": 0,
+        "SecondsPerRow": 0.010416666666666666
+      },
+      {
+        "Row": 192,
+        "Time": 2,
+        "Stop": 1,
+        "Warp": 0,
+        "SecondsPerRow": 0.010416666666666666
+      }
+    ]
+  },
+  {
+    "Name": "warp-at-measure-boundary",
+    "Stream": {},
+    "Times": [
+      0,
+      0,
+      0
+    ],
+    "FinalTime": 4,
+    "Events": [
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 192,
+        "Step": true,
+        "Fake": true
+      },
+      {
+        "Row": 384,
+        "Step": true,
+        "Fake": false
+      }
+    ],
+    "Rates": [
+      {
+        "Row": 0,
+        "Time": 0,
+        "Stop": 0,
+        "Warp": 0,
+        "SecondsPerRow": 0.010416666666666666
+      },
+      {
+        "Row": 192,
+        "Time": 2,
+        "Stop": 0,
+        "Warp": 192,
+        "SecondsPerRow": 0.010416666666666666
+      }
+    ]
+  },
+  {
+    "Name": "stop-at-zero-measure",
+    "Stream": {},
+    "Times": [
+      0,
+      0
+    ],
+    "FinalTime": 5,
+    "Events": [
+      {
+        "Row": 0,
+        "Step": true,
+        "Fake": false
+      },
+      {
+        "Row": 192,
+        "Step": true,
+        "Fake": false
+      }
+    ],
+    "Rates": [
+      {
+        "Row": 0,
+        "Time": 0,
+        "Stop": 1,
+        "Warp": 0,
+        "SecondsPerRow": 0.010416666666666666
+      }
+    ]
+  }
+]

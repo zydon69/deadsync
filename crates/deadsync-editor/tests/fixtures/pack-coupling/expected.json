@@ -1,0 +1,477 @@
+[
+  {
+    "name": "close-False-False-cancel",
+    "title": "",
+    "trace": [
+      "close"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "close-False-False-discard",
+    "title": "",
+    "trace": [
+      "close"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "close-False-False-save",
+    "title": "",
+    "trace": [
+      "close"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "close-False-True-cancel",
+    "title": "Unsaved Pack Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "close-False-True-discard",
+    "title": "Unsaved Pack Changes",
+    "trace": [
+      "close"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "close-False-True-save",
+    "title": "Unsaved Pack Changes",
+    "trace": [
+      "pack-save",
+      "close"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "close-True-False-cancel",
+    "title": "Unsaved Simfile Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "close-True-False-discard",
+    "title": "Unsaved Simfile Changes",
+    "trace": [
+      "close"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "close-True-False-save",
+    "title": "Unsaved Simfile Changes",
+    "trace": [
+      "song-save",
+      "pack-save",
+      "close"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "close-True-True-cancel",
+    "title": "Unsaved Simfile And Pack Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "close-True-True-discard",
+    "title": "Unsaved Simfile And Pack Changes",
+    "trace": [
+      "close"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "close-True-True-save",
+    "title": "Unsaved Simfile And Pack Changes",
+    "trace": [
+      "song-save",
+      "pack-save",
+      "close"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-False-False-cancel",
+    "title": "",
+    "trace": [
+      "exit"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-False-False-discard",
+    "title": "",
+    "trace": [
+      "exit"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-False-False-save",
+    "title": "",
+    "trace": [
+      "exit"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-False-True-cancel",
+    "title": "Unsaved Pack Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-False-True-discard",
+    "title": "Unsaved Pack Changes",
+    "trace": [
+      "exit"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-False-True-save",
+    "title": "Unsaved Pack Changes",
+    "trace": [
+      "pack-save",
+      "exit"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-True-False-cancel",
+    "title": "Unsaved Simfile Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-True-False-discard",
+    "title": "Unsaved Simfile Changes",
+    "trace": [
+      "exit"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-True-False-save",
+    "title": "Unsaved Simfile Changes",
+    "trace": [
+      "song-save",
+      "pack-save",
+      "exit"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-True-True-cancel",
+    "title": "Unsaved Simfile And Pack Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-True-True-discard",
+    "title": "Unsaved Simfile And Pack Changes",
+    "trace": [
+      "exit"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "exit-True-True-save",
+    "title": "Unsaved Simfile And Pack Changes",
+    "trace": [
+      "song-save",
+      "pack-save",
+      "exit"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-False-False-cancel",
+    "title": "",
+    "trace": [
+      "open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-False-False-discard",
+    "title": "",
+    "trace": [
+      "open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-False-False-save",
+    "title": "",
+    "trace": [
+      "open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-False-True-cancel",
+    "title": "Unsaved Pack Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-False-True-discard",
+    "title": "Unsaved Pack Changes",
+    "trace": [
+      "open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-False-True-save",
+    "title": "Unsaved Pack Changes",
+    "trace": [
+      "pack-save",
+      "open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-True-False-cancel",
+    "title": "Unsaved Simfile Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-True-False-discard",
+    "title": "Unsaved Simfile Changes",
+    "trace": [
+      "open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-True-False-save",
+    "title": "Unsaved Simfile Changes",
+    "trace": [
+      "song-save",
+      "pack-save",
+      "open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-True-True-cancel",
+    "title": "Unsaved Simfile And Pack Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-True-True-discard",
+    "title": "Unsaved Simfile And Pack Changes",
+    "trace": [
+      "open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "open-True-True-save",
+    "title": "Unsaved Simfile And Pack Changes",
+    "trace": [
+      "song-save",
+      "pack-save",
+      "open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-False-False-cancel",
+    "title": "",
+    "trace": [
+      "same-pack-open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-False-False-discard",
+    "title": "",
+    "trace": [
+      "same-pack-open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-False-False-save",
+    "title": "",
+    "trace": [
+      "same-pack-open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-False-True-cancel",
+    "title": "",
+    "trace": [
+      "same-pack-open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-False-True-discard",
+    "title": "",
+    "trace": [
+      "same-pack-open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-False-True-save",
+    "title": "",
+    "trace": [
+      "same-pack-open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-True-False-cancel",
+    "title": "Unsaved Simfile Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-True-False-discard",
+    "title": "Unsaved Simfile Changes",
+    "trace": [
+      "same-pack-open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-True-False-save",
+    "title": "Unsaved Simfile Changes",
+    "trace": [
+      "song-save",
+      "pack-save",
+      "same-pack-open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-True-True-cancel",
+    "title": "Unsaved Simfile Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-True-True-discard",
+    "title": "Unsaved Simfile Changes",
+    "trace": [
+      "same-pack-open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "same-pack-open-True-True-save",
+    "title": "Unsaved Simfile Changes",
+    "trace": [
+      "song-save",
+      "pack-save",
+      "same-pack-open"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-False-False-cancel",
+    "title": "",
+    "trace": [
+      "pack-reload"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-False-False-discard",
+    "title": "",
+    "trace": [
+      "pack-reload"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-False-False-save",
+    "title": "",
+    "trace": [
+      "pack-reload"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-False-True-cancel",
+    "title": "Unsaved Pack Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-False-True-discard",
+    "title": "Unsaved Pack Changes",
+    "trace": [
+      "pack-reload"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-False-True-save",
+    "title": "Unsaved Pack Changes",
+    "trace": [
+      "pack-save",
+      "pack-reload"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-True-False-cancel",
+    "title": "",
+    "trace": [
+      "pack-reload"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-True-False-discard",
+    "title": "",
+    "trace": [
+      "pack-reload"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-True-False-save",
+    "title": "",
+    "trace": [
+      "pack-reload"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-True-True-cancel",
+    "title": "Unsaved Pack Changes",
+    "trace": [],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-True-True-discard",
+    "title": "Unsaved Pack Changes",
+    "trace": [
+      "pack-reload"
+    ],
+    "continuation_pending": false
+  },
+  {
+    "name": "pack-reload-True-True-save",
+    "title": "Unsaved Pack Changes",
+    "trace": [
+      "pack-save",
+      "pack-reload"
+    ],
+    "continuation_pending": false
+  }
+]

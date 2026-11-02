@@ -108,6 +108,7 @@ fn target(id: u64) -> RenderTargetFrame {
         alpha: true,
         depth: true,
         preserve: false,
+        postprocess: None,
         cameras: vec![Mat4::IDENTITY],
         sprite_instances: Vec::new(),
         mesh_vertices: Vec::new(),

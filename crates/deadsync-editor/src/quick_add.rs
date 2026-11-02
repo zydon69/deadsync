@@ -117,7 +117,7 @@ impl Plan {
             .get(chart)
             .ok_or_else(|| refuse(Refusal::Invalid, "Quick-add chart does not exist"))?
             .clone();
-        let scope = if timing_edit::supports_chart_timing(session.document()) {
+        let scope = if timing_edit::supports_resident_chart_timing(session.document()) {
             Scope::Chart
         } else {
             Scope::Song
@@ -233,7 +233,8 @@ impl Plan {
                 Draft::Region(d)
             }
             Kind::Attack => {
-                let mut d = crate::attacks::inspector::Draft::capture(session, chart, scope)?;
+                let attack_scope=if crate::attacks::supports_resident_chart_attacks(session.document()){Scope::Chart}else{Scope::Song};
+                let mut d = crate::attacks::inspector::Draft::capture(session, chart, attack_scope)?;
                 if d.attacks().events().iter().any(|e| e.row == row) {
                     return Err(occupied());
                 }

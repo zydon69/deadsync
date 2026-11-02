@@ -1,3 +1,4 @@
+mod fxaa;
 use ash::{
     Device, Entry, Instance,
     google::display_timing,
@@ -292,6 +293,16 @@ struct OffscreenTarget {
     framebuffer: vk::Framebuffer,
     _depth: Option<DepthTarget>,
     initialized: bool,
+    // None: no FXAA; Some(None): own raw capture; Some(Some(h)): prior public target.
+    postprocess_source: Option<Option<TextureHandle>>,
+    raw_capture: Option<Box<OffscreenTarget>>,
+}
+impl Drop for OffscreenTarget {
+    fn drop(&mut self) {
+        // SAFETY: targets retire only after device idle; framebuffer dies before
+        // its texture/depth attachments (including the retained raw capture).
+        unsafe {self.texture.device.destroy_framebuffer(self.framebuffer, None);}
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -2775,7 +2786,8 @@ pub fn draw(
                 tmesh_instance: target_base.tmesh_instance + target_cursor.tmesh_instance,
             };
             let target = &state.offscreen_targets[index];
-            let preserve = target_frame.preserve && target.initialized;
+            let capture=target.raw_capture.as_deref().unwrap_or(target);
+            let preserve = target_frame.preserve && capture.initialized;
             let [viewport_width, viewport_height] =
                 deadlib_render_core::render_target_viewport(target_frame);
             offscreen_vertices += record_render_pass(
@@ -2793,10 +2805,10 @@ pub fn draw(
                         [target_frame.depth as usize]
                         .clear
                 },
-                target.framebuffer,
+                capture.framebuffer,
                 vk::Extent2D {
-                    width: target.width,
-                    height: target.height,
+                    width: capture.width,
+                    height: capture.height,
                 },
                 vk::Extent2D {
                     width: viewport_width,
@@ -2808,6 +2820,17 @@ pub fn draw(
                     [target_frame.depth as usize]
                     .pipelines[target_frame.alpha as usize],
             );
+            if let Some(pass)=target_frame.postprocess {
+                let source=if let Some(source_index)=fxaa::source_index(&frame.render_targets,index)? {
+                    &state.offscreen_targets[source_index]
+                }else {capture};
+                // Parent pass has ended in shader-read layout. This separate
+                // fullscreen pass publishes the filtered image before later
+                // targets/main resolve its public handle in the same command buffer.
+                fxaa::record(state,cmd,target,source,pass.quality,target_frame.alpha,target_frame.depth);
+                offscreen_vertices+=3;
+            }
+            if let Some(raw)=state.offscreen_targets[index].raw_capture.as_mut(){raw.initialized=true;}
             state.offscreen_targets[index].initialized = true;
             target_cursor.sprite += target_frame.sprite_instances.len() as u32;
             target_cursor.mesh += target_frame.mesh_vertices.len() as u32;
@@ -3197,6 +3220,8 @@ pub fn cleanup(state: &mut State) {
             }
         }
         for capture in state.capture_passes.iter().flatten() {
+            device.destroy_pipeline(capture.fxaa.pipe, None);
+            device.destroy_pipeline_layout(capture.fxaa.layout, None);
             device.destroy_render_pass(capture.clear, None);
             device.destroy_render_pass(capture.preserve, None);
         }
@@ -3328,6 +3353,8 @@ fn color_blend_for(mode: BlendMode, write_alpha: bool) -> vk::PipelineColorBlend
         vk::ColorComponentFlags::R | vk::ColorComponentFlags::G | vk::ColorComponentFlags::B
     };
     match mode {
+        BlendMode::Replace => vk::PipelineColorBlendAttachmentState::default().color_write_mask(write_mask).blend_enable(true).src_color_blend_factor(vk::BlendFactor::ONE).dst_color_blend_factor(vk::BlendFactor::ZERO).color_blend_op(vk::BlendOp::ADD).src_alpha_blend_factor(vk::BlendFactor::ONE).dst_alpha_blend_factor(vk::BlendFactor::ZERO).alpha_blend_op(vk::BlendOp::ADD),
+        BlendMode::PremultipliedAlpha => vk::PipelineColorBlendAttachmentState::default().color_write_mask(write_mask).blend_enable(true).src_color_blend_factor(vk::BlendFactor::ONE).dst_color_blend_factor(vk::BlendFactor::ONE_MINUS_SRC_ALPHA).color_blend_op(vk::BlendOp::ADD).src_alpha_blend_factor(vk::BlendFactor::ONE).dst_alpha_blend_factor(vk::BlendFactor::ONE_MINUS_SRC_ALPHA).alpha_blend_op(vk::BlendOp::ADD),
         BlendMode::NoEffect => vk::PipelineColorBlendAttachmentState::default()
             .color_write_mask(write_mask)
             .blend_enable(true)
@@ -4849,11 +4876,11 @@ fn create_render_pass(device: &Device, format: vk::Format) -> Result<vk::RenderP
 // five geometry kinds and four blends. Initialization warms all variants;
 // gameplay only selects handles. No misses, pruning, I/O or frame allocations.
 struct PassPipelines {
-    sprites: [PipelinePair; 5],
-    video: [PipelinePair; 5],
-    meshes: [PipelinePair; 5],
-    textured: [PipelinePair; 5],
-    depth: Option<[[PipelinePair; 5]; 6]>,
+    sprites: [PipelinePair; 7],
+    video: [PipelinePair; 7],
+    meshes: [PipelinePair; 7],
+    textured: [PipelinePair; 7],
+    depth: Option<[[PipelinePair; 7]; 6]>,
 }
 
 struct CapturePass {
@@ -4861,6 +4888,7 @@ struct CapturePass {
     clear: vk::RenderPass,
     preserve: vk::RenderPass,
     pipelines: [PassPipelines; 2],
+    fxaa: PipelinePair,
 }
 
 const fn blend_index(mode: BlendMode) -> usize {
@@ -4870,18 +4898,22 @@ const fn blend_index(mode: BlendMode) -> usize {
         BlendMode::Multiply => 2,
         BlendMode::Subtract => 3,
         BlendMode::NoEffect => 4,
+        BlendMode::Replace => 5,
+        BlendMode::PremultipliedAlpha => 6,
     }
 }
 
 fn build_blend_pipelines(
     mut build: impl FnMut(BlendMode) -> Result<PipelinePair, Box<dyn Error>>,
-) -> Result<[PipelinePair; 5], Box<dyn Error>> {
+) -> Result<[PipelinePair; 7], Box<dyn Error>> {
     Ok([
         build(BlendMode::Alpha)?,
         build(BlendMode::Add)?,
         build(BlendMode::Multiply)?,
         build(BlendMode::Subtract)?,
         build(BlendMode::NoEffect)?,
+        build(BlendMode::Replace)?,
+        build(BlendMode::PremultipliedAlpha)?,
     ])
 }
 
@@ -4897,6 +4929,7 @@ fn create_capture_pass(
         format,
         clear,
         preserve,
+        fxaa: fxaa::create_pipeline(device, clear, descriptor_layout)?,
         pipelines: [
             create_pass_pipelines(device, clear, descriptor_layout, false, with_depth)?,
             create_pass_pipelines(device, clear, descriptor_layout, true, with_depth)?,
@@ -5123,6 +5156,8 @@ fn create_offscreen_target(
     // the attachment slice remains alive through the call.
     let framebuffer = unsafe { device.create_framebuffer(&framebuffer_info, None)? };
     Ok(OffscreenTarget {
+        postprocess_source: None,
+        raw_capture: None,
         handle: pass.texture_handle,
         width,
         height,
@@ -5135,18 +5170,13 @@ fn create_offscreen_target(
 }
 
 fn destroy_offscreen_targets(state: &mut State) {
-    let Some(device) = state.device.as_ref() else {
+    let Some(_) = state.device.as_ref() else {
         state.offscreen_targets.clear();
         return;
     };
     // SAFETY: callers wait for the device to become idle before teardown, and
     // each framebuffer is owned exclusively by its target slot.
-    unsafe {
-        for target in state.offscreen_targets.drain(..) {
-            device.destroy_framebuffer(target.framebuffer, None);
-            drop(target);
-        }
-    }
+    state.offscreen_targets.clear();
     state.target_uploads.clear();
 }
 
@@ -5154,6 +5184,9 @@ fn ensure_offscreen_targets(
     state: &mut State,
     passes: &[RenderTargetFrame],
 ) -> Result<(), Box<dyn Error>> {
+    // Validate before touching resources: a filtered pass may sample only an
+    // earlier published target, never itself, a future target or an asset.
+    for index in 0..passes.len() {fxaa::source_index(passes,index)?;}
     let matches = state.offscreen_targets.len() == passes.len()
         && state
             .offscreen_targets
@@ -5164,6 +5197,7 @@ fn ensure_offscreen_targets(
                     && target.width == pass.width.max(1)
                     && target.height == pass.height.max(1)
                     && target.float_color == pass.float_color
+                    && target.postprocess_source == pass.postprocess.map(|fx|fx.source)
                     && target._depth.is_some() == pass.depth
             });
     if matches {
@@ -5179,7 +5213,12 @@ fn ensure_offscreen_targets(
     state.offscreen_targets.reserve(passes.len());
     state.target_uploads.reserve(passes.len());
     for pass in passes {
-        let target = create_offscreen_target(state, pass)?;
+        let mut target = create_offscreen_target(state, pass)?;
+        target.postprocess_source=pass.postprocess.map(|fx|fx.source);
+        if target.postprocess_source==Some(None) {
+            // Parent capture must remain unfiltered between preserve frames.
+            target.raw_capture=Some(Box::new(create_offscreen_target(state,pass)?));
+        }
         state.offscreen_targets.push(target);
         state
             .target_uploads

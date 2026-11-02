@@ -361,7 +361,7 @@ fn staged_sample_clock_keeps_chart_offset_override_and_switches_back_to_song_inh
 }
 
 #[test]
-fn dedicated_preview_draft_drives_audition_and_reversible_ssc_save_only() {
+fn dedicated_preview_draft_drives_audition_and_reversible_native_save_in_both_formats() {
     use deadsync_editor::song_text::Field;
     let dir = tempfile::tempdir().unwrap();
     fs::write(dir.path().join("preview.wav"), b"fixture").unwrap();
@@ -385,15 +385,14 @@ fn dedicated_preview_draft_drives_audition_and_reversible_ssc_save_only() {
     assert_eq!(session.serialize().unwrap(), original);
     session.redo().unwrap();
     assert_eq!(session.serialize().unwrap(), changed);
-    let sm = song(Format::Sm);
-    let mut draft = Draft::capture(&sm).unwrap();
-    assert!(!draft.supports_text(Field::PreviewMusic));
-    assert!(draft.set_text(Field::PreviewMusic, "preview.wav").is_err());
-    assert!(!draft.has_changes());
+    let mut sm = song(Format::Sm);
+    let original=sm.serialize().unwrap();let mut draft=Draft::capture(&sm).unwrap();
+    assert!(draft.supports_text(Field::PreviewMusic));draft.set_text(Field::PreviewMusic,"preview.wav").unwrap();assert!(draft.apply(&mut sm).unwrap());
+    assert_eq!(Draft::capture(&sm).unwrap().text(Field::PreviewMusic),"preview.wav");sm.undo().unwrap();assert_eq!(sm.serialize().unwrap(),original);
 }
 
 #[test]
-fn last_second_hint_is_ssc_only_reversible_and_preserves_unedited_legacy_values() {
+fn last_second_hint_is_reversible_in_both_formats_and_preserves_unedited_legacy_values() {
     let mut session = song(Format::Ssc);
     session
         .set_text(None, "LASTSECONDHINT", "-2.000000")
@@ -419,9 +418,7 @@ fn last_second_hint_is_ssc_only_reversible_and_preserves_unedited_legacy_values(
     assert_eq!(session.serialize().unwrap(), changed);
     let reopened = Session::new(Document::parse(changed, Format::Ssc).unwrap());
     assert_eq!(Draft::capture(&reopened).unwrap().last_second_hint(), 12.5);
-    let session = song(Format::Sm);
-    let mut draft = Draft::capture(&session).unwrap();
-    assert!(!draft.supports_last_second_hint());
-    assert!(draft.set_last_second_hint(1.0).is_err());
-    assert!(!draft.has_changes());
+    let mut session = song(Format::Sm);let original=session.serialize().unwrap();
+    let mut draft=Draft::capture(&session).unwrap();assert!(draft.supports_last_second_hint());draft.set_last_second_hint(1.0).unwrap();assert!(draft.apply(&mut session).unwrap());
+    assert_eq!(Draft::capture(&session).unwrap().last_second_hint(),1.0);session.undo().unwrap();assert_eq!(session.serialize().unwrap(),original);
 }

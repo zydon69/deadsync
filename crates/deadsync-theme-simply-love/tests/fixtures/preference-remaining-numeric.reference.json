@@ -1,0 +1,13 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_sha256": "541c6cd925faaca21cc2df541e7bb8deb0a11b2a58f4969fadd5ca8159f95fb0",
+  "callsite_sha256": {
+    "StepManiaEditor/UI/UIOptions.cs": "eb8b799b28f9ccb61f2f7256822b519b63db8fffcce19c6464aba454c3118dfa",
+    "StepManiaEditor/UI/UIStreamPreferences.cs": "fb960aeeaf5f26155b6f5bc0818952296ab78d6f532f4652a19a96fae739dc0a",
+    "StepManiaEditor/UI/UIReceptorPreferences.cs": "91c36c07c8aef3e6ef0ae2960aa70bd706db5bbdc641811f44620069bcfb0b3f",
+    "StepManiaEditor/UI/UIPerformance.cs": "dde693a6833ffae467afb33a12ca52aeab6e2b3246dce4508a3ced33da8842a4",
+    "StepManiaEditor/PerformanceMonitor.cs": "2e718fa33dc17e4ba41466d8021e23ee78e5a9e2a387991087f2e56b78f3e959"
+  },
+  "host_sha256": "63f9b568e3267cda98c9d0a2b456086b038cbffd47455c6ca22ef136a5b2cdab",
+  "scope": "Execute unchanged source ImGui numeric wrappers after deterministic widget output.\n\nThe widget adapter supplies values that a committed input returns; actual ImGui\nmouse/keyboard parsing is outside this fixture. Post-widget bounds and casts are\noriginal source bodies, not a reimplementation. No renderer or native UI claim.\n"
+}

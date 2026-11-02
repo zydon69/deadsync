@@ -547,3 +547,112 @@ mod tests {
         }
     }
 }
+
+/// Fumen's separate .opus route concatenates decoded float packets at 48 kHz:
+/// no OpusHead gain, pre-skip or end-granule trimming. Decoder implementation
+/// remains libopus; Concentus bit parity is not asserted.
+pub(crate) fn load_editor_pcm(
+    path: &Path,
+    cancelled: &std::sync::atomic::AtomicBool,
+    max_samples: usize,
+) -> Result<(usize, u32, Vec<f32>), Box<dyn std::error::Error + Send + Sync>> {
+    use std::sync::atomic::Ordering;
+    let mut reader = PacketReader::new(BufReader::new(File::open(path)?));
+    let mut header = read_headers(&mut reader)?;
+    header.gain_q8_db = 0;
+    let mut decoder = build_decoder(header)?;
+    let mut result = Vec::new();
+    let mut decoded = vec![0.; OPUS_MAX_PACKET_FRAMES * header.channels];
+    while let Some(packet) = reader.read_packet()? {
+        if cancelled.load(Ordering::Acquire) {
+            return Err("Editor Opus load cancelled".into());
+        }
+        if packet.stream_serial() != header.stream_serial {
+            return Err("Chained editor Opus streams unsupported".into());
+        }
+        if packet.data.is_empty() {
+            continue;
+        }
+        let frames = decoder
+            .decode_float_to_slice(&packet.data, &mut decoded, false)
+            .map_err(opus_error)?;
+        let count = frames
+            .checked_mul(header.channels)
+            .ok_or("Editor Opus frame overflow")?;
+        if result
+            .len()
+            .checked_add(count)
+            .is_none_or(|len| len > max_samples)
+        {
+            return Err("Editor Opus PCM memory limit exceeded".into());
+        }
+        result.try_reserve(count)?;
+        result.extend_from_slice(&decoded[..count]);
+    }
+    if result.is_empty() {
+        return Err("Empty editor Opus source".into());
+    }
+    Ok((header.channels, OPUS_DECODE_RATE_HZ, result))
+}
+
+#[cfg(test)]
+mod editor_packet_policy_tests {
+    use super::*;
+    use ogg::{PacketWriteEndInfo, PacketWriter};
+    use std::sync::atomic::AtomicBool;
+    #[test]
+    fn editor_float_packets_ignore_header_gain_preskip_and_final_granule() {
+        let original = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/seek.opus");
+        let path = std::env::temp_dir().join(format!(
+            "editor-opus-policy-{}-{}.opus",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let mut input = PacketReader::new(BufReader::new(File::open(&original).unwrap()));
+        let mut writer = PacketWriter::new(File::create(&path).unwrap());
+        while let Some(packet) = input.read_packet().unwrap() {
+            let mut data = packet.data.clone();
+            if data.starts_with(OPUS_HEAD_MAGIC) {
+                data[10..12].copy_from_slice(&0u16.to_le_bytes());
+                data[16..18].copy_from_slice(&1536i16.to_le_bytes());
+            }
+            let last = packet.last_in_stream();
+            let granule = if last { 0 } else { packet.absgp_page() };
+            writer
+                .write_packet(
+                    data,
+                    packet.stream_serial(),
+                    if last {
+                        PacketWriteEndInfo::EndStream
+                    } else {
+                        PacketWriteEndInfo::EndPage
+                    },
+                    granule,
+                )
+                .unwrap();
+        }
+        drop(writer);
+        let (ch, hz, pcm) =
+            load_editor_pcm(&original, &AtomicBool::new(false), usize::MAX).unwrap();
+        let (c2, h2, p2) = load_editor_pcm(&path, &AtomicBool::new(false), usize::MAX).unwrap();
+        assert_eq!((ch, hz), (c2, h2));
+        assert_eq!(
+            pcm.iter().map(|v| v.to_bits()).collect::<Vec<_>>(),
+            p2.iter().map(|v| v.to_bits()).collect::<Vec<_>>()
+        );
+        assert!(load_editor_pcm(&path, &AtomicBool::new(false), pcm.len() - 1).is_err());
+        let mut legacy_original = open_file(&original).unwrap().reader;
+        let mut legacy_changed = open_file(&path).unwrap().reader;
+        let (mut a, mut b) = (Vec::new(), Vec::new());
+        legacy_original.read_dec_packet_into(&mut a).unwrap();
+        legacy_changed.read_dec_packet_into(&mut b).unwrap();
+        assert_ne!(
+            a, b,
+            "fixture must change the retained gameplay decoder policy"
+        );
+        std::fs::remove_file(path).unwrap();
+    }
+}

@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""Compare real FMOD DEFAULT allocation with decoded readData EOF (macOS).
+No native PCM tolerance or last-nonzero duration heuristic is used.
+"""
+import argparse,hashlib,json,pathlib,subprocess,tempfile
+from xml.sax.saxutils import escape
+PIN="0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89"
+PROGRAM='using System;using System.IO;using System.Text.Json;using System.Runtime.InteropServices;using System.Threading;\nclass Program{\nstatic void Ok(FMOD.RESULT r){if(r!=FMOD.RESULT.OK)throw new Exception(r.ToString());}\nstatic ulong Hash(byte[]data){ulong h=1469598103934665603;foreach(var v in data)h=unchecked((h^v)*1099511628211);return h;}\nstatic object Stats(byte[]data,int channels){int frames=data.Length/(2*channels),first=-1,last=-1,nonzero=0;int max=0;for(int f=0;f<frames;f++){bool nz=false;for(int c=0;c<channels;c++){short v=BitConverter.ToInt16(data,(f*channels+c)*2);max=Math.Max(max,Math.Abs((int)v));nz|=v!=0;}if(nz){if(first<0)first=f;last=f;nonzero++;}}return new{frames,firstNonzero=first,lastNonzero=last,nonzeroFrames=nonzero,maxAbs=max,hash=Hash(data)};}\nstatic void Main(string[]args){var path=Path.GetFullPath(args[0]);var output=Path.GetFullPath(args[1]);Directory.CreateDirectory(output);NativeLibrary.SetDllImportResolver(typeof(FMOD.Factory).Assembly,(name,assembly,search)=>NativeLibrary.Load(Path.GetFullPath(args[2])));Ok(FMOD.Factory.System_Create(out var system));try{Ok(system.setOutput(FMOD.OUTPUTTYPE.NOSOUND_NRT));Ok(system.init(100,FMOD.INITFLAGS.NORMAL,IntPtr.Zero));foreach(var accurate in new[]{false,true}){var mode=FMOD.MODE.DEFAULT|(accurate?FMOD.MODE.ACCURATETIME:0);Ok(system.createSound(path,mode,out var sound));try{Ok(sound.getFormat(out var type,out var format,out var channels,out var bits));Ok(sound.getDefaults(out var hz,out _));Ok(sound.getLength(out var frames,FMOD.TIMEUNIT.PCM));Ok(sound.getLength(out var bytes,FMOD.TIMEUNIT.PCMBYTES));Ok(sound.@lock(0,bytes,out var p1,out var p2,out var n1,out var n2));var raw=new byte[n1+n2];Marshal.Copy(p1,raw,0,(int)n1);if(n2>0)Marshal.Copy(p2,raw,(int)n1,(int)n2);Ok(sound.unlock(p1,p2,n1,n2));var name=accurate?"accurate":"default";File.WriteAllBytes(Path.Combine(output,name+".pcm16"),raw);Console.WriteLine(JsonSerializer.Serialize(new{path,mode=name,type=type.ToString(),format=format.ToString(),channels,bits,hz,declaredFrames=frames,declaredBytes=bytes,lockBytes=n1+n2,pcm=Stats(raw,channels)}));}finally{sound.release();}}\nforeach(var accurate in new[]{false,true}){var mode=FMOD.MODE.OPENONLY|(accurate?FMOD.MODE.ACCURATETIME:0);Ok(system.createSound(path,mode,out var sound));try{Ok(sound.getFormat(out var type,out var format,out var channels,out var bits));Ok(sound.getDefaults(out var hz,out _));Ok(sound.getLength(out var frames,FMOD.TIMEUNIT.PCM));var ptr=Marshal.AllocHGlobal(4096);using var memory=new MemoryStream();FMOD.RESULT final;try{while(true){final=sound.readData(ptr,4096,out var read);if(read>0){var block=new byte[read];Marshal.Copy(ptr,block,0,(int)read);memory.Write(block);}if(final!=FMOD.RESULT.OK||read==0)break;}}finally{Marshal.FreeHGlobal(ptr);}var raw=memory.ToArray();var name=accurate?"openonly-accurate":"openonly";File.WriteAllBytes(Path.Combine(output,name+".pcm16"),raw);Console.WriteLine(JsonSerializer.Serialize(new{path,mode=name,type=type.ToString(),format=format.ToString(),channels,bits,hz,declaredFrames=frames,readResult=final.ToString(),pcm=Stats(raw,channels)}));}finally{sound.release();}}}finally{system.close();system.release();}}\n}\n'
+def main():
+ p=argparse.ArgumentParser();p.add_argument("--fumen",type=pathlib.Path,required=True);p.add_argument("--dotnet",required=True);p.add_argument("--output",type=pathlib.Path);p.add_argument("asset",type=pathlib.Path);a=p.parse_args()
+ head=subprocess.check_output(["git","-C",str(a.fumen),"rev-parse","HEAD"],text=True).strip()
+ if head!=PIN:raise SystemExit("Fumen pin mismatch")
+ subprocess.run(["git","-C",str(a.fumen),"diff","--exit-code",PIN,"--","Fumen/Sound/fmod"],check=True)
+ dll=(a.fumen/"Fumen/bin/Release/net10.0/Fumen.dll").resolve();native=(a.fumen/"Fumen/Sound/fmod/lib/mac/libfmod.dylib").resolve()
+ print(json.dumps({"provenance":{"fumen_revision":head,"fmod_sha256":hashlib.sha256(native.read_bytes()).hexdigest(),"fixture_sha256":hashlib.sha256(a.asset.read_bytes()).hexdigest(),"physical_output":False}}),flush=True)
+ with tempfile.TemporaryDirectory(prefix="fmod-mp3-duration-")as temporary:
+  root=pathlib.Path(temporary);output=(a.output or root/"pcm").resolve();output.mkdir(parents=True,exist_ok=True)
+  (root/"Program.cs").write_text(PROGRAM)
+  (root/"O.csproj").write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings></PropertyGroup><ItemGroup><Reference Include="Fumen"><HintPath>'+escape(str(dll))+'</HintPath></Reference></ItemGroup></Project>')
+  subprocess.run([a.dotnet,"build",str(root/"O.csproj"),"--nologo","-v:q"],check=True)
+  measured=subprocess.check_output([a.dotnet,str(root/"bin/Debug/net10.0/O.dll"),str(a.asset.resolve()),str(output),str(native)],text=True);print(measured,end="")
+  rows=[json.loads(line)for line in measured.splitlines()if line.startswith("{")]
+  if any(row["channels"]!=2 or row["bits"]!=16 or row["format"]!="PCM16" for row in rows):raise ValueError("Duration witness supports stereo PCM16 MP3 only")
+  default=(output/"default.pcm16").read_bytes();accurate=(output/"accurate.pcm16").read_bytes();decoded=(output/"openonly.pcm16").read_bytes();decoded_accurate=(output/"openonly-accurate.pcm16").read_bytes()
+  # These comparisons concern this stereo PCM16 witness, not arbitrary codecs.
+  if decoded!=accurate or decoded!=decoded_accurate:raise AssertionError("Accurate lock differs from actual EOF decode")
+  if default[:len(decoded)]!=decoded:raise AssertionError("DEFAULT does not retain the complete decoded prefix")
+  tail=default[len(decoded):]
+  if any(tail):raise AssertionError("DEFAULT surplus includes nonzero data")
+  print(json.dumps({"proof":"PASS","decodedFrames":len(decoded)//4,"defaultFrames":len(default)//4,"extraAllocatedZeroFrames":len(tail)//4,"exactDecodedPrefix":True,"accurateEqualsReadDataEOF":True}))
+if __name__=="__main__":main()

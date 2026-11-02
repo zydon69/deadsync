@@ -8,7 +8,7 @@ use crate::{
     history::Session,
     notes::{Kind, Position},
 };
-use std::collections::{BTreeMap, BTreeSet};
+use std::{collections::BTreeSet, sync::atomic::AtomicBool};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Pair {
@@ -59,26 +59,16 @@ pub fn apply(
     apply_detailed(session, chart, selected, pair).map_err(Into::into)
 }
 pub fn apply_detailed(session: &mut Session, chart: usize, selected: &BTreeSet<Position>, pair: Pair) -> Result<bool, Failure> {
-    let (a, b) = pair.kinds();
-    let grid = session.grid(chart)?;
-    let mut edits = BTreeMap::new();
-    for &position in selected {
-        let Some(original) = grid.get(position) else {
-            continue;
-        };
-        let destination = if original.kind == a {
-            b
-        } else if original.kind == b {
-            a
-        } else {
-            continue;
-        };
-        let mut note = original.clone();
-        if matches!(destination, Kind::Hold | Kind::Roll) && note.end.is_none() {
-            return Err(Failure {kind: Refusal::ZeroDurationSustain, error: Error::InvalidEdit("Swap would create a zero-length hold or roll. Use note conversion with an explicit sustain duration.".into())});
-        }
-        note = crate::note_operation::convert_note(&note, position.row, destination, 0, grid.uses_stepf2())?;
-        edits.insert(position, Some(note));
-    }
-    session.edit_notes(chart, format!("Swap note types: {pair:?}"), edits).map_err(Into::into)
+    let failure = |error: crate::note_operation::Failure| Failure {
+        kind: match error.kind() {
+            crate::note_operation::Refusal::ZeroDurationSustain => Refusal::ZeroDurationSustain,
+            _ => Refusal::Invalid,
+        },
+        error: error.into(),
+    };
+    let plan = crate::note_operation::Plan::prepare_bounded(
+        session, chart, crate::note_operation::Scope::Heads(selected.clone()),
+        crate::note_operation::Operation::Swap(pair), usize::MAX, &AtomicBool::new(false),
+    ).map_err(failure)?;
+    plan.apply_named(session, chart, &format!("Swap note types: {pair:?}")).map_err(failure)
 }

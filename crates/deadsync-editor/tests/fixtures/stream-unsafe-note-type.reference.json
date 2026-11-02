@@ -1,0 +1,8 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "utils_sha256": "0ac380bdd1742b1856bd0ccbc0650e334e16b489a3da47ecb8775b9bde145de7",
+  "enum_sha256": "1fe40d0283e50cf2a7a69dbd5a67d16f6dcc699972fef638efd648e2af28e63b",
+  "fumen_sha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "host_sha256": "4540b0458b8af00d71bc1728af660e606339c6365ac5b11990674e1b4b91dad4",
+  "scope": "Execute original pinned subdivision enum/helpers against actual Fumen; no loader emulation."
+}

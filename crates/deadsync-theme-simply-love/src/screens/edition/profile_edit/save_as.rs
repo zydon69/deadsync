@@ -56,6 +56,7 @@ mod tests {
             profiles: Default::default(),
             performed_name: None,
             expressed_name: None,
+            preset: if revision == 7 { 1 } else { 2 },
             revision,
         }
     }
@@ -100,6 +101,8 @@ mod tests {
         let change = &state.profile_preference_history[&preference_key];
         assert_eq!(change.before.revision, 7);
         assert_eq!(change.after.revision, 11);
+        assert_eq!(change.before.preset, 1);
+        assert_eq!(change.after.preset, 2);
         assert_eq!(state.profile_creations[&creation_key].1, guid);
         assert_eq!(state.profile_preference_revision, 11);
         assert_eq!(state.profile_preference_serial, 20);

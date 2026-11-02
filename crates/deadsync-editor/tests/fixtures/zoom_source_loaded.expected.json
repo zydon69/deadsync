@@ -1,0 +1,642 @@
+[
+  {
+    "name": "constructor-raw4-duration-only-cap-notification",
+    "raw": "{\"PreferencesScroll\": {\"SizeCap\": 4, \"LimitZoomToSize\": true, \"ScrollInterpolationDuration\": 2.5, \"ZoomMultiplier\": 0.3}}",
+    "ops": [
+      [
+        "zoom",
+        3
+      ],
+      [
+        "duration",
+        3.5
+      ],
+      [
+        "scroll",
+        0,
+        0.5,
+        true,
+        false
+      ],
+      [
+        "update",
+        1.75
+      ],
+      [
+        "cap",
+        2
+      ],
+      [
+        "zoom",
+        3
+      ],
+      [
+        "duration",
+        -2
+      ],
+      [
+        "scroll",
+        10,
+        -0.5,
+        true,
+        false
+      ],
+      [
+        "update",
+        9
+      ]
+    ],
+    "stages": [
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 4,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 4,
+        "duration": 2.5,
+        "multiplier": 0.3,
+        "limited": true
+      },
+      {
+        "zoom": 3,
+        "size": 1,
+        "cap": 4,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 4,
+        "duration": 2.5,
+        "multiplier": 0.3,
+        "limited": true
+      },
+      {
+        "zoom": 3,
+        "size": 1,
+        "cap": 4,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 4,
+        "duration": 3.5,
+        "multiplier": 0.3,
+        "limited": true
+      },
+      {
+        "zoom": 3,
+        "size": 1,
+        "cap": 4,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 4,
+        "duration": 3.5,
+        "multiplier": 0.3,
+        "limited": true
+      },
+      {
+        "zoom": 2.475,
+        "size": 1,
+        "cap": 4,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 4,
+        "duration": 3.5,
+        "multiplier": 0.3,
+        "limited": true
+      },
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 2,
+        "duration": 3.5,
+        "multiplier": 0.3,
+        "limited": true
+      },
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 2,
+        "duration": 3.5,
+        "multiplier": 0.3,
+        "limited": true
+      },
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 2,
+        "duration": -2,
+        "multiplier": 0.3,
+        "limited": true
+      },
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 2,
+        "duration": -2,
+        "multiplier": 0.3,
+        "limited": true
+      },
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 2,
+        "duration": -2,
+        "multiplier": 0.3,
+        "limited": true
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "negative-raw-unlimited",
+    "raw": "{\"PreferencesScroll\": {\"SizeCap\": -2, \"LimitZoomToSize\": false, \"ScrollInterpolationDuration\": -2, \"ZoomMultiplier\": -1}}",
+    "ops": [
+      [
+        "scroll",
+        10,
+        0.3,
+        true,
+        false
+      ],
+      [
+        "update",
+        9
+      ],
+      [
+        "update",
+        11
+      ],
+      [
+        "cap",
+        -3
+      ],
+      [
+        "limit",
+        true
+      ],
+      [
+        "duration",
+        3
+      ],
+      [
+        "scroll",
+        12,
+        -3,
+        true,
+        false
+      ],
+      [
+        "update",
+        15
+      ]
+    ],
+    "stages": [
+      {
+        "zoom": 1,
+        "size": -2,
+        "cap": -2,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": -2,
+        "duration": -2,
+        "multiplier": -1,
+        "limited": false
+      },
+      {
+        "zoom": 1,
+        "size": -2,
+        "cap": -2,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": -2,
+        "duration": -2,
+        "multiplier": -1,
+        "limited": false
+      },
+      {
+        "zoom": 0.699999988079071,
+        "size": -2,
+        "cap": -2,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": -2,
+        "duration": -2,
+        "multiplier": -1,
+        "limited": false
+      },
+      {
+        "zoom": 1,
+        "size": -2,
+        "cap": -2,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": -2,
+        "duration": -2,
+        "multiplier": -1,
+        "limited": false
+      },
+      {
+        "zoom": 1,
+        "size": 1e-06,
+        "cap": 1e-06,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": -3,
+        "duration": -2,
+        "multiplier": -1,
+        "limited": false
+      },
+      {
+        "zoom": 1e-06,
+        "size": 1e-06,
+        "cap": 1e-06,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": -3,
+        "duration": -2,
+        "multiplier": -1,
+        "limited": true
+      },
+      {
+        "zoom": 1e-06,
+        "size": 1e-06,
+        "cap": 1e-06,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": -3,
+        "duration": 3,
+        "multiplier": -1,
+        "limited": true
+      },
+      {
+        "zoom": 1e-06,
+        "size": 1e-06,
+        "cap": 1e-06,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": -3,
+        "duration": 3,
+        "multiplier": -1,
+        "limited": true
+      },
+      {
+        "zoom": 1e-06,
+        "size": 1e-06,
+        "cap": 1e-06,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": -3,
+        "duration": 3,
+        "multiplier": -1,
+        "limited": true
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "zero-multiplier-positive-negative-deltas",
+    "raw": "{\"PreferencesScroll\": {\"ZoomMultiplier\": 0, \"ScrollInterpolationDuration\": 0}}",
+    "ops": [
+      [
+        "scroll",
+        0,
+        1,
+        true,
+        false
+      ],
+      [
+        "update",
+        0
+      ],
+      [
+        "zoom",
+        1
+      ],
+      [
+        "scroll",
+        1,
+        -1,
+        true,
+        false
+      ],
+      [
+        "update",
+        1
+      ]
+    ],
+    "stages": [
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 0,
+        "multiplier": 0,
+        "limited": false
+      },
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 0,
+        "multiplier": 0,
+        "limited": false
+      },
+      {
+        "zoom": 1e-06,
+        "size": 1e-06,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 0,
+        "multiplier": 0,
+        "limited": false
+      },
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 0,
+        "multiplier": 0,
+        "limited": false
+      },
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 0,
+        "multiplier": 0,
+        "limited": false
+      },
+      {
+        "zoom": 1000000,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 0,
+        "multiplier": 0,
+        "limited": false
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "decreasing-positive-multiplier-saturated",
+    "raw": "{\"PreferencesScroll\": {\"ZoomMultiplier\": 0.3, \"ScrollInterpolationDuration\": 2}}",
+    "ops": [
+      [
+        "scroll",
+        0,
+        3,
+        true,
+        false
+      ],
+      [
+        "update",
+        1
+      ],
+      [
+        "update",
+        2
+      ],
+      [
+        "scroll",
+        2,
+        -3,
+        false,
+        true
+      ],
+      [
+        "update",
+        4
+      ]
+    ],
+    "stages": [
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 2,
+        "multiplier": 0.3,
+        "limited": false
+      },
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 2,
+        "multiplier": 0.3,
+        "limited": false
+      },
+      {
+        "zoom": 0.65,
+        "size": 0.65,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 2,
+        "multiplier": 0.3,
+        "limited": false
+      },
+      {
+        "zoom": 0.30000000000000004,
+        "size": 0.30000000000000004,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 2,
+        "multiplier": 0.3,
+        "limited": false
+      },
+      {
+        "zoom": 0.30000000000000004,
+        "size": 0.30000000000000004,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 2,
+        "multiplier": 0.3,
+        "limited": false
+      },
+      {
+        "zoom": 0.30000000000000004,
+        "size": 0.30000000000000004,
+        "cap": 1,
+        "time": 1000,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 2,
+        "multiplier": 0.3,
+        "limited": false
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "negative-cap-inverted-bounds",
+    "raw": "{\"PreferencesScroll\": {\"SizeCap\": -2, \"LimitZoomToSize\": true}}",
+    "ops": [],
+    "stages": [],
+    "error": "ArgumentException"
+  },
+  {
+    "name": "constructor-one-ulp-cap-source-setter",
+    "raw": "{\"PreferencesScroll\": {\"SizeCap\": 1.0000000000000002, \"LimitZoomToSize\": true}}",
+    "ops": [
+      [
+        "zoom",
+        2
+      ]
+    ],
+    "stages": [
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 0.1,
+        "multiplier": 1.2,
+        "limited": true
+      },
+      {
+        "zoom": 1,
+        "size": 1,
+        "cap": 1,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 1,
+        "duration": 0.1,
+        "multiplier": 1.2,
+        "limited": true
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "zero-cap-unlimited",
+    "raw": "{\"PreferencesScroll\": {\"SizeCap\": 0}}",
+    "ops": [
+      [
+        "scroll",
+        0,
+        0.25,
+        true,
+        false
+      ],
+      [
+        "update",
+        0.1
+      ]
+    ],
+    "stages": [
+      {
+        "zoom": 1,
+        "size": 0,
+        "cap": 0,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 0,
+        "duration": 0.1,
+        "multiplier": 1.2,
+        "limited": false
+      },
+      {
+        "zoom": 1,
+        "size": 0,
+        "cap": 0,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 0,
+        "duration": 0.1,
+        "multiplier": 1.2,
+        "limited": false
+      },
+      {
+        "zoom": 1.05,
+        "size": 0,
+        "cap": 0,
+        "time": 300,
+        "row": 2,
+        "variable": 300,
+        "rawCap": 0,
+        "duration": 0.1,
+        "multiplier": 1.2,
+        "limited": false
+      }
+    ],
+    "error": null
+  }
+]

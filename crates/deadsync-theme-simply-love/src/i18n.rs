@@ -1,3 +1,6 @@
+mod editor_errors;
+pub(crate) use editor_errors::{EditorDiagnostic, editor_error};
+
 pub use crate::i18n_runtime::{
     LookupKey, current_locale, lookup_key, revision, tr, tr_fmt, tr_fmt_into,
 };
@@ -15,11 +18,24 @@ pub fn set_locale(bundle: LanguageBundle) {
 }
 
 /// Test initializer that loads `en.ini` through the asset boundary.
+/// Restore English on every call: editor tests deliberately switch languages,
+/// so a process-wide Once would leak their last locale into later tests.
 #[doc(hidden)]
 pub fn init_for_tests() {
-    use std::sync::Once;
-    static ONCE: Once = Once::new();
-    ONCE.call_once(|| init(deadsync_assets::language::load_for_tests("en")));
+    init(deadsync_assets::language::load_for_tests("en"));
+}
+
+#[cfg(test)]
+mod test_initialization {
+    #[test]
+    fn initializer_restores_english_after_editor_language_switch() {
+        super::init_for_tests();
+        let english = super::tr("Edition", "Save");
+        super::set_locale(deadsync_assets::language::load_for_tests("fr"));
+        assert_ne!(super::tr("Edition", "Save"), english);
+        super::init_for_tests();
+        assert_eq!(super::tr("Edition", "Save"), english);
+    }
 }
 
 /// Translate fixed UI labels; callers must keep song and profile metadata separate.

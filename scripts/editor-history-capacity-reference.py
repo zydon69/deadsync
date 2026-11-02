@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+"""Run actual pinned Fumen UndoStack resize/retention, no Rust or primary writes."""
+import argparse,subprocess,tempfile,json,hashlib
+from pathlib import Path
+p=argparse.ArgumentParser()
+for key in ['reference-root','dotnet','output']:p.add_argument('--'+key,type=Path,required=True)
+a=p.parse_args();pin='0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89';assert subprocess.check_output(['git','-C',str(a.reference_root/'Fumen'),'rev-parse','HEAD'],text=True).strip()==pin
+dll=a.reference_root/'Fumen/Fumen/bin/Release/net10.0/Fumen.dll'
+adapter='''using Fumen;using System.Text.Json;class Program {static void Main(){var output=new List<object>();for(int undo=0;undo<=4;undo++)for(int size=1;size<=5;size++){var stack=new UndoStack<int>(4,true);for(int i=1;i<=6;i++)stack.Push(i);for(int i=0;i<undo;i++)stack.Pop(out _);stack.Resize(size);var past=new List<int>();while(stack.Pop(out int value))past.Add(value);var future=new List<int>();while(stack.Repush(out int value))future.Add(value);output.Add(new{Undo=undo,Size=size,Past=past,Future=future});}Console.Write(JsonSerializer.Serialize(output));}}'''
+with tempfile.TemporaryDirectory(prefix='history-capacity-oracle-') as d:
+ t=Path(d);(t/'Program.cs').write_text(adapter);(t/'Oracle.csproj').write_text(f'<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings></PropertyGroup><ItemGroup><Reference Include="Fumen"><HintPath>{dll}</HintPath></Reference></ItemGroup></Project>');subprocess.run([str(a.dotnet),'build',str(t/'Oracle.csproj'),'-c','Release','--nologo','-v','quiet'],check=True);assembly=t/'bin/Release/net10.0/Oracle.dll';result=json.loads(subprocess.check_output([str(a.dotnet),str(assembly)],text=True));sha=hashlib.sha256(assembly.read_bytes()).hexdigest()
+a.output.write_text(json.dumps(result,indent=2)+'\n');a.output.with_suffix('.reference.json').write_text(json.dumps({'FumenCommit':pin,'SourceSha256':hashlib.sha256((a.reference_root/'Fumen/Fumen/ActionQueue/UndoStack.cs').read_bytes()).hexdigest(),'AdapterSha256':hashlib.sha256(adapter.encode()).hexdigest(),'FumenAssemblySha256':hashlib.sha256(dll.read_bytes()).hexdigest(),'AssemblySha256':sha,'Scope':'Actual Fumen UndoStack<int>, push six with capacityfour, undo0..4, resize1..5, exact full Pop and Repush sequences. No application history or preferences observer simulation.'},indent=2)+'\n');print('Executed',len(result),'source Resize cases.')

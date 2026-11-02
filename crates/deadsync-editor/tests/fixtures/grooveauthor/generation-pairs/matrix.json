@@ -1,0 +1,849 @@
+[
+  {
+    "name": "parity-pair-dance-single-to-dance-single",
+    "source": "dance-single",
+    "target": "dance-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-single-to-dance-double",
+    "source": "dance-single",
+    "target": "dance-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-single-to-dance-solo",
+    "source": "dance-single",
+    "target": "dance-solo",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-single-to-dance-threepanel",
+    "source": "dance-single",
+    "target": "dance-threepanel",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-dance-single-to-pump-single",
+    "source": "dance-single",
+    "target": "pump-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-single-to-pump-halfdouble",
+    "source": "dance-single",
+    "target": "pump-halfdouble",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-single-to-pump-double",
+    "source": "dance-single",
+    "target": "pump-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-single-to-smx-beginner",
+    "source": "dance-single",
+    "target": "smx-beginner",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-dance-single-to-smx-single",
+    "source": "dance-single",
+    "target": "smx-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-single-to-smx-dual",
+    "source": "dance-single",
+    "target": "smx-dual",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-dance-single-to-smx-full",
+    "source": "dance-single",
+    "target": "smx-full",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-double-to-dance-single",
+    "source": "dance-double",
+    "target": "dance-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-dance-double-to-dance-double",
+    "source": "dance-double",
+    "target": "dance-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-double-to-dance-solo",
+    "source": "dance-double",
+    "target": "dance-solo",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-dance-double-to-dance-threepanel",
+    "source": "dance-double",
+    "target": "dance-threepanel",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-dance-double-to-pump-single",
+    "source": "dance-double",
+    "target": "pump-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-dance-double-to-pump-halfdouble",
+    "source": "dance-double",
+    "target": "pump-halfdouble",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-double-to-pump-double",
+    "source": "dance-double",
+    "target": "pump-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-double-to-smx-beginner",
+    "source": "dance-double",
+    "target": "smx-beginner",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-dance-double-to-smx-single",
+    "source": "dance-double",
+    "target": "smx-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-dance-double-to-smx-dual",
+    "source": "dance-double",
+    "target": "smx-dual",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-double-to-smx-full",
+    "source": "dance-double",
+    "target": "smx-full",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-solo-to-dance-single",
+    "source": "dance-solo",
+    "target": "dance-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-dance-solo-to-dance-double",
+    "source": "dance-solo",
+    "target": "dance-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-solo-to-dance-solo",
+    "source": "dance-solo",
+    "target": "dance-solo",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-solo-to-dance-threepanel",
+    "source": "dance-solo",
+    "target": "dance-threepanel",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-dance-solo-to-pump-single",
+    "source": "dance-solo",
+    "target": "pump-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-solo-to-pump-halfdouble",
+    "source": "dance-solo",
+    "target": "pump-halfdouble",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-solo-to-pump-double",
+    "source": "dance-solo",
+    "target": "pump-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-solo-to-smx-beginner",
+    "source": "dance-solo",
+    "target": "smx-beginner",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-solo-to-smx-single",
+    "source": "dance-solo",
+    "target": "smx-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-solo-to-smx-dual",
+    "source": "dance-solo",
+    "target": "smx-dual",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-solo-to-smx-full",
+    "source": "dance-solo",
+    "target": "smx-full",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-dance-threepanel-to-dance-single",
+    "source": "dance-threepanel",
+    "target": "dance-single",
+    "success": false,
+    "stage": "Expression"
+  },
+  {
+    "name": "parity-pair-dance-threepanel-to-dance-double",
+    "source": "dance-threepanel",
+    "target": "dance-double",
+    "success": false,
+    "stage": "Expression"
+  },
+  {
+    "name": "parity-pair-dance-threepanel-to-dance-solo",
+    "source": "dance-threepanel",
+    "target": "dance-solo",
+    "success": false,
+    "stage": "Expression"
+  },
+  {
+    "name": "parity-pair-dance-threepanel-to-dance-threepanel",
+    "source": "dance-threepanel",
+    "target": "dance-threepanel",
+    "success": false,
+    "stage": "Expression"
+  },
+  {
+    "name": "parity-pair-dance-threepanel-to-pump-single",
+    "source": "dance-threepanel",
+    "target": "pump-single",
+    "success": false,
+    "stage": "Expression"
+  },
+  {
+    "name": "parity-pair-dance-threepanel-to-pump-halfdouble",
+    "source": "dance-threepanel",
+    "target": "pump-halfdouble",
+    "success": false,
+    "stage": "Expression"
+  },
+  {
+    "name": "parity-pair-dance-threepanel-to-pump-double",
+    "source": "dance-threepanel",
+    "target": "pump-double",
+    "success": false,
+    "stage": "Expression"
+  },
+  {
+    "name": "parity-pair-dance-threepanel-to-smx-beginner",
+    "source": "dance-threepanel",
+    "target": "smx-beginner",
+    "success": false,
+    "stage": "Expression"
+  },
+  {
+    "name": "parity-pair-dance-threepanel-to-smx-single",
+    "source": "dance-threepanel",
+    "target": "smx-single",
+    "success": false,
+    "stage": "Expression"
+  },
+  {
+    "name": "parity-pair-dance-threepanel-to-smx-dual",
+    "source": "dance-threepanel",
+    "target": "smx-dual",
+    "success": false,
+    "stage": "Expression"
+  },
+  {
+    "name": "parity-pair-dance-threepanel-to-smx-full",
+    "source": "dance-threepanel",
+    "target": "smx-full",
+    "success": false,
+    "stage": "Expression"
+  },
+  {
+    "name": "parity-pair-pump-single-to-dance-single",
+    "source": "pump-single",
+    "target": "dance-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-single-to-dance-double",
+    "source": "pump-single",
+    "target": "dance-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-single-to-dance-solo",
+    "source": "pump-single",
+    "target": "dance-solo",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-single-to-dance-threepanel",
+    "source": "pump-single",
+    "target": "dance-threepanel",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-pump-single-to-pump-single",
+    "source": "pump-single",
+    "target": "pump-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-single-to-pump-halfdouble",
+    "source": "pump-single",
+    "target": "pump-halfdouble",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-single-to-pump-double",
+    "source": "pump-single",
+    "target": "pump-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-single-to-smx-beginner",
+    "source": "pump-single",
+    "target": "smx-beginner",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-pump-single-to-smx-single",
+    "source": "pump-single",
+    "target": "smx-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-single-to-smx-dual",
+    "source": "pump-single",
+    "target": "smx-dual",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-pump-single-to-smx-full",
+    "source": "pump-single",
+    "target": "smx-full",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-halfdouble-to-dance-single",
+    "source": "pump-halfdouble",
+    "target": "dance-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-pump-halfdouble-to-dance-double",
+    "source": "pump-halfdouble",
+    "target": "dance-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-halfdouble-to-dance-solo",
+    "source": "pump-halfdouble",
+    "target": "dance-solo",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-halfdouble-to-dance-threepanel",
+    "source": "pump-halfdouble",
+    "target": "dance-threepanel",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-pump-halfdouble-to-pump-single",
+    "source": "pump-halfdouble",
+    "target": "pump-single",
+    "status": "source_exception",
+    "success": null
+  },
+  {
+    "name": "parity-pair-pump-halfdouble-to-pump-halfdouble",
+    "source": "pump-halfdouble",
+    "target": "pump-halfdouble",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-halfdouble-to-pump-double",
+    "source": "pump-halfdouble",
+    "target": "pump-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-halfdouble-to-smx-beginner",
+    "source": "pump-halfdouble",
+    "target": "smx-beginner",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-halfdouble-to-smx-single",
+    "source": "pump-halfdouble",
+    "target": "smx-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-halfdouble-to-smx-dual",
+    "source": "pump-halfdouble",
+    "target": "smx-dual",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-halfdouble-to-smx-full",
+    "source": "pump-halfdouble",
+    "target": "smx-full",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-double-to-dance-single",
+    "source": "pump-double",
+    "target": "dance-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-pump-double-to-dance-double",
+    "source": "pump-double",
+    "target": "dance-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-double-to-dance-solo",
+    "source": "pump-double",
+    "target": "dance-solo",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-pump-double-to-dance-threepanel",
+    "source": "pump-double",
+    "target": "dance-threepanel",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-pump-double-to-pump-single",
+    "source": "pump-double",
+    "target": "pump-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-pump-double-to-pump-halfdouble",
+    "source": "pump-double",
+    "target": "pump-halfdouble",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-double-to-pump-double",
+    "source": "pump-double",
+    "target": "pump-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-double-to-smx-beginner",
+    "source": "pump-double",
+    "target": "smx-beginner",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-pump-double-to-smx-single",
+    "source": "pump-double",
+    "target": "smx-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-pump-double-to-smx-dual",
+    "source": "pump-double",
+    "target": "smx-dual",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-pump-double-to-smx-full",
+    "source": "pump-double",
+    "target": "smx-full",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-beginner-to-dance-single",
+    "source": "smx-beginner",
+    "target": "dance-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-beginner-to-dance-double",
+    "source": "smx-beginner",
+    "target": "dance-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-beginner-to-dance-solo",
+    "source": "smx-beginner",
+    "target": "dance-solo",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-beginner-to-dance-threepanel",
+    "source": "smx-beginner",
+    "target": "dance-threepanel",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-beginner-to-pump-single",
+    "source": "smx-beginner",
+    "target": "pump-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-beginner-to-pump-halfdouble",
+    "source": "smx-beginner",
+    "target": "pump-halfdouble",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-beginner-to-pump-double",
+    "source": "smx-beginner",
+    "target": "pump-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-beginner-to-smx-beginner",
+    "source": "smx-beginner",
+    "target": "smx-beginner",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-beginner-to-smx-single",
+    "source": "smx-beginner",
+    "target": "smx-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-beginner-to-smx-dual",
+    "source": "smx-beginner",
+    "target": "smx-dual",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-beginner-to-smx-full",
+    "source": "smx-beginner",
+    "target": "smx-full",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-single-to-dance-single",
+    "source": "smx-single",
+    "target": "dance-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-single-to-dance-double",
+    "source": "smx-single",
+    "target": "dance-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-single-to-dance-solo",
+    "source": "smx-single",
+    "target": "dance-solo",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-single-to-dance-threepanel",
+    "source": "smx-single",
+    "target": "dance-threepanel",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-single-to-pump-single",
+    "source": "smx-single",
+    "target": "pump-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-single-to-pump-halfdouble",
+    "source": "smx-single",
+    "target": "pump-halfdouble",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-single-to-pump-double",
+    "source": "smx-single",
+    "target": "pump-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-single-to-smx-beginner",
+    "source": "smx-single",
+    "target": "smx-beginner",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-single-to-smx-single",
+    "source": "smx-single",
+    "target": "smx-single",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-single-to-smx-dual",
+    "source": "smx-single",
+    "target": "smx-dual",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-single-to-smx-full",
+    "source": "smx-single",
+    "target": "smx-full",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-dual-to-dance-single",
+    "source": "smx-dual",
+    "target": "dance-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-dual-to-dance-double",
+    "source": "smx-dual",
+    "target": "dance-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-dual-to-dance-solo",
+    "source": "smx-dual",
+    "target": "dance-solo",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-dual-to-dance-threepanel",
+    "source": "smx-dual",
+    "target": "dance-threepanel",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-dual-to-pump-single",
+    "source": "smx-dual",
+    "target": "pump-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-dual-to-pump-halfdouble",
+    "source": "smx-dual",
+    "target": "pump-halfdouble",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-dual-to-pump-double",
+    "source": "smx-dual",
+    "target": "pump-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-dual-to-smx-beginner",
+    "source": "smx-dual",
+    "target": "smx-beginner",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-dual-to-smx-single",
+    "source": "smx-dual",
+    "target": "smx-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-dual-to-smx-dual",
+    "source": "smx-dual",
+    "target": "smx-dual",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-dual-to-smx-full",
+    "source": "smx-dual",
+    "target": "smx-full",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-full-to-dance-single",
+    "source": "smx-full",
+    "target": "dance-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-full-to-dance-double",
+    "source": "smx-full",
+    "target": "dance-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-full-to-dance-solo",
+    "source": "smx-full",
+    "target": "dance-solo",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-full-to-dance-threepanel",
+    "source": "smx-full",
+    "target": "dance-threepanel",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-full-to-pump-single",
+    "source": "smx-full",
+    "target": "pump-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-full-to-pump-halfdouble",
+    "source": "smx-full",
+    "target": "pump-halfdouble",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-full-to-pump-double",
+    "source": "smx-full",
+    "target": "pump-double",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-full-to-smx-beginner",
+    "source": "smx-full",
+    "target": "smx-beginner",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-full-to-smx-single",
+    "source": "smx-full",
+    "target": "smx-single",
+    "success": false,
+    "stage": "Conversion"
+  },
+  {
+    "name": "parity-pair-smx-full-to-smx-dual",
+    "source": "smx-full",
+    "target": "smx-dual",
+    "success": true,
+    "stage": null
+  },
+  {
+    "name": "parity-pair-smx-full-to-smx-full",
+    "source": "smx-full",
+    "target": "smx-full",
+    "success": true,
+    "stage": null
+  }
+]

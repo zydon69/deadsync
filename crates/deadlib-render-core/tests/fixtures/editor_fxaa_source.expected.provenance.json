@@ -1,0 +1,49 @@
+{
+  "source_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_file": "StepManiaEditor/Content/fxaa.fx",
+  "branch": "FXAA_PC=1, HLSL_5=1, preset39, GREEN_AS_LUMA=1, GATHER4_ALPHA=1 Fumen emulation",
+  "oracle": "Original preprocessed function body, C++ vector/sampler support only; f32 literals; -ffp-contract=off",
+  "source_dimensions": [
+    31,
+    19
+  ],
+  "destination_dimensions": [
+    [
+      31,
+      19
+    ],
+    [
+      7,
+      11
+    ],
+    [
+      53,
+      23
+    ]
+  ],
+  "quality": [
+    [
+      0.2,
+      0.166,
+      0.0833
+    ],
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0.01,
+      0
+    ],
+    [
+      0.75,
+      0.333,
+      0.0833
+    ]
+  ],
+  "float_components": 30160,
+  "sha256": "1544d3f73707539a736a99ac290b1faf23a2a3cbbfa24b35d7cd8ed51d8b1af0",
+  "executed": "Independent C++ original output and Rust kernel compare every float bit; PASS1/1"
+}

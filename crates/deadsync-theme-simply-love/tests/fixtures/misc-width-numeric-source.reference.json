@@ -1,0 +1,7 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_sha256": "541c6cd925faaca21cc2df541e7bb8deb0a11b2a58f4969fadd5ca8159f95fb0",
+  "options_ui_sha256": "eb8b799b28f9ccb61f2f7256822b519b63db8fffcce19c6464aba454c3118dfa",
+  "host_sha256": "63f9b568e3267cda98c9d0a2b456086b038cbffd47455c6ca22ef136a5b2cdab",
+  "scope": "Execute unchanged source ImGui numeric wrappers after deterministic widget output.\n\nThe widget adapter supplies values that a committed input returns; actual ImGui\nmouse/keyboard parsing is outside this fixture. Post-widget bounds and casts are\noriginal source bodies, not a reimplementation. No renderer or native UI claim.\n"
+}

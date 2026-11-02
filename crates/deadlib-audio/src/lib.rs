@@ -6,6 +6,6 @@ pub use deadlib_audio_core::*;
 pub use launch::LinuxAudioBackend;
 #[cfg(target_os = "linux")]
 pub use launch::available_linux_backends;
-pub use launch::{InitConfig, OutputPlan, prepare_output};
+pub use launch::{InitConfig, OutputPlan, prepare_output, prepare_output_with_buffers};
 
 pub mod stream;

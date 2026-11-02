@@ -44,21 +44,30 @@ impl Preferences {
         Ok(())
     }
     pub fn set_size_cap(&mut self, value: f64) -> Result<(), Error> {
-        self.cap = valid(value, MIN_ZOOM, 1.0)?;
+        let value=valid(value, MIN_ZOOM, 1.0)?;
+        if !crate::number::reference_equal(self.cap,value){self.cap=value;}
         Ok(())
     }
     pub fn set_limited(&mut self, value: bool) {
         self.limited = value;
     }
+    /// Source Undo owns duration, multiplier and the limit flag; SizeCap is direct.
+    pub(crate) fn undoable_fields_from(self,target:Self)->Self{Self{cap:self.cap,..target}}
+    /// Merge only explicitly changed fields, without notifying a runtime manager.
+    pub fn merge_changes(self, expected: Self, target: Self) -> Result<Self, Error> {
+        let (mut current, mut before, mut after) = (Map::new(), Map::new(), Map::new());
+        self.write(&mut current);
+        expected.write(&mut before);
+        target.write(&mut after);
+        crate::audio_preferences::publication::merge_fields(&mut current, &before, &after)?;
+        Self::read(&current)
+    }
     /// Apply notifications to a clone so failure cannot partially configure a view.
     pub fn apply(self, manager: &mut Manager) -> Result<(), Error> {
-        let mut next = manager.clone();
-        next.set_interpolation_duration(self.duration)?;
-        next.set_zoom_multiplier(self.multiplier)?;
-        next.set_size_cap(self.cap)?;
-        next.set_limit_to_size(self.limited);
-        *manager = next;
-        Ok(())
+        manager.apply_preferences(self.duration,self.multiplier,self.cap,self.limited)
+    }
+    pub fn initialize(self,manager:&mut Manager)->Result<(),Error>{
+        manager.initialize_preferences(self.duration,self.multiplier,self.cap,self.limited)
     }
     pub(crate) fn read(fields: &Map<String, Value>) -> Result<Self, Error> {
         let mut value = Self::default();
@@ -72,9 +81,9 @@ impl Preferences {
                     .as_f64()
                     .ok_or_else(|| Error::InvalidFormat(format!("Invalid {key}")))?;
                 match index {
-                    0 => value.set_duration(number)?,
-                    1 => value.set_multiplier(number)?,
-                    _ => value.set_size_cap(number)?,
+                    0 => value.duration = finite(number)?,
+                    1 => value.multiplier = finite(number)?,
+                    _ => {let cap=finite(number)?;if !crate::number::reference_equal(value.cap,cap){value.cap=cap;}},
                 }
             }
         }
@@ -101,3 +110,5 @@ fn valid(value: f64, min: f64, max: f64) -> Result<f64, Error> {
         ))
     }
 }
+
+fn finite(value:f64)->Result<f64,Error>{if value.is_finite(){Ok(value)}else{Err(Error::InvalidFormat("Zoom preference must be finite".into()))}}

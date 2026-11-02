@@ -110,13 +110,8 @@ impl Preferences {
             &mut result.colors.color_multiplayer_holds,
         )?;
         boolean(note, "UseRowBasedColoringForPiu", &mut result.piu_row_based)?;
-        // The original permissive enum converter falls back to Stepmania.
-        result.step_color_method = match options.get("StepColorMethodValue").and_then(Value::as_str)
-        {
-            Some("Note") => ColorMethod::Note,
-            Some("Beat") => ColorMethod::Beat,
-            _ => ColorMethod::Stepmania,
-        };
+        // Real Fumen converter semantics; unknown numeric strings stay raw.
+        result.step_color_method=ColorMethod::read_source(options.get("StepColorMethodValue")).map_err(|_|invalid("StepColorMethodValue"))?;
         result.validate()?;
         Ok(result)
     }
@@ -125,7 +120,7 @@ impl Preferences {
         if self.colors.players.len() != 10
             || [self.selection_multiplier, self.held_multiplier]
                 .iter()
-                .any(|v| !v.is_finite() || *v < 0.0)
+                .any(|v| !v.is_finite())
         {
             return Err(invalid("player count or XNA multiplier"));
         }
@@ -203,12 +198,7 @@ impl Preferences {
         );
         options.insert(
             "StepColorMethodValue".into(),
-            match self.step_color_method {
-                ColorMethod::Stepmania => "Stepmania",
-                ColorMethod::Note => "Note",
-                ColorMethod::Beat => "Beat",
-            }
-            .into(),
+            self.step_color_method.source_name().into(),
         );
         Ok(())
     }

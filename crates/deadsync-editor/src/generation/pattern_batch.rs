@@ -242,7 +242,7 @@ impl Task {
             let outcome = if let Some((first, _, _)) = entry.steps {
                 match options {
                     Ok(options) => generator
-                        .generate(
+                        .generate_action(
                             &options,
                             &grid,
                             &timeline,

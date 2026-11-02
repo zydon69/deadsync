@@ -51,6 +51,16 @@ pub struct Preview {
     entries: Vec<Entry>,
     empty: Grid,
 }
+/// The actual source family seen by the reference engine. In particular, raw
+/// pump-double StepF2 co-op is effectively pump-routine and is not a candidate.
+/// UI callers cache this inventory by content token rather than decoding notes
+/// in presentation code; capture uses the same admission below.
+pub fn source_charts(session:&Session)->Vec<(usize,&str)>{
+    (0..session.document().charts().len()).filter_map(|chart|{
+        let layout=super::source::effective_layout(session.document(),chart).ok()?;
+        TARGET_LAYOUTS.contains(&layout).then_some((chart,layout))
+    }).collect()
+}
 impl Task {
     pub fn capture(
         session: &Session,
@@ -62,14 +72,9 @@ impl Task {
         if !TARGET_LAYOUTS.contains(&source_layout) {
             return Err(invalid("Unsupported source type for batch generation"));
         }
-        let sources: Vec<_> = session
-            .document()
-            .charts()
-            .iter()
-            .enumerate()
-            .filter(|(index, _)| super::source::effective_layout(session.document(), *index)
-                .is_ok_and(|layout| layout == source_layout))
-            .map(|(index, chart)| (index, chart.difficulty.clone(), chart.meter.clone()))
+        let sources: Vec<_> = source_charts(session).into_iter()
+            .filter(|(_,layout)|*layout==source_layout)
+            .map(|(index,_)|{let chart=&session.document().charts()[index];(index,chart.difficulty.clone(),chart.meter.clone())})
             .collect();
         if sources.is_empty() {
             return Err(invalid("No source charts of the selected type"));

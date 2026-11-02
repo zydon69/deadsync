@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+"""Execute original Documentation routing with a recording platform, never OS."""
+import argparse,hashlib,json,subprocess,tempfile
+from pathlib import Path
+PIN='48e18f71655d0f0d86144c63239331833501fda2';p=argparse.ArgumentParser(description=__doc__);p.add_argument('--editor-root',type=Path,required=True);p.add_argument('--dotnet',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();raw=subprocess.check_output(['git','-C',str(a.editor_root),'show',PIN+':StepManiaEditor/Documentation.cs'])
+program='''using System.Text.Json;namespace StepManiaEditor;interface IEditorPlatform{void OpenUrl(string url);}static class Utils{public static Version GetAppVersion()=>new(0,1,0);}sealed class Recorder:IEditorPlatform{public readonly List<string> Urls=new();public void OpenUrl(string url){Urls.Add(url);}}class Program{static void Main(){var recorder=new Recorder();Documentation.Initialize(recorder);foreach(var page in Enum.GetValues<Documentation.Page>())Documentation.OpenDocumentation(page);Documentation.OpenGitHub();Console.Write(JsonSerializer.Serialize(recorder.Urls));}}'''
+results={}
+with tempfile.TemporaryDirectory(prefix='deadsync-help-reference-')as tmp:
+ t=Path(tmp);(t/'Documentation.cs').write_bytes(raw);(t/'Program.cs').write_text(program);(t/'Oracle.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings></PropertyGroup></Project>')
+ for name,constants in [('debug','TRACE'),('release','RELEASE')]:
+  subprocess.run([str(a.dotnet),'build',str(t/'Oracle.csproj'),'--nologo','--verbosity','quiet','-p:DefineConstants='+constants],check=True);results[name]=json.loads(subprocess.check_output([str(a.dotnet),str(t/'bin/Debug/net10.0/Oracle.dll')],text=True))
+a.output.parent.mkdir(parents=True,exist_ok=True);a.output.with_suffix('.expected.json').write_text(json.dumps(results,indent=2)+'\n');a.output.with_suffix('.provenance.json').write_text(json.dumps(dict(commit=PIN,source='StepManiaEditor/Documentation.cs',source_sha256=hashlib.sha256(raw).hexdigest(),scope='Whole original Documentation.cs unchanged, Debug and RELEASE builds. Explicit IEditorPlatform recording adapter; Utils.GetAppVersion injected0.1.0. No browser/OS calls. Native adapts tree to pinned source and clearly identifies GA references.',sdk=subprocess.check_output([str(a.dotnet),'--version'],text=True).strip()),indent=2)+'\n')

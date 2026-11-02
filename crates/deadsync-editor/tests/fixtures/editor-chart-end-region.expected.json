@@ -1,0 +1,121 @@
+{
+  "source": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "method_sha256": [
+    "16ebd925b97c6bf1aaa8d3e9d9474eb538bce80a791ca059119ad47f029e75f6",
+    "c068d39db9a0e5b6c27710737d8b820269ea22987b7275f800ac5a084ea28a97",
+    "6ece03b71c9f7183b607a792e56333d8cd1e778fa151b2a71f8b94dfaf3e7963",
+    "88bda0424829df933e576e1633751c8b62a2bf5248f2fad4c1b9d81a6b4063a2"
+  ],
+  "adapters": "EditorEvent base supplies actual Fumen event.IntegerPosition to GetRow; original editor constructors and GetEndRow unchanged; real Fumen AddWarps/AddFakeSegmentEvents",
+  "cases": [
+    {
+      "kind": "warp",
+      "beats": -1,
+      "reader_length": null,
+      "end": null
+    },
+    {
+      "kind": "warp",
+      "beats": 0,
+      "reader_length": null,
+      "end": null
+    },
+    {
+      "kind": "warp",
+      "beats": 1e-06,
+      "reader_length": 0,
+      "end": 385
+    },
+    {
+      "kind": "warp",
+      "beats": 0.010416666666666666,
+      "reader_length": 1,
+      "end": 385
+    },
+    {
+      "kind": "warp",
+      "beats": 0.02,
+      "reader_length": 1,
+      "end": 385
+    },
+    {
+      "kind": "warp",
+      "beats": 0.6458333333333334,
+      "reader_length": 31,
+      "end": 415
+    },
+    {
+      "kind": "warp",
+      "beats": 1.0208333333333333,
+      "reader_length": 49,
+      "end": 433
+    },
+    {
+      "kind": "warp",
+      "beats": 1.333333,
+      "reader_length": 64,
+      "end": 448
+    },
+    {
+      "kind": "warp",
+      "beats": 3.14159,
+      "reader_length": 151,
+      "end": 535
+    },
+    {
+      "kind": "fake",
+      "beats": -1,
+      "reader_length": null,
+      "end": null
+    },
+    {
+      "kind": "fake",
+      "beats": 0,
+      "reader_length": null,
+      "end": null
+    },
+    {
+      "kind": "fake",
+      "beats": 1e-06,
+      "reader_length": 0,
+      "end": 385
+    },
+    {
+      "kind": "fake",
+      "beats": 0.010416666666666666,
+      "reader_length": 1,
+      "end": 385
+    },
+    {
+      "kind": "fake",
+      "beats": 0.02,
+      "reader_length": 1,
+      "end": 385
+    },
+    {
+      "kind": "fake",
+      "beats": 0.6458333333333334,
+      "reader_length": 31,
+      "end": 415
+    },
+    {
+      "kind": "fake",
+      "beats": 1.0208333333333333,
+      "reader_length": 49,
+      "end": 433
+    },
+    {
+      "kind": "fake",
+      "beats": 1.333333,
+      "reader_length": 64,
+      "end": 448
+    },
+    {
+      "kind": "fake",
+      "beats": 3.14159,
+      "reader_length": 151,
+      "end": 535
+    }
+  ]
+}

@@ -1,8 +1,6 @@
 use deadsync_editor::Error;
-#[path = "../src/minimap_mount.rs"]
-mod minimap_mount;
-#[path = "../src/minimap_position_preferences.rs"]
-mod minimap_position_preferences;
+use deadsync_editor::minimap_mount;
+use deadsync_editor::minimap_position_preferences;
 use minimap_mount::{Bounds, FocusEdges, Input, Padding, Rect};
 use minimap_position_preferences::{Mount, Preferences, SelectMode};
 #[test]

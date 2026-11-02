@@ -384,7 +384,7 @@ fn real_file_reader_and_original_editor_fake_flags_counts_and_clocks_match_edits
     assert_eq!(count, 4);
 }
 #[test]
-fn legacy_ssc_uses_shared_regions_and_sm_export_requires_explicit_migration() {
+fn legacy_ssc_still_uses_shared_regions_but_sm_authors_independent_resident_regions() {
     let mut source = session(
         b"#VERSION:0.6;#BPMS:0=120;#WARPS:1=1;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
         Format::Ssc,
@@ -397,11 +397,15 @@ fn legacy_ssc_uses_shared_regions_and_sm_export_requires_explicit_migration() {
         source.document().text(None, "FAKES").as_deref(),
         Some("0=1")
     );
-    let sm = session(
+    let mut sm = session(
         b"#BPMS:0=120;#NOTES:dance-single::Hard:9::1000;",
         Format::Sm,
     );
-    assert!(Draft::capture(&sm, 0, Scope::Chart).is_err());
-    assert!(Draft::capture(&sm, 0, Scope::Song).is_err());
+    let mut draft=Draft::capture(&sm,0,Scope::Chart).unwrap();
+    draft.set(Kind::Warp,48,48).unwrap();draft.apply(&mut sm,0).unwrap();
+    assert_eq!(sm.document().format,Format::Sm);
+    assert!(sm.document().raw_property(None,"WARPS").is_none());
+    assert_eq!(Draft::capture(&sm,0,Scope::Chart).unwrap().regions(Kind::Warp).values().get(&48),Some(&48));
+    assert!(Draft::capture(&sm, 0, Scope::Song).unwrap().regions(Kind::Warp).values().is_empty());
     assert!(Draft::capture(&sm, 999, Scope::Song).is_err());
 }

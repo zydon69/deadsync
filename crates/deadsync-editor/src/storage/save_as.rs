@@ -31,11 +31,11 @@ use std::{
     sync::{Arc, Mutex},
 };
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-struct ParentIdentity {
+pub(super) struct ParentIdentity {
     device: u64,
     inode: u128,
 }
-fn parent_identity(path: &Path) -> Result<ParentIdentity, Error> {
+pub(super) fn parent_identity(path: &Path) -> Result<ParentIdentity, Error> {
     #[cfg(unix)]
     {
         let metadata = fs::metadata(path)?;
@@ -67,7 +67,7 @@ struct Baseline {
     bytes: Arc<[u8]>,
     identity: ParentIdentity,
 }
-fn file_identity(file: &fs::File) -> Result<ParentIdentity, Error> {
+pub(super) fn file_identity(file: &fs::File) -> Result<ParentIdentity, Error> {
     #[cfg(unix)]
     {
         let metadata = file.metadata()?;
@@ -177,6 +177,7 @@ pub enum SaveAsOutcome {
     },
 }
 impl SaveAsReview {
+    pub fn is_current(&self,file:&FileSession)->bool{self.source==file.origin&&self.source_expected==file.expected&&&self.previous_policy==file.output_policy()&&self.policy_revision==file.policy_revision&&self.publication_revision==file.publication_revision&&self.plan.validate(&file.session).is_ok()&&self.output.is_current(&self.candidate)&&self.generated.as_ref().is_none_or(|output|output.is_current(&self.candidate))}
     pub fn issues(&self)->&[crate::advanced_export::Issue]{self.output.issues()}
     pub fn output_policy(&self)->&crate::output_policy::OutputPolicy{self.output.policy()}
     fn generate_output(&mut self,acknowledged:&std::collections::BTreeSet<usize>)->Result<(),Error>{
@@ -207,12 +208,15 @@ impl FileSession {
         self.prepare_save_as_with_revisions(destination,&[])
     }
     pub fn prepare_save_as_with_revisions(&self,destination:&Path,extra:&[u64])->Result<SaveAsReview,Error> {
-        self.prepare_save_as_with_policy_and_revisions(destination,self.output_policy.clone(),extra)
+        self.prepare_save_as_with_policy_and_revisions(destination,self.output_policy().clone(),extra)
     }
     pub fn prepare_save_as_with_policy(&self,destination:&Path,policy:crate::output_policy::OutputPolicy)->Result<SaveAsReview,Error>{
         self.prepare_save_as_with_policy_and_revisions(destination,policy,&[])
     }
-    pub fn prepare_save_as_with_policy_and_revisions(&self,destination:&Path,policy:crate::output_policy::OutputPolicy,extra:&[u64])->Result<SaveAsReview,Error> {
+    pub fn prepare_save_as_with_policy_and_revisions(&self,destination:&Path,policy:crate::output_policy::OutputPolicy,extra:&[u64])->Result<SaveAsReview,Error> {self.prepare_save_as_order(destination,policy,extra,None)}
+    pub fn prepare_save_as_with_policy_and_revisions_ordered(&self,destination:&Path,policy:crate::output_policy::OutputPolicy,extra:&[u64],order:&crate::source_output_order::SourceOutputOrder)->Result<SaveAsReview,Error>{self.prepare_save_as_order(destination,policy,extra,Some(order))}
+    fn prepare_save_as_order(&self,destination:&Path,policy:crate::output_policy::OutputPolicy,extra:&[u64],order:Option<&crate::source_output_order::SourceOutputOrder>)->Result<SaveAsReview,Error>{
+        self.retry_recovery_durability()?;
         if !destination.is_absolute() {
             return Err(Error::InvalidEdit(
                 "Save As requires an absolute destination".into(),
@@ -236,14 +240,14 @@ impl FileSession {
         let mut plan=Plan::prepare_for_output(&self.session,source,&destination,target)?;
         let mut candidate=plan.detached_output_snapshot(&self.session)?;
         let limits=super::save_output::limits_for(&policy);
-        let output=policy.prepare_output(&mut candidate,limits,&std::sync::atomic::AtomicBool::new(false))?;
+        let output=if matches!(policy,crate::output_policy::OutputPolicy::NativeLossless){policy.prepare_output(&mut candidate,limits,&std::sync::atomic::AtomicBool::new(false))?}else if let Some(order)=order{let candidate_order=order.for_rebased_candidate(&self.session,&mut candidate)?;policy.prepare_ordered_output(&mut candidate,limits,&std::sync::atomic::AtomicBool::new(false),&candidate_order)?}else{policy.prepare_output(&mut candidate,limits,&std::sync::atomic::AtomicBool::new(false))?};
         plan.include_external_revisions(extra)?;
         let mut relocation = plan.rebind_receipt();
         relocation.bind_output_policy(self.policy_revision,self.next_policy_revision(&policy)?);
         Ok(SaveAsReview {
             source: self.origin.clone(),
             source_expected: self.expected.clone(),
-            previous_policy:self.output_policy.clone(),policy_revision:self.policy_revision,publication_revision:self.publication_revision,
+            previous_policy:self.output_policy().clone(),policy_revision:self.policy_revision,publication_revision:self.publication_revision,
             candidate,output,generated:None,maximum_bytes:limits.bytes,
             destination,
             parent,
@@ -255,10 +259,11 @@ impl FileSession {
     }
     pub fn save_as_reviewed(&mut self,mut review:SaveAsReview,acknowledged:&std::collections::BTreeSet<usize>)->Result<SaveAsOutcome,Error>{
         review.plan.validate(&self.session)?;
-        if self.origin!=review.source||self.expected!=review.source_expected||self.output_policy!=review.previous_policy||self.policy_revision!=review.policy_revision||self.publication_revision!=review.publication_revision{return Err(Error::InvalidEdit("Save As source policy changed since review".into()));}
+        if self.origin!=review.source||self.expected!=review.source_expected||self.output_policy()!=&review.previous_policy||self.policy_revision!=review.policy_revision||self.publication_revision!=review.publication_revision{return Err(Error::InvalidEdit("Save As source policy changed since review".into()));}
         review.generate_output(acknowledged)?;self.save_as(review)
     }
     pub fn save_as(&mut self, review: SaveAsReview) -> Result<SaveAsOutcome, Error> {
+        self.retry_recovery_durability()?;
         #[cfg(windows)]
         {
             // The successful persist callback includes the Windows namespace
@@ -297,7 +302,7 @@ impl FileSession {
         sync: impl FnOnce(&Path) -> Result<(), Error>,
         persist: impl FnOnce(tempfile::NamedTempFile, &Path, bool) -> Result<(), Error>,
     ) -> Result<SaveAsOutcome, Error> {
-        if self.origin != review.source || self.expected != review.source_expected || self.output_policy!=review.previous_policy || self.policy_revision!=review.policy_revision||self.publication_revision!=review.publication_revision {
+        if self.origin != review.source || self.expected != review.source_expected || self.output_policy()!=&review.previous_policy || self.policy_revision!=review.policy_revision||self.publication_revision!=review.publication_revision {
             return Err(Error::InvalidEdit(
                 "Save As source changed since review".into(),
             ));
@@ -309,6 +314,7 @@ impl FileSession {
         }
         let output=review.generated.as_ref().ok_or_else(||Error::InvalidEdit("Missing generated output".into()))?;
         if !output.is_current(&review.candidate){return Err(Error::InvalidEdit("Generated output became stale".into()));}
+        let published_format=output.format();
         let policy=output.policy().clone();let next_policy=self.next_policy_revision(&policy)?;let next_publication=self.next_publication_revision()?;
         let expected: Arc<[u8]> = output.bytes().to_vec().into();
         let mut lock_name = std::ffi::OsString::from(".");
@@ -346,7 +352,9 @@ impl FileSession {
             identity: file_identity(pending.as_file())?,
             content: review.plan.relocated_content_token(),
         };
+        let witness=receipt.prepare_open_witness(self,output.format());
         review.validate_target()?;
+        if !output.is_current(&review.candidate)||!review.output.is_current(&review.candidate){return Err(Error::InvalidEdit("Source-compatible output order changed before publication".into()));}
         let SaveAsReview {
             destination,
             parent,
@@ -359,11 +367,15 @@ impl FileSession {
         let publication = plan.publication(&mut self.session)?;
         persist(pending, &destination, baseline.is_none())?;
         publication.commit();
+        self.session.rebase_authoring_policy_history(&policy, published_format);
         self.output_policy=policy;self.policy_revision=next_policy;self.publication_revision=next_publication;self.publication_epoch.store(next_publication,std::sync::atomic::Ordering::Release);
         self.origin = new_origin;
         self.resource_base = new_resource_base;
         self.expected = Some(expected);
         self.recovery_receipt = Some(new_recovery);
+        self.recovery_durability = Default::default();
+        witness.activate(&self.session);
+        self.publication_witness=Some(witness);
         match sync(&parent) {
             Ok(()) => {
                 self.session.mark_saved();
@@ -383,6 +395,9 @@ impl FileSession {
     }
 }
 impl PendingDurability {
+    pub(super) fn prepare_open_witness(&self,file:&FileSession,format:crate::document::Format)->super::PublishedOpenWitness{
+        super::PublishedOpenWitness::prepare(super::published_open::Publication{destination:self.destination.clone(),parent:self.parent.clone(),parent_id:self.parent_id,identity:self.identity,expected:Arc::clone(&self.expected),policy:self.policy.clone(),policy_revision:self.policy_revision,publication_revision:self.publication_revision},Arc::clone(&file.publication_epoch),format)
+    }
     pub(super) fn for_output(destination:&Path,parent:&Path,expected:Arc<[u8]>,pending:&fs::File,content:ContentToken,policy:crate::output_policy::OutputPolicy,policy_revision:u64,publication_revision:u64)->Result<Self,Error>{
         Ok(Self{destination:destination.to_owned(),parent:parent.to_owned(),parent_id:parent_identity(parent)?,expected,identity:file_identity(pending)?,content,policy,policy_revision,publication_revision})
     }
@@ -390,7 +405,7 @@ impl PendingDurability {
         &self.destination
     }
     pub fn retry(&self, file: &mut FileSession) -> Result<(), Error> {
-        if file.output_policy!=self.policy || file.policy_revision!=self.policy_revision || file.publication_revision!=self.publication_revision || file.existing_path() != Some(self.destination.as_path())
+        if file.output_policy()!=&self.policy || file.policy_revision!=self.policy_revision || file.publication_revision!=self.publication_revision || file.existing_path() != Some(self.destination.as_path())
             || file.expected.as_ref() != Some(&self.expected)
             || parent_identity(&self.parent)? != self.parent_id
             || baseline(&self.destination)?
@@ -453,7 +468,10 @@ mod tests {
             .unwrap();
         let ids = file.session.chart_ids().to_vec();
         let review = file.prepare_save_as(&destination).unwrap();
-        let bytes = review.staged_bytes().to_vec();
+        let staged = review.staged_bytes().to_vec();
+        assert_eq!(review.candidate.serialize().unwrap(), staged);
+        let bytes = review.candidate.serialize_for_output().unwrap();
+        assert_ne!(bytes, staged, "explicit output materializes captured sync");
         assert!(!destination.exists());
         assert!(file.session.is_dirty());
         assert!(matches!(
@@ -683,8 +701,11 @@ mod tests {
         let review = file.prepare_save_as(&destination).unwrap();
         assert!(review.replaces_existing());
         let staged = review.staged_bytes().to_vec();
+        assert_eq!(review.candidate.serialize().unwrap(), staged);
+        let output = review.candidate.serialize_for_output().unwrap();
+        assert_ne!(output, staged, "explicit output materializes captured sync");
         file.save_as(review).unwrap();
-        assert_eq!(fs::read(destination).unwrap(), staged);
+        assert_eq!(fs::read(destination).unwrap(), output);
         assert_eq!(
             fs::read(_root.path().join("old/song.ssc")).unwrap(),
             original
@@ -739,4 +760,21 @@ pub(super) fn persist_output(pending:tempfile::NamedTempFile,destination:&Path)-
 pub(super) fn sync_output_directory(parent:&Path)->Result<(),Error>{
     #[cfg(windows)] {let _=parent;Ok(())}
     #[cfg(not(windows))] {sync_save_as_directory(parent)}
+}
+
+#[cfg(all(test,unix))]
+mod authoring_boundary_tests{
+    use super::*;
+    use crate::document::Format;
+    #[test]
+    fn promotion_policy_history_rebases_once_at_publication_and_not_again_at_durability_retry(){
+        let root=tempfile::tempdir().unwrap();let source=root.path().canonicalize().unwrap().join("source.sm");let destination=root.path().canonicalize().unwrap().join("copy.ssc");
+        fs::write(&source,b"#TITLE:Test;#BPMS:0=120;#NOTES:dance-single::Hard:9:0,0,0,0,0:1000;").unwrap();let mut file=FileSession::open(&source).unwrap();
+        let plan=file.prepare_sm_authoring().unwrap();file.apply_sm_authoring(plan,Default::default()).unwrap();
+        let policy=crate::output_policy::OutputPolicy::AdvancedSongTiming{format:Format::Ssc,options:Default::default()};let review=file.prepare_save_as_with_policy(&destination,policy.clone()).unwrap();assert!(review.issues().is_empty());
+        let receipt=match file.save_as_with_sync(review,|_|Err(Error::Io(std::io::Error::other("injected sync failure")))).unwrap(){SaveAsOutcome::WrittenPendingDurability{receipt,..}=>receipt,_=>panic!("pending output required")};
+        let revision=file.output_policy_revision();let bytes=fs::read(&destination).unwrap();assert_eq!(file.output_policy(),&policy);receipt.retry(&mut file).unwrap();assert_eq!(file.output_policy_revision(),revision);assert_eq!(fs::read(&destination).unwrap(),bytes);
+        file.authoring_history_with_effect(false).unwrap();assert_eq!(file.session.document().format,Format::Sm);assert_eq!(file.output_policy(),&policy);assert_eq!(file.require_existing_path().unwrap(),destination);
+        file.authoring_history_with_effect(true).unwrap();assert_eq!(file.session.document().format,Format::Ssc);assert_eq!(file.output_policy(),&policy);
+    }
 }

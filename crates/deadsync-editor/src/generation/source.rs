@@ -74,6 +74,9 @@ pub fn read(
     chart: usize,
     cancelled: &AtomicBool,
 ) -> Result<SourceChart, Error> {
+    read_with_context(bytes,format,Default::default(),chart,cancelled)
+}
+pub fn read_with_context(bytes:Arc<[u8]>,format:Format,context:crate::document::LoadContext,chart:usize,cancelled:&AtomicBool)->Result<SourceChart,Error>{
     let checkpoint = || {
         if cancelled.load(Ordering::Relaxed) {
             Err(Error::InvalidEdit(
@@ -84,7 +87,7 @@ pub fn read(
         }
     };
     checkpoint()?;
-    let document = Document::parse(bytes.clone(), format)?;
+    let document = Document::parse_with_context(bytes.clone(), format,context)?;
     crate::timing_edit::migration::require_compatible(&document)?;
     require_reference_source(&document, chart)?;
     let entry = document
@@ -100,13 +103,13 @@ pub fn read(
     }
     require_reference_grid(&entry.steps_type, &grid)?;
     let timing = GenerationTiming::from_document(&document, chart)?;
-    let session = crate::history::Session::new(Document::parse(bytes, format)?);
+    let session = crate::history::Session::new(Document::parse_with_context(bytes, format,context)?);
     let attack_rows = crate::attacks::placement::Timeline::capture(&session, chart)?
         .markers()
         .iter()
         .map(|marker| marker.row)
         .collect();
-    let scope = if crate::timing_edit::supports_chart_timing(&document) {
+    let scope = if crate::attacks::supports_resident_chart_attacks(&document) {
         crate::timing_edit::Scope::Chart
     } else {
         crate::timing_edit::Scope::Song

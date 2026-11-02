@@ -1,0 +1,10 @@
+{
+  "LibraryCommit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "SourcePath": "StepManiaLibrary/PerformedChart/SearchNode.cs",
+  "SourceSha256": "1d5eca65801ff24d7f6b82753412a79c861aeca75e9aaa4071a285931422c4c3",
+  "UnchangedCompareToSha256": "34f4e4a1c95a996f681324b565a9a27c8e426ed263f48f71097edea4f7c7ba86",
+  "HarnessSha256": "bcea4788c96a7ac9f00f3eac6fea16fcd823ed0395627f09696e6a48ed52533b",
+  "FixtureSha256": "07474c7dd99dcfd74018db20b813943f36f91e63074de9fe52dd5c8f94f7a569",
+  "Cases": 144,
+  "Scope": "Actual unchanged original CompareTo. Field-only SearchNode plumbing with original declared numeric types; construction/scoring/search and full-chart output not executed. Nonnegative finite f32 bit patterns, both f32 cost fields, both random tie-break directions."
+}

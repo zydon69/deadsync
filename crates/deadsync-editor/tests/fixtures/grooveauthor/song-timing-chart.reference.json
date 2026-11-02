@@ -1,0 +1,27 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "library_commit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "fumen_commit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "sources": {
+    "song": {
+      "path": "StepManiaEditor/EditorSong.cs",
+      "sha256": "066bd606d5138343b444fb0355a125929c7b19baef4832202775eb419a5c60ff"
+    },
+    "chart": {
+      "path": "StepManiaEditor/EditorChart.cs",
+      "sha256": "6f4e0dfa619588d5c12c1b42885d06f3dc6611a0580af49cc5045da9e89e87cd"
+    },
+    "editor": {
+      "path": "StepManiaEditor/Editor.cs",
+      "sha256": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709"
+    },
+    "options": {
+      "path": "StepManiaEditor/Preferences/PreferencesOptions.cs",
+      "sha256": "cd3ccd5d6b51d13101ea459df7f3ff1cb336c2a1ec886a9eb0dbe241a2d91e46"
+    }
+  },
+  "methods_sha256": "076dee18a0a889504584ea0edac7518467621bbfa9f2378f1b18635a1593377f",
+  "program_sha256": "71452912366adf5b03acccc3492aa639714faad4fb650d2efaa2ecf2bd51ca7e",
+  "assembly_sha256": "ffc0d8cb558d03fe50636b6f2bf53711c0694c8a9f4c1b4cdd650dcf69fc86f6",
+  "scope": "Original timing setter, Choose/SelectBest, sorting, DeleteChart, V1 deserialize/serialize. Property-only valid chart adapter, editable host, fixed open sync preference0.009, and identity custom tag names. Constructor sequence copied explicitly: deserialize/fallback before sort. No full EditorSong load, clocks, writer or native lifecycle proof."
+}

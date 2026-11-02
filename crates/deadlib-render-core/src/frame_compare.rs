@@ -103,6 +103,7 @@ fn compare_render_targets(
             expected.preserve,
             actual.preserve,
         )?;
+        compare_value("render_target", index, "postprocess", expected.postprocess, actual.postprocess)?;
         compare_pass(expected, actual)?;
     }
     Ok(())

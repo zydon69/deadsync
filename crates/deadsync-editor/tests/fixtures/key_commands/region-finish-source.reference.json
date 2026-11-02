@@ -1,0 +1,18 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourceSha256": {
+    "ActiveEditorChart.cs": "60bde1681bba77f08a7c4d772c247c0b6725901fd8b0e2225f3e02e5d728ac3a",
+    "EditorEvents/Containers/RateAlteringEventTree.cs": "bd7eab4ce5a62e8c5c300f20e47298ea19c65f55b590978bb99d3d653441d736",
+    "EditorEvents/Containers/EventTreeUtils.cs": "debc87e321265b4b694fe902cb9147e66804e75669fef7a842830a925a6ecdee",
+    "EditorEvents/EditorRateAlteringEvent.cs": "65df864234461b543af99e6f640e43998be9343ba64829f3d0d28cb027e481ce",
+    "EditorEvents/Containers/EventTree.cs": "154d1e307368636752879e0f9123af67f43c8c4a6eac6950f5b9159a75cfd94f",
+    "Preferences/PreferencesSelection.cs": "070fa20688a9753e9e6c38a1a70d791a1c717c7004679271315918999ebc5765",
+    "Selection.cs": "e7090aab08b8677ee724f0502c520ffebf0c39f7e449cc6f4fd4d53df45ffd46",
+    "EventSpacingHelper.cs": "67deae613750c28f54442f4379f65f7c7e7728b8603bb5ea16c25807bc35fd5b",
+    "MiscEventWidgetLayoutManager.cs": "24817f6067ea447abcd17f324cb5e7c31cb506bc516ee5a647938f90a3bc8216"
+  },
+  "AdapterSha256": "d8dd7087af815d13026425fb7ae396827db319ea9402b1f3e81920f76d0a7cfa",
+  "ProgramSha256": "282b9ff0ddaf0cd29048e8f288d97643c40d57a7f68ac95789da7efe13fd82bf",
+  "Scope": "Entire original FinishSelectedRegion and Selection, six original region helpers, strict FindLeastAfter/Ensure on real Fumen tree, entire EventSpacingHelper. Scalar host event order/geometry and rectangle-only host SelectMiscEvents are explicit dependencies: original misc scans and widget layout are not exercised here. No click path claimed."
+}

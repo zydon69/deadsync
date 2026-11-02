@@ -1,0 +1,7 @@
+Unhandled exception. System.ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')
+   at System.Collections.Generic.List`1.get_Item(Int32 index)
+   at StepManiaLibrary.MineUtils.FindBestNthMostRecentArrow(Boolean searchBackwards, Int32 desiredN, Int32 desiredFoot, Int32 numArrows, List`1 releases, Int32 releaseIndex, List`1 steps, Int32 stepIndex, Boolean[] arrowsOccupiedByMines, Int32 minePosition, Int32[] randomLaneOrder) in ./MineUtils.cs:line 409
+   at StepManiaLibrary.PerformedChart.PerformedChart.AddMinesToPerformedChart(PerformedChart performedChart, StepGraph stepGraph, ExpressedChart expressedChart, PerformanceNode lastPerformanceNode, Random random) in ./PerformedChart/PerformedChart.cs:line 599
+   at StepManiaLibrary.PerformedChart.PerformedChart.CreateFromExpressedChart(StepGraph stepGraph, Config config, List`1 rootNodes, StepTypeFallbacks fallbacks, ExpressedChart expressedChart, Int32 randomSeed, String logIdentifier) in ./PerformedChart/PerformedChart.cs:line 382
+   at Program.<Main>$(String[] args) in /private/tmp/deadsync-generation-parity-harness/Program.cs:line 478
+   at Program.<Main>(String[] args)

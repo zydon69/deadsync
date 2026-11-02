@@ -1,0 +1,1824 @@
+{
+  "Cultures": [
+    "en-US",
+    "fr-FR"
+  ],
+  "Cases": [
+    {
+      "Name": "custom-0-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": null,
+      "Delete": null
+    },
+    {
+      "Name": "custom-0-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": null,
+      "Delete": 0
+    },
+    {
+      "Name": "custom-0-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": null,
+      "Delete": 1
+    },
+    {
+      "Name": "custom-0-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": null,
+      "Delete": 3
+    },
+    {
+      "Name": "custom-1-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {},
+      "Delete": null
+    },
+    {
+      "Name": "custom-1-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {},
+      "Delete": 0
+    },
+    {
+      "Name": "custom-1-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {},
+      "Delete": 1
+    },
+    {
+      "Name": "custom-1-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {},
+      "Delete": 3
+    },
+    {
+      "Name": "custom-2-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": 1
+      },
+      "Delete": null
+    },
+    {
+      "Name": "custom-2-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": 1
+      },
+      "Delete": 0
+    },
+    {
+      "Name": "custom-2-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": 1
+      },
+      "Delete": 1
+    },
+    {
+      "Name": "custom-2-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": 1
+      },
+      "Delete": 3
+    },
+    {
+      "Name": "custom-3-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": 0,
+        "DefaultChartIndex": 0
+      },
+      "Delete": null
+    },
+    {
+      "Name": "custom-3-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": 0,
+        "DefaultChartIndex": 0
+      },
+      "Delete": 0
+    },
+    {
+      "Name": "custom-3-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": 0,
+        "DefaultChartIndex": 0
+      },
+      "Delete": 1
+    },
+    {
+      "Name": "custom-3-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": 0,
+        "DefaultChartIndex": 0
+      },
+      "Delete": 3
+    },
+    {
+      "Name": "custom-4-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "DANCE_SINGLE",
+        "DefaultChartIndex": 2
+      },
+      "Delete": null
+    },
+    {
+      "Name": "custom-4-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "DANCE_SINGLE",
+        "DefaultChartIndex": 2
+      },
+      "Delete": 0
+    },
+    {
+      "Name": "custom-4-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "DANCE_SINGLE",
+        "DefaultChartIndex": 2
+      },
+      "Delete": 1
+    },
+    {
+      "Name": "custom-4-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "DANCE_SINGLE",
+        "DefaultChartIndex": 2
+      },
+      "Delete": 3
+    },
+    {
+      "Name": "custom-5-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": null
+      },
+      "Delete": null
+    },
+    {
+      "Name": "custom-5-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": null
+      },
+      "Delete": 0
+    },
+    {
+      "Name": "custom-5-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": null
+      },
+      "Delete": 1
+    },
+    {
+      "Name": "custom-5-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": null
+      },
+      "Delete": 3
+    },
+    {
+      "Name": "custom-6-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": -1
+      },
+      "Delete": null
+    },
+    {
+      "Name": "custom-6-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": -1
+      },
+      "Delete": 0
+    },
+    {
+      "Name": "custom-6-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": -1
+      },
+      "Delete": 1
+    },
+    {
+      "Name": "custom-6-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": -1
+      },
+      "Delete": 3
+    },
+    {
+      "Name": "custom-7-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": 999
+      },
+      "Delete": null
+    },
+    {
+      "Name": "custom-7-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": 999
+      },
+      "Delete": 0
+    },
+    {
+      "Name": "custom-7-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": 999
+      },
+      "Delete": 1
+    },
+    {
+      "Name": "custom-7-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "dance_single",
+        "DefaultChartIndex": 999
+      },
+      "Delete": 3
+    },
+    {
+      "Name": "custom-8-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "smx_team"
+      },
+      "Delete": null
+    },
+    {
+      "Name": "custom-8-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "smx_team"
+      },
+      "Delete": 0
+    },
+    {
+      "Name": "custom-8-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "smx_team"
+      },
+      "Delete": 1
+    },
+    {
+      "Name": "custom-8-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "smx_team"
+      },
+      "Delete": 3
+    },
+    {
+      "Name": "custom-9-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "invalid"
+      },
+      "Delete": null
+    },
+    {
+      "Name": "custom-9-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "invalid"
+      },
+      "Delete": 0
+    },
+    {
+      "Name": "custom-9-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "invalid"
+      },
+      "Delete": 1
+    },
+    {
+      "Name": "custom-9-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartType": "invalid"
+      },
+      "Delete": 3
+    },
+    {
+      "Name": "custom-10-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartIndex": "1"
+      },
+      "Delete": null
+    },
+    {
+      "Name": "custom-10-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartIndex": "1"
+      },
+      "Delete": 0
+    },
+    {
+      "Name": "custom-10-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartIndex": "1"
+      },
+      "Delete": 1
+    },
+    {
+      "Name": "custom-10-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "DefaultChartIndex": "1"
+      },
+      "Delete": 3
+    },
+    {
+      "Name": "custom-11-delete-None",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "SyncOffset": 0.125,
+        "DefaultChartType": "pump_double"
+      },
+      "Delete": null
+    },
+    {
+      "Name": "custom-11-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "SyncOffset": 0.125,
+        "DefaultChartType": "pump_double"
+      },
+      "Delete": 0
+    },
+    {
+      "Name": "custom-11-delete-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "SyncOffset": 0.125,
+        "DefaultChartType": "pump_double"
+      },
+      "Delete": 1
+    },
+    {
+      "Name": "custom-11-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": {
+        "SyncOffset": 0.125,
+        "DefaultChartType": "pump_double"
+      },
+      "Delete": 3
+    },
+    {
+      "Name": "setter--1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": null,
+      "Set": -1
+    },
+    {
+      "Name": "setter-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": null,
+      "Set": 0
+    },
+    {
+      "Name": "setter-1",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": null,
+      "Set": 1
+    },
+    {
+      "Name": "setter-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": null,
+      "Set": 3
+    },
+    {
+      "Name": "setter-999",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": null,
+      "Set": 999
+    },
+    {
+      "Name": "null-setter-delete-0",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": null,
+      "Set": -1,
+      "Delete": 0
+    },
+    {
+      "Name": "null-setter-delete-3",
+      "Charts": [
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 15,
+          "Name": "zebra"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 4,
+          "Rating": 1,
+          "Name": "éclair"
+        },
+        {
+          "Type": "dance_single",
+          "Difficulty": 3,
+          "Rating": 20,
+          "Name": "Ångström"
+        },
+        {
+          "Type": "pump_double",
+          "Difficulty": 4,
+          "Rating": 8,
+          "Name": "pump"
+        }
+      ],
+      "Custom": null,
+      "Set": -1,
+      "Delete": 3
+    },
+    {
+      "Name": "empty",
+      "Charts": [],
+      "Custom": null
+    }
+  ]
+}

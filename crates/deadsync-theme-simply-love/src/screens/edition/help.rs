@@ -14,6 +14,8 @@ impl State {
             "HelpMinimap",
             "HelpChartCopy",
             "HelpEventShift",
+            "HelpDensityGraph",
+            "HelpPatternActions",
             "HelpShiftAll",
             "HelpQuickAdd",
             "HelpSelectedTransform",

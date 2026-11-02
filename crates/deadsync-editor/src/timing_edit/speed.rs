@@ -1,6 +1,6 @@
 //! Interpolated scroll rates, distinct from instant SCROLLS and beat/time clocks.
 use super::{Scope, Target, tempo::beat_row};
-use crate::{Error, document::Format, history::Session};
+use crate::{Error, history::Session};
 use std::collections::BTreeMap;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Period {
@@ -271,14 +271,9 @@ pub struct Draft {
 impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
-        if session.document().format == Format::Sm {
-            return Err(error("Interpolated speed export requires SSC"));
-        }
+
         let current = Speeds::parse(
-            &session
-                .document()
-                .text(target.origin(), "SPEEDS")
-                .unwrap_or_default(),
+            &super::resident::text(session.document(),target.origin(),"SPEEDS")?,
         )?;
         Ok(Self {
             target,

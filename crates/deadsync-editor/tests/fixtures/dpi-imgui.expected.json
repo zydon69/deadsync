@@ -1,0 +1,166 @@
+[
+  {
+    "Scale": 2,
+    "FramePadding": [
+      8.0,
+      6.0
+    ],
+    "FontPixels": 30,
+    "Loaded": true,
+    "Widths": {
+      "120.000": 122.0,
+      "4/4": 73.0,
+      "0.125": 97.0,
+      "Preview": 122.0
+    },
+    "FontSize": 30.0,
+    "WidgetHeight": 44.0
+  },
+  {
+    "Scale": 1.5,
+    "FramePadding": [
+      6.0,
+      4.0
+    ],
+    "FontPixels": 22,
+    "Loaded": true,
+    "Widths": {
+      "120.000": 90.0,
+      "4/4": 54.0,
+      "0.125": 72.0,
+      "Preview": 90.0
+    },
+    "FontSize": 22.0,
+    "WidgetHeight": 32.0
+  },
+  {
+    "Scale": 2,
+    "FramePadding": [
+      8.0,
+      6.0
+    ],
+    "FontPixels": 30,
+    "Loaded": true,
+    "Widths": {
+      "120.000": 122.0,
+      "4/4": 73.0,
+      "0.125": 97.0,
+      "Preview": 122.0
+    },
+    "FontSize": 30.0,
+    "WidgetHeight": 44.0
+  },
+  {
+    "Scale": 1,
+    "FramePadding": [
+      4.0,
+      3.0
+    ],
+    "FontPixels": 15,
+    "Loaded": true,
+    "Widths": {
+      "120.000": 61.0,
+      "4/4": 37.0,
+      "0.125": 49.0,
+      "Preview": 61.0
+    },
+    "FontSize": 15.0,
+    "WidgetHeight": 23.0
+  },
+  {
+    "Scale": 1,
+    "FramePadding": [
+      4.0,
+      3.0
+    ],
+    "FontPixels": 15,
+    "Loaded": true,
+    "Widths": {
+      "120.000": 61.0,
+      "4/4": 37.0,
+      "0.125": 49.0,
+      "Preview": 61.0
+    },
+    "FontSize": 15.0,
+    "WidgetHeight": 23.0
+  },
+  {
+    "Scale": 1,
+    "FramePadding": [
+      4.0,
+      3.0
+    ],
+    "FontPixels": 15,
+    "Loaded": true,
+    "Widths": {
+      "120.000": 61.0,
+      "4/4": 37.0,
+      "0.125": 49.0,
+      "Preview": 61.0
+    },
+    "FontSize": 15.0,
+    "WidgetHeight": 23.0
+  },
+  {
+    "Scale": 1e-10,
+    "FramePadding": [
+      0.0,
+      0.0
+    ],
+    "FontPixels": 0,
+    "Loaded": false,
+    "Widths": {},
+    "WidgetHeight": 0
+  },
+  {
+    "Scale": 8,
+    "FramePadding": [
+      32.0,
+      24.0
+    ],
+    "FontPixels": 120,
+    "Loaded": true,
+    "Widths": {
+      "120.000": 485.0,
+      "4/4": 290.0,
+      "0.125": 387.0,
+      "Preview": 485.0
+    },
+    "FontSize": 120.0,
+    "WidgetHeight": 170.0
+  },
+  {
+    "Scale": 0.25,
+    "FramePadding": [
+      1.0,
+      0.0
+    ],
+    "FontPixels": 3,
+    "Loaded": true,
+    "Widths": {
+      "120.000": 13.0,
+      "4/4": 8.0,
+      "0.125": 11.0,
+      "Preview": 13.0
+    },
+    "FontSize": 3.0,
+    "WidgetHeight": 5.0
+  },
+  {
+    "Scale": 1.99999999,
+    "FramePadding": [
+      8.0,
+      6.0
+    ],
+    "FontPixels": 29,
+    "Loaded": true,
+    "Widths": {
+      "120.000": 118.0,
+      "4/4": 71.0,
+      "0.125": 94.0,
+      "Preview": 118.0
+    },
+    "FontSize": 29.0,
+    "WidgetHeight": 43.0
+  }
+]

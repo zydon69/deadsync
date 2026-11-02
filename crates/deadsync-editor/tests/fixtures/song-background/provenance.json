@@ -1,0 +1,8 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourceSha256": "cb5aba45e3c55def13a422463f483e73fcf40927414f42acee53ce22c7f2723c",
+  "AdapterSha256": "aa6f55639eab34cde0496cc8027c3278122cd568aaa95ba804c263a8f64ba239",
+  "AssemblySha256": "3082dabb7969ad6014a899de913392fb7a3024dd64c5f28ead3e2e387d869863",
+  "Scope": "Original GetTextureUVs and GetTextureColor(uint[]) with real Fumen color conversion. Stub Texture2D only exposes dimensions. No GPU, file decoder, viewport docking or background preference UI execution."
+}

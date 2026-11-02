@@ -307,7 +307,21 @@ fn workspace_orders_live_properties_and_preserves_resident_ids_across_structural
         // Delete the middle source chart and keep identities attached to charts,
         // not numeric positions. Undo/redo restore the duplicate's exact GUID.
         workspace.execute(Command::SelectChart(1)).unwrap();
-        let deletion = workspace.deletion_draft().unwrap();
+        let mut deletion = workspace.deletion_draft().unwrap();
+        let before_delete = workspace.file().session.serialize().unwrap();
+        let before_revision = workspace.file().session.revision();
+        // The timing-chart successor depends on the current cultural order.
+        // Refusal without that order must be atomic and preserve identities.
+        assert!(workspace.delete_chart(&deletion).is_err());
+        assert_eq!(workspace.file().session.serialize().unwrap(), before_delete);
+        assert_eq!(workspace.file().session.revision(), before_revision);
+        assert_eq!(workspace.file().session.chart_ids(), with_duplicate);
+        assert_eq!(workspace.chart(), 1);
+        deletion.prepare_song_timing(
+            &workspace.file().session,
+            &Default::default(),
+            &duplicate_order,
+        ).unwrap();
         workspace.delete_chart(&deletion).unwrap();
         let mut after_delete = with_duplicate.clone();
         after_delete.remove(1);

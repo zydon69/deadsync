@@ -61,6 +61,8 @@ impl WasapiSampleFormat {
 }
 
 pub struct WasapiOutputPrep {
+    adjustable_period: bool,
+    requested_period_frames: Option<u32>,
     device_id: Option<String>,
     device_name: String,
     format: Vec<u8>,
@@ -109,6 +111,16 @@ impl FramesToNanos {
 }
 
 impl WasapiOutputPrep {
+    pub fn buffer_capabilities(&self) -> deadlib_audio_core::BufferCapabilities {
+        deadlib_audio_core::BufferCapabilities {
+            period_frames: if self.adjustable_period {
+                deadlib_audio_core::BufferControl::Adjustable
+            } else {
+                deadlib_audio_core::BufferControl::Unsupported
+            },
+            num_buffers: deadlib_audio_core::BufferControl::Unsupported,
+        }
+    }
     #[must_use]
     pub fn ready(&self) -> OutputBackendReady {
         OutputBackendReady {
@@ -128,8 +140,9 @@ impl WasapiOutputPrep {
 }
 
 pub struct WasapiOutputStream {
+    negotiated: deadlib_audio_core::BufferNegotiation,
     thread: Option<JoinHandle<()>>,
-    stop_event: HANDLE,
+    stop_event: Option<HANDLE>,
 }
 
 struct WasapiEvent(HANDLE);
@@ -156,20 +169,45 @@ impl Drop for StartedAudioClient<'_> {
     }
 }
 
+impl WasapiOutputStream {
+    pub fn buffer_negotiation(&self) -> deadlib_audio_core::BufferNegotiation {
+        self.negotiated
+    }
+}
+
+impl WasapiOutputStream {
+    pub fn shutdown(&mut self) -> Result<(), String> {
+        if self.thread.is_some() {
+            let event = self
+                .stop_event
+                .ok_or_else(|| "WASAPI stop event missing".to_string())?;
+            unsafe { Threading::SetEvent(event) }
+                .map_err(|error| format!("WASAPI stop signal failed: {error}"))?;
+        }
+        let joined = self
+            .thread
+            .take()
+            .map(|thread| thread.join())
+            .transpose()
+            .map_err(|_| "WASAPI render thread panicked during shutdown".to_string());
+        if let Some(event) = self.stop_event.take() {
+            if let Err(error) = unsafe { CloseHandle(event) } {
+                error!("WASAPI stop event close failed after render join: {error}");
+            }
+        }
+        let _ = joined?;
+        Ok(())
+    }
+}
+
 impl Drop for WasapiOutputStream {
     fn drop(&mut self) {
-        // SAFETY: `stop_event` is a live event handle owned by this stream until
-        // drop. Signaling it is the shutdown path for the render thread.
-        unsafe {
-            let _ = Threading::SetEvent(self.stop_event);
-        }
-        if let Some(thread) = self.thread.take() {
-            let _ = thread.join();
-        }
-        // SAFETY: `stop_event` is still owned by this stream and is closed exactly
-        // once here after the render thread has exited.
-        unsafe {
-            let _ = CloseHandle(self.stop_event);
+        if let Err(error) = self.shutdown() {
+            error!("{error}");
+            // If signaling failed, a detached thread still owns all render data.
+            // Keep its event alive rather than invalidating a live native wait.
+            let _ = self.stop_event.take();
+            let _ = self.thread.take();
         }
     }
 }
@@ -249,6 +287,19 @@ pub fn prepare(
     requested_rate_hz: Option<u32>,
     mode: WasapiAccessMode,
 ) -> Result<WasapiOutputPrep, String> {
+    prepare_with_buffer(device_id, device_name, requested_rate_hz, mode, None)
+}
+
+pub fn prepare_with_buffer(
+    device_id: Option<String>,
+    device_name: String,
+    requested_rate_hz: Option<u32>,
+    mode: WasapiAccessMode,
+    requested_period_frames: Option<u32>,
+) -> Result<WasapiOutputPrep, String> {
+    if requested_period_frames.is_some_and(|value| !(32..=8192).contains(&value)) {
+        return Err("invalid WASAPI frame request".into());
+    }
     let _com = ComGuard::new()?;
     let device = open_output_device(device_id.as_deref())?;
     let audio_client = build_audio_client(&device)?;
@@ -285,7 +336,14 @@ pub fn prepare(
     let channels = waveformat(&chosen_format).nChannels as usize;
     let samples_per_frame =
         usize::from(waveformat(&chosen_format).nBlockAlign) / sample_format.sample_size();
+    let adjustable_period = mode == WasapiAccessMode::Exclusive
+        || init::supports_requested_period(&audio_client, &chosen_format);
+    if requested_period_frames.is_some() && !adjustable_period {
+        return Err("WASAPI endpoint does not support a requested period".into());
+    }
     Ok(WasapiOutputPrep {
+        adjustable_period,
+        requested_period_frames,
         device_id,
         device_name,
         format: chosen_format,
@@ -308,7 +366,7 @@ pub fn start(
     // paths below.
     let stop_event = unsafe { Threading::CreateEventW(None, false, false, PCWSTR::null()) }
         .map_err(|e| format!("failed to create WASAPI stop event: {e}"))?;
-    let (ready_tx, ready_rx) = channel::<Result<(), String>>();
+    let (ready_tx, ready_rx) = channel::<Result<deadlib_audio_core::BufferNegotiation, String>>();
     let stop_event_thread = stop_event.0 as isize;
     let thread = thread::Builder::new()
         .name("wasapi_out".to_string())
@@ -330,9 +388,10 @@ pub fn start(
             format!("failed to spawn WASAPI render thread: {e}")
         })?;
     match ready_rx.recv() {
-        Ok(Ok(())) => Ok(WasapiOutputStream {
+        Ok(Ok(negotiated)) => Ok(WasapiOutputStream {
+            negotiated,
             thread: Some(thread),
-            stop_event,
+            stop_event: Some(stop_event),
         }),
         Ok(Err(err)) => {
             let _ = thread.join();
@@ -360,7 +419,7 @@ fn render_thread(
     mut render: RenderState,
     mut sfx_receiver: SfxReceiver,
     stop_event: HANDLE,
-    ready_tx: Sender<Result<(), String>>,
+    ready_tx: Sender<Result<deadlib_audio_core::BufferNegotiation, String>>,
 ) {
     let _thread_policy = boost_current_thread(ThreadRole::AudioRender);
     let mut startup_reported = false;
@@ -420,7 +479,7 @@ fn render_thread_inner(
     render: &mut RenderState,
     sfx_receiver: &mut SfxReceiver,
     stop_event: HANDLE,
-    ready_tx: &Sender<Result<(), String>>,
+    ready_tx: &Sender<Result<deadlib_audio_core::BufferNegotiation, String>>,
     startup_reported: &mut bool,
     recovering: &mut bool,
 ) -> Result<(), String> {
@@ -529,7 +588,16 @@ fn render_thread_inner(
     }
     let _started_client = StartedAudioClient(&audio_client);
     if !*startup_reported {
-        if ready_tx.send(Ok(())).is_err() {
+        let period_frames = if prep.mode == WasapiAccessMode::Exclusive {
+            Some(max_frames_in_buffer)
+        } else {
+            initialized.period_frames
+        };
+        let negotiated = deadlib_audio_core::BufferNegotiation {
+            period_frames,
+            num_buffers: None,
+        };
+        if ready_tx.send(Ok(negotiated)).is_err() {
             return Ok(());
         }
         *startup_reported = true;

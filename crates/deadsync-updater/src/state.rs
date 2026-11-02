@@ -151,6 +151,20 @@ pub fn available_tag() -> Option<String> {
     }
 }
 
+/// Lightweight classified result, captured under one lock. Unknown includes no result.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum EditorSnapshot { Unknown, UpToDate, Available { tag: String, url: String } }
+fn editor_snapshot_from(snapshot: &RwLock<Option<UpdateState>>) -> EditorSnapshot {
+    let Ok(guard)=snapshot.read() else { return EditorSnapshot::Unknown; };
+    match guard.as_ref() {
+        Some(UpdateState::UpToDate)=>EditorSnapshot::UpToDate,
+        Some(UpdateState::Available(info))=>EditorSnapshot::Available {tag:info.tag.clone(),url:info.html_url.clone()},
+        _=>EditorSnapshot::Unknown,
+    }
+}
+/// Coherent About/notification knowledge; does not clone release bodies or assets.
+pub fn editor_snapshot() -> EditorSnapshot { editor_snapshot_from(&SNAPSHOT) }
+
 /// Read-only copy of the persisted cache.
 pub fn cache() -> UpdaterCache {
     CACHE.read().map(|c| c.clone()).unwrap_or_default()
@@ -753,5 +767,38 @@ mod tests {
         dir.push(format!("deadsync-{stem}-{}", std::process::id()));
         let _ = std::fs::create_dir_all(&dir);
         dir
+    }
+}
+
+/// Existing classified snapshot; no network work is performed here.
+pub fn available_release()->Option<(String,String)>{let guard=SNAPSHOT.read().ok()?;match guard.as_ref()?{UpdateState::Available(info)=>Some((info.tag.clone(),info.html_url.clone())),_=>None}}
+
+#[cfg(test)]
+mod editor_snapshot_tests {
+    use super::*;
+    fn release(tag:&str,url:&str)->UpdateState {
+        UpdateState::Available(ReleaseInfo{tag:tag.into(),version:Version::new(9,0,0),html_url:url.into(),body:"body must not be copied into the editor DTO".repeat(1024),published_at:None,assets:Vec::new()})
+    }
+    #[test]
+    fn editor_snapshot_distinguishes_absence_unknown_and_confirmed_current() {
+        let lock=RwLock::new(None);
+        assert_eq!(editor_snapshot_from(&lock),EditorSnapshot::Unknown);
+        *lock.write().unwrap()=Some(UpdateState::UnknownLatest);
+        assert_eq!(editor_snapshot_from(&lock),EditorSnapshot::Unknown);
+        *lock.write().unwrap()=Some(UpdateState::UpToDate);
+        assert_eq!(editor_snapshot_from(&lock),EditorSnapshot::UpToDate);
+    }
+    #[test]
+    fn concurrent_release_replacement_never_combines_tag_and_url_generations() {
+        let lock=std::sync::Arc::new(RwLock::new(Some(release("a","https://example.test/a"))));
+        let writer=lock.clone();
+        let thread=std::thread::spawn(move||{
+            for i in 0..1000 {let (tag,url)=if i%2==0 {("a","https://example.test/a")}else{("b","https://example.test/b")};*writer.write().unwrap()=Some(release(tag,url));}
+        });
+        for _ in 0..5000 {
+            let EditorSnapshot::Available{tag,url}=editor_snapshot_from(&lock) else {panic!("known release expected")};
+            assert_eq!(url,format!("https://example.test/{tag}"));
+        }
+        thread.join().unwrap();
     }
 }

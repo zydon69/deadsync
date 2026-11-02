@@ -265,13 +265,53 @@ const BOOM_SFX_PATH: &str = "assets/sounds/boom.ogg";
 pub struct GameplaySfx {
     boom: Option<deadsync_audio_stream::SfxId>,
     assist_tick: Option<deadsync_audio_stream::SfxId>,
+    editor_assist: Option<deadsync_audio_stream::SfxId>,
+    editor_beat: Option<deadsync_audio_stream::SfxId>,
+    editor_format: Option<deadlib_audio::stream::OutputFormat>,
     song_lua: HashMap<String, deadsync_audio_stream::SfxId>,
 }
 
 impl GameplaySfx {
+    /// Explicit editor entry retries its fixed assets once, even after a prior
+    /// missing-file error. Ordinary frames only react to output format changes.
+    pub(crate) fn prepare_editor_ticks(&mut self, audio: &mut deadsync_audio_stream::AudioControl) {
+        self.editor_format = None;
+        self.editor_assist = None;
+        self.editor_beat = None;
+        self.refresh_editor_ticks(audio);
+    }
+
+    pub(crate) fn refresh_editor_ticks(&mut self, audio: &mut deadsync_audio_stream::AudioControl) {
+        let format = audio.editor_tick_output_format();
+        self.refresh_editor_ticks_for(format, |key| {
+            audio.prepare_editor_tick(&deadsync_assets::resolve_asset_path(key))
+        });
+    }
+
+    fn refresh_editor_ticks_for(
+        &mut self,
+        format: Option<deadlib_audio::stream::OutputFormat>,
+        mut prepare: impl FnMut(&str) -> Option<deadsync_audio_stream::SfxId>,
+    ) {
+        if self.editor_format == format {
+            return;
+        }
+        // Failed preparation is still an attempted format: a missing asset must
+        // not cause filesystem IO on every frame. Explicit entry may retry it.
+        self.editor_format = format;
+        self.editor_assist = None;
+        self.editor_beat = None;
+        if format.is_some() {
+            self.editor_assist = prepare(deadsync_gameplay::EDITOR_ASSIST_TICK_SFX_PATH);
+            self.editor_beat = prepare(deadsync_gameplay::EDITOR_BEAT_TICK_SFX_PATH);
+        }
+    }
+
     pub fn resolve(&self, path: &str) -> Option<&deadsync_audio_stream::SfxId> {
         match path {
             BOOM_SFX_PATH => self.boom.as_ref(),
+            deadsync_gameplay::EDITOR_ASSIST_TICK_SFX_PATH => self.editor_assist.as_ref(),
+            deadsync_gameplay::EDITOR_BEAT_TICK_SFX_PATH => self.editor_beat.as_ref(),
             deadsync_gameplay::ASSIST_TICK_SFX_PATH => self.assist_tick.as_ref(),
             _ => self.song_lua.get(path),
         }
@@ -324,9 +364,44 @@ pub fn prewarm_gameplay_sfx<CapturedActor, StateDelta>(
             song_lua.insert(key.into_owned(), sound);
         }
     }
-    GameplaySfx {
+    let mut sounds = GameplaySfx {
         boom,
         assist_tick,
+        editor_assist: None,
+        editor_beat: None,
+        editor_format: None,
         song_lua,
+    };
+    sounds.prepare_editor_ticks(audio);
+    sounds
+}
+
+#[cfg(test)]
+mod editor_tick_prewarm_tests {
+    use super::*;
+    use deadlib_audio::stream::OutputFormat;
+
+    #[test]
+    fn fixed_editor_assets_prepare_without_gameplay_and_only_on_format_changes() {
+        let mut sounds = GameplaySfx::default();
+        let mut requested = Vec::new();
+        let mut load = |key: &str| { requested.push(key.to_owned()); None };
+        let stereo = OutputFormat { sample_rate_hz: 48000, channels: 2 };
+        sounds.refresh_editor_ticks_for(None, &mut load);
+        sounds.refresh_editor_ticks_for(Some(stereo), &mut load);
+        for _ in 0..100 { sounds.refresh_editor_ticks_for(Some(stereo), &mut load); }
+        assert_eq!(requested, [deadsync_gameplay::EDITOR_ASSIST_TICK_SFX_PATH, deadsync_gameplay::EDITOR_BEAT_TICK_SFX_PATH]);
+        assert!(sounds.boom.is_none());
+        assert!(sounds.assist_tick.is_none());
+        assert!(sounds.song_lua.is_empty());
+
+        let mut changed = Vec::new();
+        let mut load = |key: &str| { changed.push(key.to_owned()); None };
+        sounds.refresh_editor_ticks_for(Some(OutputFormat { channels: 4, ..stereo }), &mut load);
+        sounds.refresh_editor_ticks_for(Some(OutputFormat { sample_rate_hz: 44100, channels: 4 }), &mut load);
+        sounds.refresh_editor_ticks_for(None, &mut load);
+        sounds.refresh_editor_ticks_for(Some(stereo), &mut load);
+        assert_eq!(changed.len(), 6, "each new available format prepares exactly two assets");
+        assert_eq!(sounds.editor_format, Some(stereo));
     }
 }

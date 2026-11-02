@@ -78,6 +78,7 @@ pub struct Plan {
     identity: crate::generation::metadata::Guid,
     report: Report,
     edits: BTreeMap<Position, Option<Note>>,
+    transformed: Vec<Position>,
 }
 impl Plan {
     pub fn prepare(
@@ -129,6 +130,7 @@ impl Plan {
         }
         let mut report = Report::default();
         let mut edits = BTreeMap::new();
+        let mut transformed = Vec::new();
         for (index, (position, note)) in grid.iter().enumerate() {
             if index >= maximum_notes {
                 return Err(invalid("Note operation scan limit exceeded").into());
@@ -167,6 +169,7 @@ impl Plan {
                 }
             };
             report.matched += 1;
+            transformed.push(position);
             if matches!(to, Kind::Hold | Kind::Roll) && note.end.is_none() && duration == 0 {
                 return Err(Failure::new(
                     Refusal::ZeroDurationSustain,
@@ -181,6 +184,12 @@ impl Plan {
         }
         // Validate sustain bounds/collisions using the established sparse Grid
         // mutation contract before exposing any review or touching live history.
+        transformed.sort_by_key(|position| (
+            position.row,
+            grid.get(*position).expect("matched source exists").kind.editor_phase(),
+            position.lane,
+            position.player,
+        ));
         check(cancelled)?;
         let mut candidate = grid.clone();
         check(cancelled)?;
@@ -205,7 +214,15 @@ impl Plan {
             identity,
             report,
             edits,
+            transformed,
         })
+    }
+    /// Checked selections retain the source enumeration, including sparse
+    /// selections whose order differs from chart row order.
+    pub(crate) fn with_selection_order(mut self, order: &[Position]) -> Self {
+        let matched: BTreeSet<_> = self.transformed.iter().copied().collect();
+        self.transformed = order.iter().copied().filter(|position| matched.contains(position)).collect();
+        self
     }
     pub fn chart(&self) -> usize {
         self.chart
@@ -219,13 +236,21 @@ impl Plan {
             && self.guard.is_current(session)
     }
     pub fn apply(&self, session: &mut Session, chart: usize) -> Result<bool, Failure> {
+        self.apply_named(session, chart, "Convert or swap reviewed notes")
+    }
+    pub(crate) fn apply_named(&self, session: &mut Session, chart: usize, label: &str) -> Result<bool, Failure> {
         if !self.is_current(session, chart) {
             return Err(Failure::new(
                 Refusal::Stale,
                 "Note operation review belongs to another chart, session or history state",
             ));
         }
-        Ok(session.edit_notes(chart, "Convert or swap reviewed notes", self.edits.clone())?)
+        let events = self.transformed.iter().copied().map(crate::event_clipboard::Event::Note).collect::<Vec<_>>();
+        let before = crate::history::SelectionEffect::capture(session, chart, events.clone());
+        let changed = session.edit_notes(chart, label, self.edits.clone())?;
+        let after = crate::history::SelectionEffect::capture(session, chart, events);
+        session.record_event_selection(crate::history::selection_effect::SelectionHistory { before, after }, changed);
+        Ok(changed)
     }
 }
 /// Single reference rule used by both existing Transform::Convert and reviewed
@@ -270,5 +295,66 @@ fn check(cancelled: &AtomicBool) -> Result<(), Error> {
         Err(invalid("Note operation preparation cancelled"))
     } else {
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod selection_history_tests {
+    use super::*;
+    use crate::{document::{Document, Format}, event_clipboard::{Event, Selection, TimingKind}};
+
+    fn fixture() -> Session {
+        Session::new(Document::parse(b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\nM000\n0000;".to_vec(), Format::Ssc).unwrap())
+    }
+    fn position(row: u64, lane: u16) -> Position { Position { row, lane, player: 0 } }
+    fn operation() -> Operation { Operation::Convert { from: Kind::Tap, to: Kind::Mine, sustain_rows: 0 } }
+
+    #[test]
+    fn checked_conversion_keeps_only_transformed_notes_in_source_order_through_history() {
+        let mut session = fixture();
+        let mut selection = Selection::capture(&mut session, 0, 0, 192).unwrap();
+        selection.select_all(false);
+        for event in [Event::Note(position(48, 1)), Event::Timing { row: 0, kind: TimingKind::Tempo }, Event::Note(position(96, 0)), Event::Note(position(0, 0))] {
+            let index = selection.events().iter().position(|value| *value == event).unwrap();
+            selection.set_selected(index, true).unwrap();
+        }
+        let before = session.serialize().unwrap();
+        let plan = selection.prepare_note_operation(&mut session, operation()).unwrap();
+        assert!(session.take_event_selection_update().is_none());
+        assert_eq!(session.serialize().unwrap(), before);
+        assert!(plan.apply(&mut session, 0).unwrap());
+        let after = session.serialize().unwrap();
+        let expected = vec![Event::Note(position(48, 1)), Event::Note(position(0, 0))];
+        let update = session.take_event_selection_update().unwrap();
+        assert!(update.is_current(&session));
+        assert!(!update.is_current(&fixture()));
+        assert_eq!(update.events(), expected);
+        session.undo().unwrap();
+        assert_eq!(session.serialize().unwrap(), before);
+        let update = session.take_event_selection_update().unwrap();
+        assert!(update.is_current(&session));
+        assert_eq!(update.events(), expected);
+        session.redo().unwrap();
+        assert_eq!(session.serialize().unwrap(), after);
+        assert_eq!(session.take_event_selection_update().unwrap().events(), expected);
+        session.set_text(None, "TITLE", "unrelated").unwrap();
+        assert!(session.take_event_selection_update().is_none());
+        session.undo().unwrap();
+        assert!(session.take_event_selection_update().is_none());
+    }
+
+    #[test]
+    fn empty_conversion_clears_selection_without_attaching_to_an_unrelated_undo_entry() {
+        let mut session = fixture();
+        session.set_text(None, "TITLE", "previous action").unwrap();
+        let before = session.serialize().unwrap();
+        let plan = Plan::prepare(&mut session, 0, Scope::All { player: None }, Operation::Convert { from: Kind::Lift, to: Kind::Tap, sustain_rows: 0 }).unwrap();
+        assert!(!plan.apply(&mut session, 0).unwrap());
+        assert_eq!(session.serialize().unwrap(), before);
+        assert!(session.take_event_selection_update().unwrap().events().is_empty());
+        session.undo().unwrap();
+        assert!(session.take_event_selection_update().is_none());
+        session.redo().unwrap();
+        assert!(session.take_event_selection_update().is_none());
     }
 }

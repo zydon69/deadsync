@@ -74,6 +74,7 @@ pub struct Options {
 pub struct Task {
     bytes: Arc<[u8]>,
     format: Format,
+    load_context:crate::document::LoadContext,
     token: RevisionToken,
     chart: usize,
     options: Options,
@@ -108,6 +109,7 @@ impl Task {
         Ok(Self {
             bytes: session.serialize()?.into(),
             format: session.document().format,
+            load_context:session.document().load_context(),
             token: session.revision_token(),
             chart,
             options,
@@ -179,7 +181,7 @@ impl Task {
         progress: impl FnMut(usize, usize),
     ) -> Result<Preview, Error> {
         check(cancelled)?;
-        let source = source::read(self.bytes.clone(), self.format, self.chart, cancelled)?;
+        let source = source::read_with_context(self.bytes.clone(), self.format,self.load_context, self.chart, cancelled)?;
         let mut profile_issues = Vec::new();
         let persistence = if let Some(request) = &self.persistence {
             let loaded = if let Some(path) = &request.directory {
@@ -256,7 +258,7 @@ impl Task {
             graph: &graph,
             pad,
         }
-        .generate(
+        .generate_action(
             &self.options,
             &retained,
             &projected,
@@ -268,7 +270,7 @@ impl Task {
         check(cancelled)?;
         // Assemble via the same edit path as final acceptance, in an isolated
         // session. This checks collisions and keeps preview and apply identical.
-        let mut snapshot = Session::new(crate::document::Document::parse(self.bytes, self.format)?);
+        let mut snapshot = Session::new(crate::document::Document::parse_with_context(self.bytes, self.format,self.load_context)?);
         let revision = snapshot.revision();
         generated.apply(&mut snapshot, self.chart, 0, revision)?;
         let grid = snapshot.grid(self.chart)?.clone();
@@ -339,6 +341,7 @@ fn invalid<T>(message: &str) -> Result<T, Error> {
 pub struct SavedTask {
     bytes: Arc<[u8]>,
     format: Format,
+    load_context:crate::document::LoadContext,
     token: RevisionToken,
     chart: usize,
     row: u64,
@@ -357,6 +360,7 @@ impl SavedTask {
         Ok(Self {
             bytes: session.serialize()?.into(),
             format: session.document().format,
+            load_context:session.document().load_context(),
             token: session.revision_token(),
             chart,
             row,
@@ -375,7 +379,7 @@ impl SavedTask {
         check(cancelled)?;
         let loaded = super::profiles::Loaded::directory_checked(&self.directory, cancelled)?;
         check(cancelled)?;
-        let document = crate::document::Document::parse(self.bytes.clone(), self.format)?;
+        let document = crate::document::Document::parse_with_context(self.bytes.clone(), self.format,self.load_context)?;
         let metadata = super::metadata::ChartData::read(&document, self.chart)?
             .ok_or_else(|| Error::InvalidEdit("No saved pattern markers in this chart".into()))?;
         let options = metadata.options(self.row, &loaded.registry)?;
@@ -385,6 +389,7 @@ impl SavedTask {
         let mut result = Task {
             bytes: self.bytes,
             format: self.format,
+            load_context:self.load_context,
             token: self.token,
             chart: self.chart,
             options,

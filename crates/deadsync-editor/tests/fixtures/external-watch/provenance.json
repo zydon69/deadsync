@@ -1,0 +1,12 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "source_path": "StepManiaEditor/Editor.cs",
+  "source_blob_sha256": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+  "extracted_methods_sha256": "d6dedc269959252c692c6fc0c363de628fa00e0c67d9588c9d3fd3c8f5e99a20",
+  "program_sha256": "193179e268f2d17a338d654247e4cc2d83197835364ecdd511de3536eb6d1d93",
+  "assembly_sha256": "6e2d7f5469359bf11acb2469ff3c3d9ab6c9511932142006acf19a127d23f15d",
+  "sdk": "10.0.403",
+  "scope": "Unchanged complete ShowFileChangedModal, OnSongFileChangedNotification and CheckForShowingSongFileChangedNotification. Property-only song, preferences, immediate main-thread dispatcher and captured UI delegates. No real filesystem watcher, full EditorSong reload, rendering or native IO claim.",
+  "request_sha256": "d82e181808cf294cb485b246ed23bd57ab7e3d4546567315e30318f9bf1fdd13",
+  "expected_sha256": "f589fff8e3a76aab7842dd9f291f70807ed836795487228525127c3c4b56568c"
+}

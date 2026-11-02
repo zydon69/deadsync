@@ -4,11 +4,17 @@
 //! leaving unknown tags, comments, encodings, and unedited charts intact.
 pub mod scroll_preferences;
 pub mod analysis;
+pub mod assistant;
 pub mod advanced_export;
 pub mod output_policy;
+pub mod source_output_order;
 pub mod attacks;
 pub mod audio_preferences;
+pub mod log_preferences;
+pub mod ftue;
 pub mod autoplay;
+pub mod autogen_preferences;
+pub mod navigation;
 pub mod receptors;
 pub mod minimap_viewport;
 pub mod minimap_preferences;
@@ -46,8 +52,11 @@ pub mod note_swap;
 pub mod note_attributes;
 pub mod stepf2;
 mod number;
+mod preference_enum;
 pub mod pad;
 pub mod playback;
+pub mod source_visual_clock;
+pub mod performance;
 pub mod projection;
 pub mod rate_mapping;
 pub mod region_index;
@@ -69,6 +78,7 @@ pub mod zoom;
 pub mod zoom_preferences;
 pub mod waveform;
 pub mod waveform_preferences;
+pub mod visual_preferences;
 pub mod waveform_spacing;
 pub mod waveform_palette;
 
@@ -125,6 +135,8 @@ pub mod snap;
 pub mod draft_note_policy;
 
 pub mod receptor_preferences;
+pub mod dark_preferences;
+pub mod source_color;
 
 pub mod note_color_inspector;
 
@@ -140,3 +152,20 @@ pub mod recent_song_preferences;
 pub mod quick_add;
 
 pub mod shift_all;
+
+pub mod pattern_actions;
+
+pub mod density;
+pub mod density_preferences;
+
+pub mod stream_preferences;
+
+pub mod audio_ticks;
+
+pub mod options_preferences;
+
+pub mod selection_preferences;
+
+pub mod region_selection;
+
+pub mod song_timing_chart;

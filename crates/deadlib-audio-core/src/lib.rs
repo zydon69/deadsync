@@ -2,22 +2,29 @@
 
 pub mod mixer;
 pub mod output;
+pub mod output_buffer;
 pub mod position;
 pub mod render;
+pub mod rendered_cursor;
+pub mod preview_envelope;
+pub use preview_envelope::{set_editor_preview_envelope,editor_preview_envelope,editor_preview_envelope_enabled};
+pub use rendered_cursor::{RenderedMusicCursor,rendered_music_cursor,freeze_rendered_music_cursor};
 pub mod ring;
 pub mod sfx_ring;
 pub mod telemetry;
 
 pub use mixer::{
     ActiveSfx, MAX_ACTIVE_SFX, MAX_MIX_BUSES, MAX_SCHEDULE_AHEAD_FRAMES, MixBus, MixControls,
-    QueuedSfx, ScheduledOnset, SfxPan, SfxVoiceControl, f32_to_i16, i16_to_f32, mix_active_sfx,
+    QueuedSfx, SfxOnset, ScheduledOnset, SfxPan, SfxVoiceControl, f32_to_i16, i16_to_f32, mix_active_sfx,
     push_queued_sfx,
-    scheduled_onset_decision,
+    scheduled_onset_decision, exact_onset_decision,
 };
 pub use output::{AudioOutputMode, OutputBackendReady, OutputDeviceInfo, OutputTimingSnapshot};
 pub use position::{
+    pause_music_track, resume_music_track, music_track_paused, music_pause_epoch,
     CallbackClockSource, CallbackClockWindow, MUSIC_POS_MAP_BACKLOG_FRAMES,
     MusicStreamClockSnapshot, PlaybackPosMap, activate_music_track, active_music_track_id,
+    music_asset_epoch, advance_music_asset_epoch, advance_music_preview_asset_epoch, seed_music_asset_clock,
     bump_music_map_generation, clear_music_stream_clock_seed, fallback_music_position,
     fallback_stream_position_frames, load_callback_clock_snapshot_now, mark_music_track_started,
     music_clock_seed_enabled, music_gain_snap_generation, music_map_generation,
@@ -34,7 +41,7 @@ pub use ring::{
     AudioRenderHandle, AudioStreamHandle, MusicBlockTiming, MusicBlockWriter, PlayedMapReader,
     music_transport, played_map_drops,
 };
-pub use sfx_ring::{SfxDrain, SfxReceiver, SfxSender, sfx_transport};
+pub use sfx_ring::{SfxDrain, SfxReceiver, SfxSender, SfxScheduleRetirer, sfx_transport};
 pub use telemetry::{
     AUDIO_STUTTER_DIAG_EVENT_COUNT, OutputTelemetryBackend, OutputTelemetryClock,
     OutputTimingQuality, StutterDiagAudioEvent, StutterDiagAudioEventKind,
@@ -52,3 +59,29 @@ pub struct MusicMapSeg {
     pub music_start_sec: f64,
     pub music_sec_per_frame: f64,
 }
+
+pub mod scheduled_sfx;
+pub use scheduled_sfx::{SfxSchedule, ScheduledTrigger};
+pub mod scheduled_voice;
+pub use scheduled_voice::SfxScheduleVoice;
+
+pub use output_buffer::{BufferCapabilities, BufferControl, BufferNegotiation, BufferRequest, OutputBufferState, ReconfigureError, ReconfigureFailure, ReconfigureOutcome};
+
+mod preview_transport;
+mod preview_source;
+pub use preview_transport::PreviewSource;
+pub use preview_source::{PreviewCallbackCursor,preview_callback_cursor};
+pub use preview_envelope::{set_editor_preview_region,initialize_editor_preview_clock};
+
+pub use preview_envelope::editor_preview_initial_frame;
+
+mod hermite;
+pub mod editor_time_stretch;
+mod editor_main;
+pub use editor_main::{Configuration as EditorMainConfiguration,editor_main_can_configure,EditorMainCursor,editor_main_cursor,configure_editor_main,editor_main_configuration,thaw_editor_main};
+
+mod source_tick;
+pub use source_tick::SourceTickClock;
+
+mod editor_mix;
+pub use editor_mix::EditorMixGains;

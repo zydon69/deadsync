@@ -95,10 +95,7 @@ impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
         let current = TickCounts::parse(
-            &session
-                .document()
-                .text(target.origin(), "TICKCOUNTS")
-                .unwrap_or_default(),
+            &super::resident::text(session.document(),target.origin(),"TICKCOUNTS")?,
         )?;
         Ok(Self {
             target,

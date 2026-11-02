@@ -1,4 +1,6 @@
 pub mod metadata;
+pub mod load_context;
+pub use load_context::{LoadContext,Snapshot};
 pub mod chart_type;
 mod layout_token;
 pub(crate) mod media_relocation;
@@ -40,6 +42,7 @@ pub struct Chart {
 /// another chart's identity or an unknown property. Reading is lazy for notes.
 #[derive(Clone, Debug)]
 pub struct Document {
+    load_context:LoadContext,
     source: Arc<[u8]>,
     pub format: Format,
     tags: Vec<Tag>,
@@ -140,7 +143,7 @@ fn parse_parts(
                         let value = decode(&source[value.clone()]);
                         current.steps_type = chart_type::canonical(&value).unwrap_or(&value).to_owned();
                     },
-                    "DESCRIPTION" => current.description = decode(&source[value.clone()]),
+                    "DESCRIPTION" => current.description = decode_value(&source[value.clone()], false),
                     "DIFFICULTY" => current.difficulty = decode(&source[value.clone()]),
                     "METER" => current.meter = decode(&source[value.clone()]),
                     "NOTES" | "NOTES2" => current.notes = value.clone(),
@@ -178,6 +181,7 @@ impl Document {
             replacements: BTreeMap::new(),
             added: BTreeMap::new(),
             added_spelling: BTreeMap::new(),
+            load_context:Default::default(),
         })
     }
 
@@ -188,7 +192,7 @@ impl Document {
     /// Build a fresh structural snapshot after changing only a chart's layout
     /// field. Notes, unknown tags, other charts and source comments are retained.
     pub(crate) fn with_chart_layout(&self, chart: usize, layout: &str) -> Result<Self, Error> {
-        let mut document = Self::parse(self.serialize(), self.format)?;
+        let mut document = self.reparse(self.serialize())?;
         if chart >= document.charts.len() {
             return Err(Error::InvalidEdit("Chart does not exist".into()));
         }
@@ -217,7 +221,7 @@ impl Document {
             range.start + token.start..range.start + token.end,
             Some(Arc::from(layout.as_bytes())),
         )?;
-        Self::parse(document.serialize(), self.format)
+        self.reparse(document.serialize())
     }
     pub fn tags(&self) -> &[Tag] {
         &self.tags
@@ -240,7 +244,7 @@ impl Document {
     }
 
     pub fn text(&self, chart: Option<usize>, name: &str) -> Option<String> {
-        self.raw_property(chart, name).map(decode)
+        self.raw_property(chart, name).map(|value| decode_property(value, self.format, chart.is_some(), name))
     }
 
     pub fn raw_property(&self, chart: Option<usize>, name: &str) -> Option<&[u8]> {
@@ -399,7 +403,7 @@ impl Document {
             .ok_or_else(|| Error::InvalidEdit("Source chart does not exist".into()))?;
         let range = self.chart_block_range(chart)?;
         let (start, end) = (range.start, range.end);
-        let mut clone = Self::parse(Arc::<[u8]>::from(&self.source[start..end]), self.format)?;
+        let mut clone = self.reparse(Arc::<[u8]>::from(&self.source[start..end]))?;
         if clone.charts.len() != 1 {
             return Err(Error::InvalidFormat("Ambiguous source chart block".into()));
         }
@@ -538,12 +542,34 @@ pub fn escape_text(text: &str) -> Vec<u8> {
     result
 }
 
+// Fumen's literal string schema is shared with read-only previews. Structural
+// values and SM headers retain their independent normalized contracts.
+fn decode_property(source: &[u8], format: Format, chart: bool, name: &str) -> String {
+        let literal = if !chart {
+            crate::song_text::Field::ALL.iter().any(|field| field.tag().eq_ignore_ascii_case(name))
+        } else {
+            format == Format::Ssc
+                && ["CHARTNAME", "DESCRIPTION", "CREDIT", "CHARTSTYLE", "MUSIC"]
+                    .iter().any(|tag| tag.eq_ignore_ascii_case(name))
+        };
+        decode_value(source, !literal)
+}
+
 fn decode(source: &[u8]) -> String {
+    decode_value(source, true)
+}
+
+fn decode_value(source: &[u8], trim: bool) -> String {
     let mut bytes = Vec::new();
     let mut pos = 0;
     while pos < source.len() {
         if source[pos..].starts_with(b"//") {
             pos = skip_comment(source, pos);
+            // MSDFile's line-comment scan leaves the terminating newline as
+            // literal parameter content. Normalized fields historically omit it.
+            if !trim && pos > 0 && source[pos - 1] == b'\n' {
+                bytes.push(b'\n');
+            }
             continue;
         }
         if source[pos] == b'\\' && pos + 1 < source.len() {
@@ -554,7 +580,11 @@ fn decode(source: &[u8]) -> String {
         bytes.push(source[pos]);
         pos += 1;
     }
-    rssp::parse::decode_unescape_trim(&bytes).into_owned()
+    if trim {
+        rssp::parse::decode_unescape_trim(&bytes).into_owned()
+    } else {
+        rssp::parse::decode_unescape(&bytes).into_owned()
+    }
 }
 
 fn skip_comment(source: &[u8], pos: usize) -> usize {
@@ -584,4 +614,10 @@ fn delimiter(source: &[u8], mut pos: usize, needle: u8) -> Option<usize> {
         pos += 1;
     }
     None
+}
+
+impl Document {
+    pub fn load_context(&self)->LoadContext{self.load_context}
+    pub fn parse_with_context(source:impl Into<Arc<[u8]>>,format:Format,context:LoadContext)->Result<Self,Error>{let mut document=Self::parse(source,format)?;document.load_context=context;Ok(document)}
+    pub fn reparse(&self,source:impl Into<Arc<[u8]>>)->Result<Self,Error>{Self::parse_with_context(source,self.format,self.load_context)}
 }

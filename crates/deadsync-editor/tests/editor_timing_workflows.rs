@@ -701,48 +701,15 @@ fn native_pipeline(pattern: bool) {
                     expected["Pipeline"]["Nps"].as_f64().unwrap(),
                     "{name}"
                 );
-                let mut actual = Vec::new();
-                for (position, note) in preview.grid().iter() {
-                    let symbol = match note.kind {
-                        Kind::Tap => "1",
-                        Kind::Hold => "2",
-                        Kind::Roll => "4",
-                        Kind::Mine => "M",
-                        Kind::Fake => "F",
-                        Kind::Lift => "L",
-                        Kind::Keysound => "K",
-                        _ => panic!("Unexpected final note"),
-                    };
-                    actual.push((position.row, u64::from(position.lane), symbol.to_owned()));
-                    if let Some(end) = note.end {
-                        actual.push((end, u64::from(position.lane), "3".to_owned()));
-                    }
-                }
-                let mut reference = expected["Pipeline"]["Notes"]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .map(|v| {
-                        (
-                            v["Row"].as_u64().unwrap(),
-                            v["Lane"].as_u64().unwrap(),
-                            v["Symbol"].as_str().unwrap().to_owned(),
-                        )
-                    })
-                    .collect::<Vec<_>>();
-                for head in expected["Projected"]["Heads"].as_array().unwrap() {
-                    reference.push((
-                        head["Row"].as_u64().unwrap(),
-                        head["Lane"].as_u64().unwrap(),
-                        head["Symbol"].as_str().unwrap().to_owned(),
-                    ));
-                    if let Some(end) = head["End"].as_u64() {
-                        reference.push((end, head["Lane"].as_u64().unwrap(), "3".to_owned()));
-                    }
-                }
-                actual.sort();
-                reference.sort();
-                assert_eq!(actual, reference, "{name}");
+                // Full original editor action, rather than the old reconstructed
+                // single-call pipeline, owns the generated output contract.
+                let worker: Value = serde_json::from_slice(&fs::read(
+                    root.parent().unwrap().join("pattern-worker").join(name.replace(".request.json", ".expected.json"))
+                ).unwrap()).unwrap();
+                let reference = deadsync_editor::notes::Grid::parse(worker["NoteData"].as_str().unwrap().as_bytes(), 4).unwrap();
+                assert_eq!(preview.grid(), &reference, "{name} original action output");
+                assert_eq!(worker["Before"], worker["Undo"], "{name} source Undo");
+                assert_eq!(worker["NoteData"], worker["Redo"], "{name} source Redo");
             }
             count += 1;
             continue;

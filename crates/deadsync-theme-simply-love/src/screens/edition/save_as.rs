@@ -1,6 +1,7 @@
 //! Keyboard/IME Save As. No path write occurs before an explicit review action.
 use super::profile_edit::save_as::ProfileHistoryRelocation;
 use super::*;
+use std::time::Instant;
 use deadsync_editor::{
     Error,
     storage::{PendingDurability, PreviousRecovery, SaveAsOutcome, SaveAttempt},
@@ -20,6 +21,9 @@ struct PresentationGuard {
     row: u64,
     selection: Option<(u64, u64)>,
     profile_serial: u64,
+    // Stable Play/Resume/seek/rate origin; acknowledgements may arrive or a
+    // watched source may reload while the same user intent remains active.
+    transport: (u64, Option<Instant>, bool, bool),
     focused: Option<deadsync_editor::generation::metadata::Guid>,
     shared_time: Option<u64>,
     focus: Option<(u64, u64)>,
@@ -60,6 +64,7 @@ impl Pending {
     }
 }
 struct Review {
+    pack_guard:Option<pack_properties::CouplingGuard>,
     presentation: PresentationGuard,
     preferences:super::file_menu::PublishedPreferences,
     file: WorkspaceSaveAsReview,
@@ -67,13 +72,45 @@ struct Review {
     views: Option<deadsync_editor::chart_views::ActiveChartViews>,
     focus: Option<deadsync_editor::chart_focus::Position>,
 }
+impl PresentationGuard {
+    fn accepts(&self,state:&State)->bool {
+        let current=state.save_as_presentation_guard();
+        if self==&current{return true;}
+        if self.chart!=current.chart || self.selection!=current.selection || self.profile_serial!=current.profile_serial
+            || self.focused!=current.focused || self.focus!=current.focus || self.transport!=current.transport
+            || self.views.len()!=current.views.len() {return false;}
+        if !self.views.iter().zip(&current.views).all(|(old,new)|old.0==new.0&&old.1==new.1&&old.2==new.2){return false;}
+        // Exactly the same callback-derived projection accepted by deferred
+        // chart focus. Manual seek/focus replaces the explicit anchor above.
+        state.chart_transport_is_playing() && state.transport_music_time().is_some()
+            && (!state.workspace.has_chart() || state.playback_position().is_some_and(|(_,row)|
+                row.max(0.0).min(i32::MAX as f64).floor() as u64==state.workspace.row()))
+    }
+}
 impl State {
+    fn save_as_current_positions(&self,receipt:&deadsync_editor::storage::RelocationReceipt)->Result<(Option<deadsync_editor::chart_focus::Position>,Option<deadsync_editor::chart_views::ActiveChartViews>),Error>{
+        if self.paused_playback.is_some() && self.transport_music_time().is_none() {
+            return Err(Error::InvalidEdit("Open positions are stale; refresh before Save As".into()));
+        }
+        let focus=if self.workspace.has_chart(){Some(self.capture_song_property_presentation()?.focus().clone())}else{None};
+        let mut views=self.active_views.clone();
+        if let Some(views)=views.as_mut(){
+            if let Some(focus)=&focus{views.synchronize_focused_position(&self.workspace.file().session,focus)?;}
+            else{views.synchronize(&self.workspace.file().session,None,self.chart_focus_time()?)?;}
+        }
+        if focus.as_ref().is_some_and(|position|!position.can_rebind_relocation(receipt))
+            || views.as_ref().is_some_and(|views|!views.can_rebind_relocation(receipt)) {
+            return Err(Error::InvalidEdit("Open positions are stale; refresh before Save As".into()));
+        }
+        Ok((focus,views))
+    }
     fn save_as_presentation_guard(&self) -> PresentationGuard {
         PresentationGuard {
             chart: self.workspace.active_chart(),
             row: self.workspace.row(),
             selection: self.workspace.selection(),
             profile_serial: self.profile_preference_serial,
+            transport: self.save_as_transport_stamp(),
             focused: self
                 .active_views
                 .as_ref()
@@ -86,7 +123,7 @@ impl State {
             focus: self
                 .focus_position
                 .as_ref()
-                .filter(|position| position.is_current(&self.workspace))
+                // Intent anchor, not the integral row advanced by update_audio.
                 .map(|position| (position.row().to_bits(), position.music_time().to_bits())),
             views: self
                 .active_views
@@ -119,8 +156,9 @@ impl State {
         )
     }
     pub(super) fn save_as_guard(&mut self) -> bool {
-        if self.file_io_active()||self.pack_file_io_active()||self.analysis_job.is_some(){self.status=i18n::tr("Edition","FileBusy");return false;}
-        if self.pack_has_unsaved_changes() || self.pack_has_pending_durability() {
+        if !self.has_song(){self.status=i18n::tr("Edition","FileNoSongHelp");return false;}
+        if self.file_io_active()||self.pack_file_io_active()||self.analysis_job.is_some(){self.queue_system_alert(super::system_alert::Refusal::FileIoBusy);self.status=i18n::tr("Edition","FileBusy");return false;}
+        if self.pack_has_pending_durability() {
             self.open_pack_properties();
             self.status = i18n::tr("Edition", "SaveAsPackGuard");
             return false;
@@ -151,47 +189,26 @@ impl State {
         if !self.save_as_guard() {
             return;
         }
+        if !self.deactivate_pack_before_file_intent(){return;}
         if !preserve_output {self.output_clear();}
-        let presented = self.playback_position();
-        let music_time = self.chart_focus_time().ok();
-        let exact = self
-            .focus_position
-            .as_ref()
-            .filter(|position| {
-                position.is_current(&self.workspace)
-                    && presented.is_none_or(|(chart_time, row)| {
-                        chart_time.to_bits() == position.chart_time().to_bits()
-                            && row.to_bits() == position.row().to_bits()
-                    })
-                    && music_time
-                        .is_none_or(|time| time.to_bits() == position.music_time().to_bits())
-            })
-            .cloned();
-        self.stop_audio();
-        // A pending/resumed transport can retain an intentional row inside a
-        // warp. Keep that exact current anchor if it is the position presented.
-        if exact.is_some() {
-            self.focus_position = exact;
-        }
         self.minimap_release_input();
         self.lane_entry_reconcile();
-        self.save_as.destination = self.workspace.file().existing_path()
-            .map(|path| path.to_string_lossy().into_owned())
-            .unwrap_or_default();
+        self.save_as.destination = match self.workspace.file().existing_path(){Some(path)=>path.to_string_lossy().into_owned(),None=>match self.initial_file_destination(){Ok(path)=>path,Err(error)=>{self.save_as_error(error);return;}}};
         self.save_as.review = None;
         self.panel = Some(Panel::SaveAsDestination(0));
         self.focus_text();
         self.status = i18n::tr("Edition", "SaveAsDestinationHelp");
     }
     pub(super) fn save_as_prepare_review(&mut self) {
+        self.warn_save_opus();
         if !self.sync_text() || !self.label_preedit.is_empty() || !self.save_as_guard() {
             return;
         }
+        if !self.require_source_output_order(super::source_output_order::Purpose::SaveAs){return;}
         let result = (|| -> Result<Review, Error> {
             let stamps = self.save_as_profile_stamps();
-            let file = self
-                .workspace
-                .prepare_save_as_with_policy_and_revisions(Path::new(&self.save_as.destination),self.output_candidate_policy()?, &stamps)?;
+            let policy=self.output_candidate_policy()?;
+            let file=if matches!(policy,deadsync_editor::output_policy::OutputPolicy::NativeLossless){self.workspace.prepare_save_as_with_policy_and_revisions(Path::new(&self.save_as.destination),policy,&stamps)?}else{let order=self.source_output_order.as_ref().ok_or_else(||Error::InvalidEdit("Source-compatible output requires a fresh cultural order".into()))?;self.workspace.prepare_save_as_with_policy_and_revisions_ordered(Path::new(&self.save_as.destination),policy,&stamps,order)?};
             let preferences=self.prepare_published_preferences(file.destination(),self.output_global_options())?;
             let receipt = file.relocation();
             let focus = self
@@ -213,6 +230,7 @@ impl State {
             }
             let profiles = ProfileHistoryRelocation::capture(self, receipt)?;
             Ok(Review {
+                pack_guard:self.capture_pack_coupling(),
                 presentation: self.save_as_presentation_guard(),
                 preferences,
                 file,
@@ -235,7 +253,7 @@ impl State {
             Err(error) => self.save_as_error(error),
         }
     }
-    pub(super) fn save_as_error(&mut self, error: impl std::fmt::Display) {
+    pub(super) fn save_as_error(&mut self, error: impl crate::i18n::EditorDiagnostic) {
         log::warn!("Editor Save As: {error}");
         self.status = i18n::tr("Edition", "SaveAsFailed");
     }
@@ -250,14 +268,26 @@ impl State {
         let Some(mut review) = self.save_as.review.take() else {
             return;
         };
-        if review.presentation != self.save_as_presentation_guard() {
+        if !review.presentation.accepts(self) {
             self.panel = Some(Panel::SaveAsDestination(0));
             self.focus_text();
             self.save_as_error("Editor presentation changed since review");
             return;
         }
+        if !review.file.is_current(&self.workspace){self.save_as.review=Some(review);self.status=i18n::tr("Edition","OutputOrderStale");return;}
+        // Refresh only validated musical projections, while retaining the
+        // reviewed content/intent. A dialog can remain open across DSP frames.
+        match self.save_as_current_positions(review.file.relocation()) {
+            Ok((focus,views))=>{review.focus=focus;review.views=views;}
+            Err(error)=>{self.save_as.review=Some(review);self.save_as_error(error);return;}
+        }
+        let was_paused=self.paused_playback.is_some();
+        let had_main=self.chart_transport_is_playing() || was_paused;
+        if !self.pack_coupling_current(&review.pack_guard){self.save_as.review=Some(review);self.status=i18n::tr("Edition","PackCoupledStale");return;}
+        if !self.save_coupled_pack(){self.save_as.review=Some(review);return;}
         match self.workspace.save_as_reviewed(review.file,&self.output_ui.acknowledged) {
             Err(error) => {
+                self.queue_system_alert(super::system_alert::Refusal::SaveFailure);
                 self.panel = Some(Panel::SaveAsDestination(0));
                 self.focus_text();
                 self.save_as_error(error);
@@ -297,6 +327,14 @@ impl State {
                 self.save_as.published_issue = false;
                 match (rebound_focus, rebound_views) {
                     (Ok(focus), Ok(_)) => {
+                        if had_main {
+                            if let Some(position)=&focus {
+                                let audio=self.prepare_chart_focus_audio(self.workspace.chart());
+                                self.apply_chart_focus_audio(audio,was_paused,position);
+                            } else {
+                                self.rebind_chartless_current_audio();
+                            }
+                        }
                         self.focus_position = focus;
                         self.active_views = review.views;
                     }
@@ -315,6 +353,7 @@ impl State {
                 self.label_preedit.clear();
                 self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
                 self.pack_properties = None;
+                self.file_pack_relocated();
                 self.pack_song_list = None;
                 self.chart_order_request = None;
                 self.music_picker_request = None;
@@ -528,7 +567,10 @@ impl State {
             ["SaveAsRetry", "SaveAsSaveCurrent", "KeepEditing"]
         };
         for (row, key) in keys.into_iter().enumerate() {
+            let ui_row_start=actors.len();
             actors.push(act!(text: font("miso"): settext(i18n::tr("Edition",key)): xy(x,y+78.0+row as f32*29.0): zoom(0.65): maxwidth(600.0): diffuse(1.0,if row==index {0.8}else{1.0},if row==index {0.3}else{1.0},1.0): z(8051)));
+
+            self.ui_row(actors,ui_row_start,row==index,29.);
         }
     }
 }
@@ -589,7 +631,7 @@ mod tests {
         }
     }
     #[test]
-    fn modal_autosave_poll_cannot_start_new_recovery_and_dirty_pack_blocks_entry_en_fr() {
+    fn modal_autosave_poll_cannot_start_new_recovery_and_dirty_pack_can_review_save_as_en_fr() {
         for language in ["en", "fr"] {
             let (_root, mut state) = state(language);
             state.workspace.execute(Command::Place(1)).unwrap();
@@ -612,7 +654,7 @@ mod tests {
             assert!(state.pack_has_unsaved_changes());
             state.open_save_as();
             assert!(state.pack_has_unsaved_changes());
-            assert!(matches!(state.panel, Some(Panel::PackProperties)));
+            assert!(matches!(state.panel, Some(Panel::SaveAsDestination(_))));
         }
     }
     #[test]
@@ -650,5 +692,34 @@ mod tests {
                 assert!(!state.workspace.file().session.is_dirty());
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod relocated_chartless_music_tests {
+    use super::*;
+    #[test]
+    fn save_as_after_final_view_close_rebinds_relocated_override_not_song_music() {
+        i18n::init_for_tests();
+        let root=tempfile::tempdir().unwrap();let old=root.path().join("old");let new=root.path().join("new");
+        std::fs::create_dir(&old).unwrap();std::fs::create_dir(&new).unwrap();
+        let source=old.join("song.ssc");let destination=new.join("song.ssc");
+        std::fs::write(&source,"#VERSION:0.83;#MUSIC:a.wav;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#MUSIC:b.wav;#NOTES:1000;").unwrap();
+        std::fs::write(old.join("a.wav"),b"song").unwrap();std::fs::write(old.join("b.wav"),b"chart").unwrap();
+        let mut state=State::open(&source,0).unwrap();
+        state.chart_views_apply(super::super::chart_views::ViewAction::Close);
+        let held=state.editor_asset_paths()[0].clone().unwrap();assert!(held.ends_with("b.wav"));
+        state.take_audio_commands();state.open_save_as();state.save_as.destination=destination.to_string_lossy().into_owned();
+        state.text_buffer=None;state.save_as_prepare_review();
+        assert!(state.save_as.review.is_some(),"real Save As review must be prepared");
+        state.save_as_key(1,KeyCode::ArrowUp);state.save_as_key(0,KeyCode::Enter);
+        assert!(destination.exists());assert!(!state.workspace.has_chart());
+        assert_eq!(state.workspace.file().resource_base(),new.canonicalize().unwrap());
+        let configured=state.editor_asset_paths()[0].clone().unwrap();
+        assert_eq!(configured.canonicalize().unwrap(),held.canonicalize().unwrap());
+        assert_ne!(configured,held,"registration must use the relocated reference under new base");
+        let local=deadsync_editor::chart_text::local_value(state.workspace.file().session.document(),0,deadsync_editor::chart_text::Field::Music).unwrap().unwrap();
+        assert_eq!(configured,new.canonicalize().unwrap().join(local));
+        assert!(state.take_audio_commands().iter().any(|command|matches!(command,deadsync_gameplay::GameplayAudioCommand::EditorRegisterAsset{kind:deadsync_gameplay::EditorAssetKind::Main,path:Some(path),..}if path==&configured)));
     }
 }

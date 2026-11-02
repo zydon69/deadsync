@@ -3,7 +3,7 @@ use super::{
     Scope, Target,
     tempo::{beat_row, parse_pairs},
 };
-use crate::{Error, document::Format, history::Session};
+use crate::{Error, history::Session};
 use std::collections::BTreeMap;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Kind {
@@ -129,19 +129,16 @@ impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
         let document = session.document();
-        if document.format == Format::Sm {
-            return Err(invalid(
-                "Warp and fake region export requires SSC; SM migration is not implemented yet",
-            ));
-        }
+        let properties = super::resident::Properties::capture(document,target.origin())?;
+
         let current = [
             Regions::parse(
                 Kind::Warp,
-                &document.text(target.origin(), "WARPS").unwrap_or_default(),
+                &properties.text("WARPS"),
             )?,
             Regions::parse(
                 Kind::Fake,
-                &document.text(target.origin(), "FAKES").unwrap_or_default(),
+                &properties.text("FAKES"),
             )?,
         ];
         Ok(Self {

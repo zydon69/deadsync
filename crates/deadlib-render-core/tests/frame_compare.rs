@@ -263,6 +263,7 @@ fn semantic_comparison_accepts_mesh_and_textured_mesh_coalescing() {
                 alpha: true,
                 depth: true,
                 preserve: false,
+                postprocess: None,
                 cameras: frame.cameras,
                 sprite_instances: frame.sprite_instances,
                 mesh_vertices: frame.mesh_vertices,

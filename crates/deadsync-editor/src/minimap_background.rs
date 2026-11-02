@@ -38,7 +38,7 @@ pub fn build(
     hovered: bool,
 ) -> Result<Background, Error> {
     let height = projection.visible_height;
-    if !(3..=1024).contains(&width)
+    if !(2..=1024).contains(&width)
         || !(3..=16384).contains(&height)
         || projection.mini_range <= 0.0
         || !projection.mini_range.is_finite()

@@ -1,0 +1,460 @@
+{
+  "revision": "48e18f71655d0f0d86144c63239331833501fda2",
+  "fumen_revision": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "source_sha256": "acafe5b6e62bec9adf16b6ebfa2b494f1c8eb358ca341184ce846ad5e4f6ade5",
+  "adapter_sha256": "f91134d75f572b8b9b99325e75ddbaa55a3d9f466d4c7624e3bb2c5b26b16ca9",
+  "scope": "Whole original preferences, actual Fumen converter and ActionQueue; no native UI or recorder execution",
+  "cases": [
+    {
+      "Input": {},
+      "Initial": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "UsingDefaults": true,
+      "Changed": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Restored": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "Undone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Redone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      }
+    },
+    {
+      "Input": {
+        "ShowPerformanceWindow": true
+      },
+      "Initial": {
+        "ShowPerformanceWindow": true,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "UsingDefaults": true,
+      "Changed": {
+        "ShowPerformanceWindow": true,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Restored": {
+        "ShowPerformanceWindow": true,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "Undone": {
+        "ShowPerformanceWindow": true,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Redone": {
+        "ShowPerformanceWindow": true,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      }
+    },
+    {
+      "Input": {
+        "FrameMaxTime": 99
+      },
+      "Initial": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Independent",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "UsingDefaults": false,
+      "Changed": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Restored": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "Undone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Redone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      }
+    },
+    {
+      "Input": {
+        "FrameMaxTime": "99"
+      },
+      "Initial": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "99",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "UsingDefaults": false,
+      "Changed": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Restored": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "Undone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Redone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      }
+    },
+    {
+      "Input": {
+        "FrameMaxTime": "future"
+      },
+      "Initial": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "UsingDefaults": true,
+      "Changed": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Restored": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "Undone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Redone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      }
+    },
+    {
+      "Input": {
+        "FrameMaxTime": "Shared, Explicit"
+      },
+      "Initial": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "3",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "UsingDefaults": false,
+      "Changed": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Restored": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "Undone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Redone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      }
+    },
+    {
+      "Input": {
+        "FrameMaxTime": null
+      },
+      "Initial": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Independent",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "UsingDefaults": false,
+      "Changed": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Restored": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "Undone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Redone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      }
+    },
+    {
+      "Input": {
+        "FrameMaxTime": true
+      },
+      "Initial": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Independent",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "UsingDefaults": false,
+      "Changed": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Restored": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "Undone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Redone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      }
+    },
+    {
+      "Input": {
+        "MaxFramesToDraw": -3,
+        "ExplicitFrameMaxTime": -0.5
+      },
+      "Initial": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": -3,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": -0.5,
+        "PerformanceMonitorPaused": false
+      },
+      "UsingDefaults": false,
+      "Changed": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Restored": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "Undone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Redone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      }
+    },
+    {
+      "Input": {
+        "ExplicitFrameMaxTime": 0.01666666666666667
+      },
+      "Initial": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.01666666666666667,
+        "PerformanceMonitorPaused": false
+      },
+      "UsingDefaults": true,
+      "Changed": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Restored": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "Undone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Redone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      }
+    },
+    {
+      "Input": {
+        "PerformanceMonitorPaused": true,
+        "MaxFramesToDraw": 1024
+      },
+      "Initial": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 1024,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": true
+      },
+      "UsingDefaults": false,
+      "Changed": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Restored": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      },
+      "Undone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 128,
+        "FrameMaxTime": "Explicit",
+        "ExplicitFrameMaxTime": 0.01,
+        "PerformanceMonitorPaused": true
+      },
+      "Redone": {
+        "ShowPerformanceWindow": false,
+        "MaxFramesToDraw": 512,
+        "FrameMaxTime": "Shared",
+        "ExplicitFrameMaxTime": 0.016666666666666666,
+        "PerformanceMonitorPaused": false
+      }
+    }
+  ]
+}

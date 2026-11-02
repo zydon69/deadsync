@@ -1,0 +1,1562 @@
+{
+  "Preferences": [
+    {
+      "Input": {},
+      "Normalized": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Changed": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": false,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 200,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": -33,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Restored": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Undone": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": false,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 200,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": -33,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      }
+    },
+    {
+      "Input": {
+        "DensityGraphPositionValue": "TopOfFocusedChart",
+        "DensityGraphPositionOffsets": {
+          "TopOfFocusedChart": 23
+        }
+      },
+      "Normalized": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "TopOfFocusedChart",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "TopOfFocusedChart": 23,
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Changed": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": false,
+        "DensityGraphPositionValue": "TopOfFocusedChart",
+        "DensityGraphHeight": 200,
+        "DensityGraphPositionOffsets": {
+          "TopOfFocusedChart": 23,
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": -33,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Restored": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "TopOfFocusedChart": 10,
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Undone": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": false,
+        "DensityGraphPositionValue": "TopOfFocusedChart",
+        "DensityGraphHeight": 200,
+        "DensityGraphPositionOffsets": {
+          "TopOfFocusedChart": 23,
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": -33,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      }
+    },
+    {
+      "Input": {
+        "DensityGraphPositionValue": "Unknown",
+        "DensityGraphColorModeValue": "Unknown"
+      },
+      "Normalized": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Changed": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": false,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 200,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": -33,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Restored": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Undone": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": false,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 200,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": -33,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      }
+    },
+    {
+      "Input": {
+        "DensityGraphLowColor": {
+          "X": 1
+        }
+      },
+      "Normalized": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 1,
+          "Y": 0,
+          "Z": 0,
+          "W": 0
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Changed": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 1,
+          "Y": 0,
+          "Z": 0,
+          "W": 0
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": false,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 200,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": -33,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Restored": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      },
+      "Undone": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 1,
+          "Y": 0,
+          "Z": 0,
+          "W": 0
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": false,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 200,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": -33,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      }
+    }
+  ],
+  "Geometry": [
+    {
+      "Position": "RightSideOfWindow",
+      "Bounds": {
+        "X": 757,
+        "Y": 111,
+        "Width": 90,
+        "Height": 364,
+        "Orientation": "Vertical"
+      }
+    },
+    {
+      "Position": "LeftSideOfWindow",
+      "Bounds": {
+        "X": 13,
+        "Y": 111,
+        "Width": 90,
+        "Height": 364,
+        "Orientation": "Vertical"
+      }
+    },
+    {
+      "Position": "FocusedChartWithoutScaling",
+      "Bounds": {
+        "X": 410,
+        "Y": 111,
+        "Width": 90,
+        "Height": 364,
+        "Orientation": "Vertical"
+      }
+    },
+    {
+      "Position": "FocusedChartWithScaling",
+      "Bounds": {
+        "X": 470,
+        "Y": 111,
+        "Width": 90,
+        "Height": 364,
+        "Orientation": "Vertical"
+      }
+    },
+    {
+      "Position": "TopOfFocusedChart",
+      "Bounds": {
+        "X": 200,
+        "Y": 111,
+        "Width": 200,
+        "Height": 90,
+        "Orientation": "Horizontal"
+      }
+    },
+    {
+      "Position": "BottomOfFocusedChart",
+      "Bounds": {
+        "X": 200,
+        "Y": 385,
+        "Width": 200,
+        "Height": 90,
+        "Orientation": "Horizontal"
+      }
+    }
+  ],
+  "Cases": [
+    {
+      "Name": "steps-rows-fakes",
+      "Result": {
+        "Measures": [
+          {
+            "StartTime": 0,
+            "Steps": 5,
+            "RowsWithSteps": 4
+          },
+          {
+            "StartTime": 2,
+            "Steps": 0,
+            "RowsWithSteps": 0
+          }
+        ],
+        "Streams": [],
+        "Breakdown": "No Streams",
+        "Peaks": [
+          {
+            "Mode": "Step",
+            "Peak": 2.5,
+            "Samples": [
+              {
+                "StepsPerSecond": 2.5,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 150,
+                "Y": 1
+              }
+            ]
+          },
+          {
+            "Mode": "Row",
+            "Peak": 2,
+            "Samples": [
+              {
+                "StepsPerSecond": 2,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 150,
+                "Y": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Name": "sparse-gap-source",
+      "Result": {
+        "Measures": [
+          {
+            "StartTime": 0,
+            "Steps": 4,
+            "RowsWithSteps": 4
+          },
+          {
+            "StartTime": 2,
+            "Steps": 0,
+            "RowsWithSteps": 0
+          },
+          {
+            "StartTime": 4,
+            "Steps": 0,
+            "RowsWithSteps": 0
+          },
+          {
+            "StartTime": 6,
+            "Steps": 4,
+            "RowsWithSteps": 4
+          }
+        ],
+        "Streams": [
+          {
+            "Start": 0,
+            "Last": 3
+          }
+        ],
+        "Breakdown": "4",
+        "Peaks": [
+          {
+            "Mode": "Step",
+            "Peak": 2,
+            "Samples": [
+              {
+                "StepsPerSecond": 2,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 75.5,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 150,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 2,
+                "Percent": 1,
+                "X": 224.5,
+                "Y": 89
+              }
+            ]
+          },
+          {
+            "Mode": "Row",
+            "Peak": 2,
+            "Samples": [
+              {
+                "StepsPerSecond": 2,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 75.5,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 150,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 2,
+                "Percent": 1,
+                "X": 224.5,
+                "Y": 89
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Name": "sparse-gap-event-boundary",
+      "Result": {
+        "Measures": [
+          {
+            "StartTime": 0,
+            "Steps": 4,
+            "RowsWithSteps": 4
+          },
+          {
+            "StartTime": 2,
+            "Steps": 0,
+            "RowsWithSteps": 0
+          },
+          {
+            "StartTime": 4,
+            "Steps": 0,
+            "RowsWithSteps": 0
+          },
+          {
+            "StartTime": 6,
+            "Steps": 4,
+            "RowsWithSteps": 4
+          }
+        ],
+        "Streams": [
+          {
+            "Start": 0,
+            "Last": 0
+          },
+          {
+            "Start": 3,
+            "Last": 3
+          }
+        ],
+        "Breakdown": "1-1",
+        "Peaks": [
+          {
+            "Mode": "Step",
+            "Peak": 2,
+            "Samples": [
+              {
+                "StepsPerSecond": 2,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 75.5,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 150,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 2,
+                "Percent": 1,
+                "X": 224.5,
+                "Y": 89
+              }
+            ]
+          },
+          {
+            "Mode": "Row",
+            "Peak": 2,
+            "Samples": [
+              {
+                "StepsPerSecond": 2,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 75.5,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 150,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 2,
+                "Percent": 1,
+                "X": 224.5,
+                "Y": 89
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Name": "row-accumulation-no-stream",
+      "Result": {
+        "Measures": [
+          {
+            "StartTime": 0,
+            "Steps": 8,
+            "RowsWithSteps": 1
+          },
+          {
+            "StartTime": 2,
+            "Steps": 0,
+            "RowsWithSteps": 0
+          }
+        ],
+        "Streams": [],
+        "Breakdown": "No Streams",
+        "Peaks": [
+          {
+            "Mode": "Step",
+            "Peak": 4,
+            "Samples": [
+              {
+                "StepsPerSecond": 4,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 150,
+                "Y": 1
+              }
+            ]
+          },
+          {
+            "Mode": "Row",
+            "Peak": 0.5,
+            "Samples": [
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 150,
+                "Y": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Name": "byte-overflow-source",
+      "Result": {
+        "Measures": [
+          {
+            "StartTime": 0,
+            "Steps": 0,
+            "RowsWithSteps": 1
+          },
+          {
+            "StartTime": 2,
+            "Steps": 0,
+            "RowsWithSteps": 0
+          }
+        ],
+        "Streams": [
+          {
+            "Start": 0,
+            "Last": 0
+          }
+        ],
+        "Breakdown": "1",
+        "Peaks": [
+          {
+            "Mode": "Step",
+            "Peak": 0,
+            "Samples": [
+              {
+                "StepsPerSecond": 0,
+                "Percent": null,
+                "X": 1,
+                "Y": null
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": null,
+                "X": 150,
+                "Y": null
+              }
+            ]
+          },
+          {
+            "Mode": "Row",
+            "Peak": 0.5,
+            "Samples": [
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 1,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 150,
+                "Y": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Name": "empty-finite-native-required",
+      "Result": {
+        "Measures": [
+          {
+            "StartTime": 0,
+            "Steps": 0,
+            "RowsWithSteps": 0
+          },
+          {
+            "StartTime": 2,
+            "Steps": 0,
+            "RowsWithSteps": 0
+          }
+        ],
+        "Streams": [],
+        "Breakdown": "No Streams",
+        "Peaks": [
+          {
+            "Mode": "Step",
+            "Peak": 0,
+            "Samples": [
+              {
+                "StepsPerSecond": 0,
+                "Percent": null,
+                "X": 1,
+                "Y": null
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": null,
+                "X": 150,
+                "Y": null
+              }
+            ]
+          },
+          {
+            "Mode": "Row",
+            "Peak": 0,
+            "Samples": [
+              {
+                "StepsPerSecond": 0,
+                "Percent": null,
+                "X": 1,
+                "Y": null
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": null,
+                "X": 150,
+                "Y": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Name": "warped-zero-measure",
+      "Result": {
+        "Measures": [
+          {
+            "StartTime": 0,
+            "Steps": 1,
+            "RowsWithSteps": 1
+          },
+          {
+            "StartTime": 0,
+            "Steps": 1,
+            "RowsWithSteps": 1
+          },
+          {
+            "StartTime": 2,
+            "Steps": 1,
+            "RowsWithSteps": 1
+          }
+        ],
+        "Streams": [],
+        "Breakdown": "No Streams",
+        "Peaks": [
+          {
+            "Mode": "Step",
+            "Peak": 0.5,
+            "Samples": [
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 1,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 150,
+                "Y": 89
+              }
+            ]
+          },
+          {
+            "Mode": "Row",
+            "Peak": 0.5,
+            "Samples": [
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 1,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 150,
+                "Y": 89
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Name": "variable-bpm-periods",
+      "Result": {
+        "Measures": [
+          {
+            "StartTime": 0,
+            "Steps": 2,
+            "RowsWithSteps": 1
+          },
+          {
+            "StartTime": 1,
+            "Steps": 1,
+            "RowsWithSteps": 1
+          },
+          {
+            "StartTime": 3,
+            "Steps": 3,
+            "RowsWithSteps": 1
+          }
+        ],
+        "Streams": [],
+        "Breakdown": "No Streams",
+        "Peaks": [
+          {
+            "Mode": "Step",
+            "Peak": 2,
+            "Samples": [
+              {
+                "StepsPerSecond": 2,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 0.25,
+                "X": 43.57143,
+                "Y": 23
+              },
+              {
+                "StepsPerSecond": 0.75,
+                "Percent": 0.375,
+                "X": 128.7143,
+                "Y": 34
+              }
+            ]
+          },
+          {
+            "Mode": "Row",
+            "Peak": 1,
+            "Samples": [
+              {
+                "StepsPerSecond": 1,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 0.5,
+                "X": 43.57143,
+                "Y": 45
+              },
+              {
+                "StepsPerSecond": 0.25,
+                "Percent": 0.25,
+                "X": 128.7143,
+                "Y": 23
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Name": "stop-at-measure-boundary",
+      "Result": {
+        "Measures": [
+          {
+            "StartTime": 0,
+            "Steps": 1,
+            "RowsWithSteps": 1
+          },
+          {
+            "StartTime": 3,
+            "Steps": 1,
+            "RowsWithSteps": 1
+          },
+          {
+            "StartTime": 5,
+            "Steps": 1,
+            "RowsWithSteps": 1
+          }
+        ],
+        "Streams": [],
+        "Breakdown": "No Streams",
+        "Peaks": [
+          {
+            "Mode": "Step",
+            "Peak": 0.5,
+            "Samples": [
+              {
+                "StepsPerSecond": 0.3333333333333333,
+                "Percent": 0.6666666666666666,
+                "X": 1,
+                "Y": 59.666668
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 128.7143,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 213.85715,
+                "Y": 89
+              }
+            ]
+          },
+          {
+            "Mode": "Row",
+            "Peak": 0.5,
+            "Samples": [
+              {
+                "StepsPerSecond": 0.3333333333333333,
+                "Percent": 0.6666666666666666,
+                "X": 1,
+                "Y": 59.666668
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 128.7143,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 213.85715,
+                "Y": 89
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Name": "warp-at-measure-boundary",
+      "Result": {
+        "Measures": [
+          {
+            "StartTime": 0,
+            "Steps": 1,
+            "RowsWithSteps": 1
+          },
+          {
+            "StartTime": 2,
+            "Steps": 0,
+            "RowsWithSteps": 0
+          },
+          {
+            "StartTime": 2,
+            "Steps": 1,
+            "RowsWithSteps": 1
+          }
+        ],
+        "Streams": [],
+        "Breakdown": "No Streams",
+        "Peaks": [
+          {
+            "Mode": "Step",
+            "Peak": 0.5,
+            "Samples": [
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 150,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 150,
+                "Y": 89
+              }
+            ]
+          },
+          {
+            "Mode": "Row",
+            "Peak": 0.5,
+            "Samples": [
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 1,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0,
+                "Percent": 0,
+                "X": 150,
+                "Y": 1
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 150,
+                "Y": 89
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Name": "stop-at-zero-measure",
+      "Result": {
+        "Measures": [
+          {
+            "StartTime": 1,
+            "Steps": 1,
+            "RowsWithSteps": 1
+          },
+          {
+            "StartTime": 3,
+            "Steps": 1,
+            "RowsWithSteps": 1
+          }
+        ],
+        "Streams": [],
+        "Breakdown": "No Streams",
+        "Peaks": [
+          {
+            "Mode": "Step",
+            "Peak": 0.5,
+            "Samples": [
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 60.6,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 179.8,
+                "Y": 89
+              }
+            ]
+          },
+          {
+            "Mode": "Row",
+            "Peak": 0.5,
+            "Samples": [
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 60.6,
+                "Y": 89
+              },
+              {
+                "StepsPerSecond": 0.5,
+                "Percent": 1,
+                "X": 179.8,
+                "Y": 89
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

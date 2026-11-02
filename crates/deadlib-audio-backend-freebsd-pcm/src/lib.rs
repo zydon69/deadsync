@@ -189,12 +189,21 @@ pub struct FreeBsdPcmOutputStream {
     thread: Option<JoinHandle<()>>,
 }
 
+impl FreeBsdPcmOutputStream {
+    pub fn shutdown(&mut self) -> Result<(), String> {
+        self.stop_flag.store(true, Ordering::Release);
+        if let Some(thread) = self.thread.take() {
+            thread
+                .join()
+                .map_err(|_| "FreeBsdPcm render thread panicked during shutdown".to_string())?;
+        }
+        Ok(())
+    }
+}
+
 impl Drop for FreeBsdPcmOutputStream {
     fn drop(&mut self) {
-        self.stop_flag.store(true, Ordering::Relaxed);
-        if let Some(thread) = self.thread.take() {
-            let _ = thread.join();
-        }
+        let _ = self.shutdown();
     }
 }
 

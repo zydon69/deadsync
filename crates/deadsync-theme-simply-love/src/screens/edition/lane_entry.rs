@@ -1,7 +1,8 @@
-//! Native draft ownership for source press/release note entry. State/view hooks
-//! are supplied separately; this module never edits document bytes on key-down.
+//! Semantic ownership for source press/release note entry. Detached gestures
+//! commit on release; source playback/auto-advance and explicit native tools
+//! retain their immediate press semantics. Cancellation never commits a draft.
 use super::{
-    State, lane_for_key, spacing_view::Projection, view_layout::Geometry, view_render::Viewport,
+    State, spacing_view::Projection, view_layout::Geometry, view_render::Viewport,
 };
 use crate::i18n;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
@@ -9,6 +10,7 @@ use deadlib_present::actors::Actor;
 use deadsync_editor::{
     Error,
     lane_entry::{Inputs, Press},
+    key_binding_preferences::Action,
     notes::Kind,
     workspace::{Command, SNAP_ROWS},
 };
@@ -17,8 +19,8 @@ pub(super) struct Runtime {
     pub(super) model: Option<Inputs>,
     pub(super) fake_cache: Option<deadsync_editor::draft_note_policy::Cache>,
     pub(super) fake_error: Option<String>,
-    shift_keys: u8,
-    alt_keys: u8,
+    modified: bool,
+    owned: std::collections::BTreeSet<u16>,
     last_row: Option<f64>,
 }
 impl State {
@@ -35,140 +37,77 @@ impl State {
     }
     pub(super) fn lane_entry_cancel(&mut self) -> bool {
         self.lane_input.last_row = None;
-        self.lane_input
-            .model
-            .take()
-            .is_some_and(|mut input| input.cancel() != 0)
+        let owned = !self.lane_input.owned.is_empty();
+        self.lane_input.owned.clear();
+        let cancelled = self.lane_input.model.take().is_some_and(|mut input| input.cancel() != 0);
+        if owned || cancelled {
+            self.command_binding_quarantine_held();
+            self.receptor_views.release_manual();
+        }
+        owned || cancelled
     }
     pub(super) fn lane_entry_release_input(&mut self) {
+        if !self.lane_input.owned.is_empty() || self.lane_input.modified {
+            self.command_binding_quarantine_held();
+        }
         self.lane_input = Runtime::default();
+        self.receptor_views.release_manual();
     }
     fn lane_entry_error(&mut self, error: Error) {
         self.lane_entry_cancel();
-        self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
+        self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
     }
     /// Run before modifier/modal early returns so release cannot remain queued
     /// behind a newly opened panel. True means the key has been consumed.
     pub(super) fn lane_entry_before_key(&mut self, event: &RawKeyboardEvent) -> bool {
-        match event.code {
-            KeyCode::AltLeft | KeyCode::AltRight => {
-                let bit = if event.code == KeyCode::AltLeft { 1 } else { 2 };
-                if event.pressed {
-                    self.lane_input.alt_keys |= bit;
-                    self.lane_entry_cancel();
-                } else {
-                    self.lane_input.alt_keys &= !bit;
-                }
-            }
-            KeyCode::ControlLeft
-            | KeyCode::ControlRight
-            | KeyCode::SuperLeft
-            | KeyCode::SuperRight => {
-                if event.pressed {
-                    self.lane_entry_cancel();
-                }
-            }
-            KeyCode::ShiftLeft | KeyCode::ShiftRight => {
-                let bit = if event.code == KeyCode::ShiftLeft { 1 } else { 2 };
-                if event.pressed {
-                    self.lane_input.shift_keys |= bit;
-                } else {
-                    self.lane_input.shift_keys &= !bit;
-                }
-                let modified = self.lane_input.shift_keys != 0;
-                if let Some(input) = self.lane_input.model.as_mut() {
-                    if let Err(e) = input.modifier(&self.workspace.file().session, modified) {
-                        self.lane_entry_error(e);
-                    }
-                }
-            }
-            _ => {}
-        }
-        if matches!(event.code, KeyCode::ShiftLeft | KeyCode::ShiftRight) {
-            self.prepare_lane_draft_policy();
-        }
         if self.panel.is_some() || self.help || self.minimap_focused() || self.preview.is_some() {
-            self.lane_entry_cancel();
+            self.lane_entry_release_input();
         }
-        if !event.pressed {
-            let Some(lane) = lane_for_key(event.code) else {
-                return false;
-            };
-            if !self
-                .lane_input
-                .model
-                .as_ref()
-                .is_some_and(|input| input.is_held(lane))
-            {
-                return false;
-            }
-            let mut input = self.lane_input.model.take().expect("held lane input");
-            match self.workspace.release_lane_input(&mut input, lane) {
-                Ok(changed) => {
-                    self.lane_input.model = Some(input);
-                    if changed {
-                        self.lane_entry_rebind_position();
-                        self.refresh();
-                    }
-                }
-                Err(e) => self.lane_entry_error(e),
-            }
+        if event.pressed
+            && (event.code == KeyCode::Escape || self.command_binding_close_final(event.code))
+            && self.lane_entry_cancel()
+        {
+            // The consumed cancel must never become a later timer activation.
+            self.command_binding_quarantine(event.code);
             return true;
         }
-        if event.code == KeyCode::Escape && self.lane_entry_cancel() {
-            return true;
-        }
-        let keeps_gesture = lane_for_key(event.code).is_some()
-            || matches!(
-                event.code,
-                KeyCode::ShiftLeft
-                    | KeyCode::ShiftRight
-                    | KeyCode::ArrowUp
-                    | KeyCode::ArrowDown
-                    | KeyCode::ArrowLeft
-                    | KeyCode::ArrowRight
-                    | KeyCode::PageUp
-                    | KeyCode::PageDown
-                    | KeyCode::Home
-                    | KeyCode::End
-                    | KeyCode::KeyP
-                    | KeyCode::Space
-                    | KeyCode::KeyA
-            );
-        if !keeps_gesture {
-            self.lane_entry_cancel();
-        }
+        // Arbitrary prefixes are supported by the source registry. An
+        // unrelated raw key alone is not a semantic cancellation intent.
         false
     }
-    /// Called before the legacy stop_audio/Place route. Explicit tools retain
-    /// that route; source entry gestures start from the default Tap tool.
-    pub(super) fn lane_entry_key(&mut self, event: &RawKeyboardEvent) -> bool {
-        let Some(lane) = lane_for_key(event.code) else {
-            return false;
-        };
-        if self.workspace.tool() != Kind::Tap
-            || self.control
-            || !self.workspace.has_chart()
-            || self.preview.is_some()
-        {
-            return false;
+    /// One logical activation after native alias coalescence. Physical key
+    /// ownership belongs to Registry; this layer owns the detached lane draft.
+    pub(super) fn lane_entry_semantic_press(&mut self, action: Action) {
+        if action == Action::ArrowModification {
+            self.lane_input.modified = true;
+            if let Some(input) = self.lane_input.model.as_mut() {
+                if let Err(error) = input.modifier(&self.workspace.file().session, true) {
+                    self.lane_entry_error(error); return;
+                }
+            }
+            self.prepare_lane_draft_policy(); return;
         }
-        if lane >= self.workspace.grid().columns() {
-            return true;
+        let Some(lane) = action.lane() else { return; };
+        if !self.workspace.has_chart() || self.preview.is_some() { return; }
+        if lane >= self.workspace.grid().columns() { return; }
+        // Preserve native Ctrl/Alt+plain-digit no-op; explicitly configured
+        // modifier chords and the original source profile remain executable.
+        if !self.command_binding_entry_modifiers_allowed(action) { return; }
+        if self.workspace.tool() != Kind::Tap {
+            self.stop_audio(); self.command(Command::Place(lane));
+            self.lane_input.owned.insert(lane);
+            self.receptor_manual_lane(lane, true);
+            return;
         }
-        if self.lane_input.alt_keys != 0 || self.shift && self.lane_input.shift_keys == 0 {
-            return true;
-        }
-        if event.repeat {
-            return true;
-        }
+        if !self.lane_input.owned.insert(lane) { return; }
+        self.receptor_manual_lane(lane, true);
         let row = self.lane_entry_row();
         let request = Press {
             lane,
             player: self.workspace.player(),
             row,
             snap_rows: SNAP_ROWS[self.workspace.snap()],
-            modified: self.lane_input.shift_keys != 0,
+            modified: self.lane_input.modified,
             playing: self.is_playing(),
             advance_by_snap: self.workspace.auto_advance(),
         };
@@ -184,7 +123,7 @@ impl State {
             Ok(input) => input,
             Err(e) => {
                 self.lane_entry_error(e);
-                return true;
+                return;
             }
         };
         match self.workspace.press_lane_input(&mut input, request) {
@@ -202,7 +141,34 @@ impl State {
             }
             Err(e) => self.lane_entry_error(e),
         }
-        true
+    }
+    /// Release is never discarded by the command dispatcher. Modal/focus
+    /// cancellation clears ownership first, so later releases cannot commit.
+    pub(super) fn lane_entry_semantic_release(&mut self, action: Action) {
+        if action == Action::ArrowModification {
+            self.lane_input.modified = false;
+            if let Some(input) = self.lane_input.model.as_mut() {
+                if let Err(error) = input.modifier(&self.workspace.file().session, false) {
+                    self.lane_entry_error(error); return;
+                }
+            }
+            self.prepare_lane_draft_policy(); return;
+        }
+        let Some(lane) = action.lane() else { return; };
+        self.receptor_manual_lane(lane, false);
+        self.lane_entry_reconcile();
+        if !self.lane_input.owned.remove(&lane) { return; }
+        if self.panel.is_some() || self.help || self.minimap_focused() || self.preview.is_some() {
+            self.lane_entry_cancel(); return;
+        }
+        let Some(mut input) = self.lane_input.model.take() else { return; };
+        match self.workspace.release_lane_input(&mut input, lane) {
+            Ok(changed) => {
+                self.lane_input.model = Some(input);
+                if changed { self.lane_entry_rebind_position(); self.refresh(); }
+            }
+            Err(error) => self.lane_entry_error(error),
+        }
     }
     fn lane_entry_rebind_position(&mut self) {
         self.focus_position = self.lane_input.last_row.and_then(|row| {
@@ -233,7 +199,7 @@ impl State {
             return;
         }
         let player = self.workspace.player();
-        let modified = self.lane_input.shift_keys != 0;
+        let modified = self.lane_input.modified;
         let result = self
             .lane_input
             .model
@@ -272,31 +238,21 @@ impl State {
                 && input.is_current(&self.workspace.file().session)
         })
     }
-    pub(super) fn lane_entry_overlay_budget(&self) -> usize {
-        self.lane_entry_model()
-            .filter(|input| {
-                input.drafts().next().is_some() || input.deleted_heads().next().is_some()
-            })
-            .map_or(0, |_| self.view_note_budget().min(512))
-    }
-    /// A bounded detached overlay. True requests the existing partial-view notice.
+    /// Draw only source-admitted edited identities, in their admitted order.
     pub(super) fn lane_entry_actors(
         &self,
         actors: &mut Vec<Actor>,
         projection: &Projection<'_>,
         geometry: Geometry,
         viewport: Viewport,
-        budget: usize,
+        drafts: &[deadsync_editor::lane_entry::Draft],
     ) -> bool {
-        let Some(input) = self.lane_entry_model() else {
-            return false;
-        };
         let layout =
             &self.workspace.file().session.document().charts()[self.workspace.chart()].steps_type;
         let size = self.zoom.size_zoom() as f32;
-        let mut strips = budget;
+        let mut strips = drafts.len();
         let mut partial = false;
-        for draft in input.drafts() {
+        for &draft in drafts {
             let Some(fake) = self.lane_draft_fake(draft) else {
                 partial = true;
                 continue;

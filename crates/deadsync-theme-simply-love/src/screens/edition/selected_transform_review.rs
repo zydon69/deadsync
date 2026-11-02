@@ -156,6 +156,7 @@ impl State {
                         self.selected_transform_review = Default::default();
                         self.event_selection = None;
                         self.panel = None;
+                        self.sync_event_selection_history();
                         self.status = i18n::tr(
                             "Edition",
                             if changed {

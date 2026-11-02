@@ -1,0 +1,218 @@
+[
+  {
+    "name": "sm_fallbackNone_anon0_omit0",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": null,
+    "anonymize": false,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "sm_fallbackNone_anon0_omit1",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": null,
+    "anonymize": false,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "sm_fallbackNone_anon1_omit0",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": null,
+    "anonymize": true,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "sm_fallbackNone_anon1_omit1",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": null,
+    "anonymize": true,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "sm_fallback0_anon0_omit0",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": 0,
+    "anonymize": false,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "sm_fallback0_anon0_omit1",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": 0,
+    "anonymize": false,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "sm_fallback0_anon1_omit0",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": 0,
+    "anonymize": true,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "sm_fallback0_anon1_omit1",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": 0,
+    "anonymize": true,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "sm_fallback1_anon0_omit0",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": 1,
+    "anonymize": false,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "sm_fallback1_anon0_omit1",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": 1,
+    "anonymize": false,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "sm_fallback1_anon1_omit0",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": 1,
+    "anonymize": true,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "sm_fallback1_anon1_omit1",
+    "source": "ssc",
+    "target": "sm",
+    "fallback": 1,
+    "anonymize": true,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallbackNone_anon0_omit0",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": null,
+    "anonymize": false,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallbackNone_anon0_omit1",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": null,
+    "anonymize": false,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallbackNone_anon1_omit0",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": null,
+    "anonymize": true,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallbackNone_anon1_omit1",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": null,
+    "anonymize": true,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallback0_anon0_omit0",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": 0,
+    "anonymize": false,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallback0_anon0_omit1",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": 0,
+    "anonymize": false,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallback0_anon1_omit0",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": 0,
+    "anonymize": true,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallback0_anon1_omit1",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": 0,
+    "anonymize": true,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallback1_anon0_omit0",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": 1,
+    "anonymize": false,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallback1_anon0_omit1",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": 1,
+    "anonymize": false,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallback1_anon1_omit0",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": 1,
+    "anonymize": true,
+    "omit": false,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  },
+  {
+    "name": "ssc_fallback1_anon1_omit1",
+    "source": "ssc",
+    "target": "ssc",
+    "fallback": 1,
+    "anonymize": true,
+    "omit": true,
+    "input": "#VERSION:0.83;#TITLE:Timing;#ARTIST:Artist;#GENRE:Private;#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=150;#STOPS:2=0.5;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:First;#DIFFICULTY:Hard;#METER:9;#BPMS:0=120;#NOTES:1000\n0000\n0000\n0000;#NOTEDATA:;#STEPSTYPE:dance-single;#DESCRIPTION:Second;#DIFFICULTY:Hard;#METER:9;#BPMS:0=240;#NOTES:0100\n0000\n0000\n0000;"
+  }
+]

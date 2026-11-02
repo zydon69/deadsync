@@ -5,6 +5,7 @@ edition = "2024"
 license = "GPL-3.0"
 
 [dependencies]
+deadlib-audio-core = { path = "../deadlib-audio-core" }
 deadlib-platform = { path = "../deadlib-platform" }
 ogg = "0.9.2"
 opusic-c = "1.6.1"

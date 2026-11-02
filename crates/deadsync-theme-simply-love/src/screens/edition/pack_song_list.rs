@@ -12,18 +12,11 @@ use deadsync_editor::{
     chart_order::SessionBinding,
     generation::job::Job,
     pack::song_list::{Catalog, Limits, Orderer, Selection, Task},
-    workspace::Command,
 };
 use std::path::PathBuf;
 
 fn page_size() -> usize {
     ((((screen_height() - 28.0).min(480.0) - 170.0).max(28.0) / 28.0) as usize).clamp(1, 8)
-}
-#[derive(Clone, Copy)]
-enum Mode {
-    List,
-    Unsaved(usize),
-    Discard(bool),
 }
 pub(super) struct Settings {
     binding: SessionBinding,
@@ -34,9 +27,7 @@ pub(super) struct Settings {
     selection: Selection,
     culture: Option<u64>,
     loading: Option<pack_song_load::Job>,
-    candidate: Option<Box<State>>,
     prepared: Option<super::pack_song_preference::Prepared>,
-    mode: Mode,
 }
 impl Settings {
     fn current(&self, state: &State) -> bool {
@@ -45,7 +36,7 @@ impl Settings {
     }
 }
 impl State {
-    pub(super) fn pack_file_io_active(&self)->bool {self.pack_song_list.as_ref().is_some_and(|settings|settings.scan.is_some()||settings.loading.is_some()||settings.prepared.is_some()||settings.candidate.is_some())}
+    pub(super) fn pack_file_io_active(&self)->bool {self.pack_song_list.as_ref().is_some_and(|settings|settings.scan.is_some()||settings.loading.is_some()||settings.prepared.is_some())}
     pub(super) fn open_pack_song_list(&mut self) {
         if self.save_as_pending_guard() {return;}
         self.stop_audio();
@@ -70,9 +61,7 @@ impl State {
                     selection,
                     culture: None,
                     loading: None,
-                    candidate: None,
                     prepared: None,
-                    mode: Mode::List,
                 });
                 self.panel = Some(Panel::PackSongList);
                 self.status = i18n::tr("Edition", "PackSongsLoading");
@@ -83,11 +72,11 @@ impl State {
             }
         }
     }
-    fn pack_song_error(&mut self, error: impl std::fmt::Display) {
+    fn pack_song_error(&mut self, error: impl crate::i18n::EditorDiagnostic) {
         self.status = i18n::tr_fmt(
             "Edition",
             "PackSongsFailed",
-            &[("message", &error.to_string())],
+            &[("message", &crate::i18n::editor_error(&error))],
         );
     }
     pub(super) fn poll_pack_song_list(&mut self) {
@@ -139,16 +128,12 @@ impl State {
         let result = selected.and_then(|chart| prepared.workspace(chart)).and_then(|(workspace, failures)| {
             let mut candidate = State::from_workspace(workspace)?;
             candidate.song_open_warnings = failures;
-            application_preferences::Snapshot::capture(self).install(&mut candidate)?;
             Ok(candidate)
         });
         match result {
             Ok(candidate) => {
-                self.pack_song_list.as_mut().unwrap().candidate = Some(Box::new(candidate));
-                if self.workspace.file().session.is_dirty() {
-                    self.pack_song_list.as_mut().unwrap().mode = Mode::Unsaved(0);
-                    self.status = i18n::tr("Edition", "PackSongsUnsaved");
-                } else { self.publish_pack_song(); }
+                let row=self.pack_song_list.as_ref().and_then(|settings|settings.catalog.as_ref().and_then(|catalog|settings.order.get(settings.selection.position()).and_then(|&i|catalog.rows.get(i)))).cloned();
+                match row{Some(row)=>self.command_open_prepared_pack_song(candidate,row),None=>self.pack_song_error(deadsync_editor::Error::ExternalChange)}
             }
             Err(error) => self.pack_song_error(error),
         }
@@ -199,7 +184,7 @@ impl State {
                     }
                 }
                 settings.culture = Some(revision);
-                if settings.loading.is_none() && settings.candidate.is_none() {
+                if settings.loading.is_none() {
                     self.status = i18n::tr("Edition", "PackSongsHelp");
                 }
             }
@@ -231,42 +216,6 @@ impl State {
             self.poll_pack_song_list();
             return;
         }
-        match settings.mode {
-            Mode::Unsaved(index) => {
-                if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
-                    let next = (index + if code == KeyCode::ArrowDown { 1 } else { 2 }) % 3;
-                    self.pack_song_list.as_mut().unwrap().mode = Mode::Unsaved(next);
-                } else if code == KeyCode::Enter {
-                    match index {
-                        0 => {
-                            self.pack_song_list = None;
-                            self.panel = None;
-                        }
-                        1 => {
-                            self.command(Command::Save);
-                            if !self.workspace.file().session.is_dirty() {
-                                self.publish_pack_song();
-                            }
-                        }
-                        _ => self.pack_song_list.as_mut().unwrap().mode = Mode::Discard(false),
-                    }
-                }
-                return;
-            }
-            Mode::Discard(confirm) => {
-                if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
-                    self.pack_song_list.as_mut().unwrap().mode = Mode::Discard(!confirm);
-                } else if code == KeyCode::Enter {
-                    if confirm {
-                        self.publish_pack_song();
-                    } else {
-                        self.pack_song_list.as_mut().unwrap().mode = Mode::Unsaved(0);
-                    }
-                }
-                return;
-            }
-            Mode::List => {}
-        }
         if code == KeyCode::F5 && settings.scan.is_none() && settings.loading.is_none() && settings.prepared.is_none() {
             self.open_pack_song_list();
             return;
@@ -295,11 +244,6 @@ impl State {
         if code != KeyCode::Enter {
             return;
         }
-        if self.pack_has_unsaved_changes() || self.pack_has_pending_durability() {
-            self.open_pack_properties();
-            self.status = i18n::tr("Edition", "PackSongsPackGuard");
-            return;
-        }
         let settings = self.pack_song_list.as_ref().unwrap();
         let row = settings
             .catalog
@@ -315,82 +259,17 @@ impl State {
             return;
         };
         // Reopening the active path is explicit refresh, and still uses dirty guards.
-        let preferences = match self.audio_preferences_file.as_ref().map(|file| file.opening()).transpose() {
-            Ok(preferences) => preferences.unwrap_or_default(),
+        let preferences = match self.application_opening_preferences() {
+            Ok(preferences) => preferences,
             Err(error) => { self.pack_song_error(error); return; },
         };
-        match pack_song_load::Job::spawn(row, preferences) {
+        match pack_song_load::Job::spawn_with_profiles(row, preferences,self.profile_directory.clone()) {
             Ok(job) => {
                 self.pack_song_list.as_mut().unwrap().loading = Some(job);
                 self.status = i18n::tr("Edition", "PackSongsOpening");
             }
             Err(error) => self.pack_song_error(error),
         }
-    }
-    fn publish_pack_song(&mut self) {
-        if self.save_as_pending_guard() {return;}
-        if self.pack_has_unsaved_changes() || self.pack_has_pending_durability() {
-            self.open_pack_properties();
-            self.status = i18n::tr("Edition", "PackSongsPackGuard");
-            return;
-        }
-        let Some(settings) = self.pack_song_list.as_ref() else {
-            return;
-        };
-        if !settings.current(self) {
-            self.poll_pack_song_list();
-            return;
-        }
-        let Some(candidate) = settings.candidate.as_ref() else {
-            return;
-        };
-        // Recheck the logical path too: a symlink or byte-identical file may
-        // have been replaced while the confirmation was visible.
-        let row = settings.catalog.as_ref().and_then(|catalog| {
-            settings
-                .order
-                .get(settings.selection.position())
-                .and_then(|&index| catalog.rows.get(index))
-        });
-        match row.map(|row| row.is_current()).transpose() {
-            Ok(Some(true)) => {}
-            Ok(_) => {
-                self.pack_song_error(deadsync_editor::Error::ExternalChange);
-                return;
-            }
-            Err(error) => {
-                self.pack_song_error(error);
-                return;
-            }
-        }
-        // The target can change while the user reads a dirty-source confirmation.
-        match candidate.workspace.file().has_external_change() {
-            Ok(false) => {}
-            Ok(true) => {
-                self.pack_song_error(deadsync_editor::Error::ExternalChange);
-                return;
-            }
-            Err(error) => {
-                self.pack_song_error(error);
-                return;
-            }
-        }
-        let mut next = self
-            .pack_song_list
-            .as_mut()
-            .unwrap()
-            .candidate
-            .take()
-            .unwrap();
-        self.stop_audio();
-        // Keep the exact original preference persistence baseline, including
-        // memory-only mode. No fresh read silently rebases external changes.
-        next.audio_preferences_file = self.audio_preferences_file.take();
-        next.audio_commands.extend(self.take_audio_commands());
-        next.status = if let Some(first) = next.song_open_warnings.first() {
-            i18n::tr_fmt("Edition", "PackSongsOpenedWarnings", &[("count", &next.song_open_warnings.len().to_string()), ("chart", &(first.source_index + 1).to_string()), ("message", &first.message)])
-        } else { i18n::tr("Edition", "PackSongsOpened") };
-        *self = *next;
     }
     pub(super) fn pack_song_list_actors(&self, actors: &mut Vec<Actor>) {
         let Some(settings) = &self.pack_song_list else {
@@ -412,8 +291,7 @@ impl State {
         );
         let position = settings.selection.position();
         let first = position / page_size() * page_size();
-        match settings.mode {
-            Mode::List => {
+
                 label(
                     actors,
                     i18n::tr("Edition", "PackSongsColumns").to_string(),
@@ -427,6 +305,7 @@ impl State {
                     .take(page_size())
                     .enumerate()
                 {
+            let ui_row_start=actors.len();
                     let row = &settings.catalog.as_ref().unwrap().rows[index];
                     let metadata = &row.metadata;
                     let value = format!(
@@ -447,7 +326,9 @@ impl State {
                             [0.85, 0.9, 1.0, 1.0]
                         },
                     );
-                }
+
+            self.ui_row(actors,ui_row_start,first+offset==position,28.);
+        }
                 if settings.catalog.is_some()
                     && settings.order.is_empty()
                     && settings.culture == Some(i18n::revision())
@@ -459,45 +340,7 @@ impl State {
                         [0.8; 4],
                     );
                 }
-            }
-            Mode::Unsaved(index) => {
-                for (i, key) in ["PackSongsKeep", "PackSongsSaveOpen", "PackSongsDiscard"]
-                    .iter()
-                    .enumerate()
-                {
-                    label(
-                        actors,
-                        format!(
-                            "{} {}",
-                            if i == index { ">" } else { " " },
-                            i18n::tr("Edition", key)
-                        ),
-                        top + 75.0 + i as f32 * 32.0,
-                        [1.0; 4],
-                    );
-                }
-            }
-            Mode::Discard(confirm) => {
-                label(
-                    actors,
-                    i18n::tr("Edition", "PackSongsDiscardConfirm").to_string(),
-                    top + 65.0,
-                    [1.0, 0.8, 0.3, 1.0],
-                );
-                for (i, key) in ["PackSongsKeep", "PackSongsDiscardOpen"].iter().enumerate() {
-                    label(
-                        actors,
-                        format!(
-                            "{} {}",
-                            if (i == 1) == confirm { ">" } else { " " },
-                            i18n::tr("Edition", key)
-                        ),
-                        top + 110.0 + i as f32 * 32.0,
-                        [1.0; 4],
-                    );
-                }
-            }
-        }
+
         if let Some(catalog) = &settings.catalog {
             label(
                 actors,
@@ -543,6 +386,7 @@ fn display_text(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use deadsync_editor::workspace::Command;
     #[test]
     fn visible_cells_are_unicode_safe_and_bounded() {
         assert_eq!(display_text("abc"), "abc");
@@ -570,4 +414,43 @@ mod tests {
         assert!(!matches!(state.panel, Some(Panel::PackSongList)));
         assert!(state.workspace.file().session.is_dirty());
     }
+    const STRICT:&str="#VERSION:0.83;#TITLE:Candidate;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fn row(path:&std::path::Path)->deadsync_editor::pack::song_list::Row{
+        use deadsync_editor::pack::song_list::HeaderReader;
+        let catalog=Task::from_song_file(path,Limits::default()).unwrap().run(&HeaderReader,&std::sync::atomic::AtomicBool::new(false),&mut |_|{}).unwrap();let canonical=path.canonicalize().unwrap();catalog.rows.into_iter().find(|r|r.path==canonical).unwrap()
+    }
+    fn transition_fixture(other_pack:bool)->(tempfile::TempDir,State,PathBuf){
+        i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let source=root.path().join("Pack/A/song.ssc");let target=root.path().join(if other_pack{"Other/B/song.ssc"}else{"Pack/B/song.ssc"});
+        for path in [&source,&target]{std::fs::create_dir_all(path.parent().unwrap()).unwrap();std::fs::write(path,STRICT).unwrap();}
+        std::fs::write(root.path().join("Pack/Pack.ini"),b"[Group]\nVersion=1\nDisplayTitle=Original\n").unwrap();let mut state=State::open(&source,0).unwrap();state.open_pack_properties();state.pack_properties.as_mut().unwrap().set_text(super::super::pack_properties::Field::Title,"Unsaved pack").unwrap();state.panel=None;
+        (root,state,target)
+    }
+    #[test]
+    fn common_prepared_open_retains_same_pack_dirty_metadata_and_exact_identity(){
+        let(root,mut state,target)=transition_fixture(false);let guard=state.capture_pack_coupling();let before=std::fs::read(root.path().join("Pack/Pack.ini")).unwrap();let candidate=State::open(&target,0).unwrap();state.command_open_prepared_pack_song(candidate,row(&target));
+        assert_eq!(state.workspace.file().existing_path(),Some(target.canonicalize().unwrap().as_path()));assert!(state.pack_has_unsaved_changes());assert!(state.pack_coupling_current(&guard));assert!(state.pack_text_current());assert_eq!(std::fs::read(root.path().join("Pack/Pack.ini")).unwrap(),before);
+    }
+    #[test]
+    fn common_prepared_other_pack_open_uses_save_discard_cancel_once(){
+        for choice in [0,1,2]{
+            let(root,mut state,target)=transition_fixture(true);let source=state.workspace.file().require_existing_path().unwrap().to_owned();let before=std::fs::read(root.path().join("Pack/Pack.ini")).unwrap();state.command_open_prepared_pack_song(State::open(&target,0).unwrap(),row(&target));assert!(matches!(state.panel,Some(Panel::FileUnsaved(0))));assert!(!state.file_menu_key(choice,KeyCode::Enter));
+            if choice==0{assert_eq!(state.workspace.file().existing_path(),Some(source.as_path()));assert!(state.pack_has_unsaved_changes());}
+            else{if choice==2{assert!(matches!(state.panel,Some(Panel::FileDiscard)));state.file_menu_key(0,KeyCode::Enter);}assert_eq!(state.workspace.file().existing_path(),Some(target.canonicalize().unwrap().as_path()));assert!(state.pack_properties.is_none());}
+            assert_eq!(std::fs::read(root.path().join("Pack/Pack.ini")).unwrap()==before,choice!=1);
+        }
+    }
+    #[test]
+    fn common_prepared_target_change_and_pack_edit_return_revoke_publication(){
+        for mutate_pack in [false,true]{
+            let(_root,mut state,target)=transition_fixture(true);let source=state.workspace.file().require_existing_path().unwrap().to_owned();state.command_open_prepared_pack_song(State::open(&target,0).unwrap(),row(&target));
+            if mutate_pack{let settings=state.pack_properties.as_mut().unwrap();settings.set_text(super::super::pack_properties::Field::Title,"Changed again").unwrap();settings.set_text(super::super::pack_properties::Field::Title,"Unsaved pack").unwrap();}else{std::fs::write(&target,STRICT.replace("Candidate","External target")).unwrap();}
+            state.file_menu_key(2,KeyCode::Enter);state.file_menu_key(0,KeyCode::Enter);assert_eq!(state.workspace.file().existing_path(),Some(source.as_path()));assert!(state.pack_has_unsaved_changes());
+        }
+    }
+
+    #[test]
+    fn prepared_pack_candidate_must_match_the_exact_catalog_row(){
+        let(_root,mut state,target)=transition_fixture(false);let source=state.workspace.file().require_existing_path().unwrap().to_owned();let wrong=row(&source);state.command_open_prepared_pack_song(State::open(&target,0).unwrap(),wrong);assert_eq!(state.workspace.file().existing_path(),Some(source.as_path()));assert!(state.pack_has_unsaved_changes());
+    }
+
 }

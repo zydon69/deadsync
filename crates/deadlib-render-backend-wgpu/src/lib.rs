@@ -1,3 +1,4 @@
+mod fxaa;
 use deadlib_render_core::{
     BlendMode, ClockDomainTrace, DenseSlotMap, DrawOp, DrawStats, MeshSampler, PresentModePolicy,
     PresentModeTrace, PresentStats, RenderFrame, SamplerCache, SamplerDesc, SamplerFilter,
@@ -115,6 +116,8 @@ struct PipelineSet {
     multiply: wgpu::RenderPipeline,
     subtract: wgpu::RenderPipeline,
     no_effect: wgpu::RenderPipeline,
+    replace: wgpu::RenderPipeline,
+    premultiplied_alpha: wgpu::RenderPipeline,
 }
 
 impl PipelineSet {
@@ -126,6 +129,8 @@ impl PipelineSet {
             BlendMode::Multiply => &self.multiply,
             BlendMode::Subtract => &self.subtract,
             BlendMode::NoEffect => &self.no_effect,
+            BlendMode::Replace => &self.replace,
+            BlendMode::PremultipliedAlpha => &self.premultiplied_alpha,
         }
     }
 }
@@ -136,6 +141,8 @@ struct MeshPipelineSet {
     multiply: wgpu::RenderPipeline,
     subtract: wgpu::RenderPipeline,
     no_effect: wgpu::RenderPipeline,
+    replace: wgpu::RenderPipeline,
+    premultiplied_alpha: wgpu::RenderPipeline,
 }
 
 const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
@@ -149,6 +156,8 @@ impl MeshPipelineSet {
             BlendMode::Multiply => &self.multiply,
             BlendMode::Subtract => &self.subtract,
             BlendMode::NoEffect => &self.no_effect,
+            BlendMode::Replace => &self.replace,
+            BlendMode::PremultipliedAlpha => &self.premultiplied_alpha,
         }
     }
 }
@@ -228,6 +237,8 @@ struct OffscreenTarget {
     texture: Texture,
     depth: Option<(wgpu::Texture, wgpu::TextureView)>,
     initialized: bool,
+    fxaa: Option<fxaa::Target>,
+    postprocessed: bool,
 }
 
 // Backend-lifetime pipelines for RGBA16F captures, built before any song frame.
@@ -423,6 +434,7 @@ impl HasDisplayHandle for OwnedWindowHandle {
 }
 
 pub struct State {
+    fxaa: Option<fxaa::Resources>,
     api: Api,
     proj: ProjState,
     _instance: wgpu::Instance,
@@ -867,6 +879,7 @@ fn init(
     info!("{} (wgpu) backend initialized.", api.name());
 
     Ok(State {
+        fxaa: None,
         api,
         proj,
         _instance: instance,
@@ -1427,10 +1440,15 @@ fn create_offscreen_target(
         texture,
         depth,
         initialized: false,
+        fxaa: None,
+        postprocessed: false,
     }
 }
 
 fn ensure_offscreen_targets(state: &mut State, frame: &RenderFrame) {
+    if state.fxaa.is_none() && frame.render_targets.iter().any(|pass| pass.postprocess.is_some()) {
+        state.fxaa = Some(fxaa::Resources::new(&state.device));
+    }
     for (index, pass) in frame.render_targets.iter().enumerate() {
         let matches = state.offscreen_targets.get(index).is_some_and(|target| {
             target.handle == pass.texture_handle
@@ -1456,6 +1474,12 @@ fn ensure_offscreen_targets(state: &mut State, frame: &RenderFrame) {
             state.offscreen_targets.push(target);
         }
     }
+    for (index, pass) in frame.render_targets.iter().enumerate() {
+        if pass.postprocess.is_none() || state.offscreen_targets[index].fxaa.is_some() {continue;}
+        let texture=create_offscreen_target(state, pass.texture_handle, pass.width, pass.height, pass.float_color, false).texture;
+        let uniform=state.device.create_buffer(&wgpu::BufferDescriptor {label: Some("source FXAA controls"), size: 16, usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST, mapped_at_creation: false});
+        state.offscreen_targets[index].fxaa=Some(fxaa::Target {texture, uniform, source_group: None});
+    }
 }
 
 fn resolved_texture<'a, T: TextureLookup + ?Sized>(
@@ -1469,7 +1493,7 @@ fn resolved_texture<'a, T: TextureLookup + ?Sized>(
             .offscreen_targets
             .iter()
             .find(|target| target.handle == handle)
-            .map(|target| &target.texture);
+            .map(|target| if target.postprocessed {target.fxaa.as_ref().map_or(&target.texture, |target| &target.texture)} else {&target.texture});
     }
     textures.wgpu_texture(handle)
 }
@@ -2400,6 +2424,7 @@ fn draw_offscreen_targets(
     let mut tmesh_instance_start = 0usize;
     let mut camera_start = 0usize;
     let mut geometry_start = 0usize;
+    for target in &mut state.offscreen_targets {target.postprocessed=false;}
     for (index, target_frame) in frame.render_targets.iter().enumerate() {
         let target = &state.offscreen_targets[index];
         let color_view = target
@@ -2486,6 +2511,31 @@ fn draw_offscreen_targets(
         ));
         drop(pass);
         state.offscreen_targets[index].initialized = true;
+        if let Some(effect) = target_frame.postprocess {
+            if let Some(resources) = &state.fxaa {
+                let target=&state.offscreen_targets[index];
+                let source=effect.source.map_or(Some(&target.texture), |handle| resolved_texture(state,textures,handle));
+                if let (Some(source),Some(output))=(source,target.fxaa.as_ref()) {
+                    if let Some(view)=source.rgba_view() {
+                        let group=if output.source_group.as_ref().is_none_or(|(id,_)| *id!=source.id) {
+                            Some((source.id,resources.source_group(&state.device,view,&output.uniform)))
+                        } else {None};
+                        if let Some(group)=group {state.offscreen_targets[index].fxaa.as_mut().unwrap().source_group=Some(group);}
+                        let target=&state.offscreen_targets[index];let output=target.fxaa.as_ref().unwrap();
+                        let values=[effect.quality.subpix,effect.quality.edge_threshold,effect.quality.edge_threshold_min,if target_frame.alpha {0.0} else {1.0}];
+                        state.queue.write_buffer(&output.uniform,0,bytemuck::cast_slice(&values));
+                        let mut pass=encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                            label: Some("source FXAA quality39 pass"),
+                            color_attachments: &[Some(wgpu::RenderPassColorAttachment {view:output.texture.rgba_view().unwrap(),depth_slice:None,resolve_target:None,ops:wgpu::Operations {load:wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),store:wgpu::StoreOp::Store}})],
+                            depth_stencil_attachment:None,occlusion_query_set:None,timestamp_writes:None,multiview_mask:None,
+                        });
+                        pass.set_pipeline(&resources.pipelines[target.float_color as usize]);
+                        pass.set_bind_group(0,&output.source_group.as_ref().unwrap().1,&[]);pass.draw(0..3,0..1);drop(pass);
+                        state.offscreen_targets[index].postprocessed=true;
+                    }
+                }
+            }
+        }
         geometry_start += target_frame.tmesh_geometries.len();
         tmesh_instance_start += target_frame.tmesh_instances.len();
         instance_start += target_frame.sprite_instances.len();
@@ -3004,6 +3054,8 @@ fn blend_state(mode: BlendMode) -> Option<wgpu::BlendState> {
         operation: op,
     };
     match mode {
+        BlendMode::Replace => Some(wgpu::BlendState{color:comp(wgpu::BlendFactor::One,wgpu::BlendFactor::Zero,wgpu::BlendOperation::Add),alpha:comp(wgpu::BlendFactor::One,wgpu::BlendFactor::Zero,wgpu::BlendOperation::Add)}),
+        BlendMode::PremultipliedAlpha => Some(wgpu::BlendState{color:comp(wgpu::BlendFactor::One,wgpu::BlendFactor::OneMinusSrcAlpha,wgpu::BlendOperation::Add),alpha:comp(wgpu::BlendFactor::One,wgpu::BlendFactor::OneMinusSrcAlpha,wgpu::BlendOperation::Add)}),
         BlendMode::NoEffect => Some(wgpu::BlendState {
             color: comp(
                 wgpu::BlendFactor::Zero,
@@ -3178,6 +3230,24 @@ fn build_pipelines(
             write_mask,
             depth_format,
         ),
+        replace: build_pipeline(
+            device,
+            layout,
+            format,
+            BlendMode::Replace,
+            shader,
+            write_mask,
+            depth_format,
+        ),
+        premultiplied_alpha: build_pipeline(
+            device,
+            layout,
+            format,
+            BlendMode::PremultipliedAlpha,
+            shader,
+            write_mask,
+            depth_format,
+        ),
     }
 }
 
@@ -3273,6 +3343,24 @@ fn build_mesh_pipelines(
             layout,
             format,
             BlendMode::NoEffect,
+            shader,
+            write_mask,
+            depth_format,
+        ),
+        replace: build_mesh_pipeline(
+            device,
+            layout,
+            format,
+            BlendMode::Replace,
+            shader,
+            write_mask,
+            depth_format,
+        ),
+        premultiplied_alpha: build_mesh_pipeline(
+            device,
+            layout,
+            format,
+            BlendMode::PremultipliedAlpha,
             shader,
             write_mask,
             depth_format,
@@ -3374,6 +3462,26 @@ fn build_tmesh_pipelines(
             layout,
             format,
             BlendMode::NoEffect,
+            shader,
+            depth_mode,
+            write_mask,
+            depth_format,
+        ),
+        replace: build_tmesh_pipeline(
+            device,
+            layout,
+            format,
+            BlendMode::Replace,
+            shader,
+            depth_mode,
+            write_mask,
+            depth_format,
+        ),
+        premultiplied_alpha: build_tmesh_pipeline(
+            device,
+            layout,
+            format,
+            BlendMode::PremultipliedAlpha,
             shader,
             depth_mode,
             write_mask,

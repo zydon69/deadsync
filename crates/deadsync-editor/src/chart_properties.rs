@@ -9,6 +9,7 @@ use crate::{
     history::{RevisionToken, Session},
 };
 use std::path::Path;
+pub use crate::history::song_presentation::{Application,PresentationReceipt};
 pub struct Draft {
     token: RevisionToken,
     chart: usize,
@@ -28,6 +29,17 @@ pub struct Draft {
 }
 impl Draft {
     /// Preserve pending values across the immediately following disk-only copy creation.
+    pub fn new_profile_plan(&self,session:&Session)->Result<crate::history::profile_creation::Plan,Error>{
+        self.check(session,self.chart)?;
+        if let Some(selection)=&self.selection{selection.check(&self.expression)?;}
+        crate::history::profile_creation::Plan::chart(session,self.chart)
+    }
+    pub fn after_inline_profile_creation(&mut self,session:&Session,receipt:&crate::history::profile_creation::Committed)->Result<(),Error>{
+        let guid=receipt.rebind(session,&self.token,self.chart,None)?;
+        self.original_expression=guid.clone();self.expression=guid;
+        if let Some(selection)=self.selection.as_mut(){selection.after_inline_creation(receipt);}
+        self.token=session.revision_token();Ok(())
+    }
     pub fn after_profile_creation(&mut self, session: &Session) -> Result<(), Error> {
         self.token = session.after_profile_creation(&self.token)?;
         Ok(())
@@ -47,16 +59,16 @@ impl Draft {
             })
             .transpose()?
             .unwrap_or(0.0);
-        let display_tempo = crate::display_tempo::Value::parse(
-            &session
-                .document()
-                .text(
-                    (session.document().format == Format::Ssc).then_some(chart),
-                    "DISPLAYBPM",
-                )
-                .or_else(|| session.document().text(None, "DISPLAYBPM"))
-                .unwrap_or_default(),
-        );
+        let document=session.document();
+        let display_text=if document.format==Format::Sm && crate::timing_edit::resident::has_local(document,chart) {
+            // The same resident snapshot owns performance timing and display
+            // tempo. An empty local DISPLAYBPM is explicit Actual, not fallback.
+            crate::timing_edit::resident::Properties::capture(document,Some(chart))?.text("DISPLAYBPM")
+        }else {
+            document.text((document.format==Format::Ssc).then_some(chart),"DISPLAYBPM")
+                .or_else(||document.text(None,"DISPLAYBPM")).unwrap_or_default()
+        };
+        let display_tempo=crate::display_tempo::Value::parse(&display_text);
         Ok(Self {
             original_display_tempo: display_tempo.clone(),
             display_tempo,
@@ -197,6 +209,22 @@ impl Draft {
         self.selection = Some(selection);
         Ok(())
     }
+    pub fn apply_with_presentation_receipt(&self, session:&mut Session, chart:usize)->Result<Application,Error> {
+        crate::history::song_presentation::apply_chart(self,session,chart)
+    }
+    pub(crate) fn preserves_presentation_clock(&self)->bool {
+        let old=if self.original_use_offset {self.original_offset}else{self.song_offset};
+        old.to_bits()==self.effective_music_offset().to_bits()
+    }
+    /// Whether the effective chart MUSIC binding remains unchanged.
+    pub fn preserves_presentation_audio(&self,document:&crate::document::Document)->bool {
+        let inherited=document.text(None,"MUSIC").unwrap_or_default();
+        let old=self.text.original(crate::chart_text::Field::Music);
+        let new=self.text.get(crate::chart_text::Field::Music);
+        let old=if old.is_empty(){inherited.as_str()}else{old};
+        let new=if new.is_empty(){inherited.as_str()}else{new};
+        old==new
+    }
     pub fn apply(&self, session: &mut Session, chart: usize) -> Result<bool, Error> {
         self.check(session, chart)?;
         if !self.has_changes() {
@@ -215,21 +243,29 @@ impl Draft {
         let exported = (self.format == Format::Ssc && self.offset_changed())
             .then(|| self.effective_music_offset());
         let metadata_changed = self.offset_changed() || self.expression != self.original_expression;
-        session.edit_chart_atomic(chart, "Change chart properties", |staged| {
+        let clock=self.preserves_presentation_clock();
+        let audio=self.preserves_presentation_audio(session.document());
+        let changed=session.edit_chart_atomic(chart, "Change chart properties", |staged| {
             if metadata_changed {
                 data.save_with_offset(staged, chart, exported, "Change chart properties")?;
             }
             self.identity.apply(staged, chart)?;
             self.text.apply(staged, chart)?;
             if self.display_tempo_changed() {
-                staged.set_property_bytes(
-                    (self.format == Format::Ssc).then_some(chart),
-                    "DISPLAYBPM",
-                    std::sync::Arc::from(self.display_tempo.serialize().into_bytes()),
-                )?;
+                if self.format==Format::Sm {
+                    // Match the source EditorChart's independent DisplayTempo;
+                    // native lossless SM keeps the original song tag untouched.
+                    crate::timing_edit::resident::apply(staged,chart,crate::timing_edit::Scope::Chart,
+                        &[("DISPLAYBPM",self.display_tempo.serialize())],"Change chart properties")?;
+                }else {
+                    staged.set_property_bytes(Some(chart),"DISPLAYBPM",
+                        std::sync::Arc::from(self.display_tempo.serialize().into_bytes()))?;
+                }
             }
             Ok(())
-        })
+        })?;
+        if changed { session.mark_chart_properties_history(chart,clock,audio); }
+        Ok(changed)
     }
 }
 fn invalid(message: &str) -> Error {

@@ -44,7 +44,7 @@ const SRPG10_TEXT_SHADOW: f32 = 0.4;
 
 const NORMAL_COLOR_HEX: &str = "#888888";
 
-pub const OPTION_COUNT: usize = 4;
+pub const OPTION_COUNT: usize = 5;
 const MAX_OPTION_COUNT: usize = OPTION_COUNT + 1;
 
 #[inline]
@@ -196,6 +196,7 @@ fn build_chrome_text(i18n_revision: u64) -> MenuChromeText {
             tr("Menu", "Gameplay"),
             tr("Menu", "Options"),
             tr("Menu", "FindContent"),
+            tr("Menu", "Editor"),
             tr("Menu", "Exit"),
             tr("Menu", "Shutdown"),
         ],
@@ -247,6 +248,7 @@ pub fn init() -> State {
         menu_lr_undo: [0; 2],
         row_anims: [
             ROW_FOCUSED,
+            ROW_UNFOCUSED,
             ROW_UNFOCUSED,
             ROW_UNFOCUSED,
             ROW_UNFOCUSED,
@@ -1022,7 +1024,8 @@ fn start_selected(state: &mut State, started_by_p2: bool) -> ThemeEffect {
             0 => ThemeEffect::Navigate(Screen::SelectProfile),
             1 => ThemeEffect::Navigate(Screen::Options),
             2 => ThemeEffect::Navigate(Screen::ContentBrowser),
-            3 => ThemeEffect::Exit,
+            3 => ThemeEffect::Navigate(Screen::Edition),
+            4 => ThemeEffect::Exit,
             _ => ThemeEffect::None,
         }
     };
@@ -1651,7 +1654,7 @@ mod tests {
         };
         assert!(matches!(effects[1], ThemeEffect::Navigate(Screen::Init)));
 
-        state.selected_index = 3;
+        state.selected_index = 4;
         let ThemeEffect::Batch(effects) = handle_input(&mut state, &input(VirtualAction::p1_start))
         else {
             panic!("expected batched exit effect");
@@ -1664,7 +1667,7 @@ mod tests {
     // so an off-by-one here silently turns "quit" into "browse" or moves the
     // shutdown row onto something else.
     #[test]
-    fn title_menu_rows_are_gameplay_options_find_content_exit() {
+    fn title_menu_rows_are_gameplay_options_find_content_editor_exit() {
         let mut state = init();
 
         state.selected_index = 2;
@@ -1678,7 +1681,7 @@ mod tests {
         ));
 
         let mut state = init();
-        state.selected_index = 3;
+        state.selected_index = 4;
         let ThemeEffect::Batch(effects) = handle_input(&mut state, &input(VirtualAction::p1_start))
         else {
             panic!("expected batched exit effect");
@@ -1686,7 +1689,7 @@ mod tests {
         assert!(matches!(effects[1], ThemeEffect::Exit));
 
         // and Shutdown is still the row after Exit, not on top of it
-        assert_eq!(OPTION_COUNT, 4);
+        assert_eq!(OPTION_COUNT, 5);
     }
 
     // Adding Find Content made a fourth row, which put Exit at y=453 -- inside
@@ -1746,4 +1749,21 @@ mod tests {
         assert!(!state.rainbow_mode);
         approx(state.idle_elapsed, 0.0);
     }
+}
+
+#[cfg(test)]
+mod standalone_entry_tests {
+ use super::*;
+ #[test]
+ fn editor_row_routes_to_editor_without_gameplay_in_both_languages() {
+  crate::i18n::init_for_tests();
+  for language in ["en","fr"] {
+   crate::i18n::set_locale(deadsync_assets::language::load_for_tests(language));
+   let mut state=init();
+   state.selected_index=3;
+   let ThemeEffect::Batch(effects)=start_selected(&mut state,false) else {panic!("expected sound and route");};
+   assert!(matches!(effects[1],ThemeEffect::Navigate(Screen::Edition)));
+   assert!(!crate::i18n::tr("Menu","Editor").is_empty());
+  }
+ }
 }

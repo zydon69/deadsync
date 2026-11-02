@@ -4,7 +4,7 @@ use crate::i18n;
 use deadlib_platform::input::KeyCode;
 use deadsync_editor::generation::{
     metadata::Guid,
-    profile_controls::{Control, Editor},
+    profile_controls::{Availability, Control, Editor},
     profiles::{Config, Kind, Profile, TravelSpeed},
 };
 #[derive(Clone)]
@@ -13,6 +13,7 @@ pub(super) struct PreferenceSnapshot {
     performed_name: Option<std::sync::Arc<str>>,
     expressed_name: Option<std::sync::Arc<str>>,
     revision: u64,
+    preset:usize,
 }
 pub(super) struct PreferenceChange {
     before: PreferenceSnapshot,
@@ -97,11 +98,45 @@ impl Draft {
     pub(super) fn action_count(&self) -> usize {
         if self.supports_travel_speed() { 13 } else { 11 }
     }
+    pub(super) fn visible_rows(&self)->Vec<usize>{
+        let count=self.editor.fields().len();
+        (0..count+self.action_count()).filter(|index|self.editor.availability(*index)!=Some(Availability::Hidden)).collect()
+    }
+    pub(super) fn row_enabled(&self,index:usize)->bool{
+        if index==self.editor.fields().len()+5&&self.supports_travel_speed(){return self.editor.source_travel_speed_enabled();}
+        self.editor.availability(index).is_none_or(|state|state==Availability::Active)
+    }
     pub(super) fn supports_travel_speed(&self) -> bool {
         self.kind == Kind::Performed
     }
 }
 impl State {
+    pub(super) fn create_application_profile(&mut self, kind:Kind) {
+        let result:Result<(Choices,Guid),String>=(||{
+            if !matches!(self.catalog_target,ProfileTarget::Application){return Err("Global profile manager is not open".into());}
+            let settings=self.profile_selection.as_ref().ok_or_else(||"Missing profiles".to_string())?;
+            if !self.profile_catalog_current(&settings.catalog){return Err(i18n::tr("Edition","ProfileStale").to_string());}
+            let selected=|kind,index:Option<usize>|index.and_then(|i|settings.catalog.entries(kind).get(i)).map(|entry|entry.guid.clone());
+            let mut choices=Choices{pattern:selected(Kind::Pattern,settings.pattern),performed:selected(Kind::Performed,settings.performed),expressed:selected(Kind::Expressed,settings.expressed)};
+            // A new profile starts from editor defaults, never the selected
+            // preset or an unrelated custom profile's unknown metadata.
+            let mut profile=Profile::new_editor_default(kind).map_err(profile_error)?;
+            profile.rename(&i18n::tr("Edition","ProfileManagerNewName")).map_err(profile_error)?;
+            let directory=self.profile_directory.as_deref().ok_or_else(||i18n::tr("Edition","ExpressionEditUnavailable").to_string())?;
+            self.workspace.create_profile(directory,&profile).map_err(profile_error)?;
+            let id=profile.guid().clone();match kind{Kind::Pattern=>choices.pattern=Some(id.clone()),Kind::Performed=>choices.performed=Some(id.clone()),Kind::Expressed=>choices.expressed=Some(id.clone())};
+            Ok((choices,id))
+        })();
+        match result {
+            Ok((choices,id))=>{
+                self.profile_creations.insert(self.workspace.file().session.revision(),(kind,id));
+                self.open_profile_manager();
+                if self.catalog_job.is_some(){self.profile_saved_choices=Some(choices);self.application_profile_created=Some(kind);}
+                self.sync_profile_edit_notice();
+            }
+            Err(error)=>self.status=i18n::tr_fmt("Edition","Error",&[("message",&error)]),
+        }
+    }
     pub(super) fn open_profile_edit(&mut self, kind: Kind, back: Panel) {
         let result: Result<Draft, String> = (|| {
             let settings = self
@@ -123,9 +158,9 @@ impl State {
                 .ok_or_else(|| i18n::tr("Edition", "ProfileMissing").to_string())?;
             let source = settings
                 .catalog
-                .profile(
+                .profile_in(
                     &self.workspace.file().session,
-                    self.workspace.chart(),
+                    self.profile_catalog_context().map_err(profile_error)?,
                     kind,
                     &entry.guid,
                 )
@@ -172,6 +207,7 @@ impl State {
             performed_name: self.generation.performed_name.clone(),
             expressed_name: self.generation.expressed_name.clone(),
             revision: self.profile_preference_revision,
+            preset:self.generation.preset,
         }
     }
     pub(super) fn profile_preferences_changed(&mut self) {
@@ -195,6 +231,7 @@ impl State {
                 {
                     self.generation.profiles.performed = None;
                     self.generation.performed_name = None;
+                    self.generation.preset=0;
                 }
                 if kind == Kind::Expressed
                     && self.generation.profiles.expressed.as_ref() == Some(&guid)
@@ -210,6 +247,7 @@ impl State {
                 } else {
                     self.profile_preference_history.remove(&before_revision);
                 }
+                self.publish_autogen_profile_preferences();
                 return;
             }
         }
@@ -234,6 +272,8 @@ impl State {
         self.generation.performed_name = restore.performed_name.clone();
         self.generation.expressed_name = restore.expressed_name.clone();
         self.profile_preference_revision = restore.revision;
+        self.generation.preset=restore.preset;
+        self.publish_autogen_profile_preferences();
     }
     fn open_profile_delete(&mut self) {
         let result: Result<(usize, usize), String> = (|| {
@@ -300,9 +340,9 @@ impl State {
                         .ok_or_else(|| "Missing profiles".to_string())?;
                     let file = settings
                         .catalog
-                        .profile_file(
+                        .profile_file_in(
                             &self.workspace.file().session,
-                            self.workspace.chart(),
+                            self.profile_catalog_context().map_err(profile_error)?,
                             draft.kind,
                             &draft.source,
                         )
@@ -316,6 +356,7 @@ impl State {
                     {
                         self.generation.profiles.performed = None;
                         self.generation.performed_name = None;
+                        self.generation.preset=0;
                     }
                     if draft.kind == Kind::Expressed
                         && self.generation.profiles.expressed.as_ref() == Some(&draft.source)
@@ -331,6 +372,7 @@ impl State {
                             PreferenceChange { before, after },
                         );
                     }
+                    self.publish_autogen_profile_preferences();
                     Ok(())
                 })();
                 match result {
@@ -352,65 +394,29 @@ impl State {
         }
     }
     fn profile_saved_history(&mut self, redo: bool) {
-        let result: Result<bool, String> = (|| {
-            let draft = self
-                .profile_edit
-                .as_ref()
-                .ok_or_else(|| "Missing draft".to_string())?;
-            if draft.input.is_some()
-                || draft.name.is_some()
-                || draft.description.is_some()
-                || draft.travel_speed.is_some()
-                || draft.reset_defaults
-                || draft.editor.finish().map_err(profile_error)? != *draft.profile.config()
-            {
-                return Err(i18n::tr("Edition", "ProfileHistoryPending").to_string());
-            }
-            let settings = self
-                .profile_selection
-                .as_ref()
-                .ok_or_else(|| "Missing profiles".to_string())?;
-            let captured = settings
-                .catalog
-                .profile_file(
-                    &self.workspace.file().session,
-                    self.workspace.chart(),
-                    draft.kind,
-                    &draft.source,
-                )
-                .map_err(profile_error)?;
-            let Some(file) = self.profile_history.get_mut(captured.path()) else {
-                return Ok(false);
-            };
-            let changed = if redo { file.redo() } else { file.undo() }.map_err(profile_error)?;
-            if !changed {
-                return Ok(false);
-            }
-            let offset = usize::from(matches!(draft.back, Panel::ConversionProfiles(_)));
-            let selected = |kind, index: Option<usize>| {
-                index
-                    .and_then(|i| i.checked_sub(offset))
-                    .and_then(|i| settings.catalog.entries(kind).get(i))
-                    .map(|entry| entry.guid.clone())
-            };
-            self.profile_saved_choices = Some(Choices {
-                pattern: selected(Kind::Pattern, settings.pattern),
-                performed: selected(Kind::Performed, settings.performed),
-                expressed: selected(Kind::Expressed, settings.expressed),
-            });
-            Ok(true)
+        let prepared:Result<Choices,String>=(||{
+            let draft=self.profile_edit.as_ref().ok_or_else(||"Missing draft".to_string())?;
+            if draft.input.is_some()||draft.name.is_some()||draft.description.is_some()||draft.travel_speed.is_some()||draft.reset_defaults||draft.editor.finish().map_err(profile_error)?!=*draft.profile.config(){return Err(i18n::tr("Edition","ProfileHistoryPending").to_string());}
+            let settings=self.profile_selection.as_ref().ok_or_else(||"Missing profiles".to_string())?;
+            let offset=usize::from(matches!(draft.back,Panel::ConversionProfiles(_)));
+            let selected=|kind,index:Option<usize>|index.and_then(|i|i.checked_sub(offset)).and_then(|i|settings.catalog.entries(kind).get(i)).map(|entry|entry.guid.clone());
+            Ok(Choices{pattern:selected(Kind::Pattern,settings.pattern),performed:selected(Kind::Performed,settings.performed),expressed:selected(Kind::Expressed,settings.expressed)})
         })();
-        match result {
-            Ok(true) => {
-                self.profile_edit = None;
-                match self.catalog_target {
-                    ProfileTarget::Chart => self.open_chart_expression(),
-                    ProfileTarget::Marker => self.open_marker_profiles(),
-                    target => self.open_conversion_profiles_for(target),
-                }
-            }
-            Ok(false) => self.status = i18n::tr("Edition", "ProfileHistoryEmpty"),
-            Err(error) => self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error)]),
+        let choices=match prepared{Ok(value)=>value,Err(error)=>{self.status=i18n::tr_fmt("Edition","Error",&[("message",&error)]);return;}};
+        let session=&self.workspace.file().session;
+        if if redo{session.redo_label().is_none()}else{session.undo_label().is_none()}{self.status=i18n::tr("Edition","ProfileHistoryEmpty");return;}
+        let before=session.revision();
+        self.command(if redo{deadsync_editor::workspace::Command::Redo}else{deadsync_editor::workspace::Command::Undo});
+        if self.workspace.file().session.revision()==before{return;}
+        let command_status=self.status.clone();
+        self.profile_saved_choices=Some(choices);self.profile_edit=None;
+        match self.catalog_target{ProfileTarget::Chart=>self.open_chart_expression(),ProfileTarget::Marker=>self.open_marker_profiles(),target=>self.open_conversion_profiles_for(target)};
+        if self.workspace.has_profile_durability(){self.status=command_status;}
+        self.sync_profile_edit_notice();
+    }
+    pub(super) fn sync_profile_edit_notice(&mut self){
+        if let Some(update)=self.workspace.take_profile_edit_update().or_else(||self.workspace.pending_profile_durability_update()){
+            if let Some(error)=update.durability_warning{self.status=i18n::tr_fmt("Edition","ProfileDurabilityWarning",&[("path",&update.path.to_string_lossy()),("error",&error)]);}
         }
     }
     fn stage_profile_input(&mut self) -> bool {
@@ -420,7 +426,10 @@ impl State {
         let Some((index, text)) = &draft.input else {
             return true;
         };
-        if draft.editor.set_text(*index, text).is_err() {
+        if draft.editor.availability(*index)!=Some(Availability::Active){
+            draft.input=None;self.status=i18n::tr("Edition","ProfileControlUnavailable");return true;
+        }
+        if draft.editor.set_source_text(*index, text).is_err() {
             self.status = i18n::tr(
                 "Edition",
                 if draft.kind == Kind::Expressed {
@@ -521,7 +530,8 @@ impl State {
             if !self.stage_profile_input() {
                 return;
             }
-            self.open_profile_speed();
+            if self.profile_edit.as_ref().is_some_and(|draft|draft.editor.source_travel_speed_enabled()){self.open_profile_speed();}
+            else{self.status=i18n::tr("Edition","ProfileControlUnavailable");}
             return;
         }
         if index == count + 3 && code == KeyCode::Enter {
@@ -529,6 +539,9 @@ impl State {
                 self.save_profile(false);
             }
             return;
+        }
+        if !draft.row_enabled(index)&&!matches!(code,KeyCode::ArrowUp|KeyCode::ArrowDown|KeyCode::Tab|KeyCode::PageUp|KeyCode::PageDown|KeyCode::Home|KeyCode::End){
+            self.status=i18n::tr("Edition","ProfileControlUnavailable");return;
         }
         let numeric = draft
             .editor
@@ -564,17 +577,15 @@ impl State {
         if !self.stage_profile_input() {
             return;
         }
-        let next = match code {
-            KeyCode::ArrowUp => Some((index + count + actions - 1) % (count + actions)),
-            KeyCode::ArrowDown => Some((index + 1) % (count + actions)),
-            KeyCode::Tab => {
-                Some((index + if self.shift { count + actions - 1 } else { 1 }) % (count + actions))
-            }
-            KeyCode::PageDown => Some((index + 8).min(count + actions - 1)),
-            KeyCode::PageUp => Some(index.saturating_sub(8)),
-            KeyCode::Home => Some(0),
-            KeyCode::End => Some(count),
-            _ => None,
+        let rows=self.profile_edit.as_ref().map(Draft::visible_rows).unwrap_or_default();
+        let current=rows.iter().position(|row|*row==index).unwrap_or_else(||rows.partition_point(|row|*row<index).min(rows.len()-1));
+        let next=match code{
+            KeyCode::ArrowUp=>Some(rows[(current+rows.len()-1)%rows.len()]),
+            KeyCode::ArrowDown=>Some(rows[(current+1)%rows.len()]),
+            KeyCode::Tab=>Some(rows[(current+if self.shift{rows.len()-1}else{1})%rows.len()]),
+            KeyCode::PageDown=>Some(rows[(current+8).min(rows.len()-1)]),
+            KeyCode::PageUp=>Some(rows[current.saturating_sub(8)]),
+            KeyCode::Home=>Some(rows[0]),KeyCode::End=>Some(count),_=>None,
         };
         if let Some(next) = next {
             self.panel = Some(Panel::ProfileEdit(next));
@@ -600,12 +611,13 @@ impl State {
                 .editor
                 .step(index, code != KeyCode::ArrowLeft, self.shift)
             {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())]);
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
             }
         }
     }
     fn save_profile(&mut self, copy: bool) {
         let result: Result<Choices, String> = (|| {
+            let chart=self.profile_catalog_context().map_err(profile_error)?;
             let draft = self
                 .profile_edit
                 .as_mut()
@@ -616,9 +628,9 @@ impl State {
                 .ok_or_else(|| i18n::tr("Edition", "ProfileMissing").to_string())?;
             settings
                 .catalog
-                .profile(
+                .profile_in(
                     &self.workspace.file().session,
-                    self.workspace.chart(),
+                    chart,
                     draft.kind,
                     &draft.source,
                 )
@@ -668,18 +680,14 @@ impl State {
                 }
                 let captured = settings
                     .catalog
-                    .profile_file(
+                    .profile_file_in(
                         &self.workspace.file().session,
-                        self.workspace.chart(),
+                        chart,
                         draft.kind,
                         &draft.source,
                     )
                     .map_err(profile_error)?;
-                let file = self
-                    .profile_history
-                    .entry(captured.path().to_owned())
-                    .or_insert(captured);
-                let mut profile = file.profile().clone();
+                let mut profile = captured.profile().clone();
                 if draft.reset_defaults {
                     profile.restore_defaults().map_err(profile_error)?;
                 }
@@ -695,7 +703,14 @@ impl State {
                         .set_description(Some(description))
                         .map_err(profile_error)?;
                 }
-                file.save(&profile).map_err(profile_error)?;
+                let changed=self.workspace.edit_profile(&captured,&profile).map_err(profile_error)?;
+                if changed {
+                    match self.catalog_target {
+                        ProfileTarget::Chart=>if let Some(parent)=self.chart_properties.as_mut(){parent.after_profile_creation(&self.workspace.file().session).map_err(profile_error)?;},
+                        ProfileTarget::Marker=>if let Some(parent)=self.marker.as_mut(){parent.after_profile_creation(&self.workspace.file().session).map_err(profile_error)?;},
+                        _=>{},
+                    }
+                }
                 profile.guid().clone()
             };
             let offset = usize::from(matches!(draft.back, Panel::ConversionProfiles(_)));
@@ -729,6 +744,7 @@ impl State {
                 if self.catalog_job.is_some() {
                     self.profile_saved_choices = Some(choices);
                 }
+                self.sync_profile_edit_notice();
             }
             Err(error) => self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error)]),
         }
@@ -755,6 +771,9 @@ impl State {
                 .take(44)
                 .collect();
             return i18n::tr_fmt("Edition", "ProfileEditDescription", &[("value", &preview)]);
+        }
+        if index==count+5&&draft.supports_travel_speed()&&!draft.row_enabled(index){
+            return i18n::tr_fmt("Edition","ProfileControlInactive",&[("value",&i18n::tr("Edition",key))]);
         }
         if index == count + 3 {
             return i18n::tr(
@@ -850,7 +869,8 @@ impl State {
         } else {
             key
         };
-        i18n::tr_fmt("Edition", &key, &[("value", &value)])
+        let label=i18n::tr_fmt("Edition", &key, &[("value", &value)]);
+        if draft.row_enabled(index){label}else{i18n::tr_fmt("Edition","ProfileControlInactive",&[("value",&label)])}
     }
 }
 
@@ -869,7 +889,9 @@ impl State {
             }
             if field == TextField::ExportPath {
                 let profile = draft.prepared_copy(draft.editor.finish().map_err(profile_error)?)?;
-                profile.export_to(path).map_err(profile_error)?;
+                self.workspace.retry_profile_durability().map_err(profile_error)?;
+                let committed=profile.export_to_committed(path).map_err(profile_error)?;
+                self.workspace.retain_profile_publication(committed.into_file());
             } else {
                 let bytes = std::fs::read(path).map_err(|e| e.to_string())?;
                 let source = Profile::parse(draft.kind, &bytes).map_err(profile_error)?;
@@ -901,6 +923,7 @@ impl State {
             ),
             Err(error) => i18n::tr_fmt("Edition", "Error", &[("message", &error)]),
         };
+        self.sync_profile_edit_notice();
     }
     fn open_profile_text(&mut self, field: TextField) {
         let Some(draft) = self.profile_edit.as_mut() else {
@@ -1111,7 +1134,7 @@ fn profile_error(error: deadsync_editor::Error) -> String {
     if matches!(error, deadsync_editor::Error::ExternalChange) {
         i18n::tr("Edition", "ProfileEditExternalChange").to_string()
     } else {
-        error.to_string()
+        i18n::editor_error(&error)
     }
 }
 
@@ -1141,6 +1164,7 @@ impl State {
         let Some(draft) = self.profile_edit.as_mut() else {
             return;
         };
+        if !draft.editor.source_travel_speed_enabled(){self.status=i18n::tr("Edition","ProfileControlUnavailable");return;}
         draft.travel_editor = draft.travel_speed.or_else(|| draft.profile.travel_speed());
         if draft.travel_editor.is_none() {
             return;
@@ -1153,6 +1177,9 @@ impl State {
         let Some(draft) = self.profile_edit.as_mut() else {
             return false;
         };
+        if !draft.editor.source_travel_speed_enabled(){
+            draft.travel_input=None;self.status=i18n::tr("Edition","ProfileControlUnavailable");return false;
+        }
         let Some((index, text)) = &draft.travel_input else {
             return true;
         };
@@ -1160,7 +1187,6 @@ impl State {
             .trim()
             .parse::<i32>()
             .ok()
-            .filter(|v| (1..=1000).contains(v))
         else {
             self.status = i18n::tr("Edition", "ProfileSpeedInvalid");
             return false;
@@ -1169,9 +1195,9 @@ impl State {
             return false;
         };
         if *index == 1 {
-            speed.min_bpm = value;
+            speed.min_bpm = value.clamp(1,speed.max_bpm.clamp(1,1000));
         } else {
-            speed.max_bpm = value;
+            speed.max_bpm = value.clamp(speed.min_bpm.clamp(1,1000),1000);
         }
         draft.travel_input = None;
         true
@@ -1185,6 +1211,9 @@ impl State {
             }
             self.status = i18n::tr("Edition", "ProfileSpeedDiscarded");
             return;
+        }
+        if !self.profile_edit.as_ref().is_some_and(|draft|draft.editor.source_travel_speed_enabled()){
+            self.status=i18n::tr("Edition","ProfileControlUnavailable");return;
         }
         if !self.control && matches!(index, 1 | 2) {
             if let Some(draft) = self.profile_edit.as_mut() {
@@ -1262,11 +1291,8 @@ impl State {
             speed.subdivision_index = (speed.subdivision_index + if forward { 1 } else { 8 }) % 9;
         }
         if matches!(index, 1 | 2) && code != KeyCode::Enter {
-            let value = if index == 1 {
-                &mut speed.min_bpm
-            } else {
-                &mut speed.max_bpm
-            };
+            let (minimum,maximum)=if index==1{(1,speed.max_bpm.clamp(1,1000))}else{(speed.min_bpm.clamp(1,1000),1000)};
+            let value = if index == 1 {&mut speed.min_bpm} else {&mut speed.max_bpm};
             *value = value
                 .saturating_add(if forward {
                     if self.shift { 10 } else { 1 }
@@ -1275,10 +1301,16 @@ impl State {
                 } else {
                     -1
                 })
-                .clamp(1, 1000);
+                .clamp(minimum,maximum);
         }
     }
-    pub(super) fn profile_speed_label(&self, index: usize, key: &str) -> std::sync::Arc<str> {
+    pub(super) fn profile_speed_label(&self,index:usize,key:&str)->std::sync::Arc<str>{
+        let label=self.profile_speed_label_value(index,key);
+        if matches!(index,0|1|2|5)&&self.profile_edit.as_ref().is_some_and(|draft|!draft.editor.source_travel_speed_enabled()){
+            i18n::tr_fmt("Edition","ProfileControlInactive",&[("value",&label)])
+        }else{label}
+    }
+    fn profile_speed_label_value(&self, index: usize, key: &str) -> std::sync::Arc<str> {
         let Some(draft) = self.profile_edit.as_ref() else {
             return i18n::tr("Edition", key);
         };
@@ -1345,7 +1377,7 @@ impl State {
                 self.status = i18n::tr("Edition", "ProfileDefaultsStaged");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
             }
         }
     }
@@ -1409,7 +1441,7 @@ impl State {
                 }
                 Err(error) => {
                     self.status =
-                        i18n::tr_fmt("Edition", "Error", &[("message", &error.to_string())])
+                        i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
                 }
             }
         }
@@ -1436,3 +1468,128 @@ impl State {
         i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
 }
+
+#[cfg(test)]
+mod global_profile_history_tests {
+    use super::*;
+    use deadlib_platform::input::RawKeyboardEvent;
+    use deadsync_editor::workspace::Command;
+    fn poll(state:&mut State){let deadline=std::time::Instant::now()+std::time::Duration::from_secs(5);while state.catalog_job.is_some(){assert!(std::time::Instant::now()<deadline,"profile catalog did not complete");state.poll_profile_catalog();std::thread::yield_now();}assert!(state.profile_selection.is_some(),"{}",state.status);}
+    fn edit_custom(state:&mut State){state.open_conversion_profiles();poll(state);let settings=state.profile_selection.as_mut().unwrap();let index=settings.catalog.entries(Kind::Expressed).iter().position(|entry|entry.guid.to_string()=="12345678-9abc-4def-8123-456789abcdef").unwrap();settings.expressed=Some(index+1);state.open_profile_edit(Kind::Expressed,Panel::ConversionProfiles(0));assert!(state.profile_edit.is_some());}
+    fn press(state:&mut State,code:KeyCode){for pressed in [true,false]{state.raw_key(&RawKeyboardEvent{code,pressed,repeat:false,timestamp:std::time::Instant::now(),host_nanos:0});}}
+    #[test]
+    fn original_profile_save_and_f7_f8_share_the_global_note_history_cursor_en_fr(){
+        for language in ["en","fr"]{
+            i18n::init(deadsync_assets::language::load_for_tests(language));i18n::set_locale(deadsync_assets::language::load_for_tests(language));
+            let root=tempfile::tempdir().unwrap();let song=root.path().join("song.ssc");let profile=root.path().join("ecc-global.json");let original=br#"{ "Guid":"12345678-9abc-4def-8123-456789abcdef", "Name":"Original", "Future":1e999, "Config":{} }
+"#;std::fs::write(&profile,original).unwrap();std::fs::write(&song,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;").unwrap();
+            let mut state=State::open_with_profiles(&song,0,root.path()).unwrap();let clean=state.workspace.file().session.serialize().unwrap();state.command(Command::Place(0));let note=state.workspace.file().session.serialize().unwrap();assert_ne!(note,clean);let content=state.workspace.file().session.content_revision();
+            edit_custom(&mut state);state.profile_edit.as_mut().unwrap().name=Some("Changed".into());state.save_profile(false);poll(&mut state);let changed=std::fs::read(&profile).unwrap();assert_ne!(changed,original);assert_eq!(state.workspace.file().session.content_revision(),content);assert_eq!(state.workspace.file().session.serialize().unwrap(),note);
+            state.panel=None;state.command(Command::Undo);assert_eq!(std::fs::read(&profile).unwrap(),original);assert_eq!(state.workspace.file().session.serialize().unwrap(),note);state.command(Command::Undo);assert_eq!(state.workspace.file().session.serialize().unwrap(),clean);assert!(!state.workspace.file().session.is_dirty());state.command(Command::Redo);state.command(Command::Redo);assert_eq!(std::fs::read(&profile).unwrap(),changed);
+            edit_custom(&mut state);press(&mut state,KeyCode::F7);poll(&mut state);assert_eq!(std::fs::read(&profile).unwrap(),original);assert_eq!(state.workspace.file().session.serialize().unwrap(),note);let revision=state.workspace.file().session.revision();edit_custom(&mut state);press(&mut state,KeyCode::F8);poll(&mut state);assert_ne!(state.workspace.file().session.revision(),revision);assert_eq!(std::fs::read(&profile).unwrap(),changed);
+            // Pending native inspector edits are not silently discarded by F7.
+            edit_custom(&mut state);state.profile_edit.as_mut().unwrap().name=Some("Pending".into());let revision=state.workspace.file().session.revision();press(&mut state,KeyCode::F7);assert_eq!(state.workspace.file().session.revision(),revision);assert_eq!(std::fs::read(&profile).unwrap(),changed);press(&mut state,KeyCode::Escape);assert!(state.profile_edit.is_none());assert_eq!(std::fs::read(&profile).unwrap(),changed);
+        }
+    }
+    #[test]
+    fn stale_save_original_keeps_pending_draft_global_history_and_external_profile(){
+        i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let song=root.path().join("song.ssc");let profile=root.path().join("ecc-global.json");std::fs::write(&profile,br#"{"Guid":"12345678-9abc-4def-8123-456789abcdef","Name":"Original","Config":{}}"#).unwrap();std::fs::write(&song,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;").unwrap();let mut state=State::open_with_profiles(&song,0,root.path()).unwrap();edit_custom(&mut state);state.profile_edit.as_mut().unwrap().name=Some("Pending".into());let before=state.workspace.file().session.serialize().unwrap();let revision=state.workspace.file().session.revision();std::fs::write(&profile,b"external writer").unwrap();state.save_profile(false);assert!(state.profile_edit.is_some());assert_eq!(state.profile_edit.as_ref().unwrap().name.as_deref(),Some("Pending"));assert_eq!(state.workspace.file().session.revision(),revision);assert_eq!(state.workspace.file().session.serialize().unwrap(),before);assert_eq!(std::fs::read(&profile).unwrap(),b"external writer");assert!(state.workspace.file().session.undo_label().is_none());
+    }
+}
+
+#[cfg(test)]
+mod explicit_profile_export_tests {
+    use super::*;
+    #[test]
+    fn explicit_export_uses_no_clobber_and_keeps_inspector_and_song_history_en_fr(){
+        for language in ["en","fr"]{
+            i18n::init(deadsync_assets::language::load_for_tests(language));i18n::set_locale(deadsync_assets::language::load_for_tests(language));let root=tempfile::tempdir().unwrap();let song=root.path().join("song.ssc");std::fs::write(&song,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();let original=root.path().join("ecc-original.json");std::fs::write(&original,br#"{"Guid":"12345678-9abc-4def-8123-456789abcdef","Name":"Original","Config":{}}"#).unwrap();let mut state=State::open_with_profiles(&song,0,root.path()).unwrap();state.open_conversion_profiles();let deadline=std::time::Instant::now()+std::time::Duration::from_secs(5);while state.catalog_job.is_some(){assert!(std::time::Instant::now()<deadline);state.poll_profile_catalog();std::thread::yield_now();}let settings=state.profile_selection.as_mut().unwrap();let index=settings.catalog.entries(Kind::Expressed).iter().position(|entry|entry.guid.to_string()=="12345678-9abc-4def-8123-456789abcdef").unwrap();settings.expressed=Some(index+1);state.open_profile_edit(Kind::Expressed,Panel::ConversionProfiles(0));state.profile_edit.as_mut().unwrap().name=Some("Exported copy".into());let before=state.workspace.file().session.serialize().unwrap();let revision=state.workspace.file().session.revision();let output=root.path().join("ecc-export.json");std::fs::write(&output,b"existing export").unwrap();state.finish_profile_transfer(TextField::ExportPath,output.to_str().unwrap());assert_eq!(std::fs::read(&output).unwrap(),b"existing export");assert!(state.profile_edit.is_some());assert_eq!(state.workspace.file().session.revision(),revision);std::fs::remove_file(&output).unwrap();state.finish_profile_transfer(TextField::ExportPath,output.to_str().unwrap());let exported=Profile::parse(Kind::Expressed,&std::fs::read(&output).unwrap()).unwrap();assert_eq!(exported.name(),Some("Exported copy"));assert_eq!(state.workspace.file().session.revision(),revision);assert_eq!(state.workspace.file().session.serialize().unwrap(),before);assert!(state.workspace.file().session.undo_label().is_none());assert!(state.profile_edit.is_some());assert!(matches!(state.panel,Some(Panel::ProfileEdit(_))));
+        }
+    }
+}
+
+#[cfg(test)]
+mod source_bounded_input_tests{
+    use super::*;
+    fn poll(state:&mut State){let deadline=std::time::Instant::now()+std::time::Duration::from_secs(5);while state.catalog_job.is_some(){assert!(std::time::Instant::now()<deadline);state.poll_profile_catalog();std::thread::yield_now();}assert!(state.profile_selection.is_some(),"{}",state.status);}
+    #[test]
+    fn actual_inspector_stage_clamps_source_text_and_travel_range_before_save_en_fr(){
+        for language in ["en","fr"]{
+            i18n::init(deadsync_assets::language::load_for_tests(language));i18n::set_locale(deadsync_assets::language::load_for_tests(language));let root=tempfile::tempdir().unwrap();let song=root.path().join("song.ssc");let path=root.path().join("pcc-source-input.json");std::fs::write(&song,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();let json=format!(r#"{{"Guid":"12345678-9abc-4def-8123-456789abcdef","Name":"Original","TravelSpeedNoteTypeDenominatorIndex":3,"TravelSpeedMinBPM":125,"TravelSpeedMaxBPM":170,"Config":{}}}"#,Config::editor_defaults(Kind::Performed).json().unwrap());std::fs::write(&path,json).unwrap();let mut state=State::open_with_profiles(&song,0,root.path()).unwrap();let before=state.workspace.file().session.serialize().unwrap();state.open_conversion_profiles();poll(&mut state);let settings=state.profile_selection.as_mut().unwrap();let i=settings.catalog.entries(Kind::Performed).iter().position(|entry|entry.guid.to_string()=="12345678-9abc-4def-8123-456789abcdef").unwrap();settings.performed=Some(i+1);state.open_profile_edit(Kind::Performed,Panel::ConversionProfiles(0));
+            let draft=state.profile_edit.as_mut().unwrap();let index=draft.editor.fields().iter().position(|f|f.path()==["Facing".to_owned(),"InwardPercentageCutoff".to_owned()]).unwrap();draft.input=Some((index,"1.34".into()));state.profile_edit_key(index,KeyCode::ArrowDown);assert_eq!(state.profile_edit.as_ref().unwrap().editor.value(index).unwrap().as_f64(),Some(1.0));
+            state.open_profile_speed();state.profile_edit.as_mut().unwrap().travel_input=Some((1,"1001".into()));assert!(state.stage_speed_input());assert_eq!(state.profile_edit.as_ref().unwrap().travel_editor.unwrap().min_bpm,170);
+            let draft=state.profile_edit.as_mut().unwrap();draft.travel_editor=Some(TravelSpeed::editor_defaults());draft.travel_input=Some((2,"0".into()));assert!(state.stage_speed_input());assert_eq!(state.profile_edit.as_ref().unwrap().travel_editor.unwrap().max_bpm,125);state.profile_speed_key(5,KeyCode::Enter);state.save_profile(false);poll(&mut state);
+            let profile=deadsync_editor::generation::profiles::ProfileFile::open(&path).unwrap();let Config::Performed(config)=profile.profile().config()else{panic!()};assert_eq!(config.facing.inward_percentage_cutoff,1.0);let speed=profile.profile().travel_speed().unwrap();assert_eq!((speed.min_bpm,speed.max_bpm),(125,125));assert_eq!(config.step_tightening.speed_min_time_seconds,120.0/(4.0*125.0));assert_eq!(config.step_tightening.speed_max_time_seconds,120.0/(4.0*125.0));assert_eq!(state.workspace.file().session.serialize().unwrap(),before);assert!(!state.workspace.file().session.is_dirty());
+        }
+    }
+}
+
+#[cfg(test)]
+mod application_manager_tests {
+    use super::*;
+    use super::super::*;
+    use deadsync_editor::generation::profiles::Kind;
+    fn wait(state:&mut State){
+        let deadline=std::time::Instant::now()+std::time::Duration::from_secs(5);
+        while state.catalog_job.is_some(){assert!(std::time::Instant::now()<deadline);state.poll_profile_catalog();std::thread::yield_now();}
+        assert!(state.profile_selection.is_some(),"{}",state.status);
+    }
+    fn selected(state:&State,kind:Kind)->Guid{
+        let s=state.profile_selection.as_ref().unwrap();
+        let index=match kind{Kind::Pattern=>s.pattern,Kind::Performed=>s.performed,Kind::Expressed=>s.expressed}.unwrap();
+        s.catalog.entries(kind)[index].guid.clone()
+    }
+    fn edit(state:&mut State,kind:Kind){
+        let row=match kind{Kind::Pattern=>0,Kind::Performed=>1,Kind::Expressed=>2};
+        state.panel=Some(Panel::Profiles(row));state.panel_key(KeyCode::KeyE);assert!(state.profile_edit.is_some());
+    }
+    #[test]
+    fn global_manager_all_kinds_without_or_with_song_uses_real_crud_and_global_history(){
+        for song in [false,true] {
+            crate::i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let path=root.path().join("song.ssc");
+            std::fs::write(&path,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;").unwrap();
+            let mut state=if song{State::open(&path,0).unwrap()}else{State::without_song(root.path()).unwrap()};
+            state.profile_directory=Some(root.path().to_owned());
+            let bytes=state.workspace.file().session.serialize().unwrap();let chart=state.workspace.has_chart().then(||state.workspace.chart());let position=state.playback_position();
+            let profiles=state.generation.profiles.clone();
+            // The actual two entry menus, with no fabricated chart prerequisite.
+            state.panel=Some(if song{Panel::Menu(34)}else{Panel::FileMenu(17)});state.panel_key(KeyCode::Enter);wait(&mut state);
+            assert!(matches!(state.catalog_target,ProfileTarget::Application));assert!(matches!(state.panel,Some(Panel::Profiles(0))));
+            for kind in [Kind::Pattern,Kind::Performed,Kind::Expressed] {
+                let row=match kind{Kind::Pattern=>0,Kind::Performed=>1,Kind::Expressed=>2};state.panel=Some(Panel::Profiles(row));state.panel_key(KeyCode::KeyN);wait(&mut state);
+                assert!(state.profile_edit.is_some(),"{kind:?}, song={song}: {}",state.status);assert_eq!(state.profile_edit.as_ref().unwrap().profile.config(),&Config::editor_defaults(kind));
+                state.profile_edit.as_mut().unwrap().name=Some(format!("Global {kind:?}"));state.save_profile(true);wait(&mut state);
+                let id=selected(&state,kind);let captured=state.profile_selection.as_ref().unwrap().catalog.profile_file_in(&state.workspace.file().session,profile_catalog::Context::Application,kind,&id).unwrap();
+                let file=captured.path().to_owned();let original=std::fs::read(&file).unwrap();
+                edit(&mut state,kind);state.profile_edit.as_mut().unwrap().name=Some("Edited globally".into());state.save_profile(false);wait(&mut state);
+                let changed=std::fs::read(&file).unwrap();assert_ne!(changed,original);
+                edit(&mut state,kind);state.panel_key(KeyCode::F7);wait(&mut state);assert_eq!(std::fs::read(&file).unwrap(),original);
+                edit(&mut state,kind);state.panel_key(KeyCode::F8);wait(&mut state);assert_eq!(std::fs::read(&file).unwrap(),changed);
+                edit(&mut state,kind);state.profile_delete_key(1,KeyCode::Enter);assert!(!file.exists());
+                state.command(Command::Undo);assert_eq!(std::fs::read(&file).unwrap(),changed);
+                state.command(Command::Redo);assert!(!file.exists());state.command(Command::Undo);assert_eq!(std::fs::read(&file).unwrap(),changed);
+                state.open_profile_manager();wait(&mut state);
+                assert_eq!(state.workspace.file().session.serialize().unwrap(),bytes);assert!(!state.workspace.file().session.is_dirty());assert_eq!(state.generation.profiles,profiles);
+            }
+            assert_eq!(state.workspace.has_chart().then(||state.workspace.chart()),chart);assert_eq!(state.playback_position(),position);
+            if song {
+                state.profile_edit=None;state.profile_selection=None;state.panel=None;state.command_file_close();
+                assert!(!state.has_song());assert!(state.workspace.file().session.undo_label().is_none(),"CloseSong resets source ActionQueue");
+                state.panel=Some(Panel::FileMenu(17));state.panel_key(KeyCode::Enter);wait(&mut state);
+                for kind in [Kind::Pattern,Kind::Performed,Kind::Expressed]{assert!(state.profile_selection.as_ref().unwrap().catalog.entries(kind).iter().any(|entry|entry.name.as_deref()==Some("Edited globally")));}
+            } else {assert!(state.workspace.file().session.document().charts().is_empty());}
+        }
+    }
+    #[test]
+    fn application_catalog_stale_and_external_profile_change_preserve_pending_draft(){
+        crate::i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let mut state=State::without_song(root.path()).unwrap();state.profile_directory=Some(root.path().to_owned());state.open_profile_manager();wait(&mut state);
+        edit(&mut state,Kind::Expressed);state.save_profile(true);wait(&mut state);let id=selected(&state,Kind::Expressed);
+        let file=state.profile_selection.as_ref().unwrap().catalog.profile_file_in(&state.workspace.file().session,profile_catalog::Context::Application,Kind::Expressed,&id).unwrap().path().to_owned();
+        edit(&mut state,Kind::Expressed);state.profile_edit.as_mut().unwrap().name=Some("Pending".into());let revision=state.workspace.file().session.revision();std::fs::write(&file,b"external writer").unwrap();state.save_profile(false);
+        assert!(state.profile_edit.is_some());assert_eq!(state.workspace.file().session.revision(),revision);assert_eq!(std::fs::read(&file).unwrap(),b"external writer");
+        let old=state.profile_selection.take().unwrap().catalog;state.workspace=Workspace::new_song(root.path(),0.009).unwrap();assert!(!state.profile_catalog_current(&old));
+    }
+}
+
+#[cfg(test)]
+mod source_gates;

@@ -1,0 +1,5726 @@
+[
+  {
+    "name": "geometry-90",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": 90, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": 10, \"LeftSideOfWindow\": 10, \"FocusedChartWithoutScaling\": 10, \"FocusedChartWithScaling\": 10, \"TopOfFocusedChart\": 10, \"BottomOfFocusedChart\": 10}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": -10, \"LeftSideOfWindow\": -10, \"FocusedChartWithoutScaling\": -10, \"FocusedChartWithScaling\": -10, \"TopOfFocusedChart\": -10, \"BottomOfFocusedChart\": -10}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 10,
+          "FocusedChartWithScaling": 10,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": -10,
+          "BottomOfFocusedChart": -10
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1190,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1190,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 610,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 660,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 70,
+        "width": 0,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 110,
+        "y": 70,
+        "width": 380,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 640,
+        "width": 0,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 110,
+        "y": 640,
+        "width": 380,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1140,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1140,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 615,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 665,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 75,
+        "width": 0,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 115,
+        "y": 75,
+        "width": 370,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 590,
+        "width": 0,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 115,
+        "y": 590,
+        "width": 370,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 490,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 490,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 680,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 730,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 140,
+        "width": 0,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 180,
+        "y": 140,
+        "width": 240,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": -60,
+        "width": 0,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 180,
+        "y": -60,
+        "width": 240,
+        "height": 720,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      64,
+      164,
+      106,
+      255
+    ],
+    "high": [
+      179,
+      71,
+      71,
+      255
+    ],
+    "background": [
+      30,
+      30,
+      30,
+      255
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          64,
+          164,
+          106,
+          255
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          92,
+          140,
+          97,
+          255
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          121,
+          117,
+          88,
+          255
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          150,
+          94,
+          79,
+          255
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          179,
+          71,
+          71,
+          255
+        ]
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "geometry-0",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": 0, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": 0, \"LeftSideOfWindow\": 0, \"FocusedChartWithoutScaling\": 0, \"FocusedChartWithScaling\": 0, \"TopOfFocusedChart\": 0, \"BottomOfFocusedChart\": 0}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": 0, \"LeftSideOfWindow\": 0, \"FocusedChartWithoutScaling\": 0, \"FocusedChartWithScaling\": 0, \"TopOfFocusedChart\": 0, \"BottomOfFocusedChart\": 0}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 0,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 0,
+          "LeftSideOfWindow": 0,
+          "FocusedChartWithoutScaling": 0,
+          "FocusedChartWithScaling": 0,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": 0,
+          "LeftSideOfWindow": 0,
+          "FocusedChartWithoutScaling": 0,
+          "FocusedChartWithScaling": 0,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 10,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 10,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 600,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 650,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 60,
+        "width": 0,
+        "height": 0,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 60,
+        "width": 400,
+        "height": 0,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 740,
+        "width": 0,
+        "height": 0,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": 740,
+        "width": 400,
+        "height": 0,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 10,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 10,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 600,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 650,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 60,
+        "width": 0,
+        "height": 0,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 60,
+        "width": 400,
+        "height": 0,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 740,
+        "width": 0,
+        "height": 0,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": 740,
+        "width": 400,
+        "height": 0,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 10,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 10,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 600,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 650,
+        "y": 60,
+        "width": 0,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 60,
+        "width": 0,
+        "height": 0,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 60,
+        "width": 400,
+        "height": 0,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 740,
+        "width": 0,
+        "height": 0,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": 740,
+        "width": 400,
+        "height": 0,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      64,
+      164,
+      106,
+      255
+    ],
+    "high": [
+      179,
+      71,
+      71,
+      255
+    ],
+    "background": [
+      30,
+      30,
+      30,
+      255
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          64,
+          164,
+          106,
+          255
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          92,
+          140,
+          97,
+          255
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          121,
+          117,
+          88,
+          255
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          150,
+          94,
+          79,
+          255
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          179,
+          71,
+          71,
+          255
+        ]
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "geometry-1",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": 1, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": 10, \"LeftSideOfWindow\": 10, \"FocusedChartWithoutScaling\": 10, \"FocusedChartWithScaling\": 10, \"TopOfFocusedChart\": 10, \"BottomOfFocusedChart\": 10}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": -10, \"LeftSideOfWindow\": -10, \"FocusedChartWithoutScaling\": -10, \"FocusedChartWithScaling\": -10, \"TopOfFocusedChart\": -10, \"BottomOfFocusedChart\": -10}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 1,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 10,
+          "FocusedChartWithScaling": 10,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": -10,
+          "BottomOfFocusedChart": -10
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1279,
+        "y": 70,
+        "width": 1,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1279,
+        "y": 70,
+        "width": 1,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 1,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 1,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 70,
+        "width": 1,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 610,
+        "y": 70,
+        "width": 1,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 70,
+        "width": 1,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 660,
+        "y": 70,
+        "width": 1,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 70,
+        "width": 0,
+        "height": 1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 110,
+        "y": 70,
+        "width": 380,
+        "height": 1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 729,
+        "width": 0,
+        "height": 1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 110,
+        "y": 729,
+        "width": 380,
+        "height": 1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1274,
+        "y": 75,
+        "width": 1,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1274,
+        "y": 75,
+        "width": 1,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 1,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 1,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 75,
+        "width": 1,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 615,
+        "y": 75,
+        "width": 1,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 75,
+        "width": 1,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 665,
+        "y": 75,
+        "width": 1,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 75,
+        "width": 0,
+        "height": 1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 115,
+        "y": 75,
+        "width": 370,
+        "height": 1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 724,
+        "width": 0,
+        "height": 1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 115,
+        "y": 724,
+        "width": 370,
+        "height": 1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1202,
+        "y": 140,
+        "width": 8,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1202,
+        "y": 140,
+        "width": 8,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 8,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 8,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 140,
+        "width": 8,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 680,
+        "y": 140,
+        "width": 8,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 140,
+        "width": 8,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 730,
+        "y": 140,
+        "width": 8,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 140,
+        "width": 0,
+        "height": 8,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 180,
+        "y": 140,
+        "width": 240,
+        "height": 8,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 652,
+        "width": 0,
+        "height": 8,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 180,
+        "y": 652,
+        "width": 240,
+        "height": 8,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      64,
+      164,
+      106,
+      255
+    ],
+    "high": [
+      179,
+      71,
+      71,
+      255
+    ],
+    "background": [
+      30,
+      30,
+      30,
+      255
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          64,
+          164,
+          106,
+          255
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          92,
+          140,
+          97,
+          255
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          121,
+          117,
+          88,
+          255
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          150,
+          94,
+          79,
+          255
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          179,
+          71,
+          71,
+          255
+        ]
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "geometry-2",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": 2, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": 10, \"LeftSideOfWindow\": 10, \"FocusedChartWithoutScaling\": 10, \"FocusedChartWithScaling\": 10, \"TopOfFocusedChart\": 10, \"BottomOfFocusedChart\": 10}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": -10, \"LeftSideOfWindow\": -10, \"FocusedChartWithoutScaling\": -10, \"FocusedChartWithScaling\": -10, \"TopOfFocusedChart\": -10, \"BottomOfFocusedChart\": -10}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 2,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 10,
+          "FocusedChartWithScaling": 10,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": -10,
+          "BottomOfFocusedChart": -10
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1278,
+        "y": 70,
+        "width": 2,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1278,
+        "y": 70,
+        "width": 2,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 2,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 2,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 70,
+        "width": 2,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 610,
+        "y": 70,
+        "width": 2,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 70,
+        "width": 2,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 660,
+        "y": 70,
+        "width": 2,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 70,
+        "width": 0,
+        "height": 2,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 110,
+        "y": 70,
+        "width": 380,
+        "height": 2,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 728,
+        "width": 0,
+        "height": 2,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 110,
+        "y": 728,
+        "width": 380,
+        "height": 2,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1272,
+        "y": 75,
+        "width": 3,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1272,
+        "y": 75,
+        "width": 3,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 3,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 3,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 75,
+        "width": 3,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 615,
+        "y": 75,
+        "width": 3,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 75,
+        "width": 3,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 665,
+        "y": 75,
+        "width": 3,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 75,
+        "width": 0,
+        "height": 3,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 115,
+        "y": 75,
+        "width": 370,
+        "height": 3,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 722,
+        "width": 0,
+        "height": 3,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 115,
+        "y": 722,
+        "width": 370,
+        "height": 3,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1194,
+        "y": 140,
+        "width": 16,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1194,
+        "y": 140,
+        "width": 16,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 16,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 16,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 140,
+        "width": 16,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 680,
+        "y": 140,
+        "width": 16,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 140,
+        "width": 16,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 730,
+        "y": 140,
+        "width": 16,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 140,
+        "width": 0,
+        "height": 16,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 180,
+        "y": 140,
+        "width": 240,
+        "height": 16,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 644,
+        "width": 0,
+        "height": 16,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 180,
+        "y": 644,
+        "width": 240,
+        "height": 16,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      64,
+      164,
+      106,
+      255
+    ],
+    "high": [
+      179,
+      71,
+      71,
+      255
+    ],
+    "background": [
+      30,
+      30,
+      30,
+      255
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          64,
+          164,
+          106,
+          255
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          92,
+          140,
+          97,
+          255
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          121,
+          117,
+          88,
+          255
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          150,
+          94,
+          79,
+          255
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          179,
+          71,
+          71,
+          255
+        ]
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "geometry--1",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": -1, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": -2048, \"LeftSideOfWindow\": -2048, \"FocusedChartWithoutScaling\": -2048, \"FocusedChartWithScaling\": -2048, \"TopOfFocusedChart\": -2048, \"BottomOfFocusedChart\": -2048}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": 2048, \"LeftSideOfWindow\": 2048, \"FocusedChartWithoutScaling\": 2048, \"FocusedChartWithScaling\": 2048, \"TopOfFocusedChart\": 2048, \"BottomOfFocusedChart\": 2048}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": -1,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": -2048,
+          "LeftSideOfWindow": -2048,
+          "FocusedChartWithoutScaling": -2048,
+          "FocusedChartWithScaling": -2048,
+          "TopOfFocusedChart": -2048,
+          "BottomOfFocusedChart": -2048
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": 2048,
+          "LeftSideOfWindow": 2048,
+          "FocusedChartWithoutScaling": 2048,
+          "FocusedChartWithScaling": 2048,
+          "TopOfFocusedChart": 2048,
+          "BottomOfFocusedChart": 2048
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 3339,
+        "y": -1988,
+        "width": -1,
+        "height": 4776,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 3339,
+        "y": -1988,
+        "width": -1,
+        "height": 4776,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": -2038,
+        "y": -1988,
+        "width": -1,
+        "height": 4776,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": -2038,
+        "y": -1988,
+        "width": -1,
+        "height": 4776,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": -1988,
+        "width": -1,
+        "height": 4776,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": -1448,
+        "y": -1988,
+        "width": -1,
+        "height": 4776,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": -1988,
+        "width": -1,
+        "height": 4776,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": -1398,
+        "y": -1988,
+        "width": -1,
+        "height": 4776,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": -1988,
+        "width": 0,
+        "height": -1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": -1948,
+        "y": -1988,
+        "width": 4496,
+        "height": -1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 2789,
+        "width": 0,
+        "height": -1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": -1948,
+        "y": 2789,
+        "width": 4496,
+        "height": -1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 4363,
+        "y": -3012,
+        "width": -1,
+        "height": 6824,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 4363,
+        "y": -3012,
+        "width": -1,
+        "height": 6824,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": -3062,
+        "y": -3012,
+        "width": -1,
+        "height": 6824,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": -3062,
+        "y": -3012,
+        "width": -1,
+        "height": 6824,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": -3012,
+        "width": -1,
+        "height": 6824,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": -2472,
+        "y": -3012,
+        "width": -1,
+        "height": 6824,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": -3012,
+        "width": -1,
+        "height": 6824,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": -2422,
+        "y": -3012,
+        "width": -1,
+        "height": 6824,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": -3012,
+        "width": 0,
+        "height": -1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": -2972,
+        "y": -3012,
+        "width": 6544,
+        "height": -1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 3813,
+        "width": 0,
+        "height": -1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": -2972,
+        "y": 3813,
+        "width": 6544,
+        "height": -1,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 17682,
+        "y": -16324,
+        "width": -8,
+        "height": 33448,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 17682,
+        "y": -16324,
+        "width": -8,
+        "height": 33448,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": -16374,
+        "y": -16324,
+        "width": -8,
+        "height": 33448,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": -16374,
+        "y": -16324,
+        "width": -8,
+        "height": 33448,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": -16324,
+        "width": -8,
+        "height": 33448,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": -15784,
+        "y": -16324,
+        "width": -8,
+        "height": 33448,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": -16324,
+        "width": -8,
+        "height": 33448,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": -15734,
+        "y": -16324,
+        "width": -8,
+        "height": 33448,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": -16324,
+        "width": 0,
+        "height": -8,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": -16284,
+        "y": -16324,
+        "width": 33168,
+        "height": -8,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 17132,
+        "width": 0,
+        "height": -8,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": -16284,
+        "y": 17132,
+        "width": 33168,
+        "height": -8,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      64,
+      164,
+      106,
+      255
+    ],
+    "high": [
+      179,
+      71,
+      71,
+      255
+    ],
+    "background": [
+      30,
+      30,
+      30,
+      255
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          64,
+          164,
+          106,
+          255
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          92,
+          140,
+          97,
+          255
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          121,
+          117,
+          88,
+          255
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          150,
+          94,
+          79,
+          255
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          179,
+          71,
+          71,
+          255
+        ]
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "geometry-2048",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": 2048, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": 2048, \"LeftSideOfWindow\": 2048, \"FocusedChartWithoutScaling\": 2048, \"FocusedChartWithScaling\": 2048, \"TopOfFocusedChart\": 2048, \"BottomOfFocusedChart\": 2048}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": -2048, \"LeftSideOfWindow\": -2048, \"FocusedChartWithoutScaling\": -2048, \"FocusedChartWithScaling\": -2048, \"TopOfFocusedChart\": -2048, \"BottomOfFocusedChart\": -2048}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 2048,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 2048,
+          "LeftSideOfWindow": 2048,
+          "FocusedChartWithoutScaling": 2048,
+          "FocusedChartWithScaling": 2048,
+          "TopOfFocusedChart": 2048,
+          "BottomOfFocusedChart": 2048
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -2048,
+          "LeftSideOfWindow": -2048,
+          "FocusedChartWithoutScaling": -2048,
+          "FocusedChartWithScaling": -2048,
+          "TopOfFocusedChart": -2048,
+          "BottomOfFocusedChart": -2048
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": -2806,
+        "y": 2108,
+        "width": 2048,
+        "height": -3416,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": -2806,
+        "y": 2108,
+        "width": 2048,
+        "height": -3416,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 2058,
+        "y": 2108,
+        "width": 2048,
+        "height": -3416,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 2058,
+        "y": 2108,
+        "width": 2048,
+        "height": -3416,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 2108,
+        "width": 2048,
+        "height": -3416,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 2648,
+        "y": 2108,
+        "width": 2048,
+        "height": -3416,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 2108,
+        "width": 2048,
+        "height": -3416,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 2698,
+        "y": 2108,
+        "width": 2048,
+        "height": -3416,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 2108,
+        "width": 0,
+        "height": 2048,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 2148,
+        "y": 2108,
+        "width": -3696,
+        "height": 2048,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": -3356,
+        "width": 0,
+        "height": 2048,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 2148,
+        "y": -3356,
+        "width": -3696,
+        "height": 2048,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": -4854,
+        "y": 3132,
+        "width": 3072,
+        "height": -5464,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": -4854,
+        "y": 3132,
+        "width": 3072,
+        "height": -5464,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 3082,
+        "y": 3132,
+        "width": 3072,
+        "height": -5464,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 3082,
+        "y": 3132,
+        "width": 3072,
+        "height": -5464,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 3132,
+        "width": 3072,
+        "height": -5464,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 3672,
+        "y": 3132,
+        "width": 3072,
+        "height": -5464,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 3132,
+        "width": 3072,
+        "height": -5464,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 3722,
+        "y": 3132,
+        "width": 3072,
+        "height": -5464,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 3132,
+        "width": 0,
+        "height": 3072,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 3172,
+        "y": 3132,
+        "width": -5744,
+        "height": 3072,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": -5404,
+        "width": 0,
+        "height": 3072,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 3172,
+        "y": -5404,
+        "width": -5744,
+        "height": 3072,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": -31478,
+        "y": 16444,
+        "width": 16384,
+        "height": -32088,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": -31478,
+        "y": 16444,
+        "width": 16384,
+        "height": -32088,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 16394,
+        "y": 16444,
+        "width": 16384,
+        "height": -32088,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 16394,
+        "y": 16444,
+        "width": 16384,
+        "height": -32088,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 16444,
+        "width": 16384,
+        "height": -32088,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 16984,
+        "y": 16444,
+        "width": 16384,
+        "height": -32088,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 16444,
+        "width": 16384,
+        "height": -32088,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 17034,
+        "y": 16444,
+        "width": 16384,
+        "height": -32088,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 16444,
+        "width": 0,
+        "height": 16384,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 16484,
+        "y": 16444,
+        "width": -32368,
+        "height": 16384,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": -32028,
+        "width": 0,
+        "height": 16384,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 16484,
+        "y": -32028,
+        "width": -32368,
+        "height": 16384,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      64,
+      164,
+      106,
+      255
+    ],
+    "high": [
+      179,
+      71,
+      71,
+      255
+    ],
+    "background": [
+      30,
+      30,
+      30,
+      255
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          64,
+          164,
+          106,
+          255
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          92,
+          140,
+          97,
+          255
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          121,
+          117,
+          88,
+          255
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          150,
+          94,
+          79,
+          255
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          179,
+          71,
+          71,
+          255
+        ]
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "geometry-2147483647",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": 2147483647, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": 2147483647, \"LeftSideOfWindow\": 2147483647, \"FocusedChartWithoutScaling\": 2147483647, \"FocusedChartWithScaling\": 2147483647, \"TopOfFocusedChart\": 2147483647, \"BottomOfFocusedChart\": 2147483647}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": 2147483647, \"LeftSideOfWindow\": 2147483647, \"FocusedChartWithoutScaling\": 2147483647, \"FocusedChartWithScaling\": 2147483647, \"TopOfFocusedChart\": 2147483647, \"BottomOfFocusedChart\": 2147483647}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 2147483647,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 2147483647,
+          "LeftSideOfWindow": 2147483647,
+          "FocusedChartWithoutScaling": 2147483647,
+          "FocusedChartWithScaling": 2147483647,
+          "TopOfFocusedChart": 2147483647,
+          "BottomOfFocusedChart": 2147483647
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": 2147483647,
+          "LeftSideOfWindow": 2147483647,
+          "FocusedChartWithoutScaling": 2147483647,
+          "FocusedChartWithScaling": 2147483647,
+          "TopOfFocusedChart": 2147483647,
+          "BottomOfFocusedChart": 2147483647
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1292,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1292,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": -2147483639,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": -2147483639,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": -2147483049,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": -2147482999,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": -2147483589,
+        "width": 0,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": -2147483547,
+        "y": -2147483589,
+        "width": 398,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 742,
+        "width": 0,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": -2147483547,
+        "y": 742,
+        "width": 398,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1292,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1292,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": -2147483639,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": -2147483639,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": -2147483049,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": -2147482999,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": -2147483589,
+        "width": 0,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": -2147483547,
+        "y": -2147483589,
+        "width": 398,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 742,
+        "width": 0,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": -2147483547,
+        "y": 742,
+        "width": 398,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1292,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1292,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": -2147483639,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": -2147483639,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": -2147483049,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": -2147482999,
+        "y": -2147483587,
+        "width": 2147483647,
+        "height": 678,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": -2147483589,
+        "width": 0,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": -2147483547,
+        "y": -2147483589,
+        "width": 398,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 742,
+        "width": 0,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": -2147483547,
+        "y": 742,
+        "width": 398,
+        "height": 2147483647,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      64,
+      164,
+      106,
+      255
+    ],
+    "high": [
+      179,
+      71,
+      71,
+      255
+    ],
+    "background": [
+      30,
+      30,
+      30,
+      255
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          64,
+          164,
+          106,
+          255
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          92,
+          140,
+          97,
+          255
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          121,
+          117,
+          88,
+          255
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          150,
+          94,
+          79,
+          255
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          179,
+          71,
+          71,
+          255
+        ]
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "geometry--2147483648",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphHeight\": -2147483648, \"DensityGraphPositionOffsets\": {\"RightSideOfWindow\": -2147483648, \"LeftSideOfWindow\": -2147483648, \"FocusedChartWithoutScaling\": -2147483648, \"FocusedChartWithScaling\": -2147483648, \"TopOfFocusedChart\": -2147483648, \"BottomOfFocusedChart\": -2147483648}, \"DensityGraphWidthOffsets\": {\"RightSideOfWindow\": -2147483648, \"LeftSideOfWindow\": -2147483648, \"FocusedChartWithoutScaling\": -2147483648, \"FocusedChartWithScaling\": -2147483648, \"TopOfFocusedChart\": -2147483648, \"BottomOfFocusedChart\": -2147483648}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": -2147483648,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": -2147483648,
+          "LeftSideOfWindow": -2147483648,
+          "FocusedChartWithoutScaling": -2147483648,
+          "FocusedChartWithScaling": -2147483648,
+          "TopOfFocusedChart": -2147483648,
+          "BottomOfFocusedChart": -2147483648
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -2147483648,
+          "LeftSideOfWindow": -2147483648,
+          "FocusedChartWithoutScaling": -2147483648,
+          "FocusedChartWithScaling": -2147483648,
+          "TopOfFocusedChart": -2147483648,
+          "BottomOfFocusedChart": -2147483648
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": -2147483638,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": -2147483638,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": -2147483048,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": -2147482998,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": -2147483588,
+        "width": 0,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": -2147483548,
+        "y": -2147483588,
+        "width": 400,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 740,
+        "width": 0,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": -2147483548,
+        "y": 740,
+        "width": 400,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": -2147483638,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": -2147483638,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": -2147483048,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": -2147482998,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": -2147483588,
+        "width": 0,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": -2147483548,
+        "y": -2147483588,
+        "width": 400,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 740,
+        "width": 0,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": -2147483548,
+        "y": 740,
+        "width": 400,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1290,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": -2147483638,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": -2147483638,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": -2147483048,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": -2147482998,
+        "y": -2147483588,
+        "width": -2147483648,
+        "height": 680,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": -2147483588,
+        "width": 0,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": -2147483548,
+        "y": -2147483588,
+        "width": 400,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 740,
+        "width": 0,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": -2147483548,
+        "y": 740,
+        "width": 400,
+        "height": -2147483648,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      64,
+      164,
+      106,
+      255
+    ],
+    "high": [
+      179,
+      71,
+      71,
+      255
+    ],
+    "background": [
+      30,
+      30,
+      30,
+      255
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          64,
+          164,
+          106,
+          255
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          92,
+          140,
+          97,
+          255
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          121,
+          117,
+          88,
+          255
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          150,
+          94,
+          79,
+          255
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          179,
+          71,
+          71,
+          255
+        ]
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "palette-0",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphLowColor\": {\"X\": -2, \"Y\": 0.251, \"Z\": 2, \"W\": 0.5}, \"DensityGraphHighColor\": {\"X\": 1, \"Y\": 0.705, \"Z\": 0.282, \"W\": 2}, \"DensityGraphBackgroundColor\": {\"X\": 0.118, \"Y\": 0.118, \"Z\": 0.118, \"W\": 1}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": -2,
+          "Y": 0.251,
+          "Z": 2,
+          "W": 0.5
+        },
+        "DensityGraphHighColor": {
+          "X": 1,
+          "Y": 0.705,
+          "Z": 0.282,
+          "W": 2
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1190,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1190,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 710,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 760,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 70,
+        "width": 0,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 70,
+        "width": 400,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 640,
+        "width": 0,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": 640,
+        "width": 400,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1140,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1140,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 765,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 815,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 75,
+        "width": 0,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 75,
+        "width": 400,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 590,
+        "width": 0,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": 590,
+        "width": 400,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 490,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 490,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 1480,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 1530,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 140,
+        "width": 0,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 140,
+        "width": 400,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": -60,
+        "width": 0,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": -60,
+        "width": 400,
+        "height": 720,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      0,
+      64,
+      255,
+      127
+    ],
+    "high": [
+      255,
+      179,
+      71,
+      255
+    ],
+    "background": [
+      30,
+      30,
+      30,
+      255
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          0,
+          64,
+          255,
+          127
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          63,
+          92,
+          209,
+          159
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          127,
+          121,
+          163,
+          191
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          191,
+          150,
+          117,
+          223
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          255,
+          179,
+          71,
+          255
+        ]
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "palette-1",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphLowColor\": {\"X\": 3.4028234663852886e+38, \"Y\": -3.4028234663852886e+38, \"Z\": 0.99999994, \"W\": 0}, \"DensityGraphHighColor\": {\"X\": 0, \"Y\": 0.5, \"Z\": 0.25, \"W\": 1}, \"DensityGraphBackgroundColor\": {\"X\": 2, \"Y\": -1, \"Z\": 0.1, \"W\": 0.5}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 3.4028235e+38,
+          "Y": -3.4028235e+38,
+          "Z": 0.99999994,
+          "W": 0
+        },
+        "DensityGraphHighColor": {
+          "X": 0,
+          "Y": 0.5,
+          "Z": 0.25,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 2,
+          "Y": -1,
+          "Z": 0.1,
+          "W": 0.5
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1190,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1190,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 710,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 760,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 70,
+        "width": 0,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 70,
+        "width": 400,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 640,
+        "width": 0,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": 640,
+        "width": 400,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1140,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1140,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 765,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 815,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 75,
+        "width": 0,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 75,
+        "width": 400,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 590,
+        "width": 0,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": 590,
+        "width": 400,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 490,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 490,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 1480,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 1530,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 140,
+        "width": 0,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 140,
+        "width": 400,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": -60,
+        "width": 0,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": -60,
+        "width": 400,
+        "height": 720,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      255,
+      0,
+      254,
+      0
+    ],
+    "high": [
+      0,
+      127,
+      63,
+      255
+    ],
+    "background": [
+      255,
+      0,
+      25,
+      127
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          255,
+          0,
+          254,
+          0
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          191,
+          31,
+          206,
+          63
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          127,
+          63,
+          158,
+          127
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          63,
+          95,
+          110,
+          191
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          0,
+          127,
+          63,
+          255
+        ]
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "palette-2",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphLowColor\": {\"X\": 1e+20, \"Y\": -1e+20, \"Z\": 0.25, \"W\": 0.5}, \"DensityGraphHighColor\": {\"X\": -1e+20, \"Y\": 1e+20, \"Z\": 0.75, \"W\": 0.25}, \"DensityGraphBackgroundColor\": {\"X\": 1e+20, \"Y\": -1e+20, \"Z\": 0.1, \"W\": 1}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 1e+20,
+          "Y": -1e+20,
+          "Z": 0.25,
+          "W": 0.5
+        },
+        "DensityGraphHighColor": {
+          "X": -1e+20,
+          "Y": 1e+20,
+          "Z": 0.75,
+          "W": 0.25
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 1e+20,
+          "Y": -1e+20,
+          "Z": 0.1,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1190,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1190,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 710,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 760,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 70,
+        "width": 0,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 70,
+        "width": 400,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 640,
+        "width": 0,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": 640,
+        "width": 400,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1140,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1140,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 765,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 815,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 75,
+        "width": 0,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 75,
+        "width": 400,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 590,
+        "width": 0,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": 590,
+        "width": 400,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 490,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 490,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 1480,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 1530,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 140,
+        "width": 0,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 140,
+        "width": 400,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": -60,
+        "width": 0,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": -60,
+        "width": 400,
+        "height": 720,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      255,
+      0,
+      63,
+      127
+    ],
+    "high": [
+      0,
+      255,
+      191,
+      63
+    ],
+    "background": [
+      255,
+      0,
+      25,
+      255
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          255,
+          0,
+          63,
+          127
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          191,
+          63,
+          95,
+          111
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          127,
+          127,
+          127,
+          95
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          63,
+          191,
+          159,
+          79
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          0,
+          255,
+          191,
+          63
+        ]
+      }
+    ],
+    "accepted": true
+  },
+  {
+    "name": "palette-3",
+    "raw": "{\"Player\": 3, \"PreferencesDensityGraph\": {\"DensityGraphLowColor\": {\"X\": 0.251, \"Y\": 0.647, \"Z\": 0.419, \"W\": 1}, \"DensityGraphHighColor\": {\"X\": 0.705, \"Y\": 0.282, \"Z\": 0.282, \"W\": 1}, \"DensityGraphBackgroundColor\": {\"X\": 0.118, \"Y\": 0.118, \"Z\": 0.118, \"W\": 1}}}",
+    "value": {
+      "PreferencesDensityGraph": {
+        "ShowDensityGraph": true,
+        "AccumulationType": "Step",
+        "DensityGraphColorModeValue": "ColorByHeight",
+        "DensityGraphLowColor": {
+          "X": 0.251,
+          "Y": 0.647,
+          "Z": 0.419,
+          "W": 1
+        },
+        "DensityGraphHighColor": {
+          "X": 0.705,
+          "Y": 0.282,
+          "Z": 0.282,
+          "W": 1
+        },
+        "DensityGraphBackgroundColor": {
+          "X": 0.118,
+          "Y": 0.118,
+          "Z": 0.118,
+          "W": 1
+        },
+        "ShowDensityGraphPreferencesWindow": false,
+        "ShowStream": true,
+        "DensityGraphPositionValue": "LeftSideOfWindow",
+        "DensityGraphHeight": 90,
+        "DensityGraphPositionOffsets": {
+          "RightSideOfWindow": 10,
+          "LeftSideOfWindow": 10,
+          "FocusedChartWithoutScaling": 110,
+          "FocusedChartWithScaling": 110,
+          "TopOfFocusedChart": 10,
+          "BottomOfFocusedChart": 10
+        },
+        "DensityGraphWidthOffsets": {
+          "RightSideOfWindow": -10,
+          "LeftSideOfWindow": -10,
+          "FocusedChartWithoutScaling": -10,
+          "FocusedChartWithScaling": -10,
+          "TopOfFocusedChart": 0,
+          "BottomOfFocusedChart": 0
+        }
+      }
+    },
+    "bounds": [
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1190,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1190,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 20,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 710,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 760,
+        "y": 70,
+        "width": 90,
+        "height": 660,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 70,
+        "width": 0,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 70,
+        "width": 400,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 640,
+        "width": 0,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": 640,
+        "width": 400,
+        "height": 90,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 1140,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 1140,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 25,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 765,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 815,
+        "y": 75,
+        "width": 135,
+        "height": 650,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 75,
+        "width": 0,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 75,
+        "width": 400,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": 590,
+        "width": 0,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 1.5,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": 590,
+        "width": 400,
+        "height": 135,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "RightSideOfWindow",
+        "x": 490,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "RightSideOfWindow",
+        "x": 490,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "LeftSideOfWindow",
+        "x": 90,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithoutScaling",
+        "x": 0,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithoutScaling",
+        "x": 1480,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "FocusedChartWithScaling",
+        "x": 0,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "FocusedChartWithScaling",
+        "x": 1530,
+        "y": 140,
+        "width": 720,
+        "height": 520,
+        "orientation": "Vertical"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "TopOfFocusedChart",
+        "x": 0,
+        "y": 140,
+        "width": 0,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "TopOfFocusedChart",
+        "x": 100,
+        "y": 140,
+        "width": 400,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": false,
+        "position": "BottomOfFocusedChart",
+        "x": 0,
+        "y": -60,
+        "width": 0,
+        "height": 720,
+        "orientation": "Horizontal"
+      },
+      {
+        "dpi": 8,
+        "focused": true,
+        "position": "BottomOfFocusedChart",
+        "x": 100,
+        "y": -60,
+        "width": 400,
+        "height": 720,
+        "orientation": "Horizontal"
+      }
+    ],
+    "low": [
+      64,
+      164,
+      106,
+      255
+    ],
+    "high": [
+      179,
+      71,
+      71,
+      255
+    ],
+    "background": [
+      30,
+      30,
+      30,
+      255
+    ],
+    "colors": [
+      {
+        "t": 0,
+        "bytes": [
+          64,
+          164,
+          106,
+          255
+        ]
+      },
+      {
+        "t": 0.25,
+        "bytes": [
+          92,
+          140,
+          97,
+          255
+        ]
+      },
+      {
+        "t": 0.5,
+        "bytes": [
+          121,
+          117,
+          88,
+          255
+        ]
+      },
+      {
+        "t": 0.75,
+        "bytes": [
+          150,
+          94,
+          79,
+          255
+        ]
+      },
+      {
+        "t": 1,
+        "bytes": [
+          179,
+          71,
+          71,
+          255
+        ]
+      }
+    ],
+    "accepted": true
+  }
+]

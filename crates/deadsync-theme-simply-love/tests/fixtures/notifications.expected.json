@@ -1,0 +1,272 @@
+{
+  "Updates": [
+    {
+      "Ftue": false,
+      "Suppress": false,
+      "Latest": "0.9",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": false,
+      "Suppress": false,
+      "Latest": "0.9",
+      "Url": "https://example.test/release",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": false,
+      "Suppress": false,
+      "Latest": "1.0",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": false,
+      "Suppress": false,
+      "Latest": "1.0",
+      "Url": "https://example.test/release",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": false,
+      "Suppress": false,
+      "Latest": "2.0",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": false,
+      "Suppress": false,
+      "Latest": "2.0",
+      "Url": "https://example.test/release",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": false,
+      "Suppress": true,
+      "Latest": "0.9",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": false,
+      "Suppress": true,
+      "Latest": "0.9",
+      "Url": "https://example.test/release",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": false,
+      "Suppress": true,
+      "Latest": "1.0",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": false,
+      "Suppress": true,
+      "Latest": "1.0",
+      "Url": "https://example.test/release",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": false,
+      "Suppress": true,
+      "Latest": "2.0",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": false,
+      "Suppress": true,
+      "Latest": "2.0",
+      "Url": "https://example.test/release",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": true,
+      "Suppress": false,
+      "Latest": "0.9",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": true,
+      "Suppress": false,
+      "Latest": "0.9",
+      "Url": "https://example.test/release",
+      "First": 0,
+      "Second": 1
+    },
+    {
+      "Ftue": true,
+      "Suppress": false,
+      "Latest": "1.0",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": true,
+      "Suppress": false,
+      "Latest": "1.0",
+      "Url": "https://example.test/release",
+      "First": 0,
+      "Second": 1
+    },
+    {
+      "Ftue": true,
+      "Suppress": false,
+      "Latest": "2.0",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": true,
+      "Suppress": false,
+      "Latest": "2.0",
+      "Url": "https://example.test/release",
+      "First": 1,
+      "Second": 1
+    },
+    {
+      "Ftue": true,
+      "Suppress": true,
+      "Latest": "0.9",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": true,
+      "Suppress": true,
+      "Latest": "0.9",
+      "Url": "https://example.test/release",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": true,
+      "Suppress": true,
+      "Latest": "1.0",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": true,
+      "Suppress": true,
+      "Latest": "1.0",
+      "Url": "https://example.test/release",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": true,
+      "Suppress": true,
+      "Latest": "2.0",
+      "Url": "",
+      "First": 0,
+      "Second": 0
+    },
+    {
+      "Ftue": true,
+      "Suppress": true,
+      "Latest": "2.0",
+      "Url": "https://example.test/release",
+      "First": 0,
+      "Second": 0
+    }
+  ],
+  "Packs": [
+    {
+      "Saving": false,
+      "Seconds": 0,
+      "Shown": 0
+    },
+    {
+      "Saving": false,
+      "Seconds": 2.999,
+      "Shown": 0
+    },
+    {
+      "Saving": false,
+      "Seconds": 3,
+      "Shown": 1
+    },
+    {
+      "Saving": false,
+      "Seconds": 4,
+      "Shown": 1
+    },
+    {
+      "Saving": true,
+      "Seconds": 0,
+      "Shown": 0
+    },
+    {
+      "Saving": true,
+      "Seconds": 2.999,
+      "Shown": 0
+    },
+    {
+      "Saving": true,
+      "Seconds": 3,
+      "Shown": 0
+    },
+    {
+      "Saving": true,
+      "Seconds": 4,
+      "Shown": 0
+    }
+  ],
+  "Extensions": [
+    {
+      "Path": null,
+      "Opus": false
+    },
+    {
+      "Path": "",
+      "Opus": false
+    },
+    {
+      "Path": "x.opus",
+      "Opus": true
+    },
+    {
+      "Path": "x.OPUS",
+      "Opus": true
+    },
+    {
+      "Path": "x.ogg",
+      "Opus": false
+    },
+    {
+      "Path": "x.oga",
+      "Opus": false
+    },
+    {
+      "Path": "dir.opus/x.wav",
+      "Opus": false
+    },
+    {
+      "Path": "x.opus.backup",
+      "Opus": false
+    }
+  ]
+}

@@ -1,0 +1,7079 @@
+[
+  {
+    "name": "0",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "1",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "2",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "3",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "4",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "5",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "6",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "7",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "8",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "9",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "10",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "11",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "12",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "13",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "14",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "15",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "16",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "17",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "18",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "19",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "20",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "21",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "22",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "23",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "24",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      2,
+      4
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "25",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      2,
+      4
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "26",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "27",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "28",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "29",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "30",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "31",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "32",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      2,
+      4
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "33",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      2,
+      4
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "34",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "35",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "36",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "layout": [
+      1,
+      3
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "37",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "layout": [
+      1,
+      3
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "38",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "39",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "40",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "41",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "42",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "43",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "44",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "45",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "46",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "47",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "48",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "49",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "50",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "51",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "52",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "53",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "54",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "55",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "56",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      2,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "57",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      2,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "58",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "59",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "60",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "61",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "62",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "63",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "64",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      2,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "65",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      2,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "66",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "67",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "68",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "69",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "70",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "71",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "72",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      2,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "73",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      2,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "74",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "75",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "76",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "layout": [
+      0,
+      1,
+      3
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "77",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "layout": [
+      0,
+      1,
+      3
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "78",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "79",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      0,
+      1,
+      2,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "80",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "81",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "82",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "83",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "84",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "85",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "86",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "87",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "88",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "89",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "90",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "91",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "92",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "93",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "94",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "95",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "96",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "97",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "98",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "99",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "100",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "layout": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "101",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "layout": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "102",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "103",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "104",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "105",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "106",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "107",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "108",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "layout": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "109",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "layout": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "110",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "111",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "112",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "113",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "114",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "115",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      5
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "116",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "layout": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "117",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "layout": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "118",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "layout": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "119",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      0,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "layout": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "120",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "121",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "122",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "123",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "124",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "125",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "126",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "127",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "128",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "129",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "130",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "131",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "132",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "133",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "134",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "135",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "136",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      2,
+      3
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "137",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      2,
+      3
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "138",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "139",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "140",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "141",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "142",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "143",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "144",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      2,
+      3
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "145",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      2,
+      3
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "146",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "147",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "148",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "149",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "150",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "151",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "152",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      2,
+      3
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "153",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      2,
+      3
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "154",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2,
+      3
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "155",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      2,
+      3
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "156",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "157",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "158",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "159",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "160",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "161",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "162",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "163",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "164",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "165",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "166",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "167",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "168",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "169",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "170",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "171",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "172",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "173",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "174",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "175",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "176",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "177",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "178",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "179",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "180",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "181",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "182",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "183",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "184",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "185",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "186",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "187",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "188",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "189",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "190",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "191",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "192",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "193",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "194",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "195",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "196",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "197",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "198",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "199",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      2,
+      2,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1,
+      2
+    ],
+    "rates": 4,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "200",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "201",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "202",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "203",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "204",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "205",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "206",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "207",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "208",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "209",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "210",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "211",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "212",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "213",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "214",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "215",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "216",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "217",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "218",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "219",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "220",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "221",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "222",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "223",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "224",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "225",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "226",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "227",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "228",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "229",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "230",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "231",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "232",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "233",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "234",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "235",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "236",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "layout": [
+      1,
+      3
+    ],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "237",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "layout": [
+      1,
+      3
+    ],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "238",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "239",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      3,
+      1,
+      0,
+      2
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1
+    ],
+    "layout": [
+      1
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "240",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "241",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "242",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "243",
+    "max": -1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "244",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "245",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "246",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "247",
+    "max": -1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "248",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "249",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "250",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "251",
+    "max": 0,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "252",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "253",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "254",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "255",
+    "max": 0,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "256",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "257",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "258",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "259",
+    "max": 1,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "260",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "261",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "262",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "263",
+    "max": 1,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "264",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "265",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "266",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "267",
+    "max": 2,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "268",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "269",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      2
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "270",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "271",
+    "max": 2,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "272",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "273",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "274",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "275",
+    "max": 3,
+    "draw": false,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "276",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "277",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      2
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "278",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": false,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "279",
+    "max": 3,
+    "draw": true,
+    "pre": 2,
+    "kinds": [
+      4,
+      0,
+      1
+    ],
+    "negative": true,
+    "ys": null,
+    "admitted": [
+      -1,
+      -2,
+      0,
+      1
+    ],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native--1-False",
+    "max": -1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [],
+    "layout": [],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native--1-True",
+    "max": -1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native-0-False",
+    "max": 0,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      2
+    ],
+    "layout": [],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native-0-True",
+    "max": 0,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      0
+    ],
+    "layout": [
+      0
+    ],
+    "rates": 1,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native-1-False",
+    "max": 1,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      2,
+      4
+    ],
+    "layout": [],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native-1-True",
+    "max": 1,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native-2-False",
+    "max": 2,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      2,
+      4,
+      6
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native-2-True",
+    "max": 2,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      0,
+      1,
+      2
+    ],
+    "layout": [
+      0,
+      1
+    ],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native-3-False",
+    "max": 3,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      2,
+      4,
+      6
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "native-3-True",
+    "max": 3,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "layout": [
+      0,
+      1,
+      3
+    ],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native-4-False",
+    "max": 4,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      2,
+      4,
+      6
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "native-4-True",
+    "max": 4,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "layout": [
+      0,
+      1,
+      3
+    ],
+    "rates": 2,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native-5-False",
+    "max": 5,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      2,
+      4,
+      6
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "native-5-True",
+    "max": 5,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "layout": [
+      0,
+      1,
+      3,
+      5
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native-6-False",
+    "max": 6,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      2,
+      4,
+      6
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "native-6-True",
+    "max": 6,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "layout": [
+      0,
+      1,
+      3,
+      5
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": false
+  },
+  {
+    "name": "native-10-False",
+    "max": 10,
+    "draw": false,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      2,
+      4,
+      6
+    ],
+    "layout": [],
+    "rates": 3,
+    "reachedEndOfScreen": true
+  },
+  {
+    "name": "native-10-True",
+    "max": 10,
+    "draw": true,
+    "pre": 0,
+    "kinds": [
+      1,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    "negative": false,
+    "ys": [
+      0,
+      0,
+      24,
+      36,
+      48,
+      48,
+      72,
+      240
+    ],
+    "admitted": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "layout": [
+      0,
+      1,
+      3,
+      5
+    ],
+    "rates": 3,
+    "reachedEndOfScreen": true
+  }
+]

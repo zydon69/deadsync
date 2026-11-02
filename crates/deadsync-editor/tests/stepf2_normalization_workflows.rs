@@ -1,3 +1,5 @@
+#[path = "support/source_output_context.rs"]
+mod source_output_context;
 use deadsync_editor::{
     document::{Document, Format},
     generation::metadata::ChartData,
@@ -214,6 +216,14 @@ fn nonleading_chart_normalization_and_undo_after_save_preserve_identity_and_both
         }
         let after = file.session.serialize().unwrap();
         file.save().unwrap();
+        assert_eq!(file.session.serialize().unwrap(), after);
+        let published_after = std::fs::read(&path).unwrap();
+        // Initial source load chooses before sorting (EditorSong777-789).
+        // Native lossless output retains physical order: leading source0 is
+        // per-type index0. Source-compatible sorted output would use index1.
+        assert_eq!(file.session.song_timing_chart().unwrap(), Some(0));
+        let context = source_output_context::Context { sync_offset: 0.009, chart_type: "dance_single", chart_index: 0 };
+        source_output_context::assert_context(&after, &published_after, format, context);
         assert!(!file.session.is_dirty());
         file.session.undo().unwrap();
         assert!(file.session.is_dirty());
@@ -227,7 +237,7 @@ fn nonleading_chart_normalization_and_undo_after_save_preserve_identity_and_both
             assert_eq!(file.session.grid(chart).unwrap(), &before_grids[chart]);
         }
         // Undo is in memory until Save. The previously saved file is untouched.
-        assert_eq!(std::fs::read(&path).unwrap(), after);
+        assert_eq!(std::fs::read(&path).unwrap(), published_after);
         file.session.redo().unwrap();
         assert!(!file.session.is_dirty());
         assert_eq!(file.session.serialize().unwrap(), after);
@@ -241,7 +251,9 @@ fn nonleading_chart_normalization_and_undo_after_save_preserve_identity_and_both
         for chart in 0..3 {
             assert_eq!(reopened.session.grid(chart).unwrap(), &before_grids[chart]);
         }
-        assert_eq!(std::fs::read(&path).unwrap(), before);
+        let published_before = std::fs::read(&path).unwrap();
+        source_output_context::assert_context(&before, &published_before, format, context);
+        assert_eq!(reopened.session.serialize().unwrap(), published_before);
     }
 }
 
@@ -339,38 +351,56 @@ fn pending_fourth_player_notes_survive_unrelated_offset_metadata_and_save_reopen
 }
 
 #[test]
-fn metadata_only_initialization_keeps_unsupported_note_bytes_and_uses_routine_default() {
+fn metadata_only_initialization_keeps_opaque_and_malformed_note_bytes_and_routine_default() {
     for format in [Format::Sm, Format::Ssc] {
-        let original = source(format, "pump-routine", "Q000000000");
-        let mut session = Session::new(Document::parse(original.as_bytes(), format).unwrap());
-        assert!(session.grid(0).is_err());
-        let notes = session
-            .document()
-            .value(session.document().charts()[0].notes.clone())
-            .to_vec();
-        let mut metadata = ChartData::existing_or_initial(session.document(), 0).unwrap();
-        assert_eq!(metadata.max_player_index, 1);
-        metadata.music_offset = 0.25;
-        metadata.should_use_chart_music_offset = true;
-        assert!(metadata.save(&mut session, 0).unwrap());
-        let after = session.serialize().unwrap();
-        let reopened = Session::new(Document::parse(after.clone(), format).unwrap());
-        assert_eq!(
-            reopened
+        for note_text in ["Q000000000", "00000000000"] {
+            let original = source(format, "pump-routine", note_text);
+            let mut session = Session::new(Document::parse(original.as_bytes(), format).unwrap());
+            if note_text.starts_with('Q') {
+                let opaque = p(0, 0, 0);
+                assert_eq!(session.grid(0).unwrap().players(), 2);
+                assert!(session.grid(0).unwrap().get(opaque).is_none());
+                assert!(
+                    session
+                        .edit_notes(0, "Opaque overwrite", [(opaque, Some(Note::tap()))])
+                        .is_err()
+                );
+                assert_eq!(session.serialize().unwrap(), original.as_bytes());
+                assert!(session.undo_label().is_none());
+            } else {
+                assert!(
+                    session.grid(0).is_err(),
+                    "eleven columns cannot fit pump-routine"
+                );
+            }
+            let notes = session
                 .document()
-                .value(reopened.document().charts()[0].notes.clone()),
-            notes
-        );
-        assert_eq!(
-            ChartData::read(reopened.document(), 0)
-                .unwrap()
-                .unwrap()
-                .max_player_index,
-            1
-        );
-        session.undo().unwrap();
-        assert_eq!(session.serialize().unwrap(), original.as_bytes());
-        session.redo().unwrap();
-        assert_eq!(session.serialize().unwrap(), after);
+                .value(session.document().charts()[0].notes.clone())
+                .to_vec();
+            let mut metadata = ChartData::existing_or_initial(session.document(), 0).unwrap();
+            assert_eq!(metadata.max_player_index, 1);
+            metadata.music_offset = 0.25;
+            metadata.should_use_chart_music_offset = true;
+            assert!(metadata.save(&mut session, 0).unwrap());
+            let after = session.serialize().unwrap();
+            let reopened = Session::new(Document::parse(after.clone(), format).unwrap());
+            assert_eq!(
+                reopened
+                    .document()
+                    .value(reopened.document().charts()[0].notes.clone()),
+                notes
+            );
+            assert_eq!(
+                ChartData::read(reopened.document(), 0)
+                    .unwrap()
+                    .unwrap()
+                    .max_player_index,
+                1
+            );
+            session.undo().unwrap();
+            assert_eq!(session.serialize().unwrap(), original.as_bytes());
+            session.redo().unwrap();
+            assert_eq!(session.serialize().unwrap(), after);
+        }
     }
 }

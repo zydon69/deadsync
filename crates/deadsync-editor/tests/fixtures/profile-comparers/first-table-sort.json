@@ -1,0 +1,345 @@
+{
+  "tables": [
+    {
+      "kind": "Pattern",
+      "table_id": "Pattern Configs",
+      "flags": [
+        "RowBg",
+        "Borders",
+        "Resizable",
+        "Reorderable",
+        "Hideable",
+        "Sortable",
+        "SortMulti"
+      ],
+      "columns": [
+        {
+          "name": "NoteType",
+          "user_id": 0,
+          "label": "Note",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "RepetitionLimit",
+          "user_id": 1,
+          "label": "Limit",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "StepType",
+          "user_id": 2,
+          "label": "Same/New",
+          "flags": 18,
+          "flag_names": [
+            "WidthFixed",
+            "DefaultHide"
+          ]
+        },
+        {
+          "name": "StepTypeCheckPeriod",
+          "user_id": 3,
+          "label": "Period",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "StartingFoot",
+          "user_id": 4,
+          "label": "Foot",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "StartingFooting",
+          "user_id": 5,
+          "label": "Start",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "EndingFooting",
+          "user_id": 6,
+          "label": "End",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "Abbreviation",
+          "user_id": 7,
+          "label": "Abbreviation",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "Name",
+          "user_id": 8,
+          "label": "Custom Name",
+          "flags": 8,
+          "flag_names": [
+            "WidthStretch"
+          ]
+        },
+        {
+          "name": "Clone",
+          "user_id": 9,
+          "label": "Clone",
+          "flags": 528,
+          "flag_names": [
+            "WidthFixed",
+            "NoSort"
+          ]
+        },
+        {
+          "name": "Delete",
+          "user_id": 10,
+          "label": "Delete",
+          "flags": 528,
+          "flag_names": [
+            "WidthFixed",
+            "NoSort"
+          ]
+        }
+      ],
+      "frames": [
+        {
+          "frame": 0,
+          "dirty": true,
+          "specs": [
+            {
+              "column_user_id": 0,
+              "column_index": 0,
+              "sort_order": 0,
+              "sort_direction": 1,
+              "column": "NoteType"
+            }
+          ]
+        },
+        {
+          "frame": 1,
+          "dirty": false,
+          "specs": [
+            {
+              "column_user_id": 0,
+              "column_index": 0,
+              "sort_order": 0,
+              "sort_direction": 1,
+              "column": "NoteType"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "Performed",
+      "table_id": "Performed Chart Configs",
+      "flags": [
+        "RowBg",
+        "Borders",
+        "Resizable",
+        "Reorderable",
+        "Hideable",
+        "Sortable",
+        "SortMulti"
+      ],
+      "columns": [
+        {
+          "name": "StepSpeedMin",
+          "user_id": 0,
+          "label": "S Spd",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "StepDistanceMin",
+          "user_id": 1,
+          "label": "S Dst",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "StepStretchMin",
+          "user_id": 2,
+          "label": "S Str",
+          "flags": 18,
+          "flag_names": [
+            "WidthFixed",
+            "DefaultHide"
+          ]
+        },
+        {
+          "name": "LateralSpeed",
+          "user_id": 3,
+          "label": "L Spd",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "LateralRelativeNPS",
+          "user_id": 4,
+          "label": "L Rel",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "LateralAbsoluteNPS",
+          "user_id": 5,
+          "label": "L Abs",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "TransitionMin",
+          "user_id": 6,
+          "label": "Tr Min",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "TransitionMax",
+          "user_id": 7,
+          "label": "Tr Max",
+          "flags": 18,
+          "flag_names": [
+            "WidthFixed",
+            "DefaultHide"
+          ]
+        },
+        {
+          "name": "FacingInwardLimit",
+          "user_id": 8,
+          "label": "F In",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "FacingOutwardLimit",
+          "user_id": 9,
+          "label": "F Out",
+          "flags": 18,
+          "flag_names": [
+            "WidthFixed",
+            "DefaultHide"
+          ]
+        },
+        {
+          "name": "Abbreviation",
+          "user_id": 10,
+          "label": "Abbreviation",
+          "flags": 16,
+          "flag_names": [
+            "WidthFixed"
+          ]
+        },
+        {
+          "name": "Name",
+          "user_id": 11,
+          "label": "Custom Name",
+          "flags": 8,
+          "flag_names": [
+            "WidthStretch"
+          ]
+        },
+        {
+          "name": "Clone",
+          "user_id": 12,
+          "label": "Clone",
+          "flags": 528,
+          "flag_names": [
+            "WidthFixed",
+            "NoSort"
+          ]
+        },
+        {
+          "name": "Delete",
+          "user_id": 13,
+          "label": "Delete",
+          "flags": 528,
+          "flag_names": [
+            "WidthFixed",
+            "NoSort"
+          ]
+        }
+      ],
+      "frames": [
+        {
+          "frame": 0,
+          "dirty": true,
+          "specs": [
+            {
+              "column_user_id": 0,
+              "column_index": 0,
+              "sort_order": 0,
+              "sort_direction": 1,
+              "column": "StepSpeedMin"
+            }
+          ]
+        },
+        {
+          "frame": 1,
+          "dirty": false,
+          "specs": [
+            {
+              "column_user_id": 0,
+              "column_index": 0,
+              "sort_order": 0,
+              "sort_direction": 1,
+              "column": "StepSpeedMin"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "ga_pin": "48e18f71655d0f0d86144c63239331833501fda2",
+    "imgui_pin": "f2812cc9e4955e0496611bde2bcdd34225442b5b",
+    "native_path": "deps/cimgui/osx/cimgui.dylib",
+    "native_sha256": "cf5e46116b0304d0387c91f2701817983b29001eee008e333baa4cf1e104e0a1",
+    "source_sha256": {
+      "ImGui/ImGuiUtils.cs": "541c6cd925faaca21cc2df541e7bb8deb0a11b2a58f4969fadd5ca8159f95fb0",
+      "UI/UIPatternConfigTable.cs": "1cba55013d1ca3289c721b5e177d879afc3d785563fca0ed3679eda4653c2cde",
+      "UI/UIPerformedChartConfigTable.cs": "892530869e3790fb1a765b33f4f1a1a21e09d51bd3e9a5841b6729bb10c5b058"
+    },
+    "abi_source_sha256": {
+      "ImGuiTableFlags": "ffe2b99300a4897046810ad047e014feb20dd15a2abf0fe4a664832b63ace86a",
+      "ImGuiTableColumnFlags": "a3577ac36b6f95f09a845ab2bc3cd632bf99e8360a2d8efc69b547fc24c7d413",
+      "ImGuiTableRowFlags": "f3487102ceaf1d6136aa207aba5fa7af87d290daa80a765484c8558f83836a83",
+      "ImGuiCond": "b1af3aaee3b2711b92f028e0d08b8ba3359d8764fcde3fcae9c65355b3379af3",
+      "ImGuiIO": "064be501bbabd6b075e29baf0115cbacabf7f442fc43b31a1812a65e60a8e88a",
+      "ImGuiNative": "b2fb348e9cbccc31ee0d6fa266433029bfc5feb05ce3c4a116795529d6aaee68",
+      "ImGuiTableSortSpecs": "5fe185407043cbfe8d52fcbab8b9c25a8b2035ded3c4116f3742e7734a626484"
+    },
+    "host": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "boundary": "actual pinned cimgui first and second frames; source column ids/flags/labels/zero widths and header sequence; fresh context, no ini/GPU/backend/input, default font atlas; no config comparator invocation in this witness"
+  }
+}

@@ -1,0 +1,724 @@
+[
+  {
+    "name": "policy-parity-defaultbracketparsingmethod-42-base-active",
+    "family": "expression",
+    "path": [
+      "DefaultBracketParsingMethod"
+    ],
+    "version": "base",
+    "original": "policy-parity-defaultbracketparsingmethod",
+    "before": "balanced",
+    "after": "aggressive"
+  },
+  {
+    "name": "policy-parity-defaultbracketparsingmethod-42-mutated-active",
+    "family": "expression",
+    "path": [
+      "DefaultBracketParsingMethod"
+    ],
+    "version": "mutated",
+    "original": "policy-parity-defaultbracketparsingmethod",
+    "before": "balanced",
+    "after": "aggressive"
+  },
+  {
+    "name": "policy-parity-bracketparsingdetermination-42-base-active",
+    "family": "expression",
+    "path": [
+      "BracketParsingDetermination"
+    ],
+    "version": "base",
+    "original": "policy-parity-bracketparsingdetermination",
+    "before": "chooseMethodDynamically",
+    "after": "useDefaultMethod"
+  },
+  {
+    "name": "policy-parity-bracketparsingdetermination-42-mutated-active",
+    "family": "expression",
+    "path": [
+      "BracketParsingDetermination"
+    ],
+    "version": "mutated",
+    "original": "policy-parity-bracketparsingdetermination",
+    "before": "chooseMethodDynamically",
+    "after": "useDefaultMethod"
+  },
+  {
+    "name": "policy-parity-minlevelforbrackets-42-base-active",
+    "family": "expression",
+    "path": [
+      "MinLevelForBrackets"
+    ],
+    "version": "base",
+    "original": "policy-parity-minlevelforbrackets",
+    "before": 9,
+    "after": 8
+  },
+  {
+    "name": "policy-parity-minlevelforbrackets-42-mutated-active",
+    "family": "expression",
+    "path": [
+      "MinLevelForBrackets"
+    ],
+    "version": "mutated",
+    "original": "policy-parity-minlevelforbrackets",
+    "before": 9,
+    "after": 8
+  },
+  {
+    "name": "policy-parity-balancedbracketsperminuteforaggressivebrackets-42-base-active",
+    "family": "expression",
+    "path": [
+      "BalancedBracketsPerMinuteForAggressiveBrackets"
+    ],
+    "version": "base",
+    "original": "policy-parity-balancedbracketsperminuteforaggressivebrackets",
+    "before": 10000.0,
+    "after": 0.1
+  },
+  {
+    "name": "policy-parity-balancedbracketsperminuteforaggressivebrackets-42-mutated-active",
+    "family": "expression",
+    "path": [
+      "BalancedBracketsPerMinuteForAggressiveBrackets"
+    ],
+    "version": "mutated",
+    "original": "policy-parity-balancedbracketsperminuteforaggressivebrackets",
+    "before": 10000.0,
+    "after": 0.1
+  },
+  {
+    "name": "policy-parity-balancedbracketsperminutefornobrackets-42-base-active",
+    "family": "expression",
+    "path": [
+      "BalancedBracketsPerMinuteForNoBrackets"
+    ],
+    "version": "base",
+    "original": "policy-parity-balancedbracketsperminutefornobrackets",
+    "before": 0.0,
+    "after": 9999.0
+  },
+  {
+    "name": "policy-parity-balancedbracketsperminutefornobrackets-42-mutated-active",
+    "family": "expression",
+    "path": [
+      "BalancedBracketsPerMinuteForNoBrackets"
+    ],
+    "version": "mutated",
+    "original": "policy-parity-balancedbracketsperminutefornobrackets",
+    "before": 0.0,
+    "after": 9999.0
+  },
+  {
+    "name": "parity-pattern-startingfootspecified-42-base-active",
+    "family": "pattern",
+    "path": [
+      "StartingFootSpecified"
+    ],
+    "version": "base",
+    "original": "parity-pattern-startingfootspecified",
+    "before": 0,
+    "after": 1
+  },
+  {
+    "name": "parity-pattern-startingfootspecified-42-mutated-active",
+    "family": "pattern",
+    "path": [
+      "StartingFootSpecified"
+    ],
+    "version": "mutated",
+    "original": "parity-pattern-startingfootspecified",
+    "before": 0,
+    "after": 1
+  },
+  {
+    "name": "parity-pattern-leftfootstartlanespecified-42-base-active",
+    "family": "pattern",
+    "path": [
+      "LeftFootStartLaneSpecified"
+    ],
+    "version": "base",
+    "original": "parity-pattern-leftfootstartlanespecified",
+    "before": 0,
+    "after": 1
+  },
+  {
+    "name": "parity-pattern-leftfootstartlanespecified-42-mutated-active",
+    "family": "pattern",
+    "path": [
+      "LeftFootStartLaneSpecified"
+    ],
+    "version": "mutated",
+    "original": "parity-pattern-leftfootstartlanespecified",
+    "before": 0,
+    "after": 1
+  },
+  {
+    "name": "parity-pattern-leftfootendchoice-42-base-active",
+    "family": "pattern",
+    "path": [
+      "LeftFootEndChoice"
+    ],
+    "version": "base",
+    "original": "parity-pattern-leftfootendchoice",
+    "before": "automaticSameOrNewLaneAsFollowing",
+    "after": "specifiedLane"
+  },
+  {
+    "name": "parity-pattern-leftfootendchoice-42-mutated-active",
+    "family": "pattern",
+    "path": [
+      "LeftFootEndChoice"
+    ],
+    "version": "mutated",
+    "original": "parity-pattern-leftfootendchoice",
+    "before": "automaticSameOrNewLaneAsFollowing",
+    "after": "specifiedLane"
+  },
+  {
+    "name": "parity-pattern-leftfootendlanespecified-42-base-active",
+    "family": "pattern",
+    "path": [
+      "LeftFootEndLaneSpecified"
+    ],
+    "version": "base",
+    "original": "parity-pattern-leftfootendlanespecified",
+    "before": 0,
+    "after": 1
+  },
+  {
+    "name": "parity-pattern-leftfootendlanespecified-42-mutated-active",
+    "family": "pattern",
+    "path": [
+      "LeftFootEndLaneSpecified"
+    ],
+    "version": "mutated",
+    "original": "parity-pattern-leftfootendlanespecified",
+    "before": 0,
+    "after": 1
+  },
+  {
+    "name": "parity-pattern-rightfootstartlanespecified-42-base-active",
+    "family": "pattern",
+    "path": [
+      "RightFootStartLaneSpecified"
+    ],
+    "version": "base",
+    "original": "parity-pattern-rightfootstartlanespecified",
+    "before": 2,
+    "after": 3
+  },
+  {
+    "name": "parity-pattern-rightfootstartlanespecified-42-mutated-active",
+    "family": "pattern",
+    "path": [
+      "RightFootStartLaneSpecified"
+    ],
+    "version": "mutated",
+    "original": "parity-pattern-rightfootstartlanespecified",
+    "before": 2,
+    "after": 3
+  },
+  {
+    "name": "parity-pattern-rightfootendlanespecified-42-base-active",
+    "family": "pattern",
+    "path": [
+      "RightFootEndLaneSpecified"
+    ],
+    "version": "base",
+    "original": "parity-pattern-rightfootendlanespecified",
+    "before": 2,
+    "after": 3
+  },
+  {
+    "name": "parity-pattern-rightfootendlanespecified-42-mutated-active",
+    "family": "pattern",
+    "path": [
+      "RightFootEndLaneSpecified"
+    ],
+    "version": "mutated",
+    "original": "parity-pattern-rightfootendlanespecified",
+    "before": 2,
+    "after": 3
+  },
+  {
+    "name": "parity-performed-facing-maxinwardpercentage-42-base-active",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "MaxInwardPercentage"
+    ],
+    "version": "base",
+    "original": "parity-performed-facing-maxinwardpercentage",
+    "before": 0.0,
+    "after": 1.0
+  },
+  {
+    "name": "parity-performed-facing-maxinwardpercentage-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "MaxInwardPercentage"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-facing-maxinwardpercentage",
+    "before": 0.0,
+    "after": 1.0
+  },
+  {
+    "name": "parity-performed-facing-inwardpercentagecutoff-42-base-active",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "InwardPercentageCutoff"
+    ],
+    "version": "base",
+    "original": "parity-performed-facing-inwardpercentagecutoff",
+    "before": 0.1,
+    "after": 0.9
+  },
+  {
+    "name": "parity-performed-facing-inwardpercentagecutoff-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "InwardPercentageCutoff"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-facing-inwardpercentagecutoff",
+    "before": 0.1,
+    "after": 0.9
+  },
+  {
+    "name": "parity-performed-facing-maxoutwardpercentage-42-base-active",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "MaxOutwardPercentage"
+    ],
+    "version": "base",
+    "original": "parity-performed-facing-maxoutwardpercentage",
+    "before": 0.0,
+    "after": 1.0
+  },
+  {
+    "name": "parity-performed-facing-maxoutwardpercentage-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "MaxOutwardPercentage"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-facing-maxoutwardpercentage",
+    "before": 0.0,
+    "after": 1.0
+  },
+  {
+    "name": "parity-performed-facing-outwardpercentagecutoff-42-base-active",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "OutwardPercentageCutoff"
+    ],
+    "version": "base",
+    "original": "parity-performed-facing-outwardpercentagecutoff",
+    "before": 0.1,
+    "after": 0.9
+  },
+  {
+    "name": "parity-performed-facing-outwardpercentagecutoff-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "Facing",
+      "OutwardPercentageCutoff"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-facing-outwardpercentagecutoff",
+    "before": 0.1,
+    "after": 0.9
+  },
+  {
+    "name": "parity-performed-steptightening-distancetighteningenabled-42-base-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "DistanceTighteningEnabled"
+    ],
+    "version": "base",
+    "original": "parity-performed-steptightening-distancetighteningenabled",
+    "before": true,
+    "after": false
+  },
+  {
+    "name": "parity-performed-steptightening-distancetighteningenabled-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "DistanceTighteningEnabled"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-steptightening-distancetighteningenabled",
+    "before": true,
+    "after": false
+  },
+  {
+    "name": "parity-performed-steptightening-distancemin-42-base-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "DistanceMin"
+    ],
+    "version": "base",
+    "original": "parity-performed-steptightening-distancemin",
+    "before": 0.1,
+    "after": 3.0
+  },
+  {
+    "name": "parity-performed-steptightening-distancemin-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "DistanceMin"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-steptightening-distancemin",
+    "before": 0.1,
+    "after": 3.0
+  },
+  {
+    "name": "parity-performed-steptightening-distancemax-42-base-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "DistanceMax"
+    ],
+    "version": "base",
+    "original": "parity-performed-steptightening-distancemax",
+    "before": 1.0,
+    "after": 4.0
+  },
+  {
+    "name": "parity-performed-steptightening-distancemax-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "DistanceMax"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-steptightening-distancemax",
+    "before": 1.0,
+    "after": 4.0
+  },
+  {
+    "name": "parity-performed-steptightening-stretchtighteningenabled-42-base-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "StretchTighteningEnabled"
+    ],
+    "version": "base",
+    "original": "parity-performed-steptightening-stretchtighteningenabled",
+    "before": true,
+    "after": false
+  },
+  {
+    "name": "parity-performed-steptightening-stretchtighteningenabled-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "StretchTighteningEnabled"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-steptightening-stretchtighteningenabled",
+    "before": true,
+    "after": false
+  },
+  {
+    "name": "parity-performed-steptightening-stretchdistancemin-42-base-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "StretchDistanceMin"
+    ],
+    "version": "base",
+    "original": "parity-performed-steptightening-stretchdistancemin",
+    "before": 0.1,
+    "after": 3.0
+  },
+  {
+    "name": "parity-performed-steptightening-stretchdistancemin-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "StretchDistanceMin"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-steptightening-stretchdistancemin",
+    "before": 0.1,
+    "after": 3.0
+  },
+  {
+    "name": "parity-performed-steptightening-stretchdistancemax-42-base-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "StretchDistanceMax"
+    ],
+    "version": "base",
+    "original": "parity-performed-steptightening-stretchdistancemax",
+    "before": 1.0,
+    "after": 4.0
+  },
+  {
+    "name": "parity-performed-steptightening-stretchdistancemax-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "StretchDistanceMax"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-steptightening-stretchdistancemax",
+    "before": 1.0,
+    "after": 4.0
+  },
+  {
+    "name": "parity-performed-steptightening-longitudinalminpaneldistance-42-base-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "LongitudinalMinPanelDistance"
+    ],
+    "version": "base",
+    "original": "parity-performed-steptightening-longitudinalminpaneldistance",
+    "before": -0.125,
+    "after": 1.5
+  },
+  {
+    "name": "parity-performed-steptightening-longitudinalminpaneldistance-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "StepTightening",
+      "LongitudinalMinPanelDistance"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-steptightening-longitudinalminpaneldistance",
+    "before": -0.125,
+    "after": 1.5
+  },
+  {
+    "name": "parity-performed-lateraltightening-enabled-42-base-active",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "Enabled"
+    ],
+    "version": "base",
+    "original": "parity-performed-lateraltightening-enabled",
+    "before": true,
+    "after": false
+  },
+  {
+    "name": "parity-performed-lateraltightening-enabled-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "Enabled"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-lateraltightening-enabled",
+    "before": true,
+    "after": false
+  },
+  {
+    "name": "parity-performed-lateraltightening-relativenps-42-base-active",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "RelativeNPS"
+    ],
+    "version": "base",
+    "original": "parity-performed-lateraltightening-relativenps",
+    "before": 0.1,
+    "after": 10.0
+  },
+  {
+    "name": "parity-performed-lateraltightening-relativenps-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "RelativeNPS"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-lateraltightening-relativenps",
+    "before": 0.1,
+    "after": 10.0
+  },
+  {
+    "name": "parity-performed-lateraltightening-absolutenps-42-base-active",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "AbsoluteNPS"
+    ],
+    "version": "base",
+    "original": "parity-performed-lateraltightening-absolutenps",
+    "before": 0.1,
+    "after": 20.0
+  },
+  {
+    "name": "parity-performed-lateraltightening-absolutenps-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "AbsoluteNPS"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-lateraltightening-absolutenps",
+    "before": 0.1,
+    "after": 20.0
+  },
+  {
+    "name": "parity-performed-lateraltightening-speed-42-base-active",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "Speed"
+    ],
+    "version": "base",
+    "original": "parity-performed-lateraltightening-speed",
+    "before": 0.1,
+    "after": 10.0
+  },
+  {
+    "name": "parity-performed-lateraltightening-speed-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "LateralTightening",
+      "Speed"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-lateraltightening-speed",
+    "before": 0.1,
+    "after": 10.0
+  },
+  {
+    "name": "parity-performed-transitions-enabled-42-base-active",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "Enabled"
+    ],
+    "version": "base",
+    "original": "parity-performed-transitions-enabled",
+    "before": true,
+    "after": false
+  },
+  {
+    "name": "parity-performed-transitions-enabled-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "Enabled"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-transitions-enabled",
+    "before": true,
+    "after": false
+  },
+  {
+    "name": "parity-performed-transitions-stepspertransitionmin-42-base-active",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "StepsPerTransitionMin"
+    ],
+    "version": "base",
+    "original": "parity-performed-transitions-stepspertransitionmin",
+    "before": 0,
+    "after": 1000
+  },
+  {
+    "name": "parity-performed-transitions-stepspertransitionmin-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "StepsPerTransitionMin"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-transitions-stepspertransitionmin",
+    "before": 0,
+    "after": 1000
+  },
+  {
+    "name": "parity-performed-transitions-stepspertransitionmax-42-base-active",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "StepsPerTransitionMax"
+    ],
+    "version": "base",
+    "original": "parity-performed-transitions-stepspertransitionmax",
+    "before": 0,
+    "after": 32
+  },
+  {
+    "name": "parity-performed-transitions-stepspertransitionmax-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "StepsPerTransitionMax"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-transitions-stepspertransitionmax",
+    "before": 0,
+    "after": 32
+  },
+  {
+    "name": "parity-performed-transitions-minimumpadwidth-42-base-active",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "MinimumPadWidth"
+    ],
+    "version": "base",
+    "original": "parity-performed-transitions-minimumpadwidth",
+    "before": 1,
+    "after": 20
+  },
+  {
+    "name": "parity-performed-transitions-minimumpadwidth-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "MinimumPadWidth"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-transitions-minimumpadwidth",
+    "before": 1,
+    "after": 20
+  },
+  {
+    "name": "parity-performed-transitions-transitioncutoffpercentage-42-base-active",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "TransitionCutoffPercentage"
+    ],
+    "version": "base",
+    "original": "parity-performed-transitions-transitioncutoffpercentage",
+    "before": 0.1,
+    "after": 0.49
+  },
+  {
+    "name": "parity-performed-transitions-transitioncutoffpercentage-42-mutated-active",
+    "family": "performed",
+    "path": [
+      "Transitions",
+      "TransitionCutoffPercentage"
+    ],
+    "version": "mutated",
+    "original": "parity-performed-transitions-transitioncutoffpercentage",
+    "before": 0.1,
+    "after": 0.49
+  }
+]

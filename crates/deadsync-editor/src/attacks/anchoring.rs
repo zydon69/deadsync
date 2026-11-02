@@ -14,9 +14,9 @@ pub(crate) fn preserve_generated(
         if events.is_empty() {
             continue;
         }
-        let scope = if crate::timing_edit::supports_chart_timing(after.document()) {
+        let scope = if super::supports_resident_chart_attacks(after.document()) {
             let bytes = resident::encode(after, target, &events, &Default::default())?;
-            after.set_property_bytes(Some(target), "ATTACKS", bytes.into())?;
+            super::property::write(after,Some(target),bytes.into())?;
             Scope::Chart
         } else {
             Scope::Song
@@ -32,19 +32,17 @@ pub(crate) fn preserve_generated(
 }
 
 pub(crate) fn preserve(before: &Session, after: &mut Session) -> Result<(), Error> {
-    let scope = if crate::timing_edit::supports_chart_timing(after.document()) {
+    let scope = if super::supports_resident_chart_attacks(after.document()) {
         Scope::Chart
     } else {
         Scope::Song
     };
     let mut charts = Vec::new();
     for (chart, descriptor) in before.document().charts().iter().enumerate() {
-        let has_attacks = [None, Some(chart)].into_iter().any(|origin| {
-            before
-                .document()
-                .raw_property(origin, "ATTACKS")
-                .is_some_and(|raw| !raw.is_empty())
-        });
+        let mut has_attacks=false;
+        for origin in [None,Some(chart)] {
+            has_attacks |= super::property::read(before.document(),origin)?.is_some_and(|raw|!raw.is_empty());
+        }
         if !has_attacks {
             continue;
         }
@@ -75,7 +73,7 @@ pub(crate) fn preserve(before: &Session, after: &mut Session) -> Result<(), Erro
     if scope == Scope::Chart {
         for (chart, events, bytes) in &charts {
             if let Some(bytes) = bytes {
-                after.set_property_bytes(Some(*chart), "ATTACKS", bytes.clone().into())?;
+                super::property::write(after,Some(*chart),bytes.clone().into())?;
                 resident::reconcile(after, *chart, scope, events)?;
             }
         }
@@ -87,10 +85,7 @@ pub(crate) fn preserve(before: &Session, after: &mut Session) -> Result<(), Erro
             let Some(bytes) = bytes else {
                 continue;
             };
-            let mut candidate = Session::new(crate::document::Document::parse(
-                after.serialize()?,
-                after.document().format,
-            )?);
+            let mut candidate = Session::new(after.snapshot_document()?);
             candidate.set_property_bytes(None, "ATTACKS", bytes.clone().into())?;
             let score = charts
                 .iter()

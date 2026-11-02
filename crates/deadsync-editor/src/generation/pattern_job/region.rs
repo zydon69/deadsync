@@ -6,6 +6,24 @@ pub(crate) struct RegionGenerator<'a> {
     pub pad: &'a Pad,
 }
 impl RegionGenerator<'_> {
+    /// Full ActionAutoGeneratePatterns contract, including its second enumeration.
+    /// The first identical marker's notes are all clipped by its successor, but
+    /// its interpretation still updates the inclusive preceding counters.
+    pub fn generate_action(
+        &self,
+        options: &Options,
+        grid: &Grid,
+        timeline: &EditorTimeline,
+        average_nps: f64,
+        counts: &mut LaneCounts,
+        cancelled: &AtomicBool,
+        progress: impl FnMut(usize, usize),
+    ) -> Result<pattern::PatternPreview, Error> {
+        drop(self.generate(options, grid, timeline, average_nps, counts, cancelled, |_, _| {}));
+        check(cancelled)?;
+        self.generate(options, grid, timeline, average_nps, counts, cancelled, progress)
+    }
+
     pub fn generate(
         &self,
         options: &Options,

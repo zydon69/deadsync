@@ -188,21 +188,28 @@ impl PipeWireOutputPrep {
 }
 
 pub struct PipeWireOutputStream {
-    raw: NonNull<PipeWireStreamRaw>,
+    raw: Option<NonNull<PipeWireStreamRaw>>,
     callback_state: *mut CallbackState,
+}
+
+impl PipeWireOutputStream {
+    pub fn shutdown(&mut self) -> Result<(), String> {
+        if let Some(raw) = self.raw.take() {
+            // The bridge stops and joins the loop before destroying the stream.
+            unsafe { ds_pipewire_stream_destroy(raw.as_ptr()) };
+        }
+        if !self.callback_state.is_null() {
+            // No callback can retain this state after the synchronous loop stop.
+            unsafe { drop(Box::from_raw(self.callback_state)) };
+            self.callback_state = std::ptr::null_mut();
+        }
+        Ok(())
+    }
 }
 
 impl Drop for PipeWireOutputStream {
     fn drop(&mut self) {
-        // SAFETY: `raw` is owned by this stream and destruction stops all C
-        // callbacks before the Rust callback state is reclaimed.
-        unsafe { ds_pipewire_stream_destroy(self.raw.as_ptr()) };
-        if !self.callback_state.is_null() {
-            // SAFETY: this pointer came from `Box::into_raw` in `start` and the
-            // C bridge no longer retains it after stream destruction.
-            unsafe { drop(Box::from_raw(self.callback_state)) };
-            self.callback_state = std::ptr::null_mut();
-        }
+        let _ = self.shutdown();
     }
 }
 
@@ -355,7 +362,7 @@ pub fn start(
     publish_output_timing(prep.sample_rate_hz, 0, 0, 0, 0, 0, 0);
     publish_output_timing_quality(OutputTimingQuality::Trusted);
     Ok(PipeWireOutputStream {
-        raw,
+        raw: Some(raw),
         callback_state,
     })
 }

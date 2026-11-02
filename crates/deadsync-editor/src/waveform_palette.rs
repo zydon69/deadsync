@@ -8,18 +8,20 @@ impl Color {
     pub fn new(rgba: [f32; 4]) -> Result<Self, Error> {
         if rgba
             .iter()
-            .all(|v| v.is_finite() && (0.0..=1.0).contains(v))
+            .all(|v| v.is_finite())
         {
             Ok(Self(rgba))
         } else {
             Err(Error::InvalidEdit(
-                "Waveform RGBA components must be finite and between 0 and 1".into(),
+                "Waveform RGBA components must be finite".into(),
             ))
         }
     }
     pub fn rgba(self) -> [f32; 4] {
         self.0
     }
+    /// Clamping belongs to the source normalized render attachment, not persisted values.
+    pub fn unorm_rgba(self)->[f32;4]{self.0.map(|v|v.clamp(0.0,1.0))}
     pub fn with_component(self, index: usize, value: f32) -> Result<Self, Error> {
         let mut rgba = self.0;
         let target = rgba
@@ -34,6 +36,7 @@ pub enum SparseMode {
     DarkerDenseColor,
     SameAsDenseColor,
     UniqueColor,
+    Unknown(i32),
 }
 impl SparseMode {
     pub const ALL: [Self; 3] = [
@@ -46,6 +49,7 @@ impl SparseMode {
             Self::DarkerDenseColor => "DarkerDenseColor",
             Self::SameAsDenseColor => "SameAsDenseColor",
             Self::UniqueColor => "UniqueColor",
+            Self::Unknown(_) => "Unknown",
         }
     }
 }
@@ -98,9 +102,9 @@ impl Palette {
         self.mode = value;
     }
     pub fn set_darken(&mut self, value: f32) -> Result<(), Error> {
-        if !value.is_finite() || !(0.0..=1.0).contains(&value) {
+        if !value.is_finite() {
             return Err(Error::InvalidEdit(
-                "Waveform sparse colour scale must be between 0 and 1".into(),
+                "Waveform sparse colour scale must be finite".into(),
             ));
         }
         self.darken = value;
@@ -113,7 +117,7 @@ impl Palette {
                 Color([r * self.darken, g * self.darken, b * self.darken, a])
             }
             SparseMode::SameAsDenseColor => self.dense,
-            SparseMode::UniqueColor => self.sparse,
+            SparseMode::UniqueColor | SparseMode::Unknown(_) => self.sparse,
         }
     }
     pub(crate) fn read(fields: &Map<String, Value>) -> Result<Self, Error> {
@@ -128,12 +132,8 @@ impl Palette {
             }
         }
         if let Some(field) = fields.get("WaveFormSparseColorOption") {
-            value.mode = SparseMode::ALL
-                .into_iter()
-                .find(|mode| Some(mode.name()) == field.as_str())
-                .ok_or_else(|| {
-                    Error::InvalidFormat("Unknown waveform sparse colour mode".into())
-                })?;
+            let raw=field.as_str().and_then(|value|value.parse::<i32>().ok()).or_else(||field.as_i64().and_then(|value|i32::try_from(value).ok()));
+            value.mode=match raw{Some(0)=>SparseMode::DarkerDenseColor,Some(1)=>SparseMode::SameAsDenseColor,Some(2)=>SparseMode::UniqueColor,Some(value)=>SparseMode::Unknown(value),None=>SparseMode::ALL.into_iter().find(|mode|Some(mode.name())==field.as_str()).ok_or_else(||Error::InvalidFormat("Unknown waveform sparse colour mode".into()))?};
         }
         if let Some(field) = fields.get("WaveFormSparseColorScale") {
             value.set_darken(component(field)?)?;
@@ -156,7 +156,7 @@ impl Palette {
             }
             fields.insert(name.into(), Value::Object(rgba));
         }
-        fields.insert("WaveFormSparseColorOption".into(), self.mode.name().into());
+        fields.insert("WaveFormSparseColorOption".into(),match self.mode{SparseMode::Unknown(value)=>crate::preference_enum::unknown_ordinal(value,fields.get("WaveFormSparseColorOption")),mode=>mode.name().into()});
         fields.insert("WaveFormSparseColorScale".into(), self.darken.into());
     }
 }
@@ -185,10 +185,18 @@ fn component(value: &Value) -> Result<f32, Error> {
     let n = value
         .as_f64()
         .ok_or_else(|| Error::InvalidFormat("Invalid waveform colour component".into()))?;
-    if !n.is_finite() || !(0.0..=1.0).contains(&n) {
+    if !n.is_finite() || !(n as f32).is_finite() {
         return Err(Error::InvalidFormat(
-            "Waveform colour components must be between 0 and 1".into(),
+            "Waveform colour components must be finite".into(),
         ));
     }
     Ok(n as f32)
+}
+
+#[cfg(test)]mod source_public_color_tests{
+ use super::*;
+ #[test]fn public_raw_colors_and_scale_survive_and_unknown_sparse_uses_custom(){
+  for value in[-4.0,0.0,2.0,512.0]{let mut p=Palette::default();let dense=Color::new([value,0.25,0.5,value]).unwrap();let custom=Color::new([0.25,2.0,-1.0,0.5]).unwrap();p.set_dense(dense);p.set_sparse(custom);p.set_darken(value).unwrap();p.set_mode(SparseMode::Unknown(99));assert_eq!(p.resolved_sparse(),custom);assert_eq!(custom.unorm_rgba(),[0.25,1.0,0.0,0.5]);let mut fields=Map::new();p.write(&mut fields);assert_eq!(fields["WaveFormSparseColorOption"],"99");assert_eq!(Palette::read(&fields).unwrap(),p);fields.insert("WaveFormSparseColorOption".into(),"99".into());assert_eq!(Palette::read(&fields).unwrap(),p);}
+  let mut p=Palette::default();p.set_dense(Color::new([f32::MAX,-f32::MAX,0.0,2.0]).unwrap());p.set_darken(f32::MAX).unwrap();assert_eq!(p.resolved_sparse().unorm_rgba(),[1.0,0.0,0.0,1.0]);
+ }
 }

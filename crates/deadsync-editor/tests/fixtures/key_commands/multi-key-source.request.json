@@ -1,0 +1,1555 @@
+[
+  {
+    "name": "three-ordinary-ABC",
+    "bindings": [
+      {
+        "id": "Three",
+        "alternatives": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "C"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": []
+      },
+      {
+        "time": 0.7,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.8,
+        "down": []
+      },
+      {
+        "time": 0.9,
+        "down": [
+          "C"
+        ]
+      },
+      {
+        "time": 1.0,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 1.1,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "three-ordinary-ACB",
+    "bindings": [
+      {
+        "id": "Three",
+        "alternatives": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "C"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "A",
+          "C",
+          "B"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "C",
+          "B"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "B"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": []
+      },
+      {
+        "time": 0.7,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.8,
+        "down": []
+      },
+      {
+        "time": 0.9,
+        "down": [
+          "C"
+        ]
+      },
+      {
+        "time": 1.0,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 1.1,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "three-ordinary-BAC",
+    "bindings": [
+      {
+        "id": "Three",
+        "alternatives": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "B"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "B",
+          "A"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "B",
+          "A",
+          "C"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "A",
+          "C"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "C"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": []
+      },
+      {
+        "time": 0.7,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.8,
+        "down": []
+      },
+      {
+        "time": 0.9,
+        "down": [
+          "C"
+        ]
+      },
+      {
+        "time": 1.0,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 1.1,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "three-ordinary-BCA",
+    "bindings": [
+      {
+        "id": "Three",
+        "alternatives": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "B"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "B",
+          "C",
+          "A"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "C",
+          "A"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": []
+      },
+      {
+        "time": 0.7,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.8,
+        "down": []
+      },
+      {
+        "time": 0.9,
+        "down": [
+          "C"
+        ]
+      },
+      {
+        "time": 1.0,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 1.1,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "three-ordinary-CAB",
+    "bindings": [
+      {
+        "id": "Three",
+        "alternatives": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "C"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "C",
+          "A"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "C",
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "B"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": []
+      },
+      {
+        "time": 0.7,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.8,
+        "down": []
+      },
+      {
+        "time": 0.9,
+        "down": [
+          "C"
+        ]
+      },
+      {
+        "time": 1.0,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 1.1,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "three-ordinary-CBA",
+    "bindings": [
+      {
+        "id": "Three",
+        "alternatives": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "C"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "C",
+          "B"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "C",
+          "B",
+          "A"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "B",
+          "A"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": []
+      },
+      {
+        "time": 0.7,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.8,
+        "down": []
+      },
+      {
+        "time": 0.9,
+        "down": [
+          "C"
+        ]
+      },
+      {
+        "time": 1.0,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 1.1,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "two-ordinary-final-first-and-prefix-repress",
+    "bindings": [
+      {
+        "id": "Pair",
+        "alternatives": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "B"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "B"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": []
+      },
+      {
+        "time": 0.6,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.7,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.8,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.9,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "equal-inputs-preserve-registration-order",
+    "bindings": [
+      {
+        "id": "First",
+        "alternatives": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      },
+      {
+        "id": "Second",
+        "alternatives": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "B"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": []
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "equal-sets-different-final-order",
+    "bindings": [
+      {
+        "id": "AB",
+        "alternatives": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      },
+      {
+        "id": "BA",
+        "alternatives": [
+          [
+            "B",
+            "A"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "B"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "longer-set-wins-simultaneous",
+    "bindings": [
+      {
+        "id": "Short",
+        "alternatives": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      },
+      {
+        "id": "Long",
+        "alternatives": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": []
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.7,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "earlier-shorter-blocks-later-superset",
+    "bindings": [
+      {
+        "id": "Long",
+        "alternatives": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      },
+      {
+        "id": "Short",
+        "alternatives": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "A",
+          "C"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": []
+      },
+      {
+        "time": 0.7,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.8,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "overlap-without-subset-is-independent",
+    "bindings": [
+      {
+        "id": "AB",
+        "alternatives": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      },
+      {
+        "id": "AC",
+        "alternatives": [
+          [
+            "A",
+            "C"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "A",
+          "C"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "nonblocking-ordinary-modifier",
+    "bindings": [
+      {
+        "id": "Modifier",
+        "alternatives": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "repeat": false,
+        "blocks": false
+      },
+      {
+        "id": "Lane",
+        "alternatives": [
+          [
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "A",
+          "C"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "multiple-ordinary-alternatives-same-id",
+    "bindings": [
+      {
+        "id": "Lane",
+        "alternatives": [
+          [
+            "A",
+            "B"
+          ],
+          [
+            "C",
+            "D"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "C",
+          "D"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "ordinary-prefix-modifier-final",
+    "bindings": [
+      {
+        "id": "ModifierFinal",
+        "alternatives": [
+          [
+            "A",
+            "LeftShift"
+          ]
+        ],
+        "repeat": false,
+        "blocks": false
+      },
+      {
+        "id": "Other",
+        "alternatives": [
+          [
+            "A",
+            "LeftShift",
+            "B"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "RightShift"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "A",
+          "RightShift",
+          "B"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "modifier-only-general-callback",
+    "bindings": [
+      {
+        "id": "ModifierOnly",
+        "alternatives": [
+          [
+            "LeftControl",
+            "LeftShift"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "RightControl"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "RightControl",
+          "RightShift"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "LeftControl",
+          "RightControl",
+          "LeftShift",
+          "RightShift"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "LeftControl",
+          "RightShift"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "RightShift"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "physical-control-vs-super-alternatives",
+    "bindings": [
+      {
+        "id": "Lane",
+        "alternatives": [
+          [
+            "LeftControl",
+            "A",
+            "B"
+          ],
+          [
+            "LeftWindows",
+            "A",
+            "B"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "LeftControl",
+          "LeftWindows",
+          "A"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "LeftControl",
+          "LeftWindows",
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "LeftWindows",
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "reserved-rescue-key-is-valid-in-original-engine",
+    "bindings": [
+      {
+        "id": "Menu",
+        "alternatives": [
+          [
+            "F1"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      },
+      {
+        "id": "Other",
+        "alternatives": [
+          [
+            "F1",
+            "F13"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "F13"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "F1",
+          "F13"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": []
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "F1"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "F1",
+          "F13"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "ten-key-set-has-no-eight-key-source-limit",
+    "bindings": [
+      {
+        "id": "Ten",
+        "alternatives": [
+          [
+            "A",
+            "B",
+            "C",
+            "D",
+            "F13",
+            "F14",
+            "D1",
+            "S",
+            "Enter",
+            "LeftShift"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "F13",
+          "F14",
+          "D1",
+          "S",
+          "Enter",
+          "LeftShift"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "F13",
+          "F14",
+          "D1",
+          "S",
+          "Enter"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "repeated-prefix-key-release",
+    "bindings": [
+      {
+        "id": "Pair",
+        "alternatives": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "repeat": false,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.2,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.3,
+        "down": [
+          "A"
+        ]
+      },
+      {
+        "time": 0.4,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.5,
+        "down": [
+          "B"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.7,
+        "down": []
+      }
+    ]
+  },
+  {
+    "name": "repeat-strict-boundary-arbitrary-set",
+    "bindings": [
+      {
+        "id": "Repeat",
+        "alternatives": [
+          [
+            "A",
+            "B"
+          ]
+        ],
+        "repeat": true,
+        "blocks": true
+      }
+    ],
+    "frames": [
+      {
+        "time": 0.0,
+        "down": []
+      },
+      {
+        "time": 0.1,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.6,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.601,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.62,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 0.621,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 5.0,
+        "down": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "time": 5.1,
+        "down": []
+      }
+    ]
+  }
+]

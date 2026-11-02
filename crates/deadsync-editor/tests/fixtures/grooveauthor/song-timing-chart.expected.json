@@ -1,0 +1,1906 @@
+[
+  {
+    "Culture": "en-US",
+    "Cases": [
+      {
+        "Name": "custom-0-delete-None",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-0-delete-0",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-0-delete-1",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-0-delete-3",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-1-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-1-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-1-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-1-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-2-delete-None",
+        "Decoded": true,
+        "Loaded": 1,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-2-delete-0",
+        "Decoded": true,
+        "Loaded": 1,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-2-delete-1",
+        "Decoded": true,
+        "Loaded": 1,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-2-delete-3",
+        "Decoded": true,
+        "Loaded": 1,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-3-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-3-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-3-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-3-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-4-delete-None",
+        "Decoded": true,
+        "Loaded": 2,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 2,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-4-delete-0",
+        "Decoded": true,
+        "Loaded": 2,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 2,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-4-delete-1",
+        "Decoded": true,
+        "Loaded": 2,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 2,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-4-delete-3",
+        "Decoded": true,
+        "Loaded": 2,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 2,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-5-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-5-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-5-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-5-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-6-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-6-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-6-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-6-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-7-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-7-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-7-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-7-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-8-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-8-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-8-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-8-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-9-delete-None",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-9-delete-0",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-9-delete-1",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-9-delete-3",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-10-delete-None",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-10-delete-0",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-10-delete-1",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-10-delete-3",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-11-delete-None",
+        "Decoded": true,
+        "Loaded": 3,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 3,
+        "Metadata": {
+          "SyncOffset": 0.125,
+          "DefaultChartType": "pump_double",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-11-delete-0",
+        "Decoded": true,
+        "Loaded": 3,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 3,
+        "Metadata": {
+          "SyncOffset": 0.125,
+          "DefaultChartType": "pump_double",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-11-delete-1",
+        "Decoded": true,
+        "Loaded": 3,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 3,
+        "Metadata": {
+          "SyncOffset": 0.125,
+          "DefaultChartType": "pump_double",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-11-delete-3",
+        "Decoded": true,
+        "Loaded": 3,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0.125,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "setter--1",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": null,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": null,
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "setter-0",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "setter-1",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "setter-3",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 3,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "pump_double",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "setter-999",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "null-setter-delete-0",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": null,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": null,
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "null-setter-delete-3",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": null,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": null,
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "empty",
+        "Decoded": null,
+        "Loaded": null,
+        "Order": [],
+        "Selected": null,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": null,
+          "DefaultChartIndex": 0
+        }
+      }
+    ]
+  },
+  {
+    "Culture": "fr-FR",
+    "Cases": [
+      {
+        "Name": "custom-0-delete-None",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-0-delete-0",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-0-delete-1",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-0-delete-3",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-1-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-1-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-1-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-1-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-2-delete-None",
+        "Decoded": true,
+        "Loaded": 1,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-2-delete-0",
+        "Decoded": true,
+        "Loaded": 1,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-2-delete-1",
+        "Decoded": true,
+        "Loaded": 1,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-2-delete-3",
+        "Decoded": true,
+        "Loaded": 1,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-3-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-3-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-3-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-3-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-4-delete-None",
+        "Decoded": true,
+        "Loaded": 2,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 2,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-4-delete-0",
+        "Decoded": true,
+        "Loaded": 2,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 2,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-4-delete-1",
+        "Decoded": true,
+        "Loaded": 2,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 2,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-4-delete-3",
+        "Decoded": true,
+        "Loaded": 2,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 2,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-5-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-5-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-5-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-5-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-6-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-6-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-6-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-6-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-7-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-7-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-7-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-7-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-8-delete-None",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-8-delete-0",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-8-delete-1",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-8-delete-3",
+        "Decoded": true,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-9-delete-None",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-9-delete-0",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-9-delete-1",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-9-delete-3",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-10-delete-None",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-10-delete-0",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-10-delete-1",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "custom-10-delete-3",
+        "Decoded": false,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "custom-11-delete-None",
+        "Decoded": true,
+        "Loaded": 3,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 3,
+        "Metadata": {
+          "SyncOffset": 0.125,
+          "DefaultChartType": "pump_double",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-11-delete-0",
+        "Decoded": true,
+        "Loaded": 3,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 3,
+        "Metadata": {
+          "SyncOffset": 0.125,
+          "DefaultChartType": "pump_double",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-11-delete-1",
+        "Decoded": true,
+        "Loaded": 3,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 3,
+        "Metadata": {
+          "SyncOffset": 0.125,
+          "DefaultChartType": "pump_double",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "custom-11-delete-3",
+        "Decoded": true,
+        "Loaded": 3,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0.125,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "setter--1",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": null,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": null,
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "setter-0",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "setter-1",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 1,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 1
+        }
+      },
+      {
+        "Name": "setter-3",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 3,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "pump_double",
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "setter-999",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": 0,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": "dance_single",
+          "DefaultChartIndex": 2
+        }
+      },
+      {
+        "Name": "null-setter-delete-0",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": null,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": null,
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "null-setter-delete-3",
+        "Decoded": null,
+        "Loaded": 0,
+        "Order": [
+          2,
+          1,
+          0,
+          3
+        ],
+        "Selected": null,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": null,
+          "DefaultChartIndex": 0
+        }
+      },
+      {
+        "Name": "empty",
+        "Decoded": null,
+        "Loaded": null,
+        "Order": [],
+        "Selected": null,
+        "Metadata": {
+          "SyncOffset": 0.009,
+          "DefaultChartType": null,
+          "DefaultChartIndex": 0
+        }
+      }
+    ]
+  }
+]

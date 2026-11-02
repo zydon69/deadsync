@@ -1,3 +1,5 @@
+#[path = "support/source_output_context.rs"]
+mod source_output_context;
 use deadsync_editor::{
     chart_properties::Draft,
     document::{Document, Format},
@@ -110,9 +112,15 @@ fn properties_without_markers_are_read_only_until_applied_and_save_reopen_in_sm_
             .select_expression(&file.session, 0, &catalog, profile.guid())
             .unwrap();
         draft.apply(&mut file.session, 0).unwrap();
+        assert_eq!(file.session.serialize().unwrap(), after);
         file.save().unwrap();
-        let reopened = FileSession::open(&path).unwrap();
-        assert_eq!(reopened.session.serialize().unwrap(), after);
+        assert_eq!(file.session.serialize().unwrap(), after);
+        let published = fs::read(&path).unwrap();
+        source_output_context::assert_context_only(&after, &published, format);
+        let mut reopened = FileSession::open(&path).unwrap();
+        assert_eq!(reopened.session.serialize().unwrap(), published);
+        assert_eq!(reopened.session.grid(0).unwrap(), &notes);
+        assert_eq!(reopened.session.grid(1).unwrap(), source.grid(1).unwrap());
         assert_eq!(
             Draft::capture(&reopened.session, 0).unwrap().expression(),
             profile.guid()

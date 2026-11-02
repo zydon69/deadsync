@@ -1,0 +1,13 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "LibraryCommit": "bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourcesSha256": {
+    "Editor.cs": "5f486a6ab84b6fa4638b07e442a85b24337dfda85d93d32b45942881641f8709",
+    "Selection.cs": "e7090aab08b8677ee724f0502c520ffebf0c39f7e449cc6f4fd4d53df45ffd46"
+  },
+  "AdapterSha256": "8f5299f56ddf8d69450149f35b3378c01ebb08f09bdbd5a7c4fdbe1fd6095c30",
+  "OracleAssemblySha256": "59eb7a160ea9b2be6ae206fae616b5f2c666bcecf0d2c90fab5fd297b4b6d5c7",
+  "FumenAssemblySha256": "82827015ed4e3cc01237287f27e33f436c5958f79a3d57b6bc2011f7e04f6639",
+  "Scope": "Original four callbacks, RegeneratePatterns and complete Selection; actual pinned Fumen ActionQueue/ActionMultiple/ActionSetObjectFieldOrPropertyValue. Recording generation adapter proves scheduling/history only; generation and clear workers have separate existing source oracles."
+}

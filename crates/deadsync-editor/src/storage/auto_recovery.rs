@@ -79,7 +79,9 @@ impl AutoRecovery {
         self.worker.is_some()
     }
 
-    /// Returns true when a durable write completed. A clean or unchanged
+    /// Returns true when a recovery publication completed. Check FileSession
+    /// for a retained durability warning; a published file is never a refusal.
+    /// A clean or unchanged
     /// session does not create a draft, and failures wait for the next interval.
     pub fn update(&mut self, file: &FileSession, now: Instant) -> Result<bool, Error> {
         let completed = self.poll_pending()?;
@@ -92,17 +94,20 @@ impl AutoRecovery {
 
     /// Request an immediate snapshot; at most one write can be in flight.
     pub fn request(&mut self, file: &FileSession, now: Instant) -> Result<(), Error> {
+        self.request_with_sync(file,now,super::sync_directory)
+    }
+    pub(super) fn request_with_sync(&mut self,file:&FileSession,now:Instant,sync:impl FnMut(&std::path::Path)->Result<(),Error>+Send+'static)->Result<(),Error>{
         if self.worker.is_some() {
             return Ok(());
         }
         self.last_attempt = Some(now);
-        if !file.session.is_dirty()
+        if !file.has_pending_recovery_durability() && (!file.session.is_dirty()
             || self.saved.as_ref().is_some_and(|receipt| {
                 file.session.accepts_token(&receipt.token)
                     && receipt.baseline == file.expected
                     && receipt.policy_revision == file.output_policy_revision()
                     && receipt.publication_revision==file.publication_revision
-            })
+            }))
         {
             return Ok(());
         }
@@ -117,7 +122,7 @@ impl AutoRecovery {
         std::thread::Builder::new()
             .name("editor-recovery".into())
             .spawn(move || {
-                let result = snapshot.write(true).map(|()| receipt);
+                let result = snapshot.write_with_sync(true,sync).map(|_| receipt);
                 let _ = sender.send(result);
             })?;
         self.worker = Some(receiver);

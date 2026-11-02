@@ -1,0 +1,8 @@
+{
+  "editor_commit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "scroll_source_sha256": "fb3eff5b35acb6f65a9a66079f2ca1f98c173a0fbb07dc3d127939c202973f04",
+  "waveform_source_sha256": "e53c40d3b272ae068008e61021562147f404ab5fe9a6de5f10a556ded1303b58",
+  "waveform_model_sha256": "068b1341cc815b9a200ade64f4708cc36aa42a5ec2cb1742642ab05e32071aff",
+  "host_sha256": "0061f1b5ad133b81af1d60aad86a1e04fa90846982545564c96cbb7fdda79262",
+  "scope": "Original pinned UI conditional sections with deterministic widget capture.\nCaptures only source enabled/visible gates. Widget APIs and their values are host\nadapters; this does not execute ImGui, native rendering or persistence.\n"
+}

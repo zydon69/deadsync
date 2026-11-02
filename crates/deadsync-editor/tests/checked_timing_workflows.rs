@@ -36,8 +36,13 @@ fn checked_warp_heads_do_not_expand_to_other_events_in_same_row_interval() {
     assert_eq!(plan.report().converted, 1);
     assert_eq!(s.serialize().unwrap(), before);
     plan.apply(&mut s, &BTreeSet::new()).unwrap();
-    assert_eq!(s.document().text(None, "WARPS").as_deref(), Some("3=1"));
-    assert_eq!(s.document().text(None, "STOPS").as_deref(), Some("1=-0.5"));
+    assert_eq!(s.document().text(Some(0), "WARPS").as_deref(), Some("3=1"));
+    assert_eq!(
+        s.document().text(Some(0), "STOPS").as_deref(),
+        Some("1=-0.5")
+    );
+    assert_eq!(s.document().text(None, "WARPS").as_deref(), Some("1=1,3=1"));
+    assert!(s.document().text(None, "STOPS").is_none());
     let after = s.serialize().unwrap();
     s.undo().unwrap();
     assert_eq!(s.serialize().unwrap(), before);
@@ -47,6 +52,7 @@ fn checked_warp_heads_do_not_expand_to_other_events_in_same_row_interval() {
 #[test]
 fn checked_stop_preset_converts_negative_only_and_preserves_positive_stop() {
     let mut s = session("#STOPS:1=1,3=-0.5;");
+    let before = s.serialize().unwrap();
     let mut selected = Selection::capture(&mut s, 0, 0, 192).unwrap();
     choose(&mut selected, |e| {
         matches!(
@@ -62,8 +68,18 @@ fn checked_stop_preset_converts_negative_only_and_preserves_positive_stop() {
         .unwrap();
     assert_eq!(plan.report().converted, 1);
     plan.apply(&mut s, &BTreeSet::new()).unwrap();
-    assert_eq!(s.document().text(None, "STOPS").as_deref(), Some("1=1"));
-    assert_eq!(s.document().text(None, "WARPS").as_deref(), Some("3=1"));
+    assert_eq!(s.document().text(Some(0), "STOPS").as_deref(), Some("1=1"));
+    assert_eq!(s.document().text(Some(0), "WARPS").as_deref(), Some("3=1"));
+    assert_eq!(
+        s.document().text(None, "STOPS").as_deref(),
+        Some("1=1,3=-0.5")
+    );
+    assert!(s.document().text(None, "WARPS").is_none());
+    let after = s.serialize().unwrap();
+    s.undo().unwrap();
+    assert_eq!(s.serialize().unwrap(), before);
+    s.redo().unwrap();
+    assert_eq!(s.serialize().unwrap(), after);
 }
 #[test]
 fn stale_foreign_or_empty_checked_choices_never_change_timing() {

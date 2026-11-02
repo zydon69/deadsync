@@ -10,10 +10,79 @@ pub mod physical;
 pub mod reservations;
 #[path = "key_binding_preferences/source_profile.rs"]
 pub mod source_profile;
+pub mod source_post_load;
+pub mod scroll_modifiers;
 use crate::key_commands::{Binding, Key};
 use std::collections::BTreeMap;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Action {
+    SelectAllNotes,
+    SelectAllTaps,
+    SelectAllMines,
+    SelectAllFakes,
+    SelectAllLifts,
+    SelectAllHolds,
+    SelectAllRolls,
+    SelectAllHoldsAndRolls,
+    SelectAllMiscEvents,
+    SelectAll,
+    SelectAllPatterns,
+    SelectAllCurrentPlayerNotes,
+    SelectAllCurrentPlayerTaps,
+    SelectAllCurrentPlayerMines,
+    SelectAllCurrentPlayerFakes,
+    SelectAllCurrentPlayerLifts,
+    SelectAllCurrentPlayerHolds,
+    SelectAllCurrentPlayerRolls,
+    SelectAllCurrentPlayerHoldsAndRolls,
+    SnapToNone,
+    SnapToQuarters,
+    SnapToEighths,
+    SnapToTwelfths,
+    SnapToSixteenths,
+    SnapToTwentyFourths,
+    SnapToThirtySeconds,
+    SnapToFortyEighths,
+    SnapToSixtyFourths,
+    SnapToOneHundredNinetySeconds,
+    SetPlayer1,
+    SetPlayer2,
+    SetPlayer3,
+    SetPlayer4,
+    RegenerateAllPatternsFixedSeeds,
+    RegenerateAllPatternsNewSeeds,
+    RegenerateSelectedPatternsFixedSeeds,
+    RegenerateSelectedPatternsNewSeeds,
+    Arrow0,
+    Arrow1,
+    Arrow2,
+    Arrow3,
+    Arrow4,
+    Arrow5,
+    Arrow6,
+    Arrow7,
+    Arrow8,
+    Arrow9,
+    ArrowModification,
+    MoveToPreviousRowWithSteps,
+    MoveToNextRowWithSteps,
+    MoveToPreviousRowWithEvent,
+    MoveToNextRowWithEvent,
+    MoveToStartOfStream,
+    MoveToEndOfStream,
+    MoveToNextPattern,
+    MoveToPreviousPattern,
+
+    CancelGoBack,
+    NavigateNextPattern,
+    NavigatePreviousPattern,
+    ToggleMinimapFocus,
+    OpenMinimapSettings,
+    CloseEditor,
+    Close,
+    SavePackFile,
+    Exit,
+
     AddEventTempo,
     AddEventInterpolatedScrollRate,
     AddEventScrollRate,
@@ -58,6 +127,8 @@ pub enum Action {
     ConvertSelectedRollsToHolds,
     ConvertSelectedRollsToTaps,
     ConvertSelectedRollsToMines,
+    ConvertSelectedWarpsToNegativeStops,
+    ConvertSelectedNegativeStopsToWarps,
     SwapSelectedTapsAndMines,
     SwapSelectedTapsAndFakes,
     SwapSelectedTapsAndLifts,
@@ -68,6 +139,10 @@ pub enum Action {
     SwapSelectedHoldsAndMines,
     SwapSelectedRollsAndTaps,
     SwapSelectedRollsAndMines,
+    AutoApplyAllSongAssets,
+    AutoApplyUnsetSongAssets,
+    ShiftEarlier,
+    ShiftLater,
     ShiftAllEarlier,
     ShiftAllLater,
 
@@ -100,6 +175,7 @@ pub enum Action {
     SaveAs,
     OpenMenu,
     OpenAnalysis,
+    OpenAssistant,
     OpenSongProperties,
     OpenTiming,
     OpenPatternSet,
@@ -135,6 +211,10 @@ pub enum Action {
     ZoomOut,
     ResetZoom,
     ToggleAutoAdvance,
+    MoveEventPreview,
+    MoveEventEndHint,
+    ToggleNoteEntryMode,
+    ToggleSpacingMode,
     NextTool,
     PreviousTool,
     MoveUp,
@@ -151,9 +231,15 @@ pub enum Action {
     FileOpen,
     FileReload,
     FileRecent,
+    OpenContainingFolder,
+    TogglePreview,
+    ToggleAssistTick,
+    ToggleBeatTick,
+    ToggleDark,
+    OpenDarkSettings,
 }
 impl Action {
-    pub const ALL: [Self; 136] = [
+    pub const ALL: [Self; 218] = [
         Self::Save,
         Self::Undo,
         Self::Redo,
@@ -183,6 +269,7 @@ impl Action {
         Self::SaveAs,
         Self::OpenMenu,
         Self::OpenAnalysis,
+        Self::OpenAssistant,
         Self::OpenSongProperties,
         Self::OpenTiming,
         Self::OpenPatternSet,
@@ -218,6 +305,10 @@ impl Action {
         Self::ZoomOut,
         Self::ResetZoom,
         Self::ToggleAutoAdvance,
+        Self::MoveEventPreview,
+        Self::MoveEventEndHint,
+        Self::ToggleNoteEntryMode,
+        Self::ToggleSpacingMode,
         Self::NextTool,
         Self::PreviousTool,
         Self::MoveUp,
@@ -234,6 +325,12 @@ impl Action {
         Self::FileOpen,
         Self::FileReload,
         Self::FileRecent,
+        Self::OpenContainingFolder,
+        Self::TogglePreview,
+        Self::ToggleAssistTick,
+        Self::ToggleBeatTick,
+        Self::ToggleDark,
+        Self::OpenDarkSettings,
         Self::AddEventTempo,
         Self::AddEventInterpolatedScrollRate,
         Self::AddEventScrollRate,
@@ -278,6 +375,8 @@ impl Action {
         Self::ConvertSelectedRollsToHolds,
         Self::ConvertSelectedRollsToTaps,
         Self::ConvertSelectedRollsToMines,
+        Self::ConvertSelectedWarpsToNegativeStops,
+        Self::ConvertSelectedNegativeStopsToWarps,
         Self::SwapSelectedTapsAndMines,
         Self::SwapSelectedTapsAndFakes,
         Self::SwapSelectedTapsAndLifts,
@@ -288,11 +387,147 @@ impl Action {
         Self::SwapSelectedHoldsAndMines,
         Self::SwapSelectedRollsAndTaps,
         Self::SwapSelectedRollsAndMines,
+        Self::AutoApplyAllSongAssets,
+        Self::AutoApplyUnsetSongAssets,
+        Self::ShiftEarlier,
+        Self::ShiftLater,
         Self::ShiftAllEarlier,
         Self::ShiftAllLater,
+        Self::NavigateNextPattern,
+        Self::NavigatePreviousPattern,
+        Self::ToggleMinimapFocus,
+        Self::OpenMinimapSettings,
+        Self::CloseEditor,
+        Self::Close,
+        Self::SavePackFile,
+        Self::Exit,
+        Self::CancelGoBack,
+        Self::SelectAllNotes,
+        Self::SelectAllTaps,
+        Self::SelectAllMines,
+        Self::SelectAllFakes,
+        Self::SelectAllLifts,
+        Self::SelectAllHolds,
+        Self::SelectAllRolls,
+        Self::SelectAllHoldsAndRolls,
+        Self::SelectAllMiscEvents,
+        Self::SelectAll,
+        Self::SelectAllPatterns,
+        Self::SelectAllCurrentPlayerNotes,
+        Self::SelectAllCurrentPlayerTaps,
+        Self::SelectAllCurrentPlayerMines,
+        Self::SelectAllCurrentPlayerFakes,
+        Self::SelectAllCurrentPlayerLifts,
+        Self::SelectAllCurrentPlayerHolds,
+        Self::SelectAllCurrentPlayerRolls,
+        Self::SelectAllCurrentPlayerHoldsAndRolls,
+        Self::SnapToNone,
+        Self::SnapToQuarters,
+        Self::SnapToEighths,
+        Self::SnapToTwelfths,
+        Self::SnapToSixteenths,
+        Self::SnapToTwentyFourths,
+        Self::SnapToThirtySeconds,
+        Self::SnapToFortyEighths,
+        Self::SnapToSixtyFourths,
+        Self::SnapToOneHundredNinetySeconds,
+        Self::SetPlayer1,
+        Self::SetPlayer2,
+        Self::SetPlayer3,
+        Self::SetPlayer4,
+        Self::RegenerateAllPatternsFixedSeeds,
+        Self::RegenerateAllPatternsNewSeeds,
+        Self::RegenerateSelectedPatternsFixedSeeds,
+        Self::RegenerateSelectedPatternsNewSeeds,
+        Self::Arrow0,
+        Self::Arrow1,
+        Self::Arrow2,
+        Self::Arrow3,
+        Self::Arrow4,
+        Self::Arrow5,
+        Self::Arrow6,
+        Self::Arrow7,
+        Self::Arrow8,
+        Self::Arrow9,
+        Self::ArrowModification,
+        Self::MoveToPreviousRowWithSteps,
+        Self::MoveToNextRowWithSteps,
+        Self::MoveToPreviousRowWithEvent,
+        Self::MoveToNextRowWithEvent,
+        Self::MoveToStartOfStream,
+        Self::MoveToEndOfStream,
+        Self::MoveToNextPattern,
+        Self::MoveToPreviousPattern,
     ];
     pub fn id(self) -> &'static str {
         match self {
+            Self::SelectAllNotes => "SelectAllNotes",
+            Self::SelectAllTaps => "SelectAllTaps",
+            Self::SelectAllMines => "SelectAllMines",
+            Self::SelectAllFakes => "SelectAllFakes",
+            Self::SelectAllLifts => "SelectAllLifts",
+            Self::SelectAllHolds => "SelectAllHolds",
+            Self::SelectAllRolls => "SelectAllRolls",
+            Self::SelectAllHoldsAndRolls => "SelectAllHoldsAndRolls",
+            Self::SelectAllMiscEvents => "SelectAllMiscEvents",
+            Self::SelectAll => "SelectAll",
+            Self::SelectAllPatterns => "SelectAllPatterns",
+            Self::SelectAllCurrentPlayerNotes => "SelectAllCurrentPlayerNotes",
+            Self::SelectAllCurrentPlayerTaps => "SelectAllCurrentPlayerTaps",
+            Self::SelectAllCurrentPlayerMines => "SelectAllCurrentPlayerMines",
+            Self::SelectAllCurrentPlayerFakes => "SelectAllCurrentPlayerFakes",
+            Self::SelectAllCurrentPlayerLifts => "SelectAllCurrentPlayerLifts",
+            Self::SelectAllCurrentPlayerHolds => "SelectAllCurrentPlayerHolds",
+            Self::SelectAllCurrentPlayerRolls => "SelectAllCurrentPlayerRolls",
+            Self::SelectAllCurrentPlayerHoldsAndRolls => "SelectAllCurrentPlayerHoldsAndRolls",
+            Self::SnapToNone => "SnapToNone",
+            Self::SnapToQuarters => "SnapToQuarters",
+            Self::SnapToEighths => "SnapToEighths",
+            Self::SnapToTwelfths => "SnapToTwelfths",
+            Self::SnapToSixteenths => "SnapToSixteenths",
+            Self::SnapToTwentyFourths => "SnapToTwentyFourths",
+            Self::SnapToThirtySeconds => "SnapToThirtySeconds",
+            Self::SnapToFortyEighths => "SnapToFortyEighths",
+            Self::SnapToSixtyFourths => "SnapToSixtyFourths",
+            Self::SnapToOneHundredNinetySeconds => "SnapToOneHundredNinetySeconds",
+            Self::SetPlayer1 => "SetPlayer1",
+            Self::SetPlayer2 => "SetPlayer2",
+            Self::SetPlayer3 => "SetPlayer3",
+            Self::SetPlayer4 => "SetPlayer4",
+            Self::RegenerateAllPatternsFixedSeeds => "RegenerateAllPatternsFixedSeeds",
+            Self::RegenerateAllPatternsNewSeeds => "RegenerateAllPatternsNewSeeds",
+            Self::RegenerateSelectedPatternsFixedSeeds => "RegenerateSelectedPatternsFixedSeeds",
+            Self::RegenerateSelectedPatternsNewSeeds => "RegenerateSelectedPatternsNewSeeds",
+            Self::Arrow0 => "Arrow0",
+            Self::Arrow1 => "Arrow1",
+            Self::Arrow2 => "Arrow2",
+            Self::Arrow3 => "Arrow3",
+            Self::Arrow4 => "Arrow4",
+            Self::Arrow5 => "Arrow5",
+            Self::Arrow6 => "Arrow6",
+            Self::Arrow7 => "Arrow7",
+            Self::Arrow8 => "Arrow8",
+            Self::Arrow9 => "Arrow9",
+            Self::ArrowModification => "ArrowModification",
+            Self::MoveToPreviousRowWithSteps => "MoveToPreviousRowWithSteps",
+            Self::MoveToNextRowWithSteps => "MoveToNextRowWithSteps",
+            Self::MoveToPreviousRowWithEvent => "MoveToPreviousRowWithEvent",
+            Self::MoveToNextRowWithEvent => "MoveToNextRowWithEvent",
+            Self::MoveToStartOfStream => "MoveToStartOfStream",
+            Self::MoveToEndOfStream => "MoveToEndOfStream",
+            Self::MoveToNextPattern => "MoveToNextPattern",
+            Self::MoveToPreviousPattern => "MoveToPreviousPattern",
+
+            Self::CancelGoBack => "CancelGoBack",
+            Self::NavigateNextPattern => "NavigateNextPattern",
+            Self::NavigatePreviousPattern => "NavigatePreviousPattern",
+            Self::ToggleMinimapFocus => "ToggleMinimapFocus",
+            Self::OpenMinimapSettings => "OpenMinimapSettings",
+            Self::CloseEditor => "CloseEditor",
+            Self::Close => "Close",
+            Self::SavePackFile => "SavePackFile",
+            Self::Exit => "Exit",
+
             Self::AddEventTempo => "AddEventTempo",
             Self::AddEventInterpolatedScrollRate => "AddEventInterpolatedScrollRate",
             Self::AddEventScrollRate => "AddEventScrollRate",
@@ -337,6 +572,8 @@ impl Action {
             Self::ConvertSelectedRollsToHolds => "ConvertSelectedRollsToHolds",
             Self::ConvertSelectedRollsToTaps => "ConvertSelectedRollsToTaps",
             Self::ConvertSelectedRollsToMines => "ConvertSelectedRollsToMines",
+            Self::ConvertSelectedWarpsToNegativeStops => "ConvertSelectedWarpsToNegativeStops",
+            Self::ConvertSelectedNegativeStopsToWarps => "ConvertSelectedNegativeStopsToWarps",
             Self::SwapSelectedTapsAndMines => "SwapSelectedTapsAndMines",
             Self::SwapSelectedTapsAndFakes => "SwapSelectedTapsAndFakes",
             Self::SwapSelectedTapsAndLifts => "SwapSelectedTapsAndLifts",
@@ -347,6 +584,10 @@ impl Action {
             Self::SwapSelectedHoldsAndMines => "SwapSelectedHoldsAndMines",
             Self::SwapSelectedRollsAndTaps => "SwapSelectedRollsAndTaps",
             Self::SwapSelectedRollsAndMines => "SwapSelectedRollsAndMines",
+            Self::AutoApplyAllSongAssets => "AutoApplyAllSongAssets",
+            Self::AutoApplyUnsetSongAssets => "AutoApplyUnsetSongAssets",
+            Self::ShiftEarlier => "ShiftEarlier",
+            Self::ShiftLater => "ShiftLater",
             Self::ShiftAllEarlier => "ShiftAllEarlier",
             Self::ShiftAllLater => "ShiftAllLater",
 
@@ -379,6 +620,7 @@ impl Action {
             Self::SaveAs => "SaveAs",
             Self::OpenMenu => "OpenEditorMenu",
             Self::OpenAnalysis => "OpenChartAnalysis",
+            Self::OpenAssistant => "OpenAssistant",
             Self::OpenSongProperties => "OpenSongProperties",
             Self::OpenTiming => "OpenTimingEvents",
             Self::OpenPatternSet => "OpenPatternSet",
@@ -414,6 +656,10 @@ impl Action {
             Self::ZoomOut => "DecreaseKeyboardZoom",
             Self::ResetZoom => "ResetKeyboardZoom",
             Self::ToggleAutoAdvance => "ToggleAutoAdvance",
+            Self::MoveEventPreview => "MoveEventPreview",
+            Self::MoveEventEndHint => "MoveEventEndHint",
+            Self::ToggleNoteEntryMode => "ToggleNoteEntryMode",
+            Self::ToggleSpacingMode => "ToggleSpacingMode",
             Self::NextTool => "NextNoteTool",
             Self::PreviousTool => "PreviousNoteTool",
             Self::MoveUp => "MoveUp",
@@ -430,16 +676,76 @@ impl Action {
             Self::FileOpen => "Open",
             Self::FileReload => "Reload",
             Self::FileRecent => "OpenRecentSongs",
+            Self::OpenContainingFolder => "OpenContainingFolder",
+            Self::TogglePreview => "TogglePreview",
+            Self::ToggleAssistTick => "ToggleAssistTick",
+            Self::ToggleBeatTick => "ToggleBeatTick",
+            Self::ToggleDark => "ToggleDark",
+            Self::OpenDarkSettings => "OpenDarkSettings",
         }
     }
     pub fn from_id(id: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|a| a.id() == id)
     }
     /// Source selected-note callbacks usable from the checked-selection panel.
+    pub fn is_source_view_setting(self) -> bool {
+        matches!(
+            self,
+            Self::SnapToNone
+                | Self::SnapToQuarters
+                | Self::SnapToEighths
+                | Self::SnapToTwelfths
+                | Self::SnapToSixteenths
+                | Self::SnapToTwentyFourths
+                | Self::SnapToThirtySeconds
+                | Self::SnapToFortyEighths
+                | Self::SnapToSixtyFourths
+                | Self::SnapToOneHundredNinetySeconds
+                | Self::SetPlayer1
+                | Self::SetPlayer2
+                | Self::SetPlayer3
+                | Self::SetPlayer4
+        )
+    }
+    pub fn is_selection_preset(self) -> bool {
+        matches!(
+            self,
+            Self::SelectAllNotes
+                | Self::SelectAllTaps
+                | Self::SelectAllMines
+                | Self::SelectAllFakes
+                | Self::SelectAllLifts
+                | Self::SelectAllHolds
+                | Self::SelectAllRolls
+                | Self::SelectAllHoldsAndRolls
+                | Self::SelectAllMiscEvents
+                | Self::SelectAll
+                | Self::SelectAllPatterns
+                | Self::SelectAllCurrentPlayerNotes
+                | Self::SelectAllCurrentPlayerTaps
+                | Self::SelectAllCurrentPlayerMines
+                | Self::SelectAllCurrentPlayerFakes
+                | Self::SelectAllCurrentPlayerLifts
+                | Self::SelectAllCurrentPlayerHolds
+                | Self::SelectAllCurrentPlayerRolls
+                | Self::SelectAllCurrentPlayerHoldsAndRolls
+        )
+    }
+    pub fn is_source_pattern_action(self) -> bool {
+        matches!(
+            self,
+            Self::RegenerateAllPatternsFixedSeeds
+                | Self::RegenerateAllPatternsNewSeeds
+                | Self::RegenerateSelectedPatternsFixedSeeds
+                | Self::RegenerateSelectedPatternsNewSeeds
+        )
+    }
     pub fn is_selected_review(self) -> bool {
         matches!(
             self,
-            Self::Mirror
+            Self::ShiftEarlier
+                | Self::ShiftLater
+                | Self::Mirror
                 | Self::Flip
                 | Self::MirrorAndFlip
                 | Self::ShiftLeft
@@ -469,6 +775,8 @@ impl Action {
                 | Self::ConvertSelectedHoldsToMines
                 | Self::ConvertSelectedRollsToHolds
                 | Self::ConvertSelectedRollsToTaps
+                | Self::ConvertSelectedWarpsToNegativeStops
+                | Self::ConvertSelectedNegativeStopsToWarps
                 | Self::ConvertSelectedRollsToMines
                 | Self::SwapSelectedTapsAndMines
                 | Self::SwapSelectedTapsAndFakes
@@ -482,10 +790,48 @@ impl Action {
                 | Self::SwapSelectedRollsAndMines
         )
     }
+    pub fn is_source_event_navigation(self) -> bool {
+        matches!(
+            self,
+            Self::MoveToPreviousRowWithSteps
+                | Self::MoveToNextRowWithSteps
+                | Self::MoveToPreviousRowWithEvent
+                | Self::MoveToNextRowWithEvent
+                | Self::MoveToStartOfStream
+                | Self::MoveToEndOfStream
+        )
+    }
+    pub fn lane(self) -> Option<u16> {
+        match self {
+            Self::Arrow0 => Some(0),
+            Self::Arrow1 => Some(1),
+            Self::Arrow2 => Some(2),
+            Self::Arrow3 => Some(3),
+            Self::Arrow4 => Some(4),
+            Self::Arrow5 => Some(5),
+            Self::Arrow6 => Some(6),
+            Self::Arrow7 => Some(7),
+            Self::Arrow8 => Some(8),
+            Self::Arrow9 => Some(9),
+            _ => None,
+        }
+    }
+    pub fn is_lane_entry(self) -> bool { self.lane().is_some() || self == Self::ArrowModification }
+    pub fn accepts_chord(self, keys: &[String]) -> bool { reservations::supported_chord(keys) }
     pub fn repeats(self) -> bool {
         matches!(
             self,
-            Self::ShiftLeft
+            Self::MoveToPreviousRowWithSteps
+                | Self::MoveToNextRowWithSteps
+                | Self::MoveToPreviousRowWithEvent
+                | Self::MoveToNextRowWithEvent
+                | Self::MoveToStartOfStream
+                | Self::MoveToEndOfStream
+                | Self::MoveToNextPattern
+                | Self::MoveToPreviousPattern
+                | Self::NavigateNextPattern
+                | Self::NavigatePreviousPattern
+                | Self::ShiftLeft
                 | Self::ShiftRight
                 | Self::ShiftLeftAndWrap
                 | Self::ShiftRightAndWrap
@@ -509,6 +855,71 @@ impl Action {
     }
     fn native(self) -> Vec<Vec<&'static str>> {
         match self {
+            Self::Arrow0 => vec![vec!["D1"]],
+            Self::Arrow1 => vec![vec!["D2"]],
+            Self::Arrow2 => vec![vec!["D3"]],
+            Self::Arrow3 => vec![vec!["D4"]],
+            Self::Arrow4 => vec![vec!["D5"]],
+            Self::Arrow5 => vec![vec!["D6"]],
+            Self::Arrow6 => vec![vec!["D7"]],
+            Self::Arrow7 => vec![vec!["D8"]],
+            Self::Arrow8 => vec![vec!["D9"]],
+            Self::Arrow9 => vec![vec!["D0"]],
+            Self::ArrowModification => vec![vec!["LeftShift"]],
+            Self::SelectAllNotes
+            | Self::SelectAllTaps
+            | Self::SelectAllMines
+            | Self::SelectAllFakes
+            | Self::SelectAllLifts
+            | Self::SelectAllHolds
+            | Self::SelectAllRolls
+            | Self::SelectAllHoldsAndRolls
+            | Self::SelectAllMiscEvents
+            | Self::SelectAll
+            | Self::SelectAllPatterns
+            | Self::SelectAllCurrentPlayerNotes
+            | Self::SelectAllCurrentPlayerTaps
+            | Self::SelectAllCurrentPlayerMines
+            | Self::SelectAllCurrentPlayerFakes
+            | Self::SelectAllCurrentPlayerLifts
+            | Self::SelectAllCurrentPlayerHolds
+            | Self::SelectAllCurrentPlayerRolls
+            | Self::SelectAllCurrentPlayerHoldsAndRolls
+            | Self::SnapToNone
+            | Self::SnapToQuarters
+            | Self::SnapToEighths
+            | Self::SnapToTwelfths
+            | Self::SnapToSixteenths
+            | Self::SnapToTwentyFourths
+            | Self::SnapToThirtySeconds
+            | Self::SnapToFortyEighths
+            | Self::SnapToSixtyFourths
+            | Self::SnapToOneHundredNinetySeconds
+            | Self::SetPlayer1
+            | Self::SetPlayer2
+            | Self::SetPlayer3
+            | Self::SetPlayer4
+            | Self::RegenerateAllPatternsFixedSeeds
+            | Self::RegenerateAllPatternsNewSeeds
+            | Self::RegenerateSelectedPatternsFixedSeeds
+            | Self::RegenerateSelectedPatternsNewSeeds
+            | Self::MoveToPreviousRowWithSteps
+            | Self::MoveToNextRowWithSteps
+            | Self::MoveToPreviousRowWithEvent
+            | Self::MoveToNextRowWithEvent
+            | Self::MoveToStartOfStream
+            | Self::MoveToEndOfStream
+            | Self::MoveToNextPattern
+            | Self::MoveToPreviousPattern => vec![vec![]],
+
+            Self::CancelGoBack => vec![vec![]],
+            Self::NavigateNextPattern => vec![vec!["Ctrl", "P"]],
+            Self::NavigatePreviousPattern => vec![vec!["Ctrl", "LeftShift", "P"]],
+            Self::ToggleMinimapFocus => vec![vec!["Ctrl", "M"]],
+            Self::OpenMinimapSettings => vec![vec!["Ctrl", "LeftShift", "M"]],
+            Self::CloseEditor => vec![vec!["Escape"], vec!["F2"]],
+            Self::SavePackFile | Self::Exit | Self::Close => vec![vec![]],
+
             Self::AddEventTempo
             | Self::AddEventInterpolatedScrollRate
             | Self::AddEventScrollRate
@@ -552,7 +963,9 @@ impl Action {
             | Self::ConvertSelectedHoldsToMines
             | Self::ConvertSelectedRollsToHolds
             | Self::ConvertSelectedRollsToTaps
-            | Self::ConvertSelectedRollsToMines
+            | Self::ConvertSelectedWarpsToNegativeStops
+                | Self::ConvertSelectedNegativeStopsToWarps
+                | Self::ConvertSelectedRollsToMines
             | Self::SwapSelectedTapsAndMines
             | Self::SwapSelectedTapsAndFakes
             | Self::SwapSelectedTapsAndLifts
@@ -563,6 +976,10 @@ impl Action {
             | Self::SwapSelectedHoldsAndMines
             | Self::SwapSelectedRollsAndTaps
             | Self::SwapSelectedRollsAndMines
+            | Self::AutoApplyAllSongAssets
+            | Self::AutoApplyUnsetSongAssets
+            | Self::ShiftEarlier
+            | Self::ShiftLater
             | Self::ShiftAllEarlier
             | Self::ShiftAllLater => vec![vec![]],
 
@@ -595,6 +1012,7 @@ impl Action {
             Self::SaveAs => vec![vec!["Ctrl", "F12"]],
             Self::OpenMenu => vec![vec!["F1"]],
             Self::OpenAnalysis => vec![vec!["F12"]],
+            Self::OpenAssistant => vec![vec!["Ctrl", "LeftShift", "I"]],
             Self::OpenSongProperties => vec![vec!["F11"]],
             Self::OpenTiming => vec![vec!["F10"]],
             Self::OpenPatternSet => vec![vec!["F9"]],
@@ -635,6 +1053,7 @@ impl Action {
             Self::ZoomOut => vec![vec!["Ctrl", "Down"]],
             Self::ResetZoom => vec![vec!["Ctrl", "D0"], vec!["Ctrl", "NumPad0"]],
             Self::ToggleAutoAdvance => vec![vec!["A"]],
+            Self::MoveEventPreview | Self::MoveEventEndHint | Self::ToggleNoteEntryMode | Self::ToggleSpacingMode => vec![vec![]],
             Self::NextTool => vec![vec!["Tab"]],
             Self::PreviousTool => vec![vec!["LeftShift", "Tab"]],
             Self::MoveUp => vec![vec!["Up"]],
@@ -651,11 +1070,14 @@ impl Action {
             Self::FileOpen => vec![vec![]],
             Self::FileReload => vec![vec![]],
             Self::FileRecent => vec![vec![]],
+            Self::OpenContainingFolder => vec![vec!["Ctrl", "LeftShift", "O"]],
+            Self::ToggleAssistTick | Self::ToggleBeatTick | Self::TogglePreview | Self::ToggleDark | Self::OpenDarkSettings => vec![vec![]],
         }
     }
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Preferences {
+    pub scroll_modifiers:scroll_modifiers::Preferences,
     pub commands: BTreeMap<String, Vec<Vec<String>>>,
     /// Exact imported source text, including unknown fields/comments.
     pub source_import_raw: Option<std::sync::Arc<str>>,
@@ -667,6 +1089,7 @@ pub struct Preferences {
 impl Default for Preferences {
     fn default() -> Self {
         Self {
+            scroll_modifiers:Default::default(),
             source_import_raw: None,
             source_order: false,
             source_blockers: BTreeMap::new(),
@@ -702,7 +1125,7 @@ impl Preferences {
                     .flat_map(|keys| physical::expand(keys))
                     .collect(),
                 repeat: action.repeats(),
-                blocks: true,
+                blocks: action != Action::ArrowModification,
             })
             .collect();
         if self.source_order {
@@ -723,6 +1146,7 @@ impl Preferences {
 impl Preferences {
     pub fn read(fields: &serde_json::Map<String, serde_json::Value>) -> Result<Self, crate::Error> {
         let mut prefs = Self::default();
+        prefs.scroll_modifiers=scroll_modifiers::Preferences::read_native(fields)?;
         if let Some(value) = fields.get(source_profile::BLOCKERS_KEY) {
             prefs.source_blockers = serde_json::from_value(value.clone()).map_err(|_| {
                 crate::Error::InvalidFormat("Invalid unavailable source chords".into())
@@ -757,6 +1181,7 @@ impl Preferences {
         fields: &mut serde_json::Map<String, serde_json::Value>,
     ) -> Result<(), crate::Error> {
         self.validate()?;
+        self.scroll_modifiers.write(fields);
         fields.insert(
             source_profile::BLOCKERS_KEY.into(),
             serde_json::to_value(&self.source_blockers).expect("String arrays serialize"),
@@ -821,7 +1246,7 @@ impl Preferences {
                             .into(),
                     ));
                 }
-                if chord.len() > 8 {
+                if chord.len() > reservations::MAX_CHORD_KEYS {
                     return Err(crate::Error::InvalidEdit(format!(
                         "Key chord too long for {}",
                         action.id()
@@ -836,9 +1261,9 @@ impl Preferences {
                         )));
                     }
                 }
-                if !reservations::simple_chord(chord) || reservations::conflicts(chord) {
+                if !action.accepts_chord(chord) || reservations::conflicts(chord) {
                     return Err(crate::Error::InvalidEdit(format!(
-                        "Key chord is reserved by an unmigrated native action or needs unsupported multi-key dispatch for {}",
+                        "Unsupported native key chord for {}",
                         action.id()
                     )));
                 }
@@ -883,8 +1308,8 @@ pub fn supported_key(key: &str) -> bool {
         || key
             .strip_prefix('D')
             .is_some_and(|n| n.len() == 1 && n.as_bytes()[0].is_ascii_digit())
-        || key
-            .strip_prefix('F')
-            .and_then(|n| n.parse::<u8>().ok())
-            .is_some_and(|n| (1..=24).contains(&n))
+        || key.strip_prefix('F').is_some_and(|n| {
+            !n.starts_with('0') && n.len() <= 2
+                && n.parse::<u8>().is_ok_and(|value| (1..=24).contains(&value))
+        })
 }

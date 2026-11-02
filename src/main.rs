@@ -138,15 +138,16 @@ fn install_panic_hook() {
 /// Resolve whether the console window should be shown at startup. An explicit
 /// `--console` argument wins; otherwise fall back to the `ShowConsole` config
 /// preference (default off).
-fn resolve_show_console() -> bool {
-    if std::env::args().skip(1).any(|arg| arg == "--console") {
+fn resolve_show_console(args:&[String]) -> bool {
+    if args.iter().any(|arg| arg == "--console") {
         return true;
     }
     config::runtime_load::bootstrap_show_console()
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let cli = deadsync_updater::cli::UpdaterCli::from_env();
+    let launch=deadsync_shell::editor_entry::LaunchArguments::parse(std::env::args_os(),&std::env::current_dir()?)?;
+    let cli = deadsync_updater::cli::UpdaterCli::parse(launch.unicode_remaining()?);
     let live_case = deadsync_shell::live_case::LiveCase::from_args(
         &cli.remaining,
         deadsync_shell::live_case::BuildIdentity {
@@ -167,7 +168,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Reconcile the GUI-subsystem release build with terminal/opt-in output
     // before the logger starts, so the first log lines land in the console when
     // one is wanted (and no window appears when it isn't).
-    deadlib_platform::console::init(cli.update || resolve_show_console());
+    deadlib_platform::console::init(cli.update || resolve_show_console(&cli.remaining));
 
     // Install logger immediately, then set runtime max level from config after loading it.
     logging::init(
@@ -318,5 +319,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    app::run(dirs, audio, music_clock, live_case)
+    app::run(dirs, audio, music_clock, live_case,launch.editor)
 }

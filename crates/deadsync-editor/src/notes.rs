@@ -21,6 +21,10 @@ pub enum Kind {
     Attack,
 }
 
+impl Kind {
+    pub(crate) fn editor_phase(self)->u8{match self{Self::Tap|Self::Fake|Self::Lift=>8,Self::Hold|Self::Roll=>10,_=>12}}
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Note {
     pub kind: Kind,
@@ -108,6 +112,8 @@ pub struct Grid {
     tracks: BTreeMap<(u32, u16), BTreeMap<u64, Note>>,
     /// Source notation is retained when editing a StepF2 co-op chart.
     pub(crate) stepf2: bool,
+    /// Ignored by the reference event model; retained verbatim at their cells.
+    opaque_cells: BTreeMap<Position, Arc<str>>,
 }
 
 /// Bounded overview query result. A query is one crossing-sustain lookup or
@@ -130,9 +136,15 @@ impl Grid {
             players,
             tracks: BTreeMap::new(),
             stepf2: false,
+            opaque_cells: BTreeMap::new(),
         })
     }
 
+    /// Count heads from track lengths, without walking note payloads. A hold
+    /// contributes one head; tails and opaque cells are not editor events.
+    pub fn head_count(&self) -> usize {
+        self.tracks.values().map(BTreeMap::len).sum()
+    }
     pub fn columns(&self) -> u16 {
         self.columns
     }
@@ -149,6 +161,7 @@ impl Grid {
 
     pub fn minimum_players(&self) -> u32 {
         self.tracks.last_key_value().map_or(1, |(&(player, _), _)| player + 1)
+            .max(self.opaque_cells.last_key_value().map_or(1, |(pos, _)| pos.player + 1))
     }
     pub(crate) fn validate_players(&self, count: u32) -> Result<(), Error> {
         if count == 0 || count < self.minimum_players() || count > i32::MAX as u32 {
@@ -180,6 +193,28 @@ impl Grid {
         })
     }
 
+    /// Lazy k-way merge of note tracks in editor event order. Allocation is
+    /// proportional to tracks, not chart notes; consumers may stop at a quota.
+    pub fn row_heads_from(&self,start:u64)->impl Iterator<Item=(Position,&Note)> {
+        use std::{cmp::Reverse,collections::BinaryHeap};
+        let mut tracks=self.tracks.iter().map(|(&(player,lane),track)|(player,lane,track.range(start..))).collect::<Vec<_>>();
+        let mut heap=BinaryHeap::new();
+        for (i,(player,lane,track)) in tracks.iter_mut().enumerate(){if let Some((&row,note))=track.next(){heap.push(Reverse((row,note.kind.editor_phase(),*lane,*player,i)));}}
+        std::iter::from_fn(move||{
+            let Reverse((row,_,lane,player,i))=heap.pop()?;
+            let position=Position{row,lane,player};
+            if let Some((&next,note))=tracks[i].2.next(){heap.push(Reverse((next,note.kind.editor_phase(),lane,player,i)));}
+            Some((position,self.get(position).expect("iterator references live grid")))
+        })
+    }
+    pub(crate) fn last_head_before_excluding(&self,row:u64,excluded:&std::collections::BTreeSet<Position>)->Option<(Position,&Note)>{
+        self.tracks.iter().filter_map(|(&(player,lane),track)|track.range(..row).rev().find_map(|(&row,note)|{let p=Position{row,lane,player};(!excluded.contains(&p)).then_some((p,note))})).max_by_key(|(p,n)|(p.row,n.kind.editor_phase(),p.lane,p.player))
+    }
+    /// Last event strictly before an integer row, preserving note phase/lane
+    /// tie order rather than selecting a whole preceding row.
+    pub fn last_head_before(&self,row:u64)->Option<(Position,&Note)>{
+        self.tracks.iter().filter_map(|(&(player,lane),track)|track.range(..row).next_back().map(|(&row,note)|(Position{row,lane,player},note))).max_by_key(|(p,n)|(p.row,n.kind.editor_phase(),p.lane,p.player))
+    }
     /// Resume a bounded head scan in (player, lane, row) order without walking
     /// prior tracks/rows. Sustains crossing a viewport are intentionally absent.
     pub fn iter_heads_after(&self, cursor: Option<Position>) -> impl Iterator<Item = (Position, &Note)> {
@@ -303,6 +338,7 @@ impl Grid {
             return Err(Error::InvalidEdit("Lane or participant lies outside this chart".into()));
         }
         note.validate(pos.row)?;
+        self.require_opaque_cells_preserved(pos, &note)?;
         let end = note.end.unwrap_or(pos.row);
         let mut changes = Vec::new();
         for (&(player, lane), track) in &self.tracks {
@@ -327,11 +363,36 @@ impl Grid {
                 changes.push((Position { player, row, lane }, None));
             }
         }
+        for (position, replacement) in &changes {
+            if let Some(replacement) = replacement { self.require_opaque_cells_preserved(*position, replacement)?; }
+        }
         for (position, replacement) in changes {
             self.set(position, None)?;
             if let Some(replacement) = replacement { self.set(position, Some(replacement))?; }
         }
         self.set(pos, Some(note))?;
+        Ok(())
+    }
+
+    fn require_opaque_cells_preserved(&self, pos: Position, note: &Note) -> Result<(), Error> {
+        if self.opaque_cells.contains_key(&pos)
+            || note.end.is_some_and(|row| self.opaque_cells.contains_key(&Position { row, ..pos }))
+        {
+            return Err(Error::Unsupported("This cell contains preserved note data; inserting here would discard it".into()));
+        }
+        Ok(())
+    }
+
+    pub(crate) fn require_same_opaque_cells(&self, other: &Self) -> Result<(), Error> {
+        if self.opaque_cells != other.opaque_cells {
+            return Err(Error::Unsupported("Note reconstruction must preserve opaque source cells".into()));
+        }
+        Ok(())
+    }
+    pub(crate) fn require_no_opaque_cells(&self) -> Result<(), Error> {
+        if !self.opaque_cells.is_empty() {
+            return Err(Error::Unsupported("Opaque standard cells cannot be converted to StepF2 notation".into()));
+        }
         Ok(())
     }
 
@@ -343,6 +404,7 @@ impl Grid {
         }
         if let Some(note) = &note {
             note.validate(pos.row)?;
+            self.require_opaque_cells_preserved(pos, note)?;
             if let Some(track) = self.tracks.get(&(pos.player, pos.lane)) {
                 if track
                     .range(..pos.row)
@@ -428,7 +490,7 @@ impl Grid {
                     let numerator = (index as u64)
                         .checked_mul(ROWS_PER_MEASURE)
                         .ok_or_else(|| Error::InvalidFormat("Note position overflow".into()))?;
-                    if numerator % lines.len() as u64 != 0 && cells.iter().any(|cell| cell.0 != '0')
+                    if numerator % lines.len() as u64 != 0 && cells.iter().any(|cell| cell.0 != '0' || !cell.1.is_empty())
                     {
                         return Err(Error::Unsupported(
                             "Subdivision cannot be represented at 48 rows per beat".into(),
@@ -445,11 +507,17 @@ impl Grid {
                             lane,
                             row,
                         };
-                        if symbol == '0' {
-                            if !attributes.is_empty() {
-                                return Err(Error::Unsupported(
-                                    "Attributes on empty cells cannot yet be edited".into(),
-                                ));
+                        // Fumen consumes these tokens without producing an event.
+                        // Keep them outside the sparse note model so unrelated edits
+                        // neither fabricate a note nor discard opaque source data.
+                        let unknown = (symbol.is_ascii_alphanumeric() || symbol == '?')
+                            && !matches!(symbol, '0' | '1' | '2' | '3' | '4' | 'M' | 'L' | 'F' | 'K' | 'A');
+                        if symbol == '0' || unknown {
+                            if !attributes.is_empty() || unknown {
+                                let mut witness = Note::tap();
+                                witness.attributes = Arc::from(attributes);
+                                witness.validate(row)?;
+                                grid.opaque_cells.insert(pos, Arc::from(format!("{symbol}{attributes}")));
                             }
                             continue;
                         }
@@ -503,6 +571,9 @@ impl Grid {
 
     pub fn serialize(&self) -> Result<Vec<u8>, Error> {
         if self.stepf2 {
+            if !self.opaque_cells.is_empty() {
+                return Err(Error::Unsupported("Opaque standard cells cannot be converted to StepF2 notation".into()));
+            }
             return crate::stepf2::serialize(self);
         }
         self.serialize_standard()
@@ -515,6 +586,9 @@ impl Grid {
                 output.push_str("\n&\n");
             }
             let mut rows: BTreeMap<u64, BTreeMap<u16, String>> = BTreeMap::new();
+            for (pos, token) in self.opaque_cells.range(Position { player, lane: 0, row: 0 }..=Position { player, lane: u16::MAX, row: u64::MAX }) {
+                rows.entry(pos.row).or_default().insert(pos.lane, token.to_string());
+            }
             let notes = self.tracks.range((player, 0)..=(player, u16::MAX))
                 .flat_map(|(&(owner, lane), track)| track.iter().map(move |(&row, note)|
                     (Position { player: owner, lane, row }, note)));

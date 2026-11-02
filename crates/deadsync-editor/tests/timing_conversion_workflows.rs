@@ -2,9 +2,10 @@ use deadsync_editor::{
     document::{Document, Format},
     history::Session,
     timing_edit::{
+        Scope,
         conversion::{Direction, Plan},
-        pause::{Kind as PauseKind, Pauses},
-        region::{Kind as RegionKind, Regions},
+        pause::{Draft as PauseDraft, Kind as PauseKind},
+        region::{Draft as RegionDraft, Kind as RegionKind},
     },
 };
 use std::collections::{BTreeMap, BTreeSet};
@@ -33,16 +34,11 @@ fn session(case: &serde_json::Value) -> Session {
     Session::new(Document::parse(source.into_bytes(), Format::Ssc).unwrap())
 }
 fn assert_events(s: &Session, expected: &serde_json::Value) {
-    let stops = Pauses::parse(
-        PauseKind::Stop,
-        &s.document().text(None, "STOPS").unwrap_or_default(),
-    )
-    .unwrap();
-    let warps = Regions::parse(
-        RegionKind::Warp,
-        &s.document().text(None, "WARPS").unwrap_or_default(),
-    )
-    .unwrap();
+    // Read effective chart timing, including inheritance for unchanged actions.
+    let pauses = PauseDraft::capture(s, 0, Scope::Chart).unwrap();
+    let stops = pauses.pauses(PauseKind::Stop);
+    let regions = RegionDraft::capture(s, 0, Scope::Chart).unwrap();
+    let warps = regions.regions(RegionKind::Warp);
     let mut expected_stops = BTreeMap::new();
     let mut expected_warps = BTreeMap::new();
     for event in expected.as_array().unwrap() {
@@ -61,7 +57,7 @@ fn assert_events(s: &Session, expected: &serde_json::Value) {
     assert_eq!(warps.values(), &expected_warps);
 }
 #[test]
-fn original_23_actions_match_except_atomic_refusal_of_unrepresentable_zero_stop() {
+fn original_23_actions_match_except_atomic_refusal_of_source_invalid_zero_stop() {
     let request: serde_json::Value = serde_json::from_str(include_str!(
         "fixtures/grooveauthor/timing-conversion.request.json"
     ))
@@ -81,6 +77,10 @@ fn original_23_actions_match_except_atomic_refusal_of_unrepresentable_zero_stop(
         let mut s = session(case);
         let before = s.serialize().unwrap();
         let revision = s.revision();
+        let original_song = ["BPMS", "STOPS", "DELAYS", "WARPS", "TIMESIGNATURES"]
+            .map(|tag| (tag, s.document().text(None, tag)));
+        let peer_pauses = PauseDraft::capture(&s, 1, Scope::Chart).unwrap();
+        let peer_regions = RegionDraft::capture(&s, 1, Scope::Chart).unwrap();
         let direction = if case["Direction"] == "WarpToStop" {
             Direction::WarpsToNegativeStops
         } else {
@@ -124,6 +124,26 @@ fn original_23_actions_match_except_atomic_refusal_of_unrepresentable_zero_stop(
         }
         let changed = p.apply(&mut s, &collisions).unwrap();
         assert_events(&s, &oracle["After"]);
+        for (tag, value) in &original_song {
+            assert_eq!(
+                &s.document().text(None, tag),
+                value,
+                "Song {tag}: {}",
+                case["Name"]
+            );
+        }
+        assert_eq!(
+            PauseDraft::capture(&s, 1, Scope::Chart)
+                .unwrap()
+                .pauses(PauseKind::Stop),
+            peer_pauses.pauses(PauseKind::Stop)
+        );
+        assert_eq!(
+            RegionDraft::capture(&s, 1, Scope::Chart)
+                .unwrap()
+                .regions(RegionKind::Warp),
+            peer_regions.regions(RegionKind::Warp)
+        );
         let after = s.serialize().unwrap();
         let reopened = Session::new(Document::parse(after.clone(), Format::Ssc).unwrap());
         assert_events(&reopened, &oracle["After"]);

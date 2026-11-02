@@ -600,6 +600,8 @@ pub struct RenderTarget {
     pub alpha: bool,
     pub depth: bool,
     pub preserve: bool,
+    /// Optional source FXAA quality pass, evaluated after child rendering.
+    pub postprocess: Option<deadlib_render_core::FxaaPass>,
     /// Retained capture actors shared with the producer's song-lifetime storage.
     pub children: Arc<[Actor]>,
 }

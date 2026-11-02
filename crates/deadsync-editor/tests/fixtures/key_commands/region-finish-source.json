@@ -1,0 +1,1756 @@
+[
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "none",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "none",
+    "hidden": "notes",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "none",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "ctrl",
+    "hidden": "none",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "ctrl",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "ctrl",
+    "hidden": "misc",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "ctrl+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "ctrl+shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "ctrl+shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "alt",
+    "hidden": "none",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "alt",
+    "hidden": "notes",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "alt",
+    "hidden": "misc",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "alt+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "alt+shift",
+    "hidden": "notes",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 0,
+    "modifier": "alt+shift",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "none",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "none",
+    "hidden": "notes",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "none",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "ctrl",
+    "hidden": "none",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "ctrl",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "ctrl",
+    "hidden": "misc",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "ctrl+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "ctrl+shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "ctrl+shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "alt",
+    "hidden": "none",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "alt",
+    "hidden": "notes",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "alt",
+    "hidden": "misc",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "alt+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "alt+shift",
+    "hidden": "notes",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 1,
+    "modifier": "alt+shift",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "none",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "none",
+    "hidden": "notes",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "none",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "ctrl",
+    "hidden": "none",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "ctrl",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "ctrl",
+    "hidden": "misc",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "ctrl+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "ctrl+shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "ctrl+shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "alt",
+    "hidden": "none",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "alt",
+    "hidden": "notes",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "alt",
+    "hidden": "misc",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "alt+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "alt+shift",
+    "hidden": "notes",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 0,
+    "spacing": 2,
+    "modifier": "alt+shift",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "none",
+    "hidden": "none",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "none",
+    "hidden": "notes",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "none",
+    "hidden": "misc",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "ctrl",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "ctrl",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "ctrl",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "ctrl+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "ctrl+shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "ctrl+shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "alt",
+    "hidden": "none",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "alt",
+    "hidden": "notes",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "alt",
+    "hidden": "misc",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "alt+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "alt+shift",
+    "hidden": "notes",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 0,
+    "modifier": "alt+shift",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "none",
+    "hidden": "none",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "none",
+    "hidden": "notes",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "none",
+    "hidden": "misc",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "ctrl",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "ctrl",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "ctrl",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "ctrl+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "ctrl+shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "ctrl+shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "alt",
+    "hidden": "none",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "alt",
+    "hidden": "notes",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "alt",
+    "hidden": "misc",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "alt+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "alt+shift",
+    "hidden": "notes",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 1,
+    "modifier": "alt+shift",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "none",
+    "hidden": "none",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "none",
+    "hidden": "notes",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "none",
+    "hidden": "misc",
+    "selected": [
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "ctrl",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "ctrl",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "ctrl",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "ctrl+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "ctrl+shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "ctrl+shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24,
+      48
+    ],
+    "last": 48
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "alt",
+    "hidden": "none",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "alt",
+    "hidden": "notes",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "alt",
+    "hidden": "misc",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "alt+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "alt+shift",
+    "hidden": "notes",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 1,
+    "spacing": 2,
+    "modifier": "alt+shift",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "none",
+    "hidden": "none",
+    "selected": [
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "none",
+    "hidden": "notes",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "none",
+    "hidden": "misc",
+    "selected": [
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "ctrl",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "ctrl",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "ctrl",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "ctrl+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "ctrl+shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "ctrl+shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "alt",
+    "hidden": "none",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "alt",
+    "hidden": "notes",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "alt",
+    "hidden": "misc",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "alt+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "alt+shift",
+    "hidden": "notes",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 0,
+    "modifier": "alt+shift",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "none",
+    "hidden": "none",
+    "selected": [
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "none",
+    "hidden": "notes",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "none",
+    "hidden": "misc",
+    "selected": [
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "ctrl",
+    "hidden": "none",
+    "selected": [
+      0,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "ctrl",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "ctrl",
+    "hidden": "misc",
+    "selected": [
+      0,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "ctrl+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "ctrl+shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "ctrl+shift",
+    "hidden": "misc",
+    "selected": [
+      0,
+      12,
+      24
+    ],
+    "last": 24
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "alt",
+    "hidden": "none",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "alt",
+    "hidden": "notes",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "alt",
+    "hidden": "misc",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "alt+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "alt+shift",
+    "hidden": "notes",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 1,
+    "modifier": "alt+shift",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "none",
+    "hidden": "none",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "none",
+    "hidden": "notes",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "none",
+    "hidden": "misc",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "ctrl",
+    "hidden": "none",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "ctrl",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "ctrl",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "shift",
+    "hidden": "none",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "shift",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "ctrl+shift",
+    "hidden": "none",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "ctrl+shift",
+    "hidden": "notes",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "ctrl+shift",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "alt",
+    "hidden": "none",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "alt",
+    "hidden": "notes",
+    "selected": [
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "alt",
+    "hidden": "misc",
+    "selected": [],
+    "last": null
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "alt+shift",
+    "hidden": "none",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "alt+shift",
+    "hidden": "notes",
+    "selected": [
+      0,
+      1000
+    ],
+    "last": 1000
+  },
+  {
+    "mode": 2,
+    "spacing": 2,
+    "modifier": "alt+shift",
+    "hidden": "misc",
+    "selected": [
+      0
+    ],
+    "last": 0
+  }
+]

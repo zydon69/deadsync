@@ -19,6 +19,8 @@ use std::{
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum OutputPolicy {
     NativeLossless,
+    AdvancedSongTiming{format:Format,options:Options},
+    AdvancedChartless{format:Format,options:Options},
     Advanced {
         format: Format,
         options: Options,
@@ -31,6 +33,8 @@ impl OutputPolicy {
     pub fn timing_chart(&self, session: &Session) -> Result<Option<usize>, Error> {
         match self {
             Self::NativeLossless => Ok(None),
+            Self::AdvancedSongTiming{..}=>session.song_timing_chart(),
+            Self::AdvancedChartless{..}=>if session.document().charts().is_empty()&&session.chart_ids().is_empty(){Ok(None)}else{Err(invalid("Chartless output policy requires an empty song; choose a timing chart explicitly"))},
             Self::Advanced { timing_chart, .. } => session
                 .chart_ids()
                 .iter()
@@ -48,9 +52,12 @@ impl OutputPolicy {
         session: &mut Session,
         limits: Limits,
         cancelled: &AtomicBool,
-    ) -> Result<PreparedOutput, Error> {
+    ) -> Result<PreparedOutput, Error> {self.prepare_output_inner(session,limits,cancelled,None)}
+    pub fn prepare_ordered_output(&self,session:&mut Session,limits:Limits,cancelled:&AtomicBool,order:&crate::source_output_order::SourceOutputOrder)->Result<PreparedOutput,Error>{self.prepare_output_inner(session,limits,cancelled,Some(order))}
+    fn prepare_output_inner(&self,session:&mut Session,limits:Limits,cancelled:&AtomicBool,order:Option<&crate::source_output_order::SourceOutputOrder>)->Result<PreparedOutput,Error>{
         check(cancelled)?;
         let guard = IntentGuard::capture(session);
+        if !matches!(self,Self::NativeLossless){if let Some(order)=order{let format=match self{Self::Advanced{format,..}|Self::AdvancedSongTiming{format,..}|Self::AdvancedChartless{format,..}=>*format,_=>unreachable!()};let chart=self.timing_chart(session)?;let plan=advanced_export::Plan::prepare_ordered(session,format,chart,match self{Self::Advanced{options,..}|Self::AdvancedSongTiming{options,..}|Self::AdvancedChartless{options,..}=>*options,_=>unreachable!()},limits,cancelled,order.clone())?;return Ok(PreparedOutput{policy:self.clone(),guard,prepared:PreparedKind::Advanced(plan)});}}
         let prepared = match self {
             Self::NativeLossless => {
                 if session.document().source().len() > limits.bytes
@@ -62,7 +69,7 @@ impl OutputPolicy {
                 }
                 // Same established serializer as ordinary Save. This cap is not
                 // a peak-memory guarantee for pending grid serialization.
-                let bytes = session.serialize()?;
+                let bytes = session.serialize_for_output()?;
                 check(cancelled)?;
                 if bytes.len() > limits.bytes {
                     return Err(invalid("Native output byte limit exceeded"));
@@ -71,6 +78,11 @@ impl OutputPolicy {
                     bytes: bytes.into(),
                     format: session.document().format,
                 }
+            }
+            Self::AdvancedSongTiming{format,options}=>PreparedKind::Advanced(advanced_export::Plan::prepare_song_timing(session,*format,*options,limits,cancelled)?),
+            Self::AdvancedChartless{format,options}=>{
+                self.timing_chart(session)?;
+                PreparedKind::Advanced(advanced_export::Plan::prepare_chartless(session,*format,*options,limits,cancelled)?)
             }
             Self::Advanced {
                 format, options, ..
@@ -111,7 +123,7 @@ impl PreparedOutput {
         }
     }
     pub fn is_current(&self, session: &Session) -> bool {
-        self.guard.is_current(session)
+        self.guard.is_current(session) && match &self.prepared{PreparedKind::Native{..}=>true,PreparedKind::Advanced(plan)=>plan.is_current(session)}
     }
     pub fn generate(
         &self,

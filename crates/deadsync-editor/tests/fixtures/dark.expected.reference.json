@@ -1,0 +1,8 @@
+{
+  "EditorCommit": "48e18f71655d0f0d86144c63239331833501fda2",
+  "FumenCommit": "0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89",
+  "SourceSha256": "9411efceed2d16852dd36378870034e409d25283024e36171d5c0a24b696e491",
+  "AdapterSha256": "1346c77fca906e8adb908ea918c452a71d42f4ca174f625122ebbe85f9903b11",
+  "AssemblySha256": "8ac76dbbf064b93bc30a4bf6dcead3c20e32958bf93c91b5e301c5de23e98e96",
+  "Scope": "Whole original PreferencesDark class and original RestoreDefaults action, real Fumen converter and undo queue. GPU rasterization and MonoGame color conversion not executed."
+}

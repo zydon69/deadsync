@@ -35,6 +35,13 @@ impl Settings {
         s.load();
         s
     }
+    fn from_memory(draft: Draft, row: Option<u64>) -> Self {
+        let mut settings = Self::new(draft);
+        settings.event = row.and_then(|row|settings.draft.attacks().events().iter().position(|event|event.row==row))
+            .unwrap_or(settings.draft.attacks().events().len());
+        settings.load();
+        settings
+    }
     fn load(&mut self) {
         let Some(event) = self.draft.attacks().events().get(self.event) else {
             self.fields = Default::default();
@@ -181,9 +188,25 @@ impl State {
                 settings.event = event;
                 settings.modifier = 0;
                 settings.load();
+                if let Some(row) = settings.draft.original_row(event) {
+                    let _=self.workspace.select_attack(settings.draft.scope(),row);
+                }
                 self.focus_text();
             }
         }
+    }
+    pub(super) fn sync_attack_presentation(&mut self) {
+        if !matches!(self.panel,Some(Panel::Attacks(_))) {return;}
+        if !self.workspace.has_chart() { self.attacks=None; self.focus_text(); return; }
+        let session=&self.workspace.file().session;
+        let chart=self.workspace.chart();
+        if self.attacks.as_ref().is_some_and(|settings|settings.draft.is_current_for(session,chart)) {return;}
+        let scope=self.attacks.as_ref().map(|settings|settings.draft.scope())
+            .unwrap_or(Scope::Chart);
+        self.attacks=self.workspace.attack_inspector(scope).ok().map(|draft| {
+            Settings::from_memory(draft,session.selected_attack_row(chart,scope))
+        });
+        self.focus_text();
     }
     pub(super) fn open_attacks(&mut self, scope: Scope) {
         if self.is_generating() {
@@ -192,7 +215,8 @@ impl State {
         match self.workspace.attack_inspector(scope) {
             Ok(draft) => {
                 self.timing = None;
-                self.attacks = Some(Settings::new(draft));
+                let row=self.workspace.file().session.selected_attack_row(self.workspace.chart(),scope);
+                self.attacks = Some(Settings::from_memory(draft,row));
                 self.panel = Some(Panel::Attacks(0));
                 self.focus_text();
                 self.status = i18n::tr("Edition", "AttacksHelp");
@@ -389,7 +413,8 @@ impl State {
                 } else {
                     Scope::Song
                 };
-                settings = Settings::new(self.workspace.attack_inspector(scope)?);
+                let row=self.workspace.file().session.selected_attack_row(self.workspace.chart(),scope);
+                settings = Settings::from_memory(self.workspace.attack_inspector(scope)?,row);
                 return Ok(());
             }
             // Deleting a modifier discards its fields, but keeps pending event time.
@@ -406,8 +431,11 @@ impl State {
                 1 => {
                     let count = settings.draft.attacks().events().len();
                     if count > 0 {
-                        let old = settings.draft.attacks().events()[settings.event].row;
-                        settings.event = if self.shift {
+                        let previous=settings.event;
+                        let old = settings.draft.attacks().events().get(previous).map(|event|event.row);
+                        settings.event = if previous>=count {
+                            if forward {0} else {count-1}
+                        } else if self.shift {
                             if forward {
                                 (settings.event + 1).min(count - 1)
                             } else {
@@ -416,8 +444,8 @@ impl State {
                         } else {
                             (settings.event + if forward { 1 } else { count - 1 }) % count
                         };
-                        if self.shift {
-                            let anchor = *settings.anchor.get_or_insert(old);
+                        if self.shift && old.is_some() {
+                            let anchor = *settings.anchor.get_or_insert(old.expect("Existing event"));
                             let end = settings.draft.attacks().events()[settings.event].row;
                             settings.selected = settings
                                 .draft
@@ -432,6 +460,9 @@ impl State {
                         }
                         settings.modifier = 0;
                         settings.load();
+                        if let Some(row)=settings.draft.original_row(settings.event) {
+                            self.workspace.select_attack(settings.draft.scope(),row)?;
+                        }
                     }
                 }
                 2 => {
@@ -542,7 +573,7 @@ impl State {
             .to_string(),
             1 => format!(
                 "{}/{}",
-                if settings.draft.attacks().events().is_empty() {
+                if !settings.has_event() {
                     0
                 } else {
                     settings.event + 1
@@ -579,4 +610,79 @@ impl State {
         };
         i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
+}
+
+#[cfg(test)]
+mod selected_attack_tests {
+    use super::*;
+    fn fixture()->(tempfile::TempDir,State) {
+        crate::i18n::init_for_tests();
+        let directory=tempfile::tempdir().unwrap();let path=directory.path().join("attacks.ssc");
+        std::fs::write(&path,b"#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=0:LEN=1:MODS=100% Dizzy:TIME=1:LEN=1:MODS=100% Reverse;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000,0100;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0010,0001;").unwrap();
+        (directory,State::open(&path,0).unwrap())
+    }
+    fn selected_row(state:&State)->Option<u64> {
+        let settings=state.attacks.as_ref()?;
+        settings.draft.attacks().events().get(settings.event).map(|event|event.row)
+    }
+    #[test]
+    fn actual_attack_panel_follows_open_chart_memory_and_close_discards_it() {
+        let (_directory,mut state)=fixture();let scope=Scope::Chart;
+        let before=state.workspace.file().session.serialize().unwrap();
+        let revision=state.workspace.file().session.revision();
+        state.open_attacks(scope);assert_eq!(selected_row(&state),None);
+        state.select_attack_source(1);let a=selected_row(&state).unwrap();
+        state.chart_views_apply(super::super::chart_views::ViewAction::Pin);
+        let time=state.chart_focus_time().unwrap();
+        assert!(!state.focus_chart_at_time(999,time));assert_eq!(selected_row(&state),Some(a));
+        assert!(state.focus_chart_at_time(0,time));assert_eq!(selected_row(&state),Some(a));
+        assert!(state.focus_chart_at_time(1,time));assert_eq!(selected_row(&state),None);
+        state.select_attack_source(0);let b=selected_row(&state).unwrap();assert_ne!(a,b);
+        state.chart_views_apply(super::super::chart_views::ViewAction::Pin);
+        assert!(state.focus_chart_at_time(0,time));assert_eq!(selected_row(&state),Some(a));
+        state.chart_views_apply(super::super::chart_views::ViewAction::Move(true));
+        assert_eq!(selected_row(&state),Some(a));
+        state.open_attacks(scope);assert_eq!(selected_row(&state),Some(a));
+        assert_eq!(state.workspace.file().session.serialize().unwrap(),before);
+        assert_eq!(state.workspace.file().session.revision(),revision);
+        state.chart_views_apply(super::super::chart_views::ViewAction::Close);
+        assert_eq!(selected_row(&state),Some(b));
+        assert!(state.focus_chart_at_time(0,time));assert_eq!(selected_row(&state),None);
+    }
+    #[test]
+    fn actual_panel_apply_tracks_moves_and_delete_undo_never_selects_a_readded_attack() {
+        let (_directory,mut state)=fixture();let scope=Scope::Chart;
+        state.open_attacks(scope);state.select_attack_source(1);
+        let original=selected_row(&state).unwrap();
+        state.workspace.execute(deadsync_editor::workspace::Command::Seek(240)).unwrap();
+        state.attacks_key(1,KeyCode::F2);
+        assert_eq!(selected_row(&state),Some(240));
+        state.attacks_key(12,KeyCode::Enter);
+        state.open_attacks(scope);assert_eq!(selected_row(&state),Some(240));
+        state.command(deadsync_editor::workspace::Command::Undo);
+        state.open_attacks(scope);assert_eq!(selected_row(&state),Some(original));
+        state.command(deadsync_editor::workspace::Command::Redo);
+        state.open_attacks(scope);assert_eq!(selected_row(&state),Some(240));
+        state.attacks_key(11,KeyCode::Enter);state.attacks_key(12,KeyCode::Enter);
+        state.open_attacks(scope);assert_eq!(selected_row(&state),None);
+        state.command(deadsync_editor::workspace::Command::Undo);
+        state.open_attacks(scope);assert_eq!(selected_row(&state),None);
+    }
+}
+
+#[cfg(test)]
+mod sm_local_attack_tests {
+ use super::*;
+ fn selected_row(state:&State)->Option<u64>{let s=state.attacks.as_ref()?;s.draft.attacks().events().get(s.event).map(|e|e.row)}
+ #[test]
+ fn actual_sm_widget_inspector_apply_delete_and_refocus_preserve_peer(){
+  crate::i18n::init_for_tests();let dir=tempfile::tempdir().unwrap();let path=dir.path().join("local.sm");
+  std::fs::write(&path,b"#BPMS:0=120;#ATTACKS:TIME=1:LEN=1:MODS=100% Drunk;#NOTES:dance-single::Hard:9::1000,0100,0010;#NOTES:dance-single::Easy:2::0001,0010,0100;").unwrap();
+  let mut state=State::open(&path,0).unwrap();let original=state.workspace.file().session.serialize().unwrap();
+  state.workspace.execute(deadsync_editor::workspace::Command::Seek(96)).unwrap();state.open_attack_at_cursor();assert_eq!(selected_row(&state),Some(96));assert_eq!(state.attacks.as_ref().unwrap().draft.scope(),Scope::Chart);
+  state.workspace.execute(deadsync_editor::workspace::Command::Seek(240)).unwrap();state.attacks_key(1,KeyCode::F2);state.attacks_key(12,KeyCode::Enter);state.open_attacks(Scope::Chart);assert_eq!(selected_row(&state),Some(240));
+  let time=state.chart_focus_time().unwrap();assert!(state.focus_chart_at_time(1,time));state.open_attacks(Scope::Chart);state.select_attack_source(0);assert_eq!(selected_row(&state),Some(96));assert_eq!(state.attacks.as_ref().unwrap().draft.attacks().events().len(),1);
+  assert!(state.focus_chart_at_time(0,time));state.open_attacks(Scope::Chart);state.select_attack_source(0);assert_eq!(selected_row(&state),Some(240));state.attacks_key(11,KeyCode::Enter);state.attacks_key(12,KeyCode::Enter);state.open_attacks(Scope::Chart);assert!(state.attacks.as_ref().unwrap().draft.attacks().events().is_empty());
+  state.command(deadsync_editor::workspace::Command::Undo);state.command(deadsync_editor::workspace::Command::Undo);assert_eq!(state.workspace.file().session.serialize().unwrap(),original);
+ }
 }

@@ -1,5 +1,4 @@
-//! Unmigrated native shortcuts. Conditions mirror State's chart keyboard routes,
-//! chart_views_key, zoom_key and minimap_key, independent of translated labels.
+//! Physical lane entry is now semantic; no legacy digit reservations remain.
 use std::collections::BTreeSet;
 #[derive(Clone, Debug)]
 pub struct Reservation {
@@ -7,46 +6,14 @@ pub struct Reservation {
     forbid_control: bool,
     forbid_shift: bool,
 }
-fn modifier(key: &str) -> bool {
-    matches!(
-        key,
-        "Ctrl"
-            | "LeftControl"
-            | "RightControl"
-            | "LeftWindows"
-            | "RightWindows"
-            | "LeftShift"
-            | "RightShift"
-            | "LeftAlt"
-            | "RightAlt"
-    )
-}
-pub fn legacy() -> Vec<Reservation> {
-    let mut result = Vec::new();
-    let mut add = |keys: &[&str], forbid_control, forbid_shift| {
-        result.push(Reservation {
-            keys: keys.iter().map(|s| (*s).into()).collect(),
-            forbid_control,
-            forbid_shift,
-        })
-    };
-    for name in ["Escape", "F2"] {
-        add(&[name], false, false);
-    }
-    // Marker navigation remains modal as well as global; minimap commands
-    // share their focus context. Their migration needs a contextual registry.
-    for name in ["P", "M"] {
-        add(&["Ctrl", name], false, false);
-    }
-    drop(add);
-    for digit in 0..=9 {
-        result.push(Reservation {
-            keys: vec![format!("D{digit}")],
-            forbid_control: true,
-            forbid_shift: false,
-        });
-    }
-    result
+pub fn legacy() -> Vec<Reservation> { Vec::new() }
+/// Source accepts arbitrary ordered key sets, including ordinary prefixes
+/// and modifier finals. Preserve every key; normalize only physical aliases.
+pub const MAX_CHORD_KEYS: usize = 128;
+pub fn supported_chord(keys: &[String]) -> bool {
+    let mut seen = BTreeSet::new();
+    keys.len() <= MAX_CHORD_KEYS && keys.iter().all(|key| super::supported_key(key)
+        && seen.insert(crate::key_commands::Key::named(key)))
 }
 /// A shorter subset can coexist: a longer reserved chord wins in the evaluator.
 /// Equal, longer or non-subset chords with the same terminal key are ambiguous.
@@ -89,11 +56,6 @@ pub fn conflicts(keys: &[String]) -> bool {
         }
     }
     false
-}
-pub fn simple_chord(keys: &[String]) -> bool {
-    keys.is_empty()
-        || (!modifier(keys.last().unwrap())
-            && keys[..keys.len() - 1].iter().all(|key| modifier(key)))
 }
 pub fn blocking_chords() -> Vec<Vec<String>> {
     legacy()

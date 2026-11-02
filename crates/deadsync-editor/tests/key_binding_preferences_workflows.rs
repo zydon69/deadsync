@@ -5,7 +5,7 @@ use key_commands::{Effect, Key, Registry};
 fn native_defaults_keep_playback_selection_and_player_shortcuts() {
     let p = Preferences::default();
     p.validate().unwrap();
-    assert_eq!(Action::ALL.len(), 136);
+    assert_eq!(Action::ALL.len(), 217);
     assert_eq!(
         p.commands["PlayPause"],
         vec![vec!["Enter"], vec!["NumPadEnter"]]
@@ -118,12 +118,20 @@ fn reservations_follow_native_modifier_predicates_and_protect_unmigrated_callbac
             .map(|name| (*name).to_owned())
             .collect::<Vec<_>>()
     };
-    for names in [vec!["Escape"],vec!["F2"],vec!["Ctrl","P"],vec!["Ctrl","M"]] {
-        assert!(reservations::conflicts(&chord(&names)), "{names:?}");
-    }
-    assert_eq!(Preferences::default().commands["OpenScrollSettings"],vec![vec!["LeftShift","S"]]);
     for names in [
-        vec!["LeftShift","S"],
+        vec!["Escape"],
+        vec!["F2"],
+        vec!["Ctrl", "P"],
+        vec!["Ctrl", "M"],
+    ] {
+        assert!(!reservations::conflicts(&chord(&names)), "{names:?}");
+    }
+    assert_eq!(
+        Preferences::default().commands["OpenScrollSettings"],
+        vec![vec!["LeftShift", "S"]]
+    );
+    for names in [
+        vec!["LeftShift", "S"],
         vec!["Ctrl", "S"],
         vec!["Ctrl", "LeftShift", "Z"],
         vec!["P"],
@@ -133,8 +141,8 @@ fn reservations_follow_native_modifier_predicates_and_protect_unmigrated_callbac
     ] {
         assert!(!reservations::conflicts(&chord(&names)), "{names:?}");
     }
-    assert!(reservations::conflicts(&chord(&["LeftAlt", "M"])));
-    assert!(!reservations::simple_chord(&chord(&["A", "F13"])));
+    assert!(!reservations::conflicts(&chord(&["LeftAlt", "M"])));
+    assert!(Action::Save.accepts_chord(&chord(&["A", "F13"])));
 }
 
 #[test]
@@ -211,7 +219,7 @@ fn third_increment_names_file_and_chart_operations_without_aliasing_new_or_reloa
 }
 
 #[test]
-fn fourth_increment_uses_real_handlers_keeps_physical_lane_modifiers_reserved() {
+fn fourth_increment_uses_real_handlers_and_lane_migration_removes_reservations() {
     let p = Preferences::default();
     p.validate().unwrap();
     assert_eq!(
@@ -226,19 +234,66 @@ fn fourth_increment_uses_real_handlers_keeps_physical_lane_modifiers_reserved() 
     ] {
         assert_eq!(p.commands[id], vec![Vec::<String>::new()]);
     }
-    for names in [
-        vec!["D1"],
-        vec!["LeftShift", "D1"],
-        vec!["Ctrl", "P"],
-        vec!["Ctrl", "M"],
-        vec!["Escape"],
-        vec!["F2"],
-    ] {
-        assert!(key_binding_preferences::reservations::conflicts(
+    for names in [vec!["D1"], vec!["LeftShift", "D1"]] {
+        assert!(!key_binding_preferences::reservations::conflicts(
             &names.into_iter().map(str::to_owned).collect::<Vec<_>>()
         ));
     }
     assert!(key_binding_preferences::supported_key("NumPad0"));
-    assert!(Action::from_id("ArrowModification").is_none());
+    assert_eq!(Action::from_id("ArrowModification"), Some(Action::ArrowModification));
     assert_eq!(Action::from_id("New"), Some(Action::FileNew));
+}
+
+#[test]
+fn migrated_context_actions_keep_native_defaults_and_make_source_mirror_usable() {
+    use key_binding_preferences::source_profile::{self, Platform};
+    let native = Preferences::default();
+    for (id, chords) in [
+        ("NavigateNextPattern", vec![vec!["Ctrl", "P"]]),
+        (
+            "NavigatePreviousPattern",
+            vec![vec!["Ctrl", "LeftShift", "P"]],
+        ),
+        ("ToggleMinimapFocus", vec![vec!["Ctrl", "M"]]),
+        ("OpenMinimapSettings", vec![vec!["Ctrl", "LeftShift", "M"]]),
+        ("CloseEditor", vec![vec!["Escape"], vec!["F2"]]),
+    ] {
+        assert_eq!(native.commands[id], chords);
+    }
+    for platform in [Platform::Mac, Platform::Other] {
+        let source = source_profile::preset(&native, platform).unwrap();
+        assert_eq!(
+            source.preferences.commands["CancelGoBack"],
+            vec![vec!["Escape"]]
+        );
+        assert_eq!(
+            source.preferences.commands["CloseEditor"],
+            vec![Vec::<String>::new()]
+        );
+        assert_eq!(
+            source.preferences.commands["Mirror"],
+            vec![vec![
+                if platform == Platform::Mac {
+                    "LeftWindows"
+                } else {
+                    "LeftControl"
+                },
+                "LeftShift",
+                "M"
+            ]]
+        );
+        assert!(
+            source.report.rejected.is_empty(),
+            "{:?}",
+            source.report.rejected
+        );
+        for id in [
+            "NavigateNextPattern",
+            "NavigatePreviousPattern",
+            "ToggleMinimapFocus",
+            "OpenMinimapSettings",
+        ] {
+            assert_eq!(source.preferences.commands[id], vec![Vec::<String>::new()]);
+        }
+    }
 }
