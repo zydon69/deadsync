@@ -6,15 +6,11 @@
 //! Run with:
 //! ```sh
 //! mkdir -p target/tools
-//! rustc --edition=2024 scripts/lang_coverage.rs -o target/tools/lang_coverage
-//! ./target/tools/lang_coverage
+//! cargo run --bin lang_coverage -- --markdown
+
 //! ```
 
-#[allow(dead_code)]
-#[path = "../crates/deadsync-config/src/ini.rs"]
-mod ini;
-
-use ini::SimpleIni;
+use deadsync_config::ini::SimpleIni;
 use std::collections::BTreeSet;
 use std::path::Path;
 
@@ -100,9 +96,7 @@ fn main() {
     lang_files.sort();
 
     // Collect stats for each language
-    let en_name = en
-        .get("Meta", "NativeName")
-        .unwrap_or_else(|| "English".to_string());
+    let en_name = en.get("Meta", "NativeName").unwrap_or("English");
 
     let mut stats: Vec<LangStats> = Vec::new();
     for path in &lang_files {
@@ -117,9 +111,7 @@ fn main() {
             .and_then(|s| s.to_str())
             .unwrap_or("?")
             .to_string();
-        let native_name = lang
-            .get("Meta", "NativeName")
-            .unwrap_or_else(|| code.clone());
+        let native_name = lang.get("Meta", "NativeName").unwrap_or(&code).to_owned();
 
         stats.push(LangStats {
             code,

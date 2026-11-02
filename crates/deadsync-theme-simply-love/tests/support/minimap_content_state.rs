@@ -43,6 +43,9 @@ fn setup(notes: &str, prefs: serde_json::Value) -> (tempfile::TempDir, State) {
     fs::write(&path, serde_json::to_vec(&prefs).unwrap()).unwrap();
     let mut state = State::open(&song, 0).unwrap();
     state.configure_audio_preferences(&path).unwrap();
+    state.configure_spacing_preference(
+        deadsync_editor::scroll_preferences::spacing::Preference::ConstantRow,
+    );
     (dir, state)
 }
 fn render(state: &State) -> Vec<Actor> {
@@ -204,6 +207,9 @@ fn state_reads_shared_source_color_groups_and_visibility_without_changing_song()
     prefs["MiniMap"]["ShowMiniMap"] = false.into();
     fs::write(&path, serde_json::to_vec(&prefs).unwrap()).unwrap();
     state.configure_audio_preferences(&path).unwrap();
+    state.configure_spacing_preference(
+        deadsync_editor::scroll_preferences::spacing::Preference::ConstantRow,
+    );
     assert!(
         state.minimap_content_progress().is_none(),
         "ShowMiniMap hides a retained frame before rendering"

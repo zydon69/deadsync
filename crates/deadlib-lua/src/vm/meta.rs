@@ -10,7 +10,7 @@ impl Vm {
             Op::Sub => x - y,
             Op::Mul => x * y,
             Op::Div => x / y,
-            Op::Mod => x - (x / y).floor() * y,
+            Op::Mod => crate::arithmetic::modulo(x, y),
             Op::Pow => x.powf(y),
             Op::Neg => -x,
             _ => unreachable!("arithmetic opcode"),

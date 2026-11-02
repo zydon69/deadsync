@@ -41,8 +41,12 @@ fn scope(session: &Session) -> Scope {
         Scope::Song
     }
 }
-fn attack_scope(session:&Session)->Scope {
-    if crate::attacks::supports_resident_chart_attacks(session.document()) {Scope::Chart} else {Scope::Song}
+fn attack_scope(session: &Session) -> Scope {
+    if crate::attacks::supports_resident_chart_attacks(session.document()) {
+        Scope::Chart
+    } else {
+        Scope::Song
+    }
 }
 fn snapshot(session: &Session) -> Result<Session, Error> {
     Ok(Session::new(session.snapshot_document()?))
@@ -226,26 +230,49 @@ impl Clipboard {
                 widget.apply(staged, chart, self.source_origin, widget_destination)?;
             }
             for event in &self.events {
-                let destination = || event.row().checked_sub(self.origin).and_then(|offset| row.checked_add(offset))
-                    .ok_or_else(|| Error::InvalidEdit("Paste selection exceeds editor rows".into()));
+                let destination = || {
+                    event
+                        .row()
+                        .checked_sub(self.origin)
+                        .and_then(|offset| row.checked_add(offset))
+                        .ok_or_else(|| {
+                            Error::InvalidEdit("Paste selection exceeds editor rows".into())
+                        })
+                };
                 pasted.push(match *event {
-                    Event::Timing { kind, .. } => Event::Timing { row: destination()?, kind },
-                    Event::Attack { .. } => Event::Attack { row: destination()? },
-                    Event::Pattern { .. } if report.patterns_skipped == 0 => Event::Pattern { row: destination()? },
+                    Event::Timing { kind, .. } => Event::Timing {
+                        row: destination()?,
+                        kind,
+                    },
+                    Event::Attack { .. } => Event::Attack {
+                        row: destination()?,
+                    },
+                    Event::Pattern { .. } if report.patterns_skipped == 0 => Event::Pattern {
+                        row: destination()?,
+                    },
                     _ => continue,
                 });
             }
             let grid = staged.grid(chart)?;
-            let kinds = pasted.iter().filter_map(|event| match event {
-                Event::Note(position) => grid.get(*position).map(|note| (*position, note.kind)),
-                _ => None,
-            }).collect();
+            let kinds = pasted
+                .iter()
+                .filter_map(|event| match event {
+                    Event::Note(position) => grid.get(*position).map(|note| (*position, note.kind)),
+                    _ => None,
+                })
+                .collect();
             pasted.sort_by_key(|event| event.sort_key(&kinds));
             pasted.dedup();
             Ok(())
         })?;
         let selection_after = crate::history::SelectionEffect::capture(session, chart, pasted);
-        session.record_event_selection(crate::history::selection_effect::SelectionHistory { before: selection_before, after: selection_after }, report.changed);
+        session.record_event_selection(
+            crate::history::selection_effect::SelectionHistory {
+                before: selection_before,
+                after: selection_after,
+            },
+            report.changed,
+        );
         Ok(report)
     }
     /// Empty selections retain the caller's previous clipboard. A failed cut
@@ -316,7 +343,10 @@ fn nearest_paste_row(position: f64) -> Result<u64, Error> {
 #[cfg(test)]
 mod selection_history_tests {
     use super::*;
-    use crate::{document::{Document, Format}, notes::Position};
+    use crate::{
+        document::{Document, Format},
+        notes::Position,
+    };
 
     #[test]
     fn mixed_paste_selects_only_added_targets_undo_clears_and_redo_restores_them() {
@@ -325,39 +355,85 @@ mod selection_history_tests {
         selected.select_all(true);
         let clip = selected.copy(&mut session).unwrap().unwrap();
         let before = session.serialize().unwrap();
-        assert!(clip.paste_with_report(&mut session, 0, 384, 0).unwrap().changed);
+        assert!(
+            clip.paste_with_report(&mut session, 0, 384, 0)
+                .unwrap()
+                .changed
+        );
         let after = session.serialize().unwrap();
         let expected = vec![
-            Event::Timing { row: 384, kind: TimingKind::Label },
-            Event::Note(Position { row: 384, lane: 1, player: 0 }),
-            Event::Timing { row: 432, kind: TimingKind::Tempo },
-            Event::Note(Position { row: 432, lane: 2, player: 0 }),
+            Event::Timing {
+                row: 384,
+                kind: TimingKind::Label,
+            },
+            Event::Note(Position {
+                row: 384,
+                lane: 1,
+                player: 0,
+            }),
+            Event::Timing {
+                row: 432,
+                kind: TimingKind::Tempo,
+            },
+            Event::Note(Position {
+                row: 432,
+                lane: 2,
+                player: 0,
+            }),
         ];
         let effect = session.take_event_selection_update().unwrap();
         assert!(effect.is_current(&session));
         assert_eq!(effect.events(), expected);
         session.undo().unwrap();
         assert_eq!(session.serialize().unwrap(), before);
-        assert!(session.take_event_selection_update().unwrap().events().is_empty());
+        assert!(
+            session
+                .take_event_selection_update()
+                .unwrap()
+                .events()
+                .is_empty()
+        );
         session.redo().unwrap();
         assert_eq!(session.serialize().unwrap(), after);
-        assert_eq!(session.take_event_selection_update().unwrap().events(), expected);
+        assert_eq!(
+            session.take_event_selection_update().unwrap().events(),
+            expected
+        );
     }
 
     #[test]
     fn note_paste_selection_uses_accepted_lanes_and_actual_destination_player() {
         for layout in ["dance-single", "dance-routine"] {
-            let zeros = if layout == "dance-single" { "0000" } else { "00000000" };
-            let text = format!("#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-double;#NOTES:00000001\n10000000\n00000000\n00000000;#NOTEDATA:;#STEPSTYPE:{layout};#NOTES:{zeros};");
-            let mut session = Session::new(Document::parse(text.into_bytes(), Format::Ssc).unwrap());
+            let zeros = if layout == "dance-single" {
+                "0000"
+            } else {
+                "00000000"
+            };
+            let text = format!(
+                "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-double;#NOTES:00000001\n10000000\n00000000\n00000000;#NOTEDATA:;#STEPSTYPE:{layout};#NOTES:{zeros};"
+            );
+            let mut session =
+                Session::new(Document::parse(text.into_bytes(), Format::Ssc).unwrap());
             let clip = Notes::copy(session.grid(0).unwrap(), 0, 48, None).unwrap();
             let before = session.serialize().unwrap();
             let owner = u32::from(layout == "dance-routine");
-            let (changed, skipped) = clip.paste_force_with_report(&mut session, 1, 192, owner).unwrap();
+            let (changed, skipped) = clip
+                .paste_force_with_report(&mut session, 1, 192, owner)
+                .unwrap();
             assert!(changed);
             let mut expected = Vec::new();
-            if owner == 1 { expected.push(Event::Note(Position { row: 192, lane: 7, player: owner })); }
-            expected.push(Event::Note(Position { row: 240, lane: 0, player: owner }));
+            if owner == 1 {
+                expected.push(Event::Note(Position {
+                    row: 192,
+                    lane: 7,
+                    player: owner,
+                }));
+            }
+            expected.push(Event::Note(Position {
+                row: 240,
+                lane: 0,
+                player: owner,
+            }));
             assert_eq!(skipped, usize::from(owner == 0));
             let effect = session.take_event_selection_update().unwrap();
             assert!(effect.is_current(&session));
@@ -366,19 +442,38 @@ mod selection_history_tests {
             let after = session.serialize().unwrap();
             session.undo().unwrap();
             assert_eq!(session.serialize().unwrap(), before);
-            assert!(session.take_event_selection_update().unwrap().events().is_empty());
+            assert!(
+                session
+                    .take_event_selection_update()
+                    .unwrap()
+                    .events()
+                    .is_empty()
+            );
             session.redo().unwrap();
             assert_eq!(session.serialize().unwrap(), after);
-            assert_eq!(session.take_event_selection_update().unwrap().events(), expected);
+            assert_eq!(
+                session.take_event_selection_update().unwrap().events(),
+                expected
+            );
         }
     }
 
     #[test]
     fn invalid_paste_destination_refuses_without_a_selection_receipt() {
-        let mut session = Session::new(Document::parse(b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;".to_vec(), Format::Ssc).unwrap());
+        let mut session = Session::new(
+            Document::parse(
+                b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;"
+                    .to_vec(),
+                Format::Ssc,
+            )
+            .unwrap(),
+        );
         let clip = Clipboard::copy(&mut session, 0, 0, 0).unwrap().unwrap();
         let before = session.serialize().unwrap();
-        assert!(clip.paste_with_report(&mut session, usize::MAX, 0, 0).is_err());
+        assert!(
+            clip.paste_with_report(&mut session, usize::MAX, 0, 0)
+                .is_err()
+        );
         assert_eq!(session.serialize().unwrap(), before);
         assert!(session.take_event_selection_update().is_none());
     }

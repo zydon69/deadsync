@@ -73,7 +73,10 @@ pub(crate) fn gameplay_chart_entry_plan(
             resolved_steps_index = [p1.0, p2.0];
             [p1.1, p2.1]
         }
-        PlayStyle::Single | PlayStyle::Double | PlayStyle::PumpSingle | PlayStyle::PumpDouble
+        PlayStyle::Single
+        | PlayStyle::Double
+        | PlayStyle::PumpSingle
+        | PlayStyle::PumpDouble
         | PlayStyle::Routine
         | PlayStyle::PumpRoutine => {
             let side = player_side_index(player_side);
@@ -134,7 +137,10 @@ pub(crate) fn gameplay_last_played_commands(
                 });
             }
         }
-        PlayStyle::Single | PlayStyle::Double | PlayStyle::PumpSingle | PlayStyle::PumpDouble
+        PlayStyle::Single
+        | PlayStyle::Double
+        | PlayStyle::PumpSingle
+        | PlayStyle::PumpDouble
         | PlayStyle::Routine
         | PlayStyle::PumpRoutine => {
             let index = player_side_index(player_side);
@@ -160,10 +166,17 @@ fn reload_chart_indices(
 ) -> Result<[usize; MAX_PLAYERS], String> {
     let mut indices = [0; MAX_PLAYERS];
     for player in 0..session.play_style.player_count() {
-        let index = steps[player].ok_or_else(|| format!("Lua reload has no chart for player {}", player + 1))?;
-        let chart = song.charts.get(index)
+        let index = steps[player]
+            .ok_or_else(|| format!("Lua reload has no chart for player {}", player + 1))?;
+        let chart = song
+            .charts
+            .get(index)
             .ok_or_else(|| format!("Lua reload selected missing chart {index}"))?;
-        let prefix = if session.play_style.is_pump() { "pump" } else { "dance" };
+        let prefix = if session.play_style.is_pump() {
+            "pump"
+        } else {
+            "dance"
+        };
         use deadsync_gameplay::GameplayInputPlayStyle as Style;
         let suffix = match session.play_style {
             Style::Couple | Style::PumpCouple => "couple",
@@ -172,7 +185,10 @@ fn reload_chart_indices(
             _ => "single",
         };
         if chart.chart_type != format!("{prefix}-{suffix}") {
-            return Err(format!("Lua reload selected incompatible chart type {}", chart.chart_type));
+            return Err(format!(
+                "Lua reload selected incompatible chart type {}",
+                chart.chart_type
+            ));
         }
         indices[player] = index;
     }
@@ -192,7 +208,9 @@ pub fn apply_song_lua_reload(
     session: &mut deadsync_gameplay::GameplaySession,
     global_offset_seconds: f32,
 ) -> Result<bool, String> {
-    let Some(steps) = prepared.loaded_steps() else { return Ok(false); };
+    let Some(steps) = prepared.loaded_steps() else {
+        return Ok(false);
+    };
     let mut selected_session = session.clone();
     if let Some(style) = prepared.loaded_style() {
         use deadsync_gameplay::GameplayInputPlayStyle as Style;
@@ -211,12 +229,21 @@ pub fn apply_song_lua_reload(
         };
         // GameState::SetCurrentStyle preserves joined sides and rejects styles
         // that require a different number of them.
-        if selected_session.play_style.participant_count() != session.joined_sides.iter().filter(|joined| **joined).count() {
-            return Err(format!("Lua reload style {style} is incompatible with joined sides"));
+        if selected_session.play_style.participant_count()
+            != session
+                .joined_sides
+                .iter()
+                .filter(|joined| **joined)
+                .count()
+        {
+            return Err(format!(
+                "Lua reload style {style} is incompatible with joined sides"
+            ));
         }
     }
     let indices = reload_chart_indices(song, steps, &selected_session)?;
-    let loaded = deadsync_simfile::app_runtime::load_gameplay_charts(song, &indices, global_offset_seconds)?;
+    let loaded =
+        deadsync_simfile::app_runtime::load_gameplay_charts(song, &indices, global_offset_seconds)?;
     // Update only after both players loaded successfully. ChartData carries
     // the selected chart's music path, which gameplay uses to start audio.
     *payloads = take_player_charts(loaded);
@@ -287,33 +314,61 @@ pub fn song_lua_context(
     let playable_notes = std::mem::take(&mut context.song_step_notes);
     let playable_rows = std::mem::take(&mut context.song_step_row_beats);
     context.song_step_chart_indices = catalog.iter().map(|step| step.playable_index).collect();
-    context.player_step_indices = context.player_step_indices.map(|selected|
-        selected.and_then(|index| context.song_step_chart_indices.iter().position(|value| *value == Some(index))));
+    context.player_step_indices = context.player_step_indices.map(|selected| {
+        selected.and_then(|index| {
+            context
+                .song_step_chart_indices
+                .iter()
+                .position(|value| *value == Some(index))
+        })
+    });
     for step in catalog {
         if let Some(index) = step.playable_index {
             context.song_steps.push(playable_steps[index].clone());
-            context.song_step_timing.push(playable_timing[index].clone());
+            context
+                .song_step_timing
+                .push(playable_timing[index].clone());
             context.song_step_notes.push(playable_notes[index].clone());
-            context.song_step_row_beats.push(playable_rows[index].clone());
+            context
+                .song_step_row_beats
+                .push(playable_rows[index].clone());
         } else {
             use deadsync_song_lua::SongLuaDifficulty as Difficulty;
             let difficulty = match step.difficulty.to_ascii_lowercase().as_str() {
-                "beginner" => Difficulty::Beginner, "easy" | "basic" | "light" => Difficulty::Easy,
+                "beginner" => Difficulty::Beginner,
+                "easy" | "basic" | "light" => Difficulty::Easy,
                 "medium" | "another" | "standard" => Difficulty::Medium,
                 "hard" | "difficult" | "heavy" => Difficulty::Hard,
-                "challenge" | "expert" | "oni" => Difficulty::Challenge, _ => Difficulty::Edit,
+                "challenge" | "expert" | "oni" => Difficulty::Challenge,
+                _ => Difficulty::Edit,
             };
-            let steps_type = step.chart_type.split('-').map(|part| {
-                let mut chars = part.chars();
-                chars.next().map_or_else(String::new, |first| format!("{}{}", first.to_ascii_uppercase(), chars.as_str()))
-            }).collect::<Vec<_>>().join("_");
+            let steps_type = step
+                .chart_type
+                .split('-')
+                .map(|part| {
+                    let mut chars = part.chars();
+                    chars.next().map_or_else(String::new, |first| {
+                        format!("{}{}", first.to_ascii_uppercase(), chars.as_str())
+                    })
+                })
+                .collect::<Vec<_>>()
+                .join("_");
             context.song_steps.push(deadsync_song_lua::SongLuaStep {
-                steps_type: format!("StepsType_{steps_type}"), difficulty,
-                description: step.description, chart_name: step.chart_name,
-                credit: step.credit, meter: step.meter, music_file: step.music_file,
+                steps_type: format!("StepsType_{steps_type}"),
+                difficulty,
+                description: step.description,
+                chart_name: step.chart_name,
+                credit: step.credit,
+                meter: step.meter,
+                music_file: step.music_file,
                 possible_grade_points: 0,
             });
-            context.song_step_timing.push(context.song_timing.clone().unwrap_or_else(|| playable_timing[0].clone()));
+            context.song_step_timing.push(
+                context
+                    .song_timing
+                    .clone()
+                    .unwrap_or_else(|| playable_timing[0].clone()),
+            );
             context.song_step_notes.push(Default::default());
             context.song_step_row_beats.push(Default::default());
         }
@@ -362,9 +417,23 @@ pub fn prepare_song_lua(
     if song.background_lua_changes.is_empty() && song.foreground_lua_changes.is_empty() {
         return PreparedGameplaySongLua::default();
     }
-    let context = match song_lua_context(song, charts, timing, player_profiles, scroll_speed,
-        music_rate, viewport, display_size, display_aspect_ratio, autoplay, session,
-        config, video_renderer, random_seed, false) {
+    let context = match song_lua_context(
+        song,
+        charts,
+        timing,
+        player_profiles,
+        scroll_speed,
+        music_rate,
+        viewport,
+        display_size,
+        display_aspect_ratio,
+        autoplay,
+        session,
+        config,
+        video_renderer,
+        random_seed,
+        false,
+    ) {
         Ok(context) => context,
         Err(error) => {
             warn!("Cannot load Lua chart timing for '{}': {error}", song.title);
@@ -372,7 +441,9 @@ pub fn prepare_song_lua(
         }
     };
     deadsync_song_lua::playback::prepare_song_lua_with_runtime_fallback(
-        song, &context, deadsync_assets::song_lua::compile_song_lua,
+        song,
+        &context,
+        deadsync_assets::song_lua::compile_song_lua,
         deadsync_assets::song_lua::compile_song_lua_layers,
     )
 }
@@ -469,7 +540,10 @@ mod tests {
             joined_sides: [false, true],
             ..Default::default()
         };
-        assert_eq!(reload_chart_indices(&song(), [Some(1), None], &session), Ok([1, 1]));
+        assert_eq!(
+            reload_chart_indices(&song(), [Some(1), None], &session),
+            Ok([1, 1])
+        );
     }
 
     #[test]
@@ -479,7 +553,10 @@ mod tests {
             joined_sides: [true, true],
             ..Default::default()
         };
-        assert_eq!(reload_chart_indices(&song(), [Some(1), Some(0)], &session), Ok([1, 0]));
+        assert_eq!(
+            reload_chart_indices(&song(), [Some(1), Some(0)], &session),
+            Ok([1, 0])
+        );
         assert!(reload_chart_indices(&song(), [Some(1), None], &session).is_err());
         assert!(reload_chart_indices(&song(), [Some(1), Some(7)], &session).is_err());
         let mut incompatible = song().as_ref().clone();

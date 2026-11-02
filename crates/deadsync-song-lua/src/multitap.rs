@@ -439,8 +439,7 @@ where
     // the authored Lua in that case, preserving its native frame predicates.
     if context.song_timing.as_ref().is_some_and(|timing| {
         multitaps.iter().flat_map(|desc| &desc.taps).any(|&tap| {
-            timing.get_time_for_beat_exact(tap.next_up())
-                <= timing.get_time_for_beat_exact(tap)
+            timing.get_time_for_beat_exact(tap.next_up()) <= timing.get_time_for_beat_exact(tap)
         })
     }) {
         return Ok(None);

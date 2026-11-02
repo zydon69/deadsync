@@ -194,6 +194,27 @@ impl EditorAssetService {
         }
         Ok(token)
     }
+    /// Freeze only native notifications for a causally isolated service test;
+    /// existing registrations, prepared caches and decode workers stay real.
+    #[cfg(test)]
+    pub(crate) fn stop_watching_for_test(&mut self) {
+        self.watch.shutdown();
+    }
+    /// Drive the real reset/decode/publication pipeline independently of OS
+    /// notification coalescing when testing exact reload interleavings.
+    #[cfg(test)]
+    pub(crate) fn request_reload_for_test(&mut self, kind: EditorAssetKind) -> AssetLoadToken {
+        let i = index(kind);
+        let registration = self.registrations[i].expect("registered test asset");
+        let path = self.paths[i].clone().expect("test asset has a decode path");
+        let token = self
+            .slots
+            .begin_load(registration)
+            .expect("current registration");
+        self.workers[i].submit(token, path);
+        self.pending_events[i] = Some(EditorAssetEvent::Reset { token });
+        token
+    }
     pub fn watch_ready(&self, kind: EditorAssetKind) -> bool {
         self.watch.ready(kind)
     }

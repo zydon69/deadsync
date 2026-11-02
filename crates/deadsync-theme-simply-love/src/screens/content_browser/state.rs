@@ -1106,8 +1106,18 @@ pub fn finish_pack_deletion(state: &mut State, result: Result<usize, String>) {
     state.remove_result = Some(match result {
         Ok(0) => crate::i18n::tr("ContentBrowser", "MessageNothingWasDeleted").to_string(),
         Ok(1) => crate::i18n::tr("ContentBrowser", "MessageDeleted1SongFolder").to_string(),
-        Ok(count) => crate::i18n::tr_fmt("ContentBrowser", "MessageDeletedCountSongFolders", &[("count", &(count).to_string())]).to_string(),
-        Err(error) => crate::i18n::tr_fmt("ContentBrowser", "MessageCouldNotDeleteError", &[("error", &(error).to_string())]).to_string(),
+        Ok(count) => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessageDeletedCountSongFolders",
+            &[("count", &(count).to_string())],
+        )
+        .to_string(),
+        Err(error) => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessageCouldNotDeleteError",
+            &[("error", &(error).to_string())],
+        )
+        .to_string(),
     });
     state.installed_cursor = state
         .installed_cursor

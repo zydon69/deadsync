@@ -26,6 +26,7 @@ fn wav(path: &Path, value: i16) {
 
 #[test]
 fn preview_loops_keep_original_open_asset_after_unlink_and_replacement() {
+    let _audio_guard = crate::test_audio_guard();
     // Include cut zero, a nonzero cut, and full-file EOF looping. Reading more
     // than the entire fixed PCM pool proves that preloaded blocks cannot hide
     // a later reopen/substitution of the replacement pathname.

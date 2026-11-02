@@ -28,7 +28,12 @@ fn scheduled_attacks_extend_generation_span_without_creating_steps() {
     assert_eq!(region.editor_events.len(), 2);
     assert_eq!(region.editor_events[0].row, 96);
     assert_eq!(region.editor_events[1].row, 192);
-    assert!(region.editor_events.iter().all(|event| !event.is_step && event.lane.is_none()));
+    assert!(
+        region
+            .editor_events
+            .iter()
+            .all(|event| !event.is_step && event.lane.is_none())
+    );
     let clipped = timeline
         .prepare_region(&grid, Some((0, 95)), &cancelled)
         .unwrap();
@@ -703,10 +708,21 @@ fn native_pipeline(pattern: bool) {
                 );
                 // Full original editor action, rather than the old reconstructed
                 // single-call pipeline, owns the generated output contract.
-                let worker: Value = serde_json::from_slice(&fs::read(
-                    root.parent().unwrap().join("pattern-worker").join(name.replace(".request.json", ".expected.json"))
-                ).unwrap()).unwrap();
-                let reference = deadsync_editor::notes::Grid::parse(worker["NoteData"].as_str().unwrap().as_bytes(), 4).unwrap();
+                let worker: Value = serde_json::from_slice(
+                    &fs::read(
+                        root.parent()
+                            .unwrap()
+                            .join("pattern-worker")
+                            .join(name.replace(".request.json", ".expected.json")),
+                    )
+                    .unwrap(),
+                )
+                .unwrap();
+                let reference = deadsync_editor::notes::Grid::parse(
+                    worker["NoteData"].as_str().unwrap().as_bytes(),
+                    4,
+                )
+                .unwrap();
                 assert_eq!(preview.grid(), &reference, "{name} original action output");
                 assert_eq!(worker["Before"], worker["Undo"], "{name} source Undo");
                 assert_eq!(worker["NoteData"], worker["Redo"], "{name} source Redo");

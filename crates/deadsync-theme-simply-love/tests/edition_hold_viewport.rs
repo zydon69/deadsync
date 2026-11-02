@@ -43,24 +43,25 @@ fn assert_clipped(actor: &Actor, viewport: [f32; 4]) {
     let [SizeSpec::Px(width), SizeSpec::Px(height)] = *size else {
         panic!("explicit sprite sizes")
     };
+    // The compositor offsets the cropped quad in world axes before rotation.
+    // Measure that visible quad, including the renderer's crop compensation.
     let rotation = rot_z_deg.rem_euclid(360.0);
-    let (w, h) = if rotation == 90.0 || rotation == 270.0 {
-        (height, width)
+    let center = [
+        offset[0] + (*cl - *cr) * width * 0.5,
+        offset[1] + (*ct - *cb) * height * 0.5,
+    ];
+    let visible = [width * (1.0 - *cl - *cr), height * (1.0 - *ct - *cb)];
+    let [w, h] = if rotation == 90.0 || rotation == 270.0 {
+        [visible[1], visible[0]]
     } else {
-        (width, height)
-    };
-    let (l, r, t, b) = match rotation {
-        0.0 => (*cl, *cr, *ct, *cb),
-        90.0 => (*cb, *ct, *cl, *cr),
-        180.0 => (*cr, *cl, *cb, *ct),
-        270.0 => (*ct, *cb, *cr, *cl),
-        _ => panic!("cardinal source rotation"),
+        assert!(rotation == 0.0 || rotation == 180.0, "cardinal rotation");
+        visible
     };
     let bounds = [
-        offset[0] - w * 0.5 + l * w,
-        offset[1] - h * 0.5 + t * h,
-        offset[0] + w * 0.5 - r * w,
-        offset[1] + h * 0.5 - b * h,
+        center[0] - w * 0.5,
+        center[1] - h * 0.5,
+        center[0] + w * 0.5,
+        center[1] + h * 0.5,
     ];
     assert!(
         bounds[0] >= viewport[0] - 1e-4
@@ -102,13 +103,11 @@ fn pump_rotated_arrow_caps_and_heads_crop_in_their_local_axes() {
         assert_clipped(a, viewport);
     }
     assert!(out.actors.iter().any(
-        |a| matches!(a,Actor::Sprite{rot_z_deg,cropright,..}if *rot_z_deg==90.0&&*cropright>0.0)
+        |a| matches!(a,Actor::Sprite{rot_z_deg,cropright,..}if *rot_z_deg == -90.0 && *cropright > 0.0)
     ));
-    assert!(
-        out.actors.iter().any(
-            |a| matches!(a,Actor::Sprite{rot_z_deg,croptop,..}if *rot_z_deg==90.0&&*croptop>0.0)
-        )
-    );
+    assert!(out.actors.iter().any(
+        |a| matches!(a,Actor::Sprite{rot_z_deg,croptop,..}if *rot_z_deg == -90.0 && *croptop > 0.0)
+    ));
 }
 #[test]
 fn solo_reverse_and_far_offscreen_sustains_remain_clipped_and_bounded() {

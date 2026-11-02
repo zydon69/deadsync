@@ -117,6 +117,8 @@ fn french_pattern_set_selector_errors_preview_and_acceptance_have_resolved_label
     assert!(
         texts(&state)
             .iter()
-            .any(|text| text.contains("Motifs acceptés"))
+            .any(|text| text.contains("Motifs acceptés")),
+        "{:?}",
+        texts(&state)
     );
 }

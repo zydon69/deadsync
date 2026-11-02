@@ -524,7 +524,8 @@ fn capture_script(
     lua.set_hook(
         HookTriggers::new().every_nth_instruction(LUA_HOOK_INTERVAL),
         |lua, _| {
-            let mut instructions = lua.app_data_mut::<u32>()
+            let mut instructions = lua
+                .app_data_mut::<u32>()
                 .ok_or_else(|| mlua::Error::runtime("missing GIF instruction count"))?;
             *instructions += LUA_HOOK_INTERVAL;
             let next = *instructions;

@@ -796,6 +796,7 @@ mod tests {
 
     #[test]
     fn cached_crossfade_weights_match_per_sample_formula() {
+        let _audio_guard = crate::test_audio_guard();
         let stretcher = SolaStretcher::new(2, 48_000);
         let start = 137;
         let frames = 911;
@@ -828,6 +829,7 @@ mod tests {
 
     #[test]
     fn identity_crossfade_copies_source_samples_bit_for_bit() {
+        let _audio_guard = crate::test_audio_guard();
         let frames = 517usize;
         let samples = (0..frames)
             .map(|index| (index as f32 * 0.037).sin() * 0.75)
@@ -852,6 +854,7 @@ mod tests {
 
     #[test]
     fn fused_stereo_correlation_matches_independent_searches() {
+        let _audio_guard = crate::test_audio_guard();
         for correlate_len in [1usize, 7, 8, 9, 31, 64, 127, 360] {
             let make_samples = |len: usize, multiplier: u32, increment: u32| {
                 (0..len)
@@ -891,6 +894,7 @@ mod tests {
 
     #[test]
     fn source_prefix_reclaimed_without_growing() {
+        let _audio_guard = crate::test_audio_guard();
         let mut stretcher = SolaStretcher::new(2, 48_000);
         stretcher.data_start = 8;
         stretcher.data_avail_frames = 6;
@@ -948,6 +952,7 @@ mod tests {
 
     #[test]
     fn cached_cursor_extrema_follow_incremental_streaming() {
+        let _audio_guard = crate::test_audio_guard();
         for channels in [1usize, 2, 6] {
             let input = (0..12_000 * channels)
                 .map(|sample| sample.wrapping_mul(25_173) as i16)
@@ -974,6 +979,7 @@ mod tests {
 
     #[test]
     fn correlation_returns_earliest_exact_match() {
+        let _audio_guard = crate::test_audio_guard();
         let pattern = [1.0, -2.0, 3.0, -4.0];
         let buffer = [0.0, 0.5, 1.0, -2.0, 3.0, -4.0, 1.0, -2.0, 3.0, -4.0];
 
@@ -1025,6 +1031,7 @@ mod tests {
 
     #[test]
     fn rate_one_is_near_identity_for_sine() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let frames = sr as usize; // 1 second
         let sine = make_sine(440.0, sr, frames);
@@ -1042,6 +1049,7 @@ mod tests {
 
     #[test]
     fn output_length_tracks_speed_ratio() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let in_frames = (sr as usize) * 2;
         let sine = make_sine(440.0, sr, in_frames);
@@ -1077,6 +1085,7 @@ mod tests {
     /// feeding under a capped buffer.
     #[test]
     fn incremental_capped_feed_tracks_speed_ratio() {
+        let _audio_guard = crate::test_audio_guard();
         const CAP: usize = 4096;
         const PACKET: usize = 1152; // typical decoder packet
         const NEED: usize = 1024; // resampler input_frames_next-ish
@@ -1150,6 +1159,7 @@ mod tests {
 
     #[test]
     fn sine_pitch_is_preserved_under_stretch() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let freq = 1000.0f32;
         let in_frames = sr as usize; // 1 s
@@ -1176,6 +1186,7 @@ mod tests {
 
     #[test]
     fn reset_clears_state() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let sine = make_sine(440.0, sr, sr as usize);
         let mut s = SolaStretcher::new(1, sr);
@@ -1192,6 +1203,7 @@ mod tests {
 
     #[test]
     fn stereo_channels_produce_independent_output() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let n = sr as usize / 2;
         let left = make_sine(440.0, sr, n);
@@ -1218,6 +1230,7 @@ mod tests {
     /// its scan, not stop just before it.
     #[test]
     fn correlation_checks_final_valid_position() {
+        let _audio_guard = crate::test_audio_guard();
         let mut buffer = vec![0.0f32; 10];
         let pattern = [1.0f32, 2.0, 3.0, 4.0];
         // Plant the only perfect match at the last valid position.
@@ -1233,6 +1246,7 @@ mod tests {
     /// still produce output promptly if it is fed.
     #[test]
     fn rate_one_does_not_stall() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let sine = make_sine(440.0, sr, sr as usize);
         let mut s = SolaStretcher::new(1, sr);
@@ -1251,6 +1265,7 @@ mod tests {
     /// internal state).
     #[test]
     fn mid_stream_rate_change_continues_producing() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let sine = make_sine(440.0, sr, sr as usize * 2);
         let mut s = SolaStretcher::new(1, sr);
@@ -1274,6 +1289,7 @@ mod tests {
     /// the correlation search even though every L1 score is 0).
     #[test]
     fn silence_in_silence_out() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let silence = vec![0i16; sr as usize];
         let mut s = SolaStretcher::new(1, sr);
@@ -1292,6 +1308,7 @@ mod tests {
     /// stop cleanly once the buffer is exhausted.
     #[test]
     fn sub_window_push_does_not_panic() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let mut s = SolaStretcher::new(1, sr);
         s.set_speed_ratio(1.5);
@@ -1317,6 +1334,7 @@ mod tests {
     /// from the existing stereo-divergence test.
     #[test]
     fn mono_pitch_is_preserved_under_stretch() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let freq = 880.0f32;
         let in_frames = sr as usize;
@@ -1342,6 +1360,7 @@ mod tests {
     /// terminates cleanly.
     #[test]
     fn finish_flushes_tail() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let sine = make_sine(440.0, sr, sr as usize);
 
@@ -1386,6 +1405,7 @@ mod tests {
     /// panic.
     #[test]
     fn finish_on_empty_is_noop() {
+        let _audio_guard = crate::test_audio_guard();
         let sr = 48_000u32;
         let mut s = SolaStretcher::new(2, sr);
         s.set_speed_ratio(0.75);

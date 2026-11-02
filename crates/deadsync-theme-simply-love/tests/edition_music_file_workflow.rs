@@ -1,3 +1,5 @@
+#[path = "support/transport_host.rs"]
+mod transport_host;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::actors::Actor;
 use deadsync_editor::{
@@ -60,9 +62,14 @@ fn setup() -> (tempfile::TempDir, State) {
         b"fixture: command test, no decoder",
     )
     .unwrap();
-    (dir, State::open(&path, 0).unwrap())
+    let mut state = State::open(&path, 0).unwrap();
+    transport_host::publish(&mut state);
+    (dir, state)
 }
 fn open_music(s: &mut State) {
+    if s.is_playing() {
+        press(s, KeyCode::Enter);
+    }
     press(s, KeyCode::F7);
     press(s, KeyCode::ArrowUp);
     press(s, KeyCode::ArrowUp);
@@ -79,20 +86,33 @@ fn apply(s: &mut State) {
     press(s, KeyCode::Enter);
 }
 fn play(s: &mut State) -> PathBuf {
+    if s.is_playing() {
+        press(s, KeyCode::Enter);
+    }
     assert!(!s.is_playing());
-    s.take_audio_commands();
+    transport_host::publish(s);
     press(s, KeyCode::Enter);
     let commands = s.take_audio_commands();
     assert_eq!(commands.len(), 1);
     match &commands[0] {
-        GameplayAudioCommand::PlayMusic { path, .. } => path.clone(),
+        GameplayAudioCommand::EditorStartMusic {
+            path: Some(path), ..
+        }
+        | GameplayAudioCommand::EditorResumeMusic { path, .. } => path.clone(),
         other => panic!("{other:?}"),
     }
 }
 #[test]
 fn picker_and_clear_stage_then_apply_undo_redo_save_and_drive_real_audio_commands() {
     let (dir, mut s) = setup();
-    let base = s.workspace().file().require_existing_path().unwrap().parent().unwrap().to_path_buf();
+    let base = s
+        .workspace()
+        .file()
+        .require_existing_path()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf();
     let folder = base.join("audio");
     fs::create_dir(&folder).unwrap();
     let asset = folder.join("Été #50%20.wav");
@@ -104,7 +124,7 @@ fn picker_and_clear_stage_then_apply_undo_redo_save_and_drive_real_audio_command
     assert!(
         s.take_audio_commands()
             .iter()
-            .any(|c| matches!(c, GameplayAudioCommand::StopMusic))
+            .any(|c| matches!(c, GameplayAudioCommand::EditorPauseMusic { .. }))
     );
     let mut picker = Choose {
         next: Some(Ok(Some(asset.clone()))),
@@ -182,7 +202,7 @@ fn cancel_invalid_and_stale_picker_requests_keep_draft_history_and_do_not_open_d
     );
 }
 #[test]
-fn keyboard_path_entry_keeps_missing_paths_editable_while_playback_reports_them() {
+fn keyboard_path_entry_keeps_missing_paths_editable_and_forwards_decode_request_to_host() {
     let (_dir, mut s) = setup();
     open_music(&mut s);
     assert!(s.text_input("later.ogg"));
@@ -198,9 +218,9 @@ fn keyboard_path_entry_keeps_missing_paths_editable_while_playback_reports_them(
     );
     s.take_audio_commands();
     press(&mut s, KeyCode::Enter);
-    assert!(!s.is_playing());
-    assert!(s.take_audio_commands().is_empty());
-    assert!(has(&s, "Music file not found"));
+    assert!(s.is_playing());
+    let commands = s.take_audio_commands();
+    assert!(commands.iter().any(|command| matches!(command, GameplayAudioCommand::EditorStartMusic { path: Some(path), .. } if path.ends_with("later.ogg"))), "{commands:?}");
     ctrl(&mut s, KeyCode::KeyZ);
     assert_eq!(
         s.workspace()

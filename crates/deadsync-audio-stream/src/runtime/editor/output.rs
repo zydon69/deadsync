@@ -149,7 +149,7 @@ impl AudioControl {
         }
         let mut ack = self.poll_output_reconfigure()?;
         let mut state = self.editor.output.0.borrow_mut();
-        if restore_required(ack.clock.is_some(),ack.outcome) {
+        if restore_required(ack.clock.is_some(), ack.outcome) {
             state.hardware_changed = true;
         }
         let mut release_owner = None;
@@ -193,14 +193,23 @@ impl AudioControl {
 impl AudioControl {
     /// Explicitly abandon a completed failed restore. Does not reopen output or
     /// report restoration; the backend remains unavailable/quarantined.
-    pub fn abandon_editor_output_lease(&mut self,owner:u64) {
-        if self.editor.output.0.borrow().pending.is_some(){return;}
+    pub fn abandon_editor_output_lease(&mut self, owner: u64) {
+        if self.editor.output.0.borrow().pending.is_some() {
+            return;
+        }
         match self.release_output_lease(owner) {
-            Ok(())|Err(ReconfigureError::StaleOwner)=>{
-                let mut state=self.editor.output.0.borrow_mut();
-                if state.lease.as_ref().is_some_and(|(actual,_)|*actual==owner){state.lease=None;state.rollback=None;}
+            Ok(()) | Err(ReconfigureError::StaleOwner) => {
+                let mut state = self.editor.output.0.borrow_mut();
+                if state
+                    .lease
+                    .as_ref()
+                    .is_some_and(|(actual, _)| *actual == owner)
+                {
+                    state.lease = None;
+                    state.rollback = None;
+                }
             }
-            Err(_)=>{}
+            Err(_) => {}
         }
     }
 }
@@ -213,18 +222,21 @@ mod failed_startup_restore_tests {
     fn failed_unavailable_without_clock_still_requires_real_restore() {
         // A failed shutdown/open may publish no replacement clock. That is not
         // proof that the pre-editor output remained intact.
-        for reason in [ReconfigureFailure::ShutdownFailed,ReconfigureFailure::RollbackFailed] {
-            let clock:Option<MusicClock>=None;
-            let outcome=ReconfigureOutcome::FailedUnavailable{reason};
-            let output=Output::new();
-            if restore_required(clock.is_some(),outcome) {
-                output.0.borrow_mut().hardware_changed=true;
+        for reason in [
+            ReconfigureFailure::ShutdownFailed,
+            ReconfigureFailure::RollbackFailed,
+        ] {
+            let clock: Option<MusicClock> = None;
+            let outcome = ReconfigureOutcome::FailedUnavailable { reason };
+            let output = Output::new();
+            if restore_required(clock.is_some(), outcome) {
+                output.0.borrow_mut().hardware_changed = true;
             }
             assert!(output.0.borrow().hardware_changed);
         }
     }
 }
 
-fn restore_required(clock_replaced:bool,outcome:ReconfigureOutcome)->bool {
-    clock_replaced || matches!(outcome,ReconfigureOutcome::FailedUnavailable{..})
+fn restore_required(clock_replaced: bool, outcome: ReconfigureOutcome) -> bool {
+    clock_replaced || matches!(outcome, ReconfigureOutcome::FailedUnavailable { .. })
 }

@@ -2488,7 +2488,11 @@ fn push_footer(actors: &mut Vec<Actor>, footer: Footer, zb: f32) {
             save_available,
             threshold_lock,
         } => {
-            line(actors, crate::i18n::tr("PadConfig", "SelectPanelHint"), bottom - 94.0);
+            line(
+                actors,
+                crate::i18n::tr("PadConfig", "SelectPanelHint"),
+                bottom - 94.0,
+            );
             // Kept static for the frame path; the regression test below binds
             // the embedded numbers to the edit constants.
             line(
@@ -2500,18 +2504,10 @@ fn push_footer(actors: &mut Vec<Actor>, footer: Footer, zb: f32) {
             // load-cell pads) + Save on one line; Save only when the cursor pad
             // has a profile to save to (in-session, local profile).
             let action_line = match (threshold_lock, advanced_available, save_available) {
-                (Some(true), _, true) => Some(
-                    crate::i18n::tr("PadConfig", "LockOnProfilesHint"),
-                ),
-                (Some(false), _, true) => Some(
-                    crate::i18n::tr("PadConfig", "LockOffProfilesHint"),
-                ),
-                (Some(true), _, false) => {
-                    Some(crate::i18n::tr("PadConfig", "LockOnHint"))
-                }
-                (Some(false), _, false) => {
-                    Some(crate::i18n::tr("PadConfig", "LockOffHint"))
-                }
+                (Some(true), _, true) => Some(crate::i18n::tr("PadConfig", "LockOnProfilesHint")),
+                (Some(false), _, true) => Some(crate::i18n::tr("PadConfig", "LockOffProfilesHint")),
+                (Some(true), _, false) => Some(crate::i18n::tr("PadConfig", "LockOnHint")),
+                (Some(false), _, false) => Some(crate::i18n::tr("PadConfig", "LockOffHint")),
                 (None, true, true) => Some(crate::i18n::tr("PadConfig", "AdvancedProfilesHint")),
                 (None, false, true) => Some(crate::i18n::tr("PadConfig", "ProfilesHint")),
                 (None, true, false) => Some(crate::i18n::tr("PadConfig", "AdvancedHint")),
@@ -3505,11 +3501,21 @@ mod tests {
         );
         assert_eq!(
             "&START; Press/Release lock: ON (keeps them 10 apart)",
-            crate::i18n::tr_fmt("PadConfig", "LockOn", &[("gap", &LOCKED_THRESHOLD_GAP.to_string())]).to_string()
+            crate::i18n::tr_fmt(
+                "PadConfig",
+                "LockOn",
+                &[("gap", &LOCKED_THRESHOLD_GAP.to_string())]
+            )
+            .to_string()
         );
         assert_eq!(
             "&START; Press/Release lock: OFF (keeps them 10 apart)",
-            crate::i18n::tr_fmt("PadConfig", "LockOff", &[("gap", &LOCKED_THRESHOLD_GAP.to_string())]).to_string()
+            crate::i18n::tr_fmt(
+                "PadConfig",
+                "LockOff",
+                &[("gap", &LOCKED_THRESHOLD_GAP.to_string())]
+            )
+            .to_string()
         );
     }
 

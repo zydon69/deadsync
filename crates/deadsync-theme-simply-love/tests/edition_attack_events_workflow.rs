@@ -35,15 +35,29 @@ fn ctrl(s: &mut State, code: KeyCode) {
         timestamp: Instant::now(),
         host_nanos: 0,
     });
-    if code == KeyCode::Tab { complete_chart_navigation(s); }
+    if code == KeyCode::Tab {
+        complete_chart_navigation(s);
+    }
 }
 fn open(s: &mut State) {
     press(s, KeyCode::F10);
-    // Explicitly select shared scope; the default follows timing's chart scope in SSC.
-    if s.workspace().file().session.document().format == Format::Ssc {
-        press(s, KeyCode::ArrowLeft);
-    }
+    // Native resident timing is chart-scoped in both SM and SSC. These cases
+    // intentionally edit the shared song attacks, so select that scope.
+    press(s, KeyCode::ArrowLeft);
     press(s, KeyCode::F6);
+    // Source attack memory starts without a selected event. These legacy
+    // editing scenarios explicitly choose the first shared event when needed.
+    if s.workspace()
+        .file()
+        .session
+        .selected_attack_row(s.workspace().chart(), Scope::Song)
+        .is_none()
+        && !read(s).attacks().events().is_empty()
+    {
+        row(s, 1);
+        press(s, KeyCode::ArrowRight);
+        row(s, 0);
+    }
 }
 fn row(s: &mut State, index: usize) {
     press(s, KeyCode::PageUp);
@@ -55,7 +69,22 @@ fn row(s: &mut State, index: usize) {
 fn field(s: &mut State, index: usize, value: &str) {
     row(s, index);
     ctrl(s, KeyCode::KeyA);
-    assert!(s.text_input(value));
+    let accepted = s.text_input(value);
+    if !accepted {
+        let mut actors = Vec::new();
+        s.actors(&mut actors);
+        let labels: Vec<_> = actors
+            .iter()
+            .filter_map(|actor| match actor {
+                deadlib_present::actors::Actor::Text { content, .. } => Some(content.as_ref()),
+                _ => None,
+            })
+            .collect();
+        panic!(
+            "attack field{index} rejected {value:?}; text focus={}, labels={labels:?}",
+            s.wants_text_input()
+        );
+    }
 }
 fn action(s: &mut State, index: usize) {
     row(s, index);
@@ -132,8 +161,9 @@ fn attacks_keyboard_edit_multiple_modifiers_create_delete_cancel_undo_redo_save_
         assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
         ctrl(&mut s, KeyCode::KeyY);
         assert_eq!(s.workspace().file().session.serialize().unwrap(), after);
+        let output = s.workspace().file().session.serialize_for_output().unwrap();
         ctrl(&mut s, KeyCode::KeyS);
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), output);
         let reopened = Session::new(Document::parse(after.clone(), format).unwrap());
         assert_eq!(
             Draft::capture(&reopened, 0, Scope::Song).unwrap().attacks(),
@@ -154,6 +184,9 @@ fn attacks_keyboard_edit_multiple_modifiers_create_delete_cancel_undo_redo_save_
 #[test]
 fn invalid_attack_fields_remain_repairable_and_scope_switch_cannot_discard_pending_changes() {
     i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     let source=b"#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=0:LEN=2:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;";
@@ -174,6 +207,8 @@ fn invalid_attack_fields_remain_repairable_and_scope_switch_cannot_discard_pendi
     open(&mut s);
     row(&mut s, 0);
     press(&mut s, KeyCode::ArrowRight);
+    row(&mut s, 1);
+    press(&mut s, KeyCode::ArrowRight);
     field(&mut s, 5, "25");
     action(&mut s, 12);
     assert_eq!(read(&s).attacks().events()[0].modifiers[0].level, 100.0);
@@ -192,6 +227,9 @@ fn invalid_attack_fields_remain_repairable_and_scope_switch_cannot_discard_pendi
 #[test]
 fn attack_timeline_shortcuts_set_duration_and_jump_without_audio_or_early_document_edits() {
     i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     let source=b"#VERSION:0.83;#OFFSET:0.25;#BPMS:0=120;#ATTACKS:TIME=0.75:LEN=1:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;";
@@ -234,6 +272,9 @@ impl deadsync_editor::clipboard::TextClipboard for Clipboard {
 #[test]
 fn empty_attack_list_creation_and_clipboard_requests_remain_bound_to_the_active_field() {
     i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     let source=b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;";
@@ -273,6 +314,9 @@ fn empty_attack_list_creation_and_clipboard_requests_remain_bound_to_the_active_
 #[test]
 fn timing_menu_entry_and_shortcut_preserve_pending_timing_before_opening_attacks() {
     i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     let source=b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;";
@@ -320,6 +364,9 @@ fn timing_menu_entry_and_shortcut_preserve_pending_timing_before_opening_attacks
 #[test]
 fn attack_transport_uses_resident_rows_with_delay_and_stop_and_preserves_them_on_apply() {
     i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     let source=b"#VERSION:0.83;#BPMS:0=120;#DELAYS:4=1;#STOPS:8=1;#ATTACKS:TIME=5.25:LEN=1:MODS=100% Dizzy;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000,0100;";
@@ -345,6 +392,9 @@ fn attack_transport_uses_resident_rows_with_delay_and_stop_and_preserves_them_on
 #[test]
 fn empty_attack_keeps_time_editing_keyboard_transport_save_reopen_and_independent_event_deletion() {
     i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     for format in [Format::Sm, Format::Ssc] {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join(if format == Format::Sm {
@@ -414,6 +464,9 @@ fn empty_attack_keeps_time_editing_keyboard_transport_save_reopen_and_independen
 #[test]
 fn new_attack_duration_is_one_beat_at_active_tempo_and_added_modifiers_reuse_first_length() {
     i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     let source=b"#VERSION:0.83;#BPMS:0=120,4=240;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;";
@@ -444,6 +497,9 @@ fn new_attack_duration_is_one_beat_at_active_tempo_and_added_modifiers_reuse_fir
 #[test]
 fn attack_event_clipboard_crosses_charts_with_destination_clock_conflicts_and_one_undo() {
     i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("clipboard.ssc");
     let source = b"#VERSION:0.83;#BPMS:0=120;#ATTACKS:TIME=0.5:LEN=2:MODS=100% Dizzy,50% Drunk;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Challenge;#METER:10;#BPMS:0=240;#ATTACKS:TIME=1:LEN=1:MODS=100% Reverse;#NOTES:0100;";
@@ -451,6 +507,8 @@ fn attack_event_clipboard_crosses_charts_with_destination_clock_conflicts_and_on
     let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
     press(&mut s, KeyCode::F10);
     press(&mut s, KeyCode::F6);
+    row(&mut s, 1);
+    press(&mut s, KeyCode::ArrowRight);
     field(&mut s, 4, "Écran clair");
     row(&mut s, 1);
     ctrl(&mut s, KeyCode::KeyC);
@@ -487,11 +545,17 @@ fn attack_event_clipboard_crosses_charts_with_destination_clock_conflicts_and_on
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
     ctrl(&mut s, KeyCode::KeyY);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), pasted);
+    let output = s.workspace().file().session.serialize_for_output().unwrap();
     ctrl(&mut s, KeyCode::KeyS);
     let reopened = State::open_selected(&path, "dance-single", "Challenge", "", 10).unwrap();
     assert_eq!(
-        reopened.workspace().file().session.serialize().unwrap(),
-        pasted
+        reopened
+            .workspace()
+            .file()
+            .session
+            .serialize_for_output()
+            .unwrap(),
+        output
     );
     // Cutting the whole event remains staged, and cancelling restores it.
     ctrl(&mut s, KeyCode::Enter);
@@ -566,6 +630,24 @@ fn attack_range_selection_copy_cut_delete_and_select_all_are_atomic_keyboard_ges
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
     open(&mut s);
     row(&mut s, 1);
+    for _ in 0..3 {
+        if s.workspace()
+            .file()
+            .session
+            .selected_attack_row(0, Scope::Song)
+            == Some(0)
+        {
+            break;
+        }
+        press(&mut s, KeyCode::ArrowLeft);
+    }
+    assert_eq!(
+        s.workspace()
+            .file()
+            .session
+            .selected_attack_row(0, Scope::Song),
+        Some(0)
+    );
     extend(&mut s, KeyCode::ArrowRight);
     ctrl(&mut s, KeyCode::KeyX);
     action(&mut s, 12);
@@ -620,6 +702,9 @@ fn attack_range_selection_copy_cut_delete_and_select_all_are_atomic_keyboard_ges
 #[test]
 fn mixed_event_clipboard_shortcuts_cross_charts_and_undo_notes_timing_and_attacks_together() {
     i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     fn mixed(s: &mut State, code: KeyCode) {
         s.raw_key(&RawKeyboardEvent {
             code: KeyCode::ShiftLeft,
@@ -677,11 +762,17 @@ fn mixed_event_clipboard_shortcuts_cross_charts_and_undo_notes_timing_and_attack
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
     ctrl(&mut s, KeyCode::KeyY);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), saved);
+    let output = s.workspace().file().session.serialize_for_output().unwrap();
     ctrl(&mut s, KeyCode::KeyS);
     let reopened = State::open_selected(&path, "dance-single", "Challenge", "", 10).unwrap();
     assert_eq!(
-        reopened.workspace().file().session.serialize().unwrap(),
-        saved
+        reopened
+            .workspace()
+            .file()
+            .session
+            .serialize_for_output()
+            .unwrap(),
+        output
     );
     ctrl(&mut s, KeyCode::Tab);
     press(&mut s, KeyCode::Home);
@@ -706,6 +797,9 @@ fn mixed_event_clipboard_shortcuts_cross_charts_and_undo_notes_timing_and_attack
 #[test]
 fn clearing_last_chart_attack_and_mixed_cut_preserve_other_inherited_and_local_charts() {
     i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     fn mixed(s: &mut State, code: KeyCode) {
         s.raw_key(&RawKeyboardEvent {
             code: KeyCode::ShiftLeft,
@@ -928,11 +1022,17 @@ fn individual_event_picker_copies_cuts_and_deletes_only_checked_notes_timing_and
     let mut parsed = Session::new(Document::parse(saved.clone(), Format::Ssc).unwrap());
     assert!(parsed.grid(0).unwrap().get(position(768, 0)).is_some());
     assert!(parsed.grid(0).unwrap().get(position(768, 1)).is_none());
+    let output = s.workspace().file().session.serialize_for_output().unwrap();
     ctrl(&mut s, KeyCode::KeyS);
     let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
     assert_eq!(
-        reopened.workspace().file().session.serialize().unwrap(),
-        saved
+        reopened
+            .workspace()
+            .file()
+            .session
+            .serialize_for_output()
+            .unwrap(),
+        output
     );
 }
 #[test]
@@ -967,11 +1067,36 @@ fn individual_picker_pagination_cancel_empty_choices_and_protected_delete_are_sa
     press(&mut s, KeyCode::PageDown);
     modified(&mut s, KeyCode::KeyE);
     press(&mut s, KeyCode::End);
+    fn flatten(actors: Vec<deadlib_present::actors::Actor>) -> Vec<deadlib_present::actors::Actor> {
+        let mut flattened = Vec::new();
+        for actor in actors {
+            match actor {
+                deadlib_present::actors::Actor::Frame { children, .. }
+                | deadlib_present::actors::Actor::Camera { children, .. } => {
+                    flattened.extend(flatten(children))
+                }
+                deadlib_present::actors::Actor::SharedFrame { children, .. }
+                | deadlib_present::actors::Actor::SharedTransform { children, .. }
+                | deadlib_present::actors::Actor::SharedCamera { children, .. } => {
+                    flattened.extend(flatten(children.to_vec()))
+                }
+                deadlib_present::actors::Actor::RetainedFrame { frame, .. } => {
+                    flattened.extend(flatten(frame.children().to_vec()))
+                }
+                deadlib_present::actors::Actor::Shadow { child, .. } => {
+                    flattened.extend(flatten(vec![*child]))
+                }
+                actor => flattened.push(actor),
+            }
+        }
+        flattened
+    }
     let mut actors = Vec::new();
     s.actors(&mut actors);
+    let actors = flatten(actors);
     assert!(actors.iter().any(
-        |a| matches!(a,deadlib_present::actors::Actor::Text{content,..}if content.contains("2/2"))
-    ));
+        |a| matches!(a,deadlib_present::actors::Actor::Text{content,..}if content.contains("3/3"))
+    ), "{:?}", actors.iter().filter_map(|actor| match actor { deadlib_present::actors::Actor::Text { content, .. } => Some(content.as_ref()), _ => None }).collect::<Vec<_>>());
     let count=actors.iter().filter(|a|matches!(a,deadlib_present::actors::Actor::Text{content,..}if content.starts_with("[x]"))).count();
     assert_eq!(count, 1);
     press(&mut s, KeyCode::Home);

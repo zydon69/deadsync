@@ -1,7 +1,7 @@
 //! Source fixed-row measure density and stream notation. This is not RSSP NPS.
+pub mod colors;
 pub mod layout;
 pub mod mesh;
-pub mod colors;
 pub mod task;
 use crate::{Error, density_preferences::Accumulation};
 use serde_json::{Map, Value};
@@ -270,7 +270,7 @@ impl Series {
                 } else {
                     m.rows
                 };
-                let rate = if m.steps > 0 && !crate::number::reference_equal(duration,0.0) {
+                let rate = if m.steps > 0 && !crate::number::reference_equal(duration, 0.0) {
                     count as f64 / duration
                 } else {
                     0.0
@@ -279,11 +279,7 @@ impl Series {
                     has_steps: m.steps > 0,
                     time: m.start_time,
                     rate,
-                    percent: if peak > 0.0 {
-                        rate / peak
-                    } else {
-                        0.0
-                    },
+                    percent: if peak > 0.0 { rate / peak } else { 0.0 },
                 }
             })
             .collect()

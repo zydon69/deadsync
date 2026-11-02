@@ -8,17 +8,16 @@
 mod editor_reader;
 mod preview_fade;
 
+pub mod lifecycle;
 mod processing;
 mod runtime;
-pub mod lifecycle;
 mod stretch;
 
 use deadlib_audio_core::{MusicBlockTiming, MusicBlockWriter, normalized_music_rate};
 use deadlib_audio_decode as decode;
 use deadlib_audio_decode::resample::{
     OUT_FRAMES_PER_CALL, PLANAR_INPUT_CAP_FRAMES, PlanarAccum, append_channel_mapped_i16,
-    drop_front_samples, resampler_params,
-    write_channel_mapped_i16, write_resampler_output,
+    drop_front_samples, resampler_params, write_channel_mapped_i16, write_resampler_output,
 };
 #[cfg(windows)]
 use deadlib_platform::windows_rt::{ThreadRole, boost_current_thread};
@@ -148,22 +147,24 @@ pub struct MusicStream {
     control: Arc<MusicControl>,
 }
 impl MusicStream {
-    pub fn status_reader(&self) -> lifecycle::DecoderStatusReader { self.control.status.clone() }
+    pub fn status_reader(&self) -> lifecycle::DecoderStatusReader {
+        self.control.status.clone()
+    }
 }
 
 #[derive(Clone, Copy)]
 struct SeekRequest {
-    follow_live_phase:bool,
+    follow_live_phase: bool,
     seconds: f64,
     generation: u64,
 }
 
 struct MusicControl {
     prepared: Option<Arc<decode::prepared::PreparedAudioSource>>,
-    preview_phase: Option<(f64,u64)>,
-    paused:AtomicBool,
-    asset_epoch:u64,
-    follow_live_phase:bool,
+    preview_phase: Option<(f64, u64)>,
+    paused: AtomicBool,
+    asset_epoch: u64,
+    follow_live_phase: bool,
     failed: AtomicBool,
     status: lifecycle::DecoderStatusReader,
     stop_signal: AtomicBool,
@@ -181,7 +182,12 @@ impl MusicControl {
         // A command racing this path either observes failed=true after installing
         // its generation, or this publisher sees that newly installed generation.
         self.failed.store(true, Ordering::SeqCst);
-        self.status.publish(self.generation.load(Ordering::SeqCst), lifecycle::DecoderPhase::Failed, None, Some(detail));
+        self.status.publish(
+            self.generation.load(Ordering::SeqCst),
+            lifecycle::DecoderPhase::Failed,
+            None,
+            Some(detail),
+        );
     }
 }
 impl MusicStream {
@@ -190,9 +196,14 @@ impl MusicStream {
         // been published. Never leave a new Pending generation on a dead worker.
         if self.control.failed.load(Ordering::SeqCst)
             || self.control.stop_signal.load(Ordering::Acquire)
-            || self.thread.is_finished() {
-            self.control.status.publish(generation, lifecycle::DecoderPhase::Failed, None,
-                Some("Decoder worker is unavailable after failure"));
+            || self.thread.is_finished()
+        {
+            self.control.status.publish(
+                generation,
+                lifecycle::DecoderPhase::Failed,
+                None,
+                Some("Decoder worker is unavailable after failure"),
+            );
         } else {
             self.control.wake.notify();
         }
@@ -228,7 +239,7 @@ impl DecoderWake {
 }
 
 struct MusicBackpressure {
-    status:Option<lifecycle::DecoderStatusReader>,
+    status: Option<lifecycle::DecoderStatusReader>,
     sample_rate_hz: u32,
     capacity_blocks: usize,
     low_blocks: usize,
@@ -278,7 +289,7 @@ impl MusicBackpressure {
             duration_blocks(sample_rate_hz, MUSIC_TRANSITION_PREFILL_MS)
                 .min(capacity_blocks.saturating_sub(1).max(1));
         Self {
-            status:None,
+            status: None,
             sample_rate_hz,
             capacity_blocks,
             low_blocks,
@@ -341,7 +352,9 @@ impl MusicBackpressure {
         self.transition_published = self.transition_published.saturating_add(1);
         if !self.transition_ready && self.transition_published >= self.transition_prefill_blocks {
             writer.publish_generation_ready(generation);
-            if let Some(status)=&self.status{status.render_ready(generation);}
+            if let Some(status) = &self.status {
+                status.render_ready(generation);
+            }
             self.transition_ready = true;
             if !self.await_render_drain {
                 self.transition = false;
@@ -359,7 +372,9 @@ impl MusicBackpressure {
             && generation == self.generation
         {
             writer.publish_generation_ready(generation);
-            if let Some(status)=&self.status{status.render_ready(generation);}
+            if let Some(status) = &self.status {
+                status.render_ready(generation);
+            }
             self.transition_ready = true;
             if !self.await_render_drain {
                 self.transition = false;
@@ -401,11 +416,15 @@ pub fn snap_music_start_sec(path: &Path, start_sec: f64) -> f64 {
     snapped
 }
 
-fn wait_retained_pause(control:&MusicControl){
-    while control.paused.load(Ordering::Acquire)&&!control.stop_signal.load(Ordering::Acquire){
-        let sequence=control.wake.sequence.load(Ordering::Acquire);
-        if !control.paused.load(Ordering::Acquire){break;}
-        if control.wake.sequence.load(Ordering::Acquire)==sequence{thread::park_timeout(Duration::from_millis(100));}
+fn wait_retained_pause(control: &MusicControl) {
+    while control.paused.load(Ordering::Acquire) && !control.stop_signal.load(Ordering::Acquire) {
+        let sequence = control.wake.sequence.load(Ordering::Acquire);
+        if !control.paused.load(Ordering::Acquire) {
+            break;
+        }
+        if control.wake.sequence.load(Ordering::Acquire) == sequence {
+            thread::park_timeout(Duration::from_millis(100));
+        }
     }
 }
 fn push_music_block(
@@ -416,14 +435,22 @@ fn push_music_block(
     control: &MusicControl,
     backpressure: &mut MusicBackpressure,
 ) -> Result<f64, Box<dyn std::error::Error + Send + Sync>> {
-    push_music_block_with_preview(writer,block,out_channels,timing,None,control,backpressure)
+    push_music_block_with_preview(
+        writer,
+        block,
+        out_channels,
+        timing,
+        None,
+        control,
+        backpressure,
+    )
 }
 fn push_music_block_with_preview(
     writer: &mut MusicBlockWriter,
     block: &[i16],
     out_channels: usize,
     timing: MusicBlockTiming,
-    preview_frame:Option<u64>,
+    preview_frame: Option<u64>,
     control: &MusicControl,
     backpressure: &mut MusicBackpressure,
 ) -> Result<f64, Box<dyn std::error::Error + Send + Sync>> {
@@ -451,11 +478,11 @@ fn push_music_block_with_preview(
             &block[sample_offset..],
             MusicBlockTiming {
                 asset_epoch: control.asset_epoch,
-generation: timing.generation,
+                generation: timing.generation,
                 music_start_sec: next_music_sec,
                 music_sec_per_frame: timing.music_sec_per_frame,
             },
-            preview_frame.map(|frame|frame.saturating_add((sample_offset/out_channels)as u64)),
+            preview_frame.map(|frame| frame.saturating_add((sample_offset / out_channels) as u64)),
         );
         if pushed == 0 {
             backpressure.wait_for_credit(control, timing.generation);
@@ -465,7 +492,12 @@ generation: timing.generation,
         let chunk_frames = pushed / out_channels;
         sample_offset += pushed;
         next_music_sec = (chunk_frames as f64).mul_add(timing.music_sec_per_frame, next_music_sec);
-        control.status.publish(timing.generation, lifecycle::DecoderPhase::Producing, Some(next_music_sec), None);
+        control.status.publish(
+            timing.generation,
+            lifecycle::DecoderPhase::Producing,
+            Some(next_music_sec),
+            None,
+        );
     }
     Ok(next_music_sec)
 }
@@ -501,7 +533,7 @@ fn push_silence(
             out_channels,
             MusicBlockTiming {
                 asset_epoch: control.asset_epoch,
-generation,
+                generation,
                 music_start_sec: next_music_sec,
                 music_sec_per_frame,
             },
@@ -558,20 +590,74 @@ fn spawn_music_decoder_thread_with_retention(
     context: MusicDecodeContext,
     retain_decoder: bool,
 ) -> MusicStream {
-    spawn_music_decoder_thread_for_asset(path,cut,looping,rate,preserve_pitch,writer,context,retain_decoder,deadlib_audio_core::music_asset_epoch(),false)
+    spawn_music_decoder_thread_for_asset(
+        path,
+        cut,
+        looping,
+        rate,
+        preserve_pitch,
+        writer,
+        context,
+        retain_decoder,
+        deadlib_audio_core::music_asset_epoch(),
+        false,
+    )
 }
 #[allow(clippy::too_many_arguments)]
-fn spawn_music_decoder_thread_for_asset(path:PathBuf,cut:Cut,looping:bool,rate:f32,preserve_pitch:bool,writer:MusicBlockWriter,context:MusicDecodeContext,retain_decoder:bool,asset_epoch:u64,follow_live_phase:bool)->MusicStream {
-    spawn_music_decoder_thread_with_source(path,cut,looping,rate,preserve_pitch,writer,context,retain_decoder,asset_epoch,follow_live_phase,None,None)
+fn spawn_music_decoder_thread_for_asset(
+    path: PathBuf,
+    cut: Cut,
+    looping: bool,
+    rate: f32,
+    preserve_pitch: bool,
+    writer: MusicBlockWriter,
+    context: MusicDecodeContext,
+    retain_decoder: bool,
+    asset_epoch: u64,
+    follow_live_phase: bool,
+) -> MusicStream {
+    spawn_music_decoder_thread_with_source(
+        path,
+        cut,
+        looping,
+        rate,
+        preserve_pitch,
+        writer,
+        context,
+        retain_decoder,
+        asset_epoch,
+        follow_live_phase,
+        None,
+        None,
+    )
 }
 #[allow(clippy::too_many_arguments)]
-fn spawn_music_decoder_thread_with_source(path:PathBuf,cut:Cut,looping:bool,rate:f32,preserve_pitch:bool,writer:MusicBlockWriter,context:MusicDecodeContext,retain_decoder:bool,asset_epoch:u64,follow_live_phase:bool,prepared:Option<Arc<decode::prepared::PreparedAudioSource>>,preview_phase:Option<(f64,u64)>)->MusicStream {
+fn spawn_music_decoder_thread_with_source(
+    path: PathBuf,
+    cut: Cut,
+    looping: bool,
+    rate: f32,
+    preserve_pitch: bool,
+    writer: MusicBlockWriter,
+    context: MusicDecodeContext,
+    retain_decoder: bool,
+    asset_epoch: u64,
+    follow_live_phase: bool,
+    prepared: Option<Arc<decode::prepared::PreparedAudioSource>>,
+    preview_phase: Option<(f64, u64)>,
+) -> MusicStream {
     let control = Arc::new(MusicControl {
-        prepared, preview_phase,
-        paused:AtomicBool::new(deadlib_audio_core::music_track_paused()),
-        asset_epoch,follow_live_phase,
+        prepared,
+        preview_phase,
+        paused: AtomicBool::new(deadlib_audio_core::music_track_paused()),
+        asset_epoch,
+        follow_live_phase,
         failed: AtomicBool::new(false),
-        status: lifecycle::DecoderStatusReader::new_asset(context.generation, cut.start_sec, asset_epoch),
+        status: lifecycle::DecoderStatusReader::new_asset(
+            context.generation,
+            cut.start_sec,
+            asset_epoch,
+        ),
         stop_signal: AtomicBool::new(false),
         rate_bits: AtomicU32::new(rate.to_bits()),
         preserve_pitch: AtomicBool::new(preserve_pitch),
@@ -622,15 +708,6 @@ fn spawn_music_decoder_thread_with_source(path:PathBuf,cut:Cut,looping:bool,rate
 }
 
 #[inline]
-fn secs_to_frames(seconds: f64, sample_rate: u32) -> u64 {
-    if seconds.is_finite() {
-        (seconds.max(0.0) * f64::from(sample_rate)).round() as u64
-    } else {
-        0
-    }
-}
-
-#[inline]
 const fn seek_preroll_in_frames(seek_ok: bool, start_frame: u64, seek_start_frame: u64) -> u64 {
     if seek_ok {
         start_frame.saturating_sub(seek_start_frame)
@@ -669,9 +746,11 @@ fn sfx_output_capacity(frames_total_hint: Option<u64>, in_hz: u32, output: Outpu
         .unwrap_or(0)
 }
 
-fn live_asset_music_seconds(hz:u32)->Option<f64>{
-    let elapsed=deadlib_audio_core::music_total_frames().saturating_sub(deadlib_audio_core::music_track_start_frame())as f64/f64::from(hz.max(1));
-    deadlib_audio_core::seeded_music_position(elapsed).map(|(seconds,_)|seconds)
+fn live_asset_music_seconds(hz: u32) -> Option<f64> {
+    let elapsed = deadlib_audio_core::music_total_frames()
+        .saturating_sub(deadlib_audio_core::music_track_start_frame()) as f64
+        / f64::from(hz.max(1));
+    deadlib_audio_core::seeded_music_position(elapsed).map(|(seconds, _)| seconds)
 }
 #[allow(clippy::too_many_arguments)]
 fn music_decoder_thread_loop(
@@ -684,9 +763,11 @@ fn music_decoder_thread_loop(
     retain_decoder: bool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let MusicControl {
-        prepared: _, preview_phase: _,
+        prepared: _,
+        preview_phase: _,
         paused: _,
-        asset_epoch: _,follow_live_phase: _,
+        asset_epoch: _,
+        follow_live_phase: _,
         failed: _,
         status: _,
         stop_signal: stop,
@@ -697,9 +778,18 @@ fn music_decoder_thread_loop(
         seek: _,
         seek_serial: _,
     } = control;
-    #[cfg(test)] if control.follow_live_phase{wait_asset_open_gate(control.asset_epoch); }
-    let opened = editor_reader::EditorDecodeReader::open(&path, context.decode_options, control.prepared.as_ref())?;
-    control.status.opened_codec(context.generation, opened.reader.codec(), &path);
+    #[cfg(test)]
+    if control.follow_live_phase {
+        wait_asset_open_gate(control.asset_epoch);
+    }
+    let opened = editor_reader::EditorDecodeReader::open(
+        &path,
+        context.decode_options,
+        control.prepared.as_ref(),
+    )?;
+    control
+        .status
+        .opened_codec(context.generation, opened.reader.codec(), &path);
     let mut reader = opened.reader;
     let in_ch = opened.channels;
     let in_hz = opened.sample_rate_hz;
@@ -708,7 +798,7 @@ fn music_decoder_thread_loop(
     let out_hz = context.output.sample_rate_hz;
     let mut backpressure =
         MusicBackpressure::new(out_hz, writer.capacity_blocks(), context.generation);
-    backpressure.status=Some(control.status.clone());
+    backpressure.status = Some(control.status.clone());
     let is_ogg_stream = reader.is_streaming_vorbis();
 
     debug!(
@@ -729,17 +819,32 @@ fn music_decoder_thread_loop(
     let loop_cut = cut;
     let mut cut = cut;
     let mut restore_preview_loop = false;
-    if let Some((phase,frame))=control.preview_phase {
-        let length=if cut.length_sec.is_finite(){cut.length_sec}else{control.prepared.as_ref().map_or(0.,|source|source.frames()as f64/f64::from(source.sample_rate_hz))};
-        if !length.is_finite()||length<=0.{return Err("Preview source has no playable frames".into());}
-        let elapsed=deadlib_audio_core::music_total_frames().saturating_sub(frame)as f64/f64::from(context.output.sample_rate_hz.max(1));
-        let offset=(phase+elapsed-cut.start_sec).rem_euclid(length);
-        cut.start_sec+=offset;cut.length_sec=length-offset;
-        restore_preview_loop=true;
+    if let Some((phase, frame)) = control.preview_phase {
+        let length = if cut.length_sec.is_finite() {
+            cut.length_sec
+        } else {
+            control.prepared.as_ref().map_or(0., |source| {
+                source.frames() as f64 / f64::from(source.sample_rate_hz)
+            })
+        };
+        if !length.is_finite() || length <= 0. {
+            return Err("Preview source has no playable frames".into());
+        }
+        let elapsed = deadlib_audio_core::music_total_frames().saturating_sub(frame) as f64
+            / f64::from(context.output.sample_rate_hz.max(1));
+        let offset = (phase + elapsed - cut.start_sec).rem_euclid(length);
+        cut.start_sec += offset;
+        cut.length_sec = length - offset;
+        restore_preview_loop = true;
     }
     if control.follow_live_phase {
-        let stream=deadlib_audio_core::music_total_frames().saturating_sub(deadlib_audio_core::music_track_start_frame()) as f64 / f64::from(context.output.sample_rate_hz.max(1));
-        if let Some((now,_))=deadlib_audio_core::seeded_music_position(stream){cut.start_sec=now;}
+        let stream = deadlib_audio_core::music_total_frames()
+            .saturating_sub(deadlib_audio_core::music_track_start_frame())
+            as f64
+            / f64::from(context.output.sample_rate_hz.max(1));
+        if let Some((now, _)) = deadlib_audio_core::seeded_music_position(stream) {
+            cut.start_sec = now;
+        }
     }
     let mut applied_seek = 0;
     let mut lead_pending = true;
@@ -755,7 +860,11 @@ fn music_decoder_thread_loop(
             .unwrap_or_else(|e| e.into_inner())
             .take();
         let repositioned = if let Some(request) = request {
-            cut.start_sec = if request.follow_live_phase{live_asset_music_seconds(context.output.sample_rate_hz).unwrap_or(request.seconds)}else{request.seconds};
+            cut.start_sec = if request.follow_live_phase {
+                live_asset_music_seconds(context.output.sample_rate_hz).unwrap_or(request.seconds)
+            } else {
+                request.seconds
+            };
             applied_seek = request.generation;
             lead_pending = true;
             true
@@ -825,7 +934,12 @@ fn music_decoder_thread_loop(
                     return Err(error.into());
                 }
                 warn!("Music rewind failed for {path:?}; reopening: {error}");
-                reader = editor_reader::EditorDecodeReader::open(&path, context.decode_options, control.prepared.as_ref())?.reader;
+                reader = editor_reader::EditorDecodeReader::open(
+                    &path,
+                    context.decode_options,
+                    control.prepared.as_ref(),
+                )?
+                .reader;
             }
         }
         let mut seek_ok = false;
@@ -847,7 +961,11 @@ fn music_decoder_thread_loop(
                         // when its codec cannot seek directly to the cut.
                         reader.seek_frame(0)?;
                     } else {
-                        let reopened = editor_reader::EditorDecodeReader::open(&path, context.decode_options, control.prepared.as_ref())?;
+                        let reopened = editor_reader::EditorDecodeReader::open(
+                            &path,
+                            context.decode_options,
+                            control.prepared.as_ref(),
+                        )?;
                         debug_assert_eq!(reopened.channels, in_ch);
                         debug_assert_eq!(reopened.sample_rate_hz, in_hz);
                         reader = reopened.reader;
@@ -856,7 +974,9 @@ fn music_decoder_thread_loop(
             }
         }
 
-    control.status.opened_codec(output_generation, reader.codec(), &path);
+        control
+            .status
+            .opened_codec(output_generation, reader.codec(), &path);
         let preroll_in_frames = seek_preroll_in_frames(seek_ok, start_floor, seek_start_frame);
         let mut preroll_out_frames: u64 = if preroll_in_frames > 0 {
             (preroll_in_frames as f64 * output_ratio).ceil() as u64
@@ -867,25 +987,51 @@ fn music_decoder_thread_loop(
         let fade_in_frames = preview_fade::frames(cut.fade_in_sec, out_hz);
         let fade_out_frames = preview_fade::frames(cut.fade_out_sec, out_hz);
         let mut frames_left_out: Option<u64> = if cut.length_sec.is_finite() {
-            Some(if looping { preview_fade::frames(cut.length_sec, out_hz) } else { (cut.length_sec * f64::from(out_hz)).round().max(0.0) as u64 })
+            Some(if looping {
+                preview_fade::frames(cut.length_sec, out_hz)
+            } else {
+                (cut.length_sec * f64::from(out_hz)).round().max(0.0) as u64
+            })
         } else if looping {
             // Dedicated source preview uses the entire immutable PCM cache.
             // It still has a real endpoint for the outgoing envelope.
             control.prepared.as_ref().map(|source| {
-                let duration=(source.frames() as f64/f64::from(in_hz)-cut.start_sec.max(0.)).max(0.)/f64::from(current_rate_f32);
-                preview_fade::frames(duration,out_hz)
+                let duration = (source.frames() as f64 / f64::from(in_hz) - cut.start_sec.max(0.))
+                    .max(0.)
+                    / f64::from(current_rate_f32);
+                preview_fade::frames(duration, out_hz)
             })
-        } else { None };
-        let preview_fade_offset=if restore_preview_loop{
-            preview_fade::frames(cut.start_sec,out_hz).saturating_sub(preview_fade::frames(loop_cut.start_sec,out_hz))
-        }else{0};
+        } else {
+            None
+        };
+        let preview_fade_offset = if restore_preview_loop {
+            preview_fade::frames(cut.start_sec, out_hz)
+                .saturating_sub(preview_fade::frames(loop_cut.start_sec, out_hz))
+        } else {
+            0
+        };
         if restore_preview_loop {
-            let full_length=if loop_cut.length_sec.is_finite(){Some(preview_fade::frames(loop_cut.length_sec,out_hz))}else{control.prepared.as_ref().map(|source|preview_fade::frames(source.frames() as f64/f64::from(in_hz),out_hz))};
-            if let Some(full_length)=full_length{frames_left_out=Some(full_length.saturating_sub(preview_fade_offset));}
+            let full_length = if loop_cut.length_sec.is_finite() {
+                Some(preview_fade::frames(loop_cut.length_sec, out_hz))
+            } else {
+                control.prepared.as_ref().map(|source| {
+                    preview_fade::frames(source.frames() as f64 / f64::from(in_hz), out_hz)
+                })
+            };
+            if let Some(full_length) = full_length {
+                frames_left_out = Some(full_length.saturating_sub(preview_fade_offset));
+            }
         }
-        let total_frames_target = frames_left_out.map(|frames|frames.saturating_add(preview_fade_offset));
-        let dynamic_preview=control.prepared.is_some() && !control.follow_live_phase && deadlib_audio_core::editor_preview_envelope_enabled(control.asset_epoch);
-        let fade_spec = if dynamic_preview {None} else {preview_fade::PreviewFade::new(fade_in_frames, fade_out_frames, total_frames_target)};
+        let total_frames_target =
+            frames_left_out.map(|frames| frames.saturating_add(preview_fade_offset));
+        let dynamic_preview = control.prepared.is_some()
+            && !control.follow_live_phase
+            && deadlib_audio_core::editor_preview_envelope_enabled(control.asset_epoch);
+        let fade_spec = if dynamic_preview {
+            None
+        } else {
+            preview_fade::PreviewFade::new(fade_in_frames, fade_out_frames, total_frames_target)
+        };
 
         let mut frames_emitted_total: u64 = preview_fade_offset;
         let mut next_music_output_sec =
@@ -1004,7 +1150,7 @@ fn music_decoder_thread_loop(
                             out_ch,
                             MusicBlockTiming {
                                 asset_epoch: control.asset_epoch,
-generation: output_generation,
+                                generation: output_generation,
                                 music_start_sec: next_music_output_sec,
                                 music_sec_per_frame,
                             },
@@ -1029,7 +1175,7 @@ generation: output_generation,
                             out_ch,
                             MusicBlockTiming {
                                 asset_epoch: control.asset_epoch,
-generation: output_generation,
+                                generation: output_generation,
                                 music_start_sec: next_music_output_sec,
                                 music_sec_per_frame,
                             },
@@ -1072,11 +1218,13 @@ generation: output_generation,
                         out_ch,
                         MusicBlockTiming {
                             asset_epoch: control.asset_epoch,
-generation: output_generation,
+                            generation: output_generation,
                             music_start_sec: next_music_output_sec,
                             music_sec_per_frame,
                         },
-                        dynamic_preview.then_some(frames_emitted_total.saturating_sub((out_tmp.len()/out_ch)as u64)),
+                        dynamic_preview.then_some(
+                            frames_emitted_total.saturating_sub((out_tmp.len() / out_ch) as u64),
+                        ),
                         control,
                         &mut backpressure,
                     )?;
@@ -1098,7 +1246,12 @@ generation: output_generation,
         }
         if !looping {
             backpressure.finish_generation(writer, output_generation);
-            control.status.publish(output_generation, lifecycle::DecoderPhase::Exhausted, None, None);
+            control.status.publish(
+                output_generation,
+                lifecycle::DecoderPhase::Exhausted,
+                None,
+                None,
+            );
             if !retain_decoder {
                 break 'main_loop;
             }
@@ -1108,7 +1261,12 @@ generation: output_generation,
                 let sequence = control.wake.sequence.load(Ordering::Acquire);
                 let latest_generation = generation.load(Ordering::Acquire);
                 if control.seek_serial.load(Ordering::Acquire) == applied_seek {
-                    control.status.publish(latest_generation, lifecycle::DecoderPhase::Exhausted, None, None);
+                    control.status.publish(
+                        latest_generation,
+                        lifecycle::DecoderPhase::Exhausted,
+                        None,
+                        None,
+                    );
                 }
                 if stop.load(Ordering::Acquire) {
                     break 'main_loop;
@@ -1126,7 +1284,10 @@ generation: output_generation,
         // iteration resets DSP stages and reapplies the cut/preroll normally.
         // A failed rewind is explicit: never replace this asset from its path.
         reader.seek_frame(0)?;
-        if restore_preview_loop {cut=loop_cut;restore_preview_loop=false;}
+        if restore_preview_loop {
+            cut = loop_cut;
+            restore_preview_loop = false;
+        }
         debug!("Looping music: rewound retained asset {path:?}");
     }
     if !stop.load(Ordering::Acquire) {
@@ -1248,8 +1409,8 @@ pub fn load_and_resample_sfx(
 mod tests {
     use super::{
         DecoderWake, MAX_SFX_PREALLOC_SAMPLES, MusicBackpressure, MusicControl, OutputFormat,
-        lead_in_silence_timing, music_output_start_sec, push_music_block, seek_preroll_in_frames,
-        sfx_output_capacity, lifecycle,
+        lead_in_silence_timing, lifecycle, music_output_start_sec, push_music_block,
+        seek_preroll_in_frames, sfx_output_capacity,
     };
     use deadlib_audio_core::{MusicBlockTiming, music_transport};
     use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
@@ -1262,8 +1423,9 @@ mod tests {
         MusicControl {
             prepared: None,
             preview_phase: None,
-            paused:AtomicBool::new(false),
-            asset_epoch:deadlib_audio_core::music_asset_epoch(),follow_live_phase:false,
+            paused: AtomicBool::new(false),
+            asset_epoch: deadlib_audio_core::music_asset_epoch(),
+            follow_live_phase: false,
             failed: AtomicBool::new(false),
             status: lifecycle::DecoderStatusReader::new(generation, 0.0),
             stop_signal: AtomicBool::new(false),
@@ -1278,8 +1440,9 @@ mod tests {
 
     #[test]
     fn lifecycle_failure_racing_a_new_command_never_leaves_pending() {
-        use std::sync::{Arc, Barrier};
+        let _audio_guard = crate::test_audio_guard();
         use std::sync::atomic::Ordering;
+        use std::sync::{Arc, Barrier};
         for _ in 0..64 {
             let control = Arc::new(control(1));
             let barrier = Arc::new(Barrier::new(2));
@@ -1306,6 +1469,7 @@ mod tests {
 
     #[test]
     fn seeked_map_starts_at_decoder_frame() {
+        let _audio_guard = crate::test_audio_guard();
         let sec = music_output_start_sec(true, 44_092, 1.0, 44_100);
 
         assert!((sec - (44_092.0 / 44_100.0)).abs() <= 1e-12);
@@ -1313,6 +1477,7 @@ mod tests {
 
     #[test]
     fn preroll_drop_uses_actual_seek_distance() {
+        let _audio_guard = crate::test_audio_guard();
         assert_eq!(seek_preroll_in_frames(true, 44_100, 44_092), 8);
         assert_eq!(seek_preroll_in_frames(true, 44_100, 44_120), 0);
         assert_eq!(seek_preroll_in_frames(false, 44_100, 0), 0);
@@ -1320,6 +1485,7 @@ mod tests {
 
     #[test]
     fn negative_lead_in_silence_scales_with_music_rate() {
+        let _audio_guard = crate::test_audio_guard();
         let (frames, music_sec_per_frame) = lead_in_silence_timing(-9.0, 1.5, SAMPLE_RATE);
 
         assert_eq!(frames, 6 * SAMPLE_RATE as usize);
@@ -1329,6 +1495,7 @@ mod tests {
 
     #[test]
     fn sfx_capacity_scales_frame_hint_to_output_format() {
+        let _audio_guard = crate::test_audio_guard();
         assert_eq!(
             sfx_output_capacity(
                 Some(44_100),
@@ -1355,6 +1522,7 @@ mod tests {
 
     #[test]
     fn sfx_capacity_rejects_missing_or_unbounded_hints() {
+        let _audio_guard = crate::test_audio_guard();
         let output = OutputFormat {
             sample_rate_hz: 48_000,
             channels: 2,
@@ -1368,6 +1536,7 @@ mod tests {
 
     #[test]
     fn generation_change_cancels_a_backpressured_block() {
+        let _audio_guard = crate::test_audio_guard();
         const CHANNELS: usize = 2;
         const GENERATION: u64 = 7;
         const SEC_PER_FRAME: f64 = 0.125;
@@ -1377,7 +1546,7 @@ mod tests {
         let full_block = vec![1; 256 * CHANNELS];
         let timing = MusicBlockTiming {
             asset_epoch: deadlib_audio_core::music_asset_epoch(),
-generation: GENERATION,
+            generation: GENERATION,
             music_start_sec: 0.0,
             music_sec_per_frame: SEC_PER_FRAME,
         };
@@ -1403,7 +1572,7 @@ generation: GENERATION,
                 CHANNELS,
                 MusicBlockTiming {
                     asset_epoch: deadlib_audio_core::music_asset_epoch(),
-generation: GENERATION,
+                    generation: GENERATION,
                     music_start_sec: 3.25,
                     music_sec_per_frame: SEC_PER_FRAME,
                 },
@@ -1438,6 +1607,7 @@ generation: GENERATION,
 
     #[test]
     fn generation_transition_can_use_reserved_pool_blocks() {
+        let _audio_guard = crate::test_audio_guard();
         const CHANNELS: usize = 2;
         const OLD_GENERATION: u64 = 11;
         const NEW_GENERATION: u64 = 12;
@@ -1448,7 +1618,7 @@ generation: GENERATION,
         let samples = vec![1; deadlib_audio_core::ring::MUSIC_BLOCK_FRAMES * CHANNELS];
         let old_timing = MusicBlockTiming {
             asset_epoch: deadlib_audio_core::music_asset_epoch(),
-generation: OLD_GENERATION,
+            generation: OLD_GENERATION,
             music_start_sec: 0.0,
             music_sec_per_frame: 1.0 / f64::from(SAMPLE_RATE),
         };
@@ -1464,7 +1634,7 @@ generation: OLD_GENERATION,
             CHANNELS,
             MusicBlockTiming {
                 asset_epoch: deadlib_audio_core::music_asset_epoch(),
-generation: NEW_GENERATION,
+                generation: NEW_GENERATION,
                 music_start_sec: 1.0,
                 music_sec_per_frame: 1.0 / f64::from(SAMPLE_RATE),
             },
@@ -1483,6 +1653,7 @@ generation: NEW_GENERATION,
 
     #[test]
     fn short_initial_stream_publishes_its_partial_prefill_at_eof() {
+        let _audio_guard = crate::test_audio_guard();
         const CHANNELS: usize = 2;
         const GENERATION: u64 = 21;
         let (mut stream, _render) = music_transport(SAMPLE_RATE, CHANNELS);
@@ -1496,7 +1667,7 @@ generation: NEW_GENERATION,
             CHANNELS,
             MusicBlockTiming {
                 asset_epoch: deadlib_audio_core::music_asset_epoch(),
-generation: GENERATION,
+                generation: GENERATION,
                 music_start_sec: 0.0,
                 music_sec_per_frame: 1.0 / f64::from(SAMPLE_RATE),
             },
@@ -1514,6 +1685,7 @@ generation: GENERATION,
 
     #[test]
     fn live_transition_waits_for_render_drain_before_steady_pacing() {
+        let _audio_guard = crate::test_audio_guard();
         const CHANNELS: usize = 2;
         const OLD_GENERATION: u64 = 31;
         const NEW_GENERATION: u64 = 32;
@@ -1534,7 +1706,7 @@ generation: GENERATION,
             CHANNELS,
             MusicBlockTiming {
                 asset_epoch: deadlib_audio_core::music_asset_epoch(),
-generation: NEW_GENERATION,
+                generation: NEW_GENERATION,
                 music_start_sec: 0.0,
                 music_sec_per_frame: 1.0 / f64::from(SAMPLE_RATE),
             },
@@ -1552,6 +1724,7 @@ generation: NEW_GENERATION,
 
     #[test]
     fn watermarks_leave_at_least_190_ms_transition_reserve() {
+        let _audio_guard = crate::test_audio_guard();
         for sample_rate_hz in [44_100, 48_000, 96_000] {
             let (stream, _render) = music_transport(sample_rate_hz, 8);
             let backpressure =
@@ -1570,114 +1743,699 @@ generation: NEW_GENERATION,
 mod perf_tests;
 
 #[cfg(test)]
-static ASSET_OPEN_GATE:std::sync::Mutex<Option<(u64,std::sync::mpsc::Sender<()>,std::sync::mpsc::Receiver<()>)>>=std::sync::Mutex::new(None);
+static ASSET_OPEN_GATE: std::sync::Mutex<
+    Option<(
+        u64,
+        std::sync::mpsc::Sender<()>,
+        std::sync::mpsc::Receiver<()>,
+    )>,
+> = std::sync::Mutex::new(None);
 #[cfg(test)]
-fn wait_asset_open_gate(epoch:u64){let gate={let mut gate=ASSET_OPEN_GATE.lock().unwrap();if gate.as_ref().is_some_and(|value|value.0==epoch){gate.take()}else{None}};if let Some((_,entered,release))=gate{let _=entered.send(());let _=release.recv_timeout(Duration::from_secs(5));}}
+fn wait_asset_open_gate(epoch: u64) {
+    let gate = {
+        let mut gate = ASSET_OPEN_GATE.lock().unwrap();
+        if gate.as_ref().is_some_and(|value| value.0 == epoch) {
+            gate.take()
+        } else {
+            None
+        }
+    };
+    if let Some((_, entered, release)) = gate {
+        let _ = entered.send(());
+        let _ = release.recv_timeout(Duration::from_secs(5));
+    }
+}
 #[cfg(test)]
-mod live_asset_decode_tests{
+mod live_asset_decode_tests {
     use super::*;
-    use deadlib_audio_core::{CallbackClockSource,CallbackInfo,OutputBufferMut,RenderState,MixControls};
-    fn wav(path:&Path,ramp:bool){let frames=96_000u32;let mut bytes=Vec::new();bytes.extend_from_slice(b"RIFF");bytes.extend_from_slice(&(36+frames*4).to_le_bytes());bytes.extend_from_slice(b"WAVEfmt ");bytes.extend_from_slice(&16u32.to_le_bytes());bytes.extend_from_slice(&1u16.to_le_bytes());bytes.extend_from_slice(&2u16.to_le_bytes());bytes.extend_from_slice(&48_000u32.to_le_bytes());bytes.extend_from_slice(&192_000u32.to_le_bytes());bytes.extend_from_slice(&4u16.to_le_bytes());bytes.extend_from_slice(&16u16.to_le_bytes());bytes.extend_from_slice(b"data");bytes.extend_from_slice(&(frames*4).to_le_bytes());for frame in 0..frames{let value=if ramp{(1000+frame/64)as i16}else{-3000i16};bytes.extend_from_slice(&value.to_le_bytes());bytes.extend_from_slice(&value.to_le_bytes());}std::fs::write(path,bytes).unwrap();}
-    fn render(renderer:&mut RenderState,frames:usize)->Vec<i16>{let mut output=vec![0;frames*2];let total=deadlib_audio_core::music_total_frames();renderer.render(OutputBufferMut::I16(&mut output),CallbackInfo{anchor_nanos:1_000_000_000+total*1_000_000_000/48_000,clock:CallbackClockSource::Instant},std::iter::empty());output}
-    #[test]
-    fn delayed_asset_open_silences_old_pcm_and_starts_new_ramp_at_current_dsp_phase(){
-        let directory=std::env::temp_dir().join(format!("deadlib-live-asset-{}",std::process::id()));std::fs::create_dir_all(&directory).unwrap();let a=directory.join("a.wav");let b=directory.join("b.wav");wav(&a,false);wav(&b,true);
-        deadlib_audio_core::reset_music_stream_clock_state();deadlib_audio_core::reset_music_target_gain();let generation=deadlib_audio_core::bump_music_map_generation();deadlib_audio_core::seed_music_asset_clock(0.,1.);
-        let(stream,handle)=deadlib_audio_core::music_transport(48_000,2);let mut played=stream.played_map;let mut renderer=RenderState::new(handle,Arc::new(MixControls::new()),2);let mut runtime=MusicStreamRuntime::new(stream.writer,OutputFormat{sample_rate_hz:48_000,channels:2});runtime.handle(StreamCommand::PlayMusic{asset_epoch:deadlib_audio_core::music_asset_epoch(),
-decode_options:decode::DecodeOptions::STEP_MANIA_TIMELINE,path:a,cut:Cut::default(),looping:false,rate:1.,preserve_pitch:false,generation});let deadline=std::time::Instant::now()+Duration::from_secs(3);while !runtime.decoder_status().snapshot().is_some_and(|s|s.final_music_seconds.is_some_and(|time|time>0.2)){assert!(std::time::Instant::now()<deadline);thread::yield_now();}assert!(render(&mut renderer,120).iter().any(|sample|*sample<0));let track_start=deadlib_audio_core::music_track_start_frame();
-        let epoch=deadlib_audio_core::advance_music_asset_epoch();let(entered_tx,entered_rx)=std::sync::mpsc::channel();let(release_tx,release_rx)=std::sync::mpsc::channel();*ASSET_OPEN_GATE.lock().unwrap()=Some((epoch,entered_tx,release_rx));runtime.handle(StreamCommand::SwapMusicAsset{decode_options:decode::DecodeOptions::STEP_MANIA_TIMELINE,path:b,rate:1.,preserve_pitch:false,generation,asset_epoch:epoch});entered_rx.recv_timeout(Duration::from_secs(3)).unwrap();
-        // Exactly 500ms of acknowledged callback time passes while opening.
-        for _ in 0..100{assert!(render(&mut renderer,240).iter().all(|sample|*sample==0));}
-        assert_eq!(deadlib_audio_core::music_map_generation(),generation);assert_eq!(deadlib_audio_core::music_track_start_frame(),track_start);release_tx.send(()).unwrap();
-        let deadline=std::time::Instant::now()+Duration::from_secs(3);while !runtime.decoder_status().snapshot().is_some_and(|s|s.asset_epoch==epoch&&s.final_music_seconds.is_some_and(|time|time>0.70)){assert!(std::time::Instant::now()<deadline);thread::yield_now();}
-        let deadline=std::time::Instant::now()+Duration::from_secs(3);let mut found=false;
-        while std::time::Instant::now()<deadline{let total=deadlib_audio_core::music_total_frames();let output=render(&mut renderer,240);assert!(output.iter().all(|sample|*sample>=0));let mut mapping=None;while let Some((tag,asset,segment))=played.pop(){if tag==generation&&asset==epoch{mapping=Some(segment);}}
-            if let Some(segment)=mapping{let actual_frame=(segment.music_start_sec*48_000.).round()as u64;assert!(actual_frame>=24_000,"late open rewound to focus-request time");assert!(actual_frame.abs_diff(total-track_start)<=256,"PCM phase must match current DSP time");let first=output.iter().copied().find(|v|*v>0).unwrap();let expected=1000+(actual_frame/64)as i16;assert!((first-expected).abs()<=8,"new PCM sample {first} does not match current phase {expected}");found=true;break;}thread::yield_now();}
-        assert!(found,"new decoder never reached a current-phase render block");drop(runtime);let _=std::fs::remove_dir_all(directory);
+    use deadlib_audio_core::{
+        CallbackClockSource, CallbackInfo, MixControls, OutputBufferMut, RenderState,
+    };
+    fn wav(path: &Path, ramp: bool) {
+        let frames = 96_000u32;
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(b"RIFF");
+        bytes.extend_from_slice(&(36 + frames * 4).to_le_bytes());
+        bytes.extend_from_slice(b"WAVEfmt ");
+        bytes.extend_from_slice(&16u32.to_le_bytes());
+        bytes.extend_from_slice(&1u16.to_le_bytes());
+        bytes.extend_from_slice(&2u16.to_le_bytes());
+        bytes.extend_from_slice(&48_000u32.to_le_bytes());
+        bytes.extend_from_slice(&192_000u32.to_le_bytes());
+        bytes.extend_from_slice(&4u16.to_le_bytes());
+        bytes.extend_from_slice(&16u16.to_le_bytes());
+        bytes.extend_from_slice(b"data");
+        bytes.extend_from_slice(&(frames * 4).to_le_bytes());
+        for frame in 0..frames {
+            let value = if ramp {
+                (1000 + frame / 64) as i16
+            } else {
+                -3000i16
+            };
+            bytes.extend_from_slice(&value.to_le_bytes());
+            bytes.extend_from_slice(&value.to_le_bytes());
+        }
+        std::fs::write(path, bytes).unwrap();
+    }
+    fn render(renderer: &mut RenderState, frames: usize) -> Vec<i16> {
+        let mut output = vec![0; frames * 2];
+        let total = deadlib_audio_core::music_total_frames();
+        renderer.render(
+            OutputBufferMut::I16(&mut output),
+            CallbackInfo {
+                anchor_nanos: 1_000_000_000 + total * 1_000_000_000 / 48_000,
+                clock: CallbackClockSource::Instant,
+            },
+            std::iter::empty(),
+        );
+        output
     }
     #[test]
-    fn retained_pause_resumes_open_wav_after_path_removal(){
-        let directory=std::env::temp_dir().join(format!("deadlib-retained-pause-{}",std::process::id()));std::fs::create_dir_all(&directory).unwrap();let path=directory.join("retained.wav");wav(&path,true);
-        deadlib_audio_core::resume_music_track();deadlib_audio_core::reset_music_stream_clock_state();deadlib_audio_core::reset_music_target_gain();let generation=deadlib_audio_core::bump_music_map_generation();let epoch=deadlib_audio_core::advance_music_asset_epoch();deadlib_audio_core::seed_music_asset_clock(0.,1.);
-        let(stream,handle)=deadlib_audio_core::music_transport(48_000,2);let mut played=stream.played_map;let mut renderer=RenderState::new(handle,Arc::new(MixControls::new()),2);let mut runtime=MusicStreamRuntime::new(stream.writer,OutputFormat{sample_rate_hz:48_000,channels:2});runtime.handle(StreamCommand::PlayMusic{asset_epoch:epoch,decode_options:decode::DecodeOptions::STEP_MANIA_TIMELINE,path:path.clone(),cut:Cut::default(),looping:false,rate:1.,preserve_pitch:false,generation});
-        let deadline=std::time::Instant::now()+Duration::from_secs(3);while !runtime.decoder_status().snapshot().is_some_and(|s|s.render_ready_generation==Some(generation)){assert!(std::time::Instant::now()<deadline);thread::yield_now();}assert!(render(&mut renderer,240).iter().any(|v|*v>0));while played.pop().is_some(){}
-        deadlib_audio_core::pause_music_track();let paused_generation=deadlib_audio_core::bump_music_map_generation();runtime.handle(StreamCommand::PauseMusic{generation:paused_generation,asset_epoch:epoch});std::fs::remove_file(&path).unwrap();for _ in 0..20{assert!(render(&mut renderer,240).iter().all(|v|*v==0));}assert_eq!(deadlib_audio_core::music_asset_epoch(),epoch);
-        deadlib_audio_core::reset_music_stream_clock_state();let resumed=deadlib_audio_core::bump_music_map_generation();deadlib_audio_core::activate_music_track();deadlib_audio_core::seed_music_asset_clock(1.,1.);deadlib_audio_core::mark_music_track_started(deadlib_audio_core::music_track_start_frame());deadlib_audio_core::resume_music_track();runtime.handle(StreamCommand::ResumeMusic{seconds:1.,rate:1.,preserve_pitch:false,generation:resumed,asset_epoch:epoch});
-        let deadline=std::time::Instant::now()+Duration::from_secs(3);while !runtime.decoder_status().snapshot().is_some_and(|s|s.render_ready_generation==Some(resumed)){assert!(std::time::Instant::now()<deadline);thread::yield_now();}let pcm=render(&mut renderer,240);assert!(pcm.iter().all(|v|*v>=1750),"retained reader should decode ramp at frame48000 despite deleted pathname");let mut found=false;while let Some((tag,asset,map))=played.pop(){if tag==resumed{assert_eq!(asset,epoch);assert!((map.music_start_sec-1.).abs()<1./48_000.);found=true;}}assert!(found);drop(runtime);deadlib_audio_core::resume_music_track();let _=std::fs::remove_dir_all(directory);
-    }
-    #[test]
-    fn pause_swap_resume_during_blocked_open_starts_replacement_at_current_phase(){
-        let directory=std::env::temp_dir().join(format!("deadlib-paused-asset-{}",std::process::id()));std::fs::create_dir_all(&directory).unwrap();let a=directory.join("a.wav");let b=directory.join("b.wav");wav(&a,false);wav(&b,true);deadlib_audio_core::resume_music_track();deadlib_audio_core::reset_music_stream_clock_state();deadlib_audio_core::reset_music_target_gain();let generation=deadlib_audio_core::bump_music_map_generation();let old_epoch=deadlib_audio_core::advance_music_asset_epoch();deadlib_audio_core::seed_music_asset_clock(0.,1.);
-        let(stream,handle)=deadlib_audio_core::music_transport(48_000,2);let mut played=stream.played_map;let mut renderer=RenderState::new(handle,Arc::new(MixControls::new()),2);let mut runtime=MusicStreamRuntime::new(stream.writer,OutputFormat{sample_rate_hz:48_000,channels:2});runtime.handle(StreamCommand::PlayMusic{asset_epoch:old_epoch,decode_options:decode::DecodeOptions::STEP_MANIA_TIMELINE,path:a,cut:Cut::default(),looping:false,rate:1.,preserve_pitch:false,generation});let deadline=std::time::Instant::now()+Duration::from_secs(3);while !runtime.decoder_status().snapshot().is_some_and(|s|s.render_ready_generation==Some(generation)){assert!(std::time::Instant::now()<deadline);thread::yield_now();}assert!(render(&mut renderer,240).iter().any(|v|*v<0));while played.pop().is_some(){}
-        deadlib_audio_core::pause_music_track();let paused=deadlib_audio_core::bump_music_map_generation();runtime.handle(StreamCommand::PauseMusic{generation:paused,asset_epoch:old_epoch});let epoch=deadlib_audio_core::advance_music_asset_epoch();let(entered_tx,entered_rx)=std::sync::mpsc::channel();let(release_tx,release_rx)=std::sync::mpsc::channel();*ASSET_OPEN_GATE.lock().unwrap()=Some((epoch,entered_tx,release_rx));runtime.handle(StreamCommand::SwapMusicAsset{decode_options:decode::DecodeOptions::STEP_MANIA_TIMELINE,path:b,rate:1.,preserve_pitch:false,generation:paused,asset_epoch:epoch});entered_rx.recv_timeout(Duration::from_secs(3)).unwrap();
-        deadlib_audio_core::reset_music_stream_clock_state();let resumed=deadlib_audio_core::bump_music_map_generation();deadlib_audio_core::activate_music_track();deadlib_audio_core::seed_music_asset_clock(1.,1.);deadlib_audio_core::mark_music_track_started(deadlib_audio_core::music_track_start_frame());deadlib_audio_core::resume_music_track();runtime.handle(StreamCommand::ResumeMusic{seconds:1.,rate:1.,preserve_pitch:false,generation:resumed,asset_epoch:epoch});for _ in 0..20{assert!(render(&mut renderer,240).iter().all(|v|*v==0));}release_tx.send(()).unwrap();let deadline=std::time::Instant::now()+Duration::from_secs(3);while !runtime.decoder_status().snapshot().is_some_and(|s|s.render_ready_generation==Some(resumed)){assert!(std::time::Instant::now()<deadline);thread::yield_now();}let pcm=render(&mut renderer,240);assert!(pcm.iter().all(|v|*v>=1825),"replacement ramp should start at1.1s after100ms pending");let mut found=false;while let Some((tag,asset,map))=played.pop(){if tag==resumed{assert_eq!(asset,epoch);assert!((map.music_start_sec-1.1).abs()<1./48_000.);found=true;}}assert!(found);drop(runtime);deadlib_audio_core::resume_music_track();let _=std::fs::remove_dir_all(directory);
-    }
-    #[test]
-    fn stale_stop_cannot_dispose_the_current_asset_decoder() {
-        let directory=std::env::temp_dir().join(format!("deadlib-stale-stop-{}",std::process::id()));
+    fn delayed_asset_open_silences_old_pcm_and_starts_new_ramp_at_current_dsp_phase() {
+        let _audio_guard = crate::test_audio_guard();
+        let directory =
+            std::env::temp_dir().join(format!("deadlib-live-asset-{}", std::process::id()));
         std::fs::create_dir_all(&directory).unwrap();
-        let path=directory.join("current.wav");wav(&path,true);
+        let a = directory.join("a.wav");
+        let b = directory.join("b.wav");
+        wav(&a, false);
+        wav(&b, true);
+        deadlib_audio_core::reset_music_stream_clock_state();
+        deadlib_audio_core::reset_music_target_gain();
+        let generation = deadlib_audio_core::bump_music_map_generation();
+        deadlib_audio_core::seed_music_asset_clock(0., 1.);
+        let (stream, handle) = deadlib_audio_core::music_transport(48_000, 2);
+        let mut played = stream.played_map;
+        let mut renderer = RenderState::new(handle, Arc::new(MixControls::new()), 2);
+        let mut runtime = MusicStreamRuntime::new(
+            stream.writer,
+            OutputFormat {
+                sample_rate_hz: 48_000,
+                channels: 2,
+            },
+        );
+        runtime.handle(StreamCommand::PlayMusic {
+            asset_epoch: deadlib_audio_core::music_asset_epoch(),
+            decode_options: decode::DecodeOptions::STEP_MANIA_TIMELINE,
+            path: a,
+            cut: Cut::default(),
+            looping: false,
+            rate: 1.,
+            preserve_pitch: false,
+            generation,
+        });
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        while !runtime
+            .decoder_status()
+            .snapshot()
+            .is_some_and(|s| s.final_music_seconds.is_some_and(|time| time > 0.2))
+        {
+            assert!(std::time::Instant::now() < deadline);
+            thread::yield_now();
+        }
+        assert!(render(&mut renderer, 120).iter().any(|sample| *sample < 0));
+        let track_start = deadlib_audio_core::music_track_start_frame();
+        let epoch = deadlib_audio_core::advance_music_asset_epoch();
+        let (entered_tx, entered_rx) = std::sync::mpsc::channel();
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        *ASSET_OPEN_GATE.lock().unwrap() = Some((epoch, entered_tx, release_rx));
+        runtime.handle(StreamCommand::SwapMusicAsset {
+            decode_options: decode::DecodeOptions::STEP_MANIA_TIMELINE,
+            path: b,
+            rate: 1.,
+            preserve_pitch: false,
+            generation,
+            asset_epoch: epoch,
+        });
+        entered_rx.recv_timeout(Duration::from_secs(3)).unwrap();
+        // Exactly 500ms of acknowledged callback time passes while opening.
+        for _ in 0..100 {
+            assert!(render(&mut renderer, 240).iter().all(|sample| *sample == 0));
+        }
+        assert_eq!(deadlib_audio_core::music_map_generation(), generation);
+        assert_eq!(deadlib_audio_core::music_track_start_frame(), track_start);
+        release_tx.send(()).unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        while !runtime.decoder_status().snapshot().is_some_and(|s| {
+            s.asset_epoch == epoch && s.final_music_seconds.is_some_and(|time| time > 0.70)
+        }) {
+            assert!(std::time::Instant::now() < deadline);
+            thread::yield_now();
+        }
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        let mut found = false;
+        while std::time::Instant::now() < deadline {
+            let total = deadlib_audio_core::music_total_frames();
+            let output = render(&mut renderer, 240);
+            assert!(output.iter().all(|sample| *sample >= 0));
+            let mut mapping = None;
+            while let Some((tag, asset, segment)) = played.pop() {
+                if tag == generation && asset == epoch {
+                    mapping = Some(segment);
+                }
+            }
+            if let Some(segment) = mapping {
+                let actual_frame = (segment.music_start_sec * 48_000.).round() as u64;
+                assert!(
+                    actual_frame >= 24_000,
+                    "late open rewound to focus-request time"
+                );
+                assert!(
+                    actual_frame.abs_diff(total - track_start) <= 256,
+                    "PCM phase must match current DSP time"
+                );
+                let first = output.iter().copied().find(|v| *v > 0).unwrap();
+                let expected = 1000 + (actual_frame / 64) as i16;
+                assert!(
+                    (first - expected).abs() <= 8,
+                    "new PCM sample {first} does not match current phase {expected}"
+                );
+                found = true;
+                break;
+            }
+            thread::yield_now();
+        }
+        assert!(
+            found,
+            "new decoder never reached a current-phase render block"
+        );
+        drop(runtime);
+        let _ = std::fs::remove_dir_all(directory);
+    }
+    #[test]
+    fn retained_pause_resumes_open_wav_after_path_removal() {
+        let _audio_guard = crate::test_audio_guard();
+        let directory =
+            std::env::temp_dir().join(format!("deadlib-retained-pause-{}", std::process::id()));
+        std::fs::create_dir_all(&directory).unwrap();
+        let path = directory.join("retained.wav");
+        wav(&path, true);
         deadlib_audio_core::resume_music_track();
         deadlib_audio_core::reset_music_stream_clock_state();
         deadlib_audio_core::reset_music_target_gain();
-        let generation=deadlib_audio_core::bump_music_map_generation();
-        let stale_epoch=deadlib_audio_core::advance_music_asset_epoch();
-        let current_epoch=deadlib_audio_core::advance_music_asset_epoch();
-        let(stream,handle)=deadlib_audio_core::music_transport(48_000,2);
-        let mut renderer=RenderState::new(handle,Arc::new(MixControls::new()),2);
-        let mut runtime=MusicStreamRuntime::new(stream.writer,OutputFormat{sample_rate_hz:48_000,channels:2});
-        runtime.handle(StreamCommand::PlayMusic{asset_epoch:current_epoch,
-            decode_options:decode::DecodeOptions::STEP_MANIA_TIMELINE,path,
-            cut:Cut::default(),looping:false,rate:1.,preserve_pitch:false,generation});
-        let deadline=std::time::Instant::now()+Duration::from_secs(3);
-        while !runtime.decoder_status().snapshot().is_some_and(|status|
-            status.asset_epoch==current_epoch&&status.render_ready_generation==Some(generation)) {
-            assert!(std::time::Instant::now()<deadline);thread::yield_now();
+        let generation = deadlib_audio_core::bump_music_map_generation();
+        let epoch = deadlib_audio_core::advance_music_asset_epoch();
+        deadlib_audio_core::seed_music_asset_clock(0., 1.);
+        let (stream, handle) = deadlib_audio_core::music_transport(48_000, 2);
+        let mut played = stream.played_map;
+        let mut renderer = RenderState::new(handle, Arc::new(MixControls::new()), 2);
+        let mut runtime = MusicStreamRuntime::new(
+            stream.writer,
+            OutputFormat {
+                sample_rate_hz: 48_000,
+                channels: 2,
+            },
+        );
+        runtime.handle(StreamCommand::PlayMusic {
+            asset_epoch: epoch,
+            decode_options: decode::DecodeOptions::STEP_MANIA_TIMELINE,
+            path: path.clone(),
+            cut: Cut::default(),
+            looping: false,
+            rate: 1.,
+            preserve_pitch: false,
+            generation,
+        });
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        while !runtime
+            .decoder_status()
+            .snapshot()
+            .is_some_and(|s| s.render_ready_generation == Some(generation))
+        {
+            assert!(std::time::Instant::now() < deadline);
+            thread::yield_now();
         }
-        runtime.handle(StreamCommand::StopMusic{asset_epoch:stale_epoch});
-        let status=runtime.decoder_status().snapshot().unwrap();
-        assert_ne!(status.phase,lifecycle::DecoderPhase::Stopped);
-        assert_eq!(status.asset_epoch,current_epoch);
+        assert!(render(&mut renderer, 240).iter().any(|v| *v > 0));
+        while played.pop().is_some() {}
+        deadlib_audio_core::pause_music_track();
+        let paused_generation = deadlib_audio_core::bump_music_map_generation();
+        runtime.handle(StreamCommand::PauseMusic {
+            generation: paused_generation,
+            asset_epoch: epoch,
+        });
+        std::fs::remove_file(&path).unwrap();
+        for _ in 0..20 {
+            assert!(render(&mut renderer, 240).iter().all(|v| *v == 0));
+        }
+        assert_eq!(deadlib_audio_core::music_asset_epoch(), epoch);
+        deadlib_audio_core::reset_music_stream_clock_state();
+        let resumed = deadlib_audio_core::bump_music_map_generation();
+        deadlib_audio_core::activate_music_track();
+        deadlib_audio_core::seed_music_asset_clock(1., 1.);
+        deadlib_audio_core::mark_music_track_started(deadlib_audio_core::music_track_start_frame());
+        deadlib_audio_core::resume_music_track();
+        runtime.handle(StreamCommand::ResumeMusic {
+            seconds: 1.,
+            rate: 1.,
+            preserve_pitch: false,
+            generation: resumed,
+            asset_epoch: epoch,
+        });
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        while !runtime
+            .decoder_status()
+            .snapshot()
+            .is_some_and(|s| s.render_ready_generation == Some(resumed))
+        {
+            assert!(std::time::Instant::now() < deadline);
+            thread::yield_now();
+        }
+        let pcm = render(&mut renderer, 240);
+        assert!(
+            pcm.iter().all(|v| *v >= 1750),
+            "retained reader should decode ramp at frame48000 despite deleted pathname"
+        );
+        let mut found = false;
+        while let Some((tag, asset, map)) = played.pop() {
+            if tag == resumed {
+                assert_eq!(asset, epoch);
+                assert!((map.music_start_sec - 1.).abs() < 1. / 48_000.);
+                found = true;
+            }
+        }
+        assert!(found);
+        drop(runtime);
+        deadlib_audio_core::resume_music_track();
+        let _ = std::fs::remove_dir_all(directory);
+    }
+    #[test]
+    fn pause_swap_resume_during_blocked_open_starts_replacement_at_current_phase() {
+        let _audio_guard = crate::test_audio_guard();
+        let directory =
+            std::env::temp_dir().join(format!("deadlib-paused-asset-{}", std::process::id()));
+        std::fs::create_dir_all(&directory).unwrap();
+        let a = directory.join("a.wav");
+        let b = directory.join("b.wav");
+        wav(&a, false);
+        wav(&b, true);
+        deadlib_audio_core::resume_music_track();
+        deadlib_audio_core::reset_music_stream_clock_state();
+        deadlib_audio_core::reset_music_target_gain();
+        let generation = deadlib_audio_core::bump_music_map_generation();
+        let old_epoch = deadlib_audio_core::advance_music_asset_epoch();
+        deadlib_audio_core::seed_music_asset_clock(0., 1.);
+        let (stream, handle) = deadlib_audio_core::music_transport(48_000, 2);
+        let mut played = stream.played_map;
+        let mut renderer = RenderState::new(handle, Arc::new(MixControls::new()), 2);
+        let mut runtime = MusicStreamRuntime::new(
+            stream.writer,
+            OutputFormat {
+                sample_rate_hz: 48_000,
+                channels: 2,
+            },
+        );
+        runtime.handle(StreamCommand::PlayMusic {
+            asset_epoch: old_epoch,
+            decode_options: decode::DecodeOptions::STEP_MANIA_TIMELINE,
+            path: a,
+            cut: Cut::default(),
+            looping: false,
+            rate: 1.,
+            preserve_pitch: false,
+            generation,
+        });
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        while !runtime
+            .decoder_status()
+            .snapshot()
+            .is_some_and(|s| s.render_ready_generation == Some(generation))
+        {
+            assert!(std::time::Instant::now() < deadline);
+            thread::yield_now();
+        }
+        assert!(render(&mut renderer, 240).iter().any(|v| *v < 0));
+        while played.pop().is_some() {}
+        deadlib_audio_core::pause_music_track();
+        let paused = deadlib_audio_core::bump_music_map_generation();
+        runtime.handle(StreamCommand::PauseMusic {
+            generation: paused,
+            asset_epoch: old_epoch,
+        });
+        let epoch = deadlib_audio_core::advance_music_asset_epoch();
+        let (entered_tx, entered_rx) = std::sync::mpsc::channel();
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        *ASSET_OPEN_GATE.lock().unwrap() = Some((epoch, entered_tx, release_rx));
+        runtime.handle(StreamCommand::SwapMusicAsset {
+            decode_options: decode::DecodeOptions::STEP_MANIA_TIMELINE,
+            path: b,
+            rate: 1.,
+            preserve_pitch: false,
+            generation: paused,
+            asset_epoch: epoch,
+        });
+        entered_rx.recv_timeout(Duration::from_secs(3)).unwrap();
+        deadlib_audio_core::reset_music_stream_clock_state();
+        let resumed = deadlib_audio_core::bump_music_map_generation();
+        deadlib_audio_core::activate_music_track();
+        deadlib_audio_core::seed_music_asset_clock(1., 1.);
+        deadlib_audio_core::mark_music_track_started(deadlib_audio_core::music_track_start_frame());
+        deadlib_audio_core::resume_music_track();
+        runtime.handle(StreamCommand::ResumeMusic {
+            seconds: 1.,
+            rate: 1.,
+            preserve_pitch: false,
+            generation: resumed,
+            asset_epoch: epoch,
+        });
+        for _ in 0..20 {
+            assert!(render(&mut renderer, 240).iter().all(|v| *v == 0));
+        }
+        release_tx.send(()).unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        while !runtime
+            .decoder_status()
+            .snapshot()
+            .is_some_and(|s| s.render_ready_generation == Some(resumed))
+        {
+            assert!(std::time::Instant::now() < deadline);
+            thread::yield_now();
+        }
+        let pcm = render(&mut renderer, 240);
+        assert!(
+            pcm.iter().all(|v| *v >= 1825),
+            "replacement ramp should start at1.1s after100ms pending"
+        );
+        let mut found = false;
+        while let Some((tag, asset, map)) = played.pop() {
+            if tag == resumed {
+                assert_eq!(asset, epoch);
+                assert!((map.music_start_sec - 1.1).abs() < 1. / 48_000.);
+                found = true;
+            }
+        }
+        assert!(found);
+        drop(runtime);
+        deadlib_audio_core::resume_music_track();
+        let _ = std::fs::remove_dir_all(directory);
+    }
+    #[test]
+    fn stale_stop_cannot_dispose_the_current_asset_decoder() {
+        let _audio_guard = crate::test_audio_guard();
+        let directory =
+            std::env::temp_dir().join(format!("deadlib-stale-stop-{}", std::process::id()));
+        std::fs::create_dir_all(&directory).unwrap();
+        let path = directory.join("current.wav");
+        wav(&path, true);
+        deadlib_audio_core::resume_music_track();
+        deadlib_audio_core::reset_music_stream_clock_state();
+        deadlib_audio_core::reset_music_target_gain();
+        let generation = deadlib_audio_core::bump_music_map_generation();
+        let stale_epoch = deadlib_audio_core::advance_music_asset_epoch();
+        let current_epoch = deadlib_audio_core::advance_music_asset_epoch();
+        let (stream, handle) = deadlib_audio_core::music_transport(48_000, 2);
+        let mut renderer = RenderState::new(handle, Arc::new(MixControls::new()), 2);
+        let mut runtime = MusicStreamRuntime::new(
+            stream.writer,
+            OutputFormat {
+                sample_rate_hz: 48_000,
+                channels: 2,
+            },
+        );
+        runtime.handle(StreamCommand::PlayMusic {
+            asset_epoch: current_epoch,
+            decode_options: decode::DecodeOptions::STEP_MANIA_TIMELINE,
+            path,
+            cut: Cut::default(),
+            looping: false,
+            rate: 1.,
+            preserve_pitch: false,
+            generation,
+        });
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        while !runtime.decoder_status().snapshot().is_some_and(|status| {
+            status.asset_epoch == current_epoch
+                && status.render_ready_generation == Some(generation)
+        }) {
+            assert!(std::time::Instant::now() < deadline);
+            thread::yield_now();
+        }
+        runtime.handle(StreamCommand::StopMusic {
+            asset_epoch: stale_epoch,
+        });
+        let status = runtime.decoder_status().snapshot().unwrap();
+        assert_ne!(status.phase, lifecycle::DecoderPhase::Stopped);
+        assert_eq!(status.asset_epoch, current_epoch);
         assert!(deadlib_audio_core::music_track_active());
-        assert!(render(&mut renderer,240).iter().any(|sample|*sample>0));
-        drop(runtime);let _=std::fs::remove_dir_all(directory);
+        assert!(render(&mut renderer, 240).iter().any(|sample| *sample > 0));
+        drop(runtime);
+        let _ = std::fs::remove_dir_all(directory);
     }
     #[test]
-    fn initial_source_start_blocked_open_uses_current_dsp_phase_without_open_ack(){
-        let directory=std::env::temp_dir().join(format!("deadlib-source-start-{}",std::process::id()));std::fs::create_dir_all(&directory).unwrap();let path=directory.join("initial.wav");wav(&path,true);deadlib_audio_core::resume_music_track();deadlib_audio_core::reset_music_stream_clock_state();deadlib_audio_core::reset_music_target_gain();let(stream,handle)=deadlib_audio_core::music_transport(48_000,2);let mut played=stream.played_map;let mut renderer=RenderState::new(handle,Arc::new(MixControls::new()),2);let mut runtime=MusicStreamRuntime::new(stream.writer,OutputFormat{sample_rate_hz:48_000,channels:2});
-        let generation=deadlib_audio_core::bump_music_map_generation();let epoch=deadlib_audio_core::advance_music_asset_epoch();deadlib_audio_core::activate_music_track();deadlib_audio_core::seed_music_asset_clock(0.,1.);deadlib_audio_core::mark_music_track_started(deadlib_audio_core::music_track_start_frame());let origin=deadlib_audio_core::music_track_start_frame();let(entered_tx,entered_rx)=std::sync::mpsc::channel();let(release_tx,release_rx)=std::sync::mpsc::channel();*ASSET_OPEN_GATE.lock().unwrap()=Some((epoch,entered_tx,release_rx));runtime.handle(StreamCommand::StartMusic{path:Some(path),seconds:0.,rate:1.,preserve_pitch:false,decode_options:decode::DecodeOptions::STEP_MANIA_TIMELINE,generation,asset_epoch:epoch});entered_rx.recv_timeout(Duration::from_secs(3)).unwrap();let pending=runtime.decoder_status().snapshot().unwrap();assert_eq!(pending.phase,lifecycle::DecoderPhase::Pending);assert!(!pending.opened_successfully);assert!(pending.codec.is_none());assert_eq!(pending.render_ready_generation,None);
-        for _ in 0..100{assert!(render(&mut renderer,240).iter().all(|sample|*sample==0));}assert_eq!(deadlib_audio_core::music_track_start_frame(),origin);assert!(played.pop().is_none());assert_eq!(deadlib_audio_core::seeded_music_position(0.5).unwrap().0,0.5);release_tx.send(()).unwrap();let deadline=std::time::Instant::now()+Duration::from_secs(3);while !runtime.decoder_status().snapshot().is_some_and(|s|s.render_ready_generation==Some(generation)){assert!(std::time::Instant::now()<deadline);thread::yield_now();}let actual=runtime.decoder_status().snapshot().unwrap();assert!(actual.opened_successfully);assert_eq!(actual.codec,Some(lifecycle::DecodedCodec::Wav));assert_eq!(deadlib_audio_core::music_track_start_frame(),origin);let output=render(&mut renderer,240);assert!(output.iter().all(|v|*v>=1375),"initial PCM must start at0.5s, not request0");let mut mapped=false;while let Some((tag,asset,map))=played.pop(){assert_eq!(tag,generation);assert_eq!(asset,epoch);assert!((map.music_start_sec-0.5).abs()<1./48_000.);mapped=true;}assert!(mapped);drop(runtime);let _=std::fs::remove_dir_all(directory);
+    fn initial_source_start_blocked_open_uses_current_dsp_phase_without_open_ack() {
+        let _audio_guard = crate::test_audio_guard();
+        let directory =
+            std::env::temp_dir().join(format!("deadlib-source-start-{}", std::process::id()));
+        std::fs::create_dir_all(&directory).unwrap();
+        let path = directory.join("initial.wav");
+        wav(&path, true);
+        deadlib_audio_core::resume_music_track();
+        deadlib_audio_core::reset_music_stream_clock_state();
+        deadlib_audio_core::reset_music_target_gain();
+        let (stream, handle) = deadlib_audio_core::music_transport(48_000, 2);
+        let mut played = stream.played_map;
+        let mut renderer = RenderState::new(handle, Arc::new(MixControls::new()), 2);
+        let mut runtime = MusicStreamRuntime::new(
+            stream.writer,
+            OutputFormat {
+                sample_rate_hz: 48_000,
+                channels: 2,
+            },
+        );
+        let generation = deadlib_audio_core::bump_music_map_generation();
+        let epoch = deadlib_audio_core::advance_music_asset_epoch();
+        deadlib_audio_core::activate_music_track();
+        deadlib_audio_core::seed_music_asset_clock(0., 1.);
+        deadlib_audio_core::mark_music_track_started(deadlib_audio_core::music_track_start_frame());
+        let origin = deadlib_audio_core::music_track_start_frame();
+        let (entered_tx, entered_rx) = std::sync::mpsc::channel();
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        *ASSET_OPEN_GATE.lock().unwrap() = Some((epoch, entered_tx, release_rx));
+        runtime.handle(StreamCommand::StartMusic {
+            path: Some(path),
+            seconds: 0.,
+            rate: 1.,
+            preserve_pitch: false,
+            decode_options: decode::DecodeOptions::STEP_MANIA_TIMELINE,
+            generation,
+            asset_epoch: epoch,
+        });
+        entered_rx.recv_timeout(Duration::from_secs(3)).unwrap();
+        let pending = runtime.decoder_status().snapshot().unwrap();
+        assert_eq!(pending.phase, lifecycle::DecoderPhase::Pending);
+        assert!(!pending.opened_successfully);
+        assert!(pending.codec.is_none());
+        assert_eq!(pending.render_ready_generation, None);
+        for _ in 0..100 {
+            assert!(render(&mut renderer, 240).iter().all(|sample| *sample == 0));
+        }
+        assert_eq!(deadlib_audio_core::music_track_start_frame(), origin);
+        assert!(played.pop().is_none());
+        assert_eq!(
+            deadlib_audio_core::seeded_music_position(0.5).unwrap().0,
+            0.5
+        );
+        release_tx.send(()).unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        while !runtime
+            .decoder_status()
+            .snapshot()
+            .is_some_and(|s| s.render_ready_generation == Some(generation))
+        {
+            assert!(std::time::Instant::now() < deadline);
+            thread::yield_now();
+        }
+        let actual = runtime.decoder_status().snapshot().unwrap();
+        assert!(actual.opened_successfully);
+        assert_eq!(actual.codec, Some(lifecycle::DecodedCodec::Wav));
+        assert_eq!(deadlib_audio_core::music_track_start_frame(), origin);
+        let output = render(&mut renderer, 240);
+        assert!(
+            output.iter().all(|v| *v >= 1375),
+            "initial PCM must start at0.5s, not request0"
+        );
+        let mut mapped = false;
+        while let Some((tag, asset, map)) = played.pop() {
+            assert_eq!(tag, generation);
+            assert_eq!(asset, epoch);
+            assert!((map.music_start_sec - 0.5).abs() < 1. / 48_000.);
+            mapped = true;
+        }
+        assert!(mapped);
+        drop(runtime);
+        let _ = std::fs::remove_dir_all(directory);
     }
-    fn fresh_rate_reference(path:&Path,start:f64,rate:f32,frames:usize)->(Vec<i16>,Vec<deadlib_audio_core::MusicMapSeg>){
-        let generation=deadlib_audio_core::music_map_generation();let epoch=deadlib_audio_core::music_asset_epoch();
-        let(stream,handle)=deadlib_audio_core::music_transport(48_000,2);let mut played=stream.played_map;let mut renderer=RenderState::new(handle,Arc::new(MixControls::new()),2);let mut runtime=MusicStreamRuntime::new(stream.writer,OutputFormat{sample_rate_hz:48_000,channels:2});
-        runtime.handle(StreamCommand::PlayMusic{asset_epoch:epoch,decode_options:decode::DecodeOptions::STEP_MANIA_TIMELINE,path:path.to_path_buf(),cut:Cut{start_sec:start,..Default::default()},looping:false,rate,preserve_pitch:false,generation});
-        let deadline=std::time::Instant::now()+Duration::from_secs(3);while !runtime.decoder_status().snapshot().is_some_and(|status|status.render_ready_generation==Some(generation)&&matches!(status.phase,lifecycle::DecoderPhase::Producing|lifecycle::DecoderPhase::Exhausted)){assert!(std::time::Instant::now()<deadline);thread::yield_now();}
-        let output=render(&mut renderer,frames);let mut maps=Vec::new();while let Some((tag,asset,map))=played.pop(){if tag==generation&&asset==epoch{maps.push(map);}}
-        assert!(!maps.is_empty());drop(runtime);(output,maps)
+    fn fresh_rate_reference(
+        path: &Path,
+        start: f64,
+        rate: f32,
+        frames: usize,
+    ) -> (Vec<i16>, Vec<deadlib_audio_core::MusicMapSeg>) {
+        let generation = deadlib_audio_core::music_map_generation();
+        let epoch = deadlib_audio_core::music_asset_epoch();
+        let (stream, handle) = deadlib_audio_core::music_transport(48_000, 2);
+        let mut played = stream.played_map;
+        let mut renderer = RenderState::new(handle, Arc::new(MixControls::new()), 2);
+        let mut runtime = MusicStreamRuntime::new(
+            stream.writer,
+            OutputFormat {
+                sample_rate_hz: 48_000,
+                channels: 2,
+            },
+        );
+        runtime.handle(StreamCommand::PlayMusic {
+            asset_epoch: epoch,
+            decode_options: decode::DecodeOptions::STEP_MANIA_TIMELINE,
+            path: path.to_path_buf(),
+            cut: Cut {
+                start_sec: start,
+                ..Default::default()
+            },
+            looping: false,
+            rate,
+            preserve_pitch: false,
+            generation,
+        });
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        while !runtime.decoder_status().snapshot().is_some_and(|status| {
+            status.render_ready_generation == Some(generation)
+                && matches!(
+                    status.phase,
+                    lifecycle::DecoderPhase::Producing | lifecycle::DecoderPhase::Exhausted
+                )
+        }) {
+            assert!(std::time::Instant::now() < deadline);
+            thread::yield_now();
+        }
+        let output = render(&mut renderer, frames);
+        let mut maps = Vec::new();
+        while let Some((tag, asset, map)) = played.pop() {
+            if tag == generation && asset == epoch {
+                maps.push(map);
+            }
+        }
+        assert!(!maps.is_empty());
+        drop(runtime);
+        (output, maps)
     }
     #[test]
-    fn queued_swap_then_rate_never_plays_old_rate_pcm_under_replacement_authority(){
-        let directory=std::env::temp_dir().join(format!("deadlib-live-rate-asset-{}",std::process::id()));std::fs::create_dir_all(&directory).unwrap();let path=directory.join("b.wav");wav(&path,true);deadlib_audio_core::reset_music_stream_clock_state();deadlib_audio_core::reset_music_target_gain();let old_generation=deadlib_audio_core::bump_music_map_generation();deadlib_audio_core::activate_music_track();deadlib_audio_core::mark_music_track_started(deadlib_audio_core::music_track_start_frame());deadlib_audio_core::seed_music_asset_clock(0.,1.);let(stream,handle)=deadlib_audio_core::music_transport(48_000,2);let mut played=stream.played_map;let mut renderer=RenderState::new(handle,Arc::new(MixControls::new()),2);let mut runtime=MusicStreamRuntime::new(stream.writer,OutputFormat{sample_rate_hz:48_000,channels:2});
-        let epoch=deadlib_audio_core::advance_music_asset_epoch();
+    fn queued_swap_then_rate_never_plays_old_rate_pcm_under_replacement_authority() {
+        let _audio_guard = crate::test_audio_guard();
+        let directory =
+            std::env::temp_dir().join(format!("deadlib-live-rate-asset-{}", std::process::id()));
+        std::fs::create_dir_all(&directory).unwrap();
+        let path = directory.join("b.wav");
+        wav(&path, true);
+        deadlib_audio_core::reset_music_stream_clock_state();
+        deadlib_audio_core::reset_music_target_gain();
+        let old_generation = deadlib_audio_core::bump_music_map_generation();
+        deadlib_audio_core::activate_music_track();
+        deadlib_audio_core::mark_music_track_started(deadlib_audio_core::music_track_start_frame());
+        deadlib_audio_core::seed_music_asset_clock(0., 1.);
+        let (stream, handle) = deadlib_audio_core::music_transport(48_000, 2);
+        let mut played = stream.played_map;
+        let mut renderer = RenderState::new(handle, Arc::new(MixControls::new()), 2);
+        let mut runtime = MusicStreamRuntime::new(
+            stream.writer,
+            OutputFormat {
+                sample_rate_hz: 48_000,
+                channels: 2,
+            },
+        );
+        let epoch = deadlib_audio_core::advance_music_asset_epoch();
         // The UI accepts Rate before the manager handles the earlier Swap.
-        deadlib_audio_core::set_music_clock_rate(2.);let new_generation=deadlib_audio_core::bump_music_map_generation();runtime.handle(StreamCommand::SwapMusicAsset{decode_options:decode::DecodeOptions::STEP_MANIA_TIMELINE,path:path.clone(),rate:1.,preserve_pitch:false,generation:old_generation,asset_epoch:epoch});let deadline=std::time::Instant::now()+Duration::from_secs(3);while !runtime.decoder_status().snapshot().is_some_and(|s|s.final_music_seconds.is_some_and(|time|time>0.2)){assert!(std::time::Instant::now()<deadline);thread::yield_now();}
-        assert!(render(&mut renderer,240).iter().all(|v|*v==0),"old captured Rate PCM must wait for queued Rate generation");runtime.handle(StreamCommand::SetMusicRateAt{rate:2.,seconds:0.,generation:new_generation,asset_epoch:epoch});let pending=runtime.decoder_status().snapshot().unwrap();assert_eq!(pending.command_generation,new_generation);if pending.phase==lifecycle::DecoderPhase::Pending{assert_eq!(pending.render_ready_generation,None);assert_eq!(pending.final_music_seconds,None);}let deadline=std::time::Instant::now()+Duration::from_secs(3);while !runtime.decoder_status().snapshot().is_some_and(|s|s.command_generation==new_generation&&s.render_ready_generation==Some(new_generation)&&matches!(s.phase,lifecycle::DecoderPhase::Producing|lifecycle::DecoderPhase::Exhausted)){assert!(std::time::Instant::now()<deadline);thread::yield_now();}
-        let first_now=deadlib_audio_core::seeded_music_position(deadlib_audio_core::music_total_frames().saturating_sub(deadlib_audio_core::music_track_start_frame())as f64/48_000.).unwrap().0;
-        let actual_pcm=render(&mut renderer,240);let mut actual_maps=Vec::new();while let Some((generation,asset,map))=played.pop(){if generation==new_generation&&asset==epoch{actual_maps.push(map);}}
-        assert!(!actual_maps.is_empty(),"ready replacement must be audible in its first callback, not wait for the old decoded cursor");
-        assert!((actual_maps[0].music_start_sec-first_now).abs()<=256.*2./48_000.,"replacement starts at decoded advance instead of DSP NOW");
+        deadlib_audio_core::set_music_clock_rate(2.);
+        let new_generation = deadlib_audio_core::bump_music_map_generation();
+        runtime.handle(StreamCommand::SwapMusicAsset {
+            decode_options: decode::DecodeOptions::STEP_MANIA_TIMELINE,
+            path: path.clone(),
+            rate: 1.,
+            preserve_pitch: false,
+            generation: old_generation,
+            asset_epoch: epoch,
+        });
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        while !runtime
+            .decoder_status()
+            .snapshot()
+            .is_some_and(|s| s.final_music_seconds.is_some_and(|time| time > 0.2))
+        {
+            assert!(std::time::Instant::now() < deadline);
+            thread::yield_now();
+        }
+        assert!(
+            render(&mut renderer, 240).iter().all(|v| *v == 0),
+            "old captured Rate PCM must wait for queued Rate generation"
+        );
+        runtime.handle(StreamCommand::SetMusicRateAt {
+            rate: 2.,
+            seconds: 0.,
+            generation: new_generation,
+            asset_epoch: epoch,
+        });
+        let pending = runtime.decoder_status().snapshot().unwrap();
+        assert_eq!(pending.command_generation, new_generation);
+        if pending.phase == lifecycle::DecoderPhase::Pending {
+            assert_eq!(pending.render_ready_generation, None);
+            assert_eq!(pending.final_music_seconds, None);
+        }
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        while !runtime.decoder_status().snapshot().is_some_and(|s| {
+            s.command_generation == new_generation
+                && s.render_ready_generation == Some(new_generation)
+                && matches!(
+                    s.phase,
+                    lifecycle::DecoderPhase::Producing | lifecycle::DecoderPhase::Exhausted
+                )
+        }) {
+            assert!(std::time::Instant::now() < deadline);
+            thread::yield_now();
+        }
+        let first_now = deadlib_audio_core::seeded_music_position(
+            deadlib_audio_core::music_total_frames()
+                .saturating_sub(deadlib_audio_core::music_track_start_frame()) as f64
+                / 48_000.,
+        )
+        .unwrap()
+        .0;
+        let actual_pcm = render(&mut renderer, 240);
+        let mut actual_maps = Vec::new();
+        while let Some((generation, asset, map)) = played.pop() {
+            if generation == new_generation && asset == epoch {
+                actual_maps.push(map);
+            }
+        }
+        assert!(
+            !actual_maps.is_empty(),
+            "ready replacement must be audible in its first callback, not wait for the old decoded cursor"
+        );
+        assert!(
+            (actual_maps[0].music_start_sec - first_now).abs() <= 256. * 2. / 48_000.,
+            "replacement starts at decoded advance instead of DSP NOW"
+        );
         drop(runtime);
         // The actual DSP intentionally reports consumed-input/output ratio.
         // Rubato's first batch consumes 513 source frames for 256 outputs at
         // 2x before compatibility lead trimming; its slope is not nominal 2/hz.
         // A fresh real decoder at the same cut supplies an independent control
         // path, including sinc startup, preroll and every emitted PCM sample.
-        let(reference_pcm,reference_maps)=fresh_rate_reference(&path,first_now,2.,240);
-        assert_eq!(actual_pcm,reference_pcm,"retargeted PCM must equal a fresh real 2x decode at DSP NOW");
-        assert_eq!(actual_maps.len(),reference_maps.len());
-        for(actual,reference)in actual_maps.iter().zip(&reference_maps){assert_eq!(actual.frames,reference.frames);assert_eq!(actual.music_start_sec.to_bits(),reference.music_start_sec.to_bits());assert_eq!(actual.music_sec_per_frame.to_bits(),reference.music_sec_per_frame.to_bits());}
-        let _=std::fs::remove_dir_all(directory);
+        let (reference_pcm, reference_maps) = fresh_rate_reference(&path, first_now, 2., 240);
+        assert_eq!(
+            actual_pcm, reference_pcm,
+            "retargeted PCM must equal a fresh real 2x decode at DSP NOW"
+        );
+        assert_eq!(actual_maps.len(), reference_maps.len());
+        for (actual, reference) in actual_maps.iter().zip(&reference_maps) {
+            assert_eq!(actual.frames, reference.frames);
+            assert_eq!(
+                actual.music_start_sec.to_bits(),
+                reference.music_start_sec.to_bits()
+            );
+            assert_eq!(
+                actual.music_sec_per_frame.to_bits(),
+                reference.music_sec_per_frame.to_bits()
+            );
+        }
+        let _ = std::fs::remove_dir_all(directory);
     }
 }
 
@@ -1686,76 +2444,211 @@ decode_options:decode::DecodeOptions::STEP_MANIA_TIMELINE,path:a,cut:Cut::defaul
 mod retained_loop_tests;
 
 #[cfg(test)]
-#[path="stream/preview_fade_tests.rs"]
+#[path = "stream/preview_fade_tests.rs"]
 mod preview_fade_tests;
 
 #[cfg(test)]
-#[path="stream/preview_fade_physical_tests.rs"]
+#[path = "stream/preview_fade_physical_tests.rs"]
 mod preview_fade_physical_tests;
-
 
 /// Editor Main and preview use immutable output-rate float PCM. Worker owns conversion,
 /// command publication and reclamation; callback owns only the actual cursor.
-fn spawn_prepared_preview_thread(source:Arc<decode::prepared::PreparedAudioSource>,path:PathBuf,cut:Cut,looping:bool,writer:MusicBlockWriter,context:MusicDecodeContext,asset_epoch:u64,preview_phase:Option<(f64,u64)>,editor_main:bool)->MusicStream{
-    let control=Arc::new(MusicControl{prepared:Some(source.clone()),preview_phase,paused:AtomicBool::new(deadlib_audio_core::music_track_paused()),asset_epoch,follow_live_phase:false,failed:AtomicBool::new(false),status:lifecycle::DecoderStatusReader::new_asset(context.generation,cut.start_sec,asset_epoch),stop_signal:AtomicBool::new(false),rate_bits:AtomicU32::new(1f32.to_bits()),preserve_pitch:AtomicBool::new(false),generation:AtomicU64::new(context.generation),wake:DecoderWake::new(),seek:Mutex::new(None),seek_serial:AtomicU64::new(0)});
-    let worker=control.clone();
-    let thread=thread::spawn(move||{
-        let mut writer=writer;worker.wake.register_current();
-        let result=(||->Result<(),Box<dyn std::error::Error+Send+Sync>>{
-            let output_hz=context.output.sample_rate_hz.max(1);let out_channels=context.output.channels.max(1);
-            let opened=editor_reader::EditorDecodeReader::open(&path,context.decode_options,Some(&source))?;
-            worker.status.opened_codec(context.generation,opened.reader.codec(),&path);
-            let converted=decode::preview::resample_prepared(&source,output_hz,&worker.stop_signal).map_err(|message|std::io::Error::other(message))?;
-            let frames=converted.len()/source.channels;
-            let mut output=Vec::new();output.try_reserve_exact(frames.checked_mul(out_channels).ok_or("Preview source is too large")?)?;
-            for (index,input)in converted.chunks_exact(source.channels).enumerate(){
-                if index%524288==0&&worker.stop_signal.load(Ordering::Acquire){return Ok(());}
-                for channel in 0..out_channels{
+fn spawn_prepared_preview_thread(
+    source: Arc<decode::prepared::PreparedAudioSource>,
+    path: PathBuf,
+    cut: Cut,
+    looping: bool,
+    writer: MusicBlockWriter,
+    context: MusicDecodeContext,
+    asset_epoch: u64,
+    preview_phase: Option<(f64, u64)>,
+    editor_main: bool,
+) -> MusicStream {
+    let control = Arc::new(MusicControl {
+        prepared: Some(source.clone()),
+        preview_phase,
+        paused: AtomicBool::new(deadlib_audio_core::music_track_paused()),
+        asset_epoch,
+        follow_live_phase: false,
+        failed: AtomicBool::new(false),
+        status: lifecycle::DecoderStatusReader::new_asset(
+            context.generation,
+            cut.start_sec,
+            asset_epoch,
+        ),
+        stop_signal: AtomicBool::new(false),
+        rate_bits: AtomicU32::new(1f32.to_bits()),
+        preserve_pitch: AtomicBool::new(false),
+        generation: AtomicU64::new(context.generation),
+        wake: DecoderWake::new(),
+        seek: Mutex::new(None),
+        seek_serial: AtomicU64::new(0),
+    });
+    let worker = control.clone();
+    let thread = thread::spawn(move || {
+        let mut writer = writer;
+        worker.wake.register_current();
+        let result = (|| -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+            let output_hz = context.output.sample_rate_hz.max(1);
+            let out_channels = context.output.channels.max(1);
+            let opened = editor_reader::EditorDecodeReader::open(
+                &path,
+                context.decode_options,
+                Some(&source),
+            )?;
+            worker
+                .status
+                .opened_codec(context.generation, opened.reader.codec(), &path);
+            let converted =
+                decode::preview::resample_prepared(&source, output_hz, &worker.stop_signal)
+                    .map_err(|message| std::io::Error::other(message))?;
+            let frames = converted.len() / source.channels;
+            let mut output = Vec::new();
+            output.try_reserve_exact(
+                frames
+                    .checked_mul(out_channels)
+                    .ok_or("Preview source is too large")?,
+            )?;
+            for (index, input) in converted.chunks_exact(source.channels).enumerate() {
+                if index % 524288 == 0 && worker.stop_signal.load(Ordering::Acquire) {
+                    return Ok(());
+                }
+                for channel in 0..out_channels {
                     // Normal host channel mapping is prepared here, not mixed
                     // ad hoc inside the callback. Mono remains audible in both ears.
-                    output.push(if source.channels==1{input[0]}else{input.get(channel).copied().unwrap_or(0.)});
+                    output.push(if source.channels == 1 {
+                        input[0]
+                    } else {
+                        input.get(channel).copied().unwrap_or(0.)
+                    });
                 }
             }
-            let initial_frame=if let Some((phase,physical))=preview_phase{
-                let base=(phase*f64::from(output_hz))as i64;
-                let elapsed=if deadlib_audio_core::music_track_paused(){0}else{deadlib_audio_core::music_total_frames().saturating_sub(physical)};
-                let frame=i128::from(base)+i128::from(elapsed);
-                let start=(cut.start_sec*f64::from(output_hz))as i64;let length=(cut.length_sec*f64::from(output_hz))as i64;
-                if looping&&length>0&&frame>=i128::from(start)+i128::from(length){(i128::from(start)+(frame-i128::from(start)).rem_euclid(i128::from(length)))as i64}else{frame.min(i128::from(i64::MAX))as i64}
-            }else{((cut.start_sec*f64::from(output_hz))as i64).max(0)};
-            let mut descriptor=deadlib_audio_core::PreviewSource{editor_main,samples:output.into(),channels:out_channels,sample_rate_hz:output_hz,generation:context.generation,asset_epoch,initial_frame,looping};
-            loop{
-                if worker.stop_signal.load(Ordering::Acquire)||asset_epoch!=deadlib_audio_core::music_asset_epoch()||(!editor_main&&context.generation!=deadlib_audio_core::music_map_generation()){return Ok(());}
-                match writer.try_publish_preview_source(descriptor){Ok(())=>break,Err(returned)=>descriptor=returned}
+            let initial_frame = if let Some((phase, physical)) = preview_phase {
+                let base = (phase * f64::from(output_hz)) as i64;
+                let elapsed = if deadlib_audio_core::music_track_paused() {
+                    0
+                } else {
+                    deadlib_audio_core::music_total_frames().saturating_sub(physical)
+                };
+                let frame = i128::from(base) + i128::from(elapsed);
+                let start = (cut.start_sec * f64::from(output_hz)) as i64;
+                let length = (cut.length_sec * f64::from(output_hz)) as i64;
+                if looping && length > 0 && frame >= i128::from(start) + i128::from(length) {
+                    (i128::from(start) + (frame - i128::from(start)).rem_euclid(i128::from(length)))
+                        as i64
+                } else {
+                    frame.min(i128::from(i64::MAX)) as i64
+                }
+            } else {
+                ((cut.start_sec * f64::from(output_hz)) as i64).max(0)
+            };
+            let mut descriptor = deadlib_audio_core::PreviewSource {
+                editor_main,
+                samples: output.into(),
+                channels: out_channels,
+                sample_rate_hz: output_hz,
+                generation: context.generation,
+                asset_epoch,
+                initial_frame,
+                looping,
+            };
+            loop {
+                if worker.stop_signal.load(Ordering::Acquire)
+                    || asset_epoch != deadlib_audio_core::music_asset_epoch()
+                    || (!editor_main
+                        && context.generation != deadlib_audio_core::music_map_generation())
+                {
+                    return Ok(());
+                }
+                match writer.try_publish_preview_source(descriptor) {
+                    Ok(()) => break,
+                    Err(returned) => descriptor = returned,
+                }
                 thread::park_timeout(std::time::Duration::from_millis(1));
             }
-            let ready_generation=if editor_main{worker.generation.load(Ordering::SeqCst)}else{context.generation};
-            writer.publish_preview_generation_ready(ready_generation,asset_epoch);
-            worker.status.publish(ready_generation,lifecycle::DecoderPhase::Producing,Some(initial_frame as f64/f64::from(output_hz)),None);
+            let ready_generation = if editor_main {
+                worker.generation.load(Ordering::SeqCst)
+            } else {
+                context.generation
+            };
+            writer.publish_preview_generation_ready(ready_generation, asset_epoch);
+            worker.status.publish(
+                ready_generation,
+                lifecycle::DecoderPhase::Producing,
+                Some(initial_frame as f64 / f64::from(output_hz)),
+                None,
+            );
             worker.status.render_ready(ready_generation);
-            let mut exhausted=false;
-            while !worker.stop_signal.load(Ordering::Acquire){
+            let mut exhausted = false;
+            while !worker.stop_signal.load(Ordering::Acquire) {
                 writer.reclaim_preview_sources();
-                if editor_main{
-                    let generation=worker.generation.load(Ordering::SeqCst);
-                    if {let status=worker.status.snapshot();status.command_generation!=generation||status.render_ready_generation!=Some(generation)}{
-                        worker.status.opened_codec(generation,opened.reader.codec(),&path);
-                        writer.publish_preview_generation_ready(generation,asset_epoch);
-                        worker.status.publish(generation,lifecycle::DecoderPhase::Producing,None,None);worker.status.render_ready(generation);
+                if editor_main {
+                    let generation = worker.generation.load(Ordering::SeqCst);
+                    if {
+                        let status = worker.status.snapshot();
+                        status.command_generation != generation
+                            || status.render_ready_generation != Some(generation)
+                    } {
+                        worker
+                            .status
+                            .opened_codec(generation, opened.reader.codec(), &path);
+                        writer.publish_preview_generation_ready(generation, asset_epoch);
+                        worker.status.publish(
+                            generation,
+                            lifecycle::DecoderPhase::Producing,
+                            None,
+                            None,
+                        );
+                        worker.status.render_ready(generation);
                     }
-                    let _=worker.seek.lock().unwrap_or_else(|error|error.into_inner()).take();
+                    let _ = worker
+                        .seek
+                        .lock()
+                        .unwrap_or_else(|error| error.into_inner())
+                        .take();
                 }
-                if !editor_main&&!looping&&!exhausted{
-                    if let Some(cursor)=deadlib_audio_core::rendered_music_cursor().filter(|cursor|cursor.asset_epoch==asset_epoch&&cursor.generation==context.generation){
-                        if cursor.next_music_seconds>=cut.start_sec+cut.length_sec{worker.status.publish(context.generation,lifecycle::DecoderPhase::Exhausted,Some(cursor.next_music_seconds),None);exhausted=true;}
+                if !editor_main && !looping && !exhausted {
+                    // A replacement can start exactly at EOF and render only
+                    // silence. Its actual callback still acknowledges the
+                    // endpoint, even though it published no audible PCM cursor.
+                    // Accepted initial clocks are deliberately not evidence.
+                    let endpoint = deadlib_audio_core::preview_callback_cursor()
+                        .filter(|cursor| {
+                            cursor.asset_epoch == asset_epoch
+                                && cursor.generation == context.generation
+                        })
+                        .map(|cursor| cursor.next_music_seconds)
+                        .or_else(|| {
+                            deadlib_audio_core::rendered_music_cursor()
+                                .filter(|cursor| {
+                                    cursor.asset_epoch == asset_epoch
+                                        && cursor.generation == context.generation
+                                })
+                                .map(|cursor| cursor.next_music_seconds)
+                        });
+                    if let Some(endpoint) =
+                        endpoint.filter(|seconds| *seconds >= cut.start_sec + cut.length_sec)
+                    {
+                        worker.status.publish(
+                            context.generation,
+                            lifecycle::DecoderPhase::Exhausted,
+                            Some(endpoint),
+                            None,
+                        );
+                        exhausted = true;
                     }
                 }
                 thread::park_timeout(std::time::Duration::from_millis(10));
             }
-            writer.reclaim_preview_sources();Ok(())
+            writer.reclaim_preview_sources();
+            Ok(())
         })();
-        if let Err(error)=result{if !worker.stop_signal.load(Ordering::Acquire){worker.fail(&error.to_string());}}
+        if let Err(error) = result {
+            if !worker.stop_signal.load(Ordering::Acquire) {
+                worker.fail(&error.to_string());
+            }
+        }
         writer
     });
-    MusicStream{thread,control}
+    MusicStream { thread, control }
 }

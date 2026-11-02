@@ -28,7 +28,11 @@ mod navigation_regression_tests {
         i18n::init(deadsync_assets::language::load_for_tests(language));
         let root = tempfile::tempdir().unwrap();
         let path = root.path().join("wheel.ssc");
-        std::fs::write(&path, b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
+        std::fs::write(
+            &path,
+            b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+        )
+        .unwrap();
         let mut state = State::open(&path, 0).unwrap();
         let owner = state.editor_asset_owner();
         state.take_audio_commands();
@@ -57,7 +61,10 @@ mod navigation_regression_tests {
                         let (_root, mut state) = fixture(language);
                         state.scroll_preferences.set_reverse(reverse);
                         state.reverse_display = reverse;
-                        assert_eq!(deadsync_editor::workspace::SNAP_ROWS[state.workspace.snap()], 48);
+                        assert_eq!(
+                            deadsync_editor::workspace::SNAP_ROWS[state.workspace.snap()],
+                            48
+                        );
                         state.navigate_exact_position(initial, false);
                         let bytes = state.workspace.file().session.serialize().unwrap();
                         let now = Instant::now();
@@ -65,8 +72,11 @@ mod navigation_regression_tests {
                         let detents = if forward != reverse { -1.0 } else { 1.0 };
                         assert!(state.wheel_lines(detents));
                         state.update_with_time(now + std::time::Duration::from_millis(16));
-                        assert_eq!(state.playback_position().unwrap().1, expected,
-                            "initial={initial}, reverse={reverse}, forward={forward}");
+                        assert_eq!(
+                            state.playback_position().unwrap().1,
+                            expected,
+                            "initial={initial}, reverse={reverse}, forward={forward}"
+                        );
                         assert_eq!(state.workspace.file().session.serialize().unwrap(), bytes);
                         assert!(state.workspace.file().session.undo_label().is_none());
                     }
@@ -96,11 +106,12 @@ mod navigation_regression_tests {
                 assert_eq!(state.workspace.snap(), expected, "{}", state.status);
                 assert!(state.chart_transport_is_playing());
                 assert_eq!(state.playback_position(), position);
-                assert!(!state.take_audio_commands().iter().any(|command| matches!(command,
+                assert!(!state.take_audio_commands().iter().any(|command| matches!(
+                    command,
                     GameplayAudioCommand::EditorStopMusic { .. }
-                    | GameplayAudioCommand::EditorPauseMusic { .. }
-                    | GameplayAudioCommand::EditorSeekMusic { .. }
-                    | GameplayAudioCommand::EditorStartMusic { .. }
+                        | GameplayAudioCommand::EditorPauseMusic { .. }
+                        | GameplayAudioCommand::EditorSeekMusic { .. }
+                        | GameplayAudioCommand::EditorStartMusic { .. }
                 )));
             }
         }

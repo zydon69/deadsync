@@ -145,8 +145,12 @@ fn facts(state: &State, pack: &PackInfo) -> [(&'static str, String); 8] {
     let style = match page.and_then(PackPage::style_label) {
         Some(label) => super::localization::text(label).to_string(),
         None => match pack.pack_type.as_deref().filter(|v| meaningful(v)) {
-            Some(kind) if kind.eq_ignore_ascii_case("keyboard") => crate::i18n::tr("ContentBrowser", "MessageKeyboard").to_string(),
-            _ if super::state::is_dedicated_doubles(state, pack) => crate::i18n::tr("ContentBrowser", "MessageDoubles").to_string(),
+            Some(kind) if kind.eq_ignore_ascii_case("keyboard") => {
+                crate::i18n::tr("ContentBrowser", "MessageKeyboard").to_string()
+            }
+            _ if super::state::is_dedicated_doubles(state, pack) => {
+                crate::i18n::tr("ContentBrowser", "MessageDoubles").to_string()
+            }
             _ => unknown(),
         },
     };
@@ -167,6 +171,7 @@ fn facts(state: &State, pack: &PackInfo) -> [(&'static str, String); 8] {
             let mut names = page.authors[..shown].join(", ");
             if page.authors.len() > shown {
                 names.reserve_exact(" and more".len());
+                names.push(' ');
                 names.push_str(&super::localization::text(" and more"));
             }
             names
@@ -199,7 +204,11 @@ fn push_download_status(
 
     let (text, rgba, fraction) = match install_for(state, pack) {
         Some(install) => match install.phase {
-            InstallPhase::Queued => (crate::i18n::tr("ContentBrowser", "MessageQueued").to_string(), META_RGBA, None),
+            InstallPhase::Queued => (
+                crate::i18n::tr("ContentBrowser", "MessageQueued").to_string(),
+                META_RGBA,
+                None,
+            ),
             InstallPhase::Downloading => {
                 let fraction = if install.total_bytes > 0 {
                     install.downloaded_bytes as f64 / install.total_bytes as f64
@@ -207,15 +216,43 @@ fn push_download_status(
                     0.0
                 };
                 (
-                    crate::i18n::tr_fmt("ContentBrowser", "MessageDownloading", &[("arg0", &((fraction * 100.0) as u32).to_string()), ("arg1", &(format_bytes(install.downloaded_bytes)).to_string()), ("arg2", &(format_bytes(install.total_bytes)).to_string())]).to_string(),
+                    crate::i18n::tr_fmt(
+                        "ContentBrowser",
+                        "MessageDownloading",
+                        &[
+                            ("arg0", &((fraction * 100.0) as u32).to_string()),
+                            (
+                                "arg1",
+                                &(format_bytes(install.downloaded_bytes)).to_string(),
+                            ),
+                            ("arg2", &(format_bytes(install.total_bytes)).to_string()),
+                        ],
+                    )
+                    .to_string(),
                     [0.78, 0.78, 0.78, 1.0],
                     Some(fraction as f32),
                 )
             }
-            InstallPhase::Extracting => (crate::i18n::tr("ContentBrowser", "MessageInstallingca20fb").to_string(), accent, Some(1.0)),
-            InstallPhase::Installed => (crate::i18n::tr("ContentBrowser", "MessageInstalleda51a6c").to_string(), INSTALLED_NOW, None),
+            InstallPhase::Extracting => (
+                crate::i18n::tr("ContentBrowser", "MessageInstallingca20fb").to_string(),
+                accent,
+                Some(1.0),
+            ),
+            InstallPhase::Installed => (
+                crate::i18n::tr("ContentBrowser", "MessageInstalleda51a6c").to_string(),
+                INSTALLED_NOW,
+                None,
+            ),
             InstallPhase::Error => (
-                crate::i18n::tr_fmt("ContentBrowser", "MessageDownloadFailed", &[("arg0", &(install.message.as_deref().unwrap_or("unknown error")).to_string())]).to_string(),
+                crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageDownloadFailed",
+                    &[(
+                        "arg0",
+                        &(install.message.as_deref().unwrap_or("unknown error")).to_string(),
+                    )],
+                )
+                .to_string(),
                 ERROR_RGBA,
                 None,
             ),
@@ -308,7 +345,9 @@ fn push_song_list(actors: &mut Vec<Actor>, state: &State, pack: &PackInfo) {
     push_download_button(actors, state, pack, x, w);
 
     let header = match page {
-        Some(page) if page.songs.is_empty() => crate::i18n::tr("ContentBrowser", "MessageThisPackListsNoSongs").to_string(),
+        Some(page) if page.songs.is_empty() => {
+            crate::i18n::tr("ContentBrowser", "MessageThisPackListsNoSongs").to_string()
+        }
         Some(page) => {
             // After the count, as the original's header carries it: what the
             // last preview or song request came to, else what the sample is
@@ -338,7 +377,18 @@ fn push_song_list(actors: &mut Vec<Actor>, state: &State, pack: &PackInfo) {
                         install_line(pack.id, &song.title, artist)
                     })
                 });
-            let mut header = crate::i18n::tr_fmt("ContentBrowser", "MessageSongsOf", &[("arg0", &((state.song_pick + 1).min(page.songs.len())).to_string()), ("arg1", &(page.songs.len()).to_string())]).to_string();
+            let mut header = crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageSongsOf",
+                &[
+                    (
+                        "arg0",
+                        &((state.song_pick + 1).min(page.songs.len())).to_string(),
+                    ),
+                    ("arg1", &(page.songs.len()).to_string()),
+                ],
+            )
+            .to_string();
             if let Some(status) = status {
                 header.push_str("   -   ");
                 header.push_str(&status);
@@ -346,8 +396,16 @@ fn push_song_list(actors: &mut Vec<Actor>, state: &State, pack: &PackInfo) {
             header
         }
         None => match state.page.phase {
-            PagePhase::Error => crate::i18n::tr("ContentBrowser", "MessageCouldNotLoadThisPackSSongList").to_string(),
-            _ => crate::i18n::tr_fmt("ContentBrowser", "MessageLoadingSongList", &[("arg0", &(spinner::ellipsis()).to_string())]).to_string(),
+            PagePhase::Error => {
+                crate::i18n::tr("ContentBrowser", "MessageCouldNotLoadThisPackSSongList")
+                    .to_string()
+            }
+            _ => crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageLoadingSongList",
+                &[("arg0", &(spinner::ellipsis()).to_string())],
+            )
+            .to_string(),
         },
     };
     actors.push(act!(text:
@@ -646,25 +704,53 @@ fn push_download_button(actors: &mut Vec<Actor>, state: &State, pack: &PackInfo,
 pub(super) fn download_label(state: &State, pack: &PackInfo) -> (String, bool) {
     if let Some(install) = install_for(state, pack) {
         return match install.phase {
-            InstallPhase::Queued => (crate::i18n::tr("ContentBrowser", "MessageQUEUED").to_string(), false),
+            InstallPhase::Queued => (
+                crate::i18n::tr("ContentBrowser", "MessageQUEUED").to_string(),
+                false,
+            ),
             InstallPhase::Downloading => {
                 let pct = if install.total_bytes > 0 {
                     (install.downloaded_bytes as f64 / install.total_bytes as f64 * 100.0) as u32
                 } else {
                     0
                 };
-                (crate::i18n::tr_fmt("ContentBrowser", "MessageDOWNLOADINGPct", &[("pct", &(pct).to_string())]).to_string(), false)
+                (
+                    crate::i18n::tr_fmt(
+                        "ContentBrowser",
+                        "MessageDOWNLOADINGPct",
+                        &[("pct", &(pct).to_string())],
+                    )
+                    .to_string(),
+                    false,
+                )
             }
-            InstallPhase::Extracting => (crate::i18n::tr("ContentBrowser", "MessageINSTALLING").to_string(), false),
-            InstallPhase::Installed => (crate::i18n::tr("ContentBrowser", "MessageINSTALLEDRELOADSONGS").to_string(), false),
-            InstallPhase::Error => (crate::i18n::tr("ContentBrowser", "MessageDOWNLOADFAILEDRETRY").to_string(), true),
+            InstallPhase::Extracting => (
+                crate::i18n::tr("ContentBrowser", "MessageINSTALLING").to_string(),
+                false,
+            ),
+            InstallPhase::Installed => (
+                crate::i18n::tr("ContentBrowser", "MessageINSTALLEDRELOADSONGS").to_string(),
+                false,
+            ),
+            InstallPhase::Error => (
+                crate::i18n::tr("ContentBrowser", "MessageDOWNLOADFAILEDRETRY").to_string(),
+                true,
+            ),
         };
     }
     if is_installed(state, pack) {
-        return (crate::i18n::tr("ContentBrowser", "MessageINYOURLIBRARY").to_string(), false);
+        return (
+            crate::i18n::tr("ContentBrowser", "MessageINYOURLIBRARY").to_string(),
+            false,
+        );
     }
     (
-        crate::i18n::tr_fmt("ContentBrowser", "MessageDOWNLOADPACK", &[("arg0", &(format_bytes(pack.size_bytes)).to_string())]).to_string(),
+        crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessageDOWNLOADPACK",
+            &[("arg0", &(format_bytes(pack.size_bytes)).to_string())],
+        )
+        .to_string(),
         true,
     )
 }

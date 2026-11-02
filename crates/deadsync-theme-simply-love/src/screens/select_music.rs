@@ -5169,7 +5169,11 @@ fn build_pad_profile_menu_items(state: &State) -> Option<Vec<select_music_menu::
         for c in &state.pad_profiles[*slot] {
             let active = applied.is_some_and(|a| !a.preset && a.name == c.name);
             let star = if active { "* " } else { "" };
-            let default = if c.is_default { format!(" ({})", tr("Common", "Default")) } else { String::new() };
+            let default = if c.is_default {
+                format!(" ({})", tr("Common", "Default"))
+            } else {
+                String::new()
+            };
             items.push(select_music_menu::pad_profile_item(
                 format!("{star}{prefix}{}", tr("SelectMusicMenu", "PadProfile")),
                 format!("{}{default}", c.name),
@@ -5285,9 +5289,12 @@ fn build_select_music_menu(state: &State) -> select_music_menu::MenuLists {
         (profile_data::PlayStyle::Single | profile_data::PlayStyle::PumpSingle, true) => {
             Some(vec![select_music_menu::ITEM_SWITCH_TO_DOUBLE])
         }
-        (profile_data::PlayStyle::Double | profile_data::PlayStyle::PumpDouble
+        (
+            profile_data::PlayStyle::Double
+            | profile_data::PlayStyle::PumpDouble
             | profile_data::PlayStyle::Routine
-            | profile_data::PlayStyle::PumpRoutine, true,
+            | profile_data::PlayStyle::PumpRoutine,
+            true,
         ) => Some(vec![select_music_menu::ITEM_SWITCH_TO_SINGLE]),
         _ => None,
     };
@@ -7292,7 +7299,8 @@ const fn steps_index_for_side(
 ) -> usize {
     match (play_style, side) {
         (
-            profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
+            profile_data::PlayStyle::Versus
+            | profile_data::PlayStyle::PumpVersus
             | profile_data::PlayStyle::Couple
             | profile_data::PlayStyle::PumpCouple,
             profile_data::PlayerSide::P2,
@@ -7310,7 +7318,8 @@ const fn set_steps_index_for_side(
     if matches!(
         (play_style, side),
         (
-            profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
+            profile_data::PlayStyle::Versus
+                | profile_data::PlayStyle::PumpVersus
                 | profile_data::PlayStyle::Couple
                 | profile_data::PlayStyle::PumpCouple,
             profile_data::PlayerSide::P2
@@ -7529,7 +7538,8 @@ fn hide_sync_overlay(state: &mut State) {
 const fn selected_steps_index_for_sync(state: &State) -> usize {
     match (state.session.play_style, state.session.player_side) {
         (
-            profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
+            profile_data::PlayStyle::Versus
+            | profile_data::PlayStyle::PumpVersus
             | profile_data::PlayStyle::Couple
             | profile_data::PlayStyle::PumpCouple,
             profile_data::PlayerSide::P2,
@@ -7542,7 +7552,8 @@ const fn selected_steps_index_for_sync(state: &State) -> usize {
 const fn preferred_steps_index_for_sync(state: &State) -> usize {
     match (state.session.play_style, state.session.player_side) {
         (
-            profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
+            profile_data::PlayStyle::Versus
+            | profile_data::PlayStyle::PumpVersus
             | profile_data::PlayStyle::Couple
             | profile_data::PlayStyle::PumpCouple,
             profile_data::PlayerSide::P2,
@@ -7555,7 +7566,8 @@ const fn preferred_steps_index_for_sync(state: &State) -> usize {
 const fn set_selected_steps_index_for_sync(state: &mut State, steps_index: usize) {
     match (state.session.play_style, state.session.player_side) {
         (
-            profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
+            profile_data::PlayStyle::Versus
+            | profile_data::PlayStyle::PumpVersus
             | profile_data::PlayStyle::Couple
             | profile_data::PlayStyle::PumpCouple,
             profile_data::PlayerSide::P2,
@@ -11661,7 +11673,8 @@ fn update_impl(state: &mut State, dt: f32, smx: &SmxAssignmentView) -> ThemeEffe
         wheel_moving && !state.entries.is_empty(),
         state.policy.interaction.wheel_switch_speed,
         dt,
-    ) || selection_changed && !wheel_change_handled {
+    ) || selection_changed && !wheel_change_handled
+    {
         queue_sfx(state, "assets/sounds/change.ogg");
     }
     if selection_changed {
@@ -14317,7 +14330,8 @@ pub fn push_actors(
     if state.test_input_overlay_visible {
         let play_style = state.session.play_style;
         let (mut show_p1, mut show_p2, pad_spacing) = match play_style {
-            profile_data::PlayStyle::Double | profile_data::PlayStyle::PumpDouble
+            profile_data::PlayStyle::Double
+            | profile_data::PlayStyle::PumpDouble
             | profile_data::PlayStyle::Routine
             | profile_data::PlayStyle::PumpRoutine => (true, true, 105.0),
             profile_data::PlayStyle::Single
@@ -14880,7 +14894,12 @@ mod tests {
 
         // Per-item and discrete sounds are generated at the selection event.
         assert!(!super::wheel_change_sound_due(&mut elapsed, true, 10, 0.05));
-        assert!(!super::wheel_change_sound_due(&mut elapsed, false, 30, 0.01));
+        assert!(!super::wheel_change_sound_due(
+            &mut elapsed,
+            false,
+            30,
+            0.01
+        ));
     }
 
     #[test]
@@ -14893,7 +14912,11 @@ mod tests {
         super::music_wheel_change(&mut state, 1, super::WheelChangeSound::Immediate);
         super::music_wheel_change(&mut state, -1, super::WheelChangeSound::Immediate);
         assert_eq!(state.selected_index, 1);
-        assert_eq!(state.pending_audio.len(), 2, "both taps must click before update");
+        assert_eq!(
+            state.pending_audio.len(),
+            2,
+            "both taps must click before update"
+        );
         assert!(state.wheel_change_sound_handled);
 
         // A one-entry wheel still registers a directional click.

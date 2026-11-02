@@ -1,7 +1,7 @@
 include!("support/chart_order_transport.rs");
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
-    actors::{Actor, SizeSpec},
+    actors::{Actor, SizeSpec, SpriteSource},
     space::{Metrics, set_current_metrics},
 };
 use deadsync_editor::{playback::Clock, zoom::SpacingMode};
@@ -16,6 +16,21 @@ use std::{
 fn init() {
     i18n::init_for_tests();
     set_current_metrics(Metrics::centered(854.0, 480.0));
+}
+// These projection fixtures intentionally start in ConstantRow; native source
+// preferences now default to ConstantTime.
+fn row_state(path: &Path, chart: usize) -> Result<State, deadsync_editor::Error> {
+    let mut state = State::open(path, chart)?;
+    let preferences = path
+        .parent()
+        .unwrap()
+        .join("projection-test-preferences.json");
+    fs::write(&preferences, br#"{"Version":1,"SnapIndex":1,"Scroll":{"RowBasedPixelsPerRow":1},"Waveform":{"ShowWaveForm":true}}"#)?;
+    state.configure_audio_preferences(&preferences)?;
+    state.configure_spacing_preference(
+        deadsync_editor::scroll_preferences::spacing::Preference::ConstantRow,
+    );
+    Ok(state)
 }
 fn key(state: &mut State, code: KeyCode, pressed: bool) {
     state.raw_key(&RawKeyboardEvent {
@@ -34,7 +49,9 @@ fn shortcut(state: &mut State, code: KeyCode) {
     key(state, KeyCode::SuperLeft, true);
     press(state, code);
     key(state, KeyCode::SuperLeft, false);
-    if code == KeyCode::Tab { complete_chart_navigation(state); }
+    if code == KeyCode::Tab {
+        complete_chart_navigation(state);
+    }
 }
 fn actors(state: &State) -> Vec<Actor> {
     let mut a = Vec::new();
@@ -46,8 +63,19 @@ fn arrows(state: &State) -> Vec<f32> {
         .into_iter()
         .filter_map(|a| match a {
             Actor::Sprite {
-                z: 8004, offset, ..
-            } => Some(offset[1]),
+                z: 8004, offset, source, uv_rect: Some(uv),
+                size: [SizeSpec::Px(width), SizeSpec::Px(height)],
+                rot_z_deg, cropleft, cropright, croptop, cropbottom, ..
+            } if matches!(&source, SpriteSource::TextureStatic(key) if key.ends_with("editor-grooveauthor/atlas.png"))
+                 && (uv[0] - 589.0 / 1280.0).abs() < 1e-6
+                 && (uv[1] - 1.0 / 1280.0).abs() < 1e-6 => {
+                // Recover the logical source center, before the renderer's
+                // compensation for crop displacement in rotated actor axes.
+                let delta = [(cropleft - cropright) * width * 0.5,
+                    (croptop - cropbottom) * height * 0.5];
+                let (sin, cos) = rot_z_deg.rem_euclid(360.0).to_radians().sin_cos();
+                Some(offset[1] - (-sin * delta[0] + cos * delta[1] - delta[1]))
+            },
             _ => None,
         })
         .collect()
@@ -66,7 +94,7 @@ fn keyboard_time_display_projects_notes_and_holds_with_real_pause_phases() {
     let path = dir.path().join("time.ssc");
     let source = "#VERSION:0.83;#TITLE:Time;#BPMS:0=240,1=480;#DELAYS:1=0.125;#STOPS:2=0.125;#SPEEDS:0=0=1=0;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:2000\n0100\n0010\n3001;";
     fs::write(&path, source).unwrap();
-    let mut state = State::open(&path, 0).unwrap();
+    let mut state = row_state(&path, 0).unwrap();
     let original = state.workspace().file().session.serialize().unwrap();
     let baseline = arrows(&state);
     assert_eq!(baseline, vec![160.0, 208.0, 256.0, 304.0]);
@@ -84,21 +112,43 @@ fn keyboard_time_display_projects_notes_and_holds_with_real_pause_phases() {
             .collect::<Vec<_>>()
     );
     assert_eq!(arrows(&state), vec![160.0, 272.5, 310.0, 385.0]);
-    let hold = actors(&state)
+    // Source holds use tiled atlas bodies with independent rims. Check the
+    // complete temporal span instead of mistaking one tile for a solid body.
+    let body = actors(&state)
         .into_iter()
-        .find_map(|a| match a {
+        .filter_map(|actor| match actor {
             Actor::Sprite {
-                z: 8003,
                 offset,
                 size: [_, SizeSpec::Px(h)],
                 scale,
+                uv_rect: Some(uv),
+                source: SpriteSource::TextureStatic(key),
+                visible: true,
                 ..
-            } => Some((offset[1], height(h, scale))),
+            } if key.ends_with("editor-grooveauthor/atlas.png")
+                && (uv[0] - 1.0 / 1280.0).abs() < 1e-6
+                && uv[1] >= 457.0 / 1280.0
+                && uv[3] <= 585.0 / 1280.0 =>
+            {
+                let h = height(h, scale);
+                Some((offset[1] - h * 0.5, offset[1] + h * 0.5))
+            }
             _ => None,
         })
-        .unwrap();
-    close(hold.0 as f64, 272.5);
-    close(hold.1 as f64, 225.0);
+        .collect::<Vec<_>>();
+    assert!(body.len() > 1, "source hold is tiled");
+    close(
+        body.iter()
+            .map(|range| range.0)
+            .fold(f32::INFINITY, f32::min) as f64,
+        160.0,
+    );
+    close(
+        body.iter()
+            .map(|range| range.1)
+            .fold(f32::NEG_INFINITY, f32::max) as f64,
+        385.0,
+    );
     // Mode changes are presentation-only; zero SPEEDS does not collapse time display.
     assert_eq!(state.workspace().row(), 0);
     assert_eq!(
@@ -147,10 +197,23 @@ fn sample_and_decoded_waveform_keep_time_inside_a_delay_instead_of_collapsing_to
     let path = dir.path().join("delay.ssc");
     let source = "#VERSION:0.83;#TITLE:Delay;#BPMS:0=120;#DELAYS:0=0.5;#OFFSET:0;#MUSIC:pulse.wav;#SAMPLESTART:0.1;#SAMPLELENGTH:0.1;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
     fs::write(&path, source).unwrap();
-    let mut state = State::open(&path, 0).unwrap();
+    let mut state = row_state(&path, 0).unwrap();
     let original = state.workspace().file().session.serialize().unwrap();
     shortcut(&mut state, KeyCode::KeyT);
-    press(&mut state, KeyCode::KeyW);
+    state.take_audio_commands();
+    let prepared_source = deadlib_audio_decode::prepared::PreparedAudioSource::load_editor(
+        &dir.path().join("pulse.wav"),
+        deadlib_audio_decode::DecodeOptions::STEP_MANIA_TIMELINE,
+        &std::sync::atomic::AtomicBool::new(false),
+    )
+    .unwrap();
+    let registration = state.editor_asset_registration();
+    state.observe_editor_main_source(
+        state.editor_asset_owner(),
+        registration,
+        Some((registration, 0)),
+        Some(prepared_source),
+    );
     let deadline = Instant::now() + Duration::from_secs(10);
     while !state.waveform_ready() {
         state.update();
@@ -182,17 +245,44 @@ fn sample_and_decoded_waveform_keep_time_inside_a_delay_instead_of_collapsing_to
     close(sample.1 as f64, 30.0);
     let peak_positions = |state: &State| {
         let palette = state.waveform_preferences().palette();
-        actors(state)
-            .into_iter()
-            .filter_map(|a| match a {
+        let rendered = actors(state);
+        let display_width = rendered
+            .iter()
+            .find_map(|actor| match actor {
+                Actor::Sprite {
+                    source: SpriteSource::RenderTarget { .. },
+                    z: 8001,
+                    size: [SizeSpec::Px(width), _],
+                    scale,
+                    ..
+                } => Some(width * scale[0]),
+                _ => None,
+            })
+            .expect("waveform has a visible composite");
+        let targets = state.take_waveform_render_targets();
+        let source = targets
+            .iter()
+            .find(|target| target.postprocess.is_none())
+            .expect("waveform source pass exists before FXAA");
+        let ratio = display_width / source.logical_size[0];
+        source
+            .children
+            .iter()
+            .filter_map(|actor| match actor {
                 Actor::Sprite {
                     tint,
                     offset,
-                    size: [SizeSpec::Px(w), _],
+                    size: [SizeSpec::Px(width), _],
                     scale,
                     ..
-                } if tint == palette.resolved_sparse().rgba() || tint == palette.dense().rgba() => {
-                    let width = if w == 0.0 { scale[0] } else { w * scale[0] };
+                } if *tint == palette.resolved_sparse().rgba().map(|v| v.clamp(0.0, 1.0))
+                    || *tint == palette.dense().rgba().map(|v| v.clamp(0.0, 1.0)) =>
+                {
+                    let width = if *width == 0.0 {
+                        scale[0]
+                    } else {
+                        width * scale[0]
+                    } * ratio;
                     (width > 10.0).then_some(offset[1])
                 }
                 _ => None,
@@ -245,7 +335,7 @@ fn chart_switch_refreshes_time_geometry_and_panels_keep_shortcut_focus() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("charts.ssc");
     fs::write(&path,"#VERSION:0.83;#BPMS:0=240;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0010\n0001;#NOTEDATA:;#STEPSTYPE:dance-single;#BPMS:0=480;#NOTES:1000\n0100\n0010\n0001;").unwrap();
-    let mut state = State::open(&path, 0).unwrap();
+    let mut state = row_state(&path, 0).unwrap();
     shortcut(&mut state, KeyCode::KeyT);
     close(arrows(&state)[1] as f64, 235.0);
     shortcut(&mut state, KeyCode::Tab);
@@ -266,13 +356,13 @@ fn time_display_keeps_notes_collapsed_by_warp_and_rejects_invalid_timing_cleanly
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("warp.ssc");
     fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#WARPS:0=2;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0010\n0001;").unwrap();
-    let mut state = State::open(&path, 0).unwrap();
+    let mut state = row_state(&path, 0).unwrap();
     shortcut(&mut state, KeyCode::KeyT);
     assert_eq!(arrows(&state), vec![160.0, 160.0, 160.0, 310.0]);
     let invalid = dir.path().join("invalid.ssc");
     let source = "#VERSION:0.83;#BPMS:0=120;#SPEEDS:0=nan=1=0;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
     fs::write(&invalid, source).unwrap();
-    let mut state = State::open(&invalid, 0).unwrap();
+    let mut state = row_state(&invalid, 0).unwrap();
     shortcut(&mut state, KeyCode::KeyT);
     assert_eq!(state.spacing_mode(), SpacingMode::ConstantRow);
     assert!(actors(&state).into_iter().any(|a| matches!(a,Actor::Text { content, .. } if content.contains("Speed values must be finite"))));
@@ -287,7 +377,7 @@ fn applied_tempo_and_undo_redo_rebuild_cached_time_geometry() {
     let path = dir.path().join("tempo.ssc");
     let source = "#VERSION:0.83;#BPMS:0=240;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0010\n0001;";
     fs::write(&path, source).unwrap();
-    let mut state = State::open(&path, 0).unwrap();
+    let mut state = row_state(&path, 0).unwrap();
     shortcut(&mut state, KeyCode::KeyT);
     close(arrows(&state)[1] as f64, 235.0);
     press(&mut state, KeyCode::F10);

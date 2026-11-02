@@ -117,12 +117,33 @@ impl Toolbox {
             "inspect_chart" => {
                 let start = unsigned(&arguments, "start_row", 0)?;
                 let limit = unsigned(&arguments, "limit", 100)?.min(MAX_PAGE as u64) as usize;
+                let cursor = arguments
+                    .get("cursor")
+                    .map(|c| -> Result<Position, Error> {
+                        Ok(Position {
+                            row: unsigned(c, "row", 0)?,
+                            lane: unsigned(c, "lane", 0)? as u16,
+                            player: unsigned(c, "player", 0)? as u32,
+                        })
+                    })
+                    .transpose()?;
                 let grid = workspace.assistant_session().grid(chart)?;
-                let notes: Vec<_> = grid.iter().filter(|(p,_)|p.row>=start).take(limit).map(|(p,n)|
+                let page: Vec<_> = grid
+                    .iter_heads_after(cursor)
+                    .filter(|(p, _)| p.row >= start)
+                    .take(limit + 1)
+                    .collect();
+                let next = if page.len() > limit {
+                    page.get(limit - 1)
+                        .map(|(p, _)| json!({"row":p.row,"lane":p.lane,"player":p.player}))
+                } else {
+                    None
+                };
+                let notes: Vec<_> = page.into_iter().take(limit).map(|(p,n)|
                     json!({"row":p.row,"lane":p.lane,"player":p.player,"kind":format!("{:?}",n.kind),"end_row":n.end,
                         "attributes":n.attributes.as_ref(),"tail_attributes":n.tail_attributes.as_ref()})).collect();
                 Ok(
-                    json!({"chart":chart,"columns":grid.columns(),"players":grid.players(),"notes":notes,"total_notes":grid.head_count()}),
+                    json!({"chart":chart,"columns":grid.columns(),"players":grid.players(),"notes":notes,"total_notes":grid.head_count(),"next_cursor":next,"revision":workspace.file().session.revision()}),
                 )
             }
             "analyze_chart" => {
@@ -295,6 +316,7 @@ impl Toolbox {
                     .as_ref()
                     .filter(|p| p.id == requested)
                     .ok_or_else(|| Error::InvalidEdit("Unknown preview_id".into()))?;
+                let before_revision = workspace.file().session.revision();
                 let added = match &preview.change {
                     Change::Tempo { chart, draft } => {
                         draft.apply(workspace.assistant_session(), *chart)?;
@@ -321,7 +343,7 @@ impl Toolbox {
                 }
                 self.discard();
                 Ok(
-                    json!({"applied":true,"revision":workspace.file().session.revision(),"saved":false}),
+                    json!({"applied":workspace.file().session.revision()!=before_revision,"revision":workspace.file().session.revision(),"saved":false}),
                 )
             }
             "undo" | "redo" => {

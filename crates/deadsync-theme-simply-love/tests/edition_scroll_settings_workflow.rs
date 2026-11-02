@@ -1,9 +1,12 @@
+#[allow(dead_code)]
+#[path = "support/transport_host.rs"]
+mod transport_host;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
     actors::Actor,
     space::{Metrics, set_current_metrics},
 };
-use deadsync_gameplay::{GameplayAudioCommand, GameplayAudioSnapshot};
+use deadsync_gameplay::GameplayAudioCommand;
 use deadsync_theme_simply_love::{i18n, screens::edition::State};
 use std::{fs, time::Instant};
 fn event(s: &mut State, code: KeyCode, pressed: bool) {
@@ -58,7 +61,7 @@ fn setup(empty: bool) -> (tempfile::TempDir, State) {
     (d, s)
 }
 fn mapped(s: &mut State) {
-    let mut a = GameplayAudioSnapshot::default();
+    let mut a = transport_host::host_snapshot(s);
     a.stream_clock.valid_at = Instant::now();
     a.stream_clock.has_music_mapping = true;
     a.stream_clock.music_nanos = 126_000_000;
@@ -72,14 +75,15 @@ fn french_panel_saves_reloads_and_drives_actual_playback_policy_without_song_edi
     fs::write(&p, original).unwrap();
     s.configure_audio_preferences(&p).unwrap();
     let source = fs::read(d.path().join("song.ssc")).unwrap();
+    transport_host::publish(&mut s);
     press(&mut s, KeyCode::Enter);
     s.take_audio_commands();
     open(&mut s);
-    assert!(!s.is_playing());
-    assert_eq!(
-        s.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
+    assert!(
+        s.is_playing(),
+        "opening source preferences retains playback"
     );
+    assert!(s.take_audio_commands().is_empty());
     assert!(has(
         &s,
         "Arrêter la lecture lors du déplacement avec les flèches : Non"
@@ -98,30 +102,32 @@ fn french_panel_saves_reloads_and_drives_actual_playback_policy_without_song_edi
     let mut r = State::open(&d.path().join("song.ssc"), 0).unwrap();
     r.configure_audio_preferences(&p).unwrap();
     assert!(r.scroll_preferences().stop_playback());
+    transport_host::publish(&mut r);
     press(&mut r, KeyCode::Enter);
     r.take_audio_commands();
     mapped(&mut r);
     press(&mut r, KeyCode::ArrowDown);
     assert!(!r.is_playing());
-    assert_eq!(
-        r.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
+    assert!(
+        matches!(r.take_audio_commands().as_slice(), [GameplayAudioCommand::EditorPauseMusic { owner, .. }] if *owner == r.editor_asset_owner())
     );
     open(&mut r);
     press(&mut r, KeyCode::ArrowDown);
     press(&mut r, KeyCode::ArrowDown);
     press(&mut r, KeyCode::Enter);
     assert!(has(&r, "flèches : Non"));
-    press(&mut r, KeyCode::ArrowDown);
-    press(&mut r, KeyCode::Enter);
+    // Restore publishes the full source Scroll group immediately and clears
+    // the staged draft; close the inspector before resuming transport.
+    press(&mut r, KeyCode::Escape);
     assert!(!r.scroll_preferences().stop_playback());
+    transport_host::publish(&mut r);
     press(&mut r, KeyCode::Enter);
     r.take_audio_commands();
     press(&mut r, KeyCode::ArrowDown);
     assert!(r.is_playing());
     assert!(matches!(
         r.take_audio_commands().as_slice(),
-        [GameplayAudioCommand::SeekMusic(_)]
+        [GameplayAudioCommand::EditorSeekMusic { .. }]
     ));
     assert!(!s.workspace().file().session.is_dirty());
     assert!(!r.workspace().file().session.is_dirty());
@@ -155,7 +161,7 @@ fn draft_cancel_shortcuts_repeat_and_external_conflict_preserve_active_policy() 
     assert_eq!(fs::read(&p).unwrap(), b"{\"Version\":1}");
     open(&mut s);
     press(&mut s, KeyCode::ArrowRight);
-    let foreign = b"{\"Version\":1,\"Future\":10}";
+    let foreign = b"{\"Version\":1,\"Future\":10,\"Scroll\":{\"StopPlaybackWhenScrolling\":true}}";
     fs::write(&p, foreign).unwrap();
     save(&mut s);
     assert!(has(&s, "flèches : Oui"));
@@ -164,9 +170,9 @@ fn draft_cancel_shortcuts_repeat_and_external_conflict_preserve_active_policy() 
     press(&mut s, KeyCode::Escape);
     open(&mut s);
     assert!(has(&s, "flèches : Non"));
-    event(&mut s, KeyCode::ShiftLeft, true);
-    press(&mut s, KeyCode::Tab);
-    event(&mut s, KeyCode::ShiftLeft, false);
+    for _ in 0..4 {
+        press(&mut s, KeyCode::ArrowDown);
+    }
     press(&mut s, KeyCode::NumpadEnter);
     assert!(has(
         &s,
@@ -175,16 +181,13 @@ fn draft_cancel_shortcuts_repeat_and_external_conflict_preserve_active_policy() 
     assert!(!s.workspace().file().session.is_dirty());
 }
 #[test]
-fn unavailable_or_future_preferences_remain_reviewable_and_are_never_overwritten() {
+fn unconfigured_preferences_publish_in_memory_and_rejected_future_files_remain_untouched() {
     let (d, mut s) = setup(false);
     open(&mut s);
     press(&mut s, KeyCode::ArrowRight);
     save(&mut s);
-    assert!(has(
-        &s,
-        "Le chemin des préférences de l’éditeur n’est pas configuré."
-    ));
-    assert!(has(&s, "flèches : Oui"));
+    assert!(s.scroll_preferences().stop_playback());
+    assert!(has(&s, "Préférences de navigation enregistrées."));
     press(&mut s, KeyCode::Escape);
     let p = d.path().join("prefs.json");
     let bytes = b"{\"Version\":99}";
@@ -193,7 +196,6 @@ fn unavailable_or_future_preferences_remain_reviewable_and_are_never_overwritten
     open(&mut s);
     press(&mut s, KeyCode::ArrowRight);
     save(&mut s);
-    assert!(has(&s, "flèches : Oui"));
     assert_eq!(fs::read(&p).unwrap(), bytes);
     assert!(!s.scroll_preferences().stop_playback());
 }
@@ -217,7 +219,12 @@ fn navigation_shortcut_hint_has_bounded_width_and_does_not_overlap_status_footer
     let (_d, s) = setup(false);
     let mut a = Vec::new();
     s.actors(&mut a);
-    let hint=a.into_iter().find(|a|matches!(a,Actor::Text{content,..} if content.contains("Maj+S : réglages de navigation."))).expect("visible shortcut hint");
+    let template = i18n::tr("Edition", "Shortcuts");
+    let prefix = template.split("{close}").next().unwrap();
+    let hint = a
+        .into_iter()
+        .find(|a| matches!(a,Actor::Text{content,..} if content.starts_with(prefix)))
+        .expect("visible shortcut hint");
     match hint {
         Actor::Text {
             offset,

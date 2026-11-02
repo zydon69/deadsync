@@ -78,6 +78,9 @@ impl Pad {
     /// PadData.CanFitWithin: a translated coordinate embedding must preserve
     /// every relationship supported by the source, not just its lane count.
     pub fn can_fit_within(&self, target: &Self) -> bool {
+        if self.arrows.is_empty() {
+            return true;
+        }
         if std::ptr::eq(self, target) {
             return true;
         }

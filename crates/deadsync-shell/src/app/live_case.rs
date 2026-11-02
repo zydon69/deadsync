@@ -298,9 +298,12 @@ impl App {
         }
         if !runtime.screenshot_requested
             && std::env::var_os("DEADSYNC_CASE_SCREENSHOT").is_some()
-            && self.state.screens.gameplay_state.as_ref().is_some_and(|state| {
-                state.current_music_time_display() >= 0.5
-            })
+            && self
+                .state
+                .screens
+                .gameplay_state
+                .as_ref()
+                .is_some_and(|state| state.current_music_time_display() >= 0.5)
         {
             self.state.shell.screenshot.request(None);
             runtime.screenshot_requested = true;

@@ -30,7 +30,7 @@ struct Slot {
 pub(super) struct Runtime {
     preferences: deadsync_editor::receptor_preferences::Preferences,
     slots: BTreeMap<Guid, Slot>,
-    preview_navigation:Option<deadsync_editor::chart_focus::Position>,
+    preview_navigation: Option<deadsync_editor::chart_focus::Position>,
     preview_owner: Arc<()>,
     preview_index: Option<(Arc<()>, Result<autoplay::Timeline, String>)>,
     owner: Option<SessionBinding>,
@@ -49,7 +49,9 @@ pub(super) struct Policy<'a> {
     preferences: deadsync_editor::receptor_preferences::Preferences,
 }
 impl Policy<'_> {
-    pub fn light_holds(&self)->bool {self.preferences.light_holds}
+    pub fn light_holds(&self) -> bool {
+        self.preferences.light_holds
+    }
     pub fn presentation(&self, position: Position) -> Option<autoplay::Presentation> {
         self.timeline
             .presentation(
@@ -75,10 +77,23 @@ fn idle() -> receptors::Visual {
     }
 }
 impl Runtime {
-    pub(super) fn preview_owner(&self)->Arc<()> { Arc::clone(&self.preview_owner) }
-    pub(super) fn preview_navigation(&self)->Option<&deadsync_editor::chart_focus::Position>{self.preview_navigation.as_ref()}
-    pub(super) fn set_preview_navigation(&mut self,position:deadsync_editor::chart_focus::Position){self.preview_navigation=Some(position);}
-    pub(super) fn invalidate_preview(&mut self) { self.preview_owner=Arc::new(()); self.preview_index = None; self.preview_navigation=None; }
+    pub(super) fn preview_owner(&self) -> Arc<()> {
+        Arc::clone(&self.preview_owner)
+    }
+    pub(super) fn preview_navigation(&self) -> Option<&deadsync_editor::chart_focus::Position> {
+        self.preview_navigation.as_ref()
+    }
+    pub(super) fn set_preview_navigation(
+        &mut self,
+        position: deadsync_editor::chart_focus::Position,
+    ) {
+        self.preview_navigation = Some(position);
+    }
+    pub(super) fn invalidate_preview(&mut self) {
+        self.preview_owner = Arc::new(());
+        self.preview_index = None;
+        self.preview_navigation = None;
+    }
     fn prepare(
         &mut self,
         session: &Session,
@@ -300,14 +315,21 @@ impl Runtime {
             session,
             chart,
             chart_time: slot.clock.music_to_chart_time(music).ok()?,
-            preferences:self.preferences,
+            preferences: self.preferences,
             playing,
         })
     }
 }
 impl State {
-    pub(super) fn configure_receptor_preferences(&mut self,p:deadsync_editor::receptor_preferences::Preferences){self.receptor_views.preferences=p;}
-    pub fn receptor_preferences(&self)->deadsync_editor::receptor_preferences::Preferences {self.receptor_views.preferences}
+    pub(super) fn configure_receptor_preferences(
+        &mut self,
+        p: deadsync_editor::receptor_preferences::Preferences,
+    ) {
+        self.receptor_views.preferences = p;
+    }
+    pub fn receptor_preferences(&self) -> deadsync_editor::receptor_preferences::Preferences {
+        self.receptor_views.preferences
+    }
     pub(super) fn prepare_receptors(&mut self) {
         let session = &self.workspace.file().session;
         let mut sources = Vec::new();
@@ -336,16 +358,36 @@ impl State {
             .active_chart()
             .and_then(|chart| session.chart_ids().get(chart))
             .cloned();
-        if let Some(preview)=self.preview.as_ref() {
-            let source=self.preview_source_chart().expect("preview owns its source");
-            let stale=self.receptor_views.preview_index.as_ref().is_some_and(|(owner,index)|!Arc::ptr_eq(owner,&self.receptor_views.preview_owner)||index.as_ref().is_ok_and(|index|!index.is_current(session,source)));
-            if self.receptor_views.preview_index.is_none()||stale {
-                self.receptor_views.preview_index=Some((Arc::clone(&self.receptor_views.preview_owner),autoplay::Timeline::capture_preview_grid(session,source,preview.grid()).map_err(|error|error.to_string())));
+        if let Some(preview) = self.preview.as_ref() {
+            let source = self
+                .preview_source_chart()
+                .expect("preview owns its source");
+            let stale = self
+                .receptor_views
+                .preview_index
+                .as_ref()
+                .is_some_and(|(owner, index)| {
+                    !Arc::ptr_eq(owner, &self.receptor_views.preview_owner)
+                        || index
+                            .as_ref()
+                            .is_ok_and(|index| !index.is_current(session, source))
+                });
+            if self.receptor_views.preview_index.is_none() || stale {
+                self.receptor_views.preview_index = Some((
+                    Arc::clone(&self.receptor_views.preview_owner),
+                    autoplay::Timeline::capture_preview_grid(session, source, preview.grid())
+                        .map_err(|error| error.to_string()),
+                ));
             }
-        }else{self.receptor_views.preview_index=None;}
+        } else {
+            self.receptor_views.preview_index = None;
+        }
         if let Err(error) = self.receptor_views.prepare(session, sources, focused) {
-            self.status =
-                crate::i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
+            self.status = crate::i18n::tr_fmt(
+                "Edition",
+                "Error",
+                &[("message", &crate::i18n::editor_error(&error))],
+            );
         }
     }
     pub(super) fn update_receptors(&mut self, now: f64) {
@@ -371,7 +413,7 @@ impl State {
         self.receptor_views.observe_modifier(event);
     }
     pub(super) fn receptor_manual_lane(&mut self, lane: u16, pressed: bool) {
-        let preferences=self.receptor_views.preferences.animation;
+        let preferences = self.receptor_views.preferences.animation;
         let now = self.receptor_views.now;
         // Releases always clear existing feedback, including after opening a
         // panel or pressing a modifier while the lane key was held.
@@ -405,26 +447,36 @@ impl State {
         }
     }
     pub(super) fn receptor_policy(&self, chart: usize) -> Option<Policy<'_>> {
-        if self.preview.is_some()&&self.workspace.active_chart()==Some(chart) {
-            let session=&self.workspace.file().session;
-            let (owner,index)=self.receptor_views.preview_index.as_ref()?;
-            if !Arc::ptr_eq(owner,&self.receptor_views.preview_owner){return None;}
-            let timeline=index.as_ref().ok()?;
-            let position=self.preview_position().ok()??;
-            let source=position.chart();
-            if !timeline.is_current(session,source){return None;}
-            return Some(Policy{timeline,session,chart:source,chart_time:position.chart_time(),playing:false,preferences:self.receptor_views.preferences});
+        if self.preview.is_some() && self.workspace.active_chart() == Some(chart) {
+            let session = &self.workspace.file().session;
+            let (owner, index) = self.receptor_views.preview_index.as_ref()?;
+            if !Arc::ptr_eq(owner, &self.receptor_views.preview_owner) {
+                return None;
+            }
+            let timeline = index.as_ref().ok()?;
+            let position = self.preview_position().ok()??;
+            let source = position.chart();
+            if !timeline.is_current(session, source) {
+                return None;
+            }
+            return Some(Policy {
+                timeline,
+                session,
+                chart: source,
+                chart_time: position.chart_time(),
+                playing: false,
+                preferences: self.receptor_views.preferences,
+            });
         }
         // A generation change before the next UI update must not consume notes
         // using stale autoplay state or a merely queued play request.
         let transport = if self.preview.is_some() && self.workspace.active_chart() == Some(chart) {
             None
-        } else { self.chart_autoplay_transport() };
-        self.receptor_views.policy(
-            &self.workspace.file().session,
-            chart,
-            transport,
-        )
+        } else {
+            self.chart_autoplay_transport()
+        };
+        self.receptor_views
+            .policy(&self.workspace.file().session, chart, transport)
     }
     pub(super) fn receptor_actors(
         &self,

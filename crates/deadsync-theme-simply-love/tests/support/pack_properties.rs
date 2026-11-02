@@ -96,6 +96,19 @@ fn open(state: &mut State, chartless: bool) {
         text(state)
     );
 }
+// Pack defaults depend on an asynchronous banner scan, just as in the host.
+fn create_pack(state: &mut State) {
+    let deadline = Instant::now() + std::time::Duration::from_secs(10);
+    loop {
+        state.update();
+        press(state, KeyCode::Enter);
+        if state.wants_text_input() {
+            return;
+        }
+        assert!(Instant::now() < deadline, "Pack creation timed out: {}", text(state));
+        std::thread::sleep(std::time::Duration::from_millis(1));
+    }
+}
 fn pack_bytes() -> Vec<u8> {
     b";preserve\r\n[Group]\r\nVersion=7\r\nDisplayTitle=Original\r\nYear=2020\r\nSyncOffset=7\r\nUnknown=opaque\r\n".to_vec()
 }
@@ -106,7 +119,7 @@ fn explicit_create_edit_seven_fields_save_and_reopen_preserves_song_sm_ssc() {
         open(&mut state, false);
         assert!(text(&state).contains(&tr("PackMissing")));
         assert!(!pack.join("Pack.ini").exists());
-        press(&mut state, KeyCode::Enter);
+        create_pack(&mut state);
         for value in [
             "Été 日本",
             "Ete Nihon",
@@ -159,7 +172,7 @@ fn explicit_create_edit_seven_fields_save_and_reopen_preserves_song_sm_ssc() {
 fn close_retains_new_draft_and_editor_exit_requires_explicit_discard() {
     let (_dir, pack, path, mut state, song) = setup(Format::Ssc, false);
     open(&mut state, false);
-    press(&mut state, KeyCode::Enter);
+    create_pack(&mut state);
     replace_text(&mut state, "Retained");
     press(&mut state, KeyCode::Escape);
     assert!(!pack.join("Pack.ini").exists());
@@ -175,13 +188,21 @@ fn close_retains_new_draft_and_editor_exit_requires_explicit_discard() {
     press(&mut state, KeyCode::Escape);
     assert!(!key(&mut state, KeyCode::Escape, true));
     key(&mut state, KeyCode::Escape, false);
-    assert!(text(&state).contains(&tr("PackPropertiesTitle")));
+    // Closing the editor uses the shared song/Pack unsaved decision. Keeping
+    // editing must retain the unpublished Pack draft; discarding is confirmed.
+    assert!(text(&state).contains(&tr("PackCoupledUnsaved")), "{}", text(&state));
+    press(&mut state, KeyCode::Enter);
+    open(&mut state, false);
     assert!(text(&state).contains("Retained"));
-    press(&mut state, KeyCode::PageDown);
+    press(&mut state, KeyCode::Escape);
+    assert!(!key(&mut state, KeyCode::Escape, true));
+    key(&mut state, KeyCode::Escape, false);
+    press(&mut state, KeyCode::ArrowDown);
+    press(&mut state, KeyCode::ArrowDown);
     press(&mut state, KeyCode::Enter);
     assert!(!pack.join("Pack.ini").exists());
-    assert!(key(&mut state, KeyCode::Escape, true));
-    key(&mut state, KeyCode::Escape, false);
+    assert!(key(&mut state, KeyCode::Enter, true));
+    key(&mut state, KeyCode::Enter, false);
     assert_eq!(fs::read(path).unwrap(), song);
 }
 #[test]
@@ -226,7 +247,7 @@ fn conflict_requires_confirmed_reload_and_failed_reload_retains_draft() {
     );
     press(&mut state, KeyCode::ArrowDown);
     press(&mut state, KeyCode::Enter);
-    assert!(text(&state).contains(&tr("PackReloadWarning")));
+    assert!(text(&state).contains(&tr("PackReloadWarning")), "{}", text(&state));
     press(&mut state, KeyCode::ArrowUp);
     press(&mut state, KeyCode::Enter);
     assert!(text(&state).contains("External"));
@@ -277,7 +298,7 @@ fn invalid_year_is_kept_across_close_and_blocks_save_until_corrected_or_discarde
 fn newly_appeared_file_and_external_deletion_never_trigger_implicit_recreation() {
     let (_dir, pack, _path, mut state, _song) = setup(Format::Ssc, false);
     open(&mut state, false);
-    press(&mut state, KeyCode::Enter);
+    create_pack(&mut state);
     fs::write(pack.join("Pack.ini"), pack_bytes()).unwrap();
     control(&mut state, KeyCode::KeyS);
     assert!(text(&state).contains(&tr("PackConflict")));
@@ -306,7 +327,7 @@ fn chartless_pack_access_and_unicode_clipboard_use_the_same_text_pipeline() {
     let (_dir, pack, path, mut state, song) = setup(Format::Ssc, true);
     assert!(!state.workspace().has_chart());
     open(&mut state, true);
-    press(&mut state, KeyCode::Enter);
+    create_pack(&mut state);
     control(&mut state, KeyCode::KeyA);
     state.text_preedit("Été");
     assert!(text(&state).contains("Été"));

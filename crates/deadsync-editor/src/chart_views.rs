@@ -443,19 +443,46 @@ fn finite_time(time: f64) -> Result<(), Error> {
 }
 
 impl ActiveChartViews {
-    pub fn rebind_preserved_song_properties(&mut self,session:&Session,receipt:&crate::song_properties::PresentationReceipt)->Result<(),Error>{
-        self.ensure_owner(session)?;let mut next=self.clone();
-        for entry in &mut next.entries{entry.position=entry.position.rebind_song_properties(session,receipt)?;entry.clock=std::sync::Arc::new(Clock::capture(session,entry.position.chart())?);entry.clock_token=session.content_token();}
-        next.owner=session.content_token();*self=next;Ok(())
+    pub fn rebind_preserved_song_properties(
+        &mut self,
+        session: &Session,
+        receipt: &crate::song_properties::PresentationReceipt,
+    ) -> Result<(), Error> {
+        self.ensure_owner(session)?;
+        let mut next = self.clone();
+        for entry in &mut next.entries {
+            entry.position = entry.position.rebind_song_properties(session, receipt)?;
+            entry.clock = std::sync::Arc::new(Clock::capture(session, entry.position.chart())?);
+            entry.clock_token = session.content_token();
+        }
+        next.owner = session.content_token();
+        *self = next;
+        Ok(())
     }
 }
 
-impl ActiveChartViews{
-    pub fn synchronize_focused_position(&mut self,session:&Session,position:&Position)->Result<(),Error>{
-        if !position.is_bound_to(session,position.chart()){return Err(Error::InvalidEdit("Focused position is stale".into()));}
-        let mut next=self.clone();next.synchronize(session,Some(position.chart()),position.music_time())?;
-        let id=session.chart_ids().get(position.chart()).ok_or_else(||Error::InvalidEdit("Focused chart is absent".into()))?;
-        let entry=next.entries.iter_mut().find(|entry|&entry.identity==id).ok_or_else(||Error::InvalidEdit("Focused chart view is absent".into()))?;
-        entry.position=position.clone();*self=next;Ok(())
+impl ActiveChartViews {
+    pub fn synchronize_focused_position(
+        &mut self,
+        session: &Session,
+        position: &Position,
+    ) -> Result<(), Error> {
+        if !position.is_bound_to(session, position.chart()) {
+            return Err(Error::InvalidEdit("Focused position is stale".into()));
+        }
+        let mut next = self.clone();
+        next.synchronize(session, Some(position.chart()), position.music_time())?;
+        let id = session
+            .chart_ids()
+            .get(position.chart())
+            .ok_or_else(|| Error::InvalidEdit("Focused chart is absent".into()))?;
+        let entry = next
+            .entries
+            .iter_mut()
+            .find(|entry| &entry.identity == id)
+            .ok_or_else(|| Error::InvalidEdit("Focused chart view is absent".into()))?;
+        entry.position = position.clone();
+        *self = next;
+        Ok(())
     }
 }

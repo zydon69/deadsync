@@ -31,7 +31,8 @@ impl State {
                         };
                         // Source UIChartProperties drag bounds are 2..128. Keep
                         // the existing native non-discard guard for sparse owners.
-                        self.note_owners.count=self.note_owners.count.max(2).min(128).max(minimum);
+                        self.note_owners.count =
+                            self.note_owners.count.max(2).min(128).max(minimum);
                         self.note_owners.a = self.note_owners.a.min(self.note_owners.count - 1);
                         self.note_owners.b = self.note_owners.b.min(self.note_owners.count - 1);
                     }
@@ -107,16 +108,27 @@ impl State {
 
 #[cfg(test)]
 mod source_property_ui_bounds_tests {
- use super::*;
- #[test]
- fn participant_widget_uses_source_bounds_without_restricting_loaded_owner(){
-  crate::i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let path=root.path().join("song.ssc");
-  std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-routine;#DIFFICULTY:Easy;#METER:1;#NOTES:00000000;").unwrap();
-  let mut state=State::open(&path,0).unwrap();state.command_open_note_owners();state.note_owners.count=2;state.note_owners_key(3,KeyCode::ArrowLeft);assert_eq!(state.note_owners.count,2);
-  state.note_owners.count=128;state.note_owners_key(3,KeyCode::ArrowRight);assert_eq!(state.note_owners.count,128);
-  // Source MaxPlayers setter accepts values above its UI maximum; loading is
-  // not a UI edit and must keep that value until the user adjusts it.
-  state.workspace.set_participants(129).unwrap();state.command_open_note_owners();assert_eq!(state.note_owners.count,129);
-  state.note_owners_key(3,KeyCode::ArrowLeft);assert_eq!(state.note_owners.count,128);
- }
+    use super::*;
+    #[test]
+    fn participant_widget_uses_source_bounds_without_restricting_loaded_owner() {
+        crate::i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("song.ssc");
+        std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-routine;#DIFFICULTY:Easy;#METER:1;#NOTES:00000000;").unwrap();
+        let mut state = State::open(&path, 0).unwrap();
+        state.command_open_note_owners();
+        state.note_owners.count = 2;
+        state.note_owners_key(3, KeyCode::ArrowLeft);
+        assert_eq!(state.note_owners.count, 2);
+        state.note_owners.count = 128;
+        state.note_owners_key(3, KeyCode::ArrowRight);
+        assert_eq!(state.note_owners.count, 128);
+        // Source MaxPlayers setter accepts values above its UI maximum; loading is
+        // not a UI edit and must keep that value until the user adjusts it.
+        state.workspace.set_participants(129).unwrap();
+        state.command_open_note_owners();
+        assert_eq!(state.note_owners.count, 129);
+        state.note_owners_key(3, KeyCode::ArrowLeft);
+        assert_eq!(state.note_owners.count, 128);
+    }
 }

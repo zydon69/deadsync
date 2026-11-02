@@ -208,8 +208,8 @@ fn retained_runtime_acknowledges_each_generation_and_keeps_stop_observable(wav: 
     assert!(monitor.snapshot().is_none());
     let generation = bump_music_map_generation();
     runtime.handle(StreamCommand::PlayMusic {
-        asset_epoch:deadlib_audio_core::music_asset_epoch(),
-decode_options: Default::default(),
+        asset_epoch: deadlib_audio_core::music_asset_epoch(),
+        decode_options: Default::default(),
         path: wav.0.clone(),
         cut: Cut::default(),
         looping: false,
@@ -253,14 +253,16 @@ decode_options: Default::default(),
         generation: rate_generation,
     });
     assert!(wait(rate_generation, DecoderPhase::Exhausted).opened_successfully);
-    runtime.handle(StreamCommand::StopMusic{asset_epoch:deadlib_audio_core::music_asset_epoch()});
+    runtime.handle(StreamCommand::StopMusic {
+        asset_epoch: deadlib_audio_core::music_asset_epoch(),
+    });
     let stopped = wait(rate_generation, DecoderPhase::Stopped);
     assert_eq!(stopped.command_generation, rate_generation);
     assert!(!music_track_active());
     let failure_generation = bump_music_map_generation();
     runtime.handle(StreamCommand::PlayMusic {
-        asset_epoch:deadlib_audio_core::music_asset_epoch(),
-decode_options: Default::default(),
+        asset_epoch: deadlib_audio_core::music_asset_epoch(),
+        decode_options: Default::default(),
         path: wav.0.with_extension("absent"),
         cut: Cut::default(),
         looping: false,
@@ -295,6 +297,8 @@ decode_options: Default::default(),
         let failed = wait(generation, DecoderPhase::Failed);
         assert!(!failed.opened_successfully);
     }
-    runtime.handle(StreamCommand::StopMusic{asset_epoch:deadlib_audio_core::music_asset_epoch()});
+    runtime.handle(StreamCommand::StopMusic {
+        asset_epoch: deadlib_audio_core::music_asset_epoch(),
+    });
     assert_eq!(monitor.snapshot().unwrap().phase, DecoderPhase::Stopped);
 }

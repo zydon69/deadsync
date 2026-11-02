@@ -33,19 +33,31 @@ pub struct Browse {
     pub current: String,
     pub kind: Kind,
 }
+pub enum Selection {
+    Ready(Result<Option<PathBuf>, Error>),
+    Pending(std::sync::mpsc::Receiver<Result<Option<PathBuf>, Error>>),
+}
 pub trait Picker {
+    fn begin(&mut self, request: &Browse) -> Selection {
+        Selection::Ready(self.choose(request))
+    }
+
     fn choose(&mut self, request: &Browse) -> Result<Option<PathBuf>, Error>;
 }
 /// Store a portable relative path, including ../ for files outside the song.
 /// Different filesystem roots retain an absolute path. No file is copied.
-pub fn selected_path(simfile:&Path,selected:&Path)->Result<String,Error> {
-    selected_path_at_directory(simfile.parent().unwrap_or(Path::new(".")),selected)
+pub fn selected_path(simfile: &Path, selected: &Path) -> Result<String, Error> {
+    selected_path_at_directory(simfile.parent().unwrap_or(Path::new(".")), selected)
 }
-pub fn selected_path_from_directory(directory:&Path,selected:&Path)->Result<String,Error> {
-    if !directory.is_absolute(){return Err(Error::InvalidEdit("Media selection requires an absolute resource directory".into()));}
-    selected_path_at_directory(directory,selected)
+pub fn selected_path_from_directory(directory: &Path, selected: &Path) -> Result<String, Error> {
+    if !directory.is_absolute() {
+        return Err(Error::InvalidEdit(
+            "Media selection requires an absolute resource directory".into(),
+        ));
+    }
+    selected_path_at_directory(directory, selected)
 }
-fn selected_path_at_directory(directory:&Path,selected:&Path)->Result<String,Error> {
+fn selected_path_at_directory(directory: &Path, selected: &Path) -> Result<String, Error> {
     if !selected.is_file() {
         return Err(Error::InvalidEdit(
             "Selected music file does not exist".into(),

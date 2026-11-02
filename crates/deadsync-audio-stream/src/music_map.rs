@@ -51,15 +51,23 @@ pub(crate) fn clear_music_pos_map() -> u64 {
 /// Discard mappings from the previous asset without changing transport time.
 /// The callback rejects its PCM by asset epoch before the next ownership read.
 pub(crate) fn discard_music_asset_map() {
-    let mut runtime=MUSIC_MAP_RUNTIME.lock().unwrap();runtime.map.clear();
-    while runtime.played.as_mut().and_then(PlayedMapReader::pop).is_some(){}
+    let mut runtime = MUSIC_MAP_RUNTIME.lock().unwrap();
+    runtime.map.clear();
+    while runtime
+        .played
+        .as_mut()
+        .and_then(PlayedMapReader::pop)
+        .is_some()
+    {}
 }
 fn drain_played_map(runtime: &mut MusicMapRuntime) {
     let generation = music_map_generation();
     while let Some((segment_generation, asset_epoch, segment)) =
         runtime.played.as_mut().and_then(PlayedMapReader::pop)
     {
-        if segment_generation == generation && asset_epoch==deadlib_audio_core::music_asset_epoch() {
+        if segment_generation == generation
+            && asset_epoch == deadlib_audio_core::music_asset_epoch()
+        {
             runtime.map.insert(segment);
         }
     }
@@ -127,45 +135,107 @@ impl MusicClock {
     /// Source MusicManager compares integral music sample positions. Crossing
     /// an onset at a fractional output frame occurs at ceil(frame), preserving
     /// its integer fragment cursor; frame zero is represented explicitly.
-    pub fn editor_tick_trigger(&mut self, music_sample: i64, sample_rate: u32) -> Option<deadlib_audio_core::ScheduledTrigger> {
-        if sample_rate == 0 { return None; }
+    pub fn editor_tick_trigger(
+        &mut self,
+        music_sample: i64,
+        sample_rate: u32,
+    ) -> Option<deadlib_audio_core::ScheduledTrigger> {
+        if sample_rate == 0 {
+            return None;
+        }
         let seconds = music_sample as f64 / f64::from(sample_rate);
         let relative = {
-            let mut runtime=MUSIC_MAP_RUNTIME.lock().unwrap();
+            let mut runtime = MUSIC_MAP_RUNTIME.lock().unwrap();
             drain_played_map(&mut runtime);
             runtime.map.invert(seconds)?
         };
-        if !relative.is_finite() || relative < i64::MIN as f64 || relative >= i64::MAX as f64 { return None; }
-        let absolute=i128::from(music_track_start_frame())+i128::from(relative.ceil() as i64);
-        if absolute > i128::from(u64::MAX) { return None; }
+        if !relative.is_finite() || relative < i64::MIN as f64 || relative >= i64::MAX as f64 {
+            return None;
+        }
+        let absolute = i128::from(music_track_start_frame()) + i128::from(relative.ceil() as i64);
+        if absolute > i128::from(u64::MAX) {
+            return None;
+        }
         Some(if absolute < 0 {
-            deadlib_audio_core::ScheduledTrigger {frame:0,skipped_frames:u64::try_from(-absolute).ok()?}
+            deadlib_audio_core::ScheduledTrigger {
+                frame: 0,
+                skipped_frames: u64::try_from(-absolute).ok()?,
+            }
         } else {
-            deadlib_audio_core::ScheduledTrigger {frame:absolute as u64,skipped_frames:0}
+            deadlib_audio_core::ScheduledTrigger {
+                frame: absolute as u64,
+                skipped_frames: 0,
+            }
         })
     }
 
     /// Source MusicManager schedules ticks against its logical sample cursor
     /// even while no music sample data exists. This does not insert a PCM map.
-    pub fn editor_source_tick_trigger(&mut self,music_sample:i64,sample_rate:u32)->Option<deadlib_audio_core::ScheduledTrigger>{
-        if let Some(mapped)=self.editor_tick_trigger(music_sample,sample_rate){return Some(mapped);}
-        if sample_rate==0{return None;}
-        if let Some(control)=deadlib_audio_core::editor_main_configuration(){
-            if deadlib_audio_core::music_track_active()&&control.asset_epoch==deadlib_audio_core::music_asset_epoch()&&control.generation==music_map_generation(){
-                let cursor=deadlib_audio_core::editor_main_cursor().filter(|c|c.asset_epoch==control.asset_epoch&&c.generation==control.generation&&c.sample_rate_hz==sample_rate);
-                let source_frame=cursor.map_or(control.frame,|c|c.source_frame);let physical_frame=cursor.map_or(control.callback_frame,|c|c.callback_frame);
-                let offset=((music_sample as f64-source_frame as f64)/control.rate).ceil();
-                if !offset.is_finite()||offset<i64::MIN as f64||offset>=i64::MAX as f64{return None;}
-                let absolute=i128::from(physical_frame)+i128::from(offset as i64);if absolute>i128::from(u64::MAX){return None;}
-                return Some(if absolute<0{deadlib_audio_core::ScheduledTrigger{frame:0,skipped_frames:u64::try_from(-absolute).ok()?}}else{deadlib_audio_core::ScheduledTrigger{frame:absolute as u64,skipped_frames:0}});
+    pub fn editor_source_tick_trigger(
+        &mut self,
+        music_sample: i64,
+        sample_rate: u32,
+    ) -> Option<deadlib_audio_core::ScheduledTrigger> {
+        if let Some(mapped) = self.editor_tick_trigger(music_sample, sample_rate) {
+            return Some(mapped);
+        }
+        if sample_rate == 0 {
+            return None;
+        }
+        if let Some(control) = deadlib_audio_core::editor_main_configuration() {
+            if deadlib_audio_core::music_track_active()
+                && control.asset_epoch == deadlib_audio_core::music_asset_epoch()
+                && control.generation == music_map_generation()
+            {
+                let cursor = deadlib_audio_core::editor_main_cursor().filter(|c| {
+                    c.asset_epoch == control.asset_epoch
+                        && c.generation == control.generation
+                        && c.sample_rate_hz == sample_rate
+                });
+                let source_frame = cursor.map_or(control.frame, |c| c.source_frame);
+                let physical_frame = cursor.map_or(control.callback_frame, |c| c.callback_frame);
+                let offset = ((music_sample as f64 - source_frame as f64) / control.rate).ceil();
+                if !offset.is_finite() || offset < i64::MIN as f64 || offset >= i64::MAX as f64 {
+                    return None;
+                }
+                let absolute = i128::from(physical_frame) + i128::from(offset as i64);
+                if absolute > i128::from(u64::MAX) {
+                    return None;
+                }
+                return Some(if absolute < 0 {
+                    deadlib_audio_core::ScheduledTrigger {
+                        frame: 0,
+                        skipped_frames: u64::try_from(-absolute).ok()?,
+                    }
+                } else {
+                    deadlib_audio_core::ScheduledTrigger {
+                        frame: absolute as u64,
+                        skipped_frames: 0,
+                    }
+                });
             }
         }
-        let (origin,rate)=deadlib_audio_core::seeded_music_position(0.)?;
-        let relative=((music_sample as f64/f64::from(sample_rate)-origin)/f64::from(rate))*f64::from(self.sample_rate);
-        if !relative.is_finite()||relative<i64::MIN as f64||relative>=i64::MAX as f64{return None;}
-        let absolute=i128::from(music_track_start_frame())+i128::from(relative.ceil()as i64);
-        if absolute>i128::from(u64::MAX){return None;}
-        Some(if absolute<0{deadlib_audio_core::ScheduledTrigger{frame:0,skipped_frames:u64::try_from(-absolute).ok()?}}else{deadlib_audio_core::ScheduledTrigger{frame:absolute as u64,skipped_frames:0}})
+        let (origin, rate) = deadlib_audio_core::seeded_music_position(0.)?;
+        let relative = ((music_sample as f64 / f64::from(sample_rate) - origin) / f64::from(rate))
+            * f64::from(self.sample_rate);
+        if !relative.is_finite() || relative < i64::MIN as f64 || relative >= i64::MAX as f64 {
+            return None;
+        }
+        let absolute = i128::from(music_track_start_frame()) + i128::from(relative.ceil() as i64);
+        if absolute > i128::from(u64::MAX) {
+            return None;
+        }
+        Some(if absolute < 0 {
+            deadlib_audio_core::ScheduledTrigger {
+                frame: 0,
+                skipped_frames: u64::try_from(-absolute).ok()?,
+            }
+        } else {
+            deadlib_audio_core::ScheduledTrigger {
+                frame: absolute as u64,
+                skipped_frames: 0,
+            }
+        })
     }
 
     pub fn assist_tick_stream_frame(&mut self, music_seconds: f64) -> Option<u64> {

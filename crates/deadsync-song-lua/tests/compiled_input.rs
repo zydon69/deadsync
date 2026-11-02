@@ -1,8 +1,8 @@
 //! Test the production input module without building the Song --lib harness.
 #[path = "../src/input.rs"]
 mod screen_input;
-use screen_input as input;
 pub use deadsync_song_lua::SongLuaCompileContext;
+use screen_input as input;
 #[path = "../src/runtime_fallback.rs"]
 mod runtime_fallback;
 

@@ -3,18 +3,34 @@ use deadsync_noteskin::pack::{InstalledPack, Selection, checked_path};
 use serde_json::{Value, json};
 use std::fs;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 struct Fixture(PathBuf);
+static NEXT_FIXTURE: AtomicU64 = AtomicU64::new(0);
 
 impl Fixture {
+    fn directory(stamp: u128) -> PathBuf {
+        loop {
+            let sequence = NEXT_FIXTURE.fetch_add(1, Ordering::Relaxed);
+            let root = std::env::temp_dir().join(format!(
+                "deadsync-pack-{}-{stamp}-{sequence}",
+                std::process::id()
+            ));
+            match fs::create_dir(&root) {
+                Ok(()) => return root,
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                Err(error) => panic!("Cannot allocate isolated noteskin fixture: {error}"),
+            }
+        }
+    }
     fn new() -> Self {
         let stamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let root =
-            std::env::temp_dir().join(format!("deadsync-pack-{}-{stamp}", std::process::id()));
+        let fixture = Self(Self::directory(stamp));
+        let root = &fixture.0;
         for dir in [
             "base",
             "choices/blue",
@@ -57,7 +73,6 @@ impl Fixture {
         image::RgbaImage::new(2048, 2048)
             .save(root.join("preview.png"))
             .unwrap();
-        let fixture = Self(root);
         fixture.write(&json!({
             "schema": 1, "id": "sample", "version": "1", "source": "fixture",
             "skins": [{"id": "sample-cel", "base": "base", "preview": "preview.png", "options": [
@@ -88,6 +103,37 @@ impl Drop for Fixture {
         assert!(target.parent() == Some(parent.as_path()));
         fs::remove_dir_all(target).unwrap();
     }
+}
+
+#[test]
+fn concurrent_fixture_directories_remain_isolated_when_the_clock_repeats() {
+    let fixtures = std::thread::scope(|scope| {
+        let workers: Vec<_> = (0..16)
+            .map(|_| scope.spawn(|| Fixture(Fixture::directory(0))))
+            .collect();
+        workers
+            .into_iter()
+            .map(|worker| worker.join().unwrap())
+            .collect::<Vec<_>>()
+    });
+    let paths: Vec<_> = fixtures.iter().map(|fixture| fixture.0.clone()).collect();
+    let unique: std::collections::HashSet<_> = paths.iter().collect();
+    assert_eq!(unique.len(), paths.len());
+    for (index, path) in paths.iter().enumerate() {
+        assert!(
+            path.is_dir(),
+            "fixture directory stays alive until its owner drops"
+        );
+        fs::write(path.join("owner"), index.to_string()).unwrap();
+    }
+    for (index, path) in paths.iter().enumerate() {
+        assert_eq!(
+            fs::read_to_string(path.join("owner")).unwrap(),
+            index.to_string()
+        );
+    }
+    drop(fixtures);
+    assert!(paths.iter().all(|path| !path.exists()));
 }
 
 #[test]

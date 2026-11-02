@@ -28,7 +28,10 @@ fn save(s: &mut State) {
 fn stamp(s: &State) -> (u64, Option<u64>, Option<u64>, u64, bool, bool, bool) {
     if s.paused_playback.is_some() {
         assert!(!s.chart_transport_is_playing());
-        assert!(s.transport_music_time().is_some(), "Zoom publication must retain a valid paused content binding");
+        assert!(
+            s.transport_music_time().is_some(),
+            "Zoom publication must retain a valid paused content binding"
+        );
     }
     (
         s.editor_asset_owner(),

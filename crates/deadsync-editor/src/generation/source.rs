@@ -42,16 +42,29 @@ pub(crate) fn require_reference_layout(layout: &str) -> Result<(), Error> {
     if super::job::TARGET_LAYOUTS.contains(&layout) {
         Ok(())
     } else {
-        Err(Error::Unsupported("No reference generation graph for this chart layout".into()))
+        Err(Error::Unsupported(
+            "No reference generation graph for this chart layout".into(),
+        ))
     }
 }
 
 pub(crate) fn effective_layout(document: &Document, chart: usize) -> Result<&str, Error> {
-    let descriptor = document.charts().get(chart)
+    let descriptor = document
+        .charts()
+        .get(chart)
         .ok_or_else(|| Error::InvalidEdit("Chart does not exist".into()))?;
-    Ok(if descriptor.steps_type == "pump-double"
-        && crate::stepf2::is_coop(document.value(descriptor.notes.clone()), &descriptor.steps_type)
-    { "pump-routine" } else { &descriptor.steps_type })
+    Ok(
+        if descriptor.steps_type == "pump-double"
+            && crate::stepf2::is_coop(
+                document.value(descriptor.notes.clone()),
+                &descriptor.steps_type,
+            )
+        {
+            "pump-routine"
+        } else {
+            &descriptor.steps_type
+        },
+    )
 }
 
 pub(crate) fn require_reference_source(document: &Document, chart: usize) -> Result<(), Error> {
@@ -59,9 +72,15 @@ pub(crate) fn require_reference_source(document: &Document, chart: usize) -> Res
 }
 
 fn require_reference_grid(layout: &str, grid: &Grid) -> Result<(), Error> {
-    require_reference_layout(if grid.uses_stepf2() { "pump-routine" } else { layout })?;
+    require_reference_layout(if grid.uses_stepf2() {
+        "pump-routine"
+    } else {
+        layout
+    })?;
     if grid.players() != 1 {
-        return Err(Error::Unsupported("Generation requires a chart with one participant".into()));
+        return Err(Error::Unsupported(
+            "Generation requires a chart with one participant".into(),
+        ));
     }
     Ok(())
 }
@@ -74,9 +93,15 @@ pub fn read(
     chart: usize,
     cancelled: &AtomicBool,
 ) -> Result<SourceChart, Error> {
-    read_with_context(bytes,format,Default::default(),chart,cancelled)
+    read_with_context(bytes, format, Default::default(), chart, cancelled)
 }
-pub fn read_with_context(bytes:Arc<[u8]>,format:Format,context:crate::document::LoadContext,chart:usize,cancelled:&AtomicBool)->Result<SourceChart,Error>{
+pub fn read_with_context(
+    bytes: Arc<[u8]>,
+    format: Format,
+    context: crate::document::LoadContext,
+    chart: usize,
+    cancelled: &AtomicBool,
+) -> Result<SourceChart, Error> {
     let checkpoint = || {
         if cancelled.load(Ordering::Relaxed) {
             Err(Error::InvalidEdit(
@@ -87,7 +112,7 @@ pub fn read_with_context(bytes:Arc<[u8]>,format:Format,context:crate::document::
         }
     };
     checkpoint()?;
-    let document = Document::parse_with_context(bytes.clone(), format,context)?;
+    let document = Document::parse_with_context(bytes.clone(), format, context)?;
     crate::timing_edit::migration::require_compatible(&document)?;
     require_reference_source(&document, chart)?;
     let entry = document
@@ -103,7 +128,8 @@ pub fn read_with_context(bytes:Arc<[u8]>,format:Format,context:crate::document::
     }
     require_reference_grid(&entry.steps_type, &grid)?;
     let timing = GenerationTiming::from_document(&document, chart)?;
-    let session = crate::history::Session::new(Document::parse_with_context(bytes, format,context)?);
+    let session =
+        crate::history::Session::new(Document::parse_with_context(bytes, format, context)?);
     let attack_rows = crate::attacks::placement::Timeline::capture(&session, chart)?
         .markers()
         .iter()

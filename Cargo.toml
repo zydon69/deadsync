@@ -113,6 +113,8 @@ deadsync-version = { path = "crates/deadsync-version" }
 log = "0.4.34"
 
 [dev-dependencies]
+quote = "1.0.47"
+syn = { version = "2.0.119", features = ["full", "visit-mut"] }
 deadlib-assets = { path = "crates/deadlib-assets" }
 deadlib-present = { path = "crates/deadlib-present", features = ["conformance"] }
 deadsync-chart = { path = "crates/deadsync-chart" }
@@ -225,3 +227,7 @@ inline_always = "allow"
 mlua = { package = "deadlib-lua-legacy", version = "=0.12.2", path = "crates/deadlib-lua-legacy" }
 serde_json = "1.0.151"
 windows-core = "0.100.0"
+
+[[bin]]
+name = "lang_coverage"
+path = "scripts/lang_coverage.rs"

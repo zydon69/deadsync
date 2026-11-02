@@ -9,9 +9,13 @@ impl State {
         draft: &deadsync_editor::song_properties::Draft,
     ) -> Result<(), Error> {
         if !draft.requires_live_handoff() {
-            let before=self.capture_migration_presentation()?;
-            let application=self.workspace.apply_song_properties_with_presentation_receipt(draft)?;
-            if let Some(receipt)=application.presentation_receipt(){self.rebind_migration_presentation(before,receipt)?;}
+            let before = self.capture_migration_presentation()?;
+            let application = self
+                .workspace
+                .apply_song_properties_with_presentation_receipt(draft)?;
+            if let Some(receipt) = application.presentation_receipt() {
+                self.rebind_migration_presentation(before, receipt)?;
+            }
             return Ok(());
         }
         let before = if self.workspace.has_chart() {
@@ -26,10 +30,16 @@ impl State {
         let application = self.workspace.apply_song_properties_live_plan(plan)?;
         self.finish_live_song_properties_application(before, application)
     }
-    fn run_live_song_properties_history(&mut self,redo:bool)->Result<(),Error>{
-        let before=if self.workspace.has_chart(){Some(self.capture_timing_presentation()?)}else{None};
-        let focus=before.as_ref().map(|before|(self.workspace.chart(),before.row()));
-        let plan=Plan::prepare_history(&self.workspace.file().session,focus,redo)?;
+    fn run_live_song_properties_history(&mut self, redo: bool) -> Result<(), Error> {
+        let before = if self.workspace.has_chart() {
+            Some(self.capture_timing_presentation()?)
+        } else {
+            None
+        };
+        let focus = before
+            .as_ref()
+            .map(|before| (self.workspace.chart(), before.row()));
+        let plan = Plan::prepare_history(&self.workspace.file().session, focus, redo)?;
         let application = self.workspace.apply_song_properties_live_plan(plan)?;
         self.finish_live_song_properties_application(before, application)
     }
@@ -52,11 +62,24 @@ impl State {
         }
         Ok(())
     }
-    pub(super) fn apply_presented_song_properties(&mut self){
-        let Some(draft)=self.song_properties.take()else{return;};
-        match self.commit_song_properties_presented(&draft){
-            Ok(())=>{self.panel=None;self.refresh();self.status=i18n::tr("Edition","SongPropertiesApplied");},
-            Err(error)=>{self.song_properties=Some(draft);self.status=i18n::tr_fmt("Edition","Error",&[("message",&i18n::editor_error(&error))]);},
+    pub(super) fn apply_presented_song_properties(&mut self) {
+        let Some(draft) = self.song_properties.take() else {
+            return;
+        };
+        match self.commit_song_properties_presented(&draft) {
+            Ok(()) => {
+                self.panel = None;
+                self.refresh();
+                self.status = i18n::tr("Edition", "SongPropertiesApplied");
+            }
+            Err(error) => {
+                self.song_properties = Some(draft);
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &i18n::editor_error(&error))],
+                );
+            }
         }
     }
     pub(super) fn apply_live_song_properties_history(&mut self, redo: bool) {

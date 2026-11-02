@@ -130,11 +130,11 @@ fn analysis_cache_tracks_revision_menu_pages_open_it_and_refresh_keeps_history()
     let _guard = LOCK.lock().unwrap();
     let (_dir, mut s) = setup();
     press(&mut s, KeyCode::F1);
-    assert!(texts(&s).iter().any(|t| t.contains("Actions 1/3")));
+    assert!(texts(&s).iter().any(|t| t.contains("Actions 1/5")));
     for _ in 0..14 {
         press(&mut s, KeyCode::ArrowDown);
     }
-    assert!(texts(&s).iter().any(|t| t.contains("Actions 2/3")));
+    assert!(texts(&s).iter().any(|t| t.contains("Actions 2/5")));
     assert!(!texts(&s).iter().any(|t| t == "Resume editing"));
     press(&mut s, KeyCode::Enter);
     finish(&mut s);
@@ -153,7 +153,7 @@ fn analysis_cache_tracks_revision_menu_pages_open_it_and_refresh_keeps_history()
     finish(&mut s);
     assert_eq!(
         s.workspace().file().session.undo_label(),
-        Some("Place note")
+        Some("Enter lane note")
     );
     press(&mut s, KeyCode::Escape);
     ctrl(&mut s, KeyCode::KeyZ);

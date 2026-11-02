@@ -1,3 +1,5 @@
+#[path = "support/prepared_audio.rs"]
+mod prepared_audio;
 use deadlib_audio_decode::{DecodeOptions, open_file};
 use deadsync_editor::waveform::{Builder, Waveform};
 use deadsync_theme_simply_love::editor_audio::{Job, LoadError, Loader};
@@ -82,9 +84,9 @@ fn cancellation_errors_and_budget_refusal_allow_next_load_without_stale_result()
     job.cancel();
     assert!(matches!(wait(&mut job), Err(LoadError::Cancelled)));
     let mut job = loader.start(path.clone()).unwrap();
-    assert!(
-        matches!(wait(&mut job), Err(LoadError::Decode(message)) if message.contains("memory budget"))
-    );
+    let result = wait(&mut job);
+    assert!(matches!(result, Err(LoadError::Decode(ref message))
+        if message == "Editor WAV PCM memory limit exceeded"));
     let mut job = loader.start(dir.path().join("absent.wav")).unwrap();
     assert!(matches!(wait(&mut job), Err(LoadError::Decode(_))));
     // The slot is released before publication, even following an error.
@@ -133,6 +135,7 @@ fn press(state: &mut State, code: KeyCode) {
     }
 }
 fn ready(state: &mut State) {
+    prepared_audio::publish_main(state);
     let deadline = Instant::now() + Duration::from_secs(10);
     while !state.waveform_ready() {
         state.update();
@@ -149,12 +152,52 @@ fn init() {
         854.0, 480.0,
     ));
 }
+fn open_hidden(path: &Path) -> State {
+    let preferences_path = path.with_extension("editor-preferences.json");
+    let mut file = deadsync_editor::audio_preferences::File::open(&preferences_path).unwrap();
+    let mut preferences = file.waveform();
+    preferences.set_show(false);
+    file.set_waveform(preferences);
+    let mut scroll = file.scroll();
+    scroll.set_speed(1, 1.0).unwrap();
+    file.set_scroll(scroll);
+    file.save().unwrap();
+    let mut state = State::open(path, 0).unwrap();
+    state
+        .configure_audio_preferences(&preferences_path)
+        .unwrap();
+    state.configure_spacing_preference(
+        deadsync_editor::scroll_preferences::spacing::Preference::ConstantRow,
+    );
+    state
+}
 fn quads(state: &State) -> Vec<([f32; 2], f32, f32)> {
-    let palette = deadsync_editor::waveform_palette::Palette::default();
+    use deadlib_present::actors::SpriteSource;
+    let palette = state.waveform_preferences().palette();
     let mut actors = Vec::new();
     state.actors(&mut actors);
-    actors
-        .into_iter()
+    let targets = state.take_waveform_render_targets();
+    let Some(source) = targets.iter().find(|target| target.postprocess.is_none()) else {
+        return Vec::new();
+    };
+    let (center, display_width) = actors
+        .iter()
+        .find_map(|actor| match actor {
+            Actor::Sprite {
+                source: SpriteSource::RenderTarget { .. },
+                z: 8001,
+                offset,
+                size: [SizeSpec::Px(width), _],
+                scale,
+                ..
+            } => Some((offset[0], width * scale[0])),
+            _ => None,
+        })
+        .expect("waveform source pass must have a visible composite");
+    let ratio = display_width / source.logical_size[0];
+    source
+        .children
+        .iter()
         .filter_map(|actor| match actor {
             Actor::Sprite {
                 offset,
@@ -162,17 +205,27 @@ fn quads(state: &State) -> Vec<([f32; 2], f32, f32)> {
                 scale,
                 tint,
                 ..
-            } if tint == palette.resolved_sparse().rgba() || tint == palette.dense().rgba() => {
+            } if *tint == palette.resolved_sparse().rgba().map(|v| v.clamp(0.0, 1.0))
+                || *tint == palette.dense().rgba().map(|v| v.clamp(0.0, 1.0)) =>
+            {
                 Some((
-                    offset,
-                    if w == 0.0 { scale[0] } else { w * scale[0] },
-                    if h == 0.0 { scale[1] } else { h * scale[1] },
+                    [
+                        center + (offset[0] - source.logical_size[0] * 0.5) * ratio,
+                        offset[1],
+                    ],
+                    if *w == 0.0 {
+                        scale[0] * ratio
+                    } else {
+                        w * scale[0] * ratio
+                    },
+                    if *h == 0.0 { scale[1] } else { h * scale[1] },
                 ))
             }
             _ => None,
         })
         .collect()
 }
+
 #[test]
 fn keyboard_waveform_uses_chart_audio_clips_geometry_and_hides_without_editing_song() {
     init();
@@ -183,7 +236,7 @@ fn keyboard_waveform_uses_chart_audio_clips_geometry_and_hides_without_editing_s
     let source = "#VERSION:0.83;#TITLE:Wave;#MUSIC:missing.wav;#PREVIEW:also-missing.wav;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#MUSIC:chart.wav;#NOTES:1000;";
     let path = dir.path().join("song.ssc");
     fs::write(&path, source).unwrap();
-    let mut state = State::open(&path, 0).unwrap();
+    let mut state = open_hidden(&path);
     assert!(quads(&state).is_empty());
     press(&mut state, KeyCode::Enter);
     assert!(state.is_playing());
@@ -234,7 +287,7 @@ fn visible_waveform_peak_moves_with_song_offset_using_playback_clock() {
     let first_peak = |offset: f64| {
         let path = dir.path().join(format!("offset-{offset}.ssc"));
         fs::write(&path, format!("#VERSION:0.83;#MUSIC:pulse.wav;#OFFSET:{offset};#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;")).unwrap();
-        let mut state = State::open(&path, 0).unwrap();
+        let mut state = open_hidden(&path);
         press(&mut state, KeyCode::KeyW);
         ready(&mut state);
         quads(&state)
@@ -256,7 +309,7 @@ fn unavailable_audio_reports_error_and_keyboard_toggle_retries_without_song_chan
     let path = dir.path().join("song.ssc");
     let source = "#VERSION:0.83;#MUSIC:recover.wav;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
     fs::write(&path, source).unwrap();
-    let mut state = State::open(&path, 0).unwrap();
+    let mut state = open_hidden(&path);
     press(&mut state, KeyCode::KeyW);
     let deadline = Instant::now() + Duration::from_secs(10);
     loop {

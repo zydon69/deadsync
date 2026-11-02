@@ -51,6 +51,7 @@ unicode-normalization = "0.1.25"
 unicode-segmentation = "1.13.3"
 
 [dev-dependencies]
+deadsync-theme-simply-love = { path = ".", features = ["test-support"] }
 tempfile = "3.27.0"
 deadsync-lights = { path = "../deadsync-lights" }
 deadlib-render-core = { path = "../deadlib-render-core", features = ["test-util"] }

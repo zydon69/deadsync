@@ -1,4 +1,5 @@
-//! Keyboard-only Snap Off workflows through the native editor bridge.
+#[path = "support/transport_host.rs"]
+mod transport_host;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadsync_theme_simply_love::{i18n, screens::edition::State};
 use std::{fs, sync::Mutex, time::Instant};
@@ -23,7 +24,9 @@ fn open(signature: &str) -> (tempfile::TempDir, State, Vec<u8>) {
     fs::write(dir.path().join("music.wav"), b"command-only").unwrap();
     let source=format!("#VERSION:0.83;#MUSIC:music.wav;#OFFSET:0;#GASongDataVersion:1;#GASongData:{{\"SyncOffset\":0}};#BPMS:0=120;#TIMESIGNATURES:{signature};#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000\n0000\n0000\n0000;").into_bytes();
     fs::write(&path, &source).unwrap();
-    let state = State::open(&path, 0).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    transport_host::configure_projection(&mut state, &dir.path().join("prefs.json"), false);
+    transport_host::publish(&mut state);
     (dir, state, source)
 }
 #[test]
@@ -134,7 +137,7 @@ fn conflicting_preference_save_keeps_current_snap_and_cursor() {
 }
 #[test]
 fn off_during_playback_preserves_fractional_phase_in_seek_command() {
-    use deadsync_gameplay::{GameplayAudioCommand, GameplayAudioSnapshot};
+    use deadsync_gameplay::GameplayAudioCommand;
     use deadsync_theme_simply_love::screens::edition::decoder_transport::{Ack, Phase};
     let _guard = SERIAL.lock().unwrap();
     let (dir, mut state, _) = open("0=4=4");
@@ -159,7 +162,7 @@ fn off_during_playback_preserves_fractional_phase_in_seek_command() {
     );
     let time = Instant::now();
     let source_time: f64 = 0.2526041666666667; // row24.25 at120BPM
-    let mut snapshot = GameplayAudioSnapshot::default();
+    let mut snapshot = transport_host::host_snapshot(&state);
     snapshot.stream_clock.valid_at = time;
     snapshot.stream_clock.stream_seconds = source_time as f32;
     snapshot.stream_clock.has_music_mapping = true;
@@ -175,7 +178,7 @@ fn off_during_playback_preserves_fractional_phase_in_seek_command() {
     let seek = commands
         .iter()
         .find_map(|c| match c {
-            GameplayAudioCommand::SeekMusic(t) => Some(*t),
+            GameplayAudioCommand::EditorSeekMusic { seconds, .. } => Some(*seconds),
             _ => None,
         })
         .expect("continued transport seek");

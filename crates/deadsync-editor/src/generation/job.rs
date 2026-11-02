@@ -98,7 +98,7 @@ pub struct ProfileOverrides {
 pub struct ChartTask {
     bytes: Arc<[u8]>,
     format: Format,
-    load_context:crate::document::LoadContext,
+    load_context: crate::document::LoadContext,
     token: RevisionToken,
     source_chart: usize,
     options: ChartOptions,
@@ -132,8 +132,8 @@ impl ProfileSnapshot {
 }
 impl ChartTask {
     /// Source's single-participant autogen chart eligibility, independent of focus.
-    pub fn supports_source(session:&Session,chart:usize)->bool {
-        source::require_reference_source(session.document(),chart).is_ok()
+    pub fn supports_source(session: &Session, chart: usize) -> bool {
+        source::require_reference_source(session.document(), chart).is_ok()
     }
     pub fn capture(
         session: &Session,
@@ -176,7 +176,7 @@ impl ChartTask {
             .map(|&source_chart| Self {
                 bytes: bytes.clone(),
                 format: session.document().format,
-            load_context:session.document().load_context(),
+                load_context: session.document().load_context(),
                 token: session.revision_token(),
                 source_chart,
                 options: options.clone(),
@@ -231,7 +231,13 @@ impl ChartTask {
     ) -> Result<ChartPreview, Error> {
         check(cancelled)?;
         progress(Progress::default());
-        let source = source::read_with_context(self.bytes, self.format,self.load_context, self.source_chart, cancelled)?;
+        let source = source::read_with_context(
+            self.bytes,
+            self.format,
+            self.load_context,
+            self.source_chart,
+            cancelled,
+        )?;
         let mut expression_profile = None;
         let mut performed_profile = None;
         let mut profile_issues = Vec::new();

@@ -410,8 +410,10 @@ fn check_model_samplers(state: &mut backend::State) {
         for (actual, expected) in actual.into_iter().zip(*color) {
             // Half-intensity UNORM results may quantize to 127 or 128;
             // nearest and endpoint samples still require exact bytes.
-            assert!(actual.abs_diff(expected) <= u8::from(expected == 128),
-                "sampler control {index}: {actual} != {expected}");
+            assert!(
+                actual.abs_diff(expected) <= u8::from(expected == 128),
+                "sampler control {index}: {actual} != {expected}"
+            );
         }
     }
 }

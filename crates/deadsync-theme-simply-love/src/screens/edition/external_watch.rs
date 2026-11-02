@@ -196,7 +196,8 @@ impl Runtime {
 }
 impl State {
     pub(super) fn update_external_watch(&mut self, now: Instant) {
-        let suppressed = self.application_preferences_owner()
+        let suppressed = self
+            .application_preferences_owner()
             .is_some_and(|file| file.suppress_external_song_notifications());
         let allowed = self.panel.is_none()
             && !self.save_as_pending()
@@ -307,10 +308,10 @@ impl State {
         .into_iter()
         .enumerate()
         {
-            let ui_row_start=actors.len();
+            let ui_row_start = actors.len();
             actors.push(act!(text: font("miso"): settext(i18n::tr("Edition",key)): xy(x,y+82.0+row as f32*31.0): zoom(0.6): maxwidth(660.0): diffuse(1.0,if row==index{0.8}else{1.0},if row==index{0.3}else{1.0},1.0): z(8051)));
 
-            self.ui_row(actors,ui_row_start,row==index,31.);
+            self.ui_row(actors, ui_row_start, row == index, 31.);
         }
     }
 }
@@ -452,16 +453,44 @@ mod tests {
     }
     #[test]
     fn source_memory_import_can_suppress_external_song_and_flush_without_disk_path() {
-        let (_root,mut state)=state("en");
-        let file=state.capture_application_preferences_file().unwrap();
-        let draft=state.workspace.prepare_source_preferences(&file,br#"{"VendorPreserved":{"opaque":1}}"#,deadsync_editor::key_binding_preferences::source_profile::Platform::Mac).unwrap();
-        state.workspace.import_source_preferences(draft,&file,true).unwrap();state.sync_source_preferences_history().unwrap();
-        let label=state.workspace.file().session.undo_label().map(str::to_owned);
-        changed(&mut state);state.external_file_key(2,KeyCode::Enter);
-        assert!(state.application_preferences_owner().unwrap().suppress_external_song_notifications());
-        assert!(state.external_watch.notice.is_none());state.flush_wheel_settings().unwrap();
-        assert!(!state.application_preferences_owner().unwrap().has_changes());assert!(state.audio_preferences_file.is_none());assert!(state.audio_preferences_path.is_none());
-        assert_eq!(state.workspace.file().session.undo_label(),label.as_deref());
+        let (_root, mut state) = state("en");
+        let file = state.capture_application_preferences_file().unwrap();
+        let draft = state
+            .workspace
+            .prepare_source_preferences(
+                &file,
+                br#"{"VendorPreserved":{"opaque":1}}"#,
+                deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
+            )
+            .unwrap();
+        state
+            .workspace
+            .import_source_preferences(draft, &file, true)
+            .unwrap();
+        state.sync_source_preferences_history().unwrap();
+        let label = state
+            .workspace
+            .file()
+            .session
+            .undo_label()
+            .map(str::to_owned);
+        changed(&mut state);
+        state.external_file_key(2, KeyCode::Enter);
+        assert!(
+            state
+                .application_preferences_owner()
+                .unwrap()
+                .suppress_external_song_notifications()
+        );
+        assert!(state.external_watch.notice.is_none());
+        state.flush_wheel_settings().unwrap();
+        assert!(!state.application_preferences_owner().unwrap().has_changes());
+        assert!(state.audio_preferences_file.is_none());
+        assert!(state.audio_preferences_path.is_none());
+        assert_eq!(
+            state.workspace.file().session.undo_label(),
+            label.as_deref()
+        );
     }
     #[test]
     fn suppression_stages_only_shared_option_and_keeps_other_owners() {
@@ -556,15 +585,65 @@ mod tests {
 #[cfg(test)]
 mod preference_notification_consumer_tests {
     use super::*;
-    use std::time::{Instant,Duration};
+    use std::time::{Duration, Instant};
     #[test]
-    fn general_setting_reenables_real_external_song_probe_without_resetting_other_options(){
-        i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let path=root.path().join("song.ssc");std::fs::write(&path,b"#VERSION:0.83;#TITLE:Original;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();let mut state=State::open(&path,0).unwrap();
-        let file=state.capture_application_preferences_file().unwrap();let draft=state.workspace.prepare_source_preferences(&file,br#"{"PreferencesOptions":{"SuppressExternalSongModificationNotification":true}}"#,deadsync_editor::key_binding_preferences::source_profile::Platform::Mac).unwrap();state.workspace.import_source_preferences(draft,&file,true).unwrap();state.sync_source_preferences_history().unwrap();let other=state.general_options.clone();
-        std::fs::write(&path,b"#VERSION:0.83;#TITLE:Actually replaced externally;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0100;").unwrap();let now=Instant::now();state.update_external_watch(now);assert!(state.external_watch.notice.is_none());assert!(state.external_watch.flight.is_none());assert!(state.panel.is_none());
-        state.open_general_options();state.general_field=13;state.panel=Some(Panel::GeneralOptions(1));state.general_options_key(1,KeyCode::Enter);assert!(!state.options_snapshot().suppress_external_song);state.general_options_key(1,KeyCode::Escape);assert_eq!(state.general_options,other);
-        let deadline=Instant::now()+Duration::from_secs(5);let mut attempt=1u64;while state.external_watch.notice.is_none() && Instant::now()<deadline {state.update_external_watch(now+Duration::from_secs(attempt*2));attempt+=1;std::thread::sleep(Duration::from_millis(1));}
-        assert!(state.external_watch.notice.is_some(),"actual changed file must reach normal notification consumer: {}",state.status);assert!(matches!(state.panel,Some(Panel::ExternalFile(0))));assert_eq!(state.workspace.file().session.document().text(None,"TITLE").as_deref(),Some("Original"));
+    fn general_setting_reenables_real_external_song_probe_without_resetting_other_options() {
+        i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("song.ssc");
+        std::fs::write(&path,b"#VERSION:0.83;#TITLE:Original;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
+        let mut state = State::open(&path, 0).unwrap();
+        let file = state.capture_application_preferences_file().unwrap();
+        let draft = state
+            .workspace
+            .prepare_source_preferences(
+                &file,
+                br#"{"PreferencesOptions":{"SuppressExternalSongModificationNotification":true}}"#,
+                deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
+            )
+            .unwrap();
+        state
+            .workspace
+            .import_source_preferences(draft, &file, true)
+            .unwrap();
+        state.sync_source_preferences_history().unwrap();
+        let other = state.general_options.clone();
+        std::fs::write(&path,b"#VERSION:0.83;#TITLE:Actually replaced externally;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0100;").unwrap();
+        let now = Instant::now();
+        state.update_external_watch(now);
+        assert!(state.external_watch.notice.is_none());
+        assert!(state.external_watch.flight.is_none());
+        assert!(state.panel.is_none());
+        state.open_general_options();
+        state.general_field = 13;
+        state.panel = Some(Panel::GeneralOptions(1));
+        state.general_options_key(1, KeyCode::Enter);
+        assert!(!state.options_snapshot().suppress_external_song);
+        state.general_options_key(1, KeyCode::Escape);
+        assert_eq!(state.general_options, other);
+        let deadline = Instant::now() + Duration::from_secs(5);
+        let mut attempt = 1u64;
+        while state.external_watch.notice.is_none() && Instant::now() < deadline {
+            state.update_external_watch(now + Duration::from_secs(attempt * 2));
+            attempt += 1;
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        assert!(
+            state.external_watch.notice.is_some(),
+            "actual changed file must reach normal notification consumer: {}",
+            state.status
+        );
+        assert!(matches!(state.panel, Some(Panel::ExternalFile(0))));
+        assert_eq!(
+            state
+                .workspace
+                .file()
+                .session
+                .document()
+                .text(None, "TITLE")
+                .as_deref(),
+            Some("Original")
+        );
     }
 }
 
@@ -575,7 +654,11 @@ mod notification_transport_tests {
     fn press(state: &mut State, code: KeyCode) {
         for pressed in [true, false] {
             state.raw_key(&RawKeyboardEvent {
-                code, pressed, repeat: false, timestamp: Instant::now(), host_nanos: 0,
+                code,
+                pressed,
+                repeat: false,
+                timestamp: Instant::now(),
+                host_nanos: 0,
             });
         }
     }
@@ -598,7 +681,8 @@ mod notification_transport_tests {
                 audio.editor.owner = owner;
                 audio.editor.output.available = true;
                 audio.editor.output.leased = true;
-                audio.editor.output.period_control = deadsync_gameplay::EditorBufferControl::Adjustable;
+                audio.editor.output.period_control =
+                    deadsync_gameplay::EditorBufferControl::Adjustable;
                 audio.editor.output.requested_period = Some(512);
                 audio.editor.output.negotiated_period = Some(512);
                 state.update_audio(audio);
@@ -609,7 +693,9 @@ mod notification_transport_tests {
                 state.bind_decoder_generation(Some(41));
                 state.bind_decoder_asset_epoch(Some(owner), Some(53));
                 audio.editor.logical_music = Some(deadsync_gameplay::EditorLogicalMusicClock {
-                    generation: 41, asset_epoch: 53, music_nanos: 1_250_000_000,
+                    generation: 41,
+                    asset_epoch: 53,
+                    music_nanos: 1_250_000_000,
                 });
                 state.update_audio(audio);
                 state.take_audio_commands();
@@ -629,7 +715,11 @@ mod notification_transport_tests {
                     attempt += 1;
                     std::thread::sleep(Duration::from_millis(1));
                 }
-                assert!(matches!(state.panel, Some(Panel::ExternalFile(0))), "{}", state.status);
+                assert!(
+                    matches!(state.panel, Some(Panel::ExternalFile(0))),
+                    "{}",
+                    state.status
+                );
                 assert!(state.chart_transport_is_playing());
                 assert_eq!(state.transport_music_time(), position);
                 assert!(state.take_audio_commands().is_empty());
@@ -644,15 +734,32 @@ mod notification_transport_tests {
                 assert_eq!(state.chart_audio_generation(), Some(41));
                 assert_eq!(state.editor_asset_owner(), owner);
                 let current = state.audio_output_snapshot();
-                assert_eq!((current.available, current.leased, current.requested_period, current.negotiated_period, current.ack),
-                    (output.available, output.leased, output.requested_period, output.negotiated_period, output.ack));
+                assert_eq!(
+                    (
+                        current.available,
+                        current.leased,
+                        current.requested_period,
+                        current.negotiated_period,
+                        current.ack
+                    ),
+                    (
+                        output.available,
+                        output.leased,
+                        output.requested_period,
+                        output.negotiated_period,
+                        output.ack
+                    )
+                );
                 assert_eq!(state.workspace.file().session.serialize().unwrap(), bytes);
                 assert_eq!(state.workspace.file().session.revision(), revision);
                 assert!(state.take_audio_commands().is_empty());
                 audio.stream_clock.valid_at = Instant::now();
                 audio.editor.logical_music.as_mut().unwrap().music_nanos = 1_500_000_000;
                 state.update_audio(audio);
-                assert_eq!(state.transport_music_time(), Some(1.5 - state.audio_preferences.effective().offset));
+                assert_eq!(
+                    state.transport_music_time(),
+                    Some(1.5 - state.audio_preferences.effective().offset)
+                );
                 assert!(state.chart_transport_is_playing());
                 assert_eq!(state.chart_audio_generation(), Some(41));
                 if suppress {

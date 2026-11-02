@@ -19,9 +19,25 @@ impl RegionGenerator<'_> {
         cancelled: &AtomicBool,
         progress: impl FnMut(usize, usize),
     ) -> Result<pattern::PatternPreview, Error> {
-        drop(self.generate(options, grid, timeline, average_nps, counts, cancelled, |_, _| {}));
+        drop(self.generate(
+            options,
+            grid,
+            timeline,
+            average_nps,
+            counts,
+            cancelled,
+            |_, _| {},
+        ));
         check(cancelled)?;
-        self.generate(options, grid, timeline, average_nps, counts, cancelled, progress)
+        self.generate(
+            options,
+            grid,
+            timeline,
+            average_nps,
+            counts,
+            cancelled,
+            progress,
+        )
     }
 
     pub fn generate(

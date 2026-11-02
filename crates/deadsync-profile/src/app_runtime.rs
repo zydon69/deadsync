@@ -2027,6 +2027,7 @@ mod tests {
 
     #[test]
     fn player_leaderboard_cache_exposes_srpg_self_score() {
+        let _runtime = crate::runtime_test_support::lock();
         let snapshot = deadsync_score::scorebox_snapshot(
             true,
             false,
@@ -2070,6 +2071,7 @@ mod tests {
 
     #[test]
     fn wheel_cache_exposes_profile_backed_srpg_self_score() {
+        let _runtime = crate::runtime_test_support::lock();
         let profile_id = "profile-backed-srpg-wheel";
         let api_key = "profile-backed-srpg-key";
         let chart_hash = "profile-backed-srpg-chart";
@@ -2109,6 +2111,7 @@ mod tests {
 
     #[test]
     fn wheel_score_read_does_not_deadlock_with_leaderboard_worker() {
+        let _runtime = crate::runtime_test_support::lock();
         let data =
             std::env::temp_dir().join(format!("deadsync-profile-paths-{}", std::process::id()));
         init_paths(

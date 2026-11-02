@@ -317,11 +317,13 @@ fn workspace_orders_live_properties_and_preserves_resident_ids_across_structural
         assert_eq!(workspace.file().session.revision(), before_revision);
         assert_eq!(workspace.file().session.chart_ids(), with_duplicate);
         assert_eq!(workspace.chart(), 1);
-        deletion.prepare_song_timing(
-            &workspace.file().session,
-            &Default::default(),
-            &duplicate_order,
-        ).unwrap();
+        deletion
+            .prepare_song_timing(
+                &workspace.file().session,
+                &Default::default(),
+                &duplicate_order,
+            )
+            .unwrap();
         workspace.delete_chart(&deletion).unwrap();
         let mut after_delete = with_duplicate.clone();
         after_delete.remove(1);

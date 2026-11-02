@@ -92,8 +92,12 @@ impl State {
         self.marker = row
             .and_then(|row| Draft::at_cursor(session, self.workspace.chart(), row).ok())
             .filter(|draft| Some(draft.start) == row);
-        self.profile_selection = None;
-        self.panel = Some(Panel::Marker(0));
+        // The source inspector is a dock. Its notification must not close the
+        // event picker that owns a multi-event edit or clipboard gesture.
+        if !matches!(self.panel, Some(Panel::EventSelection)) {
+            self.profile_selection = None;
+            self.panel = Some(Panel::Marker(0));
+        }
     }
 }
 
@@ -107,6 +111,25 @@ mod tests {
         std::fs::write(&path,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;").unwrap();
         let state = State::open(&path, 0).unwrap();
         (dir, state)
+    }
+    #[test]
+    fn pattern_add_notification_updates_inspector_without_closing_event_picker() {
+        let (_directory, mut state) = fixture();
+        state.open_event_selection();
+        assert!(matches!(state.panel, Some(Panel::EventSelection)));
+        let plan = deadsync_editor::quick_add::Plan::prepare(
+            &state.workspace.file().session,
+            0,
+            deadsync_editor::quick_add::Kind::Pattern,
+            48.0,
+        )
+        .unwrap();
+        state.workspace.apply_quick_add(&plan).unwrap();
+        state.refresh();
+        assert!(matches!(state.panel, Some(Panel::EventSelection)));
+        assert!(state.event_selection.is_some());
+        assert_eq!(state.marker.as_ref().unwrap().start, 48);
+        assert_eq!(state.workspace.row(), 0);
     }
     #[test]
     fn confirmed_quick_add_opens_exact_inspector_and_history_readds_it_without_seeking() {
@@ -208,90 +231,165 @@ mod tests {
     }
     #[test]
     fn moved_selected_pattern_tracks_real_callback_before_reopen_and_history_without_seek() {
-        let (_root,mut state)=fixture();
-        for row in [96.,192.] {
-            let plan=deadsync_editor::quick_add::Plan::prepare(&state.workspace.file().session,0,deadsync_editor::quick_add::Kind::Pattern,row).unwrap();
+        let (_root, mut state) = fixture();
+        for row in [96., 192.] {
+            let plan = deadsync_editor::quick_add::Plan::prepare(
+                &state.workspace.file().session,
+                0,
+                deadsync_editor::quick_add::Kind::Pattern,
+                row,
+            )
+            .unwrap();
             state.workspace.apply_quick_add(&plan).unwrap();
         }
         state.refresh();
         // Open B through the actual inspector entry, then place view A elsewhere.
-        state.command(Command::Seek(96));state.open_marker();
-        state.navigate_exact_position(0.25,true);
-        let id=state.workspace.file().session.chart_ids()[0].clone();
-        assert_eq!(state.pattern_added.selected.get(&id),Some(&96));
-        let before=state.workspace.file().session.serialize().unwrap();
-        state.marker.as_mut().unwrap().start=120;
+        state.command(Command::Seek(96));
+        state.open_marker();
+        state.navigate_exact_position(0.25, true);
+        let id = state.workspace.file().session.chart_ids()[0].clone();
+        assert_eq!(state.pattern_added.selected.get(&id), Some(&96));
+        let before = state.workspace.file().session.serialize().unwrap();
+        state.marker.as_mut().unwrap().start = 120;
         state.commit_marker(false);
-        assert_eq!(state.pattern_added.selected.get(&id),Some(&120),"addition callback must run before remembered-row lookup");
-        assert_eq!(state.marker.as_ref().unwrap().start,120);
-        assert_eq!(state.focus_position.as_ref().unwrap().row(),0.25);
-        let after=state.workspace.file().session.serialize().unwrap();
-        for (redo,row,bytes) in [(false,96,&before),(true,120,&after)] {
+        assert_eq!(
+            state.pattern_added.selected.get(&id),
+            Some(&120),
+            "addition callback must run before remembered-row lookup"
+        );
+        assert_eq!(state.marker.as_ref().unwrap().start, 120);
+        assert_eq!(state.focus_position.as_ref().unwrap().row(), 0.25);
+        let after = state.workspace.file().session.serialize().unwrap();
+        for (redo, row, bytes) in [(false, 96, &before), (true, 120, &after)] {
             // Metadata history must preserve the exact current presentation.
             // An earlier explicit focus change may have reprojected its row.
-            let anchor=state.capture_song_property_presentation().unwrap();
-            let exact=(anchor.row().to_bits(),anchor.music_time().to_bits(),anchor.focus().chart_time().to_bits());
+            let anchor = state.capture_song_property_presentation().unwrap();
+            let exact = (
+                anchor.row().to_bits(),
+                anchor.music_time().to_bits(),
+                anchor.focus().chart_time().to_bits(),
+            );
             // Close the native window as a user would before global history.
-            state.marker=None;state.panel=None;
-            state.command(if redo{Command::Redo}else{Command::Undo});
-            assert_eq!(state.pattern_added.selected.get(&id),Some(&row));
-            assert_eq!(state.marker.as_ref().unwrap().start,row);
-            assert_eq!(state.workspace.file().session.serialize().unwrap(),*bytes);
-            let restored=state.capture_song_property_presentation().unwrap();
-            assert_eq!((restored.row().to_bits(),restored.music_time().to_bits(),restored.focus().chart_time().to_bits()),exact,"metadata Undo/Redo must not navigate");
+            state.marker = None;
+            state.panel = None;
+            state.command(if redo { Command::Redo } else { Command::Undo });
+            assert_eq!(state.pattern_added.selected.get(&id), Some(&row));
+            assert_eq!(state.marker.as_ref().unwrap().start, row);
+            assert_eq!(state.workspace.file().session.serialize().unwrap(), *bytes);
+            let restored = state.capture_song_property_presentation().unwrap();
+            assert_eq!(
+                (
+                    restored.row().to_bits(),
+                    restored.music_time().to_bits(),
+                    restored.focus().chart_time().to_bits()
+                ),
+                exact,
+                "metadata Undo/Redo must not navigate"
+            );
             // The global window follows the focused chart's remembered event.
             // Source SetChartFocused passes SongTime to the next chart, whose
             // row is recomputed by its clock. It does not retain the prior row's
             // exact IEEE bits across this explicit navigation.
-            let time=state.chart_focus_time().unwrap();assert!(state.focus_chart_at_time(1,time));assert!(state.marker.is_none());
-            assert_eq!(state.capture_song_property_presentation().unwrap().music_time().to_bits(),time.to_bits());
-            assert!(state.focus_chart_at_time(0,time));assert_eq!(state.marker.as_ref().unwrap().start,row);
-            assert_eq!(state.capture_song_property_presentation().unwrap().music_time().to_bits(),time.to_bits());
-            assert_eq!(state.pattern_added.selected.get(&id),Some(&row));
+            let time = state.chart_focus_time().unwrap();
+            assert!(state.focus_chart_at_time(1, time));
+            assert!(state.marker.is_none());
+            assert_eq!(
+                state
+                    .capture_song_property_presentation()
+                    .unwrap()
+                    .music_time()
+                    .to_bits(),
+                time.to_bits()
+            );
+            assert!(state.focus_chart_at_time(0, time));
+            assert_eq!(state.marker.as_ref().unwrap().start, row);
+            assert_eq!(
+                state
+                    .capture_song_property_presentation()
+                    .unwrap()
+                    .music_time()
+                    .to_bits(),
+                time.to_bits()
+            );
+            assert_eq!(state.pattern_added.selected.get(&id), Some(&row));
         }
     }
-
 }
 
 #[cfg(test)]
 mod inspector_navigation_tests {
     use super::*;
     #[test]
-    fn inspector_buttons_use_displayed_pattern_and_update_exact_focus_without_file_history_changes() {
+    fn inspector_buttons_use_displayed_pattern_and_update_exact_focus_without_file_history_changes()
+    {
         crate::i18n::init_for_tests();
-        let dir=tempfile::tempdir().unwrap();let path=dir.path().join("patterns.ssc");
-        std::fs::write(&path,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000,0100;").unwrap();
-        let mut state=State::open(&path,0).unwrap();
-        for row in [48.,144.,96.] {
-            let plan=deadsync_editor::quick_add::Plan::prepare(&state.workspace.file().session,0,deadsync_editor::quick_add::Kind::Pattern,row).unwrap();
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("patterns.ssc");
+        std::fs::write(
+            &path,
+            b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000,0100;",
+        )
+        .unwrap();
+        let mut state = State::open(&path, 0).unwrap();
+        for row in [48., 144., 96.] {
+            let plan = deadsync_editor::quick_add::Plan::prepare(
+                &state.workspace.file().session,
+                0,
+                deadsync_editor::quick_add::Kind::Pattern,
+                row,
+            )
+            .unwrap();
             state.workspace.apply_quick_add(&plan).unwrap();
         }
         state.refresh();
-        assert_eq!(state.marker.as_ref().unwrap().start,96);
-        state.navigate_exact_position(0.5,true);
-        let bytes=state.workspace.file().session.serialize().unwrap();
-        let revision=state.workspace.file().session.revision();
-        let undo=state.workspace.file().session.undo_label().map(str::to_owned);
+        assert_eq!(state.marker.as_ref().unwrap().start, 96);
+        state.navigate_exact_position(0.5, true);
+        let bytes = state.workspace.file().session.serialize().unwrap();
+        let revision = state.workspace.file().session.revision();
+        let undo = state
+            .workspace
+            .file()
+            .session
+            .undo_label()
+            .map(str::to_owned);
         // The callback selected the last addition, while the view is elsewhere.
-        for (forward,expected) in [(true,144),(true,48),(false,144),(false,96),(false,48),(false,144)] {
-            state.navigate_exact_position(0.,true);
+        for (forward, expected) in [
+            (true, 144),
+            (true, 48),
+            (false, 144),
+            (false, 96),
+            (false, 48),
+            (false, 144),
+        ] {
+            state.navigate_exact_position(0., true);
             state.navigate_marker(forward);
-            assert_eq!(state.marker.as_ref().unwrap().start,expected);
-            assert_eq!(state.workspace.row(),expected);
-            assert_eq!(state.focus_position.as_ref().unwrap().row(),expected as f64);
-            assert_eq!(state.workspace.file().session.serialize().unwrap(),bytes);
-            assert_eq!(state.workspace.file().session.revision(),revision);
-            assert_eq!(state.workspace.file().session.undo_label().map(str::to_owned),undo);
+            assert_eq!(state.marker.as_ref().unwrap().start, expected);
+            assert_eq!(state.workspace.row(), expected);
+            assert_eq!(
+                state.focus_position.as_ref().unwrap().row(),
+                expected as f64
+            );
+            assert_eq!(state.workspace.file().session.serialize().unwrap(), bytes);
+            assert_eq!(state.workspace.file().session.revision(), revision);
+            assert_eq!(
+                state
+                    .workspace
+                    .file()
+                    .session
+                    .undo_label()
+                    .map(str::to_owned),
+                undo
+            );
         }
-        let seed=state.marker.as_ref().unwrap().definition.random_seed;
-        state.marker.as_mut().unwrap().definition.random_seed=seed.wrapping_add(1);
-        let row=state.focus_position.as_ref().unwrap().row();
+        let seed = state.marker.as_ref().unwrap().definition.random_seed;
+        state.marker.as_mut().unwrap().definition.random_seed = seed.wrapping_add(1);
+        let row = state.focus_position.as_ref().unwrap().row();
         state.navigate_marker(true);
-        assert_eq!(state.marker.as_ref().unwrap().start,144);
-        assert_eq!(state.focus_position.as_ref().unwrap().row(),row);
-        assert_eq!(state.workspace.file().session.serialize().unwrap(),bytes);
-        state.marker=None;
+        assert_eq!(state.marker.as_ref().unwrap().start, 144);
+        assert_eq!(state.focus_position.as_ref().unwrap().row(), row);
+        assert_eq!(state.workspace.file().session.serialize().unwrap(), bytes);
+        state.marker = None;
         state.navigate_marker(true);
-        assert_eq!(state.focus_position.as_ref().unwrap().row(),row);
+        assert_eq!(state.focus_position.as_ref().unwrap().row(), row);
     }
 }

@@ -5,7 +5,23 @@ use key_commands::{Effect, Key, Registry};
 fn native_defaults_keep_playback_selection_and_player_shortcuts() {
     let p = Preferences::default();
     p.validate().unwrap();
-    assert_eq!(Action::ALL.len(), 217);
+    assert_eq!(Action::ALL.len(), 218);
+    assert_eq!(
+        p.commands["OpenAssistant"],
+        vec![vec!["Ctrl", "LeftShift", "I"]]
+    );
+    let mut registry = Registry::new(p.bindings());
+    assert_eq!(
+        registry.update(
+            0.,
+            vec![
+                Key::named("LeftControl"),
+                Key::named("LeftShift"),
+                Key::named("I")
+            ]
+        ),
+        vec![Effect::Press("OpenAssistant".into())]
+    );
     assert_eq!(
         p.commands["PlayPause"],
         vec![vec!["Enter"], vec!["NumPadEnter"]]
@@ -240,7 +256,10 @@ fn fourth_increment_uses_real_handlers_and_lane_migration_removes_reservations()
         ));
     }
     assert!(key_binding_preferences::supported_key("NumPad0"));
-    assert_eq!(Action::from_id("ArrowModification"), Some(Action::ArrowModification));
+    assert_eq!(
+        Action::from_id("ArrowModification"),
+        Some(Action::ArrowModification)
+    );
     assert_eq!(Action::from_id("New"), Some(Action::FileNew));
 }
 

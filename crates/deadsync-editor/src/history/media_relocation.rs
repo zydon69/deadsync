@@ -43,7 +43,7 @@ struct Guard {
     redo: usize,
 }
 pub(crate) struct Plan {
-    published:Arc<std::sync::atomic::AtomicBool>,
+    published: Arc<std::sync::atomic::AtomicBool>,
     guard: Guard,
     current: Document,
     slots: Vec<Slot>,
@@ -69,16 +69,35 @@ impl Plan {
     }
     #[cfg(test)]
     pub(crate) fn prepare(session: &Session, old: &Path, new: &Path) -> Result<Self, Error> {
-        Self::prepare_from_source(session,SourceBase::ExistingFile(old),new,session.document.format)
+        Self::prepare_from_source(
+            session,
+            SourceBase::ExistingFile(old),
+            new,
+            session.document.format,
+        )
     }
-    pub(crate) fn prepare_for_output(session:&Session,old:SourceBase<'_>,new:&Path,target:crate::document::Format)->Result<Self,Error> {
-        Self::prepare_from_source(session,old,new,target)
+    pub(crate) fn prepare_for_output(
+        session: &Session,
+        old: SourceBase<'_>,
+        new: &Path,
+        target: crate::document::Format,
+    ) -> Result<Self, Error> {
+        Self::prepare_from_source(session, old, new, target)
     }
-    pub(crate) fn detached_output_snapshot(&self,session:&Session)->Result<Session,Error>{
+    pub(crate) fn detached_output_snapshot(&self, session: &Session) -> Result<Session, Error> {
         self.validate(session)?;
-        session.detached_output_snapshot(session.document.reparse(Arc::<[u8]>::from(self.bytes.as_slice()))?)
+        session.detached_output_snapshot(
+            session
+                .document
+                .reparse(Arc::<[u8]>::from(self.bytes.as_slice()))?,
+        )
     }
-    fn prepare_from_source(session:&Session,old:SourceBase<'_>,new:&Path,target:crate::document::Format)->Result<Self,Error> {
+    fn prepare_from_source(
+        session: &Session,
+        old: SourceBase<'_>,
+        new: &Path,
+        target: crate::document::Format,
+    ) -> Result<Self, Error> {
         if !old.is_absolute()
             || !new.is_absolute()
             || !new
@@ -138,7 +157,7 @@ impl Plan {
         }
         let bytes = session.serialize_document(current.clone())?;
         Ok(Self {
-            published:Arc::new(std::sync::atomic::AtomicBool::new(false)),
+            published: Arc::new(std::sync::atomic::AtomicBool::new(false)),
             guard: Guard {
                 identity: Arc::clone(&session.identity),
                 next: session.next_revision,
@@ -192,8 +211,19 @@ fn walk(
     slots: &mut Vec<Slot>,
 ) -> Result<(), Error> {
     let update = match change {
-        Change::ChartProperties {change,..} | Change::SongTimingProperties(change) | Change::TimingMigration(change) | Change::TimingEdit(change) | Change::MarkerMetadata(change) | Change::SongPropertiesLive(change) | Change::SongPropertiesMetadata(change) | Change::ChartEventCopy(change)=>return walk(change,context,forward,old,new,stack,entry,path,slots),
-        Change::SongTimingChoice { .. }=>None,
+        Change::ChartProperties { change, .. }
+        | Change::SongTimingProperties(change)
+        | Change::TimingMigration(change)
+        | Change::TimingEdit(change)
+        | Change::MarkerMetadata(change)
+        | Change::SongPropertiesLive(change)
+        | Change::SongPropertiesMetadata(change)
+        | Change::ChartEventCopy(change) => {
+            return walk(
+                change, context, forward, old, new, stack, entry, path, slots,
+            );
+        }
+        Change::SongTimingChoice { .. } => None,
         Change::Group(changes) => {
             for offset in 0..changes.len() {
                 let index = if forward {
@@ -261,8 +291,24 @@ fn walk(
         }
         // Exhaustive on purpose: adding a history variant requires an explicit
         // decision, rather than accidentally executing a persisted side effect.
-        Change::SourcePreferences(_) | Change::SelectionPreferences(_) | Change::DensityPreferences(_) | Change::StreamPreferences(_) | Change::ScrollPreferences(_) | Change::RestoreOptions(_) | Change::RestoreScroll(_) | Change::PerformancePreferences(_) | Change::GeneralOptions(_) | Change::DisplayOptions(_) | Change::VisualPreferences(_) | Change::DarkPreferences(_) | Change::ReceptorPreferences(_) | Change::KeyBindingPreferences(_) | Change::NoteColorPreferences(_) | Change::AudioPreferences(_)
-        | Change::PackProperties(_) | Change::ProfileEdit(_)
+        Change::SourcePreferences(_)
+        | Change::SelectionPreferences(_)
+        | Change::DensityPreferences(_)
+        | Change::StreamPreferences(_)
+        | Change::ScrollPreferences(_)
+        | Change::RestoreOptions(_)
+        | Change::RestoreScroll(_)
+        | Change::PerformancePreferences(_)
+        | Change::GeneralOptions(_)
+        | Change::DisplayOptions(_)
+        | Change::VisualPreferences(_)
+        | Change::DarkPreferences(_)
+        | Change::ReceptorPreferences(_)
+        | Change::KeyBindingPreferences(_)
+        | Change::NoteColorPreferences(_)
+        | Change::AudioPreferences(_)
+        | Change::PackProperties(_)
+        | Change::ProfileEdit(_)
         | Change::ProfileCreation { .. }
         | Change::ProfileDeletion { .. }
         | Change::PlayerCount { .. }
@@ -298,7 +344,7 @@ impl Publication<'_> {
             };
             let mut change = &mut entries[slot.entry].change;
             for index in slot.path {
-                change=relocation_change(change);
+                change = relocation_change(change);
                 match change {
                     Change::Group(changes) => change = &mut changes[index],
                     _ => unreachable!("Validated relocation group"),
@@ -338,7 +384,8 @@ impl Publication<'_> {
             remap(&mut session.saved_revision);
         }
         session.next_revision = plan.next;
-        plan.published.store(true,std::sync::atomic::Ordering::Release);
+        plan.published
+            .store(true, std::sync::atomic::Ordering::Release);
     }
 }
 fn remap_entry(entry: &mut Entry, remap: &impl Fn(&mut u64)) {
@@ -682,4 +729,18 @@ mod tests {
     }
 }
 
-fn relocation_change(mut change:&mut Change)->&mut Change{loop{match change{Change::ChartProperties {change:inner,..} | Change::SongTimingProperties(inner) | Change::TimingMigration(inner) | Change::TimingEdit(inner) | Change::MarkerMetadata(inner) | Change::SongPropertiesLive(inner) | Change::SongPropertiesMetadata(inner) | Change::ChartEventCopy(inner)=>change=inner,_=>return change}}}
+fn relocation_change(mut change: &mut Change) -> &mut Change {
+    loop {
+        match change {
+            Change::ChartProperties { change: inner, .. }
+            | Change::SongTimingProperties(inner)
+            | Change::TimingMigration(inner)
+            | Change::TimingEdit(inner)
+            | Change::MarkerMetadata(inner)
+            | Change::SongPropertiesLive(inner)
+            | Change::SongPropertiesMetadata(inner)
+            | Change::ChartEventCopy(inner) => change = inner,
+            _ => return change,
+        }
+    }
+}

@@ -1,4 +1,4 @@
-//! File explorer requests use the existing argument-based platform API.
+//! Validated file explorer intentions; the shell executes the platform service.
 use super::*;
 impl State {
     pub(super) fn initial_file_destination(&self) -> Result<String, deadsync_editor::Error> {
@@ -20,14 +20,43 @@ impl State {
     /// Confirmed File/Open changes the next dialog directory even if loading
     /// subsequently fails. A pathless owner stays memory-only and participates
     /// in source-preference history authentication, never acquiring a disk path.
-    pub(super) fn remember_open_dialog_directory(&mut self,path:&Path)->Result<(),deadsync_editor::Error>{
-        let directory=path.parent().ok_or_else(||deadsync_editor::Error::InvalidEdit("Selected file has no parent directory".into()))?;
-        if let Some(file)=self.audio_preferences_file.as_mut(){file.set_initial_file_directory(directory)?;}
-        else{if self.source_preferences_import.memory.is_none(){self.source_preferences_import.memory=Some(deadsync_editor::audio_preferences::File::memory()?);}self.source_preferences_import.memory.as_mut().unwrap().set_initial_file_directory(directory)?;}
+    pub(super) fn remember_open_dialog_directory(
+        &mut self,
+        path: &Path,
+    ) -> Result<(), deadsync_editor::Error> {
+        let directory = path.parent().ok_or_else(|| {
+            deadsync_editor::Error::InvalidEdit("Selected file has no parent directory".into())
+        })?;
+        if let Some(file) = self.audio_preferences_file.as_mut() {
+            file.set_initial_file_directory(directory)?;
+        } else {
+            if self.source_preferences_import.memory.is_none() {
+                self.source_preferences_import.memory =
+                    Some(deadsync_editor::audio_preferences::File::memory()?);
+            }
+            self.source_preferences_import
+                .memory
+                .as_mut()
+                .unwrap()
+                .set_initial_file_directory(directory)?;
+        }
         Ok(())
     }
     pub(super) fn command_open_containing_folder(&mut self) {
-        let result = self.open_containing_folder_with(deadlib_platform::open_path::reveal);
+        let mut requested = None;
+        let result = self.open_containing_folder_with(|path| {
+            requested = Some(path.to_owned());
+            Ok(())
+        });
+        self.folder_request = requested;
+        if result.is_err() {
+            self.complete_folder_request(result.map_err(|error| error.to_string()));
+        }
+    }
+    pub fn take_editor_folder_request(&mut self) -> Option<PathBuf> {
+        self.folder_request.take()
+    }
+    pub fn complete_folder_request(&mut self, result: Result<(), String>) {
         self.status = i18n::tr(
             "Edition",
             if result.is_ok() {
@@ -88,6 +117,25 @@ mod tests {
             })
             .unwrap();
         assert_eq!(actual, Some(expected));
+        assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
+    }
+    #[test]
+    fn folder_action_emits_a_single_host_request_and_reports_host_failure() {
+        let (_root, mut state) = state();
+        let expected = state
+            .workspace
+            .file()
+            .require_existing_path()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .to_owned();
+        let before = state.workspace.file().session.serialize().unwrap();
+        state.command_open_containing_folder();
+        assert_eq!(state.take_editor_folder_request(), Some(expected));
+        assert_eq!(state.take_editor_folder_request(), None);
+        state.complete_folder_request(Err("Host unavailable".into()));
+        assert_eq!(state.status, i18n::tr("Edition", "FileFolderUnavailable"));
         assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
     }
     #[test]

@@ -67,9 +67,8 @@ pub fn index() -> &'static Vec<Value> {
         }
         // Input-only bundles cover retained native traces without claiming
         // that their lengthy full-song replays have been accepted.
-        let inputs: Vec<Value> = serde_json::from_str(include_str!(
-            "../fixtures/song-inputs/index.json"
-        )).unwrap();
+        let inputs: Vec<Value> =
+            serde_json::from_str(include_str!("../fixtures/song-inputs/index.json")).unwrap();
         entries.extend(inputs);
         entries
     })
@@ -84,7 +83,10 @@ pub fn from_source(source: &str) -> SongFixture {
     let archive_path = store().join(entry["archive"].as_str().unwrap());
     if let Some(expected) = entry["sha256"].as_str() {
         use sha2::{Digest, Sha256};
-        let actual = Sha256::digest(fs::read(&archive_path).unwrap()).iter().map(|byte| format!("{byte:02x}")).collect::<String>();
+        let actual = Sha256::digest(fs::read(&archive_path).unwrap())
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>();
         assert_eq!(actual, expected, "input bundle checksum differs");
     }
     let input = fs::File::open(archive_path).unwrap();
@@ -99,8 +101,12 @@ pub fn from_source(source: &str) -> SongFixture {
     let manifest: Value =
         serde_json::from_slice(&fs::read(temp.path().join("manifest.json")).unwrap()).unwrap();
     let relative = Path::new(manifest["chart"]["simfile"].as_str().unwrap());
-    assert!(relative.components().all(|part| matches!(part, std::path::Component::Normal(_))),
-        "fixture simfile must stay inside its temporary archive root");
+    assert!(
+        relative
+            .components()
+            .all(|part| matches!(part, std::path::Component::Normal(_))),
+        "fixture simfile must stay inside its temporary archive root"
+    );
     let simfile = temp.path().join(relative);
     assert!(simfile.is_file(), "archive omitted its simfile");
     SongFixture {

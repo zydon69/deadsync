@@ -1,3 +1,5 @@
+#[path = "support/prepared_audio.rs"]
+mod prepared_audio;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::actors::Actor;
 use deadsync_editor::{audio_preferences::File, waveform_preferences::Preferences};
@@ -32,6 +34,9 @@ fn down(state: &mut State, n: usize) {
 fn actors(state: &State) -> Vec<Actor> {
     let mut actors = Vec::new();
     state.actors(&mut actors);
+    for target in state.take_waveform_render_targets() {
+        actors.extend(target.children.iter().cloned());
+    }
     actors
 }
 fn has(state: &State, text: &str) -> bool {
@@ -44,7 +49,32 @@ fn color(state: &State, tint: [f32; 4]) -> bool {
         .iter()
         .any(|actor| matches!(actor, Actor::Sprite { tint: actual, .. } if *actual==tint))
 }
+fn assert_endpoint_columns(state: &State) {
+    let sparse = state
+        .waveform_preferences()
+        .palette()
+        .resolved_sparse()
+        .rgba();
+    let widths: Vec<f32> = actors(state)
+        .into_iter()
+        .filter_map(|actor| match actor {
+            Actor::Sprite {
+                tint,
+                size: [deadlib_present::actors::SizeSpec::Px(w), _],
+                scale,
+                ..
+            } if tint == sparse => Some(if w == 0.0 { scale[0] } else { w * scale[0] }),
+            _ => None,
+        })
+        .collect();
+    assert!(!widths.is_empty());
+    assert!(
+        widths.iter().all(|width| (*width - 1.0).abs() < 1e-6),
+        "{widths:?}"
+    );
+}
 fn ready(state: &mut State) {
+    prepared_audio::publish_main(state);
     let deadline = Instant::now() + Duration::from_secs(10);
     while !state.waveform_ready() {
         state.update();
@@ -114,7 +144,7 @@ fn keyboard_waveform_settings_save_reload_render_scales_and_preserve_audio_and_s
     press(&mut state, KeyCode::Digit0);
     assert_eq!(fs::read(&path).unwrap(), before);
     assert!(!state.waveform_ready());
-    down(&mut state, 3);
+    down(&mut state, 11);
     press(&mut state, KeyCode::Enter);
     ready(&mut state);
     assert!((state.waveform_preferences().channel_width() - 0.891).abs() < 1e-12);
@@ -128,19 +158,16 @@ fn keyboard_waveform_settings_save_reload_render_scales_and_preserve_audio_and_s
         Preferences::default().palette().dense().rgba()
     ));
     assert_eq!(File::open(&path).unwrap().audio().fade_in(), 0.125);
-    // A zero width hides all waveform geometry without discarding decoded data.
+    // Source zero scale keeps its inclusive one-pixel endpoint per channel.
     let frames = state.waveform_frames();
     open(&mut state);
     down(&mut state, 2);
     press(&mut state, KeyCode::Digit0);
-    down(&mut state, 4);
+    down(&mut state, 12);
     press(&mut state, KeyCode::Enter);
     assert_eq!(state.waveform_frames(), frames);
     assert!(state.waveform_ready());
-    assert!(!color(
-        &state,
-        Preferences::default().palette().resolved_sparse().rgba()
-    ));
+    assert_endpoint_columns(&state);
     let mut reopened = State::open(&dir.path().join("song.ssc"), 0).unwrap();
     reopened.configure_audio_preferences(&path).unwrap();
     ready(&mut reopened);
@@ -148,10 +175,7 @@ fn keyboard_waveform_settings_save_reload_render_scales_and_preserve_audio_and_s
         reopened.waveform_preferences(),
         state.waveform_preferences()
     );
-    assert!(!color(
-        &reopened,
-        Preferences::default().palette().resolved_sparse().rgba()
-    ));
+    assert_endpoint_columns(&reopened);
     assert_eq!(
         state.workspace().file().session.serialize().unwrap(),
         source.as_bytes()
@@ -159,7 +183,7 @@ fn keyboard_waveform_settings_save_reload_render_scales_and_preserve_audio_and_s
     assert!(!state.workspace().file().session.is_dirty());
 }
 #[test]
-fn cancel_defaults_and_session_toggle_have_separate_persistence_semantics() {
+fn cancellation_is_staged_and_waveform_toggle_persists_the_source_show_preference() {
     let (dir, mut state, _) = setup(true);
     let path = dir.path().join("prefs.json");
     let before = fs::read(&path).unwrap();
@@ -169,7 +193,7 @@ fn cancel_defaults_and_session_toggle_have_separate_persistence_semantics() {
     assert!(!state.waveform_preferences().show());
     assert_eq!(fs::read(&path).unwrap(), before);
     open(&mut state);
-    down(&mut state, 5);
+    down(&mut state, 13);
     press(&mut state, KeyCode::Enter);
     assert_eq!(fs::read(&path).unwrap(), before);
     down(&mut state, 1);
@@ -183,25 +207,27 @@ fn cancel_defaults_and_session_toggle_have_separate_persistence_semantics() {
     let saved = fs::read(&path).unwrap();
     press(&mut state, KeyCode::KeyW);
     assert!(!state.waveform_ready());
-    assert_eq!(fs::read(&path).unwrap(), saved);
+    assert_ne!(fs::read(&path).unwrap(), saved);
     let mut reopened = State::open(&dir.path().join("song.ssc"), 0).unwrap();
     reopened.configure_audio_preferences(&path).unwrap();
-    ready(&mut reopened);
-    assert_eq!(reopened.waveform_preferences(), Preferences::default());
+    let mut expected = Preferences::default();
+    expected.set_show(false);
+    assert_eq!(reopened.waveform_preferences(), expected);
+    assert!(!reopened.waveform_ready());
 }
 #[test]
-fn disabling_decoding_clears_data_and_blocks_session_toggle_until_reenabled() {
+fn disabling_decoding_hides_drawing_and_retains_the_existing_immutable_waveform() {
     let (dir, mut state, _) = setup(false);
     ready(&mut state);
     open(&mut state);
     down(&mut state, 1);
     press(&mut state, KeyCode::Enter);
-    down(&mut state, 5);
+    down(&mut state, 13);
     press(&mut state, KeyCode::Enter);
     assert!(!state.waveform_ready());
-    assert_eq!(state.waveform_frames(), None);
+    assert_eq!(state.waveform_frames(), Some(48000));
     press(&mut state, KeyCode::KeyW);
-    assert!(has(&state, "Waveform decoding is disabled"));
+    assert!(!state.waveform_preferences().show());
     assert!(
         !File::open(&dir.path().join("prefs.json"))
             .unwrap()
@@ -211,8 +237,9 @@ fn disabling_decoding_clears_data_and_blocks_session_toggle_until_reenabled() {
     open(&mut state);
     down(&mut state, 1);
     press(&mut state, KeyCode::Home);
-    down(&mut state, 5);
+    down(&mut state, 13);
     press(&mut state, KeyCode::Enter);
+    press(&mut state, KeyCode::KeyW);
     ready(&mut state);
 }
 #[test]
@@ -223,18 +250,33 @@ fn external_and_future_preferences_refuse_writes_and_keep_reviewable_draft() {
         let external = if future {
             r#"{"Version":2}"#
         } else {
-            r#"{"Version":1,"Future":true}"#
+            r#"{"Version":1,"Future":true,"Waveform":{"ShowWaveForm":true}}"#
         };
         if future {
+            let before = (
+                state.audio_preferences(),
+                state.waveform_preferences(),
+                state.zoom_preferences(),
+            );
+            let _ = state.take_audio_commands();
             fs::write(&path, external).unwrap();
             assert!(state.configure_audio_preferences(&path).is_err());
+            assert_eq!(
+                (
+                    state.audio_preferences(),
+                    state.waveform_preferences(),
+                    state.zoom_preferences()
+                ),
+                before
+            );
+            assert!(state.take_audio_commands().is_empty());
         }
         open(&mut state);
         press(&mut state, KeyCode::Enter);
         if !future {
             fs::write(&path, external).unwrap();
         }
-        down(&mut state, 6);
+        down(&mut state, 14);
         press(&mut state, KeyCode::Enter);
         assert!(!state.waveform_preferences().show());
         assert!(has(&state, "Show when the editor opens: Yes"));
@@ -262,6 +304,11 @@ fn paginated_colour_editor_stages_cancels_and_saves_rgba_and_sparse_mode() {
     assert_eq!(fs::read(&path).unwrap(), before);
     open(&mut state);
     press(&mut state, KeyCode::F2);
+    // Darkening is editable only in its original mode. Stage it before
+    // selecting a unique sparse color, where that control becomes read-only.
+    down(&mut state, 1);
+    press(&mut state, KeyCode::Digit0);
+    press(&mut state, KeyCode::ArrowUp);
     press(&mut state, KeyCode::ArrowRight);
     press(&mut state, KeyCode::ArrowRight);
     assert!(has(&state, "Custom colour"));
@@ -283,7 +330,7 @@ fn paginated_colour_editor_stages_cancels_and_saves_rgba_and_sparse_mode() {
     assert_eq!(fs::read(&path).unwrap(), before);
     assert_eq!(state.waveform_preferences().palette(), Palette::default());
     press(&mut state, KeyCode::Escape);
-    down(&mut state, 6);
+    down(&mut state, 14);
     press(&mut state, KeyCode::Enter);
     // Saving colours must not implicitly enable a view configured as hidden.
     assert!(!state.waveform_preferences().show());
@@ -326,6 +373,10 @@ fn semi_transparent_background_sparse_and_dense_are_disjoint_in_every_rendered_b
     file.save().unwrap();
     state.configure_audio_preferences(&path).unwrap();
     ready(&mut state);
+    // Rendering uses the source's normalized 8-bit color projection.
+    let background = Color::new(background).unwrap().unorm_rgba();
+    let dense = Color::new(dense).unwrap().unorm_rgba();
+    let sparse = Color::new(sparse).unwrap().unorm_rgba();
     for tint in [background, dense, sparse] {
         assert!(color(&state, tint), "{tint:?}");
     }
@@ -356,8 +407,8 @@ fn semi_transparent_background_sparse_and_dense_are_disjoint_in_every_rendered_b
     assert_eq!(bands.len(), 290);
     for spans in bands.values_mut() {
         spans.sort_by(|a, b| a.0.total_cmp(&b.0));
-        assert!((spans.first().unwrap().0 - 331.0).abs() < 0.001);
-        assert!((spans.last().unwrap().1 - 523.0).abs() < 0.001);
+        assert!((spans.first().unwrap().0 - 0.0).abs() < 0.001);
+        assert!((spans.last().unwrap().1 - 1024.0).abs() < 0.001);
         for pair in spans.windows(2) {
             assert!(
                 (pair[0].1 - pair[1].0).abs() < 0.001,

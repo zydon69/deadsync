@@ -102,7 +102,11 @@ fn music_rating_offset_apply_together_and_clear_restores_song_audio_after_save_a
     file.session.redo().unwrap();
     assert_eq!(file.session.serialize().unwrap(), after);
     file.save().unwrap();
-    assert_eq!(file.session.serialize().unwrap(), after, "Save output must not rewrite resident Undo bytes");
+    assert_eq!(
+        file.session.serialize().unwrap(),
+        after,
+        "Save output must not rewrite resident Undo bytes"
+    );
     let published = fs::read(&path).unwrap();
     source_output_context::assert_context_only(&after, &published, Format::Ssc);
     let mut reopened = FileSession::open(&path).unwrap();
@@ -145,14 +149,45 @@ fn music_rating_offset_apply_together_and_clear_restores_song_audio_after_save_a
     assert_eq!(final_draft.rating(), 13);
     assert_eq!(final_draft.music_offset(), 0.2);
     assert!(final_draft.uses_chart_offset());
-    assert_eq!(Text::read(final_file.session.document(), 1).unwrap().get(Field::Music), "other.ogg");
-    for (chart, expected) in [b"1000".as_slice(), b"0001".as_slice()].into_iter().enumerate() {
+    assert_eq!(
+        Text::read(final_file.session.document(), 1)
+            .unwrap()
+            .get(Field::Music),
+        "other.ogg"
+    );
+    for (chart, expected) in [b"1000".as_slice(), b"0001".as_slice()]
+        .into_iter()
+        .enumerate()
+    {
         let descriptor = &final_file.session.document().charts()[chart];
-        assert_eq!(final_file.session.document().value(descriptor.notes.clone()), expected);
+        assert_eq!(
+            final_file
+                .session
+                .document()
+                .value(descriptor.notes.clone()),
+            expected
+        );
     }
-    assert_eq!(final_file.session.document().text(None, "MUSIC").as_deref(), Some("song.ogg"));
-    assert_eq!(final_file.session.document().text(None, "OFFSET").as_deref(), Some("0"));
-    assert_eq!(final_file.session.document().text(None, "VENDOR").as_deref(), Some("keep"));
+    assert_eq!(
+        final_file.session.document().text(None, "MUSIC").as_deref(),
+        Some("song.ogg")
+    );
+    assert_eq!(
+        final_file
+            .session
+            .document()
+            .text(None, "OFFSET")
+            .as_deref(),
+        Some("0")
+    );
+    assert_eq!(
+        final_file
+            .session
+            .document()
+            .text(None, "VENDOR")
+            .as_deref(),
+        Some("keep")
+    );
     assert_eq!(fs::read(dir.path().join("song.ogg")).unwrap(), b"song");
     assert_eq!(fs::read(dir.path().join("chart.ogg")).unwrap(), b"chart");
 }
@@ -172,8 +207,7 @@ fn lexical_paths_match_original_fumen_helper_including_outside_dots_unicode_and_
     }
 }
 #[test]
-fn selected_files_are_validated_without_copying_originals_and_sm_override_is_authored()
-{
+fn selected_files_are_validated_without_copying_originals_and_sm_override_is_authored() {
     let dir = tempfile::tempdir().unwrap();
     let folder = dir.path().join("Song");
     fs::create_dir(&folder).unwrap();
@@ -193,7 +227,12 @@ fn selected_files_are_validated_without_copying_originals_and_sm_override_is_aut
     assert!(draft.supports_text(Field::Music));
     draft.set_text(Field::Music, "chart.ogg").unwrap();
     assert!(draft.apply(&mut s, 0).unwrap());
-    assert_eq!(deadsync_editor::chart_text::Text::read(s.document(),0).unwrap().get(Field::Music),"chart.ogg");
+    assert_eq!(
+        deadsync_editor::chart_text::Text::read(s.document(), 0)
+            .unwrap()
+            .get(Field::Music),
+        "chart.ogg"
+    );
     assert!(s.undo().unwrap());
     assert_eq!(s.serialize().unwrap(), bytes);
     #[cfg(unix)]

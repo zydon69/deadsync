@@ -33,10 +33,14 @@ fn moved_detail_values_preserve_all_labels_layout_and_loading_spinners() {
                 let labels = after
                     .iter()
                     .filter_map(|actor| match actor {
-                        Actor::Text {
-                            content: TextContent::Static(label),
-                            ..
-                        } => Some(*label),
+                        Actor::Text { content, .. }
+                            if matches!(
+                                content,
+                                TextContent::Static(_) | TextContent::Shared(_)
+                            ) =>
+                        {
+                            Some(content.as_str())
+                        }
                         _ => None,
                     })
                     .collect::<Vec<_>>();

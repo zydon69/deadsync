@@ -72,7 +72,10 @@ pub const fn gameplay_combo_carry_updates(
                 None => None,
             },
         ],
-        PlayStyle::Single | PlayStyle::Double | PlayStyle::PumpSingle | PlayStyle::PumpDouble
+        PlayStyle::Single
+        | PlayStyle::Double
+        | PlayStyle::PumpSingle
+        | PlayStyle::PumpDouble
         | PlayStyle::Routine
         | PlayStyle::PumpRoutine => [
             match context.player_combos[0] {
@@ -113,7 +116,10 @@ pub const fn course_last_played_sides(
         PlayStyle::Versus | PlayStyle::PumpVersus | PlayStyle::Couple | PlayStyle::PumpCouple => {
             [Some(PlayerSide::P1), Some(PlayerSide::P2)]
         }
-        PlayStyle::Single | PlayStyle::Double | PlayStyle::PumpSingle | PlayStyle::PumpDouble
+        PlayStyle::Single
+        | PlayStyle::Double
+        | PlayStyle::PumpSingle
+        | PlayStyle::PumpDouble
         | PlayStyle::Routine
         | PlayStyle::PumpRoutine => [Some(active_side), None],
     }

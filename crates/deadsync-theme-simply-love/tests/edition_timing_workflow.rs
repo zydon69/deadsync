@@ -130,10 +130,24 @@ fn f10_local_tempo_stages_without_mutation_accepts_once_undoes_redoes_saves_and_
     ctrl(&mut screen, KeyCode::KeyZ);
     key(&mut screen, KeyCode::ShiftLeft, false);
     assert_eq!(serialized(&screen), after);
+    let output = screen
+        .workspace()
+        .file()
+        .session
+        .serialize_for_output()
+        .unwrap();
     ctrl(&mut screen, KeyCode::KeyS);
-    assert_eq!(fs::read(&path).unwrap(), after);
+    assert_eq!(fs::read(&path).unwrap(), output);
     let reopened = State::open(&path, 0).unwrap();
-    assert_eq!(serialized(&reopened), after);
+    assert_eq!(
+        reopened
+            .workspace()
+            .file()
+            .session
+            .serialize_for_output()
+            .unwrap(),
+        output
+    );
     assert_eq!(
         reopened
             .workspace()
@@ -270,9 +284,9 @@ fn chart_properties_exposes_timing_and_prevents_losing_pending_offset() {
     fs::write(&path, SONG).unwrap();
     let mut screen = State::open(&path, 0).unwrap();
     press(&mut screen, KeyCode::F7);
-    for _ in 0..2 {
-        press(&mut screen, KeyCode::ArrowDown);
-    }
+    press(&mut screen, KeyCode::ArrowDown);
+    press(&mut screen, KeyCode::ArrowRight); // Enable the independent chart offset.
+    press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::ArrowRight);
     for _ in 0..4 {
         press(&mut screen, KeyCode::ArrowDown);
@@ -310,26 +324,27 @@ fn sm_keeps_shared_timing_and_legacy_ssc_migrates_before_local_timing() {
             assert!(contains(&screen, "Convert timing and keep editing"));
             press(&mut screen, KeyCode::Enter);
             press(&mut screen, KeyCode::F10);
-            press(&mut screen, KeyCode::ArrowRight);
+            press(&mut screen, KeyCode::ArrowLeft);
         } else {
+            assert!(contains(&screen, "this chart"));
+            press(&mut screen, KeyCode::ArrowLeft);
             assert!(contains(&screen, "shared song"));
-            press(&mut screen, KeyCode::ArrowRight);
-            assert!(contains(&screen, "SSC 0.7 or newer"));
         }
         let mut index = 0;
         choose(&mut screen, &mut index, 2);
         type_number(&mut screen, "160");
         choose(&mut screen, &mut index, 8);
         press(&mut screen, KeyCode::Enter);
+        let session = &screen.workspace().file().session;
+        let effective = TempoDraft::capture(session, 0, Scope::Song).unwrap();
+        assert_eq!(effective.tempos().serialize(), "0=160");
         assert_eq!(
-            screen
-                .workspace()
-                .file()
-                .session
-                .document()
-                .text(None, "BPMS")
-                .as_deref(),
-            Some("0=160")
+            session.document().text(None, "BPMS").as_deref(),
+            if name.ends_with("sm") {
+                Some("0=120")
+            } else {
+                Some("0=160")
+            }
         );
         ctrl(&mut screen, KeyCode::KeyZ);
         if name.ends_with("ssc") {
@@ -404,7 +419,7 @@ fn malformed_local_bpm_cannot_silently_open_a_shared_song_draft() {
 }
 
 #[test]
-fn numeric_controls_round_beats_adjust_bpm_and_preserve_help_preference() {
+fn numeric_controls_round_beats_adjust_bpm_after_explicit_help_dismissal() {
     init();
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
@@ -420,9 +435,12 @@ fn numeric_controls_round_beats_adjust_bpm_and_preserve_help_preference() {
         screen.actors(&mut actors);
         actors
             .iter()
-            .any(|actor| matches!(actor, Actor::Sprite { z: 8010, .. }))
+            .any(|actor| matches!(actor, Actor::Text { z: 8050, .. }))
     };
     assert!(help_visible(&screen));
+    press(&mut screen, KeyCode::F10);
+    assert!(help_visible(&screen)); // The help modal owns input until dismissed.
+    press(&mut screen, KeyCode::Escape);
     press(&mut screen, KeyCode::F10);
     assert!(!help_visible(&screen));
     let mut index = 0;
@@ -439,7 +457,7 @@ fn numeric_controls_round_beats_adjust_bpm_and_preserve_help_preference() {
     choose(&mut screen, &mut index, 8);
     press(&mut screen, KeyCode::Enter);
     assert_eq!(serialized(&screen), expected(Scope::Chart, 5, 130.5));
-    assert!(help_visible(&screen));
+    assert!(!help_visible(&screen));
 }
 
 #[test]
@@ -493,7 +511,15 @@ fn stops_and_delays_share_one_draft_and_one_undo_without_changing_bpm() {
     ctrl(&mut screen, KeyCode::KeyZ);
     key(&mut screen, KeyCode::ShiftLeft, false);
     ctrl(&mut screen, KeyCode::KeyS);
-    assert_eq!(serialized(&State::open(&path, 0).unwrap()), after);
+    assert_eq!(
+        serialized(&State::open(&path, 0).unwrap()),
+        screen
+            .workspace()
+            .file()
+            .session
+            .serialize_for_output()
+            .unwrap()
+    );
 }
 #[test]
 fn pause_type_input_and_scope_guards_cancel_and_zero_delay_validation_preserve_history() {
@@ -751,9 +777,23 @@ fn native_warp_and_fake_edits_match_original_editor_flags_times_apply_undo_save_
     key(&mut screen, KeyCode::ShiftLeft, true);
     ctrl(&mut screen, KeyCode::KeyZ);
     key(&mut screen, KeyCode::ShiftLeft, false);
+    let output = screen
+        .workspace()
+        .file()
+        .session
+        .serialize_for_output()
+        .unwrap();
     ctrl(&mut screen, KeyCode::KeyS);
-    assert_eq!(fs::read(&path).unwrap(), after);
-    assert_eq!(serialized(&State::open(&path, 0).unwrap()), after);
+    assert_eq!(fs::read(&path).unwrap(), output);
+    assert_eq!(
+        serialized(&State::open(&path, 0).unwrap()),
+        screen
+            .workspace()
+            .file()
+            .session
+            .serialize_for_output()
+            .unwrap()
+    );
 }
 #[test]
 fn region_invalid_lengths_endpoint_overflow_pending_input_and_cancel_preserve_redo() {
@@ -898,10 +938,12 @@ fn region_shared_scope_rounding_fine_controls_and_sm_type_filter_follow_format_r
     fs::write(&sm, bytes).unwrap();
     let mut screen = State::open(&sm, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..3 {
+    for _ in 0..8 {
         press(&mut screen, KeyCode::Tab);
     }
     assert!(contains(&screen, "Hold tick counts"));
+    press(&mut screen, KeyCode::Tab);
+    assert!(contains(&screen, "Instant scroll rates"));
     press(&mut screen, KeyCode::Tab);
     assert!(contains(&screen, "Time signatures"));
     press(&mut screen, KeyCode::Tab);
@@ -911,10 +953,19 @@ fn region_shared_scope_rounding_fine_controls_and_sm_type_filter_follow_format_r
 
 fn open_signature(screen: &mut State) {
     press(screen, KeyCode::F10);
+    if screen.workspace().file().session.document().format == Format::Sm {
+        press(screen, KeyCode::ArrowLeft); // Explicit shared timing for these SM scenarios.
+        assert!(contains(screen, "shared song"), "{:?}", texts(screen));
+    }
     key(screen, KeyCode::ShiftLeft, true);
     press(screen, KeyCode::Tab);
     key(screen, KeyCode::ShiftLeft, false);
-    assert!(contains(screen, "Time signatures"));
+    assert!(contains(screen, "Time signatures"), "{:?}", texts(screen));
+}
+fn configure_measure_geometry(screen: &mut State, directory: &std::path::Path) {
+    let preferences = directory.join("measure-geometry.json");
+    fs::write(&preferences, br#"{"Version":1,"Scroll":{"SpacingMode":"ConstantRow","RowBasedPixelsPerRow":1},"Receptors":{"PositionY":110}}"#).unwrap();
+    screen.configure_audio_preferences(&preferences).unwrap();
 }
 fn second_measure_y(screen: &State) -> f32 {
     let mut actors = Vec::new();
@@ -939,6 +990,7 @@ fn native_signatures_apply_change_measure_grid_and_undo_save_reopen() {
     let path = dir.path().join("song.ssc");
     fs::write(&path, SONG).unwrap();
     let mut screen = State::open(&path, 0).unwrap();
+    configure_measure_geometry(&mut screen, dir.path());
     assert_eq!(second_measure_y(&screen), 352.0);
     open_signature(&mut screen);
     let mut index = 0;
@@ -964,7 +1016,9 @@ fn native_signatures_apply_change_measure_grid_and_undo_save_reopen() {
     assert_eq!(second_measure_y(&screen), 352.0);
     ctrl(&mut screen, KeyCode::KeyY);
     ctrl(&mut screen, KeyCode::KeyS);
-    assert_eq!(second_measure_y(&State::open(&path, 0).unwrap()), 304.0);
+    let mut reopened = State::open(&path, 0).unwrap();
+    configure_measure_geometry(&mut reopened, dir.path());
+    assert_eq!(second_measure_y(&reopened), 304.0);
 }
 #[test]
 fn signature_validation_initial_immutability_cancel_and_unchanged_apply_preserve_file() {
@@ -1040,16 +1094,11 @@ fn signatures_on_sm_move_and_remove_in_draft_then_apply_one_shared_edit() {
     press(&mut screen, KeyCode::Enter);
     choose(&mut screen, &mut index, 8);
     press(&mut screen, KeyCode::Enter);
-    assert_eq!(
-        screen
-            .workspace()
-            .file()
-            .session
-            .document()
-            .text(None, "TIMESIGNATURES")
-            .unwrap(),
-        "0=4=4,2=5=8"
-    );
+    let session = &screen.workspace().file().session;
+    let effective =
+        deadsync_editor::timing_edit::signature::Draft::capture(session, 0, Scope::Song).unwrap();
+    assert_eq!(effective.signatures().serialize(), "0=4=4,2=5=8");
+    assert!(session.document().text(None, "TIMESIGNATURES").is_none());
     ctrl(&mut screen, KeyCode::KeyZ);
     assert_eq!(serialized(&screen), bytes);
 }
@@ -1077,15 +1126,13 @@ fn file_reader_signature_denominators_can_move_without_being_revalidated_as_new_
     assert!(contains(&screen, "Signature moved"));
     choose(&mut screen, &mut index, 8);
     press(&mut screen, KeyCode::Enter);
+    let session = &screen.workspace().file().session;
+    let effective =
+        deadsync_editor::timing_edit::signature::Draft::capture(session, 0, Scope::Song).unwrap();
+    assert_eq!(effective.signatures().serialize(), "0=4=4,2=5=6");
     assert_eq!(
-        screen
-            .workspace()
-            .file()
-            .session
-            .document()
-            .text(None, "TIMESIGNATURES")
-            .unwrap(),
-        "0=4=4,2=5=6"
+        session.document().text(None, "TIMESIGNATURES").as_deref(),
+        Some("0=4=4,1=5=6")
     );
 }
 
@@ -1198,24 +1245,25 @@ fn scroll_empty_noop_cancel_and_sm_type_filter_preserve_file() {
     key(&mut screen, KeyCode::ShiftLeft, true);
     press(&mut screen, KeyCode::Tab);
     press(&mut screen, KeyCode::Tab);
+    press(&mut screen, KeyCode::Tab);
     key(&mut screen, KeyCode::ShiftLeft, false);
     assert!(contains(&screen, "Hold tick counts"));
     assert_eq!(serialized(&screen), bytes);
 }
 
 fn open_ticks(screen: &mut State) {
-    let steps = if screen.workspace().file().session.document().format == Format::Sm {
-        2
-    } else {
-        3
-    };
+    let steps = 3; // Native SM and SSC share the full resident timing catalog.
     press(screen, KeyCode::F10);
+    if screen.workspace().file().session.document().format == Format::Sm {
+        press(screen, KeyCode::ArrowLeft); // These SM cases author shared song timing.
+        assert!(contains(screen, "shared song"), "{:?}", texts(screen));
+    }
     key(screen, KeyCode::ShiftLeft, true);
     for _ in 0..steps {
         press(screen, KeyCode::Tab);
     }
     key(screen, KeyCode::ShiftLeft, false);
-    assert!(contains(screen, "Hold tick counts"));
+    assert!(contains(screen, "Hold tick counts"), "{:?}", texts(screen));
 }
 #[test]
 fn ticks_stage_zero_move_initial_guard_type_apply_undo_save_and_reopen() {
@@ -1337,15 +1385,13 @@ fn sm_tick_events_are_accessible_and_signed_source_nodes_move_delete_and_save() 
     press(&mut screen, KeyCode::Enter);
     ctrl(&mut screen, KeyCode::KeyS);
     let reopened = State::open(&path, 0).unwrap();
+    let session = &reopened.workspace().file().session;
+    let effective =
+        deadsync_editor::timing_edit::tick::Draft::capture(session, 0, Scope::Song).unwrap();
+    assert_eq!(effective.counts().serialize(), "1=0,4=4");
     assert_eq!(
-        reopened
-            .workspace()
-            .file()
-            .session
-            .document()
-            .text(None, "TICKCOUNTS")
-            .unwrap(),
-        "1=0,4=4"
+        session.document().text(None, "TICKCOUNTS").as_deref(),
+        Some("0=-2,4=4")
     );
     ctrl(&mut screen, KeyCode::KeyZ);
     assert_eq!(serialized(&screen), bytes);
@@ -1358,7 +1404,7 @@ fn open_combos(screen: &mut State) {
         press(screen, KeyCode::Tab);
     }
     key(screen, KeyCode::ShiftLeft, false);
-    assert!(contains(screen, "Combo multipliers"));
+    assert!(contains(screen, "Combo multipliers"), "{:?}", texts(screen));
 }
 #[test]
 fn combo_pair_stage_move_zero_type_guard_apply_undo_and_save_reopen() {
@@ -1504,7 +1550,7 @@ fn signed_source_combo_moves_without_revalidation_and_sm_cycle_excludes_combos()
     fs::write(&sm, original).unwrap();
     let mut screen = State::open(&sm, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..3 {
+    for _ in 0..8 {
         press(&mut screen, KeyCode::Tab);
     }
     assert!(contains(&screen, "Hold tick counts"));
@@ -1689,7 +1735,7 @@ fn open_labels(screen: &mut State) {
         press(screen, KeyCode::Tab);
     }
     key(screen, KeyCode::ShiftLeft, false);
-    assert!(contains(screen, "Section labels"));
+    assert!(contains(screen, "Section labels"), "{:?}", texts(screen));
 }
 #[test]
 fn unicode_labels_stage_move_empty_apply_render_undo_and_save_reopen() {
@@ -1734,11 +1780,11 @@ fn unicode_labels_stage_move_empty_apply_render_undo_and_save_reopen() {
         .text(Some(0), "LABELS")
         .unwrap();
     assert_eq!(value, "0=,1=Pré-refrain 日本語 🎵 _ ,");
-    assert!(
-        texts(&screen)
-            .iter()
-            .any(|s| s == "Pré-refrain 日本語 🎵 _ ")
-    );
+    assert!(texts(&screen).iter().any(|s| s
+        == &format!(
+            "{} Pré-refrain 日本語 🎵 _ ",
+            i18n::tr("Edition", "EventSelectionLabel")
+        )));
     ctrl(&mut screen, KeyCode::KeyZ);
     assert_eq!(serialized(&screen), SONG);
     ctrl(&mut screen, KeyCode::KeyY);
@@ -1775,7 +1821,7 @@ fn label_composition_grapheme_deletion_equals_rejection_and_cancel_are_safe() {
     screen.text_preedit("");
     assert!(contains(&screen, "Label: 日本語"));
     assert!(screen.text_input("e\u{301}👩‍👩‍👧‍👦"));
-    press(&mut screen, KeyCode::Backspace);
+    key(&mut screen, KeyCode::Backspace, true);
     assert!(contains(&screen, "Label: 日本語e\u{301}"));
     screen.raw_key(&RawKeyboardEvent {
         code: KeyCode::Backspace,
@@ -1784,6 +1830,7 @@ fn label_composition_grapheme_deletion_equals_rejection_and_cancel_are_safe() {
         timestamp: Instant::now(),
         host_nanos: 0,
     });
+    key(&mut screen, KeyCode::Backspace, false);
     assert!(contains(&screen, "Label: 日本語"));
     key(&mut screen, KeyCode::SuperLeft, true);
     assert!(!screen.text_input("shortcut"));
@@ -1794,7 +1841,7 @@ fn label_composition_grapheme_deletion_equals_rejection_and_cancel_are_safe() {
     press(&mut screen, KeyCode::Enter);
     assert!(contains(&screen, "equals sign cannot be saved"));
     assert_eq!(serialized(&screen), SONG);
-    press(&mut screen, KeyCode::Escape);
+    press(&mut screen, KeyCode::Escape); // Discard the complete timing draft, including invalid text.
     open_labels(&mut screen);
     index = 0;
     choose(&mut screen, &mut index, 8);
@@ -1812,7 +1859,11 @@ fn escaped_legacy_label_moves_preserve_text_and_sm_filter_does_not_change_unknow
         .replace("#LABELS:0=keep;", "#LABELS:0=Legacy\\/\\/intro,4=End;");
     fs::write(&path, &bytes).unwrap();
     let mut screen = State::open(&path, 0).unwrap();
-    assert!(texts(&screen).iter().any(|s| s == "Legacy//intro"));
+    assert!(texts(&screen).iter().any(|s| s
+        == &format!(
+            "{} Legacy//intro",
+            i18n::tr("Edition", "EventSelectionLabel")
+        )));
     open_labels(&mut screen);
     let mut index = 0;
     choose(&mut screen, &mut index, 1);
@@ -1823,7 +1874,8 @@ fn escaped_legacy_label_moves_preserve_text_and_sm_filter_does_not_change_unknow
     choose(&mut screen, &mut index, 8);
     press(&mut screen, KeyCode::Enter);
     ctrl(&mut screen, KeyCode::KeyS);
-    let reopened = State::open(&path, 0).unwrap();
+    let mut reopened = State::open(&path, 0).unwrap();
+    configure_measure_geometry(&mut reopened, dir.path());
     assert_eq!(
         reopened
             .workspace()
@@ -1834,13 +1886,17 @@ fn escaped_legacy_label_moves_preserve_text_and_sm_filter_does_not_change_unknow
             .unwrap(),
         "2=Legacy//intro,4=End"
     );
-    assert!(texts(&reopened).iter().any(|s| s == "End"));
+    assert!(
+        texts(&reopened)
+            .iter()
+            .any(|s| s == &format!("{} End", i18n::tr("Edition", "EventSelectionLabel")))
+    );
     let sm = dir.path().join("song.sm");
     let original = b"#BPMS:0=120;#LABELS:0=Keep;#NOTES:dance-single::Hard:9::1000;";
     fs::write(&sm, original).unwrap();
     let mut screen = State::open(&sm, 0).unwrap();
     press(&mut screen, KeyCode::F10);
-    for _ in 0..3 {
+    for _ in 0..8 {
         press(&mut screen, KeyCode::Tab);
     }
     assert!(contains(&screen, "Hold tick counts"));

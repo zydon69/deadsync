@@ -16,11 +16,14 @@ fn press(s: &mut State, code: KeyCode) {
 #[test]
 fn source_speed_controls_apply_persist_without_undo_and_reverse_undoes_only_its_flag() {
     i18n::init(deadsync_assets::language::load_for_tests(super::LANGUAGE));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let d = tempfile::tempdir().unwrap();
     let song = d.path().join("song.ssc");
     std::fs::write(&song,"#VERSION:0.83;#BPMS:0=120;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0010\n0001;").unwrap();
     let prefs = d.path().join("prefs.json");
-    std::fs::write(&prefs,r#"{"Version":1,"Scroll":{"SpacingMode":"ConstantRow","TimeBasedPixelsPerSecond":450,"RowBasedPixelsPerRow":3,"VariablePixelsPerSecondAtDefaultBPM":600},"KeyBinds":{"OpenScrollSettings":[["F13"]],"Undo":[["F14"]],"Redo":[["F15"]]}}"#).unwrap();
+    std::fs::write(&prefs,r#"{"Version":1,"Scroll":{"SpacingMode":"ConstantTime","TimeBasedPixelsPerSecond":450,"RowBasedPixelsPerRow":3,"VariablePixelsPerSecondAtDefaultBPM":600},"KeyBinds":{"OpenScrollSettings":[["F13"]],"Undo":[["F14"]],"Redo":[["F15"]]}}"#).unwrap();
     let mut s = State::open(&song, 0).unwrap();
     s.configure_audio_preferences(&prefs).unwrap();
     let begin = s.take_audio_commands();
@@ -29,6 +32,9 @@ fn source_speed_controls_apply_persist_without_undo_and_reverse_undoes_only_its_
     s.take_audio_commands();
     let initial = s.workspace().file().session.undo_label().map(str::to_owned);
     let source = s.workspace().file().session.serialize().unwrap();
+    s.configure_spacing_preference(
+        deadsync_editor::scroll_preferences::spacing::Preference::ConstantTime,
+    );
     press(&mut s, KeyCode::F13);
     press(&mut s, KeyCode::F12);
     let mut actors = Vec::new();
@@ -37,9 +43,25 @@ fn source_speed_controls_apply_persist_without_undo_and_reverse_undoes_only_its_
     assert!(
         actors
             .iter()
-            .any(|a| matches!(a,Actor::Text{content,..} if content.as_str()==&*label))
+            .any(|a| matches!(a,Actor::Text{content,..} if content.as_str()==&*label)),
+        "expected {label}; text actors: {:?}",
+        actors
+            .iter()
+            .filter_map(|a| match a {
+                Actor::Text { content, .. } => Some(content.as_str()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
     );
-    for (index, value) in [(0, 460.), (1, 3.1), (2, 610.)] {
+    for (index, value) in [(0, 460_f64), (1, 3.1), (2, 610.)] {
+        // Application preference publication is the authoritative mode owner;
+        // direct view configuration would be restored by the next input barrier.
+        let mut preferences: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(&prefs).unwrap()).unwrap();
+        preferences["Scroll"]["SpacingMode"] =
+            ["ConstantTime", "ConstantRow", "Variable"][index].into();
+        std::fs::write(&prefs, serde_json::to_vec(&preferences).unwrap()).unwrap();
+        s.configure_audio_preferences(&prefs).unwrap();
         press(&mut s, KeyCode::ArrowRight);
         assert!((s.scroll_preferences().speed(index).unwrap() - value).abs() < 1e-10);
         assert_eq!(

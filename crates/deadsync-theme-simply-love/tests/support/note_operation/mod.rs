@@ -96,9 +96,10 @@ fn convert_all_is_reviewed_without_edits_then_applies_cancels_undoes_and_reloads
     assert_eq!(serialized(&s), SOURCE);
     ctrl(&mut s, KeyCode::KeyY);
     assert_eq!(serialized(&s), after);
+    let output = s.workspace().file().session.serialize_for_output().unwrap();
     ctrl(&mut s, KeyCode::KeyS);
     let reopened = State::open(&path, 0).unwrap();
-    assert_eq!(serialized(&reopened), after);
+    assert_eq!(serialized(&reopened), output);
 }
 #[test]
 fn swap_all_is_simultaneous_over_notes_beyond_current_row() {

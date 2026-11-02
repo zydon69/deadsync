@@ -116,13 +116,28 @@ fn option_writes(trace: &NativeTrace) -> (Vec<ModWrite>, BTreeMap<String, usize>
             {
                 continue;
             }
-            let speed_observed = detail.as_ref().is_some_and(|detail| detail["speed_option"].is_object());
-            if speed_observed && matches!(operation, "TimeSpacing" | "ScrollSpeed" | "ScrollBPM" | "MaxScrollBPM" | "XMod" | "CMod" | "MMod") {
+            let speed_observed = detail
+                .as_ref()
+                .is_some_and(|detail| detail["speed_option"].is_object());
+            if speed_observed
+                && matches!(
+                    operation,
+                    "TimeSpacing"
+                        | "ScrollSpeed"
+                        | "ScrollBPM"
+                        | "MaxScrollBPM"
+                        | "XMod"
+                        | "CMod"
+                        | "MMod"
+                )
+            {
                 // All shared fields and every call are checked against native
                 // getters below, followed by the actual final playback mode.
                 continue;
             }
-            if speed_observed { speed_resets.insert(*sequence); }
+            if speed_observed {
+                speed_resets.insert(*sequence);
+            }
             let mut push = |key: String, value: f32| {
                 writes.push(ModWrite {
                     sequence: *sequence,
@@ -138,7 +153,8 @@ fn option_writes(trace: &NativeTrace) -> (Vec<ModWrite>, BTreeMap<String, usize>
                 // them. Omitted numeric fields return to PlayerOptions::Init
                 // defaults before the replacement string's targets are applied.
                 push("__assignment_reset".into(), 0.0);
-                if let Some(snapshot) = detail.as_ref()
+                if let Some(snapshot) = detail
+                    .as_ref()
                     .and_then(|detail| detail["numeric_options"].as_array())
                 {
                     assignments.push((*sequence, *beat, *second, player, snapshot));
@@ -146,7 +162,7 @@ fn option_writes(trace: &NativeTrace) -> (Vec<ModWrite>, BTreeMap<String, usize>
             }
             // FromString Overhead always resets perspective, even at level zero.
             let mut set_option = |key: String, value: f32| match key.as_str() {
-                "xmod" | "cmod" | "mmod" if speed_observed => {},
+                "xmod" | "cmod" | "mmod" if speed_observed => {}
                 "failarcade" | "failimmediate" => push("failsetting".into(), 0.0),
                 "failendofsong" | "failimmediatecontinue" => push("failsetting".into(), 1.0),
                 "failatend" => push("failsetting".into(), 2.0),
@@ -168,9 +184,13 @@ fn option_writes(trace: &NativeTrace) -> (Vec<ModWrite>, BTreeMap<String, usize>
                 }
                 _ => push(key, value),
             };
-            if operation == "NoteSkin" && detail.as_ref()
-                .and_then(|detail| detail.get("noteskin_option"))
-                .is_some_and(|state| state["previous"].is_string() && state["current"].is_string())
+            if operation == "NoteSkin"
+                && detail
+                    .as_ref()
+                    .and_then(|detail| detail.get("noteskin_option"))
+                    .is_some_and(|state| {
+                        state["previous"].is_string() && state["current"].is_string()
+                    })
             {
                 // A string setting has its own native getter/sequence audit.
                 continue;
@@ -189,30 +209,45 @@ fn option_writes(trace: &NativeTrace) -> (Vec<ModWrite>, BTreeMap<String, usize>
                         continue;
                     }
                     let key = words.last().expect("nonempty modifier part");
-                    if *key != "clearall" && detail.as_ref()
-                        .and_then(|detail| detail.get("noteskin_option"))
-                        .filter(|state| state["previous"].is_string() && state["current"].is_string())
-                        .and_then(|state| state["parts"].as_array())
-                        .is_some_and(|parts| parts.iter().any(|skin|
-                            skin["part"].as_str().is_some_and(|name| name.eq_ignore_ascii_case(&part))
-                                && skin["target"].is_string()))
+                    if *key != "clearall"
+                        && detail
+                            .as_ref()
+                            .and_then(|detail| detail.get("noteskin_option"))
+                            .filter(|state| {
+                                state["previous"].is_string() && state["current"].is_string()
+                            })
+                            .and_then(|state| state["parts"].as_array())
+                            .is_some_and(|parts| {
+                                parts.iter().any(|skin| {
+                                    skin["part"]
+                                        .as_str()
+                                        .is_some_and(|name| name.eq_ignore_ascii_case(&part))
+                                        && skin["target"].is_string()
+                                })
+                            })
                     {
                         // The linked native parser identified this exact part.
                         // compare_noteskin_options must also pass its API state;
                         // clearall still needs the numeric reset audit below.
                         continue;
                     }
-                    if let Some(noop) = detail.as_ref()
+                    if let Some(noop) = detail
+                        .as_ref()
                         .and_then(|detail| detail["rejected_parts"].as_array())
-                        .and_then(|parts| parts.iter().find(|noop|
-                            noop["part"].as_str().is_some_and(|raw|
-                                raw.eq_ignore_ascii_case(&part))))
+                        .and_then(|parts| {
+                            parts.iter().find(|noop| {
+                                noop["part"]
+                                    .as_str()
+                                    .is_some_and(|raw| raw.eq_ignore_ascii_case(&part))
+                            })
+                        })
                     {
                         // The linked FromOneModString rejected this exact part.
                         // Keep its observation and audit native live fields at
                         // this timestamp instead of inventing a numeric target.
                         if noop["accepted"] != false || noop["unchanged"] != true {
-                            *unsupported.entry(format!("native rejected part changed {part}"))
+                            *unsupported
+                                .entry(format!("native rejected part changed {part}"))
                                 .or_default() += 1;
                         } else {
                             rejected.push((*sequence, *beat, *second, player, noop));
@@ -285,15 +320,21 @@ fn option_writes(trace: &NativeTrace) -> (Vec<ModWrite>, BTreeMap<String, usize>
                     continue;
                 }
                 let value = if operation == "FailSetting" {
-                    let Some(target) = args.first().filter(|v| !v.is_null()) else { continue; };
+                    let Some(target) = args.first().filter(|v| !v.is_null()) else {
+                        continue;
+                    };
                     if let Some(raw) = target.as_str() {
                         // Independent native control verifies these enum writes;
                         // GameConstantsAndTypes.h establishes their ordinals.
-                        ["Immediate", "ImmediateContinue", "EndOfSong", "Off"].iter()
-                            .position(|name| raw == format!("FailType_{name}")
-                                || raw.eq_ignore_ascii_case(name)).map(|value| value as f32)
+                        ["Immediate", "ImmediateContinue", "EndOfSong", "Off"]
+                            .iter()
+                            .position(|name| {
+                                raw == format!("FailType_{name}") || raw.eq_ignore_ascii_case(name)
+                            })
+                            .map(|value| value as f32)
                     } else {
-                        value_f32(Some(target)).filter(|v| (0.0..=3.0).contains(v) && v.fract() == 0.0)
+                        value_f32(Some(target))
+                            .filter(|v| (0.0..=3.0).contains(v) && v.fract() == 0.0)
                     }
                 } else if operation == "ModTimerSetting" {
                     let Some(target) = args.first().filter(|v| !v.is_null()) else {
@@ -345,8 +386,10 @@ fn option_writes(trace: &NativeTrace) -> (Vec<ModWrite>, BTreeMap<String, usize>
     let keys: [std::collections::BTreeSet<String>; 2] = std::array::from_fn(|player| {
         writes
             .iter()
-            .filter(|write| write.player == player
-                && !matches!(write.key.as_str(), "clearall" | "__assignment_reset"))
+            .filter(|write| {
+                write.player == player
+                    && !matches!(write.key.as_str(), "clearall" | "__assignment_reset")
+            })
             .map(|write| write.key.clone())
             .chain(
                 ["cmod", "mmod", "xmod", "tilt", "skew", "modtimersetting"]
@@ -364,17 +407,27 @@ fn option_writes(trace: &NativeTrace) -> (Vec<ModWrite>, BTreeMap<String, usize>
                 };
                 if let Some(amount) = value_f32(value.get(1)) {
                     writes.push(ModWrite {
-                        sequence, second, beat, player, key: key.to_owned(), value: amount,
+                        sequence,
+                        second,
+                        beat,
+                        player,
+                        key: key.to_owned(),
+                        value: amount,
                     });
                     observed += 1;
                 } else {
-                    *unsupported.entry(format!("invalid native rejected-part field {key}"))
+                    *unsupported
+                        .entry(format!("invalid native rejected-part field {key}"))
                         .or_default() += 1;
                 }
             }
         }
         if observed == 0 {
-            *unsupported.entry(format!("missing native rejected-part fields {}", noop["part"]))
+            *unsupported
+                .entry(format!(
+                    "missing native rejected-part fields {}",
+                    noop["part"]
+                ))
                 .or_default() += 1;
         }
     }
@@ -382,17 +435,32 @@ fn option_writes(trace: &NativeTrace) -> (Vec<ModWrite>, BTreeMap<String, usize>
     // those final fields after the text audit, including resets omitted by text.
     for (sequence, beat, second, player, snapshot) in assignments {
         for field in snapshot {
-            let Some(key) = field[0].as_str().filter(|key| keys[player].contains(*key)
-                && !matches!(*key, "xmod" | "cmod" | "mmod")) else { continue; };
+            let Some(key) = field[0].as_str().filter(|key| {
+                keys[player].contains(*key) && !matches!(*key, "xmod" | "cmod" | "mmod")
+            }) else {
+                continue;
+            };
             if let Some(value) = value_f32(field.get(1)) {
-                writes.push(ModWrite { sequence, second, beat, player, key: key.into(), value });
+                writes.push(ModWrite {
+                    sequence,
+                    second,
+                    beat,
+                    player,
+                    key: key.into(),
+                    value,
+                });
             } else {
-                *unsupported.entry(format!("invalid native assignment field {key}"))
+                *unsupported
+                    .entry(format!("invalid native assignment field {key}"))
                     .or_default() += 1;
             }
         }
     }
-    writes.sort_by(|a, b| a.second.total_cmp(&b.second).then(a.sequence.cmp(&b.sequence)));
+    writes.sort_by(|a, b| {
+        a.second
+            .total_cmp(&b.second)
+            .then(a.sequence.cmp(&b.sequence))
+    });
     let writes = writes
         .into_iter()
         .flat_map(|write| {
@@ -403,8 +471,10 @@ fn option_writes(trace: &NativeTrace) -> (Vec<ModWrite>, BTreeMap<String, usize>
                 .iter()
                 // Native reset getter snapshots replace synthetic alias defaults;
                 // the reset call and its fields remain in the speed API audit.
-                .filter(|key| !speed_resets.contains(&write.sequence)
-                    || !matches!(key.as_str(), "xmod" | "cmod" | "mmod"))
+                .filter(|key| {
+                    !speed_resets.contains(&write.sequence)
+                        || !matches!(key.as_str(), "xmod" | "cmod" | "mmod")
+                })
                 .map(|key| ModWrite {
                     sequence: write.sequence,
                     second: write.second,
@@ -475,7 +545,9 @@ fn runtime_mod_value(
         "dizzy" => visual.dizzy.unwrap_or(0.0),
         "twirl" => visual.twirl.unwrap_or(0.0),
         "roll" => visual.roll.unwrap_or(0.0),
-        "failsetting" => runtime.fail_type[player].unwrap_or(deadsync_gameplay::GameplayFailType::Immediate) as u8 as f32,
+        "failsetting" => runtime.fail_type[player]
+            .unwrap_or(deadsync_gameplay::GameplayFailType::Immediate)
+            as u8 as f32,
         "modtimersetting" => visual.mod_timer_type.unwrap_or_default() as u8 as f32,
         "modtimermult" => visual.mod_timer_mult.unwrap_or(0.0),
         "modtimeroffset" => visual.mod_timer_offset.unwrap_or(0.0),
@@ -1053,14 +1125,22 @@ end}
     }];
     let mut parity = Parity::default();
     compare_runtime_modifiers(&trace, &compiled, &context, &mut parity);
-    assert!(parity.checks() >= 5, "audit replacement strings and omitted numeric resets");
+    assert!(
+        parity.checks() >= 5,
+        "audit replacement strings and omitted numeric resets"
+    );
     parity.assert_complete("state option string targets");
     let mut stale = compiled.iter().map(copy_baked_layer).collect::<Vec<_>>();
-    stale[0].eases.retain(|window| !matches!(&window.target,
-        deadsync_song_lua::SongLuaEaseTarget::Mod(key) if key == "drunk" && window.to == 0.0));
+    stale[0].eases.retain(|window| {
+        !matches!(&window.target,
+        deadsync_song_lua::SongLuaEaseTarget::Mod(key) if key == "drunk" && window.to == 0.0)
+    });
     let mut parity = Parity::default();
     compare_runtime_modifiers(&trace, &stale, &context, &mut parity);
-    assert!(!parity.gaps.is_empty(), "the audit rejects an omitted replacement reset");
+    assert!(
+        !parity.gaps.is_empty(),
+        "the audit rejects an omitted replacement reset"
+    );
     let mut missing = compiled;
     missing[0].eases.clear();
     let mut parity = Parity::default();
@@ -1160,7 +1240,9 @@ fn move_z_lane_options() {
     crate::paths::init();
     let directory = tempfile::tempdir().expect("create MoveZ fixture directory");
     let entry = directory.path().join("default.lua");
-    fs::write(&entry, r#"
+    fs::write(
+        &entry,
+        r#"
 local player = GAMESTATE:GetPlayerState(PLAYER_1)
 local options = player:GetPlayerOptions('ModsLevel_Song')
 local phase = 1
@@ -1176,23 +1258,37 @@ return Def.ActorFrame{OnCommand=function(self)
         end
     end)
 end}
-"#).expect("write MoveZ fixture");
+"#,
+    )
+    .expect("write MoveZ fixture");
     let mut context = SongLuaCompileContext::new(directory.path(), "Lane MoveZ");
     context.song_timing_bpms = vec![(0.0, 120.0)];
     context.music_length_seconds = 2.0;
-    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context)
-        .expect("compile lane MoveZ");
+    let compiled =
+        compile_song_lua_layers(&[entry.as_path()], 0, &context).expect("compile lane MoveZ");
     let (mut runtime, unsupported) = modifier_runtime(&compiled, &context);
     assert_eq!(unsupported, 0);
-    for (second, expected) in [(0.25, [1.5, 0.0, 0.0, -0.5]),
-        (0.75, [1.5, -0.25, 0.0, -0.5]), (1.0, [0.0; 4])] {
+    for (second, expected) in [
+        (0.25, [1.5, 0.0, 0.0, -0.5]),
+        (0.75, [1.5, -0.25, 0.0, -0.5]),
+        (1.0, [0.0; 4]),
+    ] {
         runtime.reset_window_times();
-        runtime.refresh_player(0, second, 1_000_000.0,
-            deadsync_gameplay::AppearanceEffects::default(), AttackBaseEffects::default,
-            SongLuaPlayerTransform::default());
+        runtime.refresh_player(
+            0,
+            second,
+            1_000_000.0,
+            deadsync_gameplay::AppearanceEffects::default(),
+            AttackBaseEffects::default,
+            SongLuaPlayerTransform::default(),
+        );
         for (column, value) in expected.into_iter().enumerate() {
             let key = format!("movez{}", column + 1);
-            assert_eq!(runtime_mod_value(&runtime, 0, &key), Some(value), "{key} at {second}");
+            assert_eq!(
+                runtime_mod_value(&runtime, 0, &key),
+                Some(value),
+                "{key} at {second}"
+            );
             assert_eq!(runtime_mod_value(&runtime, 1, &key), Some(0.0));
         }
     }
@@ -1909,7 +2005,8 @@ end}
 fn rejected_strings_preserve_native_runtime_fields() {
     crate::paths::init();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let trace_path = root.join("tests/fixtures/itgmania-song-lua-micro/rejected-option-parts-native.json");
+    let trace_path =
+        root.join("tests/fixtures/itgmania-song-lua-micro/rejected-option-parts-native.json");
     let trace = read_trace_file(&trace_path);
     let song_dir = root.join("tests/fixtures/song-lua");
     let entry = song_dir.join("rejected-option-parts.lua");
@@ -1921,9 +2018,17 @@ fn rejected_strings_preserve_native_runtime_fields() {
         .expect("compile native rejected-part control");
     let (writes, unsupported) = option_writes(&trace);
     assert!(unsupported.is_empty());
-    assert!(writes.iter().all(|write| write.key != "bumpperiod" && write.key != "completely_unknown"));
-    assert!(writes.iter().any(|write| write.beat >= 0.5 && write.key == "bumpyperiod"
-        && (write.value + 0.66).abs() < EPSILON), "retain native live fields after rejected text");
+    assert!(
+        writes
+            .iter()
+            .all(|write| write.key != "bumpperiod" && write.key != "completely_unknown")
+    );
+    assert!(
+        writes.iter().any(|write| write.beat >= 0.5
+            && write.key == "bumpyperiod"
+            && (write.value + 0.66).abs() < EPSILON),
+        "retain native live fields after rejected text"
+    );
     let mut parity = Parity::default();
     compare_runtime_modifiers(&trace, &compiled, &context, &mut parity);
     assert!(parity.checks() > 6);
@@ -1934,30 +2039,51 @@ fn rejected_strings_preserve_native_runtime_fields() {
     let directory = tempfile::tempdir().expect("changed rejected-part control");
     let wrong_entry = directory.path().join("control.lua");
     let source = fs::read_to_string(&entry).expect("native control Lua");
-    let wrong_source = source.replace("BumpPeriod", "BumpyPeriod").lines()
+    let wrong_source = source
+        .replace("BumpPeriod", "BumpyPeriod")
+        .lines()
         .filter(|line| !line.trim_start().starts_with("assert("))
-        .collect::<Vec<_>>().join("\n");
+        .collect::<Vec<_>>()
+        .join("\n");
     fs::write(&wrong_entry, wrong_source).expect("write deliberate invalid alias");
     let wrong = compile_song_lua_layers(&[wrong_entry.as_path()], 0, &context)
         .expect("compile deliberately changed option");
     let mut rejected = Parity::default();
     compare_runtime_modifiers(&trace, &wrong, &context, &mut rejected);
-    assert!(rejected.gaps.iter().any(|gap| gap.contains("bumpyperiod")),
-        "changed BumpyPeriod at the native no-op timestamp must fail");
+    assert!(
+        rejected.gaps.iter().any(|gap| gap.contains("bumpyperiod")),
+        "changed BumpyPeriod at the native no-op timestamp must fail"
+    );
     for mutation in 0..4 {
         let mut altered = read_trace_file(&trace_path);
-        let detail = altered.timeline_tracks.iter_mut().flat_map(|track| &mut track.samples)
-            .find_map(|sample| sample.4.as_mut().filter(|detail| detail["rejected_parts"].is_array()))
+        let detail = altered
+            .timeline_tracks
+            .iter_mut()
+            .flat_map(|track| &mut track.samples)
+            .find_map(|sample| {
+                sample
+                    .4
+                    .as_mut()
+                    .filter(|detail| detail["rejected_parts"].is_array())
+            })
             .expect("native rejected-part detail");
         match mutation {
-            0 => { detail.as_object_mut().expect("native detail").remove("rejected_parts"); }
+            0 => {
+                detail
+                    .as_object_mut()
+                    .expect("native detail")
+                    .remove("rejected_parts");
+            }
             1 => detail["rejected_parts"][0]["unchanged"] = serde_json::json!(false),
             2 => detail["rejected_parts"][0]["values"] = serde_json::json!([]),
             _ => detail["rejected_parts"][0]["part"] = serde_json::json!("unrelated text"),
         }
         let mut rejected = Parity::default();
         compare_runtime_modifiers(&altered, &compiled, &context, &mut rejected);
-        assert!(!rejected.gaps.is_empty(), "missing or altered native rejection evidence {mutation}");
+        assert!(
+            !rejected.gaps.is_empty(),
+            "missing or altered native rejection evidence {mutation}"
+        );
     }
 }
 
@@ -1966,35 +2092,56 @@ fn noteskin_audit_rejects_missing_and_altered_writes() {
     let mut trace = read_trace_file(&Path::new(env!("CARGO_MANIFEST_DIR")).join(DEFAULT_TRACE));
     trace.enabled_players = Some([true, false]);
     trace.timeline_tracks = vec![NativeTimelineTrack {
-        kind: "modifier".into(), actor: Some("player-state:PLAYER_1/options:ModsLevel_Song".into()),
+        kind: "modifier".into(),
+        actor: Some("player-state:PLAYER_1/options:ModsLevel_Song".into()),
         operation: "PlayerOptions.FromString".into(),
-        samples: [0.1_f32, 0.15].into_iter().enumerate().map(|(index, second)| (
-            index as u64 + 1, Some(second * 2.0), Some(second), vec![serde_json::json!("CyBeR")],
-            Some(serde_json::json!({ "noteskin_option": {
+        samples: [0.1_f32, 0.15]
+            .into_iter()
+            .enumerate()
+            .map(|(index, second)| {
+                (
+                    index as u64 + 1,
+                    Some(second * 2.0),
+                    Some(second),
+                    vec![serde_json::json!("CyBeR")],
+                    Some(serde_json::json!({ "noteskin_option": {
                 "previous": if index == 0 { "cel" } else { "cyber" }, "current": "cyber",
                 "parts": [{ "part": "CyBeR", "target": "cyber" }],
-            } }))
-        )).collect(),
+            } })),
+                )
+            })
+            .collect(),
     }];
     let mut compiled = vec![CompiledSongLua {
-        noteskin_writes: [0.1_f32, 0.15].into_iter().enumerate().map(|(index, second)|
-            deadsync_song_lua::SongLuaSkinWrite {
-                player: 0, key: "fromstring".into(), beat: f64::from(second * 2.0),
-                second: f64::from(second), previous: if index == 0 { "cel" } else { "cyber" }.into(),
+        noteskin_writes: [0.1_f32, 0.15]
+            .into_iter()
+            .enumerate()
+            .map(|(index, second)| deadsync_song_lua::SongLuaSkinWrite {
+                player: 0,
+                key: "fromstring".into(),
+                beat: f64::from(second * 2.0),
+                second: f64::from(second),
+                previous: if index == 0 { "cel" } else { "cyber" }.into(),
                 current: "cyber".into(),
-            }).collect(),
+            })
+            .collect(),
         ..CompiledSongLua::default()
     }];
     let mut parity = Parity::default();
     compare_noteskin_options(&trace, &compiled, &mut parity);
     parity.assert_complete("complete string-option audit");
     let (writes, unsupported) = option_writes(&trace);
-    assert!(writes.is_empty() && unsupported.is_empty(), "native string evidence replaces numeric guessing");
+    assert!(
+        writes.is_empty() && unsupported.is_empty(),
+        "native string evidence replaces numeric guessing"
+    );
     let correct = compiled[0].noteskin_writes.clone();
     for mutation in 0..5 {
         compiled[0].noteskin_writes.clone_from(&correct);
         match mutation {
-            0 => { compiled[0].noteskin_writes.pop(); },
+            0 => {
+                compiled[0].noteskin_writes.pop();
+            }
             1 => compiled[0].noteskin_writes[0].previous = "default".into(),
             2 => compiled[0].noteskin_writes[1].current = "CEL".into(),
             3 => compiled[0].noteskin_writes[0].second = 1.0,
@@ -2002,16 +2149,27 @@ fn noteskin_audit_rejects_missing_and_altered_writes() {
         }
         let mut rejected = Parity::default();
         compare_noteskin_options(&trace, &compiled, &mut rejected);
-        assert!(!rejected.gaps.is_empty(), "reject changed noteskin sequence {mutation}");
+        assert!(
+            !rejected.gaps.is_empty(),
+            "reject changed noteskin sequence {mutation}"
+        );
     }
     compiled[0].noteskin_writes.clone_from(&correct);
-    trace.timeline_tracks[0].samples[0].4.as_mut().expect("native detail")
-        ["noteskin_option"]["parts"][0]["target"] = serde_json::json!("default");
+    trace.timeline_tracks[0].samples[0]
+        .4
+        .as_mut()
+        .expect("native detail")["noteskin_option"]["parts"][0]["target"] =
+        serde_json::json!("default");
     let mut rejected = Parity::default();
     compare_noteskin_options(&trace, &compiled, &mut rejected);
-    assert!(!rejected.gaps.is_empty(), "reject inconsistent native classification");
+    assert!(
+        !rejected.gaps.is_empty(),
+        "reject inconsistent native classification"
+    );
     for track in &mut trace.timeline_tracks {
-        for sample in &mut track.samples { sample.4 = None; }
+        for sample in &mut track.samples {
+            sample.4 = None;
+        }
     }
     let (writes, _) = option_writes(&trace);
     assert_eq!(writes.len(), 2, "old captures cannot silently excuse Cyber");
@@ -2887,7 +3045,9 @@ pub(super) fn compare_player_frames(
             continue;
         }
         // Playback falls back to the captured Player pose, not its layout.
-        let initial = compiled.get(primary).map(|layer| layer.player_actors[player].initial_state);
+        let initial = compiled
+            .get(primary)
+            .map(|layer| layer.player_actors[player].initial_state);
         let initial_x = initial.map_or(context.players[player].screen_x, |pose| pose.x);
         let initial_y = initial.map_or(context.players[player].screen_y, |pose| pose.y);
         let mut transform = SongLuaPlayerTransform::default();
@@ -2918,11 +3078,7 @@ pub(super) fn compare_player_frames(
             }
             prior = now;
             let actual = [
-                Some(
-                    transform
-                        .x
-                        .unwrap_or(initial_x),
-                ),
+                Some(transform.x.unwrap_or(initial_x)),
                 Some(transform.y.unwrap_or(initial_y)),
                 Some(transform.z),
                 Some(transform.rotation_x),
@@ -3006,31 +3162,53 @@ fn compare_boolean_options(trace: &NativeTrace, compiled: &[CompiledSongLua], pa
     }
 }
 
-fn compare_noteskin_options(trace: &NativeTrace, compiled: &[CompiledSongLua], parity: &mut Parity) {
+fn compare_noteskin_options(
+    trace: &NativeTrace,
+    compiled: &[CompiledSongLua],
+    parity: &mut Parity,
+) {
     parity.section("noteskin option API");
     let mut expected = BTreeMap::<(usize, String), Vec<(u64, f32, f32, &Value)>>::new();
     for track in &trace.timeline_tracks {
         let state_setter = track.operation == "PlayerState.SetPlayerOptions";
-        let Some(player) = (0..2).find(|player| track.actor.as_deref() == Some(
-            if state_setter { format!("player-state:PLAYER_{}", player + 1) }
-            else { format!("player-state:PLAYER_{}/options:ModsLevel_Song", player + 1) }.as_str()
-        )) else { continue };
-        if !trace.enabled_players.unwrap_or([true; 2])[player] { continue; }
-        let key = if state_setter { "setplayeroptions".to_owned() }
-            else if let Some(key) = track.operation.strip_prefix("PlayerOptions.") {
-                key.to_ascii_lowercase()
-            } else { continue };
+        let Some(player) = (0..2).find(|player| {
+            track.actor.as_deref()
+                == Some(
+                    if state_setter {
+                        format!("player-state:PLAYER_{}", player + 1)
+                    } else {
+                        format!("player-state:PLAYER_{}/options:ModsLevel_Song", player + 1)
+                    }
+                    .as_str(),
+                )
+        }) else {
+            continue;
+        };
+        if !trace.enabled_players.unwrap_or([true; 2])[player] {
+            continue;
+        }
+        let key = if state_setter {
+            "setplayeroptions".to_owned()
+        } else if let Some(key) = track.operation.strip_prefix("PlayerOptions.") {
+            key.to_ascii_lowercase()
+        } else {
+            continue;
+        };
         for (sequence, beat, second, args, detail) in &track.samples {
             if state_setter && args.first().and_then(Value::as_str) != Some("ModsLevel_Song") {
                 continue;
             }
-            if let Some(state) = detail.as_ref().and_then(|detail| detail.get("noteskin_option")) {
+            if let Some(state) = detail
+                .as_ref()
+                .and_then(|detail| detail.get("noteskin_option"))
+            {
                 if matches!(key.as_str(), "fromstring" | "setplayeroptions") {
                     let raw = args.get(usize::from(state_setter)).and_then(Value::as_str);
                     let parts = state["parts"].as_array();
                     // Require the native classifier and live getter to agree.
                     // Simply Love's Common default is cel when a raw skin is empty.
-                    let target = parts.and_then(|parts| parts.last())
+                    let target = parts
+                        .and_then(|parts| parts.last())
                         .and_then(|part| part["target"].as_str())
                         .map(|target| if target.is_empty() { "cel" } else { target })
                         // Native assignment preserves the prior skin when the
@@ -3042,23 +3220,36 @@ fn compare_noteskin_options(trace: &NativeTrace, compiled: &[CompiledSongLua], p
                         && target.is_some() && target == state["current"].as_str(), || format!(
                             "P{} {key} native noteskin classification disagrees with its getter: {state}", player + 1));
                 }
-                parity.check(beat.is_some() && second.is_some(), ||
-                    format!("P{} {key} noteskin call lacks a native clock", player + 1));
+                parity.check(beat.is_some() && second.is_some(), || {
+                    format!("P{} {key} noteskin call lacks a native clock", player + 1)
+                });
                 if let (Some(beat), Some(second)) = (beat, second) {
-                    expected.entry((player, key.clone())).or_default()
+                    expected
+                        .entry((player, key.clone()))
+                        .or_default()
                         .push((*sequence, *beat, *second, state));
                 }
             }
         }
     }
-    if expected.is_empty() { return; }
+    if expected.is_empty() {
+        return;
+    }
     for ((player, key), mut expected) in expected {
         expected.sort_by_key(|sample| sample.0);
-        let actual = compiled.iter().flat_map(|layer| &layer.noteskin_writes)
-            .filter(|write| write.player == player && write.key == key).collect::<Vec<_>>();
-        parity.check(actual.len() == expected.len(), || format!(
-            "P{} {key} noteskin write count: native {}, DeadSync {}",
-            player + 1, expected.len(), actual.len()));
+        let actual = compiled
+            .iter()
+            .flat_map(|layer| &layer.noteskin_writes)
+            .filter(|write| write.player == player && write.key == key)
+            .collect::<Vec<_>>();
+        parity.check(actual.len() == expected.len(), || {
+            format!(
+                "P{} {key} noteskin write count: native {}, DeadSync {}",
+                player + 1,
+                expected.len(),
+                actual.len()
+            )
+        });
         for (index, (_, beat, second, state)) in expected.iter().enumerate() {
             parity.check(actual.get(index).is_some_and(|write|
                 (write.beat - f64::from(*beat)).abs() < f64::from(EPSILON)
@@ -3083,54 +3274,118 @@ fn native_speed_fields(value: &Value) -> Option<[[f32; 2]; 4]> {
     Some(out)
 }
 
-fn compare_speed_options(trace: &NativeTrace, compiled: &[CompiledSongLua], context: &SongLuaCompileContext, parity: &mut Parity) {
+fn compare_speed_options(
+    trace: &NativeTrace,
+    compiled: &[CompiledSongLua],
+    context: &SongLuaCompileContext,
+    parity: &mut Parity,
+) {
     let mut expected = BTreeMap::<(usize, String), Vec<(u64, f32, f32, &Value)>>::new();
     let mut playback = Vec::new();
     for track in &trace.timeline_tracks {
-        let Some(player) = (0..2).find(|player| track.actor.as_deref()
-            == Some(format!("player-state:PLAYER_{}/options:ModsLevel_Song", player + 1).as_str())) else { continue; };
-        if !trace.enabled_players.unwrap_or([true; 2])[player] { continue; }
-        let Some(key) = track.operation.strip_prefix("PlayerOptions.") else { continue; };
+        let Some(player) = (0..2).find(|player| {
+            track.actor.as_deref()
+                == Some(
+                    format!("player-state:PLAYER_{}/options:ModsLevel_Song", player + 1).as_str(),
+                )
+        }) else {
+            continue;
+        };
+        if !trace.enabled_players.unwrap_or([true; 2])[player] {
+            continue;
+        }
+        let Some(key) = track.operation.strip_prefix("PlayerOptions.") else {
+            continue;
+        };
         for (sequence, beat, second, _, detail) in &track.samples {
-            let Some(state) = detail.as_ref().and_then(|detail| detail.get("speed_option")) else { continue; };
-            parity.check(beat.is_some() && second.is_some(), || format!("P{} {key} speed call lacks its native clock", player + 1));
+            let Some(state) = detail
+                .as_ref()
+                .and_then(|detail| detail.get("speed_option"))
+            else {
+                continue;
+            };
+            parity.check(beat.is_some() && second.is_some(), || {
+                format!("P{} {key} speed call lacks its native clock", player + 1)
+            });
             if let (Some(beat), Some(second)) = (beat, second) {
-                expected.entry((player, key.to_ascii_lowercase())).or_default().push((*sequence, *beat, *second, state));
+                expected
+                    .entry((player, key.to_ascii_lowercase()))
+                    .or_default()
+                    .push((*sequence, *beat, *second, state));
                 playback.push((*sequence, *second, player, state));
             }
         }
     }
-    if expected.is_empty() { return; }
+    if expected.is_empty() {
+        return;
+    }
     parity.section("speed option API");
     for ((player, key), mut expected) in expected {
         expected.sort_by_key(|sample| sample.0);
-        let actual = compiled.iter().flat_map(|layer| &layer.speed_writes)
-            .filter(|write| write.player == player && write.key == key).collect::<Vec<_>>();
-        parity.check(actual.len() == expected.len(), || format!("P{} {key} speed call count: native {}, DeadSync {}", player + 1, expected.len(), actual.len()));
+        let actual = compiled
+            .iter()
+            .flat_map(|layer| &layer.speed_writes)
+            .filter(|write| write.player == player && write.key == key)
+            .collect::<Vec<_>>();
+        parity.check(actual.len() == expected.len(), || {
+            format!(
+                "P{} {key} speed call count: native {}, DeadSync {}",
+                player + 1,
+                expected.len(),
+                actual.len()
+            )
+        });
         for (index, (_, beat, second, state)) in expected.iter().enumerate() {
             let before = native_speed_fields(&state["previous"]);
             let after = native_speed_fields(&state["current"]);
-            parity.check(actual.get(index).is_some_and(|write| {
-                let fields_match = |native: Option<[[f32; 2]; 4]>, actual: [[f32; 2]; 4]| native.is_some_and(|native|
-                    native.iter().flatten().zip(actual.iter().flatten()).all(|(expected, actual)| (expected - actual).abs() <= EPSILON));
-                (write.beat - f64::from(*beat)).abs() <= f64::from(EPSILON)
-                    && (write.second - f64::from(*second)).abs() <= f64::from(EPSILON)
-                    && fields_match(before, write.previous) && fields_match(after, write.current)
-                    && state["failed"].as_bool() == Some(write.failed)
-                    && state["chained"].as_bool() == Some(write.chained)
-            }), || format!("P{} {key} speed fields at beat {beat}: native {state}, DeadSync {:?}", player + 1, actual.get(index)));
+            parity.check(
+                actual.get(index).is_some_and(|write| {
+                    let fields_match = |native: Option<[[f32; 2]; 4]>, actual: [[f32; 2]; 4]| {
+                        native.is_some_and(|native| {
+                            native
+                                .iter()
+                                .flatten()
+                                .zip(actual.iter().flatten())
+                                .all(|(expected, actual)| (expected - actual).abs() <= EPSILON)
+                        })
+                    };
+                    (write.beat - f64::from(*beat)).abs() <= f64::from(EPSILON)
+                        && (write.second - f64::from(*second)).abs() <= f64::from(EPSILON)
+                        && fields_match(before, write.previous)
+                        && fields_match(after, write.current)
+                        && state["failed"].as_bool() == Some(write.failed)
+                        && state["chained"].as_bool() == Some(write.chained)
+                }),
+                || {
+                    format!(
+                        "P{} {key} speed fields at beat {beat}: native {state}, DeadSync {:?}",
+                        player + 1,
+                        actual.get(index)
+                    )
+                },
+            );
         }
     }
     compare_speed_playback(compiled, context, playback, parity);
 }
 
-fn compare_speed_playback(compiled: &[CompiledSongLua], context: &SongLuaCompileContext, mut observations: Vec<(u64, f32, usize, &Value)>, parity: &mut Parity) {
+fn compare_speed_playback(
+    compiled: &[CompiledSongLua],
+    context: &SongLuaCompileContext,
+    mut observations: Vec<(u64, f32, usize, &Value)>,
+    parity: &mut Parity,
+) {
     use deadsync_rules::scroll::ScrollSpeedSetting;
     parity.section("speed playback targets");
     observations.sort_by(|a, b| a.1.total_cmp(&b.1).then(a.0.cmp(&b.0)));
     let (mut runtime, unsupported) = modifier_runtime(compiled, context);
-    parity.check(unsupported == 0, || format!("{unsupported} unsupported speed playback ease targets"));
-    let origin = context.song_timing.as_ref().map_or(0.0, |timing| timing.get_time_for_beat_exact(0.0));
+    parity.check(unsupported == 0, || {
+        format!("{unsupported} unsupported speed playback ease targets")
+    });
+    let origin = context
+        .song_timing
+        .as_ref()
+        .map_or(0.0, |timing| timing.get_time_for_beat_exact(0.0));
     let mut cursor = 0;
     while cursor < observations.len() {
         let second = observations[cursor].1;
@@ -3141,24 +3396,50 @@ fn compare_speed_playback(compiled: &[CompiledSongLua], context: &SongLuaCompile
             cursor += 1;
         }
         for (player, fields) in final_fields.into_iter().enumerate() {
-            let Some(fields) = fields else { continue; };
-            runtime.refresh_player(player, second + origin, 1_000_000.0, Default::default(), AttackBaseEffects::default, Default::default());
-            let mut targets = ActiveAttackMaskValues { scroll_speed: runtime.scroll_speed[player], ..ActiveAttackMaskValues::new(Default::default()) };
-            deadsync_gameplay::apply_song_lua_attack_eases(&mut targets, &mut Default::default(), &mut Default::default(), &runtime.song_lua_ease_windows[player], second + origin);
+            let Some(fields) = fields else {
+                continue;
+            };
+            runtime.refresh_player(
+                player,
+                second + origin,
+                1_000_000.0,
+                Default::default(),
+                AttackBaseEffects::default,
+                Default::default(),
+            );
+            let mut targets = ActiveAttackMaskValues {
+                scroll_speed: runtime.scroll_speed[player],
+                ..ActiveAttackMaskValues::new(Default::default())
+            };
+            deadsync_gameplay::apply_song_lua_attack_eases(
+                &mut targets,
+                &mut Default::default(),
+                &mut Default::default(),
+                &runtime.song_lua_ease_windows[player],
+                second + origin,
+            );
             let base = match context.players[player].speedmod {
                 SongLuaSpeedMod::X(value) => ScrollSpeedSetting::XMod(value),
                 SongLuaSpeedMod::C(value) => ScrollSpeedSetting::CMod(value),
                 SongLuaSpeedMod::M(value) => ScrollSpeedSetting::MMod(value),
                 SongLuaSpeedMod::A(_) => {
-                    parity.check(false, || "AMod has no production scroll-speed setting".into());
+                    parity.check(false, || {
+                        "AMod has no production scroll-speed setting".into()
+                    });
                     continue;
                 }
             };
-            let actual = deadsync_gameplay::effective_attack_scroll_speed(targets.clear_all, targets.scroll_speed, base);
+            let actual = deadsync_gameplay::effective_attack_scroll_speed(
+                targets.clear_all,
+                targets.scroll_speed,
+                base,
+            );
             let expected = native_speed_fields(fields).and_then(|fields| match fields[0][0] {
                 0.0 if fields[3][0] == 0.0 => Some(ScrollSpeedSetting::XMod(fields[1][0])),
                 0.0 => Some(ScrollSpeedSetting::MMod(fields[3][0])),
-                1.0 if fields[1][0] == 1.0 && fields[3][0] == 0.0 => Some(ScrollSpeedSetting::CMod(fields[2][0])),
+                1.0 if fields[1][0] == 1.0 && fields[3][0] == 0.0 => {
+                    Some(ScrollSpeedSetting::CMod(fields[2][0]))
+                }
                 _ => None,
             });
             // Fractional spacing and mixed CMod/raw multipliers require actual
@@ -3451,7 +3732,10 @@ fn bounce_tornado_match_native_targets() {
     context.screen_width = 854.0;
     context.music_length_seconds = 4.0;
     context.song_timing_bpms = vec![(0.0, 60.0)];
-    let noteskin = trace.noteskin_reference.as_ref().expect("captured noteskin");
+    let noteskin = trace
+        .noteskin_reference
+        .as_ref()
+        .expect("captured noteskin");
     for player in &mut context.players {
         player.noteskin_name = noteskin.skin.clone();
     }
@@ -3478,7 +3762,10 @@ fn startup_boolean_writes_match_native() {
     context.screen_width = 854.0;
     context.music_length_seconds = 4.0;
     context.song_timing_bpms = vec![(0.0, 60.0)];
-    let noteskin = trace.noteskin_reference.as_ref().expect("captured noteskin");
+    let noteskin = trace
+        .noteskin_reference
+        .as_ref()
+        .expect("captured noteskin");
     for player in &mut context.players {
         player.noteskin_name = noteskin.skin.clone();
     }
@@ -3486,7 +3773,11 @@ fn startup_boolean_writes_match_native() {
     let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context)
         .expect("compile startup boolean options");
     let writes = &compiled[0].boolean_writes;
-    assert_eq!(writes.len(), 8, "retain Init, On, repeated false and queued writes");
+    assert_eq!(
+        writes.len(),
+        8,
+        "retain Init, On, repeated false and queued writes"
+    );
     assert!(writes[..6].iter().all(|write| write.second == 0.0));
     assert!(writes[6..].iter().all(|write| write.second >= 0.5));
     let mut parity = Parity::default();
@@ -3512,7 +3803,10 @@ fn native_speed_fields_drive_playback() {
     context.screen_width = 854.0;
     context.music_length_seconds = 4.0;
     context.song_timing_bpms = vec![(0.0, 60.0)];
-    let noteskin = trace.noteskin_reference.as_ref().expect("captured noteskin");
+    let noteskin = trace
+        .noteskin_reference
+        .as_ref()
+        .expect("captured noteskin");
     for player in &mut context.players {
         player.noteskin_name = noteskin.skin.clone();
     }
@@ -3531,10 +3825,18 @@ fn native_speed_fields_drive_playback() {
         for player in 0..2 {
             let mut targets = ActiveAttackMaskValues::new(Default::default());
             deadsync_gameplay::apply_song_lua_attack_eases(
-                &mut targets, &mut Default::default(), &mut Default::default(),
-                &runtime.song_lua_ease_windows[player], second,
+                &mut targets,
+                &mut Default::default(),
+                &mut Default::default(),
+                &runtime.song_lua_ease_windows[player],
+                second,
             );
-            assert_eq!(targets.scroll_speed, Some(expected), "P{} at {second}s", player + 1);
+            assert_eq!(
+                targets.scroll_speed,
+                Some(expected),
+                "P{} at {second}s",
+                player + 1
+            );
         }
     }
 }
@@ -3551,7 +3853,10 @@ fn native_table_order_preserves_shared_speed_fields() {
     context.screen_width = 854.0;
     context.music_length_seconds = 4.0;
     context.song_timing_bpms = vec![(0.0, 60.0)];
-    let noteskin = trace.noteskin_reference.as_ref().expect("captured noteskin");
+    let noteskin = trace
+        .noteskin_reference
+        .as_ref()
+        .expect("captured noteskin");
     for player in &mut context.players {
         player.noteskin_name = noteskin.skin.clone();
     }
@@ -3576,7 +3881,10 @@ fn startup_speeds_keep_native_default_approaches() {
     context.screen_width = 854.0;
     context.music_length_seconds = 4.0;
     context.song_timing_bpms = vec![(0.0, 60.0)];
-    let noteskin = trace.noteskin_reference.as_ref().expect("captured noteskin");
+    let noteskin = trace
+        .noteskin_reference
+        .as_ref()
+        .expect("captured noteskin");
     for player in &mut context.players {
         player.noteskin_name = noteskin.skin.clone();
     }
@@ -3593,13 +3901,24 @@ fn startup_speeds_keep_native_default_approaches() {
         for (player, expected) in [
             deadsync_rules::scroll::ScrollSpeedSetting::XMod(4.0),
             deadsync_rules::scroll::ScrollSpeedSetting::CMod(480.0),
-        ].into_iter().enumerate() {
+        ]
+        .into_iter()
+        .enumerate()
+        {
             let mut targets = ActiveAttackMaskValues::new(Default::default());
             deadsync_gameplay::apply_song_lua_attack_eases(
-                &mut targets, &mut Default::default(), &mut Default::default(),
-                &runtime.song_lua_ease_windows[player], second,
+                &mut targets,
+                &mut Default::default(),
+                &mut Default::default(),
+                &runtime.song_lua_ease_windows[player],
+                second,
             );
-            assert_eq!(targets.scroll_speed, Some(expected), "P{} at {second}s", player + 1);
+            assert_eq!(
+                targets.scroll_speed,
+                Some(expected),
+                "P{} at {second}s",
+                player + 1
+            );
         }
     }
 }
@@ -3616,7 +3935,10 @@ fn speed_field_audit_keeps_failed_and_startup_writes() {
     context.screen_width = 854.0;
     context.music_length_seconds = 4.0;
     context.song_timing_bpms = vec![(0.0, 60.0)];
-    let noteskin = trace.noteskin_reference.as_ref().expect("captured noteskin");
+    let noteskin = trace
+        .noteskin_reference
+        .as_ref()
+        .expect("captured noteskin");
     for player in &mut context.players {
         player.noteskin_name = noteskin.skin.clone();
     }
@@ -3628,7 +3950,11 @@ fn speed_field_audit_keeps_failed_and_startup_writes() {
     assert_eq!(writes.iter().filter(|write| write.failed).count(), 2);
     assert_eq!(writes.iter().filter(|write| write.second == 0.0).count(), 6);
     for write in writes.iter().filter(|write| write.failed) {
-        assert_eq!(write.current[1], [2.0, 0.0], "failed approach retains its amount write");
+        assert_eq!(
+            write.current[1],
+            [2.0, 0.0],
+            "failed approach retains its amount write"
+        );
     }
     let mut parity = Parity::default();
     compare_runtime_modifiers(&trace, &compiled, &context, &mut parity);
@@ -3638,13 +3964,19 @@ fn speed_field_audit_keeps_failed_and_startup_writes() {
         altered[0].speed_writes[0].current[field][0] += 1.0;
         let mut rejected = Parity::default();
         compare_runtime_modifiers(&trace, &altered, &context, &mut rejected);
-        assert!(!rejected.gaps.is_empty(), "changing speed field {field} must fail");
+        assert!(
+            !rejected.gaps.is_empty(),
+            "changing speed field {field} must fail"
+        );
     }
     let mut missing = compiled.iter().map(copy_baked_layer).collect::<Vec<_>>();
     missing[0].speed_writes.remove(0);
     let mut rejected = Parity::default();
     compare_runtime_modifiers(&trace, &missing, &context, &mut rejected);
-    assert!(!rejected.gaps.is_empty(), "losing a startup setter must fail");
+    assert!(
+        !rejected.gaps.is_empty(),
+        "losing a startup setter must fail"
+    );
 }
 
 #[test]
@@ -3659,7 +3991,10 @@ fn parabola_y_matches_native_targets() {
     context.screen_width = 854.0;
     context.music_length_seconds = 4.0;
     context.song_timing_bpms = vec![(0.0, 60.0)];
-    let noteskin = trace.noteskin_reference.as_ref().expect("captured noteskin");
+    let noteskin = trace
+        .noteskin_reference
+        .as_ref()
+        .expect("captured noteskin");
     for player in &mut context.players {
         player.noteskin_name = noteskin.skin.clone();
     }
@@ -3829,7 +4164,8 @@ fn beat_family_current_matches_native_frames() {
                         .actor_definitions
                         .iter()
                         .find(|definition| {
-                            definition.name == Some(format!("BeatCurrentP{}G{}", player + 1, group + 1))
+                            definition.name
+                                == Some(format!("BeatCurrentP{}G{}", player + 1, group + 1))
                         })
                         .expect("named native Current probe");
                     let track = trace
@@ -3970,7 +4306,10 @@ fn wave_period_matches_native_targets() {
     context.screen_width = 854.0;
     context.music_length_seconds = 4.0;
     context.song_timing_bpms = vec![(0.0, 60.0)];
-    let noteskin = trace.noteskin_reference.as_ref().expect("captured noteskin");
+    let noteskin = trace
+        .noteskin_reference
+        .as_ref()
+        .expect("captured noteskin");
     for player in &mut context.players {
         player.noteskin_name = noteskin.skin.clone();
     }
@@ -4513,8 +4852,14 @@ fn cmd_callback_preserves_initial_player_pose() {
     compiled[0].player_actors[0].initial_state.x = 241.0;
     let mut wrong = Parity::default();
     compare_player_frames(&trace, &compiled, 0, &context, &mut wrong);
-    assert_eq!(wrong.sections.iter().map(|section| section.failed).sum::<usize>(),
-        trace.update_frames.len());
+    assert_eq!(
+        wrong
+            .sections
+            .iter()
+            .map(|section| section.failed)
+            .sum::<usize>(),
+        trace.update_frames.len()
+    );
 }
 
 #[test]
@@ -4531,10 +4876,18 @@ fn fail_options_runtime() {
     assert_eq!(unsupported, 0);
     for (now, modes) in [(0.5, [3.0, 1.0]), (1.5, [2.0, 1.0]), (2.5, [0.0, 1.0])] {
         for player in 0..2 {
-            runtime.refresh_player(player, now, 0.5,
+            runtime.refresh_player(
+                player,
+                now,
+                0.5,
                 deadsync_gameplay::AppearanceEffects::default(),
-                AttackBaseEffects::default, SongLuaPlayerTransform::default());
-            assert_eq!(runtime_mod_value(&runtime, player, "failsetting"), Some(modes[player]));
+                AttackBaseEffects::default,
+                SongLuaPlayerTransform::default(),
+            );
+            assert_eq!(
+                runtime_mod_value(&runtime, player, "failsetting"),
+                Some(modes[player])
+            );
         }
     }
 }

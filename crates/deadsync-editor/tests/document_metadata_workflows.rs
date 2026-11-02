@@ -93,3 +93,43 @@ fn malformed_sm_header_and_syntax_are_not_accepted_by_readonly_mode() {
         );
     }
 }
+
+#[test]
+fn hashes_inside_values_and_missing_semicolon_recovery_match_msd() {
+    for format in [Format::Sm, Format::Ssc] {
+        let source = b"#TITLE:Song #1 in C#;\n#ARTIST:Artist\n#SUBTITLE:Recovered;";
+        let document = Document::parse(source.as_slice(), format).unwrap();
+        assert_eq!(
+            document.text(None, "TITLE").as_deref(),
+            Some("Song #1 in C#")
+        );
+        assert_eq!(document.text(None, "ARTIST").as_deref(), Some("Artist"));
+        assert_eq!(
+            document.text(None, "SUBTITLE").as_deref(),
+            Some("Recovered")
+        );
+        assert_eq!(document.serialize(), source);
+        let metadata = Metadata::parse(source.as_slice(), format).unwrap();
+        assert_eq!(metadata.text("TITLE"), document.text(None, "TITLE"));
+    }
+}
+
+#[test]
+fn carriage_return_and_indented_tag_recovery_preserve_source() {
+    let source = b"#TITLE:Song #1;\r#ARTIST:Artist\r  \t#SUBTITLE:Recovered;";
+    let document = Document::parse(source.as_slice(), Format::Ssc).unwrap();
+    assert_eq!(document.text(None, "ARTIST").as_deref(), Some("Artist"));
+    assert_eq!(
+        document.text(None, "SUBTITLE").as_deref(),
+        Some("Recovered")
+    );
+    assert_eq!(document.serialize(), source);
+}
+
+#[test]
+fn hashes_inside_sm_chart_descriptions_are_plain_characters() {
+    let source = b"#TITLE:Song #1;#NOTES:dance-single:C# exercise:Hard:9::1000;";
+    let document = Document::parse(source.as_slice(), Format::Sm).unwrap();
+    assert_eq!(document.charts()[0].description, "C# exercise");
+    assert_eq!(document.serialize(), source);
+}

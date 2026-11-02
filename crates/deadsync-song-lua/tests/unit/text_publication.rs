@@ -247,20 +247,28 @@ return {Text='steady text', __songlua_text_attributes={
     let (_, prior_churn) = allocations::measure(|| {
         for _ in 0..32 {
             let current = lua_text_value(actor.get("Text").unwrap()).unwrap();
-            if text.as_ref() != current { text = current.into(); }
+            if text.as_ref() != current {
+                text = current.into();
+            }
             attributes = read_bitmap_text_attributes(&actor).unwrap();
         }
     });
-    println!("32 publications: text={text_churn:?}, attributes={attribute_churn:?}, prior publication with shared decoder={prior_churn:?}");
+    println!(
+        "32 publications: text={text_churn:?}, attributes={attribute_churn:?}, prior publication with shared decoder={prior_churn:?}"
+    );
     assert!(text_churn.allocs + attribute_churn.allocs < prior_churn.allocs);
-    assert!(text_churn.allocated_bytes + attribute_churn.allocated_bytes < prior_churn.allocated_bytes);
+    assert!(
+        text_churn.allocated_bytes + attribute_churn.allocated_bytes < prior_churn.allocated_bytes
+    );
     actor.set("__songlua_text_attributes", Value::Nil).unwrap();
     sync_attributes(&actor, &mut attributes).unwrap();
     // Missing fields still require the normal protected Lua lookup, which may
     // invoke __index. Publication must add no allocations beyond that lookup.
     let (_, lookup) = allocations::measure(|| {
         for _ in 0..32 {
-            actor.get::<Option<Table>>("__songlua_text_attributes").unwrap();
+            actor
+                .get::<Option<Table>>("__songlua_text_attributes")
+                .unwrap();
         }
     });
     let (_, publication) = allocations::measure(|| {

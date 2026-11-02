@@ -19,8 +19,8 @@ reviewable and tested.
 
 ## Pinned reference
 
-- GrooveAuthor: `48e18f71655d0f0d86144c63239331833501fda2`, local checkout
-  `/Users/zydon/Sites/feetness/grooveauthor`.
+- GrooveAuthor: `48e18f71655d0f0d86144c63239331833501fda2`, reference checkout supplied through `--grooveauthor-root` (or `GROOVEAUTHOR_ROOT`);
+  by default, scripts look for a sibling `grooveauthor` directory.
 - Its StepManiaLibrary submodule: `bdbc427f09cf23a2ffa6d8aa4dc2fdc755b0a4e8`.
 - `reference-inventory.json` records the source files and hashes. It is an
   inventory, not evidence that every file has been examined or ported.

@@ -333,7 +333,8 @@ impl Change {
             // baseline too. Keeping the previous root with new typed settings
             // loses explicitly imported default-valued fields and makes a
             // subsequent Undo conflict with our own successful import.
-            let live = super::File::from_root(&self.path, current.file.expected.clone(), runtime_root)?;
+            let live =
+                super::File::from_root(&self.path, current.file.expected.clone(), runtime_root)?;
             (live.clone(), live)
         };
         published.settings = live.settings;

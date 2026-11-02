@@ -7,8 +7,14 @@ pub fn install_actor_metatable(
 ) -> mlua::Result<()> {
     crate::actor_classes::bind(lua, actor)?;
     let mt = lua.create_table()?;
-    mt.set("__index", lua.create_function(crate::actor_classes::lookup)?)?;
-    mt.set("__newindex", lua.create_function(crate::actor_classes::assign)?)?;
+    mt.set(
+        "__index",
+        lua.create_function(crate::actor_classes::lookup)?,
+    )?;
+    mt.set(
+        "__newindex",
+        lua.create_function(crate::actor_classes::assign)?,
+    )?;
     mt.set(
         "__concat",
         lua.create_function(move |lua, (lhs, rhs): (Table, Table)| {

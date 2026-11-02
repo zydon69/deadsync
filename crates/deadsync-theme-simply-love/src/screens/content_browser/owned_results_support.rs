@@ -138,7 +138,7 @@ pub fn retained_text_bytes(actors: &[Actor]) -> usize {
                 ..
             } => text.capacity(),
             Actor::Text {
-                content: TextContent::Static(_),
+                content: TextContent::Static(_) | TextContent::Shared(_),
                 ..
             }
             | Actor::Sprite { .. } => 0,

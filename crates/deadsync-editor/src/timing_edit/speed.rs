@@ -272,9 +272,11 @@ impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
 
-        let current = Speeds::parse(
-            &super::resident::text(session.document(),target.origin(),"SPEEDS")?,
-        )?;
+        let current = Speeds::parse(&super::resident::text(
+            session.document(),
+            target.origin(),
+            "SPEEDS",
+        )?)?;
         Ok(Self {
             target,
             original: current.clone(),

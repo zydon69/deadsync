@@ -157,7 +157,10 @@ const fn select_restart_steps(
         PlayStyle::Versus | PlayStyle::PumpVersus | PlayStyle::Couple | PlayStyle::PumpCouple => {
             resolved_steps
         }
-        PlayStyle::Single | PlayStyle::Double | PlayStyle::PumpSingle | PlayStyle::PumpDouble
+        PlayStyle::Single
+        | PlayStyle::Double
+        | PlayStyle::PumpSingle
+        | PlayStyle::PumpDouble
         | PlayStyle::Routine
         | PlayStyle::PumpRoutine => [resolved_steps[player_side_index(player_side)]; MAX_PLAYERS],
     }

@@ -19,16 +19,46 @@ pub(crate) fn forward(lua: &Lua, class: &Table, name: &'static str) -> mlua::Res
                     "native actor method {name} has no semantic implementation"
                 )));
             };
-            let observed = matches!(name, "GetChild" | "GetName" | "GetParent" | "GetNumChildren"
-                | "name" | "aux" | "getaux" | "x" | "y" | "zoomx" | "vibrate" | "effectmagnitude"
-                | "Center" | "FullScreen" | "animate" | "decelerate" | "diffuse" | "diffusealpha"
-                | "effectperiod" | "linear" | "queuemessage" | "rainbow" | "rotationz"
-                | "spin" | "visible" | "zoom" | "zoomto"
-                | "SetUpdateFunction" | "SetTarget" | "GetTexture" | "loop" | "rate")
-                && crate::live::active(lua)
+            let observed = matches!(
+                name,
+                "GetChild"
+                    | "GetName"
+                    | "GetParent"
+                    | "GetNumChildren"
+                    | "name"
+                    | "aux"
+                    | "getaux"
+                    | "x"
+                    | "y"
+                    | "zoomx"
+                    | "vibrate"
+                    | "effectmagnitude"
+                    | "Center"
+                    | "FullScreen"
+                    | "animate"
+                    | "decelerate"
+                    | "diffuse"
+                    | "diffusealpha"
+                    | "effectperiod"
+                    | "linear"
+                    | "queuemessage"
+                    | "rainbow"
+                    | "rotationz"
+                    | "spin"
+                    | "visible"
+                    | "zoom"
+                    | "zoomto"
+                    | "SetUpdateFunction"
+                    | "SetTarget"
+                    | "GetTexture"
+                    | "loop"
+                    | "rate"
+            ) && crate::live::active(lua)
                 && log::log_enabled!(target: "deadsync_song_lua::trace", log::Level::Trace);
             let trace_args = observed.then(|| args.clone());
-            if observed { crate::live::query_phase(lua, true); }
+            if observed {
+                crate::live::query_phase(lua, true);
+            }
             let result = method.call::<MultiValue>(args);
             if let Some(args) = trace_args {
                 crate::live::query_phase(lua, false);

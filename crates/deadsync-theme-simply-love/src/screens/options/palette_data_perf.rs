@@ -80,7 +80,10 @@ fn palette_editor_preserves_channels_focus_cursor_and_actor_output() {
                     let mut new = Vec::new();
                     draw(&mut old, &state, selected, focus, editing, blink, true);
                     draw(&mut new, &state, selected, focus, editing, blink, false);
-                    assert_eq!(format!("{old:?}"), format!("{new:?}"));
+                    assert_eq!(
+                        crate::actor_test_support::canonical(&old),
+                        crate::actor_test_support::canonical(&new)
+                    );
                 }
             }
         }
@@ -99,7 +102,10 @@ fn palette_editor_avoids_seven_intermediate_channel_vectors() {
     let (_, after) = measure(|| draw(&mut new, &state, 1, Some(0), false, 0., false));
     assert_eq!(before.allocs - after.allocs, 28);
     assert!(after.allocated_bytes < before.allocated_bytes);
-    assert_eq!(format!("{old:?}"), format!("{new:?}"));
+    assert_eq!(
+        crate::actor_test_support::canonical(&old),
+        crate::actor_test_support::canonical(&new)
+    );
 }
 
 #[test]

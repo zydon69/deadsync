@@ -92,8 +92,7 @@ fn shared_byte_cells_keep_pool_meaning_copy_semantics_and_binary_bytes_after_vm_
             )
             .eval()
             .unwrap();
-        let (a, b, c, state): (Function, Function, Function, Table) =
-            factory.call(actor.clone()).unwrap();
+        let (a, b, c, state): (Function, Function, Function, Table) = factory.call(actor.clone()).unwrap();
         let mut bindings = Bindings {
             arguments: vec![Binding::Object(0)],
             cells: vec![Cell::Bytes(0), Cell::Bytes(0)],
@@ -165,16 +164,8 @@ fn shared_byte_cells_keep_pool_meaning_copy_semantics_and_binary_bytes_after_vm_
                     .to_vec();
                 expected.push((
                     result,
-                    state
-                        .get::<mlua::LuaString>("mode")
-                        .unwrap()
-                        .as_bytes()
-                        .to_vec(),
-                    state
-                        .get::<mlua::LuaString>("copy")
-                        .unwrap()
-                        .as_bytes()
-                        .to_vec(),
+                    state.get::<mlua::LuaString>("mode").unwrap().as_bytes().to_vec(),
+                    state.get::<mlua::LuaString>("copy").unwrap().as_bytes().to_vec(),
                     std::mem::take(&mut *actions.lock().unwrap()),
                 ));
             }
@@ -346,15 +337,11 @@ fn prepared_schemas_preserve_binary_fields_cells_errors_and_released_loading_sto
             bindings.fields.push(bindings.fields[0].clone());
             assert!(matches!(
                 program::Compiler::new(&bindings),
-                Err(program::CompileError::InvalidBindings(
-                    "duplicate object field"
-                ))
+                Err(program::CompileError::InvalidBindings("duplicate object field"))
             ));
             assert!(matches!(
                 program::compile(&callback, &bindings),
-                Err(program::CompileError::InvalidBindings(
-                    "duplicate object field"
-                ))
+                Err(program::CompileError::InvalidBindings("duplicate object field"))
             ));
             (normal.machine(), current.machine())
         };
@@ -418,12 +405,8 @@ fn batch_compilation_keeps_binding_bits_identity_errors_and_independent_state() 
         Binding::Literal(program::Literal::Boolean(true)),
         Binding::Literal(program::Literal::Number(0.0)),
         Binding::Literal(program::Literal::Number(-0.0)),
-        Binding::Literal(program::Literal::Number(f64::from_bits(
-            0x7ff8_0000_0000_1234,
-        ))),
-        Binding::Literal(program::Literal::Number(f64::from_bits(
-            0x7ff8_0000_0000_5678,
-        ))),
+        Binding::Literal(program::Literal::Number(f64::from_bits(0x7ff8_0000_0000_1234))),
+        Binding::Literal(program::Literal::Number(f64::from_bits(0x7ff8_0000_0000_5678))),
         Binding::Literal(program::Literal::Bytes(b"\0\xffone".as_slice().into())),
         Binding::Literal(program::Literal::Bytes(b"\0\xfftwo".as_slice().into())),
         Binding::Object(11),
@@ -461,12 +444,7 @@ fn batch_compilation_keeps_binding_bits_identity_errors_and_independent_state() 
                         .unwrap(),
                 );
                 assert_eq!(
-                    owned(
-                        program
-                            .machine()
-                            .run(&input, |_, _| panic!("no action"))
-                            .unwrap()
-                    ),
+                    owned(program.machine().run(&input, |_, _| panic!("no action")).unwrap()),
                     expected
                 );
                 programs.push((program, expected));
@@ -561,10 +539,7 @@ fn repeated_function_dumps_keep_bytes_native_errors_and_detached_results() {
             ))
             .eval()
             .unwrap();
-        let small: Function = lua
-            .load("return function(e) return e+0.25 end")
-            .eval()
-            .unwrap();
+        let small: Function = lua.load("return function(e) return e+0.25 end").eval().unwrap();
         let native = lua
             .create_function(|_, ()| -> mlua::Result<()> {
                 panic!("dumping must not execute a native callback")
@@ -622,9 +597,7 @@ fn repeated_function_dumps_keep_bytes_native_errors_and_detached_results() {
     for (program, input, (bytes, bits)) in programs {
         let mut machine = program.machine();
         let inputs = [Datum::Number(input)];
-        let result = machine
-            .run(&inputs, |_, _| panic!("no action"))
-            .unwrap();
+        let result = machine.run(&inputs, |_, _| panic!("no action")).unwrap();
         match (bytes, result) {
             (Some(bytes), Datum::Bytes(actual)) => assert_eq!(actual, bytes),
             (None, Datum::Number(actual)) => assert_eq!(actual.to_bits(), bits),
@@ -640,9 +613,7 @@ fn identical_group_code_shares_storage_without_merging_execution_or_machine_stat
         let lua = Lua::new();
         lua.set_app_data(Dropped(closed.clone()));
         let f: Function = lua
-            .load(
-                "local s={total=0};return function(delta) s.total=s.total+delta;return s.total end",
-            )
+            .load("local s={total=0};return function(delta) s.total=s.total+delta;return s.total end")
             .eval()
             .unwrap();
         let bindings = Bindings {
@@ -733,9 +704,7 @@ fn shared_group_code_keeps_mutable_byte_arena_indices_after_vm_destruction() {
     for (step, (input, expected)) in expected.into_iter().enumerate() {
         assert_eq!(
             group
-                .run(step % 16, &[Datum::Boolean(input)], |_, _| panic!(
-                    "no action"
-                ))
+                .run(step % 16, &[Datum::Boolean(input)], |_, _| panic!("no action"))
                 .unwrap()
                 .unwrap(),
             Datum::Bytes(&expected)
@@ -752,7 +721,10 @@ fn group_code_sharing_preserves_independent_cells_constants_and_object_ids() {
         lua.set_app_data(Dropped(closed.clone()));
         let mut programs = Vec::new();
         for index in 0..16 {
-            let f: Function = lua.load("local s={total=0};return function(delta) s.total=s.total+delta;return s.total end").eval().unwrap();
+            let f: Function = lua
+                .load("local s={total=0};return function(delta) s.total=s.total+delta;return s.total end")
+                .eval()
+                .unwrap();
             programs.push(
                 program::compile(
                     &f,
@@ -837,11 +809,7 @@ fn group_code_sharing_preserves_independent_cells_constants_and_object_ids() {
             );
             expected.push((bits, bytes, object));
         }
-        (
-            independent,
-            program::Group::new(programs).unwrap(),
-            expected,
-        )
+        (independent, program::Group::new(programs).unwrap(), expected)
     };
     assert!(closed.load(Ordering::SeqCst));
     for delta in [0.25, -0.5] {
@@ -891,7 +859,9 @@ fn grouped_callbacks_share_actual_cells_and_survive_loading_vm_destruction() {
                 .unwrap(),
             )
             .unwrap();
-        let factory: Function = lua.load(r#"return function(actor)
+        let factory: Function = lua
+            .load(
+                r#"return function(actor)
             local state={held=false,count=-0.0}
             local alias=state
             return function(e)
@@ -901,9 +871,11 @@ fn grouped_callbacks_share_actual_cells_and_survive_loading_vm_destruction() {
                 if e.type=='Release' then alias.count=alias.count+1;alias.held=false;actor:visible(false) end
                 return alias.held
             end,state
-        end"#).eval().unwrap();
-        let (first, second, shared): (Function, Function, Table) =
-            factory.call(actor.clone()).unwrap();
+        end"#,
+            )
+            .eval()
+            .unwrap();
+        let (first, second, shared): (Function, Function, Table) = factory.call(actor.clone()).unwrap();
         let mut bindings = Bindings {
             arguments: vec![Binding::Object(0)],
             cells: vec![Cell::Boolean(false), Cell::Number(-0.0)],
@@ -963,11 +935,7 @@ fn grouped_callbacks_share_actual_cells_and_survive_loading_vm_destruction() {
     for (index, (a, b, held, count, expected_actions)) in expected.into_iter().enumerate() {
         let inputs = [
             Datum::Bytes(if index % 3 == 0 { b"Left" } else { b"Right" }),
-            Datum::Bytes(if index % 4 == 0 {
-                b"Release"
-            } else {
-                b"Repeat"
-            }),
+            Datum::Bytes(if index % 4 == 0 { b"Release" } else { b"Repeat" }),
         ];
         let mut actions = Vec::new();
         let mut run = |which| {
@@ -1017,20 +985,8 @@ fn groups_check_cell_layout_bits_and_clear_scratch_between_programs() {
         )
         .unwrap()
     };
-    assert!(
-        program::Group::new(vec![
-            compile(Cell::Number(-0.0)),
-            compile(Cell::Number(0.0))
-        ])
-        .is_err()
-    );
-    assert!(
-        program::Group::new(vec![
-            compile(Cell::Boolean(false)),
-            compile(Cell::Number(0.0))
-        ])
-        .is_err()
-    );
+    assert!(program::Group::new(vec![compile(Cell::Number(-0.0)), compile(Cell::Number(0.0))]).is_err());
+    assert!(program::Group::new(vec![compile(Cell::Boolean(false)), compile(Cell::Number(0.0))]).is_err());
     let bits = 0x7ff8_0000_0000_1234;
     let group = program::Group::new(vec![
         compile(Cell::Number(f64::from_bits(bits))),
@@ -1045,20 +1001,14 @@ fn groups_check_cell_layout_bits_and_clear_scratch_between_programs() {
         .load("return function()local a,b,c,d,e,f,g=1,2,3,4,5,6,7;return g end")
         .eval()
         .unwrap();
-    let b: Function = lua
-        .load("return function()local a;return a end")
-        .eval()
-        .unwrap();
+    let b: Function = lua.load("return function()local a;return a end").eval().unwrap();
     let mut group = program::Group::new(vec![
         program::compile(&a, &Bindings::default()).unwrap(),
         program::compile(&b, &Bindings::default()).unwrap(),
     ])
     .unwrap();
     for _ in 0..10 {
-        assert_eq!(
-            group.run(0, &[], |_, _| {}).unwrap().unwrap(),
-            Datum::Number(7.0)
-        );
+        assert_eq!(group.run(0, &[], |_, _| {}).unwrap().unwrap(), Datum::Number(7.0));
         assert_eq!(group.run(1, &[], |_, _| {}).unwrap().unwrap(), Datum::Nil);
     }
 }
@@ -1506,10 +1456,7 @@ fn shared_signatures_check_each_field_receiver_and_preserve_distinct_return_obje
         );
         assert_eq!(
             actions,
-            vec![
-                (1, 7, (-0.0f64).to_bits()),
-                (2, 9, 0.0f64.to_bits()),
-            ]
+            vec![(1, 7, (-0.0f64).to_bits()), (2, 9, 0.0f64.to_bits()),]
         );
     }
 }
@@ -1590,10 +1537,7 @@ fn truthiness_execution_matches_lua_after_vm_destruction_and_keeps_input_errors(
             (Datum::Boolean(true), Value::Boolean(true)),
             (Datum::Number(-0.0), Value::Number(-0.0)),
             (Datum::Number(f64::NAN), Value::Number(f64::NAN)),
-            (
-                Datum::Bytes(b""),
-                Value::String(lua.create_string(b"").unwrap()),
-            ),
+            (Datum::Bytes(b""), Value::String(lua.create_string(b"").unwrap())),
             (
                 Datum::Bytes(b"\xff\0"),
                 Value::String(lua.create_string(b"\xff\0").unwrap()),
@@ -1745,11 +1689,7 @@ fn borrowed_instruction_decoding_preserves_endianness_and_outlives_the_dump() {
     }
     for little in [false, true] {
         for size_t in [4, 8] {
-            for bits in [
-                0x8000_0000_0000_0000,
-                0x7ff8_0000_0000_1234,
-                123.5_f64.to_bits(),
-            ] {
+            for bits in [0x8000_0000_0000_0000, 0x7ff8_0000_0000_1234, 123.5_f64.to_bits()] {
                 let program = {
                     let mut bytes = b"\x1bLua\x51\0".to_vec();
                     bytes.extend_from_slice(&[u8::from(little), 4, size_t as u8, 4, 8, 0]);
@@ -1769,8 +1709,7 @@ fn borrowed_instruction_decoding_preserves_endianness_and_outlives_the_dump() {
                     program::compile_bytecode(&bytes, &Bindings::default()).unwrap()
                 };
                 let mut machine = program.machine();
-                let Datum::Number(value) = machine.run(&[], |_, _| panic!("no action")).unwrap()
-                else {
+                let Datum::Number(value) = machine.run(&[], |_, _| panic!("no action")).unwrap() else {
                     panic!("numeric return");
                 };
                 assert_eq!(value.to_bits(), bits);

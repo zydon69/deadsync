@@ -92,15 +92,14 @@ pub fn analyze_file(path: &Path, cancelled: &AtomicBool) -> Result<Rhythm, Strin
     if onsets.len() < 4 {
         return Err("Not enough rhythmic transients to estimate tempo".into());
     }
-    let min_lag = (60.0 / 240.0 / step).round() as usize;
-    let max_lag = ((60.0 / 60.0 / step).round() as usize).min(envelope.len() / 2);
+    let lags = tempo_lags(step, envelope.len());
     let norm = envelope
         .iter()
         .map(|v| v * v)
         .sum::<f64>()
         .max(f64::EPSILON);
     let mut scores = Vec::new();
-    for lag in min_lag..=max_lag {
+    for lag in lags {
         check(cancelled)?;
         let correlation = envelope[lag..]
             .iter()
@@ -162,5 +161,30 @@ fn check(cancelled: &AtomicBool) -> Result<(), String> {
         Err("Audio analysis cancelled".into())
     } else {
         Ok(())
+    }
+}
+
+fn tempo_lags(step: f64, envelope_len: usize) -> std::ops::RangeInclusive<usize> {
+    let min = (60.0 / 300.0 / step).ceil() as usize;
+    let max = ((60.0 / 40.0 / step).floor() as usize).min(envelope_len / 2);
+    min.max(1)..=max
+}
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn every_tempo_candidate_stays_within_the_tool_schema_for_fractional_hops() {
+        for hz in [22050., 44100., 48000., 384000.] {
+            let hop = (hz * super::HOP_SECONDS).round().max(1.);
+            let step = hop / hz;
+            let lags = super::tempo_lags(step, 10000);
+            assert!(!lags.is_empty());
+            for lag in lags {
+                let bpm = 60. / (lag as f64 * step);
+                assert!(
+                    (40.0..=300.0).contains(&bpm),
+                    "hz={hz}, lag={lag}, bpm={bpm}"
+                );
+            }
+        }
     }
 }

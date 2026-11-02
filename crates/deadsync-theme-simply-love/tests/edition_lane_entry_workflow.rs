@@ -112,7 +112,7 @@ fn held_navigation_creates_hold_backtracks_to_tap_and_left_shift_changes_roll() 
     );
 }
 #[test]
-fn cancel_panels_modifiers_and_focus_loss_discard_drafts_before_release() {
+fn modal_and_focus_cancellation_discard_drafts_but_unassigned_prefixes_preserve_them() {
     let _g = SERIAL.lock().unwrap();
     for boundary in [
         "escape",
@@ -142,6 +142,15 @@ fn cancel_panels_modifiers_and_focus_loss_discard_drafts_before_release() {
             _ => s.release_input(),
         };
         key(&mut s, KeyCode::Digit1, false);
+        if matches!(boundary, "control" | "alt") {
+            // Prefixes may belong to configurable source chords. A modifier
+            // alone has no cancellation intent and must preserve the held lane.
+            let note = s.workspace().grid().get(p(0, 0, 0)).unwrap();
+            assert_eq!(note.kind, Kind::Hold, "{boundary}");
+            assert_eq!(note.end, Some(48), "{boundary}");
+            assert_eq!(s.workspace().file().session.revision(), 1, "{boundary}");
+            ctrl(&mut s, KeyCode::KeyZ);
+        }
         assert_eq!(
             s.workspace().file().session.serialize().unwrap(),
             source,

@@ -169,9 +169,9 @@ fn native_and_advanced_reviews_capture_one_context_without_mutating_source_token
     // uses the otherwise identical exportable input.
     let source = SOURCE.replace(r"#UnknownFuture : raw\;value;", "");
     assert_ne!(source, SOURCE);
-    let mut s = Session::new(Document::parse_with_context(
-        source.into_bytes(), Format::Ssc, context(0.375),
-    ).unwrap());
+    let mut s = Session::new(
+        Document::parse_with_context(source.into_bytes(), Format::Ssc, context(0.375)).unwrap(),
+    );
     let original = s.serialize().unwrap();
     let identity = s.chart_ids()[0].clone();
     let policies = [

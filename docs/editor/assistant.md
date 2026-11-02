@@ -18,8 +18,8 @@ under the chart assistant action in keyboard settings.
 - **F5** opens a detached visual preview of a changed chart. Up/Down scroll by
   a beat, Page Up/Down by four measures; Escape returns to the conversation.
 - **Page Up / Page Down** scroll through the response.
-- **F4** restarts the MCP snapshot from the current editor document. Reconnect any
-  external client. The stable connection path now points to the new snapshot.
+- **F4** enables or disables external MCP access. It is off by default.
+  While enabled, the bridge follows editor revisions automatically.
 - Close the panel and use the usual Undo or Save commands to revert or persist.
 
 A proposal is rejected if its source editor session or revision has changed.
@@ -34,14 +34,17 @@ the CLI shipped with `/Applications/ChatGPT.app`. Set `DEADSYNC_CODEX_PATH` to a
 explicit executable path for another installation.
 
 The assistant uses Codex App Server and its experimental dynamic tool interface.
-The implementation follows the installed CLI schema (0.163.0-alpha.11.1). Changes
-to this interface may require updating the host adapter.
+The adapter accepts only the verified CLI version 0.163.0-alpha.11.1. A future
+version is refused until its built-in tool set and protocol have been reviewed;
+a denylist alone is not treated as a forward-compatible security boundary.
 
-A private temporary Codex home reuses the existing `auth.json` sign-in. Shell,
+A private temporary Codex home copies the existing file-backed `auth.json` sign-in.
+After the child exits, a refreshed credential is atomically retained only if the
+original login is unchanged. Concurrent DeadSync refreshes are serialized, and a
+concurrent external account change is detected rather than overwritten. Shell,
 apps, multi-agent and web search tools are disabled; repository instructions and
 other configured MCP servers are not inherited. This authentication adapter
-currently requires a Unix platform and a file-backed Codex login. It reports an
-error if either is unavailable. No credentials are embedded in the game.
+requires a file-backed Codex login. It reports an error if that login is unavailable. No credentials are embedded in the game.
 
 Prompts, chart metadata, note data returned by tools, and analysis summaries are
 sent to the configured Codex service. Audio decoding and onset analysis run
@@ -50,11 +53,11 @@ Codex account limits. No API key is required by this adapter.
 
 ## External MCP access to the open editor
 
-Opening the assistant starts an authenticated loopback bridge and displays a stable
-connection-file path. Its token belongs to this editor instance. The most recently opened editor owns
-discovery. After it closes, the stable file may remain as an expired connection;
-opening the assistant publishes a fresh endpoint and token. Do not share the
-connection file. The bridge is available only on loopback.
+Press **F4** in the assistant to explicitly start the authenticated loopback
+bridge. The most recently enabled editor owns the private discovery file. The
+owner removes that file when the bridge closes, under a cross-process registry
+lock; closing another editor does not remove a newer owner's connection. Do not
+share the connection file. The listener accepts loopback connections only.
 
 Build the helper:
 
@@ -75,11 +78,23 @@ For Codex, the corresponding local registration command is:
 codex mcp add deadsync -- /absolute/path/deadsync-mcp --connect-editor
 ```
 
-The bridge owns a detached snapshot captured when it starts. Tool calls inspect
-and modify that snapshot. `apply_preview`, `undo` and `redo` offer the resulting
-snapshot to the native panel; **F2 in the game** is still required to publish it.
-A stale snapshot cannot overwrite subsequent editor changes. Restart with F4 to
-capture a fresh snapshot. Bridge connections cannot save files.
+Each MCP client owns a detached working snapshot. Host edits, Undo/Redo and
+accepted proposals refresh it before the next request, without changing the port
+or secret. `apply_preview`, `undo` and `redo` offer a proposal to the native panel;
+**F2 in the game** is still required to publish it. A pending native proposal is
+never replaced by an external proposal. The bounded proposal mailbox returns a
+recoverable tool error before changing history when full. Clients can retry after
+review. Bridge connections cannot save files.
+
+Up to eight request workers are active at once; slow audio processing in one
+client does not block another client. The helper permits up to one hour per
+response for the local 30-minute audio limit. Recoverable bridge errors are
+returned as MCP errors rather than terminating the stdio helper. The helper rereads
+discovery per request, so enabling a replacement bridge does not require restarting
+its stdio process. Stale previews must be regenerated after an editor change.
+
+`inspect_chart` pages in `(player, lane, row)` order. Send `next_cursor` back as
+`cursor`, keep the same `start_row`, and restart pagination if `revision` changes.
 
 The helper can alternatively open an explicitly selected song without a running
 game:

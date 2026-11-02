@@ -47,10 +47,14 @@ impl Loader {
         Self {
             busy: Arc::new(AtomicBool::new(false)),
             max_bytes: max_packed_bytes,
-            parallelism:Arc::new(AtomicI32::new(deadsync_editor::waveform_preferences::Preferences::default().loading_parallelism())),
+            parallelism: Arc::new(AtomicI32::new(
+                deadsync_editor::waveform_preferences::Preferences::default().loading_parallelism(),
+            )),
         }
     }
-    pub fn set_load_parallelism(&self,value:i32){self.parallelism.store(value,Ordering::Release);}
+    pub fn set_load_parallelism(&self, value: i32) {
+        self.parallelism.store(value, Ordering::Release);
+    }
     pub fn start(&self, path: PathBuf) -> Result<Job, LoadError> {
         self.start_input(Input::Path(path))
     }
@@ -62,14 +66,16 @@ impl Loader {
         let cancelled = Arc::new(AtomicBool::new(false));
         let worker_cancel = Arc::clone(&cancelled);
         let budget = self.max_bytes;
-        let parallelism=Arc::clone(&self.parallelism);
+        let parallelism = Arc::clone(&self.parallelism);
         let (send, result) = mpsc::sync_channel(1);
         thread::Builder::new()
             .name("editor-waveform".into())
             .spawn(move || {
                 let value = match input {
                     Input::Path(path) => decode(path, budget, &worker_cancel, &parallelism),
-                    Input::Prepared(source) => decode_prepared(source, budget, &worker_cancel, &parallelism),
+                    Input::Prepared(source) => {
+                        decode_prepared(source, budget, &worker_cancel, &parallelism)
+                    }
                 };
                 // Free the worker slot before publishing completion, so a caller
                 // consuming the result may immediately start the next request.
@@ -97,12 +103,17 @@ fn decode_prepared(
     let convert = |error: deadsync_editor::Error| LoadError::Decode(error.to_string());
     let mut builder = Builder::with_memory_limit(source.channels, source.sample_rate_hz, budget)
         .map_err(convert)?;
-    if let Some(pcm)=source.editor_samples(){
-        for chunk in pcm.chunks(1024*source.channels){
-            if cancelled.load(Ordering::Acquire){return Err(LoadError::Cancelled);}
+    if let Some(pcm) = source.editor_samples() {
+        for chunk in pcm.chunks(1024 * source.channels) {
+            if cancelled.load(Ordering::Acquire) {
+                return Err(LoadError::Cancelled);
+            }
             builder.push_f32(chunk).map_err(convert)?;
         }
-        return builder.finish_parallelism_cancellable(cancelled,parallelism.load(Ordering::Acquire)).map_err(convert)?.ok_or(LoadError::Cancelled);
+        return builder
+            .finish_parallelism_cancellable(cancelled, parallelism.load(Ordering::Acquire))
+            .map_err(convert)?
+            .ok_or(LoadError::Cancelled);
     }
     let mut reader = source.reader();
     let mut packet = Vec::new();
@@ -116,7 +127,7 @@ fn decode_prepared(
         builder.push_i16(&packet).map_err(convert)?;
     }
     builder
-        .finish_parallelism_cancellable(cancelled,parallelism.load(Ordering::Acquire))
+        .finish_parallelism_cancellable(cancelled, parallelism.load(Ordering::Acquire))
         .map_err(convert)?
         .ok_or(LoadError::Cancelled)
 }
@@ -163,10 +174,23 @@ impl Drop for Permit {
     }
 }
 
-fn decode(path:PathBuf,budget:usize,cancelled:&AtomicBool,parallelism:&AtomicI32)->Result<Waveform,LoadError>{
-    if cancelled.load(Ordering::Acquire){return Err(LoadError::Cancelled);}
-    let source=PreparedAudioSource::load_editor_limited(&path,DecodeOptions::STEP_MANIA_TIMELINE,cancelled,budget).map_err(|error|LoadError::Decode(error.to_string()))?;
-    decode_prepared(source,budget,cancelled,parallelism)
+fn decode(
+    path: PathBuf,
+    budget: usize,
+    cancelled: &AtomicBool,
+    parallelism: &AtomicI32,
+) -> Result<Waveform, LoadError> {
+    if cancelled.load(Ordering::Acquire) {
+        return Err(LoadError::Cancelled);
+    }
+    let source = PreparedAudioSource::load_editor_limited(
+        &path,
+        DecodeOptions::STEP_MANIA_TIMELINE,
+        cancelled,
+        budget,
+    )
+    .map_err(|error| LoadError::Decode(error.to_string()))?;
+    decode_prepared(source, budget, cancelled, parallelism)
 }
 
 #[cfg(test)]
@@ -212,13 +236,63 @@ mod tests {
         assert!(job.poll().is_none());
     }
     #[test]
-    fn prepared_pcm_uses_configured_parallel_builder_after_path_is_unlinked(){
-        use std::time::{Duration,Instant};
-        let root=tempfile::tempdir().unwrap();let path=root.path().join("parallel.wav");let frames=4801u32;let pcm=(0..frames*2).map(|i|(i.wrapping_mul(7919)as i32%65536-32768)as i16).collect::<Vec<_>>();
-        let mut bytes=Vec::new();bytes.extend_from_slice(b"RIFF");bytes.extend_from_slice(&(36+frames*4).to_le_bytes());bytes.extend_from_slice(b"WAVEfmt ");bytes.extend_from_slice(&16u32.to_le_bytes());bytes.extend_from_slice(&1u16.to_le_bytes());bytes.extend_from_slice(&2u16.to_le_bytes());bytes.extend_from_slice(&48000u32.to_le_bytes());bytes.extend_from_slice(&192000u32.to_le_bytes());bytes.extend_from_slice(&4u16.to_le_bytes());bytes.extend_from_slice(&16u16.to_le_bytes());bytes.extend_from_slice(b"data");bytes.extend_from_slice(&(frames*4).to_le_bytes());for sample in &pcm{bytes.extend_from_slice(&sample.to_le_bytes());}std::fs::write(&path,bytes).unwrap();
-        let source=PreparedAudioSource::load(&path,DecodeOptions::STEP_MANIA_TIMELINE,&AtomicBool::new(false)).unwrap();std::fs::remove_file(path).unwrap();
-        let mut expected=Builder::new(2,48000).unwrap();expected.push_i16(&pcm).unwrap();let expected=expected.finish().unwrap();let loader=Loader::new(16*1024*1024);
-        for parallelism in [1,2,8,128]{loader.set_load_parallelism(parallelism);assert_eq!(loader.parallelism.load(Ordering::Acquire),parallelism);let mut job=loader.start_prepared(Arc::clone(&source)).unwrap();let deadline=Instant::now()+Duration::from_secs(5);let actual=loop{if let Some(result)=job.poll(){break result.unwrap();}assert!(Instant::now()<deadline);std::thread::yield_now();};assert_eq!(actual.frames(),frames as usize);for channel in 0..2{for range in [(0,4801),(1,4801),(17,301),(4800,4801)]{assert_eq!(actual.envelope(channel,range.0,range.1),expected.envelope(channel,range.0,range.1));}}}
+    fn prepared_pcm_uses_configured_parallel_builder_after_path_is_unlinked() {
+        use std::time::{Duration, Instant};
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("parallel.wav");
+        let frames = 4801u32;
+        let pcm = (0..frames * 2)
+            .map(|i| (i.wrapping_mul(7919) as i32 % 65536 - 32768) as i16)
+            .collect::<Vec<_>>();
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(b"RIFF");
+        bytes.extend_from_slice(&(36 + frames * 4).to_le_bytes());
+        bytes.extend_from_slice(b"WAVEfmt ");
+        bytes.extend_from_slice(&16u32.to_le_bytes());
+        bytes.extend_from_slice(&1u16.to_le_bytes());
+        bytes.extend_from_slice(&2u16.to_le_bytes());
+        bytes.extend_from_slice(&48000u32.to_le_bytes());
+        bytes.extend_from_slice(&192000u32.to_le_bytes());
+        bytes.extend_from_slice(&4u16.to_le_bytes());
+        bytes.extend_from_slice(&16u16.to_le_bytes());
+        bytes.extend_from_slice(b"data");
+        bytes.extend_from_slice(&(frames * 4).to_le_bytes());
+        for sample in &pcm {
+            bytes.extend_from_slice(&sample.to_le_bytes());
+        }
+        std::fs::write(&path, bytes).unwrap();
+        let source = PreparedAudioSource::load(
+            &path,
+            DecodeOptions::STEP_MANIA_TIMELINE,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        std::fs::remove_file(path).unwrap();
+        let mut expected = Builder::new(2, 48000).unwrap();
+        expected.push_i16(&pcm).unwrap();
+        let expected = expected.finish().unwrap();
+        let loader = Loader::new(16 * 1024 * 1024);
+        for parallelism in [1, 2, 8, 128] {
+            loader.set_load_parallelism(parallelism);
+            assert_eq!(loader.parallelism.load(Ordering::Acquire), parallelism);
+            let mut job = loader.start_prepared(Arc::clone(&source)).unwrap();
+            let deadline = Instant::now() + Duration::from_secs(5);
+            let actual = loop {
+                if let Some(result) = job.poll() {
+                    break result.unwrap();
+                }
+                assert!(Instant::now() < deadline);
+                std::thread::yield_now();
+            };
+            assert_eq!(actual.frames(), frames as usize);
+            for channel in 0..2 {
+                for range in [(0, 4801), (1, 4801), (17, 301), (4800, 4801)] {
+                    assert_eq!(
+                        actual.envelope(channel, range.0, range.1),
+                        expected.envelope(channel, range.0, range.1)
+                    );
+                }
+            }
+        }
     }
-
 }

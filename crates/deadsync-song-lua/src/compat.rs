@@ -3,21 +3,20 @@ use mlua::{Function, Lua, MultiValue, Table, Value};
 use std::path::Path;
 
 use crate::{
-    SONG_LUA_PRODUCT_VERSION, SONG_LUA_THEME_NAME,
-    SONG_LUA_THEME_PATH_PREFIX, create_actor_util_table, create_author_table,
-    create_background_filter_values, create_color_constants_table, create_credits_table,
-    create_cryptman_table, create_debug_table, create_ex_judgment_counts, create_fileman_table,
-    create_find_files_function, create_ini_file_table, create_lua_compat_table,
-    create_network_table, create_rage_file_util_table, create_range_table,
-    create_string_array, create_version_parts_table, current_gamestate_player_value,
-    current_gamestate_value, current_song_value, current_steps_value, deduplicate_lua_table,
-    install_theme_color_helpers, json_to_lua_value, lua_binary_to_hex, lua_table_to_string,
-    lua_to_json_value, make_color_table, map_lua_table, note_song_lua_side_effect,
-    parse_chart_info, read_color_call, read_color_value, read_f32, read_string,
-    retarget_loader_env, rotate_lua_table, seconds_to_hhmmss, set_string_method,
-    song_lua_is_minimum_product_version, song_lua_is_product_version, stringify_lua_table,
-    strip_sprite_hints, timing_window_arg_index, timing_window_seconds, truthy,
-    worst_judgment_from_offsets,
+    SONG_LUA_PRODUCT_VERSION, SONG_LUA_THEME_NAME, SONG_LUA_THEME_PATH_PREFIX,
+    create_actor_util_table, create_author_table, create_background_filter_values,
+    create_color_constants_table, create_credits_table, create_cryptman_table, create_debug_table,
+    create_ex_judgment_counts, create_fileman_table, create_find_files_function,
+    create_ini_file_table, create_lua_compat_table, create_network_table,
+    create_rage_file_util_table, create_range_table, create_string_array,
+    create_version_parts_table, current_gamestate_player_value, current_gamestate_value,
+    current_song_value, current_steps_value, deduplicate_lua_table, install_theme_color_helpers,
+    json_to_lua_value, lua_binary_to_hex, lua_table_to_string, lua_to_json_value, make_color_table,
+    map_lua_table, note_song_lua_side_effect, parse_chart_info, read_color_call, read_color_value,
+    read_f32, read_string, retarget_loader_env, rotate_lua_table, seconds_to_hhmmss,
+    set_string_method, song_lua_is_minimum_product_version, song_lua_is_product_version,
+    stringify_lua_table, strip_sprite_hints, timing_window_arg_index, timing_window_seconds,
+    truthy, worst_judgment_from_offsets,
 };
 
 #[derive(Clone, Copy)]
@@ -40,14 +39,17 @@ pub fn install_stdlib_compat(
     // _fallback/Scripts/02 Utilities.lua:113 returns the matching pairs key.
     table.set(
         "find",
-        lua.load(r#"
+        lua.load(
+            r#"
             return function(t, sFind)
                 for key, value in pairs(t) do
                     if value == sFind then return key end
                 end
                 return nil
             end
-        "#).eval::<Function>()?,
+        "#,
+        )
+        .eval::<Function>()?,
     )?;
     table.set(
         "rotate_right",
@@ -190,10 +192,7 @@ pub fn install_stdlib_compat(
         "GetVersionParts",
         lua.create_function(|lua, args: MultiValue| {
             let version = args.front().and_then(string_value);
-            create_version_parts_table(
-                lua,
-                version.as_deref().unwrap_or(SONG_LUA_PRODUCT_VERSION),
-            )
+            create_version_parts_table(lua, version.as_deref().unwrap_or(SONG_LUA_PRODUCT_VERSION))
         })?,
     )?;
     globals.set(
@@ -347,7 +346,8 @@ end"#).set_name("Simply Love/Scripts/SL-Helpers.lua:GetComboFonts").eval::<Funct
         // SL-Helpers.lua also handles eight-column turns and declines cue
         // mappings for insertion/removal/shuffle modifiers. Retain that logic
         // instead of synthesizing a four-column identity map.
-        lua.load(r#"return function(player)
+        lua.load(
+            r#"return function(player)
 	local po = GAMESTATE:GetPlayerState(player):GetPlayerOptions('ModsLevel_Preferred')
 
 	local shuffle = po:Shuffle() or po:SoftShuffle() or po:SuperShuffle()
@@ -444,9 +444,10 @@ end"#).set_name("Simply Love/Scripts/SL-Helpers.lua:GetComboFonts").eval::<Funct
 	end
 
 	return column_mapping
-end"#)
-            .set_name("@theme:/Scripts/SL-Helpers.lua")
-            .eval::<Function>()?,
+end"#,
+        )
+        .set_name("@theme:/Scripts/SL-Helpers.lua")
+        .eval::<Function>()?,
     )?;
     globals.set(
         "GetPlayerOptionsString",
@@ -471,13 +472,17 @@ end"#)
     globals.set(
         "IsRoutine",
         // _fallback/Scripts/02 Utilities.lua; used by gameplay-out's Off.
-        lua.load(r#"return function()
+        lua.load(
+            r#"return function()
     local style = GAMESTATE:GetCurrentStyle()
     if style and style:GetStyleType() == "StyleType_TwoPlayersSharedSides" then
         return true
     end
     return false
-end"#).set_name("@theme:/Scripts/02 Utilities.lua:IsRoutine").eval::<Function>()?,
+end"#,
+        )
+        .set_name("@theme:/Scripts/02 Utilities.lua:IsRoutine")
+        .eval::<Function>()?,
     )?;
     globals.set(
         "IsGameAndMenuButton",
@@ -683,7 +688,8 @@ end
     globals.set(
         "loadstring",
         lua.create_function(|lua, (code, chunk_name): (String, Option<String>)| {
-            let code = crate::cmd::preprocess_lua_cmd_syntax_cow(&code).map_err(mlua::Error::external)?;
+            let code =
+                crate::cmd::preprocess_lua_cmd_syntax_cow(&code).map_err(mlua::Error::external)?;
             let mut chunk = lua.load(code.as_ref());
             if let Some(chunk_name) = chunk_name.as_deref() {
                 chunk = chunk.set_name(chunk_name);
@@ -767,6 +773,8 @@ end
 pub(crate) struct SongLuaRandom {
     words: [u32; 624],
     index: usize,
+    #[cfg(feature = "test-support")]
+    reference_distribution: bool,
 }
 
 impl SongLuaRandom {
@@ -779,7 +787,12 @@ impl SongLuaRandom {
                 .wrapping_mul(previous ^ (previous >> 30))
                 .wrapping_add(index as u32);
         }
-        Self { words, index: 624 }
+        Self {
+            words,
+            index: 624,
+            #[cfg(feature = "test-support")]
+            reference_distribution: false,
+        }
     }
 
     fn next(&mut self) -> u32 {
@@ -804,6 +817,11 @@ impl SongLuaRandom {
     pub(crate) fn real(&mut self) -> f64 {
         let low = self.next();
         let high = self.next();
+        #[cfg(feature = "test-support")]
+        if self.reference_distribution {
+            return (f64::from(low) + f64::from(high) * 4_294_967_296.0)
+                / 18_446_744_073_709_551_616.0;
+        }
         // Match std::uniform_real_distribution<double> in the platform's
         // native C++ library, including MSVC's discarded low eleven bits.
         #[cfg(target_os = "windows")]
@@ -822,6 +840,10 @@ impl SongLuaRandom {
             return (i64::from(lower) + i64::from(self.next())) as f64;
         }
         let width = width as u32;
+        #[cfg(feature = "test-support")]
+        if self.reference_distribution {
+            return (i64::from(lower) + i64::from(self.reference_integer(width))) as f64;
+        }
         #[cfg(target_vendor = "apple")]
         let offset = {
             // libc++ uses independent_bits_engine and rejects above the bound.
@@ -849,6 +871,16 @@ impl SongLuaRandom {
         };
         (i64::from(lower) + i64::from(offset)) as f64
     }
+    #[cfg(feature = "test-support")]
+    fn reference_integer(&mut self, width: u32) -> u32 {
+        let threshold = width.wrapping_neg() % width;
+        loop {
+            let product = u64::from(self.next()) * u64::from(width);
+            if product as u32 >= threshold {
+                return (product >> 32) as u32;
+            }
+        }
+    }
 }
 
 fn random_int_arg(lua: &Lua, args: &MultiValue, index: usize) -> mlua::Result<i32> {
@@ -868,7 +900,9 @@ fn random_int_arg(lua: &Lua, args: &MultiValue, index: usize) -> mlua::Result<i3
 struct SongLuaRandomState(SongLuaRandom);
 
 impl Default for SongLuaRandom {
-    fn default() -> Self { Self::seeded(1) }
+    fn default() -> Self {
+        Self::seeded(1)
+    }
 }
 
 pub(crate) struct RandomSnapshot {
@@ -904,12 +938,21 @@ fn install_random_compat(lua: &Lua) -> mlua::Result<()> {
         } else {
             seed as u32
         };
-        lua.app_data_mut::<SongLuaRandomState>()
-            .ok_or_else(|| mlua::Error::runtime("missing Lua random state"))?.0 = SongLuaRandom::seeded(seed);
+        let mut state = lua
+            .app_data_mut::<SongLuaRandomState>()
+            .ok_or_else(|| mlua::Error::runtime("missing Lua random state"))?;
+        #[cfg(feature = "test-support")]
+        let reference_distribution = state.0.reference_distribution;
+        state.0 = SongLuaRandom::seeded(seed);
+        #[cfg(feature = "test-support")]
+        {
+            state.0.reference_distribution = reference_distribution;
+        }
         Ok(())
     })?;
     let random = lua.create_function(|lua, args: MultiValue| {
-        let mut state = lua.app_data_mut::<SongLuaRandomState>()
+        let mut state = lua
+            .app_data_mut::<SongLuaRandomState>()
             .ok_or_else(|| mlua::Error::runtime("missing Lua random state"))?;
         match args.len() {
             0 => Ok(state.0.real()),
@@ -1044,3 +1087,34 @@ fn create_game_command_table(lua: &Lua, callbacks: SongLuaCompatCallbacks) -> ml
 #[cfg(test)]
 #[path = "../tests/perf/borrowed_compat.rs"]
 mod borrowed_compat_perf;
+
+#[cfg(feature = "test-support")]
+pub(crate) fn use_reference_random_distribution(lua: &Lua, enabled: bool) {
+    if let Some(mut state) = lua.app_data_mut::<SongLuaRandomState>() {
+        state.0.reference_distribution = enabled;
+    }
+}
+
+#[cfg(all(test, feature = "test-support"))]
+mod reference_random_tests {
+    use super::*;
+
+    #[test]
+    fn captured_distribution_is_explicit_and_survives_script_reseeding() {
+        let lua = Lua::new();
+        install_random_compat(&lua).unwrap();
+        use_reference_random_distribution(&lua, true);
+        let values: Vec<i32> = lua
+            .load("math.randomseed(1); local r={}; for i=1,8 do r[i]=math.random(8) end; return r")
+            .eval()
+            .unwrap();
+        assert_eq!(values, [4, 8, 6, 8, 1, 2, 3, 8]);
+
+        use_reference_random_distribution(&lua, false);
+        let value: i32 = lua
+            .load("math.randomseed(1); return math.random(8)")
+            .eval()
+            .unwrap();
+        assert_eq!(value, if cfg!(target_vendor = "apple") { 6 } else { 4 });
+    }
+}

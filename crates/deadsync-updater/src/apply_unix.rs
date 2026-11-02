@@ -121,7 +121,7 @@ pub fn sanitize_entry(name: &str, prefix: Option<&str>) -> Option<PathBuf> {
 /// gzip stream the second time because `tar::Archive` is single-pass.
 pub fn extract_tar_gz(zip_bytes: &[u8], dest: &Path) -> Result<usize, UpdaterError> {
     fs::create_dir_all(dest).map_err(|e| super::io_err_at("create_dir_all", dest, e))?;
-    let prefix = {
+    let entries = {
         let dec = GzDecoder::new(zip_bytes);
         let mut archive = Archive::new(dec);
         let mut names = Vec::new();
@@ -133,12 +133,38 @@ pub fn extract_tar_gz(zip_bytes: &[u8], dest: &Path) -> Result<usize, UpdaterErr
             let path = entry
                 .path()
                 .map_err(|e| super::io_err_op("decode tar entry path", e))?;
-            if let Some(s) = path.to_str() {
-                names.push(s.to_string());
-            }
+            // Use exactly the extraction pass's path decoding so aliases
+            // cannot disappear from the preflight inventory.
+            names.push((
+                path.to_string_lossy().into_owned(),
+                entry.header().entry_type().is_file(),
+            ));
         }
-        detect_common_prefix(names)
+        names
     };
+    let prefix = detect_common_prefix(entries.iter().map(|(name, _)| name));
+    // Validate the archive inventory before writing: a case-insensitive volume
+    // would otherwise replace an earlier staged file before plan_ops can see
+    // both paths. Repeated directory headers are legitimate and not payloads.
+    let mut payloads = std::collections::HashMap::new();
+    for (name, regular_file) in &entries {
+        if !*regular_file {
+            continue;
+        }
+        let Some(relative) = sanitize_entry(name, prefix.as_deref()) else {
+            continue; // The extraction pass reports malformed paths as before.
+        };
+        let normalized: PathBuf = relative
+            .components()
+            .filter(|component| !matches!(component, Component::CurDir))
+            .collect();
+        let key = normalized.to_string_lossy().to_lowercase();
+        if let Some(previous) = payloads.insert(key, name) {
+            return Err(UpdaterError::Io(format!(
+                "case-insensitive payload collision in release archive: '{previous}' and '{name}'"
+            )));
+        }
+    }
     let dec = GzDecoder::new(zip_bytes);
     let mut archive = Archive::new(dec);
     archive.set_preserve_permissions(true);
@@ -186,8 +212,13 @@ pub fn extract_tar_gz(zip_bytes: &[u8], dest: &Path) -> Result<usize, UpdaterErr
             fs::create_dir_all(parent)
                 .map_err(|e| super::io_err_at("create_dir_all", parent, e))?;
         }
-        let mut out =
-            File::create(&out_path).map_err(|e| super::io_err_at("create", &out_path, e))?;
+        // Filesystem identity can be broader than our portable preflight
+        // (for example APFS Unicode normalization). Never truncate an alias.
+        let mut out = fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&out_path)
+            .map_err(|e| super::io_err_at("create_new", &out_path, e))?;
         io::copy(&mut entry, &mut out).map_err(|e| super::io_err_at("write", &out_path, e))?;
         // Avoid a per-file fsync storm here. The archive is verified
         // before extraction, and the journal can roll back an interrupted
@@ -214,7 +245,21 @@ fn plan_ops(
     staging_dir: &Path,
     target_dir: &Path,
 ) -> Result<Vec<Op>, UpdaterError> {
-    let files = collect_files(staging_dir)?;
+    plan_file_ops(
+        journal,
+        staging_dir,
+        target_dir,
+        collect_files(staging_dir)?,
+    )
+}
+
+#[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "macos"))]
+fn plan_file_ops(
+    journal: &Journal,
+    staging_dir: &Path,
+    target_dir: &Path,
+    files: Vec<PathBuf>,
+) -> Result<Vec<Op>, UpdaterError> {
     let mut ops = Vec::with_capacity(files.len());
     for staged in files {
         let rel = staged.strip_prefix(staging_dir).map_err(|_| {
@@ -557,11 +602,12 @@ mod tests {
     fn plan_ops_rejects_case_colliding_paths() {
         let staging = tempdir("plan-collide-staging");
         let target = tempdir("plan-collide-target");
-        fs::write(staging.join("foo.dll"), b"A").unwrap();
-        fs::write(staging.join("FOO.dll"), b"B").unwrap();
-
+        // Case-insensitive volumes cannot materialize both directory entries.
+        // Feed the planner the archive inventory so the same collision contract
+        // is exercised on every host filesystem.
+        let files = vec![staging.join("foo.dll"), staging.join("FOO.dll")];
         let journal = apply_journal::Journal::new(&target);
-        let err = plan_ops(&journal, &staging, &target).unwrap_err();
+        let err = plan_file_ops(&journal, &staging, &target, files).unwrap_err();
         let msg = format!("{err:?}");
         assert!(
             msg.to_lowercase().contains("collision"),
@@ -666,6 +712,71 @@ mod tests {
     #[test]
     fn sanitize_entry_rejects_absolute() {
         assert!(sanitize_entry("/abs/path", None).is_none());
+    }
+
+    #[test]
+    fn archive_payload_collisions_are_rejected_before_any_staging_file_is_written() {
+        for (first, second) in [
+            ("same.bin", "same.bin"),
+            ("foo.dll", "FOO.dll"),
+            ("dir/same.bin", "dir\\same.bin"),
+            ("dir/./same.bin", "dir/same.bin"),
+            ("./same.bin", "same.bin"),
+            ("Été.txt", "ÉTÉ.TXT"),
+        ] {
+            let bytes = build_tar_gz(
+                &[(first, b"original"), (second, b"replacement")],
+                Some("bundle"),
+            );
+            let dest = tempdir("payload-collision");
+            let _cleanup = crate::apply_journal::StagingGuard::new(dest.clone());
+            let error = extract_tar_gz(&bytes, &dest).unwrap_err();
+            assert!(error.to_string().contains("payload collision"), "{error}");
+            assert_eq!(
+                fs::read_dir(&dest).unwrap().count(),
+                0,
+                "collision must be found in the archive inventory before payload writes"
+            );
+        }
+    }
+
+    #[test]
+    fn extraction_never_truncates_an_existing_staging_file() {
+        let bytes = build_tar_gz(&[("data.bin", b"replacement")], Some("bundle"));
+        let dest = tempdir("payload-exclusive");
+        let _cleanup = crate::apply_journal::StagingGuard::new(dest.clone());
+        fs::write(dest.join("data.bin"), b"original").unwrap();
+        assert!(extract_tar_gz(&bytes, &dest).is_err());
+        assert_eq!(fs::read(dest.join("data.bin")).unwrap(), b"original");
+    }
+
+    #[test]
+    fn repeated_directory_headers_do_not_count_as_duplicate_payloads() {
+        let mut bytes = Vec::new();
+        {
+            let encoder = GzEncoder::new(&mut bytes, Compression::fast());
+            let mut archive = Builder::new(encoder);
+            for _ in 0..2 {
+                let mut directory = Header::new_gnu();
+                directory.set_path("bundle/assets/").unwrap();
+                directory.set_entry_type(tar::EntryType::Directory);
+                directory.set_size(0);
+                directory.set_mode(0o755);
+                directory.set_cksum();
+                archive.append(&directory, io::empty()).unwrap();
+            }
+            let mut payload = Header::new_gnu();
+            payload.set_path("bundle/assets/keep.bin").unwrap();
+            payload.set_size(4);
+            payload.set_mode(0o644);
+            payload.set_cksum();
+            archive.append(&payload, &b"keep"[..]).unwrap();
+            archive.finish().unwrap();
+        }
+        let dest = tempdir("directory-headers");
+        let _cleanup = crate::apply_journal::StagingGuard::new(dest.clone());
+        assert_eq!(extract_tar_gz(&bytes, &dest).unwrap(), 1);
+        assert_eq!(fs::read(dest.join("assets/keep.bin")).unwrap(), b"keep");
     }
 
     #[test]

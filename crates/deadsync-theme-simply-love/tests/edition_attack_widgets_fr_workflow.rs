@@ -30,7 +30,9 @@ fn ctrl(s: &mut State, code: KeyCode) {
         timestamp: Instant::now(),
         host_nanos: 0,
     });
-    if code == KeyCode::Tab { complete_chart_navigation(s); }
+    if code == KeyCode::Tab {
+        complete_chart_navigation(s);
+    }
 }
 use deadlib_present::actors::{Actor, SizeSpec};
 fn key(s: &mut State, code: KeyCode, pressed: bool) {
@@ -59,9 +61,9 @@ fn captions(s: &State) -> Vec<(String, f32)> {
             Actor::Text {
                 content,
                 offset,
-                z: 8005,
+                z: 8004,
                 ..
-            } if content.contains("Attaque :") || content.contains("Suite de l’attaque :") => {
+            } if content.starts_with(i18n::tr("Edition", "EventSelectionAttack").as_ref()) => {
                 Some((content.to_string(), offset[1]))
             }
             _ => None,
@@ -136,7 +138,10 @@ fn widget_navigation_selects_the_actual_source_and_edits_a_local_override_with_u
     assert!(captions(&s).iter().any(|(text, _)| text.contains("Dizzy")));
     ctrl(&mut s, KeyCode::KeyY);
     ctrl(&mut s, KeyCode::KeyS);
-    let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    let mut reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    // The edited event is outside the default time viewport at row zero.
+    ctrl(&mut reopened, KeyCode::KeyJ);
+    ctrl(&mut reopened, KeyCode::KeyJ);
     assert!(
         captions(&reopened)
             .iter()
@@ -163,9 +168,12 @@ fn attack_heads_and_duration_bodies_follow_all_spacing_modes_reverse_and_viewpor
         for _ in 0..2 {
             let labels = captions(&s);
             assert!(!labels.is_empty());
-            assert!(labels.iter().any(|(text, _)| text.contains("Drunk")
-                && text.contains("-25%")
-                && text.contains("8s")));
+            assert!(labels.iter().any(|(text, _)| text.contains("Drunk")));
+            // The shared source widget displays modifier names. Its timeline
+            // still retains the exact level and duration used by the body.
+            let attack = Draft::capture(&s.workspace().file().session, 0, Scope::Chart).unwrap();
+            assert_eq!(attack.attacks().events()[0].modifiers[0].level, -25.0);
+            assert_eq!(attack.attacks().events()[0].modifiers[0].length, 8.0);
             for (y, h) in bodies(&s) {
                 assert!(y - h * 0.5 >= 104.99 && y + h * 0.5 <= 395.01);
                 assert!(h.is_finite() && h > 0.0);
@@ -200,6 +208,15 @@ fn dense_frozen_scroll_widgets_are_bounded_grouped_and_keep_every_attack_in_the_
     );
     fs::write(&path, &source).unwrap();
     let mut s = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
+    // Bound this stress case through the shared source event admission quota,
+    // rather than the retired separate attack-caption budget.
+    let preferences = dir.path().join("preferences.json");
+    fs::write(
+        &preferences,
+        br#"{"Version":1,"Options":{"MaxEventsToDraw":64}}"#,
+    )
+    .unwrap();
+    s.configure_audio_preferences(&preferences).unwrap();
     ctrl_shift(&mut s, KeyCode::KeyT);
     let all = actors(&s);
     assert!(all.len() < 1800, "{}", all.len());

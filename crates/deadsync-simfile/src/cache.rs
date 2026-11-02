@@ -450,9 +450,15 @@ impl From<&SongBackgroundLuaChange> for SerializableSongBackgroundLuaChange {
             effect: change.effect.clone(),
             color1: change.color1,
             layer: change.layer,
-            activations: change.activations.iter().map(|activation| SerializableSongBackgroundLuaActivation {
-                start_beat: activation.start_beat, rate: activation.rate, transition: activation.transition.clone(),
-            }).collect(),
+            activations: change
+                .activations
+                .iter()
+                .map(|activation| SerializableSongBackgroundLuaActivation {
+                    start_beat: activation.start_beat,
+                    rate: activation.rate,
+                    transition: activation.transition.clone(),
+                })
+                .collect(),
         }
     }
 }
@@ -465,9 +471,17 @@ impl From<SerializableSongBackgroundLuaChange> for SongBackgroundLuaChange {
             effect: change.effect,
             color1: change.color1,
             layer: change.layer,
-            activations: change.activations.into_iter().map(|activation| deadsync_chart::song::SongBackgroundLuaActivation {
-                start_beat: activation.start_beat, rate: activation.rate, transition: activation.transition,
-            }).collect(),
+            activations: change
+                .activations
+                .into_iter()
+                .map(
+                    |activation| deadsync_chart::song::SongBackgroundLuaActivation {
+                        start_beat: activation.start_beat,
+                        rate: activation.rate,
+                        transition: activation.transition,
+                    },
+                )
+                .collect(),
         }
     }
 }
@@ -2488,7 +2502,9 @@ pub fn load_chart_timing_and_notes(
         let cached = (|| {
             let cache_path = song_cache_path(options.cache_dir, &song.simfile_path).ok()?;
             let (cached_song, payload_start) = load_cached_song_for_gameplay(
-                &song.simfile_path, &cache_path, options.verify_cache_freshness,
+                &song.simfile_path,
+                &cache_path,
+                options.verify_cache_freshness,
             )?;
             if cached_song.chart_payloads.len() != song.charts.len() {
                 return None;
@@ -2516,7 +2532,10 @@ pub fn load_chart_timing_and_notes(
         }
     }
     let data = parse_song_data_file(
-        &song.simfile_path, options.parse_options, options.global_offset_seconds, music_len,
+        &song.simfile_path,
+        options.parse_options,
+        options.global_offset_seconds,
+        music_len,
     )?;
     if data.charts.len() != song.charts.len() {
         return Err("song charts changed before loading Lua timing".into());
@@ -3027,10 +3046,13 @@ mod tests {
             name: "./scripts".into(),
         };
         let serialized = SerializableSongForegroundLuaChange::from(&change);
-        let bytes = bincode::encode_to_vec(serialized, bincode::config::standard()).expect("encode foreground");
+        let bytes = bincode::encode_to_vec(serialized, bincode::config::standard())
+            .expect("encode foreground");
         let (decoded, used) = bincode::decode_from_slice::<SerializableSongForegroundLuaChange, _>(
-            &bytes, bincode::config::standard(),
-        ).expect("decode foreground");
+            &bytes,
+            bincode::config::standard(),
+        )
+        .expect("decode foreground");
         assert_eq!(used, bytes.len());
         let restored = SongForegroundLuaChange::from(decoded);
         assert_eq!(restored.name, change.name);
@@ -3509,24 +3531,49 @@ mod tests {
         let music = root.join("song.ogg");
         let cache_path = root.join("cache.bin");
         fs::write(&music, b"").unwrap();
-        let mut text = String::from("#VERSION:0.83;\n#TITLE:Authored music;\n#MUSIC:song.ogg;\n#BPMS:0=120;\n");
-        for (difficulty, tag) in [("Easy", ""), ("Medium", "#MUSIC:song.ogg;\n"),
-            ("Challenge", "#MUSIC:./song.ogg;\n")] {
+        let mut text = String::from(
+            "#VERSION:0.83;\n#TITLE:Authored music;\n#MUSIC:song.ogg;\n#BPMS:0=120;\n",
+        );
+        for (difficulty, tag) in [
+            ("Easy", ""),
+            ("Medium", "#MUSIC:song.ogg;\n"),
+            ("Challenge", "#MUSIC:./song.ogg;\n"),
+        ] {
             text.push_str(&format!("#NOTEDATA:;\n#STEPSTYPE:dance-single;\n#DIFFICULTY:{difficulty};\n#METER:1;\n{tag}#NOTES:\n1000\n;\n"));
         }
         fs::write(&simfile, text).unwrap();
         let options = ParseSongOptions::new(Vec::new(), Vec::new(), Vec::new());
         let data = crate::song::parse_song_file(&simfile, &options, |_| 0.0).unwrap();
         let expected = ["", "song.ogg", "./song.ogg"];
-        assert_eq!(data.charts.iter().map(|chart| chart.music_file.as_str()).collect::<Vec<_>>(), expected);
-        assert!(data.charts.iter().all(|chart| chart.music_path.as_deref().map(Path::new) == Some(music.as_path())));
+        assert_eq!(
+            data.charts
+                .iter()
+                .map(|chart| chart.music_file.as_str())
+                .collect::<Vec<_>>(),
+            expected
+        );
+        assert!(
+            data.charts
+                .iter()
+                .all(|chart| chart.music_path.as_deref().map(Path::new) == Some(music.as_path()))
+        );
         let uncached = build_song_meta(data.clone(), 0.0);
         write_song_cache_file(&cache_path, &data, 0.0).unwrap();
         let cached = load_cached_song(&simfile, &cache_path, false).unwrap();
         let restored = build_song_meta_from_cache(cached.data);
         for song in [uncached, restored] {
-            assert_eq!(song.charts.iter().map(|chart| chart.music_file.as_str()).collect::<Vec<_>>(), expected);
-            assert!(song.charts.iter().all(|chart| chart.music_path.as_deref() == Some(music.as_path())));
+            assert_eq!(
+                song.charts
+                    .iter()
+                    .map(|chart| chart.music_file.as_str())
+                    .collect::<Vec<_>>(),
+                expected
+            );
+            assert!(
+                song.charts
+                    .iter()
+                    .all(|chart| chart.music_path.as_deref() == Some(music.as_path()))
+            );
         }
     }
 

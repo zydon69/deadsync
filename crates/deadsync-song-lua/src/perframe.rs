@@ -29,7 +29,9 @@ pub(crate) const SONG_LUA_UPDATE_REFERENCE_FPS: f32 = 60.0;
 pub(crate) fn first_update_seconds(_context: &SongLuaCompileContext) -> f32 {
     #[cfg(feature = "test-support")]
     if let Some(frame) = _context.compile_clock_inputs.get(1) {
-        let origin = _context.song_timing.as_ref()
+        let origin = _context
+            .song_timing
+            .as_ref()
             .map_or(0.0, |timing| f64::from(timing.get_time_for_beat_exact(0.0)));
         return ((frame[0] - origin) / f64::from(song_music_rate(_context))) as f32;
     }
@@ -855,16 +857,22 @@ pub(crate) fn update_function_replay_beats(
 ) -> Vec<(f64, f64)> {
     #[cfg(feature = "test-support")]
     if !context.compile_clock_inputs.is_empty() {
-        let origin = context.song_timing.as_ref()
+        let origin = context
+            .song_timing
+            .as_ref()
             .map_or(0.0, |timing| f64::from(timing.get_time_for_beat_exact(0.0)));
         let rate = f64::from(song_music_rate(context));
         let mut previous = 0.0;
-        return context.compile_clock_inputs.iter().map(|&[music, beat, _]| {
-            let seconds = (music - origin) / rate;
-            let delta = seconds - previous;
-            previous = seconds;
-            (beat, delta)
-        }).collect();
+        return context
+            .compile_clock_inputs
+            .iter()
+            .map(|&[music, beat, _]| {
+                let seconds = (music - origin) / rate;
+                let delta = seconds - previous;
+                previous = seconds;
+                (beat, delta)
+            })
+            .collect();
     }
     let start_seconds = f64::from(song_elapsed_seconds_at(start, context));
     let end_seconds = f64::from(if end == update_function_end_beat(context) {
@@ -957,12 +965,21 @@ pub(crate) fn reference_actor_frames(_context: &SongLuaCompileContext) -> Option
     #[cfg(feature = "test-support")]
     if !_context.compile_clock_inputs.is_empty() {
         let rate = f64::from(song_music_rate(_context));
-        return Some(_context.compile_clock_inputs.iter().enumerate().map(|(index, &[music, _, delta])| {
-            let span = if index == 0 { 0.0 } else {
-                (music - _context.compile_clock_inputs[index - 1][0]) / rate
-            };
-            [delta as f32, span as f32]
-        }).collect());
+        return Some(
+            _context
+                .compile_clock_inputs
+                .iter()
+                .enumerate()
+                .map(|(index, &[music, _, delta])| {
+                    let span = if index == 0 {
+                        0.0
+                    } else {
+                        (music - _context.compile_clock_inputs[index - 1][0]) / rate
+                    };
+                    [delta as f32, span as f32]
+                })
+                .collect(),
+        );
     }
     None
 }
@@ -1327,7 +1344,12 @@ fn push_update_mod_targets_with_key<S: ModState>(
             if speed.is_some()
                 || matches!(
                     key,
-                    "cosecant" | "dizzyholds" | "stealthtype" | "zbuffer" | "modtimersetting" | "failsetting"
+                    "cosecant"
+                        | "dizzyholds"
+                        | "stealthtype"
+                        | "zbuffer"
+                        | "modtimersetting"
+                        | "failsetting"
                 )
             {
                 if !from.is_finite() || speed.is_some_and(|speed| !speed.is_finite()) {
@@ -2434,7 +2456,9 @@ fn lerp_scheduled_value(
             lerp(from[1], to[1]),
             lerp(from[2], to[2]),
         ]),
-        (Value::Quaternion(from), Value::Quaternion(to)) => Value::Quaternion(crate::actor_quaternion::slerp(*from, *to, factor)),
+        (Value::Quaternion(from), Value::Quaternion(to)) => {
+            Value::Quaternion(crate::actor_quaternion::slerp(*from, *to, factor))
+        }
         (Value::Vec4(from), Value::Vec4(to)) => Value::Vec4([
             lerp(from[0], to[0]),
             lerp(from[1], to[1]),
@@ -3087,37 +3111,53 @@ fn capture_field_wrappers(
     clock: [f32; 2],
     bytes: &mut usize,
 ) -> Result<(), String> {
-    for player in tracked.iter_mut().filter(|actor| {
-        matches!(actor.target, SongLuaTrackedActorTarget::Player(_))
-    }) {
-        let children = crate::lua_util::actor_children(lua, &player.table)
-            .map_err(|err| err.to_string())?;
-        let Some(field) = children.raw_get::<Option<Table>>("NoteField")
-            .map_err(|err| err.to_string())? else { continue; };
-        let wrappers = field.raw_get::<Option<Table>>("__songlua_wrappers")
+    for player in tracked
+        .iter_mut()
+        .filter(|actor| matches!(actor.target, SongLuaTrackedActorTarget::Player(_)))
+    {
+        let children =
+            crate::lua_util::actor_children(lua, &player.table).map_err(|err| err.to_string())?;
+        let Some(field) = children
+            .raw_get::<Option<Table>>("NoteField")
+            .map_err(|err| err.to_string())?
+        else {
+            continue;
+        };
+        let wrappers = field
+            .raw_get::<Option<Table>>("__songlua_wrappers")
             .map_err(|err| err.to_string())?;
         let mut states = Vec::new();
         if let Some(wrappers) = wrappers {
             for index in (1..=wrappers.raw_len()).rev() {
-                let wrapper = wrappers.raw_get::<Table>(index).map_err(|err| err.to_string())?;
-                crate::lua_util::ensure_tween_replay(lua, &wrapper).map_err(|err| err.to_string())?;
+                let wrapper = wrappers
+                    .raw_get::<Table>(index)
+                    .map_err(|err| err.to_string())?;
+                crate::lua_util::ensure_tween_replay(lua, &wrapper)
+                    .map_err(|err| err.to_string())?;
                 let mut state = actor_overlay_initial_state(&wrapper)?;
                 crate::lua_util::replay_tween_pose(lua, &wrapper, &mut state);
-                if let Some(rotation) = crate::lua_util::spin_render_pose(&wrapper)
-                    .map_err(|err| err.to_string())? {
+                if let Some(rotation) =
+                    crate::lua_util::spin_render_pose(&wrapper).map_err(|err| err.to_string())?
+                {
                     [state.rot_x_deg, state.rot_y_deg, state.rot_z_deg] = rotation;
                     state.spin_baked = true;
                 }
                 if let Some(effect) = crate::lua_util::effect_render_time(&wrapper, clock)
-                    .map_err(|err| err.to_string())? {
+                    .map_err(|err| err.to_string())?
+                {
                     state.effect_time = Some(effect);
                 }
                 states.push(state);
             }
         }
         let frames = &mut player.actor.note_field_frames;
-        if states.is_empty() && frames.is_empty() { continue; }
-        if frames.last().is_some_and(|frame| frame.wrappers.as_ref() == states) {
+        if states.is_empty() && frames.is_empty() {
+            continue;
+        }
+        if frames
+            .last()
+            .is_some_and(|frame| frame.wrappers.as_ref() == states)
+        {
             continue;
         }
         let additional = states.len() * std::mem::size_of::<SongLuaOverlayState>()
@@ -3128,10 +3168,14 @@ fn capture_field_wrappers(
         }
         if let Some(previous) = frames.last().filter(|frame| frame.second < prior_second) {
             frames.push(crate::SongLuaNoteFieldFrame {
-                second: prior_second, wrappers: previous.wrappers.clone(),
+                second: prior_second,
+                wrappers: previous.wrappers.clone(),
             });
         }
-        frames.push(crate::SongLuaNoteFieldFrame { second: clock[0], wrappers: states.into() });
+        frames.push(crate::SongLuaNoteFieldFrame {
+            second: clock[0],
+            wrappers: states.into(),
+        });
     }
     Ok(())
 }
@@ -3140,9 +3184,9 @@ pub fn compile_update_functions<Slot, Vertex, Attribute>(
     lua: &Lua,
     root: &Value,
     context: &SongLuaCompileContext,
-    overlays: &mut Vec<SongLuaOverlayCompileActor<
-        crate::SongLuaOverlayKind<Slot, Vertex, Attribute>,
-    >>,
+    overlays: &mut Vec<
+        SongLuaOverlayCompileActor<crate::SongLuaOverlayKind<Slot, Vertex, Attribute>>,
+    >,
     tracked_actors: &mut [SongLuaTrackedActor],
     messages: &[SongLuaMessageEvent],
     startup_tweens: &crate::lua_util::SongLuaStartupStates,
@@ -3173,10 +3217,14 @@ pub fn compile_update_functions<Slot, Vertex, Attribute>(
     spline_capture.capture(lua, 0.0)?;
     let start = song_beat_at_elapsed_seconds(0.0, context);
     #[cfg(feature = "test-support")]
-    let start = context.compile_clock_inputs.first().map_or(start, |frame| frame[1] as f32);
+    let start = context
+        .compile_clock_inputs
+        .first()
+        .map_or(start, |frame| frame[1] as f32);
     let end = update_function_end_beat(context);
     if (!actor_tree_has_update_functions(lua, root).map_err(|err| err.to_string())?
-        && !crate::model_texture::active(lua)) || end <= start
+        && !crate::model_texture::active(lua))
+        || end <= start
     {
         // Native Song options persist even when the foreground never updates.
         // Bake the startup targets using the same approach speeds and clock as
@@ -3185,7 +3233,9 @@ pub fn compile_update_functions<Slot, Vertex, Attribute>(
         let mut scratch = ModSnapshotScratch::default();
         let states = scratch.states(&tables)?;
         let speeds = scratch.player_speeds(lua, &tables)?;
-        let origin = context.song_timing.as_ref()
+        let origin = context
+            .song_timing
+            .as_ref()
             .map_or(0.0, |timing| timing.get_time_for_beat_exact(0.0));
         let limit = origin + song_elapsed_seconds_at(end, context) * song_music_rate(context);
         let unit = if context.song_timing.is_some() {
@@ -3194,19 +3244,36 @@ pub fn compile_update_functions<Slot, Vertex, Attribute>(
             SongLuaTimeUnit::BeatClock
         };
         let mut eases = Vec::new();
-        push_update_mod_targets_with_key(&mut eases, origin, limit.max(origin.next_up()),
-            &states, &states, &states, &speeds, None, &mut BTreeMap::new(),
-            &mut (0, String::new()), unit);
+        push_update_mod_targets_with_key(
+            &mut eases,
+            origin,
+            limit.max(origin.next_up()),
+            &states,
+            &states,
+            &states,
+            &speeds,
+            None,
+            &mut BTreeMap::new(),
+            &mut (0, String::new()),
+            unit,
+        );
         // Column handlers retain startup writes too. A one-knot native
         // rotation spline needs neither Solve nor an update callback.
         let columns = read_note_column_transform_samples(lua)?;
         let mut column_transforms = Vec::new();
         append_column_transform_windows_from_samples(
-            &mut column_transforms, &columns, &columns,
+            &mut column_transforms,
+            &columns,
+            &columns,
             SongLuaColumnOffsetBuildParams {
-                unit, start: origin, limit: limit.max(origin).next_up() - origin,
-                span_mode: SongLuaSpanMode::Len, easing: None, sustain: None,
-                opt1: None, opt2: None,
+                unit,
+                start: origin,
+                limit: limit.max(origin).next_up() - origin,
+                span_mode: SongLuaSpanMode::Len,
+                easing: None,
+                sustain: None,
+                opt1: None,
+                opt2: None,
             },
         );
         spline_capture.finish(column_splines);
@@ -3311,8 +3378,11 @@ pub fn compile_update_functions<Slot, Vertex, Attribute>(
     let mut replay_overlays = baseline_overlays.clone();
     let started = message_replay.advance(lua, context, overlays, &mut replay_overlays, start)?;
     restore_started_message_states(lua, overlays, &replay_overlays, started)?;
-    crate::lua_util::append_wrapper_actors(lua, &mut capture_actors,
-        &mut [&mut baseline_overlays, &mut replay_overlays]);
+    crate::lua_util::append_wrapper_actors(
+        lua,
+        &mut capture_actors,
+        &mut [&mut baseline_overlays, &mut replay_overlays],
+    );
     // Message discovery leaves player destinations in Lua. Frame zero uses
     // their current pose, including immediate writes and unadvanced queues.
     for tracked in tracked_actors.iter_mut() {
@@ -3407,12 +3477,18 @@ pub fn compile_update_functions<Slot, Vertex, Attribute>(
         &mut overlay_sample_scratch,
     )?;
     message_replay.stop(&overlay_sample_scratch.stopped_indices);
-    let music_seconds = crate::runtime::song_music_time(lua, start_seconds, song_music_rate(context));
+    let music_seconds =
+        crate::runtime::song_music_time(lua, start_seconds, song_music_rate(context));
     let start_time = frame_time(start, start_seconds);
     let mut field_capture_bytes = 0;
     let mut prior_field_second = music_seconds;
-    capture_field_wrappers(lua, tracked_actors, music_seconds, [music_seconds, start],
-        &mut field_capture_bytes)?;
+    capture_field_wrappers(
+        lua,
+        tracked_actors,
+        music_seconds,
+        [music_seconds, start],
+        &mut field_capture_bytes,
+    )?;
     for (index, actor) in capture_actors.iter().enumerate() {
         if let Some(clock) = crate::lua_util::effect_render_time(actor, [music_seconds, start])
             .map_err(|err| err.to_string())?
@@ -3420,8 +3496,16 @@ pub fn compile_update_functions<Slot, Vertex, Attribute>(
             let target = SongLuaOverlayUpdateTarget::EffectTime;
             let value = SongLuaOverlayUpdateValue::Vec2(clock);
             set_overlay_state_update_value(&mut replay_overlays[index], target, &value);
-            push_captured_overlay_value(&mut overlay_tracks, &mut overlay_track_indices,
-                index, target, start_time, &current_overlays[index], start_time, &value);
+            push_captured_overlay_value(
+                &mut overlay_tracks,
+                &mut overlay_track_indices,
+                index,
+                target,
+                start_time,
+                &current_overlays[index],
+                start_time,
+                &value,
+            );
             set_overlay_state_update_value(&mut current_overlays[index], target, &value);
         }
     }
@@ -3466,13 +3550,22 @@ pub fn compile_update_functions<Slot, Vertex, Attribute>(
         );
         crate::lua_util::set_prior_positions(lua, &current_overlays);
         let actor_delta = f64::from(seconds as f32 - (seconds - delta_seconds) as f32);
-        let actor_delta = actor_frames.as_ref().map_or(actor_delta, |frames| f64::from(frames[frame_count][0]));
+        let actor_delta = actor_frames
+            .as_ref()
+            .map_or(actor_delta, |frames| f64::from(frames[frame_count][0]));
         call_update_functions_at(lua, root, exact_beat, seconds, delta_beats, actor_delta)?;
         crate::model_texture::sample(lua, seconds as f32);
-        crate::lua_util::append_wrapper_actors(lua, &mut capture_actors, &mut [
-            &mut baseline_overlays, &mut current_overlays, &mut replay_overlays,
-            &mut update_overlays, &mut scheduled_states,
-        ]);
+        crate::lua_util::append_wrapper_actors(
+            lua,
+            &mut capture_actors,
+            &mut [
+                &mut baseline_overlays,
+                &mut current_overlays,
+                &mut replay_overlays,
+                &mut update_overlays,
+                &mut scheduled_states,
+            ],
+        );
         for (index, samples) in &mut text_samples {
             let overlay = &overlays[*index];
             let text = overlay
@@ -3542,7 +3635,8 @@ pub fn compile_update_functions<Slot, Vertex, Attribute>(
         // Bake current render values, including linear queues whose destinations
         // can be edited by subsequent callbacks. Endpoint merges retain them.
         for sample in &scheduled_overlay_samples {
-            if (sample.overlay_index >= overlay_count && sample.overlay_index < wrapper_capture_start)
+            if (sample.overlay_index >= overlay_count
+                && sample.overlay_index < wrapper_capture_start)
                 || scheduled_overlay_clock(sample, seconds) > sample.end_seconds
             {
                 continue;
@@ -3671,8 +3765,13 @@ pub fn compile_update_functions<Slot, Vertex, Attribute>(
         column_samples.push(read_note_column_transform_samples(lua)?);
         spline_capture.capture(lua, (seconds * rate) as f32)?;
         column_ms += stage.map_or(0.0, |started| started.elapsed().as_secs_f64() * 1000.0);
-        capture_field_wrappers(lua, tracked_actors, prior_field_second,
-            [music_seconds, next_beat], &mut field_capture_bytes)?;
+        capture_field_wrappers(
+            lua,
+            tracked_actors,
+            prior_field_second,
+            [music_seconds, next_beat],
+            &mut field_capture_bytes,
+        )?;
         prior_field_second = music_seconds;
         let mut layer_message = None;
         for &(tracked_index, index) in &layer_capture_indices {
@@ -3841,7 +3940,9 @@ pub fn compile_update_functions<Slot, Vertex, Attribute>(
     debug_assert_eq!(wrapper_start, wrapper_capture_start);
     append_wrapper_overlays(overlays, wrappers)?;
     overlay_tracks.retain_mut(|track| {
-        if track.overlay_index < overlay_count { return true; }
+        if track.overlay_index < overlay_count {
+            return true;
+        }
         if track.overlay_index >= wrapper_start {
             track.overlay_index = overlay_count + track.overlay_index - wrapper_start;
             return true;

@@ -33,7 +33,14 @@ mod tests {
 
     #[test]
     fn note_row_ties_round_even() {
-        for (row, expected) in [(0.5, 0), (1.5, 2), (48.5, 48), (49.5, 50), (-0.5, 0), (-1.5, -2)] {
+        for (row, expected) in [
+            (0.5, 0),
+            (1.5, 2),
+            (48.5, 48),
+            (49.5, 50),
+            (-0.5, 0),
+            (-1.5, -2),
+        ] {
             assert_eq!(beat_to_note_row(row / ROWS_PER_BEAT as f32), expected);
         }
     }

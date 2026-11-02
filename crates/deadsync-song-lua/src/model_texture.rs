@@ -60,7 +60,12 @@ impl MaterialClock {
             }
             (cycle, starts.into_boxed_slice())
         } else {
-            (frames.iter().fold(0.0_f32, |total, frame| total + frame.delay), Box::default())
+            (
+                frames
+                    .iter()
+                    .fold(0.0_f32, |total, frame| total + frame.delay),
+                Box::default(),
+            )
         };
         Self {
             velocity,
@@ -75,7 +80,9 @@ impl MaterialClock {
     #[inline]
     fn state_only(frames: Arc<[SongLuaModelTextureFrame]>) -> Self {
         Self {
-            cycle: frames.iter().fold(0.0_f32, |total, frame| total + frame.delay),
+            cycle: frames
+                .iter()
+                .fold(0.0_f32, |total, frame| total + frame.delay),
             frames,
             velocity: [0.0; 2],
             frame_starts: Box::default(),
@@ -169,12 +176,16 @@ impl Clock {
 
     pub(crate) fn update(&mut self, delta: f32) {
         self.diffuse.update(delta);
-        if let Some(additive) = &mut self.additive { additive.update(delta); }
+        if let Some(additive) = &mut self.additive {
+            additive.update(delta);
+        }
     }
 
     fn set_state(&mut self, state: i32) {
         self.diffuse.set_state(state);
-        if let Some(additive) = &mut self.additive { additive.set_state(state); }
+        if let Some(additive) = &mut self.additive {
+            additive.set_state(state);
+        }
     }
 
     fn sample(&mut self, second: f32) {

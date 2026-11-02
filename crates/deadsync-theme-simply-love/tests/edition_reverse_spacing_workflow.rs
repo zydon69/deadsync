@@ -1,3 +1,10 @@
+#[path = "support/prepared_audio.rs"]
+mod prepared_audio;
+#[path = "support/row_geometry.rs"]
+mod row_geometry;
+#[allow(dead_code)]
+#[path = "support/transport_host.rs"]
+mod transport_host;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
     actors::{Actor, SizeSpec},
@@ -35,18 +42,56 @@ fn reverse(state: &mut State) {
 fn actors(state: &State) -> Vec<Actor> {
     let mut a = Vec::new();
     state.actors(&mut a);
+    for target in state.take_waveform_render_targets() {
+        a.extend(target.children.iter().cloned());
+    }
     a
 }
 fn arrows(state: &State) -> Vec<f32> {
-    actors(state)
+    transport_host::heads(state)
         .into_iter()
-        .filter_map(|a| match a {
+        .map(|xy| xy[1])
+        .collect()
+}
+fn hold_bounds(state: &State) -> (f64, f64) {
+    let bounds: Vec<_> = actors(state)
+        .into_iter()
+        .filter_map(|actor| match actor {
             Actor::Sprite {
-                z: 8004, offset, ..
-            } => Some(offset[1]),
+                offset,
+                size: [SizeSpec::Px(w), SizeSpec::Px(h)],
+                scale,
+                uv_rect: Some(uv),
+                rot_z_deg,
+                cropleft,
+                cropright,
+                croptop,
+                cropbottom,
+                ..
+            } if (uv[0] - 1.0 / 1280.0).abs() < 1e-6
+                && uv[1] >= 457.0 / 1280.0 - 1e-6
+                && uv[3] <= 585.0 / 1280.0 + 1e-6 =>
+            {
+                let (w, h) = (w * scale[0], h * scale[1]);
+                let (sin, cos) = rot_z_deg.to_radians().sin_cos();
+                // Cropped-quad offsets are applied in world axes before the
+                // already-compensated source rotation, as in the compositor.
+                let center = offset[1] + (croptop - cropbottom) * h * 0.5;
+                let height = sin.abs() * w * (1.0 - cropleft - cropright)
+                    + cos.abs() * h * (1.0 - croptop - cropbottom);
+                Some((
+                    f64::from(center - height * 0.5),
+                    f64::from(center + height * 0.5),
+                ))
+            }
             _ => None,
         })
-        .collect()
+        .collect();
+    assert!(!bounds.is_empty(), "source hold body is visible");
+    (
+        bounds.iter().map(|b| b.0).fold(f64::INFINITY, f64::min),
+        bounds.iter().map(|b| b.1).fold(f64::NEG_INFINITY, f64::max),
+    )
 }
 fn rects(state: &State, tint: [f32; 4]) -> Vec<(f32, f32)> {
     actors(state)
@@ -82,6 +127,7 @@ fn peak_positions(state: &State) -> Vec<f32> {
         })
         .collect()
 }
+#[track_caller]
 fn close(a: f64, b: f64) {
     assert!((a - b).abs() < 0.001, "{a} != {b}");
 }
@@ -125,7 +171,7 @@ fn mirror_rects(a: &[(f32, f32)], b: &[(f32, f32)]) {
 }
 
 #[test]
-fn reverse_mirrors_notes_sustains_selection_sample_labels_and_waveform_in_all_modes() {
+fn reverse_mirrors_chart_geometry_and_restores_upright_widgets_and_waveform_in_all_modes() {
     i18n::init_for_tests();
     set_current_metrics(Metrics::centered(854.0, 480.0));
     use deadsync_editor::zoom::SpacingMode;
@@ -170,6 +216,7 @@ fn reverse_mirrors_notes_sustains_selection_sample_labels_and_waveform_in_all_mo
         let path = dir.path().join("reverse.ssc");
         fs::write(&path, &source).unwrap();
         let mut state = State::open(&path, 0).unwrap();
+        row_geometry::configure(&mut state, dir.path());
         if mode == SpacingMode::ConstantTime {
             shortcut(&mut state, KeyCode::SuperLeft, KeyCode::KeyT);
         }
@@ -181,15 +228,17 @@ fn reverse_mirrors_notes_sustains_selection_sample_labels_and_waveform_in_all_mo
         press(&mut state, KeyCode::Space);
         press(&mut state, KeyCode::ArrowDown);
         assert_eq!(state.workspace().selection(), Some((0, 48)));
-        press(&mut state, KeyCode::KeyW);
+        prepared_audio::publish_main(&mut state);
         let deadline = Instant::now() + Duration::from_secs(10);
         while !state.waveform_ready() {
             state.update();
             assert!(Instant::now() < deadline);
             thread::sleep(Duration::from_millis(1));
         }
+        press(&mut state, KeyCode::Enter);
+        assert!(state.is_playing());
         let heads = arrows(&state);
-        let holds = rects(&state, [0.2, 0.65, 1.0, 0.65]);
+        let holds = hold_bounds(&state);
         let selection = rects(&state, [0.2, 0.6, 0.9, 0.2]);
         let sample = rects(&state, [0.2, 0.85, 0.65, 0.14]);
         let patterns = rects(&state, [0.7, 0.4, 1.0, 0.8]);
@@ -200,16 +249,16 @@ fn reverse_mirrors_notes_sustains_selection_sample_labels_and_waveform_in_all_mo
                 .into_iter()
                 .find_map(|a| match a {
                     Actor::Text {
-                        content, offset, ..
-                    } if content.to_string() == "repere" => Some(offset[1]),
+                        content,
+                        clip: Some([_, y, _, _]),
+                        ..
+                    } if content.ends_with(" repere") => Some(y),
                     _ => None,
                 })
                 .expect("label visible")
         };
         let label_y = label(&state);
         let original = state.workspace().file().session.serialize().unwrap();
-        press(&mut state, KeyCode::Enter);
-        assert!(state.is_playing());
         reverse(&mut state);
         assert!(state.display_reversed());
         assert!(state.is_playing());
@@ -218,11 +267,18 @@ fn reverse_mirrors_notes_sustains_selection_sample_labels_and_waveform_in_all_mo
         for (a, b) in heads.iter().zip(&reversed_heads) {
             close(f64::from(a + b), 500.0);
         }
-        mirror_rects(&holds, &rects(&state, [0.2, 0.65, 1.0, 0.65]));
+        let reversed_hold = hold_bounds(&state);
+        close(holds.0 + reversed_hold.1, 500.0);
+        close(holds.1 + reversed_hold.0, 500.0);
         mirror_rects(&selection, &rects(&state, [0.2, 0.6, 0.9, 0.2]));
         mirror_rects(&sample, &rects(&state, [0.2, 0.85, 0.65, 0.14]));
         mirror_rects(&patterns, &rects(&state, [0.7, 0.4, 1.0, 0.8]));
-        close(f64::from(label_y + label(&state)), 500.0);
+        // Text widgets stay upright. Source Layout wraps Delay and Label at
+        // the same row, and the shared collision sweep may move their boxes.
+        // Those offsets do not mirror as note geometry does. Both directions
+        // retain a visible label, and reversing back must restore its position.
+        assert!((105.0..395.0).contains(&label_y));
+        assert!((105.0..395.0).contains(&label(&state)));
         let reversed_peaks = peak_positions(&state);
         assert!(!reversed_peaks.is_empty());
         let mean = |v: &[f32]| v.iter().map(|x| f64::from(*x)).sum::<f64>() / v.len() as f64;
@@ -244,6 +300,7 @@ fn reverse_mirrors_notes_sustains_selection_sample_labels_and_waveform_in_all_mo
         reverse(&mut state);
         assert!(!state.display_reversed());
         assert_eq!(arrows(&state), heads);
+        close(f64::from(label(&state)), f64::from(label_y));
         assert_eq!(state.workspace().row(), 48);
         assert_eq!(state.workspace().selection(), Some((0, 48)));
         assert_eq!(

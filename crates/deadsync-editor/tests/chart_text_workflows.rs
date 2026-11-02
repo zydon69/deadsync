@@ -113,7 +113,9 @@ fn sm_description_edit_preserves_positional_headers_and_authors_native_metadata(
     let after = s.serialize().unwrap();
     let read = Text::read(&Document::parse(after.clone(), Format::Sm).unwrap(), 0).unwrap();
     assert_eq!(read.get(Field::Description), "Été : ; // \\ 日本語");
-    for field in [Field::Name,Field::Credit,Field::Style] {assert_eq!(read.get(field),"preserved");}
+    for field in [Field::Name, Field::Credit, Field::Style] {
+        assert_eq!(read.get(field), "preserved");
+    }
     assert!(
         String::from_utf8(after.clone())
             .unwrap()

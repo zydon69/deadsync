@@ -174,7 +174,19 @@ mod tests {
 }
 
 #[cfg(test)]
-use resource_perf_support as perf;
+mod perf {
+    pub use super::resource_perf_support::Churn;
+    pub fn measure<T>(work: impl FnOnce() -> T) -> (T, Churn) {
+        // A real frame receives shell-prepared resources before rendering.
+        // Keep fixture resource loading outside the hot-path allocation probe.
+        let _ = crate::i18n::tr("Edition", "Save");
+        super::resource_perf_support::measure(work)
+    }
+    pub fn assert_no_churn(work: impl FnOnce()) {
+        let _ = crate::i18n::tr("Edition", "Save");
+        super::resource_perf_support::assert_no_churn(work);
+    }
+}
 
 #[cfg(test)]
 #[path = "../../../tests/perf/menu_buffers_support.rs"]
@@ -261,3 +273,6 @@ use resource_perf_support as scan_alloc;
 #[cfg(test)]
 #[path = "../../../tests/perf/scan_support.rs"]
 mod scan_perf;
+
+#[cfg(test)]
+mod actor_test_support;

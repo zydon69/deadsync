@@ -144,9 +144,10 @@ fn borrowed_ini_matches_owned_parser_and_typed_defaults() {
     }
 }
 
-// These tests use the same process-wide runtime as the existing profile tests;
-// run the profile suite with --test-threads=1. All state is restored on unwind.
+// Hold the same scenario mutex as every other runtime-using unit test.
+// Individual production locks cannot isolate this multi-step fixture.
 struct RuntimeFixture {
+    _runtime: MutexGuard<'static, ()>,
     root: PathBuf,
     session: SessionState,
     profiles: [Profile; PLAYER_SLOTS],
@@ -154,7 +155,9 @@ struct RuntimeFixture {
 }
 impl RuntimeFixture {
     fn new() -> Self {
+        let runtime = crate::runtime_test_support::lock();
         Self {
+            _runtime: runtime,
             root: std::env::temp_dir().join(format!(
                 "deadsync-profile-ownership-{}",
                 uuid::Uuid::new_v4()
@@ -170,9 +173,14 @@ impl RuntimeFixture {
 }
 impl Drop for RuntimeFixture {
     fn drop(&mut self) {
-        *runtime_lock_session() = std::mem::take(&mut self.session);
-        std::mem::swap(&mut *runtime_lock_profiles(), &mut self.profiles);
-        *RUNTIME_PROFILE_DIR_CACHE.lock().unwrap() = self.cache.take();
+        crate::runtime_test_support::restore(
+            std::mem::take(&mut self.session),
+            std::mem::replace(
+                &mut self.profiles,
+                std::array::from_fn(|_| Profile::default()),
+            ),
+            self.cache.take(),
+        );
         let _ = fs::remove_dir_all(&self.root);
     }
 }
@@ -290,13 +298,19 @@ fn sidecar_snapshots_preserve_bytes_callbacks_errors_and_load_reports() {
     assert!(!report.groovestats_ini_loaded && !report.arrowcloud_ini_loaded);
     let blocked = root.join("blocked");
     fs::write(&blocked, b"not a directory").unwrap();
-    RUNTIME_PROFILE_DIR_CACHE
-        .lock()
-        .unwrap()
-        .as_mut()
-        .unwrap()
-        .map
-        .insert(GUID.into(), blocked.clone());
+    let cache_present = {
+        let mut cache = RUNTIME_PROFILE_DIR_CACHE.lock().unwrap();
+        if let Some(cache) = cache.as_mut() {
+            cache.map.insert(GUID.into(), blocked.clone());
+            true
+        } else {
+            false
+        }
+    };
+    assert!(
+        cache_present,
+        "sidecar writes must retain their populated directory cache"
+    );
     for kind in 0..3 {
         let old = save(kind, true, root, |_, _, _, _| unreachable!()).unwrap();
         let current = save(kind, false, root, |_, _, _, _| unreachable!()).unwrap();

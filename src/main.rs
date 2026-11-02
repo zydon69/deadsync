@@ -138,7 +138,7 @@ fn install_panic_hook() {
 /// Resolve whether the console window should be shown at startup. An explicit
 /// `--console` argument wins; otherwise fall back to the `ShowConsole` config
 /// preference (default off).
-fn resolve_show_console(args:&[String]) -> bool {
+fn resolve_show_console(args: &[String]) -> bool {
     if args.iter().any(|arg| arg == "--console") {
         return true;
     }
@@ -146,7 +146,14 @@ fn resolve_show_console(args:&[String]) -> bool {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let launch=deadsync_shell::editor_entry::LaunchArguments::parse(std::env::args_os(),&std::env::current_dir()?)?;
+    let caller_directory = std::env::current_dir().or_else(|_| {
+        std::env::current_exe()
+            .map(|exe| exe.parent().unwrap_or(std::path::Path::new("/")).to_owned())
+    })?;
+    let launch = deadsync_shell::editor_entry::LaunchArguments::parse(
+        std::env::args_os(),
+        &caller_directory,
+    )?;
     let cli = deadsync_updater::cli::UpdaterCli::parse(launch.unicode_remaining()?);
     let live_case = deadsync_shell::live_case::LiveCase::from_args(
         &cli.remaining,
@@ -319,5 +326,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    app::run(dirs, audio, music_clock, live_case,launch.editor)
+    app::run(dirs, audio, music_clock, live_case, launch.editor)
 }

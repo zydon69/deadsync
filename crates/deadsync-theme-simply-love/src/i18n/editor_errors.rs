@@ -87,8 +87,13 @@ fn legacy(message: &str) -> String {
     if let Some(raw) = message.strip_prefix("Unsafe source stream NoteType: ") {
         return translated("DiagnosticUnsafeStreamNoteType").replace("{value}", raw);
     }
-    if let Some(details)=message.strip_prefix("Lossless authoring promotion refused: "){
-        return super::tr_fmt("Edition","DiagnosticSmPromotionRefused",&[("details",details)]).to_string();
+    if let Some(details) = message.strip_prefix("Lossless authoring promotion refused: ") {
+        return super::tr_fmt(
+            "Edition",
+            "DiagnosticSmPromotionRefused",
+            &[("details", details)],
+        )
+        .to_string();
     }
     if let Some(field) = message.strip_prefix("Invalid General Options: ") {
         if deadsync_editor::options_preferences::General::NAMES.contains(&field) {
@@ -103,8 +108,12 @@ fn legacy(message: &str) -> String {
         "Pack property history owner is no longer current" => "PackHistoryUnavailable",
         "Finish the pending durable pack save first" => "PackPending",
         "Profile resolution cancelled" => "DiagnosticProfileLoadCancelled",
-        "Configured profile directory changed during song loading" => "DiagnosticProfileDirectoryChanged",
-        "Generation profiles were already resolved for this load" => "DiagnosticProfilesAlreadyResolved",
+        "Configured profile directory changed during song loading" => {
+            "DiagnosticProfileDirectoryChanged"
+        }
+        "Generation profiles were already resolved for this load" => {
+            "DiagnosticProfilesAlreadyResolved"
+        }
         "Profile resolution belongs to another song or revision" => "DiagnosticProfileLoadStale",
         "Authoring promotion requires an SM document" => "DiagnosticSmPromotionRequiresSm",
         "Authoring promotion changed chart count" => "DiagnosticSmPromotionChartCount",
@@ -117,7 +126,9 @@ fn legacy(message: &str) -> String {
         "Focused chart view is absent" => "DiagnosticFocusedChartViewMissing",
 
         "This note kind is not available as a lane entry tool" => "DiagnosticLaneToolUnavailable",
-        "This cell contains preserved note data; inserting here would discard it" => "DiagnosticOpaqueCellCollision",
+        "This cell contains preserved note data; inserting here would discard it" => {
+            "DiagnosticOpaqueCellCollision"
+        }
         "Note reconstruction must preserve opaque source cells" => "DiagnosticOpaqueReconstruction",
         "Opaque standard cells cannot be converted to StepF2 notation" => "DiagnosticOpaqueStepF2",
 
@@ -130,17 +141,23 @@ fn legacy(message: &str) -> String {
         "History is not a clock-preserving SSC migration" => "DiagnosticMigrationHistory",
         "Migration changed the unfocused transport context" => "DiagnosticMigrationContext",
         "History is not a typed timing edit" => "DiagnosticTimingHistory",
-        "Timing presentation belongs to another chart or revision" => "DiagnosticTimingPresentation",
+        "Timing presentation belongs to another chart or revision" => {
+            "DiagnosticTimingPresentation"
+        }
         "Timing chart is absent from output order" => "DiagnosticSongTimingOrder",
         "Song properties draft is stale" => "DiagnosticSongPropertiesStale",
-        "Song properties draft is stale or belongs to another document" => "DiagnosticSongPropertiesForeign",
+        "Song properties draft is stale or belongs to another document" => {
+            "DiagnosticSongPropertiesForeign"
+        }
         "Zero spacing rate has no unique inverse" => "DiagnosticSpacingInverse",
         "Nonfinite selected region geometry" => "DiagnosticRegionGeometry",
         "Invalid viewport event admission geometry" => "DiagnosticViewportGeometry",
         "Resident song preview path must be a single line" => "DiagnosticResidentPreviewPath",
         "Malformed resident song preview owner" => "DiagnosticResidentPreviewMalformed",
         "Unsupported resident song preview owner version" => "DiagnosticResidentPreviewVersion",
-        "Repeated or chart-scoped resident song preview owners require explicit repair" => "DiagnosticResidentPreviewDuplicate",
+        "Repeated or chart-scoped resident song preview owners require explicit repair" => {
+            "DiagnosticResidentPreviewDuplicate"
+        }
         "Cannot encode resident song preview owner" => "DiagnosticResidentPreviewEncode",
         "Resident song preview owner requires SM authoring" => "DiagnosticResidentPreviewFormat",
         "No preview music selected" => "DiagnosticPreviewMissing",
@@ -152,7 +169,9 @@ fn legacy(message: &str) -> String {
         "Invalid waveform draw location" => "DiagnosticWaveformLocation",
         "Invalid waveform antialias parameter" => "DiagnosticWaveformAntialias",
         "Waveform value must be a finite 32-bit number" => "DiagnosticWaveformScalar",
-        "Waveform RGBA components must be finite" | "Waveform colour components must be finite" => "DiagnosticWaveformColorFinite",
+        "Waveform RGBA components must be finite" | "Waveform colour components must be finite" => {
+            "DiagnosticWaveformColorFinite"
+        }
         "Waveform sparse colour scale must be finite" => "DiagnosticWaveformColorScaleFinite",
         "Song byte limit exceeded" => "DiagnosticSongSize",
         "Song opening cancelled" => "DiagnosticOpenCancelled",
@@ -335,29 +354,89 @@ mod tests {
         for language in ["en", "fr"] {
             locale(language);
             for (message, key) in [
-                ("Song timing chart no longer exists", "DiagnosticSongTimingMissing"),
-                ("Selected song timing chart no longer exists", "DiagnosticSongTimingSelectedMissing"),
-                ("Song timing chart no longer belongs to this song", "DiagnosticSongTimingForeign"),
-                ("Song timing chart is not loadable", "DiagnosticSongTimingUnloaded"),
-                ("Recovered song timing chart is not loadable", "DiagnosticSongTimingRecovery"),
-                ("Timing chart is absent from output order", "DiagnosticSongTimingOrder"),
-                ("Song properties draft is stale", "DiagnosticSongPropertiesStale"),
-                ("Song properties draft is stale or belongs to another document", "DiagnosticSongPropertiesForeign"),
-                ("Zero spacing rate has no unique inverse", "DiagnosticSpacingInverse"),
-                ("Nonfinite selected region geometry", "DiagnosticRegionGeometry"),
-                ("Invalid viewport event admission geometry", "DiagnosticViewportGeometry"),
-                ("Resident song preview path must be a single line", "DiagnosticResidentPreviewPath"),
-                ("Malformed resident song preview owner", "DiagnosticResidentPreviewMalformed"),
-                ("Unsupported resident song preview owner version", "DiagnosticResidentPreviewVersion"),
-                ("Repeated or chart-scoped resident song preview owners require explicit repair", "DiagnosticResidentPreviewDuplicate"),
-                ("Cannot encode resident song preview owner", "DiagnosticResidentPreviewEncode"),
-                ("Resident song preview owner requires SM authoring", "DiagnosticResidentPreviewFormat"),
+                (
+                    "Song timing chart no longer exists",
+                    "DiagnosticSongTimingMissing",
+                ),
+                (
+                    "Selected song timing chart no longer exists",
+                    "DiagnosticSongTimingSelectedMissing",
+                ),
+                (
+                    "Song timing chart no longer belongs to this song",
+                    "DiagnosticSongTimingForeign",
+                ),
+                (
+                    "Song timing chart is not loadable",
+                    "DiagnosticSongTimingUnloaded",
+                ),
+                (
+                    "Recovered song timing chart is not loadable",
+                    "DiagnosticSongTimingRecovery",
+                ),
+                (
+                    "Timing chart is absent from output order",
+                    "DiagnosticSongTimingOrder",
+                ),
+                (
+                    "Song properties draft is stale",
+                    "DiagnosticSongPropertiesStale",
+                ),
+                (
+                    "Song properties draft is stale or belongs to another document",
+                    "DiagnosticSongPropertiesForeign",
+                ),
+                (
+                    "Zero spacing rate has no unique inverse",
+                    "DiagnosticSpacingInverse",
+                ),
+                (
+                    "Nonfinite selected region geometry",
+                    "DiagnosticRegionGeometry",
+                ),
+                (
+                    "Invalid viewport event admission geometry",
+                    "DiagnosticViewportGeometry",
+                ),
+                (
+                    "Resident song preview path must be a single line",
+                    "DiagnosticResidentPreviewPath",
+                ),
+                (
+                    "Malformed resident song preview owner",
+                    "DiagnosticResidentPreviewMalformed",
+                ),
+                (
+                    "Unsupported resident song preview owner version",
+                    "DiagnosticResidentPreviewVersion",
+                ),
+                (
+                    "Repeated or chart-scoped resident song preview owners require explicit repair",
+                    "DiagnosticResidentPreviewDuplicate",
+                ),
+                (
+                    "Cannot encode resident song preview owner",
+                    "DiagnosticResidentPreviewEncode",
+                ),
+                (
+                    "Resident song preview owner requires SM authoring",
+                    "DiagnosticResidentPreviewFormat",
+                ),
                 ("No preview music selected", "DiagnosticPreviewMissing"),
-                ("Preview music file not found", "DiagnosticPreviewFileMissing"),
+                (
+                    "Preview music file not found",
+                    "DiagnosticPreviewFileMissing",
+                ),
                 ("Preview length must be positive", "DiagnosticPreviewLength"),
-                ("GrooveAuthor song metadata must be an object", "DiagnosticSongMetadataObject"),
+                (
+                    "GrooveAuthor song metadata must be an object",
+                    "DiagnosticSongMetadataObject",
+                ),
             ] {
-                assert_eq!(editor_error(&Error::InvalidEdit(message.into())), translated(key));
+                assert_eq!(
+                    editor_error(&Error::InvalidEdit(message.into())),
+                    translated(key)
+                );
                 let user_value = format!("Chart description: {message}");
                 assert_eq!(editor_error(&user_value), user_value);
             }
@@ -369,16 +448,29 @@ mod tests {
         for language in ["en", "fr"] {
             locale(language);
             for (message, key) in [
-                ("This note kind is not available as a lane entry tool", "DiagnosticLaneToolUnavailable"),
-                ("This cell contains preserved note data; inserting here would discard it", "DiagnosticOpaqueCellCollision"),
-                ("Note reconstruction must preserve opaque source cells", "DiagnosticOpaqueReconstruction"),
-                ("Opaque standard cells cannot be converted to StepF2 notation", "DiagnosticOpaqueStepF2"),
-
+                (
+                    "This note kind is not available as a lane entry tool",
+                    "DiagnosticLaneToolUnavailable",
+                ),
+                (
+                    "This cell contains preserved note data; inserting here would discard it",
+                    "DiagnosticOpaqueCellCollision",
+                ),
+                (
+                    "Note reconstruction must preserve opaque source cells",
+                    "DiagnosticOpaqueReconstruction",
+                ),
+                (
+                    "Opaque standard cells cannot be converted to StepF2 notation",
+                    "DiagnosticOpaqueStepF2",
+                ),
             ] {
                 let result = editor_error(&Error::Unsupported(message.into()));
                 assert_eq!(result, translated(key));
                 assert_ne!(result, key);
-                if language == "fr" { assert_ne!(result, message); }
+                if language == "fr" {
+                    assert_ne!(result, message);
+                }
                 let payload = format!("Chart description: {message}");
                 assert_eq!(editor_error(&payload), payload);
             }
@@ -389,41 +481,84 @@ mod tests {
     fn sm_authoring_errors_localize_only_semantic_messages_and_keep_dynamic_details_exact() {
         for language in ["en", "fr"] {
             locale(language);
-            for (message,key) in [
-                ("Authoring promotion requires an SM document","DiagnosticSmPromotionRequiresSm"),
-                ("Authoring promotion changed chart count","DiagnosticSmPromotionChartCount"),
-                ("Authoring promotion changed chart metadata or order","DiagnosticSmPromotionMetadata"),
-                ("Authoring promotion changed note attributes","DiagnosticSmPromotionNotes"),
-                ("Authoring promotion changed the chart clock","DiagnosticSmPromotionClock"),
-                ("History does not contain an authoring promotion","DiagnosticSmPromotionHistory"),
-                ("Focused position is stale","DiagnosticFocusedPositionStale"),
-                ("Focused chart is absent","DiagnosticFocusedChartMissing"),
-                ("Focused chart view is absent","DiagnosticFocusedChartViewMissing"),
-
+            for (message, key) in [
+                (
+                    "Authoring promotion requires an SM document",
+                    "DiagnosticSmPromotionRequiresSm",
+                ),
+                (
+                    "Authoring promotion changed chart count",
+                    "DiagnosticSmPromotionChartCount",
+                ),
+                (
+                    "Authoring promotion changed chart metadata or order",
+                    "DiagnosticSmPromotionMetadata",
+                ),
+                (
+                    "Authoring promotion changed note attributes",
+                    "DiagnosticSmPromotionNotes",
+                ),
+                (
+                    "Authoring promotion changed the chart clock",
+                    "DiagnosticSmPromotionClock",
+                ),
+                (
+                    "History does not contain an authoring promotion",
+                    "DiagnosticSmPromotionHistory",
+                ),
+                (
+                    "Focused position is stale",
+                    "DiagnosticFocusedPositionStale",
+                ),
+                ("Focused chart is absent", "DiagnosticFocusedChartMissing"),
+                (
+                    "Focused chart view is absent",
+                    "DiagnosticFocusedChartViewMissing",
+                ),
             ] {
-                let rendered=editor_error(&Error::InvalidEdit(message.into()));
-                assert_eq!(rendered,translated(key));assert_ne!(rendered,key);
-                if language=="fr"{assert_ne!(rendered,message);}
-                let user_value=format!("Chart description: {message}");assert_eq!(editor_error(&user_value),user_value);
+                let rendered = editor_error(&Error::InvalidEdit(message.into()));
+                assert_eq!(rendered, translated(key));
+                assert_ne!(rendered, key);
+                if language == "fr" {
+                    assert_ne!(rendered, message);
+                }
+                let user_value = format!("Chart description: {message}");
+                assert_eq!(editor_error(&user_value), user_value);
             }
-            let details="VENDOR_FIELD: authored {details}; \nMusic: chanson é\\;#exact";
-            let message=format!("Lossless authoring promotion refused: {details}");
-            let rendered=editor_error(&Error::Unsupported(message));
-            assert_eq!(rendered,super::super::tr_fmt("Edition","DiagnosticSmPromotionRefused",&[("details",details)]).to_string());
-            assert!(rendered.ends_with(details));assert!(!rendered.contains("DiagnosticSmPromotionRefused"));
-            let user_value=format!("Chart description: Lossless authoring promotion refused: {details}");assert_eq!(editor_error(&user_value),user_value);
+            let details = "VENDOR_FIELD: authored {details}; \nMusic: chanson é\\;#exact";
+            let message = format!("Lossless authoring promotion refused: {details}");
+            let rendered = editor_error(&Error::Unsupported(message));
+            assert_eq!(
+                rendered,
+                super::super::tr_fmt(
+                    "Edition",
+                    "DiagnosticSmPromotionRefused",
+                    &[("details", details)]
+                )
+                .to_string()
+            );
+            assert!(rendered.ends_with(details));
+            assert!(!rendered.contains("DiagnosticSmPromotionRefused"));
+            let user_value =
+                format!("Chart description: Lossless authoring promotion refused: {details}");
+            assert_eq!(editor_error(&user_value), user_value);
         }
     }
 
     #[test]
     fn unsafe_note_type_diagnostic_translates_without_translating_user_data() {
-        for language in ["en","fr"] {
+        for language in ["en", "fr"] {
             locale(language);
-            let message="Unsafe source stream NoteType: -99";
-            let actual=editor_error(&Error::Unsupported(message.into()));
-            assert_eq!(actual,translated("DiagnosticUnsafeStreamNoteType").replace("{value}","-99"));
-            assert!(actual.contains("-99"));assert_ne!(actual,message);
-            let user=format!("Description: {message}");assert_eq!(editor_error(&user),user);
+            let message = "Unsafe source stream NoteType: -99";
+            let actual = editor_error(&Error::Unsupported(message.into()));
+            assert_eq!(
+                actual,
+                translated("DiagnosticUnsafeStreamNoteType").replace("{value}", "-99")
+            );
+            assert!(actual.contains("-99"));
+            assert_ne!(actual, message);
+            let user = format!("Description: {message}");
+            assert_eq!(editor_error(&user), user);
         }
     }
 
@@ -432,38 +567,68 @@ mod tests {
         for language in ["en", "fr"] {
             locale(language);
             for (message, key) in [
-                ("Profile resolution cancelled", "DiagnosticProfileLoadCancelled"),
-                ("Configured profile directory changed during song loading", "DiagnosticProfileDirectoryChanged"),
-                ("Generation profiles were already resolved for this load", "DiagnosticProfilesAlreadyResolved"),
-                ("Profile resolution belongs to another song or revision", "DiagnosticProfileLoadStale"),
-
+                (
+                    "Profile resolution cancelled",
+                    "DiagnosticProfileLoadCancelled",
+                ),
+                (
+                    "Configured profile directory changed during song loading",
+                    "DiagnosticProfileDirectoryChanged",
+                ),
+                (
+                    "Generation profiles were already resolved for this load",
+                    "DiagnosticProfilesAlreadyResolved",
+                ),
+                (
+                    "Profile resolution belongs to another song or revision",
+                    "DiagnosticProfileLoadStale",
+                ),
             ] {
-                let result=editor_error(&Error::InvalidEdit(message.into()));
-                assert_eq!(result,translated(key));
-                assert_ne!(result,key);
-                if language=="fr" {assert_ne!(result,message);}
-                let user=format!("Description: {message}");
-                assert_eq!(editor_error(&user),user);
+                let result = editor_error(&Error::InvalidEdit(message.into()));
+                assert_eq!(result, translated(key));
+                assert_ne!(result, key);
+                if language == "fr" {
+                    assert_ne!(result, message);
+                }
+                let user = format!("Description: {message}");
+                assert_eq!(editor_error(&user), user);
             }
         }
     }
 
     #[test]
     fn timing_migration_and_live_diagnostics_are_translated_in_both_locales() {
-        for language in ["en","fr"] {
+        for language in ["en", "fr"] {
             locale(language);
-            for (message,key) in [
-                ("SSC migration would change the editor's effective clock","DiagnosticMigrationClock"),
-                ("History is not a clock-preserving SSC migration","DiagnosticMigrationHistory"),
-                ("Migration changed the unfocused transport context","DiagnosticMigrationContext"),
-                ("History is not a typed timing edit","DiagnosticTimingHistory"),
-                ("Timing presentation belongs to another chart or revision","DiagnosticTimingPresentation"),
+            for (message, key) in [
+                (
+                    "SSC migration would change the editor's effective clock",
+                    "DiagnosticMigrationClock",
+                ),
+                (
+                    "History is not a clock-preserving SSC migration",
+                    "DiagnosticMigrationHistory",
+                ),
+                (
+                    "Migration changed the unfocused transport context",
+                    "DiagnosticMigrationContext",
+                ),
+                (
+                    "History is not a typed timing edit",
+                    "DiagnosticTimingHistory",
+                ),
+                (
+                    "Timing presentation belongs to another chart or revision",
+                    "DiagnosticTimingPresentation",
+                ),
             ] {
-                let result=editor_error(&Error::InvalidEdit(message.into()));
-                assert_eq!(result,translated(key));assert_ne!(result,key);
-                if language=="fr"{assert_ne!(result,message);}
+                let result = editor_error(&Error::InvalidEdit(message.into()));
+                assert_eq!(result, translated(key));
+                assert_ne!(result, key);
+                if language == "fr" {
+                    assert_ne!(result, message);
+                }
             }
         }
     }
-
 }

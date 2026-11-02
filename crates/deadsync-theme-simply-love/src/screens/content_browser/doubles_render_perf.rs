@@ -75,15 +75,31 @@ fn doubles_rendering_no_longer_allocates_or_copies_full_column_lists() {
         let (_, after) = measure(|| push_doubles(&mut new, &state));
         let columns = usize::from(!state.doubles_left.is_empty())
             + usize::from(!state.doubles_right.is_empty());
-        assert_eq!(before.allocs - after.allocs, columns);
+        // Empty-column messages now borrow the translated resource instead of
+        // copying it, in addition to removing the column-list clones.
+        let empty_messages = 2 - columns;
+        let message_bytes = (if state.doubles_left.is_empty() {
+            if state.itgdb.phase == ItgdbPhase::Error {
+                "itgdb.net could not be reached, so this list is unavailable.".len()
+            } else {
+                "Nothing here.".len()
+            }
+        } else {
+            0
+        }) + (if state.doubles_right.is_empty() {
+            "Nothing here.".len()
+        } else {
+            0
+        });
+        assert_eq!(before.allocs - after.allocs, columns + empty_messages);
         assert_eq!(
             before.allocated_bytes - after.allocated_bytes,
-            count * std::mem::size_of::<usize>()
+            count * std::mem::size_of::<usize>() + message_bytes
         );
         assert_eq!(before.reallocs, after.reallocs);
         assert_eq!(
             support::retained_text_bytes(&old),
-            support::retained_text_bytes(&new)
+            support::retained_text_bytes(&new) + message_bytes
         );
     }
 }

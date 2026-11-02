@@ -25,16 +25,13 @@ impl State {
         self.stop_audio();
         self.label_preedit.clear();
         self.assistant.open = true;
-        if self.assistant.bridge.is_none() {
-            self.assistant_start_bridge();
-        }
     }
     fn assistant_start_bridge(&mut self) {
         self.assistant.bridge = None;
         match deadsync_editor::assistant::bridge::Bridge::start(&self.workspace) {
             Ok(bridge) => {
                 self.assistant.transcript.push_str(&format!(
-                    "\nMCP: --connect {}\n",
+                    "\nMCP: --connect-editor ({})\n",
                     bridge.discovery_path().display()
                 ));
                 self.assistant.bridge = Some(bridge);
@@ -116,9 +113,14 @@ impl State {
                 self.assistant.scroll = self.assistant.scroll.saturating_sub(8);
             }
             KeyCode::F4 if self.assistant.job.is_none() => {
-                self.assistant.draft = None;
-                self.assistant.preview = None;
-                self.assistant_start_bridge();
+                if self.assistant.bridge.take().is_some() {
+                    self.assistant.transcript.push_str(&format!(
+                        "\n{}\n",
+                        i18n::tr("Edition", "AssistantMcpStopped")
+                    ));
+                } else {
+                    self.assistant_start_bridge();
+                }
             }
             KeyCode::F3 if self.assistant.job.is_none() => {
                 self.assistant.draft = None;
@@ -149,8 +151,8 @@ impl State {
                     && !self.assistant.input.trim().is_empty() =>
             {
                 let input = self.assistant.input.clone();
-                // Keep prior dialogue as quoted context. All edits still operate on
-                // a fresh snapshot of the current song, never on stale proposals.
+                // Follow-ups refine the pending draft only while its original
+                // revision is still current; Job rejects stale proposals.
                 let prompt = format!(
                     "Prior conversation (context only):\n{}\n\nCurrent request:\n{}",
                     self.assistant.conversation, input
@@ -177,10 +179,32 @@ impl State {
         }
     }
     pub(super) fn poll_assistant(&mut self) {
-        if self.assistant.job.is_none() {
-            while let Some(result) = self.assistant.bridge.as_ref().and_then(|b| b.poll()) {
+        if self
+            .assistant
+            .draft
+            .as_ref()
+            .is_some_and(|draft| !draft.is_current(&self.workspace))
+        {
+            self.assistant.draft = None;
+            self.assistant.preview = None;
+            self.assistant
+                .transcript
+                .push_str(&format!("\n{}\n", i18n::tr("Edition", "AssistantStale")));
+        }
+        if let Some(bridge) = &self.assistant.bridge {
+            if let Err(error) = bridge.synchronize(&self.workspace) {
+                self.assistant
+                    .transcript
+                    .push_str(&format!("\nMCP: {error}\n"));
+                self.assistant.bridge = None;
+            }
+        }
+        // Preserve the proposal currently under review. The bridge mailbox
+        // provides backpressure until the user applies or discards it.
+        if self.assistant.job.is_none() && self.assistant.draft.is_none() {
+            if let Some(result) = self.assistant.bridge.as_ref().and_then(|b| b.poll()) {
                 match result {
-                    Ok(draft) => {
+                    Ok(draft) if draft.is_current(&self.workspace) => {
                         self.assistant.draft = Some(draft);
                         self.assistant_prepare_preview();
                         self.assistant.transcript.push_str(&format!(
@@ -188,6 +212,10 @@ impl State {
                             i18n::tr("Edition", "AssistantReady")
                         ));
                     }
+                    Ok(_) => self
+                        .assistant
+                        .transcript
+                        .push_str(&format!("\n{}\n", i18n::tr("Edition", "AssistantStale"))),
                     Err(e) => self.assistant.transcript.push_str(&format!("\nMCP: {e}\n")),
                 }
             }
@@ -200,6 +228,14 @@ impl State {
                     .assistant
                     .transcript
                     .push_str(&format!("\n[{}]\n", assistant_tool_label(&name))),
+                Some(Event::Cancelled) => {
+                    self.assistant.job = None;
+                    self.assistant.transcript.push_str(&format!(
+                        "\n{}\n",
+                        i18n::tr("Edition", "AssistantCancelled")
+                    ));
+                    break;
+                }
                 Some(Event::Finished(result)) => {
                     self.assistant.job = None;
                     match result {

@@ -73,9 +73,35 @@ fn source_speed_default_add_is_reviewed_saved_and_undoable() {
         d.speeds().values()[&0].period,
         deadsync_editor::timing_edit::speed::Period::Rows(48)
     );
-    let after = serialized(&s);
     ctrl(&mut s, KeyCode::KeyS);
-    assert_eq!(serialized(&State::open(&path, 0).unwrap()), after);
+    let reopened = State::open(&path, 0).unwrap();
+    let authoring = |bytes: Vec<u8>| {
+        let document = deadsync_editor::document::Document::parse(
+            bytes,
+            deadsync_editor::document::Format::Ssc,
+        )
+        .unwrap();
+        document
+            .tags()
+            .iter()
+            .filter(|tag| !matches!(tag.name.as_str(), "GASONGDATA" | "GASONGDATAVERSION"))
+            .map(|tag| {
+                (
+                    tag.chart,
+                    tag.name.clone(),
+                    document.source()[tag.value.clone()].to_vec(),
+                )
+            })
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(authoring(serialized(&reopened)), authoring(serialized(&s)));
+    assert_eq!(
+        deadsync_editor::song_properties::sync_offset(
+            reopened.workspace().file().session.document()
+        )
+        .unwrap(),
+        deadsync_editor::song_properties::DEFAULT_SYNC_OFFSET
+    );
     ctrl(&mut s, KeyCode::KeyZ);
     assert_eq!(serialized(&s), SOURCE);
 }

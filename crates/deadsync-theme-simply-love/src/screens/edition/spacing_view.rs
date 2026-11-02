@@ -34,8 +34,6 @@ pub(super) enum Projection<'a> {
     },
 }
 impl Projection<'_> {
-
-
     pub(super) fn y(&self, row: u64) -> Option<f64> {
         match self {
             Self::Rows(p, _) => Some(p.y(row)),
@@ -141,7 +139,9 @@ impl Projection<'_> {
         last_row: u64,
     ) -> Result<Vec<(u64, u64)>, deadsync_editor::Error> {
         let spans = match self {
-            Self::Rows(p, _) => return Ok(vec![p.visible_rows_in(f64::from(top), f64::from(bottom))?]),
+            Self::Rows(p, _) => {
+                return Ok(vec![p.visible_rows_in(f64::from(top), f64::from(bottom))?]);
+            }
             Self::Time { cursor, .. } => {
                 cursor.visible_rows(f64::from(top), f64::from(bottom), u64::MAX)?
             }
@@ -167,7 +167,23 @@ impl State {
     pub fn display_reversed(&self) -> bool {
         self.reverse_display
     }
-    pub(super) fn toggle_reverse_display(&mut self){let mut settings=self.scroll_preferences;settings.set_reverse(!settings.reverse());match self.commit_scroll_preferences(settings){Ok(_)=>self.status=i18n::tr("Edition",if self.reverse_display{"DisplayReverse"}else{"DisplayForward"}),Err(_)=>self.status=i18n::tr("Edition","ScrollValuesSaveFailed")}}
+    pub(super) fn toggle_reverse_display(&mut self) {
+        let mut settings = self.scroll_preferences;
+        settings.set_reverse(!settings.reverse());
+        match self.commit_scroll_preferences(settings) {
+            Ok(_) => {
+                self.status = i18n::tr(
+                    "Edition",
+                    if self.reverse_display {
+                        "DisplayReverse"
+                    } else {
+                        "DisplayForward"
+                    },
+                )
+            }
+            Err(_) => self.status = i18n::tr("Edition", "ScrollValuesSaveFailed"),
+        }
+    }
     pub fn spacing_mode(&self) -> SpacingMode {
         self.spacing_mode
     }
@@ -177,7 +193,9 @@ impl State {
             return;
         }
         let session = &self.workspace.file().session;
-        let chart = self.preview_source_chart().unwrap_or_else(||self.workspace.chart());
+        let chart = self
+            .preview_source_chart()
+            .unwrap_or_else(|| self.workspace.chart());
         if self.spacing_cache.as_ref().is_some_and(|cache| {
             Arc::ptr_eq(&cache.source, session.document().source())
                 && cache.revision == session.revision()
@@ -242,7 +260,9 @@ impl State {
         self.set_raw_spacing_mode(self.spacing_preference.next());
     }
     fn set_spacing_mode(&mut self, next: SpacingMode) {
-        self.set_raw_spacing_mode(deadsync_editor::scroll_preferences::spacing::Preference::from_effective(next));
+        self.set_raw_spacing_mode(
+            deadsync_editor::scroll_preferences::spacing::Preference::from_effective(next),
+        );
         self.status = i18n::tr(
             "Edition",
             match next {
@@ -253,7 +273,9 @@ impl State {
         );
     }
     fn display_position(&self, clock: &Clock) -> Result<(f64, f64), deadsync_editor::Error> {
-        if let Some(position)=self.preview_position()?{return Ok((position.chart_time(),position.row()));}
+        if let Some(position) = self.preview_position()? {
+            return Ok((position.chart_time(), position.row()));
+        }
         if let Some(position) = self.playback_position() {
             return Ok(position);
         }
@@ -296,7 +318,7 @@ impl State {
         } else {
             1.0
         };
-        let speeds=self.current_spacing_speeds();
+        let speeds = self.current_spacing_speeds();
         let pps = deadsync_editor::waveform_spacing::pixels_per_second(
             mode,
             policy,
@@ -320,7 +342,9 @@ impl State {
         bottom: f32,
         cursor_y: f32,
     ) -> Result<Projection<'_>, deadsync_editor::Error> {
-        if self.preview.is_some(){self.preview_position()?;}
+        if self.preview.is_some() {
+            self.preview_position()?;
+        }
         if self.spacing_mode == SpacingMode::ConstantRow {
             let waveform = self
                 .spacing_cache
@@ -394,9 +418,40 @@ impl State {
     }
 }
 
-
-impl State{
- pub fn spacing_preference(&self)->deadsync_editor::scroll_preferences::spacing::Preference{self.spacing_preference}
- pub fn configure_spacing_preference(&mut self,value:deadsync_editor::scroll_preferences::spacing::Preference){self.spacing_preference=value;self.spacing_mode=value.effective();}
- fn set_raw_spacing_mode(&mut self,value:deadsync_editor::scroll_preferences::spacing::Preference){self.configure_spacing_preference(value);if let Some(file)=self.application_preferences_owner_mut(){file.set_spacing_preference(value);}self.status=match value{deadsync_editor::scroll_preferences::spacing::Preference::Unknown(_)=>i18n::tr_fmt("Edition","SpacingRawMode",&[("value",&value.source_name())]),deadsync_editor::scroll_preferences::spacing::Preference::ConstantTime=>i18n::tr("Edition","SpacingTime"),deadsync_editor::scroll_preferences::spacing::Preference::ConstantRow=>i18n::tr("Edition","SpacingRows"),deadsync_editor::scroll_preferences::spacing::Preference::Variable=>i18n::tr("Edition","SpacingVariable")};}
+impl State {
+    pub fn spacing_preference(&self) -> deadsync_editor::scroll_preferences::spacing::Preference {
+        self.spacing_preference
+    }
+    pub fn configure_spacing_preference(
+        &mut self,
+        value: deadsync_editor::scroll_preferences::spacing::Preference,
+    ) {
+        self.spacing_preference = value;
+        self.spacing_mode = value.effective();
+    }
+    fn set_raw_spacing_mode(
+        &mut self,
+        value: deadsync_editor::scroll_preferences::spacing::Preference,
+    ) {
+        self.configure_spacing_preference(value);
+        if let Some(file) = self.application_preferences_owner_mut() {
+            file.set_spacing_preference(value);
+        }
+        self.status = match value {
+            deadsync_editor::scroll_preferences::spacing::Preference::Unknown(_) => i18n::tr_fmt(
+                "Edition",
+                "SpacingRawMode",
+                &[("value", &value.source_name())],
+            ),
+            deadsync_editor::scroll_preferences::spacing::Preference::ConstantTime => {
+                i18n::tr("Edition", "SpacingTime")
+            }
+            deadsync_editor::scroll_preferences::spacing::Preference::ConstantRow => {
+                i18n::tr("Edition", "SpacingRows")
+            }
+            deadsync_editor::scroll_preferences::spacing::Preference::Variable => {
+                i18n::tr("Edition", "SpacingVariable")
+            }
+        };
+    }
 }

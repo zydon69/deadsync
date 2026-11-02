@@ -74,13 +74,20 @@ impl Builder {
             max_bytes,
         })
     }
-    pub fn push_i16(&mut self,pcm:&[i16])->Result<(),Error>{self.push_values(pcm.len(),pcm.iter().map(|sample|f32::from(*sample)/32768.))}
-    /// Consume the shared immutable editor PCM without an i16 round trip.
-    pub fn push_f32(&mut self,pcm:&[f32])->Result<(),Error>{
-        if pcm.iter().any(|sample|!sample.is_finite()){return Err(Error::InvalidFormat("Nonfinite waveform sample".into()));}
-        self.push_values(pcm.len(),pcm.iter().copied())
+    pub fn push_i16(&mut self, pcm: &[i16]) -> Result<(), Error> {
+        self.push_values(
+            pcm.len(),
+            pcm.iter().map(|sample| f32::from(*sample) / 32768.),
+        )
     }
-    fn push_values(&mut self,len:usize,pcm:impl Iterator<Item=f32>)->Result<(),Error>{
+    /// Consume the shared immutable editor PCM without an i16 round trip.
+    pub fn push_f32(&mut self, pcm: &[f32]) -> Result<(), Error> {
+        if pcm.iter().any(|sample| !sample.is_finite()) {
+            return Err(Error::InvalidFormat("Nonfinite waveform sample".into()));
+        }
+        self.push_values(pcm.len(), pcm.iter().copied())
+    }
+    fn push_values(&mut self, len: usize, pcm: impl Iterator<Item = f32>) -> Result<(), Error> {
         if len % self.channels != 0 {
             return Err(Error::InvalidFormat(
                 "Incomplete interleaved waveform frame".into(),
@@ -109,71 +116,131 @@ impl Builder {
                 .try_reserve_exact(capacity - self.samples.len())
                 .map_err(|e| Error::InvalidEdit(e.to_string()))?;
         }
-        for (index,value) in pcm.enumerate(){
-            let channel=index%self.channels;
-            let x=(f32::from(MAX)*(value+1.)*0.5)as u16;
-            let distance=((value-self.previous[channel]).abs()*f32::from(MAX))as u16;
-            self.samples.push(Node::new(x.min(MAX),x.min(MAX),distance));
-            self.previous[channel]=value;
+        for (index, value) in pcm.enumerate() {
+            let channel = index % self.channels;
+            let x = (f32::from(MAX) * (value + 1.) * 0.5) as u16;
+            let distance = ((value - self.previous[channel]).abs() * f32::from(MAX)) as u16;
+            self.samples
+                .push(Node::new(x.min(MAX), x.min(MAX), distance));
+            self.previous[channel] = value;
         }
         Ok(())
     }
     /// Build independent power-of-two-aligned mip ranges on a bounded CPU pool.
     /// No arithmetic is reassociated: every node merges the same two children.
-    pub fn finish_parallelism_cancellable(self,cancelled:&AtomicBool,parallelism:i32)->Result<Option<Waveform>,Error>{
-        self.finish_parallelism_observed(cancelled,parallelism,None)
+    pub fn finish_parallelism_cancellable(
+        self,
+        cancelled: &AtomicBool,
+        parallelism: i32,
+    ) -> Result<Option<Waveform>, Error> {
+        self.finish_parallelism_observed(cancelled, parallelism, None)
     }
-    fn finish_parallelism_observed(self,cancelled:&AtomicBool,parallelism:i32,observer:Option<&(dyn Fn()+Sync)>)->Result<Option<Waveform>,Error>{
-        let frames=self.samples.len()/self.channels;
-        let mut chosen=source_task_span(frames,parallelism);
-        if chosen>=frames || cancelled.load(Ordering::Relaxed){return self.finish_cancellable(cancelled);}
+    fn finish_parallelism_observed(
+        self,
+        cancelled: &AtomicBool,
+        parallelism: i32,
+        observer: Option<&(dyn Fn() + Sync)>,
+    ) -> Result<Option<Waveform>, Error> {
+        let frames = self.samples.len() / self.channels;
+        let mut chosen = source_task_span(frames, parallelism);
+        if chosen >= frames || cancelled.load(Ordering::Relaxed) {
+            return self.finish_cancellable(cancelled);
+        }
         // Source uses Tasks, not an OS thread per task. Bound both the worker
         // pool and queued task metadata independently of a raw imported value.
-        while frames.div_ceil(chosen)>4096 {chosen=chosen.checked_mul(2).unwrap_or(usize::MAX);}
-        let depth=chosen.ilog2() as usize;
-        let channels=self.channels;let rate=self.rate;
-        let mut levels=vec![self.samples];let mut count=frames;
-        while count>1 {
-            count=count.div_ceil(2);let mut level=Vec::new();
-            level.try_reserve_exact(count*channels).map_err(|e|Error::InvalidEdit(e.to_string()))?;
-            level.resize(count*channels,Node(0));levels.push(level);
+        while frames.div_ceil(chosen) > 4096 {
+            chosen = chosen.checked_mul(2).unwrap_or(usize::MAX);
         }
-        let tasks=frames.div_ceil(chosen);
-        let workers=tasks.min(std::thread::available_parallelism().map_or(1,usize::from)).max(1);
+        let depth = chosen.ilog2() as usize;
+        let channels = self.channels;
+        let rate = self.rate;
+        let mut levels = vec![self.samples];
+        let mut count = frames;
+        while count > 1 {
+            count = count.div_ceil(2);
+            let mut level = Vec::new();
+            level
+                .try_reserve_exact(count * channels)
+                .map_err(|e| Error::InvalidEdit(e.to_string()))?;
+            level.resize(count * channels, Node(0));
+            levels.push(level);
+        }
+        let tasks = frames.div_ceil(chosen);
+        let workers = tasks
+            .min(std::thread::available_parallelism().map_or(1, usize::from))
+            .max(1);
         {
-            struct Task<'a>{previous:&'a[Node],levels:Vec<&'a mut[Node]>}
-            let (base,upper)=levels.split_first_mut().unwrap();
-            let mut jobs:Vec<_>=base.chunks(chosen*channels).map(|previous|Task{previous,levels:Vec::with_capacity(depth)}).collect();
-            for (level,output) in upper.iter_mut().take(depth).enumerate(){
-                let width=(chosen>>(level+1))*channels;
-                for (job,part) in jobs.iter_mut().zip(output.chunks_mut(width)){job.levels.push(part);}
+            struct Task<'a> {
+                previous: &'a [Node],
+                levels: Vec<&'a mut [Node]>,
             }
-            let jobs=std::sync::Mutex::new(std::collections::VecDeque::from(jobs));
-            std::thread::scope(|scope|->Result<(),Error>{
-                let mut handles=Vec::with_capacity(workers);
-                for _ in 0..workers {
-                    let jobs=&jobs;
-                    handles.push(std::thread::Builder::new().name("editor-waveform-mip".into()).spawn_scoped(scope,move||{
-                        if let Some(observer)=observer{observer();}
-                        loop {
-                            if cancelled.load(Ordering::Relaxed){break;}
-                            let Some(task)=jobs.lock().unwrap().pop_front()else{break;};
-                            let mut previous=task.previous;
-                            for output in task.levels {
-                                fill_level(previous,output,channels,cancelled);
-                                previous=output;
-                            }
-                        }
-                    }).map_err(|e|Error::InvalidEdit(e.to_string()))?);
+            let (base, upper) = levels.split_first_mut().unwrap();
+            let mut jobs: Vec<_> = base
+                .chunks(chosen * channels)
+                .map(|previous| Task {
+                    previous,
+                    levels: Vec::with_capacity(depth),
+                })
+                .collect();
+            for (level, output) in upper.iter_mut().take(depth).enumerate() {
+                let width = (chosen >> (level + 1)) * channels;
+                for (job, part) in jobs.iter_mut().zip(output.chunks_mut(width)) {
+                    job.levels.push(part);
                 }
-                for handle in handles{handle.join().map_err(|_|Error::InvalidEdit("Waveform worker stopped".into()))?;}
+            }
+            let jobs = std::sync::Mutex::new(std::collections::VecDeque::from(jobs));
+            std::thread::scope(|scope| -> Result<(), Error> {
+                let mut handles = Vec::with_capacity(workers);
+                for _ in 0..workers {
+                    let jobs = &jobs;
+                    handles.push(
+                        std::thread::Builder::new()
+                            .name("editor-waveform-mip".into())
+                            .spawn_scoped(scope, move || {
+                                if let Some(observer) = observer {
+                                    observer();
+                                }
+                                loop {
+                                    if cancelled.load(Ordering::Relaxed) {
+                                        break;
+                                    }
+                                    let Some(task) = jobs.lock().unwrap().pop_front() else {
+                                        break;
+                                    };
+                                    let mut previous = task.previous;
+                                    for output in task.levels {
+                                        fill_level(previous, output, channels, cancelled);
+                                        previous = output;
+                                    }
+                                }
+                            })
+                            .map_err(|e| Error::InvalidEdit(e.to_string()))?,
+                    );
+                }
+                for handle in handles {
+                    handle
+                        .join()
+                        .map_err(|_| Error::InvalidEdit("Waveform worker stopped".into()))?;
+                }
                 Ok(())
             })?;
         }
-        if cancelled.load(Ordering::Relaxed){return Ok(None);}
-        for index in depth+1..levels.len(){let (previous,next)=levels.split_at_mut(index);fill_level(previous.last().unwrap(),&mut next[0],channels,cancelled);}
-        if cancelled.load(Ordering::Relaxed){return Ok(None);}
-        Ok(Some(Waveform{channels,sample_rate:rate,frames,levels}))
+        if cancelled.load(Ordering::Relaxed) {
+            return Ok(None);
+        }
+        for index in depth + 1..levels.len() {
+            let (previous, next) = levels.split_at_mut(index);
+            fill_level(previous.last().unwrap(), &mut next[0], channels, cancelled);
+        }
+        if cancelled.load(Ordering::Relaxed) {
+            return Ok(None);
+        }
+        Ok(Some(Waveform {
+            channels,
+            sample_rate: rate,
+            frames,
+            levels,
+        }))
     }
     pub fn finish(self) -> Result<Waveform, Error> {
         self.finish_cancellable(&AtomicBool::new(false))?
@@ -223,20 +290,33 @@ impl Builder {
     }
 }
 
-fn source_task_span(frames:usize,parallelism:i32)->usize{
-    let mut chunk=1usize;let mut previous=0usize;let mut chosen=frames.max(1);
-    while chunk<frames {
-        let count=frames.div_ceil(chunk);
-        if parallelism>0 && previous>parallelism as usize && count<=parallelism as usize{chosen=chunk;}
-        previous=count;chunk=chunk.checked_mul(2).unwrap_or(usize::MAX);
+fn source_task_span(frames: usize, parallelism: i32) -> usize {
+    let mut chunk = 1usize;
+    let mut previous = 0usize;
+    let mut chosen = frames.max(1);
+    while chunk < frames {
+        let count = frames.div_ceil(chunk);
+        if parallelism > 0 && previous > parallelism as usize && count <= parallelism as usize {
+            chosen = chunk;
+        }
+        previous = count;
+        chunk = chunk.checked_mul(2).unwrap_or(usize::MAX);
     }
     chosen
 }
 
-fn fill_level(previous:&[Node],output:&mut[Node],channels:usize,cancelled:&AtomicBool){
-    for (frame,row) in output.chunks_mut(channels).enumerate(){
-        if frame%4096==0 && cancelled.load(Ordering::Relaxed){return;}
-        for (channel,node) in row.iter_mut().enumerate(){let first=previous[frame*2*channels+channel];let second=(frame*2+1)*channels+channel;*node=previous.get(second).map_or(first,|&other|first.merge(other));}
+fn fill_level(previous: &[Node], output: &mut [Node], channels: usize, cancelled: &AtomicBool) {
+    for (frame, row) in output.chunks_mut(channels).enumerate() {
+        if frame % 4096 == 0 && cancelled.load(Ordering::Relaxed) {
+            return;
+        }
+        for (channel, node) in row.iter_mut().enumerate() {
+            let first = previous[frame * 2 * channels + channel];
+            let second = (frame * 2 + 1) * channels + channel;
+            *node = previous
+                .get(second)
+                .map_or(first, |&other| first.merge(other));
+        }
     }
 }
 
@@ -311,36 +391,77 @@ fn pyramid_bytes(mut frames: usize, channels: usize) -> Option<usize> {
 #[cfg(test)]
 mod parallel_tests {
     use super::*;
-    fn builder(frames:usize,channels:usize)->Builder{
-        let pcm=(0..frames*channels).map(|index|((index.wrapping_mul(7919)%65536)as i32-32768)as i16).collect::<Vec<_>>();
-        let mut builder=Builder::new(channels,48000).unwrap();builder.push_i16(&pcm).unwrap();builder
+    fn builder(frames: usize, channels: usize) -> Builder {
+        let pcm = (0..frames * channels)
+            .map(|index| ((index.wrapping_mul(7919) % 65536) as i32 - 32768) as i16)
+            .collect::<Vec<_>>();
+        let mut builder = Builder::new(channels, 48000).unwrap();
+        builder.push_i16(&pcm).unwrap();
+        builder
     }
     #[test]
-    fn source_task_partition_matches_executed_original_sound_mipmap_method(){
-        let rows:&[(usize,i32,usize,usize)]=include!("../tests/fixtures/waveform_parallelism_source.expected.inc");
-        for &(frames,parallelism,span,tasks)in rows{assert_eq!(source_task_span(frames,parallelism),span);assert_eq!(frames.div_ceil(span),tasks);}
+    fn source_task_partition_matches_executed_original_sound_mipmap_method() {
+        let rows: &[(usize, i32, usize, usize)] =
+            include!("../tests/fixtures/waveform_parallelism_source.expected.inc");
+        for &(frames, parallelism, span, tasks) in rows {
+            assert_eq!(source_task_span(frames, parallelism), span);
+            assert_eq!(frames.div_ceil(span), tasks);
+        }
     }
     #[test]
-    fn real_parallel_mip_nodes_are_bit_identical_including_partial_tails_and_negative_raw_settings(){
-        for channels in [1,2,6] {for frames in [3,5,257,4097,10003]{
-            let reference=builder(frames,channels).finish().unwrap();
-            for parallelism in [-3,0,1,2,8,128,i32::MAX] {
-                let result=builder(frames,channels).finish_parallelism_cancellable(&AtomicBool::new(false),parallelism).unwrap().unwrap();
-                assert_eq!(result.levels,reference.levels,"frames={frames} channels={channels} parallelism={parallelism}");
-                for channel in 0..channels{assert_eq!(result.envelope(channel,1,frames),reference.envelope(channel,1,frames));}
+    fn real_parallel_mip_nodes_are_bit_identical_including_partial_tails_and_negative_raw_settings()
+    {
+        for channels in [1, 2, 6] {
+            for frames in [3, 5, 257, 4097, 10003] {
+                let reference = builder(frames, channels).finish().unwrap();
+                for parallelism in [-3, 0, 1, 2, 8, 128, i32::MAX] {
+                    let result = builder(frames, channels)
+                        .finish_parallelism_cancellable(&AtomicBool::new(false), parallelism)
+                        .unwrap()
+                        .unwrap();
+                    assert_eq!(
+                        result.levels, reference.levels,
+                        "frames={frames} channels={channels} parallelism={parallelism}"
+                    );
+                    for channel in 0..channels {
+                        assert_eq!(
+                            result.envelope(channel, 1, frames),
+                            reference.envelope(channel, 1, frames)
+                        );
+                    }
+                }
             }
-        }}
+        }
     }
     #[test]
-    fn cancellation_while_real_pool_is_entered_joins_workers_and_discards_every_level(){
-        use std::sync::{Arc,Condvar,Mutex,mpsc};
-        let cancelled=Arc::new(AtomicBool::new(false));let gate=Arc::new((Mutex::new(false),Condvar::new()));let (send,entered)=mpsc::sync_channel(1);
-        let worker_cancel=Arc::clone(&cancelled);let worker_gate=Arc::clone(&gate);
-        let worker=std::thread::spawn(move||{
-            let observer=||{let _=send.try_send(());let(lock,changed)=&*worker_gate;let mut release=lock.lock().unwrap();while !*release{release=changed.wait(release).unwrap();}};
-            builder(100003,2).finish_parallelism_observed(&worker_cancel,8,Some(&observer)).unwrap()
+    fn cancellation_while_real_pool_is_entered_joins_workers_and_discards_every_level() {
+        use std::sync::{Arc, Condvar, Mutex, mpsc};
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let gate = Arc::new((Mutex::new(false), Condvar::new()));
+        let (send, entered) = mpsc::sync_channel(1);
+        let worker_cancel = Arc::clone(&cancelled);
+        let worker_gate = Arc::clone(&gate);
+        let worker = std::thread::spawn(move || {
+            let observer = || {
+                let _ = send.try_send(());
+                let (lock, changed) = &*worker_gate;
+                let mut release = lock.lock().unwrap();
+                while !*release {
+                    release = changed.wait(release).unwrap();
+                }
+            };
+            builder(100003, 2)
+                .finish_parallelism_observed(&worker_cancel, 8, Some(&observer))
+                .unwrap()
         });
-        entered.recv_timeout(std::time::Duration::from_secs(5)).unwrap();cancelled.store(true,Ordering::Release);let(lock,changed)=&*gate;*lock.lock().unwrap()=true;changed.notify_all();assert!(worker.join().unwrap().is_none());
+        entered
+            .recv_timeout(std::time::Duration::from_secs(5))
+            .unwrap();
+        cancelled.store(true, Ordering::Release);
+        let (lock, changed) = &*gate;
+        *lock.lock().unwrap() = true;
+        changed.notify_all();
+        assert!(worker.join().unwrap().is_none());
     }
 }
 
@@ -348,11 +469,25 @@ mod parallel_tests {
 mod shared_float_pcm_tests {
     use super::*;
     #[test]
-    fn float_builder_keeps_source_sample_bits_and_rejects_nonfinite_atomically(){
-        let mut builder=Builder::with_memory_limit(2,48000,1<<20).unwrap();
-        let pcm=[f32::from_bits(0x3f000001),-1.0000305];builder.push_f32(&pcm).unwrap();
-        assert_eq!(builder.previous.iter().map(|v|v.to_bits()).collect::<Vec<_>>(),pcm.map(f32::to_bits));
-        let before=builder.samples.clone();let previous=builder.previous.clone();assert!(builder.push_f32(&[0.5,f32::NAN]).is_err());assert_eq!(builder.samples,before);assert_eq!(builder.previous,previous);assert!(builder.push_f32(&[0.]).is_err());assert_eq!(builder.samples,before);
-        assert_eq!(builder.finish().unwrap().frames(),1);
+    fn float_builder_keeps_source_sample_bits_and_rejects_nonfinite_atomically() {
+        let mut builder = Builder::with_memory_limit(2, 48000, 1 << 20).unwrap();
+        let pcm = [f32::from_bits(0x3f000001), -1.0000305];
+        builder.push_f32(&pcm).unwrap();
+        assert_eq!(
+            builder
+                .previous
+                .iter()
+                .map(|v| v.to_bits())
+                .collect::<Vec<_>>(),
+            pcm.map(f32::to_bits)
+        );
+        let before = builder.samples.clone();
+        let previous = builder.previous.clone();
+        assert!(builder.push_f32(&[0.5, f32::NAN]).is_err());
+        assert_eq!(builder.samples, before);
+        assert_eq!(builder.previous, previous);
+        assert!(builder.push_f32(&[0.]).is_err());
+        assert_eq!(builder.samples, before);
+        assert_eq!(builder.finish().unwrap().frames(), 1);
     }
 }

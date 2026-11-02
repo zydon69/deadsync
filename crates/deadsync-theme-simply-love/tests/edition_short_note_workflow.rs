@@ -1,4 +1,8 @@
-//! Original short-note sprites through actual State input, timing and clipping.
+#[path = "support/row_geometry.rs"]
+mod row_geometry;
+#[path = "support/source_sprite_geometry.rs"]
+mod source_sprite_geometry;
+// Original short-note sprites through actual State input, timing and clipping.
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
     actors::{Actor, SizeSpec, SpriteSource},
@@ -27,7 +31,8 @@ fn open(layout: &str, timing: &str, notes: &str) -> (tempfile::TempDir, State, V
     let path = dir.path().join("short.ssc");
     let source=format!("#VERSION:0.83;#BPMS:0=120;#OFFSET:0;#GASongDataVersion:1;#GASongData:{{\"SyncOffset\":0}};{timing}#NOTEDATA:;#STEPSTYPE:{layout};#NOTES:{notes};").into_bytes();
     fs::write(&path, &source).unwrap();
-    let state = State::open(&path, 0).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    row_geometry::configure(&mut state, dir.path());
     (dir, state, source)
 }
 fn sprites(s: &State) -> Vec<Actor> {
@@ -183,7 +188,7 @@ fn short_notes_read_shared_xna_colors_and_selected_mine_multiplier() {
     let path = dir.path().join("prefs.json");
     fs::write(
         &path,
-        serde_json::to_vec(&serde_json::json!({"Version":1,"NoteColor":note,"Options":options}))
+        serde_json::to_vec(&serde_json::json!({"Version":1,"NoteColor":note,"Options":options,"Scroll":{"SpacingMode":"ConstantRow","RowBasedPixelsPerRow":1}}))
             .unwrap(),
     )
     .unwrap();
@@ -223,24 +228,25 @@ fn assert_clipped(a: &Actor) {
     let [SizeSpec::Px(w), SizeSpec::Px(h)] = *size else {
         panic!("explicit size")
     };
+    // The compositor offsets the cropped quad in world axes before rotation.
+    // Measure that visible quad, including the renderer's crop compensation.
     let rotation = rot_z_deg.rem_euclid(360.0);
-    let (w, h) = if rotation == 90.0 || rotation == 270.0 {
-        (h, w)
+    let center = [
+        offset[0] + (*cl - *cr) * w * 0.5,
+        offset[1] + (*ct - *cb) * h * 0.5,
+    ];
+    let visible = [w * (1.0 - *cl - *cr), h * (1.0 - *ct - *cb)];
+    let [w, h] = if rotation == 90.0 || rotation == 270.0 {
+        [visible[1], visible[0]]
     } else {
-        (w, h)
-    };
-    let (l, r, t, b) = match rotation {
-        0.0 => (*cl, *cr, *ct, *cb),
-        90.0 => (*cb, *ct, *cl, *cr),
-        180.0 => (*cr, *cl, *cb, *ct),
-        270.0 => (*ct, *cb, *cr, *cl),
-        _ => panic!("cardinal rotation"),
+        assert!(rotation == 0.0 || rotation == 180.0, "cardinal rotation");
+        visible
     };
     let bounds = [
-        offset[0] - w / 2.0 + l * w,
-        offset[1] - h / 2.0 + t * h,
-        offset[0] + w / 2.0 - r * w,
-        offset[1] + h / 2.0 - b * h,
+        center[0] - w * 0.5,
+        center[1] - h * 0.5,
+        center[0] + w * 0.5,
+        center[1] + h * 0.5,
     ];
     assert!(
         bounds[0] >= 0.0
@@ -266,8 +272,8 @@ fn source_rotated_notes_crossing_top_and_bottom_are_clipped_without_losing_uvs()
         let (_dir, mut s, _) = open(layout, "", notes);
         let a = sprites(&s);
         assert!(
-            a.iter()
-                .any(|a| matches!(a,Actor::Sprite{offset,..}if(offset[1]-400.0).abs()<1e-4)),
+            a.iter().any(|a| source_sprite_geometry::center(a)
+                .is_some_and(|center| (center[1] - 400.0).abs() < 1e-4)),
             "bottom crossing remains emitted"
         );
         for a in &a {
@@ -280,8 +286,8 @@ fn source_rotated_notes_crossing_top_and_bottom_are_clipped_without_losing_uvs()
         assert_eq!(s.workspace().row(), 72);
         let a = sprites(&s);
         assert!(
-            a.iter()
-                .any(|a| matches!(a,Actor::Sprite{offset,..}if(offset[1]-88.0).abs()<1e-4)),
+            a.iter().any(|a| source_sprite_geometry::center(a)
+                .is_some_and(|center| (center[1] - 88.0).abs() < 1e-4)),
             "top crossing remains emitted"
         );
         for a in &a {

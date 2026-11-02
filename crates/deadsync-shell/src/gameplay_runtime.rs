@@ -529,7 +529,10 @@ fn snapshot_for_editor(
     music_clock: &mut deadsync_audio_stream::MusicClock,
 ) -> (GameplayAudioSnapshot, f64) {
     let (stream_clock, decoded_mapping, seconds) = music_clock.snapshot_for_editor_time();
-    (snapshot_for_editor_clock(stream_clock, decoded_mapping), seconds)
+    (
+        snapshot_for_editor_clock(stream_clock, decoded_mapping),
+        seconds,
+    )
 }
 
 fn snapshot_for_editor_clock(
@@ -542,7 +545,9 @@ fn snapshot_for_editor_clock(
     snapshot
 }
 
-fn snapshot_from_clock(stream_clock: deadlib_audio_core::MusicStreamClockSnapshot) -> GameplayAudioSnapshot {
+fn snapshot_from_clock(
+    stream_clock: deadlib_audio_core::MusicStreamClockSnapshot,
+) -> GameplayAudioSnapshot {
     let output_timing = deadsync_audio_stream::get_output_timing_snapshot();
     GameplayAudioSnapshot {
         editor: Default::default(),
@@ -561,8 +566,15 @@ fn snapshot_from_clock(stream_clock: deadlib_audio_core::MusicStreamClockSnapsho
     }
 }
 
-fn editor_gains(gains:deadsync_gameplay::EditorAudioGains)->deadsync_audio_stream::EditorAudioGains {
-    deadsync_audio_stream::EditorAudioGains {main:gains.main,music:gains.music,assist:gains.assist,beat:gains.beat}
+fn editor_gains(
+    gains: deadsync_gameplay::EditorAudioGains,
+) -> deadsync_audio_stream::EditorAudioGains {
+    deadsync_audio_stream::EditorAudioGains {
+        main: gains.main,
+        music: gains.music,
+        assist: gains.assist,
+        beat: gains.beat,
+    }
 }
 
 pub(crate) fn drain_core(
@@ -574,7 +586,7 @@ pub(crate) fn drain_core(
     sounds: &crate::gameplay_prewarm::GameplaySfx,
     music_clock: &mut deadsync_audio_stream::MusicClock,
 ) {
-    execute_audio_commands(state.drain_audio_commands(),audio,sounds,music_clock);
+    execute_audio_commands(state.drain_audio_commands(), audio, sounds, music_clock);
 
     for command in state.drain_session_commands() {
         match command {
@@ -650,28 +662,41 @@ pub(crate) fn update(
             SongLuaActorSound::Play { owner, path } => {
                 // Most assets are prewarmed. A callback may also author a new
                 // path at runtime; do not silently discard that valid sound.
-                let sound = sounds.resolve_path(&path).cloned().or_else(|| audio.prepare_sfx(&path));
-                if let Some(sound) = sound { audio.play_actor_sfx(owner, &sound); }
+                let sound = sounds
+                    .resolve_path(&path)
+                    .cloned()
+                    .or_else(|| audio.prepare_sfx(&path));
+                if let Some(sound) = sound {
+                    audio.play_actor_sfx(owner, &sound);
+                }
             }
             SongLuaActorSound::Stop { owner } => audio.stop_actor_sfx(owner),
             SongLuaActorSound::Pause { owner, paused } => audio.pause_actor_sfx(owner, paused),
         }
     }
-    for error in output.errors { log::warn!("Song Lua: {error}"); }
+    for error in output.errors {
+        log::warn!("Song Lua: {error}");
+    }
     for event in output.sounds {
         if let Some(sound) = sounds.resolve_path(&event.path) {
             audio.play_sfx(sound);
         } else {
-            if let Some(sound) = audio.prepare_sfx(&event.path) { audio.play_sfx(&sound); }
+            if let Some(sound) = audio.prepare_sfx(&event.path) {
+                audio.play_sfx(&sound);
+            }
         }
     }
     if let Some(request) = output.request {
         match request {
-            deadsync_song_lua::SongLuaLiveRequest::Transition(message) if message == "SM_DoNextScreen" => {
+            deadsync_song_lua::SongLuaLiveRequest::Transition(message)
+                if message == "SM_DoNextScreen" =>
+            {
                 // The owning theme screen advances the native SL out tween,
                 // dispatches End and navigates after its completion frame.
             }
-            deadsync_song_lua::SongLuaLiveRequest::NewScreen(screen) if screen == "ScreenGameplay" => {
+            deadsync_song_lua::SongLuaLiveRequest::NewScreen(screen)
+                if screen == "ScreenGameplay" =>
+            {
                 // The owning theme emitted ReloadSongLua at the frame boundary.
             }
             request => log::warn!("Unsupported live song Lua screen request: {request:?}"),
@@ -709,22 +734,67 @@ pub(crate) fn handle_input(
 
 /// Build from the same DSP snapshot the caller publishes, without opening or
 /// readiness inference and without taking a second clock reading.
-fn editor_logical_music_clock(phase:Option<deadsync_audio_stream::EditorLogicalPhase>,owner:u64,music_nanos:i64)->Option<deadsync_gameplay::EditorLogicalMusicClock>{
-    phase.filter(|phase|owner!=0&&phase.owner==owner).map(|phase|deadsync_gameplay::EditorLogicalMusicClock{generation:phase.generation,asset_epoch:phase.asset_epoch,music_nanos})
+fn editor_logical_music_clock(
+    phase: Option<deadsync_audio_stream::EditorLogicalPhase>,
+    owner: u64,
+    music_nanos: i64,
+) -> Option<deadsync_gameplay::EditorLogicalMusicClock> {
+    phase
+        .filter(|phase| owner != 0 && phase.owner == owner)
+        .map(|phase| deadsync_gameplay::EditorLogicalMusicClock {
+            generation: phase.generation,
+            asset_epoch: phase.asset_epoch,
+            music_nanos,
+        })
 }
 
-fn sync_editor_state_decoder(state: &mut deadsync_theme_simply_love::screens::edition::State, audio: &deadsync_audio_stream::AudioControl) {
+fn sync_editor_state_decoder(
+    state: &mut deadsync_theme_simply_love::screens::edition::State,
+    audio: &deadsync_audio_stream::AudioControl,
+) {
     use deadlib_audio::stream::lifecycle::DecoderPhase;
     use deadsync_theme_simply_love::screens::edition::decoder_transport::{Ack, Phase};
-    if let Some((kind,path))=state.editor_preview_request(){
-        let cursor=audio.editor_preview_cursor(state.editor_asset_owner(),editor_asset_kind(kind),&path).map(|cursor|deadsync_gameplay::EditorPreviewCursor{suspended:cursor.suspended,rendered:cursor.rendered,owner:cursor.owner,kind,registration:cursor.registration,revision:cursor.revision,generation:cursor.generation,asset_epoch:cursor.asset_epoch,next_music_seconds:cursor.next_music_seconds,rendered_frame:cursor.rendered_frame,source_frame:cursor.source_frame,sample_rate_hz:cursor.sample_rate_hz});
+    if let Some((kind, path)) = state.editor_preview_request() {
+        let cursor = audio
+            .editor_preview_cursor(state.editor_asset_owner(), editor_asset_kind(kind), &path)
+            .map(|cursor| deadsync_gameplay::EditorPreviewCursor {
+                suspended: cursor.suspended,
+                rendered: cursor.rendered,
+                owner: cursor.owner,
+                kind,
+                registration: cursor.registration,
+                revision: cursor.revision,
+                generation: cursor.generation,
+                asset_epoch: cursor.asset_epoch,
+                next_music_seconds: cursor.next_music_seconds,
+                rendered_frame: cursor.rendered_frame,
+                source_frame: cursor.source_frame,
+                sample_rate_hz: cursor.sample_rate_hz,
+            });
         state.observe_rendered_preview_cursor(cursor);
     }
     state.observe_audio_backend_available(audio.is_available());
     let generation = audio.music_command_generation();
-    if let Some(snapshot)=audio.decoder_status(){if generation==Some(snapshot.command_generation)&&matches!(snapshot.phase,DecoderPhase::Producing|DecoderPhase::Exhausted)&&snapshot.opened_successfully{if let (Some(codec),Some(path))=(snapshot.codec,snapshot.codec_path.as_deref()){state.observe_decoded_audio(audio.editor_music_owner(),snapshot.command_generation,codec==deadlib_audio::stream::lifecycle::DecodedCodec::Opus,path);}}}
+    if let Some(snapshot) = audio.decoder_status() {
+        if generation == Some(snapshot.command_generation)
+            && matches!(
+                snapshot.phase,
+                DecoderPhase::Producing | DecoderPhase::Exhausted
+            )
+            && snapshot.opened_successfully
+        {
+            if let (Some(codec), Some(path)) = (snapshot.codec, snapshot.codec_path.as_deref()) {
+                state.observe_decoded_audio(
+                    audio.editor_music_owner(),
+                    snapshot.command_generation,
+                    codec == deadlib_audio::stream::lifecycle::DecodedCodec::Opus,
+                    path,
+                );
+            }
+        }
+    }
     state.bind_decoder_generation(generation);
-    state.bind_decoder_asset_epoch(audio.editor_music_owner(),audio.editor_music_asset_epoch());
+    state.bind_decoder_asset_epoch(audio.editor_music_owner(), audio.editor_music_asset_epoch());
     if let Some(generation) = generation {
         let ack = audio.decoder_status().map(|snapshot| Ack {
             generation: snapshot.command_generation,
@@ -742,8 +812,10 @@ fn sync_editor_state_decoder(state: &mut deadsync_theme_simply_love::screens::ed
     }
 }
 
-fn sync_editor_decoder(state:&mut practice::State,audio:&deadsync_audio_stream::AudioControl) {
- if let Some(editor)=practice::editor_mut(state) {sync_editor_state_decoder(editor,audio);}
+fn sync_editor_decoder(state: &mut practice::State, audio: &deadsync_audio_stream::AudioControl) {
+    if let Some(editor) = practice::editor_mut(state) {
+        sync_editor_state_decoder(editor, audio);
+    }
 }
 
 pub(crate) fn update_practice(
@@ -755,27 +827,51 @@ pub(crate) fn update_practice(
     score_cursor: &mut ScoreRuntimeCursor,
     effects: &mut Vec<ThemeEffect>,
 ) {
-    if practice::editor_is_open(state) { sounds.refresh_editor_ticks(audio); }
+    if practice::editor_is_open(state) {
+        sounds.refresh_editor_ticks(audio);
+    }
     if practice::flush_editor_audio_commands(state) {
         drain(&mut state.gameplay, audio, sounds, music_clock);
     }
     sync_editor_decoder(state, audio);
     audio.poll_editor_assets(music_clock);
-    if let Some(editor)=practice::editor_mut(state){sync_editor_main_waveform(editor,audio);}
-    let editor_output=editor_output_snapshot(audio,music_clock);
-    if practice::editor_is_open(state) { sounds.refresh_editor_ticks(audio); }
+    if let Some(editor) = practice::editor_mut(state) {
+        sync_editor_main_waveform(editor, audio);
+    }
+    let editor_output = editor_output_snapshot(audio, music_clock);
+    if practice::editor_is_open(state) {
+        sounds.refresh_editor_ticks(audio);
+    }
     let audio_snapshot = if practice::editor_is_open(state) {
         let (mut snapshot, seconds) = snapshot_for_editor(music_clock);
-        let status=audio.editor_audio_status();
-        snapshot.editor=deadsync_gameplay::EditorAudioSnapshot {
-            assets:practice::editor(state).map(|editor|editor_asset_readiness(editor,audio)).unwrap_or_default(),
-            logical_music:editor_logical_music_clock(audio.editor_logical_phase(),status.owner,snapshot.stream_clock.music_nanos),
-            owner:status.owner,tick_generation:status.tick_generation,sample_rate:status.sample_rate,output:editor_output,
-            assist_duration:sounds.resolve(deadsync_gameplay::EDITOR_ASSIST_TICK_SFX_PATH).and_then(|sound|audio.editor_tick_duration(sound)),
-            beat_duration:sounds.resolve(deadsync_gameplay::EDITOR_BEAT_TICK_SFX_PATH).and_then(|sound|audio.editor_tick_duration(sound)),
+        let status = audio.editor_audio_status();
+        snapshot.editor = deadsync_gameplay::EditorAudioSnapshot {
+            assets: practice::editor(state)
+                .map(|editor| editor_asset_readiness(editor, audio))
+                .unwrap_or_default(),
+            logical_music: editor_logical_music_clock(
+                audio.editor_logical_phase(),
+                status.owner,
+                snapshot.stream_clock.music_nanos,
+            ),
+            owner: status.owner,
+            tick_generation: status.tick_generation,
+            sample_rate: status.sample_rate,
+            output: editor_output,
+            assist_duration: sounds
+                .resolve(deadsync_gameplay::EDITOR_ASSIST_TICK_SFX_PATH)
+                .and_then(|sound| audio.editor_tick_duration(sound)),
+            beat_duration: sounds
+                .resolve(deadsync_gameplay::EDITOR_BEAT_TICK_SFX_PATH)
+                .and_then(|sound| audio.editor_tick_duration(sound)),
         };
         if let Some(generation) = audio.music_command_generation() {
-            practice::set_editor_stream_time(state, generation, snapshot.stream_clock.valid_at, seconds);
+            practice::set_editor_stream_time(
+                state,
+                generation,
+                snapshot.stream_clock.valid_at,
+                seconds,
+            );
         }
         snapshot
     } else {
@@ -927,7 +1023,11 @@ mod tests {
     #[test]
     fn editor_clock_adapter_strips_only_optimistic_mapping_and_preserves_clock_data() {
         let valid_at = std::time::Instant::now();
-        for (has_mapping, decoded, expected) in [(true, false, false), (true, true, true), (false, true, false)] {
+        for (has_mapping, decoded, expected) in [
+            (true, false, false),
+            (true, true, true),
+            (false, true, false),
+        ] {
             let raw = deadlib_audio_core::MusicStreamClockSnapshot {
                 stream_seconds: 3.25,
                 music_nanos: -125_000_000,
@@ -943,7 +1043,12 @@ mod tests {
             assert_eq!(editor.music_seconds_per_second, 2.0);
             assert_eq!(editor.valid_at, valid_at);
             assert_eq!(editor.valid_at_host_nanos, 42);
-            assert_eq!(super::snapshot_from_clock(raw).stream_clock.has_music_mapping, has_mapping);
+            assert_eq!(
+                super::snapshot_from_clock(raw)
+                    .stream_clock
+                    .has_music_mapping,
+                has_mapping
+            );
         }
     }
 
@@ -1283,46 +1388,203 @@ fn editor_output_snapshot(
 
 /// Single command executor for gameplay, embedded editor and standalone editor.
 pub(crate) fn execute_audio_commands(
- commands:impl IntoIterator<Item=GameplayAudioCommand>,
- audio:&mut deadsync_audio_stream::AudioControl,
- sounds:&crate::gameplay_prewarm::GameplaySfx,
- music_clock:&mut deadsync_audio_stream::MusicClock,
+    commands: impl IntoIterator<Item = GameplayAudioCommand>,
+    audio: &mut deadsync_audio_stream::AudioControl,
+    sounds: &crate::gameplay_prewarm::GameplaySfx,
+    music_clock: &mut deadsync_audio_stream::MusicClock,
 ) {
     for command in commands {
         match command {
-            GameplayAudioCommand::EditorInitializeOutput {owner,id,period_frames,num_buffers}=>audio.begin_editor_output_change(owner,id,deadlib_audio_core::BufferRequest{period_frames,num_buffers}),
-            GameplayAudioCommand::EditorRestoreOutputLease {owner,id}=>audio.begin_editor_output_release(owner,id),
-            GameplayAudioCommand::EditorAbandonOutputLease {owner}=>audio.abandon_editor_output_lease(owner),
-            GameplayAudioCommand::EditorBeginAudio { owner,gains } => { if audio.begin_editor_audio(owner,editor_gains(gains)) {let _=audio.capture_editor_output_lease(owner);} }
-            GameplayAudioCommand::EditorUpdateAudio { owner,gains } => { audio.update_editor_audio(owner,editor_gains(gains)); }
-            GameplayAudioCommand::EditorEndAudio { owner } => { audio.end_editor_audio(owner); }
-            GameplayAudioCommand::EditorInvalidateTicks { owner } => { audio.invalidate_editor_ticks(owner); }
-            GameplayAudioCommand::EditorStopMusic { owner } => { audio.editor_stop_music(owner); }
-            GameplayAudioCommand::EditorSetMusicRate { owner,rate } => { audio.editor_set_music_rate_at(owner,rate,music_clock); }
-            GameplayAudioCommand::EditorSeekMusic { owner,seconds } => { audio.editor_seek_music_at(owner,seconds,music_clock); }
-            GameplayAudioCommand::EditorStartMusic{owner,path,seconds,rate}=>{audio.editor_start_music(owner,path,seconds,rate);}
-            GameplayAudioCommand::EditorClearMusicAsset{owner}=>{audio.editor_clear_music_asset(owner,music_clock);}
-            GameplayAudioCommand::EditorPauseMusic{owner,seconds}=>{audio.editor_pause_music(owner,seconds);}
-            GameplayAudioCommand::EditorResumeMusic{owner,path,seconds,rate}=>{audio.editor_resume_music(owner,path,seconds,rate);}
-            GameplayAudioCommand::EditorSwapMusicAsset{owner,path}=>{audio.editor_swap_music_asset(owner,path,music_clock);}
-            GameplayAudioCommand::EditorRetargetTicks{owner}=>{audio.retarget_editor_ticks(owner);}
-            GameplayAudioCommand::EditorRegisterAsset{owner,kind,path}=>{audio.register_editor_asset(owner,editor_asset_kind(kind),path);}
-            GameplayAudioCommand::EditorSuspendPreview{owner,cursor}=>{let cursor=deadsync_audio_stream::EditorPreviewCursor{suspended:cursor.suspended,rendered:cursor.rendered,owner:cursor.owner,kind:editor_asset_kind(cursor.kind),registration:cursor.registration,revision:cursor.revision,generation:cursor.generation,asset_epoch:cursor.asset_epoch,next_music_seconds:cursor.next_music_seconds,rendered_frame:cursor.rendered_frame,source_frame:cursor.source_frame,sample_rate_hz:cursor.sample_rate_hz};audio.editor_suspend_preview_for(owner,cursor);}
-            GameplayAudioCommand::EditorResumePreview{owner,kind,path,cut,looping,rate,cursor}=>{
-                let cursor=deadsync_audio_stream::EditorPreviewCursor{suspended:cursor.suspended,rendered:cursor.rendered,owner:cursor.owner,kind:editor_asset_kind(cursor.kind),registration:cursor.registration,revision:cursor.revision,generation:cursor.generation,asset_epoch:cursor.asset_epoch,next_music_seconds:cursor.next_music_seconds,rendered_frame:cursor.rendered_frame,source_frame:cursor.source_frame,sample_rate_hz:cursor.sample_rate_hz};
-                audio.editor_resume_preview(owner,editor_asset_kind(kind),path,audio_cut(cut),looping,rate,cursor);
+            GameplayAudioCommand::EditorInitializeOutput {
+                owner,
+                id,
+                period_frames,
+                num_buffers,
+            } => audio.begin_editor_output_change(
+                owner,
+                id,
+                deadlib_audio_core::BufferRequest {
+                    period_frames,
+                    num_buffers,
+                },
+            ),
+            GameplayAudioCommand::EditorRestoreOutputLease { owner, id } => {
+                audio.begin_editor_output_release(owner, id)
             }
-            GameplayAudioCommand::EditorSetPreviewFades{owner,fade_in,fade_out}=>{audio.editor_set_preview_fades(owner,fade_in,fade_out);}
-            GameplayAudioCommand::EditorSetPreviewRegion{owner,start,length}=>{audio.editor_set_preview_region(owner,start,length);}
-            GameplayAudioCommand::EditorPlayPreview{owner,kind,path,cut,looping,rate}=>{audio.editor_play_preview(owner,editor_asset_kind(kind),path,audio_cut(cut),looping,rate);}
-            GameplayAudioCommand::EditorPlayMusic { owner,path,cut,looping,rate } => { audio.editor_play_music(owner,path,audio_cut(cut),looping,rate); }
-            GameplayAudioCommand::EditorTickWindow { owner,tick_generation,music_generation,kind,samples } => {
-                let (path,kind)=match kind {
-                    deadsync_gameplay::EditorTickKind::Assist=>(deadsync_gameplay::EDITOR_ASSIST_TICK_SFX_PATH,deadsync_audio_stream::EditorTickKind::Assist),
-                    deadsync_gameplay::EditorTickKind::Beat=>(deadsync_gameplay::EDITOR_BEAT_TICK_SFX_PATH,deadsync_audio_stream::EditorTickKind::Beat),
+            GameplayAudioCommand::EditorAbandonOutputLease { owner } => {
+                audio.abandon_editor_output_lease(owner)
+            }
+            GameplayAudioCommand::EditorBeginAudio { owner, gains } => {
+                if audio.begin_editor_audio(owner, editor_gains(gains)) {
+                    let _ = audio.capture_editor_output_lease(owner);
+                }
+            }
+            GameplayAudioCommand::EditorUpdateAudio { owner, gains } => {
+                audio.update_editor_audio(owner, editor_gains(gains));
+            }
+            GameplayAudioCommand::EditorEndAudio { owner } => {
+                audio.end_editor_audio(owner);
+            }
+            GameplayAudioCommand::EditorInvalidateTicks { owner } => {
+                audio.invalidate_editor_ticks(owner);
+            }
+            GameplayAudioCommand::EditorStopMusic { owner } => {
+                audio.editor_stop_music(owner);
+            }
+            GameplayAudioCommand::EditorSetMusicRate { owner, rate } => {
+                audio.editor_set_music_rate_at(owner, rate, music_clock);
+            }
+            GameplayAudioCommand::EditorSeekMusic { owner, seconds } => {
+                audio.editor_seek_music_at(owner, seconds, music_clock);
+            }
+            GameplayAudioCommand::EditorStartMusic {
+                owner,
+                path,
+                seconds,
+                rate,
+            } => {
+                audio.editor_start_music(owner, path, seconds, rate);
+            }
+            GameplayAudioCommand::EditorClearMusicAsset { owner } => {
+                audio.editor_clear_music_asset(owner, music_clock);
+            }
+            GameplayAudioCommand::EditorPauseMusic { owner, seconds } => {
+                audio.editor_pause_music(owner, seconds);
+            }
+            GameplayAudioCommand::EditorResumeMusic {
+                owner,
+                path,
+                seconds,
+                rate,
+            } => {
+                audio.editor_resume_music(owner, path, seconds, rate);
+            }
+            GameplayAudioCommand::EditorSwapMusicAsset { owner, path } => {
+                audio.editor_swap_music_asset(owner, path, music_clock);
+            }
+            GameplayAudioCommand::EditorRetargetTicks { owner } => {
+                audio.retarget_editor_ticks(owner);
+            }
+            GameplayAudioCommand::EditorRegisterAsset { owner, kind, path } => {
+                audio.register_editor_asset(owner, editor_asset_kind(kind), path);
+            }
+            GameplayAudioCommand::EditorSuspendPreview { owner, cursor } => {
+                let cursor = deadsync_audio_stream::EditorPreviewCursor {
+                    suspended: cursor.suspended,
+                    rendered: cursor.rendered,
+                    owner: cursor.owner,
+                    kind: editor_asset_kind(cursor.kind),
+                    registration: cursor.registration,
+                    revision: cursor.revision,
+                    generation: cursor.generation,
+                    asset_epoch: cursor.asset_epoch,
+                    next_music_seconds: cursor.next_music_seconds,
+                    rendered_frame: cursor.rendered_frame,
+                    source_frame: cursor.source_frame,
+                    sample_rate_hz: cursor.sample_rate_hz,
                 };
-                if let Some(sound)=sounds.resolve(path) {
-                    audio.editor_tick_window(owner,tick_generation,music_generation,kind,&samples,sound,music_clock);
+                audio.editor_suspend_preview_for(owner, cursor);
+            }
+            GameplayAudioCommand::EditorResumePreview {
+                owner,
+                kind,
+                path,
+                cut,
+                looping,
+                rate,
+                cursor,
+            } => {
+                let cursor = deadsync_audio_stream::EditorPreviewCursor {
+                    suspended: cursor.suspended,
+                    rendered: cursor.rendered,
+                    owner: cursor.owner,
+                    kind: editor_asset_kind(cursor.kind),
+                    registration: cursor.registration,
+                    revision: cursor.revision,
+                    generation: cursor.generation,
+                    asset_epoch: cursor.asset_epoch,
+                    next_music_seconds: cursor.next_music_seconds,
+                    rendered_frame: cursor.rendered_frame,
+                    source_frame: cursor.source_frame,
+                    sample_rate_hz: cursor.sample_rate_hz,
+                };
+                audio.editor_resume_preview(
+                    owner,
+                    editor_asset_kind(kind),
+                    path,
+                    audio_cut(cut),
+                    looping,
+                    rate,
+                    cursor,
+                );
+            }
+            GameplayAudioCommand::EditorSetPreviewFades {
+                owner,
+                fade_in,
+                fade_out,
+            } => {
+                audio.editor_set_preview_fades(owner, fade_in, fade_out);
+            }
+            GameplayAudioCommand::EditorSetPreviewRegion {
+                owner,
+                start,
+                length,
+            } => {
+                audio.editor_set_preview_region(owner, start, length);
+            }
+            GameplayAudioCommand::EditorPlayPreview {
+                owner,
+                kind,
+                path,
+                cut,
+                looping,
+                rate,
+            } => {
+                audio.editor_play_preview(
+                    owner,
+                    editor_asset_kind(kind),
+                    path,
+                    audio_cut(cut),
+                    looping,
+                    rate,
+                );
+            }
+            GameplayAudioCommand::EditorPlayMusic {
+                owner,
+                path,
+                cut,
+                looping,
+                rate,
+            } => {
+                audio.editor_play_music(owner, path, audio_cut(cut), looping, rate);
+            }
+            GameplayAudioCommand::EditorTickWindow {
+                owner,
+                tick_generation,
+                music_generation,
+                kind,
+                samples,
+            } => {
+                let (path, kind) = match kind {
+                    deadsync_gameplay::EditorTickKind::Assist => (
+                        deadsync_gameplay::EDITOR_ASSIST_TICK_SFX_PATH,
+                        deadsync_audio_stream::EditorTickKind::Assist,
+                    ),
+                    deadsync_gameplay::EditorTickKind::Beat => (
+                        deadsync_gameplay::EDITOR_BEAT_TICK_SFX_PATH,
+                        deadsync_audio_stream::EditorTickKind::Beat,
+                    ),
+                };
+                if let Some(sound) = sounds.resolve(path) {
+                    audio.editor_tick_window(
+                        owner,
+                        tick_generation,
+                        music_generation,
+                        kind,
+                        &samples,
+                        sound,
+                        music_clock,
+                    );
                 }
             }
             GameplayAudioCommand::StopMusic => {
@@ -1338,7 +1600,11 @@ pub(crate) fn execute_audio_commands(
                 looping,
                 rate,
             } => audio.play_music(path, audio_cut(cut), looping, rate),
-            GameplayAudioCommand::PlayPreloadedMineSfx { path, player, two_players } => {
+            GameplayAudioCommand::PlayPreloadedMineSfx {
+                path,
+                player,
+                two_players,
+            } => {
                 if let Some(sound) = sounds.resolve(path) {
                     audio.play_mine_sfx(sound, player, two_players);
                 }
@@ -1362,76 +1628,125 @@ pub(crate) fn execute_audio_commands(
             }
         }
     }
-
 }
 
 pub(crate) fn flush_standalone_editor(
- editor:&mut deadsync_theme_simply_love::screens::edition::State,
- audio:&mut deadsync_audio_stream::AudioControl,
- sounds:&crate::gameplay_prewarm::GameplaySfx,
- music_clock:&mut deadsync_audio_stream::MusicClock,
-) { execute_audio_commands(editor.take_audio_commands(),audio,sounds,music_clock); }
+    editor: &mut deadsync_theme_simply_love::screens::edition::State,
+    audio: &mut deadsync_audio_stream::AudioControl,
+    sounds: &crate::gameplay_prewarm::GameplaySfx,
+    music_clock: &mut deadsync_audio_stream::MusicClock,
+) {
+    execute_audio_commands(editor.take_audio_commands(), audio, sounds, music_clock);
+}
 
 pub(crate) fn update_standalone_editor(
- editor:&mut deadsync_theme_simply_love::screens::edition::State,
- audio:&mut deadsync_audio_stream::AudioControl,
- sounds:&mut crate::gameplay_prewarm::GameplaySfx,
- music_clock:&mut deadsync_audio_stream::MusicClock,
-)->bool {
- sounds.refresh_editor_ticks(audio);
- flush_standalone_editor(editor,audio,sounds,music_clock);
- sync_editor_state_decoder(editor,audio);
- audio.poll_editor_assets(music_clock);
- sync_editor_main_waveform(editor,audio);
- let output=editor_output_snapshot(audio,music_clock);
- sounds.refresh_editor_ticks(audio);
- let (mut snapshot,seconds)=snapshot_for_editor(music_clock);
- let status=audio.editor_audio_status();
- snapshot.editor=deadsync_gameplay::EditorAudioSnapshot {
- assets:editor_asset_readiness(editor,audio),
-            logical_music:editor_logical_music_clock(audio.editor_logical_phase(),status.owner,snapshot.stream_clock.music_nanos),
- owner:status.owner,tick_generation:status.tick_generation,sample_rate:status.sample_rate,output,
- assist_duration:sounds.resolve(deadsync_gameplay::EDITOR_ASSIST_TICK_SFX_PATH).and_then(|s|audio.editor_tick_duration(s)),
- beat_duration:sounds.resolve(deadsync_gameplay::EDITOR_BEAT_TICK_SFX_PATH).and_then(|s|audio.editor_tick_duration(s)),
- };
- if let Some(generation)=audio.music_command_generation() { editor.set_decoder_stream_time(generation,snapshot.stream_clock.valid_at,seconds); }
- let commands=editor.update_host_audio(snapshot);
- execute_audio_commands(commands,audio,sounds,music_clock);
- sync_editor_state_decoder(editor,audio);
- if editor.take_host_close() {
-  editor.release_host_audio();
-  flush_standalone_editor(editor,audio,sounds,music_clock);
-  true
- } else {false}
+    editor: &mut deadsync_theme_simply_love::screens::edition::State,
+    audio: &mut deadsync_audio_stream::AudioControl,
+    sounds: &mut crate::gameplay_prewarm::GameplaySfx,
+    music_clock: &mut deadsync_audio_stream::MusicClock,
+) -> bool {
+    sounds.refresh_editor_ticks(audio);
+    flush_standalone_editor(editor, audio, sounds, music_clock);
+    sync_editor_state_decoder(editor, audio);
+    audio.poll_editor_assets(music_clock);
+    sync_editor_main_waveform(editor, audio);
+    let output = editor_output_snapshot(audio, music_clock);
+    sounds.refresh_editor_ticks(audio);
+    let (mut snapshot, seconds) = snapshot_for_editor(music_clock);
+    let status = audio.editor_audio_status();
+    snapshot.editor = deadsync_gameplay::EditorAudioSnapshot {
+        assets: editor_asset_readiness(editor, audio),
+        logical_music: editor_logical_music_clock(
+            audio.editor_logical_phase(),
+            status.owner,
+            snapshot.stream_clock.music_nanos,
+        ),
+        owner: status.owner,
+        tick_generation: status.tick_generation,
+        sample_rate: status.sample_rate,
+        output,
+        assist_duration: sounds
+            .resolve(deadsync_gameplay::EDITOR_ASSIST_TICK_SFX_PATH)
+            .and_then(|s| audio.editor_tick_duration(s)),
+        beat_duration: sounds
+            .resolve(deadsync_gameplay::EDITOR_BEAT_TICK_SFX_PATH)
+            .and_then(|s| audio.editor_tick_duration(s)),
+    };
+    if let Some(generation) = audio.music_command_generation() {
+        editor.set_decoder_stream_time(generation, snapshot.stream_clock.valid_at, seconds);
+    }
+    let commands = editor.update_host_audio(snapshot);
+    execute_audio_commands(commands, audio, sounds, music_clock);
+    sync_editor_state_decoder(editor, audio);
+    if editor.take_host_close() {
+        editor.release_host_audio();
+        flush_standalone_editor(editor, audio, sounds, music_clock);
+        true
+    } else {
+        false
+    }
 }
 
 #[cfg(test)]
 mod editor_logical_music_clock_tests {
     use super::*;
     #[test]
-    fn matching_owner_only_gets_exact_same_snapshot_music_timestamp(){
-        let phase=deadsync_audio_stream::EditorLogicalPhase{owner:7,generation:19,asset_epoch:31};
-        assert!(editor_logical_music_clock(None,7,9).is_none());
-        assert!(editor_logical_music_clock(Some(phase),8,9).is_none());
-        assert!(editor_logical_music_clock(Some(deadsync_audio_stream::EditorLogicalPhase{owner:0,..phase}),0,9).is_none());
-        for music_nanos in [0,-123_456_789,i64::MAX]{
-            assert_eq!(editor_logical_music_clock(Some(phase),7,music_nanos),Some(deadsync_gameplay::EditorLogicalMusicClock{generation:19,asset_epoch:31,music_nanos}));
+    fn matching_owner_only_gets_exact_same_snapshot_music_timestamp() {
+        let phase = deadsync_audio_stream::EditorLogicalPhase {
+            owner: 7,
+            generation: 19,
+            asset_epoch: 31,
+        };
+        assert!(editor_logical_music_clock(None, 7, 9).is_none());
+        assert!(editor_logical_music_clock(Some(phase), 8, 9).is_none());
+        assert!(
+            editor_logical_music_clock(
+                Some(deadsync_audio_stream::EditorLogicalPhase { owner: 0, ..phase }),
+                0,
+                9
+            )
+            .is_none()
+        );
+        for music_nanos in [0, -123_456_789, i64::MAX] {
+            assert_eq!(
+                editor_logical_music_clock(Some(phase), 7, music_nanos),
+                Some(deadsync_gameplay::EditorLogicalMusicClock {
+                    generation: 19,
+                    asset_epoch: 31,
+                    music_nanos
+                })
+            );
         }
     }
 }
 
-fn editor_asset_kind(kind:deadsync_gameplay::EditorAssetKind)->deadsync_audio_stream::editor_asset_watch::EditorAssetKind{
- use deadsync_gameplay::EditorAssetKind as G;
- use deadsync_audio_stream::editor_asset_watch::EditorAssetKind as A;
- match kind{G::Main=>A::Main,G::DedicatedPreview=>A::DedicatedPreview}
+fn editor_asset_kind(
+    kind: deadsync_gameplay::EditorAssetKind,
+) -> deadsync_audio_stream::editor_asset_watch::EditorAssetKind {
+    use deadsync_audio_stream::editor_asset_watch::EditorAssetKind as A;
+    use deadsync_gameplay::EditorAssetKind as G;
+    match kind {
+        G::Main => A::Main,
+        G::DedicatedPreview => A::DedicatedPreview,
+    }
 }
-fn editor_asset_readiness(editor:&deadsync_theme_simply_love::screens::edition::State,audio:&deadsync_audio_stream::AudioControl)->deadsync_gameplay::EditorAssetReadiness{
- let owner=editor.editor_asset_owner();
- let [main,preview]=editor.editor_asset_paths();
- use deadsync_audio_stream::editor_asset_watch::EditorAssetKind as Kind;
- deadsync_gameplay::EditorAssetReadiness{owner,registration:editor.editor_asset_registration(),
- main:main.as_deref().is_some_and(|path|audio.editor_asset_ready_for(owner,Kind::Main,path)),
- dedicated_preview:preview.as_deref().is_some_and(|path|audio.editor_asset_ready_for(owner,Kind::DedicatedPreview,path))}
+fn editor_asset_readiness(
+    editor: &deadsync_theme_simply_love::screens::edition::State,
+    audio: &deadsync_audio_stream::AudioControl,
+) -> deadsync_gameplay::EditorAssetReadiness {
+    let owner = editor.editor_asset_owner();
+    let [main, preview] = editor.editor_asset_paths();
+    use deadsync_audio_stream::editor_asset_watch::EditorAssetKind as Kind;
+    deadsync_gameplay::EditorAssetReadiness {
+        owner,
+        registration: editor.editor_asset_registration(),
+        main: main
+            .as_deref()
+            .is_some_and(|path| audio.editor_asset_ready_for(owner, Kind::Main, path)),
+        dedicated_preview: preview
+            .as_deref()
+            .is_some_and(|path| audio.editor_asset_ready_for(owner, Kind::DedicatedPreview, path)),
+    }
 }
 
 fn sync_editor_main_waveform(
@@ -1449,7 +1764,13 @@ fn sync_editor_main_waveform(
         )
     });
     let (token, source) = prepared.map_or((None, None), |prepared| {
-        (Some((prepared.token.registration.registration, prepared.token.revision)), prepared.source)
+        (
+            Some((
+                prepared.token.registration.registration,
+                prepared.token.revision,
+            )),
+            prepared.source,
+        )
     });
     editor.observe_editor_main_source(owner, registration, token, source);
 }
@@ -1462,7 +1783,15 @@ mod editor_waveform_tests;
 mod editor_separate_gain_adapter_tests {
     #[test]
     fn host_adapter_keeps_each_gain_without_premultiplying_master() {
-        let actual=super::editor_gains(deadsync_gameplay::EditorAudioGains{main:0.625,music:0.375,assist:0.5,beat:0.75});
-        assert_eq!(actual.main,0.625);assert_eq!(actual.music,0.375);assert_eq!(actual.assist,0.5);assert_eq!(actual.beat,0.75);
+        let actual = super::editor_gains(deadsync_gameplay::EditorAudioGains {
+            main: 0.625,
+            music: 0.375,
+            assist: 0.5,
+            beat: 0.75,
+        });
+        assert_eq!(actual.main, 0.625);
+        assert_eq!(actual.music, 0.375);
+        assert_eq!(actual.assist, 0.5);
+        assert_eq!(actual.beat, 0.75);
     }
 }

@@ -808,7 +808,10 @@ pub fn create_theme_prefs_table(lua: &Lua) -> mlua::Result<Table> {
     Ok(prefs)
 }
 
-pub(super) fn create_lua_option_array(lua: &Lua, values: SongLuaOptionValues) -> mlua::Result<Table> {
+pub(super) fn create_lua_option_array(
+    lua: &Lua,
+    values: SongLuaOptionValues,
+) -> mlua::Result<Table> {
     let table = lua.create_table()?;
     match values {
         SongLuaOptionValues::Str(values) => {

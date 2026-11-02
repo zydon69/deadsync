@@ -1,9 +1,17 @@
 use super::*;
 use deadsync_editor::waveform_palette::{Palette, SparseMode};
 impl State {
-    pub(super) fn waveform_color_control_enabled(&self,index:usize)->bool {
-        let mode=self.waveform_preferences_draft.unwrap_or(self.waveform_preferences).palette().mode();
-        match index {1=>mode==SparseMode::DarkerDenseColor,6..=9=>mode==SparseMode::UniqueColor,_=>true}
+    pub(super) fn waveform_color_control_enabled(&self, index: usize) -> bool {
+        let mode = self
+            .waveform_preferences_draft
+            .unwrap_or(self.waveform_preferences)
+            .palette()
+            .mode();
+        match index {
+            1 => mode == SparseMode::DarkerDenseColor,
+            6..=9 => mode == SparseMode::UniqueColor,
+            _ => true,
+        }
     }
     pub(super) fn waveform_colors_label(&self, index: usize, key: &str) -> Arc<str> {
         let p = self
@@ -11,7 +19,15 @@ impl State {
             .unwrap_or(self.waveform_preferences)
             .palette();
         let value = if index == 0 {
-            match p.mode(){SparseMode::Unknown(value)=>i18n::tr_fmt("Edition","WaveformSparseUnknown",&[("value",&value.to_string())]).to_string(),mode=>i18n::tr("Edition",mode.name()).to_string()}
+            match p.mode() {
+                SparseMode::Unknown(value) => i18n::tr_fmt(
+                    "Edition",
+                    "WaveformSparseUnknown",
+                    &[("value", &value.to_string())],
+                )
+                .to_string(),
+                mode => i18n::tr("Edition", mode.name()).to_string(),
+            }
         } else if index == 1 {
             format!("{:.1}", p.darken() * 100.0)
         } else {
@@ -24,8 +40,12 @@ impl State {
             };
             format!("{:.3}", color.rgba()[(index - 2) % 4])
         };
-        let label=i18n::tr_fmt("Edition", key, &[("value", &value)]);
-        if self.waveform_color_control_enabled(index){label}else{i18n::tr_fmt("Edition","PreferenceReadOnlyMode",&[("value",&label)])}
+        let label = i18n::tr_fmt("Edition", key, &[("value", &value)]);
+        if self.waveform_color_control_enabled(index) {
+            label
+        } else {
+            i18n::tr_fmt("Edition", "PreferenceReadOnlyMode", &[("value", &label)])
+        }
     }
     pub(super) fn waveform_color_swatch(&self, index: usize) -> [f32; 4] {
         let p = self
@@ -68,7 +88,9 @@ impl State {
         {
             return;
         }
-        if !self.waveform_color_control_enabled(index){return;}
+        if !self.waveform_color_control_enabled(index) {
+            return;
+        }
         let Some(settings) = self.waveform_preferences_draft.as_mut() else {
             return;
         };
@@ -130,7 +152,11 @@ impl State {
         match result {
             Ok(()) => settings.set_palette(palette),
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
+                )
             }
         }
     }

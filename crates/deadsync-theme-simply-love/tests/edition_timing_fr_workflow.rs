@@ -1,4 +1,6 @@
 //! Separate locale process, avoiding races with English editor workflows.
+#[path = "support/transport_host.rs"]
+mod transport_host;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::actors::Actor;
 use deadsync_theme_simply_love::{i18n, screens::edition::State};
@@ -329,24 +331,47 @@ fn french_audio_preview_controls_and_status_are_visible() {
     fs::write(dir.path().join("song.ogg"), b"fixture").unwrap();
     fs::write(&path, b"#VERSION:0.83;#MUSIC:song.ogg;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000;").unwrap();
     let mut screen = State::open(&path, 0).unwrap();
-    assert!(
-        texts(&screen)
-            .iter()
-            .any(|s| s.contains("Entrée : lecture/pause"))
-    );
+    transport_host::publish(&mut screen);
     press(&mut screen, KeyCode::Enter);
     assert!(screen.is_playing());
     assert!(
         texts(&screen)
             .iter()
-            .any(|s| s.contains("Lecture. Entrée : mettre en pause"))
+            .any(|s| s == i18n::tr("Edition", "PlaybackPlaying").as_ref())
     );
     press(&mut screen, KeyCode::Enter);
-    assert!(texts(&screen).iter().any(|s| s.contains("Lecture en pause")));
-    fs::remove_file(dir.path().join("song.ogg")).unwrap();
+    assert!(
+        texts(&screen)
+            .iter()
+            .any(|s| s.contains("Lecture en pause"))
+    );
     press(&mut screen, KeyCode::Enter);
-    assert!(!screen.is_playing());
-    assert!(texts(&screen).iter().any(|s| s.contains("Préécoute audio")));
+    assert!(screen.is_playing());
+    assert!(screen.take_audio_commands().iter().any(|command| matches!(
+        command,
+        deadsync_gameplay::GameplayAudioCommand::EditorResumeMusic { .. }
+    )));
+
+    // A song with no MAIN asset keeps its musical clock usable without audio.
+    let silent = dir.path().join("silent.ssc");
+    fs::write(
+        &silent,
+        b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+    )
+    .unwrap();
+    let mut missing = State::open(&silent, 0).unwrap();
+    transport_host::publish(&mut missing);
+    press(&mut missing, KeyCode::Enter);
+    assert!(missing.is_playing());
+    assert!(missing.take_audio_commands().iter().any(|command| matches!(
+        command,
+        deadsync_gameplay::GameplayAudioCommand::EditorStartMusic { path: None, .. }
+    )));
+    assert!(
+        texts(&missing)
+            .iter()
+            .any(|s| s == i18n::tr("Edition", "PlaybackPlaying").as_ref())
+    );
 }
 
 #[test]
@@ -366,8 +391,16 @@ fn french_song_sync_panel_explains_scope_and_applies_with_translated_labels() {
             .iter()
             .any(|s| s.contains("Synchro audio de l’éditeur : 0.009000 s"))
     );
-    assert!(labels.iter().any(|s| s.contains("Appliquer les propriétés du morceau")));
-    assert!(labels.iter().any(|s| s.contains("Préécoute uniquement")));
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Appliquer les propriétés du morceau"))
+    );
+    assert!(
+        labels
+            .iter()
+            .any(|s| s == i18n::tr("Edition", "SongPropertiesHelp").as_ref())
+    );
     press(&mut screen, KeyCode::Digit0);
     press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::Enter);
@@ -798,12 +831,19 @@ fn french_section_labels_use_committed_unicode_text_and_translated_controls() {
             .unwrap(),
         "0=Étiquette 日本語_fin"
     );
-    assert!(texts(&screen).iter().any(|s| s == "Étiquette 日本語_fin"));
+    assert!(texts(&screen).iter().any(|s| s
+        == &format!(
+            "{} Étiquette 日本語_fin",
+            i18n::tr("Edition", "EventSelectionLabel")
+        )));
 }
 
 #[test]
 fn timing_menu_keeps_attack_rows_and_commits_attack_export_in_the_same_undo() {
     i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     fn ctrl(screen: &mut State, code: KeyCode) {
         for pressed in [true, false] {
             screen.raw_key(&RawKeyboardEvent {

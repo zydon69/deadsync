@@ -119,7 +119,7 @@ fn unicode_ime_reserved_characters_fields_stage_once_and_persist_with_undo_redo(
     assert_eq!(text(&reopened, Field::Description), "A:B;C\\D // E=F,#G");
 }
 #[test]
-fn cancel_controls_back_navigation_and_empty_credit_follow_source_persistence() {
+fn cancel_controls_back_navigation_and_native_empty_credit_override_are_preserved() {
     init();
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
@@ -151,11 +151,23 @@ fn cancel_controls_back_navigation_and_empty_credit_follow_source_persistence() 
     press(&mut s, KeyCode::Enter);
     ctrl(&mut s, KeyCode::KeyS);
     let reopened = State::open(&path, 0).unwrap();
-    assert_eq!(text(&reopened, Field::Credit), "Song");
+    // Native output retains an explicitly authored empty credit override;
+    // source-compatible export is responsible for its lossy fallback.
+    assert_eq!(text(&reopened, Field::Credit), "");
+    assert_eq!(
+        reopened
+            .workspace()
+            .file()
+            .session
+            .document()
+            .text(None, "CREDIT")
+            .as_deref(),
+        Some("Song")
+    );
     assert_eq!(reopened.workspace().grid().iter().count(), 1);
 }
 #[test]
-fn sm_focus_skips_unavailable_fields_and_description_is_escaped_and_saved() {
+fn native_sm_name_and_description_are_editable_escaped_and_saved_independently() {
     init();
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.sm");
@@ -164,16 +176,22 @@ fn sm_focus_skips_unavailable_fields_and_description_is_escaped_and_saved() {
     let mut s = State::open(&path, 0).unwrap();
     open(&mut s);
     assert!(s.wants_text_input());
-    assert!(has(&s, "Name: Unavailable in SM"));
+    assert!(has(&s, "Name:"));
+    assert!(s.text_input("Native name"));
+    press(&mut s, KeyCode::ArrowDown);
+    assert!(s.wants_text_input());
+    ctrl(&mut s, KeyCode::KeyA);
     assert!(s.text_input("Été : 日本語"));
     press(&mut s, KeyCode::ArrowDown);
-    assert!(!s.wants_text_input());
+    assert!(s.wants_text_input());
     press(&mut s, KeyCode::ArrowUp);
     assert!(s.wants_text_input());
     apply(&mut s);
+    assert_eq!(text(&s, Field::Name), "Native name");
     assert_eq!(text(&s, Field::Description), "Été : 日本語");
     ctrl(&mut s, KeyCode::KeyS);
     let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(text(&reopened, Field::Name), "Native name");
     assert_eq!(text(&reopened, Field::Description), "Été : 日本語");
 }
 

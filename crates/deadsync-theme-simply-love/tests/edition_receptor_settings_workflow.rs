@@ -82,10 +82,21 @@ fn save_all_flags_is_one_global_undo_and_redo_without_song_dirtying() {
         let after = s.receptor_preferences();
         let mut fields = serde_json::Map::new();
         after.write(&mut fields);
-        assert!(
-            fields
-                .values()
-                .all(|v| v == &serde_json::Value::Bool(false))
+        for name in [
+            "AutoPlayHideArrows",
+            "AutoPlayLightHolds",
+            "AutoPlayRimEffect",
+            "AutoPlayGlowEffect",
+            "AutoPlayShrinkEffect",
+            "TapRimEffect",
+            "TapShrinkEffect",
+            "PulseReceptorsWithTempo",
+        ] {
+            assert_eq!(fields[name], serde_json::Value::Bool(false), "{name}");
+        }
+        assert_eq!(
+            after.placement,
+            deadsync_editor::receptor_preferences::Placement::default()
         );
         assert!(!s.workspace().file().session.is_dirty());
         let revision = s.workspace().file().session.revision();

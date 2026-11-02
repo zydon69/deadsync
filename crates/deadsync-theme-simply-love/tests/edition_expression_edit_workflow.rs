@@ -69,6 +69,11 @@ fn keyboard_edits_all_interpretation_controls_saves_copy_and_stages_chart_separa
     open(&mut s);
     assert!(has(&s, "Default bracket method:"));
     assert!(has(&s, "Save custom copy and select"));
+    // The fixed method is active only in the default-method branch; numeric
+    // thresholds are active only in the dynamic branch, as in GrooveAuthor.
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::ArrowRight);
+    press(&mut s, KeyCode::ArrowUp);
     press(&mut s, KeyCode::ArrowRight);
     press(&mut s, KeyCode::ArrowDown);
     press(&mut s, KeyCode::ArrowRight);

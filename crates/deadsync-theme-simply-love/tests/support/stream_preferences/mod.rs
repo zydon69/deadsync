@@ -41,7 +41,7 @@ fn down(s: &mut State, n: usize) {
 }
 fn settings(s: &mut State) {
     press(s, KeyCode::F1);
-    press(s, KeyCode::ArrowUp);
+    down(s, 28); // Stream settings; newer tools follow this menu entry.
     press(s, KeyCode::Enter);
 }
 fn state(song: &std::path::Path, prefs: &std::path::Path) -> State {
@@ -189,6 +189,9 @@ fn cancel_defaults_and_per_field_undo_preserve_other_stream_fields() {
     let mut json: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
     json["Stream"]["LongBreakCharacter"] = "é".into();
     fs::write(&path, serde_json::to_vec(&json).unwrap()).unwrap();
+    // Import the disjoint external change into the live owner before undoing
+    // only the independently tracked short-break field.
+    s.configure_audio_preferences(&path).unwrap();
     ctrl(&mut s, KeyCode::KeyZ);
     assert_eq!(s.stream_preferences().short_break, '-');
     assert_eq!(s.stream_preferences().long_break, 'é');

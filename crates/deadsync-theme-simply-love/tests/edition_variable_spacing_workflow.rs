@@ -1,3 +1,5 @@
+#[path = "support/transport_host.rs"]
+mod transport_host;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
     actors::{Actor, SizeSpec},
@@ -14,6 +16,16 @@ use std::{
 fn init() {
     i18n::init_for_tests();
     set_current_metrics(Metrics::centered(854.0, 480.0));
+}
+fn projection_fixture(path: &Path, chart: usize) -> Result<State, deadsync_editor::Error> {
+    let mut state = State::open(path, chart)?;
+    transport_host::configure_projection(
+        &mut state,
+        &path.parent().unwrap().join("prefs.json"),
+        false,
+    );
+    transport_host::publish(&mut state);
+    Ok(state)
 }
 fn key(s: &mut State, c: KeyCode, p: bool) {
     s.raw_key(&RawKeyboardEvent {
@@ -45,17 +57,14 @@ fn actors(s: &State) -> Vec<Actor> {
     s.actors(&mut a);
     a
 }
-fn arrows(s: &State) -> Vec<f32> {
-    actors(s)
+fn arrows(state: &State) -> Vec<f32> {
+    transport_host::heads(state)
         .into_iter()
-        .filter_map(|a| match a {
-            Actor::Sprite {
-                z: 8004, offset, ..
-            } => Some(offset[1]),
-            _ => None,
-        })
+        .map(|head| head[1])
+        .filter(|y| (105.0..=395.0).contains(y))
         .collect()
 }
+
 fn sorted(mut v: Vec<f32>) -> Vec<f32> {
     v.sort_by(f32::total_cmp);
     v
@@ -69,7 +78,7 @@ fn fixture(tags: &str, measures: usize) -> (tempfile::TempDir, State, Vec<u8>) {
     )
     .into_bytes();
     fs::write(&path, &source).unwrap();
-    let s = State::open(&path, 0).unwrap();
+    let s = projection_fixture(&path, 0).unwrap();
     (dir, s, source)
 }
 #[test]
@@ -188,26 +197,67 @@ fn temporal_waveform_remains_defined_when_variable_chart_speed_is_zero() {
     s.configure_audio_preferences(&prefs).unwrap();
     variable(&mut s);
     press(&mut s, KeyCode::KeyW);
+    s.take_audio_commands();
+    let prepared = deadlib_audio_decode::prepared::PreparedAudioSource::load_editor(
+        &dir.path().join("pulse.wav"),
+        deadlib_audio_decode::DecodeOptions::STEP_MANIA_TIMELINE,
+        &std::sync::atomic::AtomicBool::new(false),
+    )
+    .unwrap();
+    let registration = s.editor_asset_registration();
+    s.observe_editor_main_source(
+        s.editor_asset_owner(),
+        registration,
+        Some((registration, 0)),
+        Some(prepared),
+    );
     let deadline = Instant::now() + Duration::from_secs(10);
     while !s.waveform_ready() {
         s.update();
         assert!(Instant::now() < deadline);
         thread::sleep(Duration::from_millis(1));
     }
-    let peaks = |s: &State| {
-        let p = s.waveform_preferences().palette();
-        actors(s)
-            .into_iter()
-            .filter_map(|a| match a {
+    let peaks = |state: &State| {
+        let palette = state.waveform_preferences().palette();
+        let rendered = actors(state);
+        let display_width = rendered
+            .iter()
+            .find_map(|actor| match actor {
+                Actor::Sprite {
+                    source: deadlib_present::actors::SpriteSource::RenderTarget { .. },
+                    z: 8001,
+                    size: [SizeSpec::Px(width), _],
+                    scale,
+                    ..
+                } => Some(width * scale[0]),
+                _ => None,
+            })
+            .expect("visible waveform composite");
+        let passes = state.take_waveform_render_targets();
+        let source = passes
+            .iter()
+            .find(|pass| pass.postprocess.is_none())
+            .expect("source waveform pass");
+        let ratio = display_width / source.logical_size[0];
+        source
+            .children
+            .iter()
+            .filter_map(|actor| match actor {
                 Actor::Sprite {
                     tint,
                     offset,
-                    size: [SizeSpec::Px(w), _],
+                    size: [SizeSpec::Px(width), _],
                     scale,
                     ..
-                } if tint == p.resolved_sparse().rgba() || tint == p.dense().rgba() => {
-                    let w = if w == 0.0 { scale[0] } else { w * scale[0] };
-                    (w > 10.0).then_some(offset[1])
+                } if *tint == palette.resolved_sparse().rgba().map(|v| v.clamp(0., 1.))
+                    || *tint == palette.dense().rgba().map(|v| v.clamp(0., 1.)) =>
+                {
+                    let width = if *width == 0. {
+                        scale[0]
+                    } else {
+                        width * scale[0]
+                    } * ratio;
+                    (width > 10.).then_some(offset[1])
                 }
                 _ => None,
             })
@@ -217,7 +267,10 @@ fn temporal_waveform_remains_defined_when_variable_chart_speed_is_zero() {
     let a = peaks(&s);
     assert!(!a.is_empty());
     let expected = 160.0 + (0.15 - deadsync_editor::song_properties::DEFAULT_SYNC_OFFSET) * 240.0;
-    assert!(a.iter().all(|y| (f64::from(*y) - expected).abs() < 4.0));
+    assert!(
+        a.iter().all(|y| (f64::from(*y) - expected).abs() < 4.0),
+        "waveform peaks {a:?}, expected {expected}"
+    );
     reverse(&mut s);
     let b = peaks(&s);
     assert!(!b.is_empty());
@@ -229,24 +282,46 @@ fn temporal_waveform_remains_defined_when_variable_chart_speed_is_zero() {
 }
 
 #[test]
-fn labels_returning_to_the_same_y_are_grouped_in_logical_row_order() {
+fn labels_returning_to_the_same_y_keep_distinct_readable_event_widgets() {
     init();
     let (_dir, mut s, source) =
         fixture("#SCROLLS:0=1,2=-1,3=0,4=1;#LABELS:1=Premiere,4=Retour;", 2);
     variable(&mut s);
-    let label = |s: &State| {
-        actors(s)
+    let labels = |s: &State| {
+        let mut result = actors(s)
             .into_iter()
-            .find_map(|a| match a {
+            .filter_map(|actor| match actor {
                 Actor::Text {
                     content, offset, ..
-                } if content.to_string() == "Premiere / Retour" => Some(offset[1]),
+                } if content.contains("Premiere") || content.contains("Retour") => {
+                    Some((content.to_string(), offset))
+                }
                 _ => None,
             })
-            .expect("both coincident labels remain readable")
+            .collect::<Vec<_>>();
+        result.sort_by(|a, b| a.0.cmp(&b.0));
+        assert_eq!(
+            result.len(),
+            2,
+            "each source label owns its event widget: {result:?}"
+        );
+        assert!(result[0].0.contains("Premiere"));
+        assert!(result[1].0.contains("Retour"));
+        assert_ne!(
+            result[0].1, result[1].1,
+            "coincident labels must remain individually readable"
+        );
+        result
     };
-    assert_eq!(label(&s), 220.0);
+    let normal = labels(&s);
     reverse(&mut s);
-    assert_eq!(label(&s), 280.0);
+    let reversed = labels(&s);
+    for ((name, before), (after_name, after)) in normal.iter().zip(&reversed) {
+        assert_eq!(name, after_name);
+        assert_ne!(
+            before[1], after[1],
+            "reverse moves both coincident label widgets"
+        );
+    }
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
 }

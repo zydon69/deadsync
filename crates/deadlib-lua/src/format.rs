@@ -108,6 +108,10 @@ impl Spec {
         } else {
             let value = if cfg!(windows) {
                 cast_i64(n) as u32 as u64
+            } else if cfg!(target_arch = "aarch64") {
+                // FCVTZU, used by the reference C unsigned-long conversion,
+                // saturates negative/non-finite values instead of wrapping i64.
+                n as u64
             } else if n >= 9223372036854775808.0 {
                 (cast_i64(n - 9223372036854775808.0) as u64) | (1u64 << 63)
             } else {
@@ -152,7 +156,8 @@ impl Spec {
         self.pad(bytes, prefix, self.zero && self.precision.is_none())
     }
     pub fn float(&self, n: f64) -> Vec<u8> {
-        let negative = n.is_sign_negative();
+        let sign_allowed = !(cfg!(target_os = "macos") && n.is_nan());
+        let negative = n.is_sign_negative() && sign_allowed;
         let value = n.abs();
         let precision = self.precision.unwrap_or(6);
         let upper = matches!(self.conversion, b'E' | b'G');
@@ -216,9 +221,9 @@ impl Spec {
         let mut bytes = Vec::with_capacity(body.len() + 1);
         if negative {
             bytes.push(b'-');
-        } else if self.plus {
+        } else if self.plus && sign_allowed {
             bytes.push(b'+');
-        } else if self.space {
+        } else if self.space && sign_allowed {
             bytes.push(b' ');
         }
         let prefix = bytes.len();
@@ -236,6 +241,9 @@ pub(crate) fn nan_body(n: f64) -> &'static str {
     }
 }
 fn cast_i32(n: f64) -> i32 {
+    if cfg!(target_arch = "aarch64") {
+        return n as i32;
+    }
     if !(-2147483648.0..2147483648.0).contains(&n) {
         i32::MIN
     } else {

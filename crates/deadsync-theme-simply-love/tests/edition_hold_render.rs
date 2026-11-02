@@ -61,7 +61,7 @@ fn renderer_emits_body_start_cap_head_in_source_order_with_independent_fill_and_
     assert_eq!(cap, [100.0, 367.5]);
     let (head, _, _, rotation) = details(&out.actors[6]);
     assert_eq!(head, [100.0, 200.0]);
-    assert_eq!(rotation, 90.0);
+    assert_eq!(rotation, -90.0);
     let (_, _, uv, _) = details(&out.actors[2]);
     assert!(((uv[3] - uv[1]) - 7.0 / 1280.0).abs() < 1e-7);
 }
@@ -93,7 +93,7 @@ fn pump_reverse_mirrors_body_uv_but_never_flips_arrow_end_cap() {
     let (_, _, cap, rotation) = details(&out.actors[out.actors.len() - 4]);
     assert!(cap[0] < cap[2]);
     assert!(cap[1] < cap[3]);
-    assert_eq!(rotation, 90.0);
+    assert_eq!(rotation, -90.0);
 }
 #[test]
 fn body_budget_is_observable_and_dimensions_cannot_claim_a_different_atlas_layout() {

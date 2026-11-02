@@ -23,8 +23,8 @@ fn batch_media_fixtures(directory: &std::path::Path) -> Vec<(Field, &'static str
 fn batch_apply_from_properties_text_return(state: &mut State) {
     // Escape from song text returns to the text-entry action (index 3).
     press(state, KeyCode::Escape);
-    for _ in 0..4 {
-        press(state, KeyCode::ArrowDown);
+    for _ in 0..2 {
+        press(state, KeyCode::ArrowUp);
     }
     press(state, KeyCode::Enter);
 }
@@ -57,7 +57,15 @@ fn batch_search_respects_pending_paths_and_overwrite_is_one_reversible_saved_cha
                 original
             );
             assert!(!state.workspace().file().session.is_dirty());
-            let count = if format == Format::Sm { 3 } else { 6 } + usize::from(overwrite);
+            // Native SM supports all fields, including its already populated
+            // legacy jacket, which a non-overwriting search must retain.
+            let count = if overwrite {
+                7
+            } else if format == Format::Sm {
+                5
+            } else {
+                6
+            };
             let mut actors = Vec::new();
             state.actors(&mut actors);
             let staged = if LANGUAGE == "fr" {
@@ -81,6 +89,8 @@ fn batch_search_respects_pending_paths_and_overwrite_is_one_reversible_saved_cha
                         text.get(target),
                         if target == Field::Banner && !overwrite {
                             "pending-choice.png"
+                        } else if target == Field::Jacket && format == Format::Sm && !overwrite {
+                            "legacy.png"
                         } else {
                             name
                         }
@@ -88,9 +98,16 @@ fn batch_search_respects_pending_paths_and_overwrite_is_one_reversible_saved_cha
                 }
             }
             if format == Format::Sm {
-                assert_eq!(text.get(Field::Jacket), "legacy.png");
-                assert_eq!(text.get(Field::CdImage), "");
-                assert_eq!(text.get(Field::DiscImage), "");
+                assert_eq!(
+                    text.get(Field::Jacket),
+                    if overwrite {
+                        "jk_album.png"
+                    } else {
+                        "legacy.png"
+                    }
+                );
+                assert_eq!(text.get(Field::CdImage), "album-cd.png");
+                assert_eq!(text.get(Field::DiscImage), "album disc.png");
             }
             ctrl(&mut state, KeyCode::KeyZ);
             assert_eq!(
@@ -102,9 +119,17 @@ fn batch_search_respects_pending_paths_and_overwrite_is_one_reversible_saved_cha
                 state.workspace().file().session.serialize().unwrap(),
                 changed
             );
+            let output = state
+                .workspace()
+                .file()
+                .session
+                .serialize_for_output()
+                .unwrap();
             ctrl(&mut state, KeyCode::KeyS);
-            let reopened = FileSession::open(state.workspace().file().require_existing_path().unwrap()).unwrap();
-            assert_eq!(reopened.session.serialize().unwrap(), changed);
+            let reopened =
+                FileSession::open(state.workspace().file().require_existing_path().unwrap())
+                    .unwrap();
+            assert_eq!(reopened.session.serialize_for_output().unwrap(), output);
             for (name, bytes) in media_bytes {
                 assert_eq!(fs::read(dir.path().join(name)).unwrap(), bytes);
             }

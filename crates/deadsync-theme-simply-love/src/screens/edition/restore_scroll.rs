@@ -24,8 +24,10 @@ impl State {
             .into_iter()
             .enumerate()
             {
-                let speed=p.scroll.speed(index).expect("three source speeds");
-                if self.scroll_preferences.speed(index)!=Some(speed){zoom.set_spacing(mode,speed)?;}
+                let speed = p.scroll.speed(index).expect("three source speeds");
+                if self.scroll_preferences.speed(index) != Some(speed) {
+                    zoom.set_spacing(mode, speed)?;
+                }
             }
             let mut waveform = update
                 .file
@@ -38,21 +40,25 @@ impl State {
             self.scroll_preferences = p.scroll;
             self.reverse_display = p.scroll.reverse();
             self.configure_spacing_preference(p.spacing);
-            if self.waveform_preferences!=waveform{self.waveform_preferences=waveform;self.apply_waveform_preferences();}
+            if self.waveform_preferences != waveform {
+                self.waveform_preferences = waveform;
+                self.apply_waveform_preferences();
+            }
             if let Some(file) = update.file {
                 self.publish_application_preferences_owner(file);
             }
             self.scroll_preferences_draft = None;
             self.zoom_preferences_draft = None;
-            self.zoom_preferences_edit=None;
+            self.zoom_preferences_edit = None;
             self.waveform_preferences_draft = None;
         }
         Ok(())
     }
     pub(super) fn restore_source_scroll(&mut self) {
         let before = self.scroll_snapshot();
-        let result = self.capture_application_preferences_file().and_then(|file|
-            self.workspace.restore_scroll(before, Some(&file)))
+        let result = self
+            .capture_application_preferences_file()
+            .and_then(|file| self.workspace.restore_scroll(before, Some(&file)))
             .and_then(|changed| {
                 self.sync_restore_scroll_history()?;
                 Ok(changed)

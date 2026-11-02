@@ -6,6 +6,7 @@ mod paired_bench;
 
 #[test]
 fn ramp_conversion_matches_original_sample_bits_and_final_gain() {
+    let _audio_guard = crate::test_audio_guard();
     let gains = [
         (0.0, 1.0),
         (1.0, 0.0),
@@ -69,6 +70,7 @@ fn ramp_conversion_matches_original_sample_bits_and_final_gain() {
 #[test]
 #[ignore = "paired release benchmark; run alone with --ignored --nocapture --test-threads=1"]
 fn benchmark_music_gain_ramp() {
+    let _audio_guard = crate::test_audio_guard();
     for channels in [2, 6] {
         for (label, frames, initial, target) in [
             ("settles first frame", 2048, 0.9999, 1.0),

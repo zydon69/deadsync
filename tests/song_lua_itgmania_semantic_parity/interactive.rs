@@ -7,7 +7,10 @@ use deadsync_song_lua::playback::actor_conformance::{
 };
 use deadsync_song_lua::{SongLuaInputEvent, SongLuaInputType, SongLuaLiveTarget};
 use serde_json::{Value, json};
-use std::{collections::{BTreeMap, VecDeque}, path::Path};
+use std::{
+    collections::{BTreeMap, VecDeque},
+    path::Path,
+};
 
 pub(super) fn validate(trace: &Value) -> Result<(), String> {
     let injected = trace["input"]["injected_inputs"] == true;
@@ -237,53 +240,93 @@ fn layer(state: &gameplay::State, group: i32) -> &[SongLuaOverlayActor] {
 
 impl DrawChecks {
     fn immediate(
-        &self, state: &gameplay::State, screen: [f32; 2], clock: [f32; 2],
+        &self,
+        state: &gameplay::State,
+        screen: [f32; 2],
+        clock: [f32; 2],
     ) -> Result<BTreeMap<(i32, usize), VecDeque<ImmediateDraw>>, String> {
         let frames = state.song_lua_draw_frames();
-        if frames.is_empty() { return Ok(BTreeMap::new()); }
-        let scene = state.song_lua.as_ref().ok_or("draw submissions have no owned scene")?;
+        if frames.is_empty() {
+            return Ok(BTreeMap::new());
+        }
+        let scene = state
+            .song_lua
+            .as_ref()
+            .ok_or("draw submissions have no owned scene")?;
         let bindings = scene.visual_draw_bindings();
-        let globals: BTreeMap<_, _> = bindings.iter().enumerate().map(|(dense, &(global, _))| (global, dense)).collect();
-        let slots: BTreeMap<_, _> = bindings.iter().enumerate().map(|(dense, &(_, target))| (target_slot(target), dense)).collect();
+        let globals: BTreeMap<_, _> = bindings
+            .iter()
+            .enumerate()
+            .map(|(dense, &(global, _))| (global, dense))
+            .collect();
+        let slots: BTreeMap<_, _> = bindings
+            .iter()
+            .enumerate()
+            .map(|(dense, &(_, target))| (target_slot(target), dense))
+            .collect();
         let mut overlays = Vec::with_capacity(bindings.len());
         for &(_, target) in bindings {
             let (group, index) = target_slot(target);
             let mut overlay = layer(state, group)[index].clone();
-            overlay.parent_index = overlay.parent_index.and_then(|parent| slots.get(&(group, parent)).copied());
-            if let SongLuaOverlayKind::ActorProxy { target: deadsync_song_lua::SongLuaProxyTarget::Actor { overlay_index } } = &mut overlay.kind {
+            overlay.parent_index = overlay
+                .parent_index
+                .and_then(|parent| slots.get(&(group, parent)).copied());
+            if let SongLuaOverlayKind::ActorProxy {
+                target: deadsync_song_lua::SongLuaProxyTarget::Actor { overlay_index },
+            } = &mut overlay.kind
+            {
                 // ActorProxy::EarlyAbortDraw skips an unset native target.
                 // Keep the owned sentinel so the composer skips it too.
                 if *overlay_index != usize::MAX {
-                    *overlay_index = *slots.get(&(group, *overlay_index)).ok_or("draw proxy has no prepared target")?;
+                    *overlay_index = *slots
+                        .get(&(group, *overlay_index))
+                        .ok_or("draw proxy has no prepared target")?;
                 }
             }
             overlays.push(overlay);
         }
-        let states = overlays.iter().map(|actor| actor.initial_state).collect::<Vec<_>>();
+        let states = overlays
+            .iter()
+            .map(|actor| actor.initial_state)
+            .collect::<Vec<_>>();
         let mut composer = WholeSongComposer::new(&overlays);
         let mut draws: BTreeMap<_, VecDeque<_>> = BTreeMap::new();
         for original in frames {
             let mut frame = original.clone();
             let remap = |index: &mut usize| -> Result<(), String> {
-                *index = *globals.get(index).ok_or("recorded draw has no prepared visual binding")?;
+                *index = *globals
+                    .get(index)
+                    .ok_or("recorded draw has no prepared visual binding")?;
                 Ok(())
             };
-            for owner in &mut frame.owners { remap(owner)?; }
+            for owner in &mut frame.owners {
+                remap(owner)?;
+            }
             for op in &mut frame.ops {
                 match op {
                     deadsync_song_lua::SongLuaDrawOp::Begin { capture, .. }
-                        | deadsync_song_lua::SongLuaDrawOp::Finish { capture } => remap(capture)?,
-                    deadsync_song_lua::SongLuaDrawOp::Draw { source: deadsync_song_lua::SongLuaDrawSource::Overlay(index), .. } => remap(index)?,
+                    | deadsync_song_lua::SongLuaDrawOp::Finish { capture } => remap(capture)?,
+                    deadsync_song_lua::SongLuaDrawOp::Draw {
+                        source: deadsync_song_lua::SongLuaDrawSource::Overlay(index),
+                        ..
+                    } => remap(index)?,
                     _ => {}
                 }
             }
-            for (index, frame) in composer.render_recorded_frame(&overlays, &states, &frame, screen, clock[0], clock[1]) {
+            for (index, frame) in composer
+                .render_recorded_frame(&overlays, &states, &frame, screen, clock[0], clock[1])
+            {
                 let texture = frame.ops.first().and_then(|op| match op {
-                    DrawOp::TexturedMesh(r) => Some(composer.texture_key(r.texture_handle).to_owned()),
+                    DrawOp::TexturedMesh(r) => {
+                        Some(composer.texture_key(r.texture_handle).to_owned())
+                    }
                     DrawOp::Sprite(r) => Some(composer.texture_key(r.texture_handle).to_owned()),
                     _ => None,
                 });
-                draws.entry(target_slot(bindings[index].1)).or_default().push_back(ImmediateDraw { frame, texture });
+                draws
+                    .entry(target_slot(bindings[index].1))
+                    .or_default()
+                    .push_back(ImmediateDraw { frame, texture });
             }
         }
         Ok(draws)
@@ -305,8 +348,10 @@ impl DrawChecks {
             .into_iter()
             .map(|(path, pointer)| (pointer, path))
             .collect();
-        let bindings = owned.ok_or("missing Lua scene")?
-            .visual_bindings().map_err(|e| e.to_string())?;
+        let bindings = owned
+            .ok_or("missing Lua scene")?
+            .visual_bindings()
+            .map_err(|e| e.to_string())?;
         let targets: BTreeMap<_, _> = bindings.into_iter().collect();
         self.bindings.clear();
         self.composers.clear();
@@ -398,9 +443,17 @@ impl DrawChecks {
                 .composers
                 .entry(group)
                 .or_insert_with(|| WholeSongComposer::new(overlays));
-            let (frame, recorded_texture) = match immediate.get_mut(&(group, index)).and_then(VecDeque::pop_front) {
+            let (frame, recorded_texture) = match immediate
+                .get_mut(&(group, index))
+                .and_then(VecDeque::pop_front)
+            {
                 Some(draw) => (draw.frame, Some(draw.texture)),
-                None => (composer.render_screen_overlay(overlays, composed, index, screen, clock[0], clock[1], None), None),
+                None => (
+                    composer.render_screen_overlay(
+                        overlays, composed, index, screen, clock[0], clock[1], None,
+                    ),
+                    None,
+                ),
             };
             let rows = submitted_rows(&frame);
             let reference = sample["vertices"]
@@ -429,11 +482,16 @@ impl DrawChecks {
             let expected_texture = expected_texture.strip_prefix("song:/").map(|p| {
                 deadsync_assets::textures::canonical_texture_key(simfile.parent().unwrap().join(p))
             });
-            let actual_texture = recorded_texture.as_ref().map(Option::as_deref).unwrap_or_else(|| frame.ops.first().and_then(|op| match op {
-                DrawOp::TexturedMesh(r) => Some(composer.texture_key(r.texture_handle)),
-                DrawOp::Sprite(r) => Some(composer.texture_key(r.texture_handle)),
-                _ => None,
-            }));
+            let actual_texture = recorded_texture
+                .as_ref()
+                .map(Option::as_deref)
+                .unwrap_or_else(|| {
+                    frame.ops.first().and_then(|op| match op {
+                        DrawOp::TexturedMesh(r) => Some(composer.texture_key(r.texture_handle)),
+                        DrawOp::Sprite(r) => Some(composer.texture_key(r.texture_handle)),
+                        _ => None,
+                    })
+                });
             let texture_ok = expected_texture
                 .as_deref()
                 .is_none_or(|key| actual_texture == Some(key));
@@ -441,8 +499,11 @@ impl DrawChecks {
             let native_write = sample["state"]["z_write"] == true;
             let native_fail = sample["state"]["z_test"] == 2;
             let depth_ok = frame.ops.iter().all(|op| match op {
-                DrawOp::TexturedMesh(r) => r.depth_test == native_depth
-                    && r.depth_write == native_write && r.depth_test_on_fail == native_fail,
+                DrawOp::TexturedMesh(r) => {
+                    r.depth_test == native_depth
+                        && r.depth_write == native_write
+                        && r.depth_test_on_fail == native_fail
+                }
                 _ => !native_depth && !native_write,
             });
             let sampler_ok = frame.ops.iter().all(|op| match op {
@@ -461,25 +522,53 @@ impl DrawChecks {
             }
             self.vertices += rows.len();
             let depth_range = native_depth_range(&sample["state"]);
-            let matches = |actual: &[f32;10], row: &Value| row_matches(actual, row, image_uv_scale, expected_texture.is_none(), depth_range);
+            let matches = |actual: &[f32; 10], row: &Value| {
+                row_matches(
+                    actual,
+                    row,
+                    image_uv_scale,
+                    expected_texture.is_none(),
+                    depth_range,
+                )
+            };
             let geometry_ok = if sample["primitive"] == "Quads" {
-                rows.chunks_exact(6).zip(reference.chunks_exact(4)).all(|(actual, native)| {
-                    // GL_QUADS allows either diagonal. Both emitted triangles
-                    // must cover the complete native quad, including attributes.
-                    let triangle = |actual: &[[f32;10]], indices: [usize;3]| {
-                        [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]].iter().any(|p|
-                            (0..3).all(|i| matches(&actual[p[i]], &native[indices[i]])))
-                    };
-                    [([0,1,2],[0,2,3]),([0,1,3],[1,2,3])].iter().any(|&(a,b)|
-                        triangle(&actual[..3], a) && triangle(&actual[3..],b)
-                            || triangle(&actual[..3],b) && triangle(&actual[3..],a))
-                })
-            } else { rows.iter().zip(reference).all(|(actual,native)|matches(actual,native)) };
+                rows.chunks_exact(6)
+                    .zip(reference.chunks_exact(4))
+                    .all(|(actual, native)| {
+                        // GL_QUADS allows either diagonal. Both emitted triangles
+                        // must cover the complete native quad, including attributes.
+                        let triangle = |actual: &[[f32; 10]], indices: [usize; 3]| {
+                            [
+                                [0, 1, 2],
+                                [0, 2, 1],
+                                [1, 0, 2],
+                                [1, 2, 0],
+                                [2, 0, 1],
+                                [2, 1, 0],
+                            ]
+                            .iter()
+                            .any(|p| (0..3).all(|i| matches(&actual[p[i]], &native[indices[i]])))
+                        };
+                        [([0, 1, 2], [0, 2, 3]), ([0, 1, 3], [1, 2, 3])]
+                            .iter()
+                            .any(|&(a, b)| {
+                                triangle(&actual[..3], a) && triangle(&actual[3..], b)
+                                    || triangle(&actual[..3], b) && triangle(&actual[3..], a)
+                            })
+                    })
+            } else {
+                rows.iter()
+                    .zip(reference)
+                    .all(|(actual, native)| matches(actual, native))
+            };
             if !geometry_ok {
-                let example=rows.iter().enumerate().find(|(vertex, actual)| {
-                    let candidates=if sample["primitive"]=="Quads" { &reference[vertex/6*4..vertex/6*4+4] }
-                        else { &reference[*vertex..*vertex+1] };
-                    !candidates.iter().any(|row|matches(actual,row))
+                let example = rows.iter().enumerate().find(|(vertex, actual)| {
+                    let candidates = if sample["primitive"] == "Quads" {
+                        &reference[vertex / 6 * 4..vertex / 6 * 4 + 4]
+                    } else {
+                        &reference[*vertex..*vertex + 1]
+                    };
+                    !candidates.iter().any(|row| matches(actual, row))
                 });
                 self.fail(sample,"submitted_clip_uv_color_or_topology",json!({"example_vertex":example,
                     "first_actual_triangle":&rows[..rows.len().min(3)],"first_native_quad":&reference[..reference.len().min(4)]}),mismatches);
@@ -509,55 +598,108 @@ impl DrawChecks {
 }
 
 pub(crate) fn native_depth_range(state: &Value) -> [f32; 2] {
-    if state["z_test"] == 0 && state["z_write"] != true { return [1.0, 0.0]; }
+    if state["z_test"] == 0 && state["z_write"] != true {
+        return [1.0, 0.0];
+    }
     // The native hook records projection coordinates BEFORE glDepthRange.
     // DeadSync represents that range in its submitted homogeneous matrix.
     // Derive the common comparison space from RageDisplay_Legacy::SetZBias,
     // including Actor::SetGlobalRenderStates' implicit NoEffect mask bias.
     let mut bias = state["z_bias"].as_f64().unwrap_or(0.0) as f32;
-    if bias == 0.0 && state["blend"] == 10 { bias = 1.0; }
+    if bias == 0.0 && state["blend"] == 10 {
+        bias = 1.0;
+    }
     let near = 0.05 * (1.0 - bias);
     let far = 1.0 - 0.05 * bias;
     [far - near, far + near - 1.0]
 }
 
-pub(crate) fn row_matches(actual: &[f32;10], row: &Value, image_uv_scale: [f32;2], untextured: bool, depth_range: [f32;2]) -> bool {
-    actual.iter().enumerate().all(|(axis,&actual)| {
-        if untextured && (4..6).contains(&axis) { return true; }
-        let mut expected = native_number(&row[axis+3]);
-        if axis == 2 { expected = expected * depth_range[0] + native_number(&row[6]) * depth_range[1]; }
-        if (4..6).contains(&axis) { expected *= image_uv_scale[axis-4]; }
+pub(crate) fn row_matches(
+    actual: &[f32; 10],
+    row: &Value,
+    image_uv_scale: [f32; 2],
+    untextured: bool,
+    depth_range: [f32; 2],
+) -> bool {
+    actual.iter().enumerate().all(|(axis, &actual)| {
+        if untextured && (4..6).contains(&axis) {
+            return true;
+        }
+        let mut expected = native_number(&row[axis + 3]);
+        if axis == 2 {
+            expected = expected * depth_range[0] + native_number(&row[6]) * depth_range[1];
+        }
+        if (4..6).contains(&axis) {
+            expected *= image_uv_scale[axis - 4];
+        }
         close(actual, expected)
     })
 }
 
 #[test]
 fn native_depth_comparison_keeps_bias_and_homogeneous_w() {
-    let row = json!([0,0,0, 1,2,0.4,2, 0.2,0.4, 1,1,1,1]);
-    let mut actual = [1.0,2.0,0.48,2.0,0.2,0.4,1.0,1.0,1.0,1.0];
+    let row = json!([0, 0, 0, 1, 2, 0.4, 2, 0.2, 0.4, 1, 1, 1, 1]);
+    let mut actual = [1.0, 2.0, 0.48, 2.0, 0.2, 0.4, 1.0, 1.0, 1.0, 1.0];
     let mut state = json!({"z_test":1,"z_write":true,"z_bias":0,"blend":0});
-    assert!(row_matches(&actual, &row, [1.0;2], false, native_depth_range(&state)));
+    assert!(row_matches(
+        &actual,
+        &row,
+        [1.0; 2],
+        false,
+        native_depth_range(&state)
+    ));
     actual[2] = 0.4;
-    assert!(!row_matches(&actual, &row, [1.0;2], false, native_depth_range(&state)),
-        "comparing the unadjusted clip depth must still fail");
+    assert!(
+        !row_matches(&actual, &row, [1.0; 2], false, native_depth_range(&state)),
+        "comparing the unadjusted clip depth must still fail"
+    );
     state["z_bias"] = json!(1);
     actual[2] = 0.28;
-    assert!(row_matches(&actual, &row, [1.0;2], false, native_depth_range(&state)));
+    assert!(row_matches(
+        &actual,
+        &row,
+        [1.0; 2],
+        false,
+        native_depth_range(&state)
+    ));
     state["z_bias"] = json!(0);
     state["blend"] = json!(10);
-    assert!(row_matches(&actual, &row, [1.0;2], false, native_depth_range(&state)));
+    assert!(row_matches(
+        &actual,
+        &row,
+        [1.0; 2],
+        false,
+        native_depth_range(&state)
+    ));
     state["z_test"] = json!(0);
     state["z_write"] = json!(false);
     actual[2] = 0.4;
-    assert!(row_matches(&actual, &row, [1.0;2], false, native_depth_range(&state)));
+    assert!(row_matches(
+        &actual,
+        &row,
+        [1.0; 2],
+        false,
+        native_depth_range(&state)
+    ));
 }
 
 // Reject a missing production draw only when native geometry can contribute
 // pixels. All corners outside one homogeneous clip plane prove a safe cull.
 pub(crate) fn fully_clipped(rows: &[Value]) -> bool {
-    if rows.is_empty() || rows.iter().any(|r| (3..7).any(|i| !native_number(&r[i]).is_finite())) { return false; }
-    (0..3).any(|axis| rows.iter().all(|r| native_number(&r[axis+3]) > native_number(&r[6])+0.0001)
-        || rows.iter().all(|r| native_number(&r[axis+3]) < -native_number(&r[6])-0.0001))
+    if rows.is_empty()
+        || rows
+            .iter()
+            .any(|r| (3..7).any(|i| !native_number(&r[i]).is_finite()))
+    {
+        return false;
+    }
+    (0..3).any(|axis| {
+        rows.iter()
+            .all(|r| native_number(&r[axis + 3]) > native_number(&r[6]) + 0.0001)
+            || rows
+                .iter()
+                .all(|r| native_number(&r[axis + 3]) < -native_number(&r[6]) - 0.0001)
+    })
 }
 
 fn native_number(v: &Value) -> f32 {

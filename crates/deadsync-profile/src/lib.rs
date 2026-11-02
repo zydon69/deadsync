@@ -48,6 +48,8 @@ use profile_ini::ProfileIni;
 
 #[cfg(test)]
 mod perf_tests;
+#[cfg(test)]
+mod runtime_test_support;
 
 pub const PLAYER_SLOTS: usize = 2;
 pub const SESSION_JOINED_MASK_P1: u8 = 1 << 0;
@@ -10884,6 +10886,7 @@ mod tests {
 
     #[test]
     fn runtime_profile_generation_tracks_mutable_guards() {
+        let _runtime = crate::runtime_test_support::lock();
         let before = runtime_profile_generation();
         {
             let mut session = runtime_lock_session();
@@ -12295,6 +12298,7 @@ mod tests {
 
     #[test]
     fn runtime_local_score_profile_sources_resolve_guid_dirs() {
+        let _runtime = crate::runtime_test_support::lock();
         let root = temp_profile_dir("runtime-score-profile-sources");
         runtime_invalidate_profile_dir_cache();
         let id = create_local_profile_dir(
@@ -12432,6 +12436,7 @@ mod tests {
 
     #[test]
     fn runtime_local_profile_lifecycle_updates_runtime_state() {
+        let _runtime = crate::runtime_test_support::lock();
         let root = temp_profile_dir("runtime-profile-lifecycle");
         runtime_invalidate_profile_dir_cache();
         let _ = runtime_set_active_profile_for_side(PlayerSide::P1, ActiveProfile::Guest);
@@ -12488,6 +12493,7 @@ mod tests {
 
     #[test]
     fn runtime_profile_dir_cache_seeds_and_invalidates() {
+        let _runtime = crate::runtime_test_support::lock();
         let root = temp_profile_dir("runtime-profile-dir-cache");
         let id = create_local_profile_dir(
             &root,
@@ -15590,6 +15596,7 @@ mod performance_profile_regressions {
 
     #[test]
     fn stats_snapshots_and_known_pack_sync_preserve_profile_and_file_behavior() {
+        let _runtime = crate::runtime_test_support::lock();
         struct Restore {
             session: SessionState,
             profiles: [Profile; PLAYER_SLOTS],
@@ -15598,12 +15605,14 @@ mod performance_profile_regressions {
         }
         impl Drop for Restore {
             fn drop(&mut self) {
-                *runtime_lock_session() = std::mem::take(&mut self.session);
-                *runtime_lock_profiles() = std::mem::replace(
-                    &mut self.profiles,
-                    std::array::from_fn(|_| Profile::default()),
+                crate::runtime_test_support::restore(
+                    std::mem::take(&mut self.session),
+                    std::mem::replace(
+                        &mut self.profiles,
+                        std::array::from_fn(|_| Profile::default()),
+                    ),
+                    self.cache.take(),
                 );
-                *RUNTIME_PROFILE_DIR_CACHE.lock().unwrap() = self.cache.take();
                 let _ = fs::remove_dir_all(&self.root);
             }
         }

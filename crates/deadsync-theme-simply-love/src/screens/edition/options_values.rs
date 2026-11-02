@@ -1,13 +1,25 @@
 //! Display preferences are application state, shared by renderer and selection.
 use super::*;
-use deadsync_editor::options_preferences::{Display,RenderPolicy,RenderLimits,BackgroundPolicy};
+use deadsync_editor::options_preferences::{BackgroundPolicy, Display, RenderLimits, RenderPolicy};
 impl State {
-    pub fn render_policy(&self)->RenderPolicy{self.display_options.render}
-    pub fn render_limits(&self)->RenderLimits{self.display_options.limits}
-    pub fn misc_event_area_width(&self)->f64{f64::from(self.display_options.misc_width)}
-    pub fn song_background_policy(&self)->BackgroundPolicy{self.display_options.background}
-    pub fn configure_display_options(&mut self,settings:Display){self.display_options=settings;}
-    pub fn configure_song_background_policy(&mut self,policy:BackgroundPolicy){self.display_options.background=policy;}
+    pub fn render_policy(&self) -> RenderPolicy {
+        self.display_options.render
+    }
+    pub fn render_limits(&self) -> RenderLimits {
+        self.display_options.limits
+    }
+    pub fn misc_event_area_width(&self) -> f64 {
+        f64::from(self.display_options.misc_width)
+    }
+    pub fn song_background_policy(&self) -> BackgroundPolicy {
+        self.display_options.background
+    }
+    pub fn configure_display_options(&mut self, settings: Display) {
+        self.display_options = settings;
+    }
+    pub fn configure_song_background_policy(&mut self, policy: BackgroundPolicy) {
+        self.display_options.background = policy;
+    }
 }
 
 use deadsync_editor::options_preferences::BackgroundSize;
@@ -32,11 +44,9 @@ impl State {
         settings: Display,
     ) -> Result<bool, deadsync_editor::Error> {
         let file = self.capture_application_preferences_file()?;
-        let changed = self.workspace.set_display_options(
-            self.display_options,
-            settings,
-            Some(&file),
-        )?;
+        let changed =
+            self.workspace
+                .set_display_options(self.display_options, settings, Some(&file))?;
         self.sync_display_options_history();
         Ok(changed)
     }

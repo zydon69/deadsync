@@ -12,9 +12,9 @@ use deadlib_render_backend_wgpu as wgpu_core;
 pub use deadlib_render_core::{
     BackendType, BlendMode, CameraUploadCache, ClockDomainTrace, DRAW_STORAGE_NAMES,
     DRAW_STORAGE_SLOTS, DenseSlotMap, DrawOp, DrawStats, DrawStorageStats, FastU64Map,
-    INVALID_TEXTURE_HANDLE, INVALID_TMESH_CACHE_KEY, MeshRun, MeshSampler, MeshVertex, PresentModePolicy,
-    PresentModeTrace, PresentStats, ProjectionMatrix, RENDER_TARGET_TEXTURE_BIT, RenderFrame,
-    RenderTargetFrame, SAMPLER_DESC_COUNT, SOFTWARE_MESH_STORAGE_SLOT,
+    INVALID_TEXTURE_HANDLE, INVALID_TMESH_CACHE_KEY, MeshRun, MeshSampler, MeshVertex,
+    PresentModePolicy, PresentModeTrace, PresentStats, ProjectionMatrix, RENDER_TARGET_TEXTURE_BIT,
+    RenderFrame, RenderTargetFrame, SAMPLER_DESC_COUNT, SOFTWARE_MESH_STORAGE_SLOT,
     SOFTWARE_OBJECTS_STORAGE_SLOT, SOFTWARE_TMESH_STORAGE_SLOT, SamplerCache, SamplerDesc,
     SamplerFilter, SamplerWrap, SpriteInstanceRaw, SpriteRun, TMeshCacheKey, TextureHandle,
     TextureHandleMap, TexturedMeshBufferCache, TexturedMeshGeometry, TexturedMeshInstanceRaw,
@@ -703,5 +703,5 @@ impl Backend {
     }
 }
 
-#[cfg(feature="test-util")]
+#[cfg(feature = "test-util")]
 pub use deadlib_render_backend_software::test_util;

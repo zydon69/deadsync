@@ -280,6 +280,7 @@ pub(super) fn text(source: &str) -> Arc<str> {
         "Keyboard" => "MessageKeyboard",
         "Doubles" => "MessageDoubles",
         "Singles" => "MessageSingles",
+        "Singles + Doubles" => "MessageSinglesAndDoubles",
         "Mixed" => "MessageMixed",
         "ERA" => "MessageERA",
         "AUTHOR" => "MessageAUTHOR",

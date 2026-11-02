@@ -1,10 +1,10 @@
+#[cfg(any(target_os = "linux", target_os = "freebsd"))]
+use deadlib_audio_core::BufferNegotiation;
 use deadlib_audio_core::{
     AudioOutputMode, AudioStreamHandle, MixControls, OutputBackendReady, OutputDeviceInfo,
     RenderState, SfxReceiver, SfxSender, music_transport, sfx_transport,
 };
 use deadlib_audio_core::{BufferCapabilities, BufferRequest, OutputBufferState};
-#[cfg(any(target_os = "linux", target_os = "freebsd"))]
-use deadlib_audio_core::BufferNegotiation;
 
 #[cfg(target_os = "linux")]
 use deadlib_audio_backend_alsa as linux_alsa;
@@ -79,14 +79,9 @@ fn output_transport(
 ) -> (AudioStreamHandle, RenderState, SfxSender, SfxReceiver) {
     let (stream_handle, render_handle) = music_transport(sample_rate_hz, device_channels);
     let (sfx_sender, mut sfx_receiver) = sfx_transport(SFX_QUEUE_CAP);
-    let mut renderer=RenderState::new(render_handle,Arc::clone(controls),device_channels);
+    let mut renderer = RenderState::new(render_handle, Arc::clone(controls), device_channels);
     renderer.attach_sfx_retirement(sfx_receiver.take_retirement());
-    (
-        stream_handle,
-        renderer,
-        sfx_sender,
-        sfx_receiver,
-    )
+    (stream_handle, renderer, sfx_sender, sfx_receiver)
 }
 
 #[derive(Clone, Debug)]
@@ -1348,6 +1343,7 @@ mod tests {
 
     #[test]
     fn linux_backend_config_is_owned_by_the_native_facade() {
+        let _audio_guard = crate::test_audio_guard();
         for (text, expected) in [
             ("auto", LinuxAudioBackend::Auto),
             ("pipe-wire", LinuxAudioBackend::PipeWire),
@@ -1363,6 +1359,7 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn linux_backend_list_reflects_runtime_availability() {
+        let _audio_guard = crate::test_audio_guard();
         assert_eq!(
             available_linux_backends_for(true, true, true),
             [
@@ -1382,6 +1379,7 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn unavailable_explicit_pipewire_falls_back_to_auto() {
+        let _audio_guard = crate::test_audio_guard();
         assert_eq!(
             effective_linux_backend(LinuxAudioBackend::PipeWire, false),
             LinuxAudioBackend::Auto

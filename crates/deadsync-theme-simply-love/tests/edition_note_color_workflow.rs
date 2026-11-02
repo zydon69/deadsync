@@ -1,10 +1,12 @@
-//! Shared application NoteColor DTO drives the actual State hold renderer.
+#[allow(dead_code)]
+#[path = "support/transport_host.rs"]
+mod transport_host;
+// Shared application NoteColor DTO drives the actual State hold renderer.
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
     actors::{Actor, SpriteSource},
     space::{Metrics, set_current_metrics},
 };
-use deadsync_gameplay::GameplayAudioSnapshot;
 use deadsync_theme_simply_love::{
     i18n,
     screens::edition::{
@@ -42,6 +44,7 @@ fn open(layout: &str, notes: &str) -> (tempfile::TempDir, State, Vec<u8>) {
     (d, s, source)
 }
 fn play(s: &mut State) {
+    transport_host::publish(s);
     press(s, KeyCode::Enter);
     s.bind_decoder_generation(Some(1));
     s.set_decoder_status(
@@ -52,7 +55,7 @@ fn play(s: &mut State) {
             opened: true,
         }),
     );
-    let mut snapshot = GameplayAudioSnapshot::default();
+    let mut snapshot = transport_host::host_snapshot(s);
     snapshot.stream_clock.valid_at = Instant::now();
     snapshot.stream_clock.stream_seconds = 0.25;
     snapshot.stream_clock.has_music_mapping = true;
@@ -130,7 +133,7 @@ fn configure(
     let path = dir.join("colors.json");
     fs::write(
         &path,
-        serde_json::to_vec(&serde_json::json!({"Version":1,"NoteColor":note,"Options":options}))
+        serde_json::to_vec(&serde_json::json!({"Version":1,"NoteColor":note,"Options":options,"Scroll":{"SpacingMode":"ConstantRow","RowBasedPixelsPerRow":1}}))
             .unwrap(),
     )
     .unwrap();
@@ -182,6 +185,13 @@ fn custom_hold_and_roll_follow_shared_rgb_and_selected_held_xna_variants() {
         // Home retains the anchor; clear selection through its actual toggle.
         press(&mut state, KeyCode::Space);
         assert_eq!(state.workspace().selection(), None);
+        // The event picker owns explicit choices independently of the row anchor.
+        key(&mut state, KeyCode::SuperLeft, true);
+        key(&mut state, KeyCode::ShiftLeft, true);
+        press(&mut state, KeyCode::KeyE);
+        key(&mut state, KeyCode::ShiftLeft, false);
+        key(&mut state, KeyCode::SuperLeft, false);
+        press(&mut state, KeyCode::Escape);
         press(&mut state, KeyCode::Home);
         play(&mut state);
         let held = sprites(&state);

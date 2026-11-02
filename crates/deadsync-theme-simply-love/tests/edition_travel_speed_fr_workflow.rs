@@ -80,6 +80,44 @@ fn open_movement(s: &mut State) {
     open_marker_profiles(s);
     press(s, KeyCode::ArrowDown);
     press(s, KeyCode::KeyE);
+    // The source helper is gated by this actual profile control. Activate it
+    // through the rendered keyboard field before opening the BPM helper.
+    let label = i18n::tr_fmt(
+        "Edition",
+        "ProfileFieldSpeedTighteningEnabled",
+        &[("value", "")],
+    );
+    let enabled = i18n::tr_fmt(
+        "Edition",
+        "ProfileFieldSpeedTighteningEnabled",
+        &[("value", &i18n::tr("Edition", "PatternYes"))],
+    );
+    for _ in 0..512 {
+        let mut actors = Vec::new();
+        s.actors(&mut actors);
+        let selected = actors.iter().find_map(|actor| match actor {
+            Actor::Text {
+                color,
+                content,
+                z: 8021,
+                ..
+            } if *color == [1.0, 0.85, 0.25, 1.0]
+                && content.as_str().starts_with(label.as_ref()) =>
+            {
+                Some(content.to_string())
+            }
+            _ => None,
+        });
+        if let Some(selected) = selected {
+            if selected == enabled.as_ref() {
+                return;
+            }
+            press(s, KeyCode::ArrowRight);
+        } else {
+            press(s, KeyCode::ArrowDown);
+        }
+    }
+    panic!("travel speed control unavailable: {:?}", texts(s));
 }
 fn number(s: &mut State, value: &str) {
     press(s, KeyCode::Delete);
@@ -127,18 +165,12 @@ fn french_bpm_helper_validates_order_and_saves_repaired_values() {
     assert!(has(&s, "Subdivision des notes : 1/16"));
     assert!(has(&s, "Préparer les intervalles et revenir"));
     press(&mut s, KeyCode::ArrowDown);
-    number(&mut s, "200");
+    press(&mut s, KeyCode::Delete);
     press(&mut s, KeyCode::ArrowDown);
-    number(&mut s, "100");
-    for _ in 0..3 {
-        press(&mut s, KeyCode::ArrowDown);
-    }
-    press(&mut s, KeyCode::Enter);
     assert!(has(&s, "Saisissez une plage ordonnée"));
     assert!(!profiles.exists());
-    for _ in 0..5 {
-        press(&mut s, KeyCode::ArrowUp);
-    }
+    number(&mut s, "140");
+    press(&mut s, KeyCode::ArrowUp);
     stage_speed(&mut s);
     assert!(has(&s, "Intervalles de déplacement préparés"));
     press(&mut s, KeyCode::Enter);

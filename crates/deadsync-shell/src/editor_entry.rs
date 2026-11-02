@@ -78,9 +78,9 @@ impl LaunchArguments {
                 if index == 0 {
                     Ok("deadsync".into())
                 } else {
-                    arg.clone()
-                        .into_string()
-                        .map_err(|_| "A non-editor argument is not valid Unicode".into())
+                    // Unknown OS arguments historically did not prevent game
+                    // startup. Editor paths were already extracted losslessly.
+                    Ok(arg.to_string_lossy().into_owned())
                 }
             })
             .collect()
@@ -146,5 +146,19 @@ mod tests {
         };
         assert_eq!(path.as_os_str().as_bytes(), b"/caller/S/\xff.ssc");
         assert!(launch.unicode_remaining().is_ok());
+    }
+}
+
+#[cfg(all(test, unix))]
+mod audit_regressions {
+    #[test]
+    fn unknown_non_unicode_argument_does_not_prevent_normal_startup() {
+        use std::os::unix::ffi::OsStringExt;
+        let args = super::LaunchArguments::parse(
+            vec!["deadsync".into(), std::ffi::OsString::from_vec(vec![255])],
+            std::path::Path::new("/caller"),
+        )
+        .unwrap();
+        assert!(args.unicode_remaining().is_ok());
     }
 }

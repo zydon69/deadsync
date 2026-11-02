@@ -137,14 +137,20 @@ fn check_cancel() -> Result<(), UpdaterError> {
 
 fn install(target: &Path) -> Result<(), UpdaterError> {
     let asset = ReleaseAsset {
-        name: "workshop.zip".into(), browser_download_url: URL.into(),
-        size: ARCHIVE_BYTES, digest: None,
+        name: "workshop.zip".into(),
+        browser_download_url: URL.into(),
+        size: ARCHIVE_BYTES,
+        digest: None,
     };
     let expected = download::parse_hex32(SHA256).expect("pinned workshop SHA-256 is valid");
     install_from(target, &asset, &expected)
 }
 
-fn install_from(target: &Path, asset: &ReleaseAsset, expected: &[u8; 32]) -> Result<(), UpdaterError> {
+fn install_from(
+    target: &Path,
+    asset: &ReleaseAsset,
+    expected: &[u8; 32],
+) -> Result<(), UpdaterError> {
     let root = target
         .parent()
         .ok_or_else(|| UpdaterError::Io("workshop destination has no parent".into()))?;
@@ -590,33 +596,61 @@ mod tests {
         use sha2::{Digest, Sha256};
         let stage = create_stage(&std::env::temp_dir()).unwrap();
         let png: &[u8] = include_bytes!("../../../assets/noteskins/dance/cel/_mine tex.png");
-        let source = archive(&stage, &[
-            ("Cel - Workshop/NoteSkin.lua", b"return {}"),
-            ("Cel - Workshop/metrics.ini", b"[Global]\nFallbackNoteSkin=common\n"),
-            ("Cel - Workshop/Down Tap Note.png", png),
-            ("Metal - Workshop/NoteSkin.lua", b"return {}"),
-            ("Metal - Workshop/metrics.ini", b"[Global]\nFallbackNoteSkin=common\n"),
-            ("Metal - Workshop/Down Tap Note.png", png),
-            ("Customizations/Arrows/Cel - Generated/Down Tap Note.png", png),
-            ("Customizations/Arrows/Metal - Generated/Down Tap Note.png", png),
-            ("LICENSE", b"generated fixture"), ("README.md", b"generated fixture"),
-        ]);
+        let source = archive(
+            &stage,
+            &[
+                ("Cel - Workshop/NoteSkin.lua", b"return {}"),
+                (
+                    "Cel - Workshop/metrics.ini",
+                    b"[Global]\nFallbackNoteSkin=common\n",
+                ),
+                ("Cel - Workshop/Down Tap Note.png", png),
+                ("Metal - Workshop/NoteSkin.lua", b"return {}"),
+                (
+                    "Metal - Workshop/metrics.ini",
+                    b"[Global]\nFallbackNoteSkin=common\n",
+                ),
+                ("Metal - Workshop/Down Tap Note.png", png),
+                (
+                    "Customizations/Arrows/Cel - Generated/Down Tap Note.png",
+                    png,
+                ),
+                (
+                    "Customizations/Arrows/Metal - Generated/Down Tap Note.png",
+                    png,
+                ),
+                ("LICENSE", b"generated fixture"),
+                ("README.md", b"generated fixture"),
+            ],
+        );
         let bytes = fs::read(source).unwrap();
         let expected: [u8; 32] = Sha256::digest(&bytes).into();
         let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-        let asset = ReleaseAsset { name: "workshop.zip".into(),
+        let asset = ReleaseAsset {
+            name: "workshop.zip".into(),
             browser_download_url: format!("http://{}/source.zip", listener.local_addr().unwrap()),
-            size: bytes.len() as u64, digest: None };
+            size: bytes.len() as u64,
+            digest: None,
+        };
         let server = std::thread::spawn(move || {
             let (mut stream, _) = listener.accept().unwrap();
-            stream.set_read_timeout(Some(Duration::from_secs(10))).unwrap();
-            let mut request = Vec::new(); let mut byte = [0];
+            stream
+                .set_read_timeout(Some(Duration::from_secs(10)))
+                .unwrap();
+            let mut request = Vec::new();
+            let mut byte = [0];
             while !request.ends_with(b"\r\n\r\n") {
-                stream.read_exact(&mut byte).unwrap(); request.push(byte[0]);
+                stream.read_exact(&mut byte).unwrap();
+                request.push(byte[0]);
                 assert!(request.len() < 8192);
             }
             assert!(request.starts_with(b"GET /source.zip HTTP/1.1\r\n"));
-            write!(stream, "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", bytes.len()).unwrap();
+            write!(
+                stream,
+                "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                bytes.len()
+            )
+            .unwrap();
             stream.write_all(&bytes).unwrap();
         });
         let root = stage.0.join("install-root");

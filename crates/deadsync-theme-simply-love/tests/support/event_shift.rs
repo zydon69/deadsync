@@ -87,6 +87,10 @@ fn setup(format: Format, mode: &str) -> (tempfile::TempDir, std::path::PathBuf, 
         data.patterns = Some(BTreeMap::from([(
             0,
             Definition {
+                // Shift scenarios need valid generation identities; unknown
+                // profiles are repaired by the independent open-song workflow.
+                pattern_config_guid: deadsync_editor::generation::metadata::SIXTEENTHS.parse().unwrap(),
+                performed_chart_config_guid: deadsync_editor::generation::metadata::PATTERN_BALANCED.parse().unwrap(),
                 random_seed: 42,
                 length: if mode == "overflow" {
                     i32::MAX as u64
@@ -147,7 +151,7 @@ fn repeated_shift_preserves_only_transformed_choices_for_copy_paste_undo_redo_an
         control(&mut s, KeyCode::ArrowRight, false);
         assert!(s.workspace().grid().get(p(48)).is_some());
         assert_eq!(patterns(&s).keys().copied().collect::<Vec<_>>(), [48]);
-        assert!(text(&s).contains(&tr("2/4 selected", "2/4 choisis")));
+        assert!(text(&s).contains(&tr("2/4 selected", "2/4 choisis")), "{}", text(&s));
         assert!(text(&s).contains(&tr(
             "Initial nodes kept: 2.",
             "Nœuds initiaux conservés : 2."
@@ -177,12 +181,14 @@ fn repeated_shift_preserves_only_transformed_choices_for_copy_paste_undo_redo_an
         for _ in 0..3 {
             control(&mut s, KeyCode::KeyY, false);
         }
+        assert_eq!(s.workspace().file().session.serialize().unwrap(), after);
+        let output = s.workspace().file().session.serialize_for_output().unwrap();
         control(&mut s, KeyCode::KeyS, false);
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), output);
         let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
         assert_eq!(
             reopened.workspace().file().session.serialize().unwrap(),
-            after
+            output
         );
     }
 }
@@ -248,11 +254,13 @@ fn shifting_a_selected_tap_force_trims_an_unselected_hold_and_undo_restores_both
         control(&mut s, KeyCode::KeyZ, false);
         assert_eq!(s.workspace().file().session.serialize().unwrap(), before);
         control(&mut s, KeyCode::KeyY, false);
+        assert_eq!(s.workspace().file().session.serialize().unwrap(), after);
+        let output = s.workspace().file().session.serialize_for_output().unwrap();
         control(&mut s, KeyCode::KeyS, false);
         let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
         assert_eq!(
             reopened.workspace().file().session.serialize().unwrap(),
-            after
+            output
         );
     }
 }

@@ -77,6 +77,8 @@ fn setup(format: Format, legacy: bool) -> (tempfile::TempDir, std::path::PathBuf
             data.patterns = Some(BTreeMap::from([(
                 row,
                 Definition {
+                    pattern_config_guid: deadsync_editor::generation::metadata::SIXTEENTHS.parse().unwrap(),
+                    performed_chart_config_guid: deadsync_editor::generation::metadata::PATTERN_BALANCED.parse().unwrap(),
                     random_seed: seed,
                     length: 96,
                     ..Definition::default()
@@ -103,10 +105,13 @@ fn open(s: &mut State) {
         "Copy event types between charts",
         "Copier des types entre charts"
     )));
+    // Source presets now initially select all StepMania event types; these
+    // scenarios deliberately exercise independent explicit choices.
+    control(s, KeyCode::KeyA, true);
 }
 fn choose(s: &mut State, index: usize) {
     press(s, KeyCode::Home);
-    for _ in 0..index {
+    for _ in 0..=index {
         press(s, KeyCode::ArrowDown);
     }
     press(s, KeyCode::Space);
@@ -147,8 +152,9 @@ fn keyboard_multi_destination_bpm_signature_copy_is_one_undo_and_saves() {
     assert_eq!(s.workspace().file().session.serialize().unwrap(), before);
     control(&mut s, KeyCode::KeyY, false);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), after);
+    let output = s.workspace().file().session.serialize_for_output().unwrap();
     control(&mut s, KeyCode::KeyS, false);
-    assert_eq!(fs::read(&path).unwrap(), after);
+    assert_eq!(fs::read(&path).unwrap(), output);
 }
 #[test]
 fn independent_type_and_destination_choices_are_paginated_and_empty_choice_is_guarded() {
@@ -212,11 +218,13 @@ fn unsupported_patterns_are_reported_and_existing_destination_patterns_are_remov
     control(&mut s, KeyCode::KeyZ, false);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), before);
     control(&mut s, KeyCode::KeyY, false);
+    assert_eq!(s.workspace().file().session.serialize().unwrap(), after);
+    let output = s.workspace().file().session.serialize_for_output().unwrap();
     control(&mut s, KeyCode::KeyS, false);
     let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
     assert_eq!(
         reopened.workspace().file().session.serialize().unwrap(),
-        after
+        output
     );
 }
 #[test]

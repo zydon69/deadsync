@@ -161,10 +161,20 @@ impl State {
         use deadsync_editor::key_binding_preferences::scroll_modifiers::Kind as Held;
         if self.receptor_move.is_some()
             || self.region_selection.is_some()
-                && [Held::SelectionMisc, Held::SelectionToggle, Held::SelectionExtend]
-                    .into_iter().any(|kind| self.owned_gesture_query(kind))
-        { return false; }
-        if self.scroll_modifier_settings.as_ref().is_some_and(|settings|settings.is_capturing())
+                && [
+                    Held::SelectionMisc,
+                    Held::SelectionToggle,
+                    Held::SelectionExtend,
+                ]
+                .into_iter()
+                .any(|kind| self.owned_gesture_query(kind))
+        {
+            return false;
+        }
+        if self
+            .scroll_modifier_settings
+            .as_ref()
+            .is_some_and(|settings| settings.is_capturing())
             || self.text_buffer.is_some() && !self.control
             || self
                 .key_binding_draft
@@ -198,7 +208,9 @@ impl State {
         self.ui_rows.borrow_mut().vertical = None;
     }
     pub(super) fn panel_actors(&self, panel: Panel, actors: &mut Vec<Actor>) {
-        if matches!(panel,Panel::Hotbar(_)){self.capture_hotbar_frame();}
+        if matches!(panel, Panel::Hotbar(_)) {
+            self.capture_hotbar_frame();
+        }
         let scale = self.ui_render_scale();
         if !self.ui_dpi_has_transform() {
             self.panel_actors_unscaled(panel, actors);
@@ -217,8 +229,25 @@ impl State {
         // canvas centers its fixed left-aligned URL outside small DPI windows.
         // Give them the actual virtual viewport instead of a minimum-size form;
         // selecting the first title as an implicit row would scroll the modal.
-        let owns_pagination = self.chart_details.active && matches!(panel,Panel::Analysis) || matches!(panel, Panel::Hotbar(_) | Panel::UpdateNotice(_) | Panel::EditorAbout(super::editor_about::AboutView::License { .. })) || matches!(panel,Panel::FileMenu(_)|Panel::FileRecent(_)|Panel::FileOpen(_)|Panel::FileUnsaved(_)|Panel::FileDiscard|Panel::FileLoading);
-        let content_size = if owns_pagination { virtual_size } else {
+        let owns_pagination = self.chart_details.active && matches!(panel, Panel::Analysis)
+            || matches!(
+                panel,
+                Panel::Hotbar(_)
+                    | Panel::UpdateNotice(_)
+                    | Panel::EditorAbout(super::editor_about::AboutView::License { .. })
+            )
+            || matches!(
+                panel,
+                Panel::FileMenu(_)
+                    | Panel::FileRecent(_)
+                    | Panel::FileOpen(_)
+                    | Panel::FileUnsaved(_)
+                    | Panel::FileDiscard
+                    | Panel::FileLoading
+            );
+        let content_size = if owns_pagination {
+            virtual_size
+        } else {
             [virtual_size[0].max(854.), virtual_size[1].max(480.)]
         };
         {
@@ -308,31 +337,39 @@ impl State {
             .map(|r| (r.x, r.y, r.align, r.width))
             .or(fallback);
         let vertical_auto = center_shift[1]
-            + if owns_pagination { 0. } else { page.map_or_else(
-                || {
-                    focus.map_or(0., |(_, y, _, _)| {
-                        virtual_size[1] * 0.5 - y - center_shift[1]
-                    })
-                },
-                |p| p.translation,
-            ) };
+            + if owns_pagination {
+                0.
+            } else {
+                page.map_or_else(
+                    || {
+                        focus.map_or(0., |(_, y, _, _)| {
+                            virtual_size[1] * 0.5 - y - center_shift[1]
+                        })
+                    },
+                    |p| p.translation,
+                )
+            };
         let vertical = vertical_auto - rows.vertical.unwrap_or(0) as f32 * virtual_size[1] * 0.8;
         let horizontal_auto = center_shift[0]
-            + if owns_pagination { 0. } else { focus.map_or(0., |(x, _, align, width)| {
-                let x = x + center_shift[0];
-                let pad = 16_f32.min(virtual_size[0] * 0.25);
-                let available = virtual_size[0] - 2. * pad;
-                let (low, high) = if width > available {
-                    let target = pad + available * align;
-                    (target, target)
-                } else {
-                    (
-                        pad + width * align,
-                        virtual_size[0] - pad - width * (1. - align),
-                    )
-                };
-                x.clamp(low, high) - x
-            }) };
+            + if owns_pagination {
+                0.
+            } else {
+                focus.map_or(0., |(x, _, align, width)| {
+                    let x = x + center_shift[0];
+                    let pad = 16_f32.min(virtual_size[0] * 0.25);
+                    let available = virtual_size[0] - 2. * pad;
+                    let (low, high) = if width > available {
+                        let target = pad + available * align;
+                        (target, target)
+                    } else {
+                        (
+                            pad + width * align,
+                            virtual_size[0] - pad - width * (1. - align),
+                        )
+                    };
+                    x.clamp(low, high) - x
+                })
+            };
         let horizontal = horizontal_auto - (rows.horizontal as f32) * virtual_size[0] * 0.8;
         // Centered virtual Frame keeps the chart/world origin unchanged. The model
         // transform scales only this UI subtree, including fonts, images and clips.
@@ -438,7 +475,11 @@ mod ftue_layout_tests {
             i18n::set_locale(deadsync_assets::language::load_for_tests(language));
             let root = tempfile::tempdir().unwrap();
             let path = root.path().join("empty.ssc");
-            std::fs::write(&path, "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;").unwrap();
+            std::fs::write(
+                &path,
+                "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;",
+            )
+            .unwrap();
             let mut state = State::open(&path, 0).unwrap();
             state.navigate_exact_position(48., true);
             state.open_event_selection();
@@ -450,8 +491,12 @@ mod ftue_layout_tests {
                     let mut actors = Vec::new();
                     state.panel_actors(Panel::EventSelection, &mut actors);
                     assert!(state.ui_rows.borrow().items.is_empty());
-                    let Actor::SharedTransform { children, .. } = &actors[0] else { panic!("DPI frame expected") };
-                    let Actor::Frame { offset, .. } = &children[0] else { panic!("panel frame expected") };
+                    let Actor::SharedTransform { children, .. } = &actors[0] else {
+                        panic!("DPI frame expected")
+                    };
+                    let Actor::Frame { offset, .. } = &children[0] else {
+                        panic!("panel frame expected")
+                    };
                     close(offset[0], screen_width() * 0.5);
                     close(offset[1], screen_height() * 0.5);
                 });
@@ -581,8 +626,11 @@ mod ftue_layout_tests {
 #[cfg(test)]
 mod hotbar_geometry_tests;
 
-#[cfg(test)] mod chart_details_geometry_tests;
+#[cfg(test)]
+mod chart_details_geometry_tests;
 
-#[cfg(test)] mod readout_geometry;
+#[cfg(test)]
+mod readout_geometry;
 
-#[cfg(test)] mod file_menu_geometry_tests;
+#[cfg(test)]
+mod file_menu_geometry_tests;

@@ -628,3 +628,21 @@ fn arbitrary_bytes_and_generated_constructor_boundaries() {
         check(source.as_bytes());
     }
 }
+
+#[test]
+fn modulo_rounding_matches_reference_in_literals_and_runtime_registers() {
+    let reference = Lua::new();
+    let mut vm = Vm::new();
+    for source in [
+        "return 48 % (17 / 20)",
+        "local x,y=48,17/20; return x%y",
+        "local x,y=-48,17/20; return x%y",
+        "return (((4 - 6) - (9 / 16)) / ((27 + 21) % (17 / 20)))",
+    ] {
+        assert_eq!(
+            rust(&mut vm, source.as_bytes()),
+            official(&reference, source.as_bytes()),
+            "{source}"
+        );
+    }
+}

@@ -1,7 +1,7 @@
-use deadsync_editor::minimap_projection;
-use deadsync_editor::minimap_position_preferences;
-use deadsync_editor::minimap_select;
 use deadsync_editor::Error;
+use deadsync_editor::minimap_position_preferences;
+use deadsync_editor::minimap_projection;
+use deadsync_editor::minimap_select;
 use minimap_position_preferences::SelectMode;
 use minimap_projection::Projection;
 use minimap_select::Capture;

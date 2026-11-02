@@ -185,12 +185,10 @@ fn fixture_root(corpus: &Corpus) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(corpus.fixtures)
 }
 
-
 fn read_manifest(corpus: &Corpus) -> SemanticManifest {
     let path = fixture_root(corpus).join(SEMANTIC_MANIFEST);
     whole_song_archives::reference_json(&path)
 }
-
 
 fn assert_song_parity(corpus: &Corpus, simfile: &str) {
     crate::paths::init();
@@ -209,24 +207,44 @@ fn assert_trace_parity(_corpus: &Corpus, simfile: &str, trace: &NativeTrace) {
     assert_eq!(trace.oracle, "itgmania_song_lua_headless_semantic_trace");
     let pinned_chart = match simfile {
         "Apollo/Apollo.ssc" => Some(("450ff4f0585fdae3", 1, "dance-double", "Challenge")),
-        "Cursed Metamorph - [Zaia]/Cursed Metamorph.ssc" => Some(("0866bcc47435a591", 1, "dance-single", "Challenge")),
-        "Spectrum Sequence/spectrumsequence.ssc" => Some(("75df84a1b1e08f31", 1, "dance-single", "Challenge")),
+        "Cursed Metamorph - [Zaia]/Cursed Metamorph.ssc" => {
+            Some(("0866bcc47435a591", 1, "dance-single", "Challenge"))
+        }
+        "Spectrum Sequence/spectrumsequence.ssc" => {
+            Some(("75df84a1b1e08f31", 1, "dance-single", "Challenge"))
+        }
         "mawaru9/mawaru9.sm" => Some(("824199e7dfc44ef6", 1, "dance-single", "Challenge")),
-        "Someone Special - hubert/Someone Special.ssc" => Some(("59bba16f2331d939", 1, "dance-single", "Challenge")),
+        "Someone Special - hubert/Someone Special.ssc" => {
+            Some(("59bba16f2331d939", 1, "dance-single", "Challenge"))
+        }
         "mawaru7/mawaru7.sm" => Some(("f7fdd8fafaee6188", 1, "dance-single", "Challenge")),
-        "Ultimate taste/Ultimate taste.ssc" => Some(("d7c1e7bb11c85644", 1, "dance-single", "Challenge")),
-        "(R6) Waltz Capriccio/waltz_capriccio.ssc" => Some(("0d1c59154eff02b7", 1, "dance-single", "Challenge")),
+        "Ultimate taste/Ultimate taste.ssc" => {
+            Some(("d7c1e7bb11c85644", 1, "dance-single", "Challenge"))
+        }
+        "(R6) Waltz Capriccio/waltz_capriccio.ssc" => {
+            Some(("0d1c59154eff02b7", 1, "dance-single", "Challenge"))
+        }
         "666/666.ssc" => Some(("bcc24d0383531e4d", 1, "dance-single", "Challenge")),
         "7th Gear/7th Gear.ssc" => Some(("477fed829d289df2", 1, "dance-single", "Challenge")),
-        "Step Your Game Up (Director's Cut)/stepyourgameup.ssc" => Some(("553effff992457a7", 1, "dance-single", "Challenge")),
+        "Step Your Game Up (Director's Cut)/stepyourgameup.ssc" => {
+            Some(("553effff992457a7", 1, "dance-single", "Challenge"))
+        }
         "[TPE2] LALA/lala.ssc" => Some(("4117628540d4ac3d", 1, "dance-single", "Challenge")),
-        "Cuphead [TaroNuke]/botanic.sm" => Some(("30448d01c606fce9", 1, "dance-single", "Challenge")),
-        "[FULL SONG] Kagetsu no Yume [wrsw]/Kagetsu no Yume.ssc" => Some(("813d600a24bdd875", 1, "dance-single", "Challenge")),
-        "Flying Castle/flying castle.ssc" => Some(("c9f1235a63d75076", 1, "dance-single", "Challenge")),
+        "Cuphead [TaroNuke]/botanic.sm" => {
+            Some(("30448d01c606fce9", 1, "dance-single", "Challenge"))
+        }
+        "[FULL SONG] Kagetsu no Yume [wrsw]/Kagetsu no Yume.ssc" => {
+            Some(("813d600a24bdd875", 1, "dance-single", "Challenge"))
+        }
+        "Flying Castle/flying castle.ssc" => {
+            Some(("c9f1235a63d75076", 1, "dance-single", "Challenge"))
+        }
         "BroGamer/BroGamer.ssc" => Some(("e5b7f2be78829f4e", 1, "dance-single", "Challenge")),
         "bunny-house/steps.sm" => Some(("13c007f1b2cc142d", 1, "dance-single", "Challenge")),
         "broadcast/broadcast.ssc" => Some(("81612ed8c89ac4b9", 1, "dance-single", "Challenge")),
-        "[CRYSTAL_ACCESS]/[CRYSTAL_ACCESS].ssc" => Some(("47017d8cec7dc992", 1, "dance-single", "Challenge")),
+        "[CRYSTAL_ACCESS]/[CRYSTAL_ACCESS].ssc" => {
+            Some(("47017d8cec7dc992", 1, "dance-single", "Challenge"))
+        }
         "Jumper/Jumper.ssc" => Some(("7c085505e95af69a", 2, "dance-single", "Challenge")),
         "[07] Spooky (SM) [Scrypts]/Spooky-chart.ssc" => {
             Some(("d5bd4dd7224f68ff", 1, "dance-single", "Challenge"))
@@ -284,7 +302,9 @@ fn assert_corpus_coverage(corpus: &Corpus) {
     );
     for entry in &manifest.simfiles {
         assert!(
-            song_fixture::index().iter().any(|archive| archive["source_simfile"] == entry.simfile),
+            song_fixture::index()
+                .iter()
+                .any(|archive| archive["source_simfile"] == entry.simfile),
             "missing song {}",
             entry.simfile
         );
@@ -293,14 +313,19 @@ fn assert_corpus_coverage(corpus: &Corpus) {
             // available and retain the exact native chart.
             let input = song_fixture::from_source(&entry.simfile);
             let song = parse_song(&input.simfile);
-            assert!(song.charts.iter().any(|chart| chart.short_hash == "824199e7dfc44ef6"),
-                "Mawaru9 input bundle lost its pinned native chart");
+            assert!(
+                song.charts
+                    .iter()
+                    .any(|chart| chart.short_hash == "824199e7dfc44ef6"),
+                "Mawaru9 input bundle lost its pinned native chart"
+            );
         }
         assert_eq!(entry.status, "ok", "incomplete fixture: {}", entry.simfile);
         assert_eq!(entry.runtime_errors, 0, "runtime errors: {}", entry.simfile);
         assert_eq!(entry.dropped_events, 0, "dropped events: {}", entry.simfile);
         assert!(
-            whole_song_archives::reference_path(&fixture_root(corpus).join(&entry.fixture)).is_file(),
+            whole_song_archives::reference_path(&fixture_root(corpus).join(&entry.fixture))
+                .is_file(),
             "missing fixture {}",
             entry.fixture.display()
         );

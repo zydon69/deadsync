@@ -186,7 +186,10 @@ impl mlua::FromLua for IsSprite {
             if kind.as_bytes().eq_ignore_ascii_case(b"Sprite"))))
     }
 
-    unsafe fn from_stack(index: std::os::raw::c_int, raw: &mlua::state::RawLua) -> mlua::Result<Self> {
+    unsafe fn from_stack(
+        index: std::os::raw::c_int,
+        raw: &mlua::state::RawLua,
+    ) -> mlua::Result<Self> {
         // SAFETY: mlua supplies a live stack slot under its VM lock. Borrow
         // only an actual Lua string; no coercion, allocation or pointer escapes.
         // Non-strings and arbitrary binary strings retain Value's predicate.
@@ -211,7 +214,11 @@ fn state(lua: &Lua, actor: &Table) -> mlua::Result<SongLuaOverlayState> {
         // __index code before later scalar fields are read. Keep those reads
         // sequential so mutations and errors from that lookup stay observable.
         let sprite = actor.raw_get::<IsSprite>("__songlua_actor_type")?.0;
-        if sprite && actor.raw_get::<mlua::Value>("__songlua_state_sprite_texture")?.is_nil() {
+        if sprite
+            && actor
+                .raw_get::<mlua::Value>("__songlua_state_sprite_texture")?
+                .is_nil()
+        {
             actor_overlay_initial_state(actor).map_err(mlua::Error::external)
         } else {
             crate::lua_util::actor_overlay_state_batched(lua, actor).map_err(mlua::Error::external)
@@ -225,11 +232,16 @@ fn partially_opaque(state: SongLuaOverlayState, parents: &[SongLuaOverlayState])
     let mut diffuse = 1.0;
     let mut glow = 0.0;
     for parent in parents {
-        diffuse *= parent.vertex_colors.map_or(parent.diffuse[3], |colors| colors[0][3]);
+        diffuse *= parent
+            .vertex_colors
+            .map_or(parent.diffuse[3], |colors| colors[0][3]);
         glow = glow + parent.glow[3] - glow * parent.glow[3];
     }
-    let diffuse_visible = state.vertex_colors.map_or(state.diffuse[3] * diffuse > 0.0,
-        |colors| colors.iter().any(|color| color[3] * diffuse > 0.0));
+    let diffuse_visible = state
+        .vertex_colors
+        .map_or(state.diffuse[3] * diffuse > 0.0, |colors| {
+            colors.iter().any(|color| color[3] * diffuse > 0.0)
+        });
     diffuse_visible || state.glow[3] + glow - state.glow[3] * glow > 0.0
 }
 
@@ -253,23 +265,22 @@ fn scoped_context(lua: &Lua, actor: &Table, prior: &Context) -> mlua::Result<Opt
         return Ok(None);
     }
     let wrappers = actor.raw_get::<Option<Table>>("__songlua_wrappers")?;
-    let mut parents = Vec::with_capacity(
-        prior.parents.len() + wrappers.as_ref().map_or(0, Table::raw_len) + 1,
-    );
+    let mut parents =
+        Vec::with_capacity(prior.parents.len() + wrappers.as_ref().map_or(0, Table::raw_len) + 1);
     parents.extend_from_slice(&prior.parents);
     if let Some(wrappers) = wrappers {
         for index in (1..=wrappers.raw_len()).rev() {
             let wrapper = state(lua, &wrappers.raw_get::<Table>(index)?)?;
             if !wrapper.draw_visible()
-                || (crate::live::active(lua) && !partially_opaque(wrapper, &parents)) {
+                || (crate::live::active(lua) && !partially_opaque(wrapper, &parents))
+            {
                 return Ok(None);
             }
             parents.push(wrapper);
         }
     }
     let state = state(lua, actor)?;
-    if !state.draw_visible()
-        || (crate::live::active(lua) && !partially_opaque(state, &parents)) {
+    if !state.draw_visible() || (crate::live::active(lua) && !partially_opaque(state, &parents)) {
         return Ok(None);
     }
     parents.push(state);
@@ -290,7 +301,9 @@ pub(crate) fn draw(lua: &Lua, actor: &Table) -> mlua::Result<()> {
     let prior = lua
         .app_data_ref::<Capture>()
         .and_then(|capture| capture.context.clone());
-    let Some(prior) = prior else { return draw_immediate(lua, actor); };
+    let Some(prior) = prior else {
+        return draw_immediate(lua, actor);
+    };
     let Some(context) = scoped_context(lua, actor, &prior)? else {
         return Ok(());
     };
@@ -315,8 +328,13 @@ pub(crate) fn draw(lua: &Lua, actor: &Table) -> mlua::Result<()> {
                 crate::live::callback_phase(lua, false);
                 if crate::live::active(lua) {
                     if let Err(error) = result {
-                        crate::lua_util::report_update_error(lua, actor,
-                            "__songlua_draw_error_reported", "draw callback", &error)?;
+                        crate::lua_util::report_update_error(
+                            lua,
+                            actor,
+                            "__songlua_draw_error_reported",
+                            "draw callback",
+                            &error,
+                        )?;
                     }
                     // Native draw callbacks do not update the actor queue.
                     // queuecommand from Draw waits for the next actor Update.
@@ -334,13 +352,18 @@ pub(crate) fn draw(lua: &Lua, actor: &Table) -> mlua::Result<()> {
                 // traverse their children, including empty transition frames.
                 // Keep this set aligned with read_tracked_compile_actors.
                 let screen_child = actor.raw_get::<Option<crate::lua_util::LuaFieldText<64>>>(
-                    "__songlua_top_screen_child_name")?;
+                    "__songlua_top_screen_child_name",
+                )?;
                 let player_child = actor.raw_get::<Option<crate::lua_util::LuaFieldText<64>>>(
-                    "__songlua_player_child_name")?;
-                let external = matches!(screen_child.as_ref().map(|name| name.as_str()),
-                    Some("Underlay" | "Overlay" | "SongBackground" | "SongForeground" | "In"))
-                    || matches!(player_child.as_ref().map(|name| name.as_str()),
-                        Some("Judgment" | "Combo"));
+                    "__songlua_player_child_name",
+                )?;
+                let external = matches!(
+                    screen_child.as_ref().map(|name| name.as_str()),
+                    Some("Underlay" | "Overlay" | "SongBackground" | "SongForeground" | "In")
+                ) || matches!(
+                    player_child.as_ref().map(|name| name.as_str()),
+                    Some("Judgment" | "Combo")
+                );
                 // Actor::DrawPrimitives is empty. Logic actors still receive
                 // explicit Draw calls, but submit no geometry or draw payload.
                 if kind.eq_ignore_ascii_case("Actor") {
@@ -349,27 +372,39 @@ pub(crate) fn draw(lua: &Lua, actor: &Table) -> mlua::Result<()> {
                 // BitmapText::EarlyAbortDraw skips empty text. Native screen
                 // placeholders are not compiled overlay leaves either.
                 if kind.eq_ignore_ascii_case("BitmapText")
-                    && actor.raw_get::<Option<mlua::LuaString>>("Text")?
+                    && actor
+                        .raw_get::<Option<mlua::LuaString>>("Text")?
                         .is_none_or(|text| text.as_bytes().is_empty())
                 {
                     return Ok(());
                 }
-                let local = *context.parents.last().expect("draw context includes the actor");
+                let local = *context
+                    .parents
+                    .last()
+                    .expect("draw context includes the actor");
                 // The bundled fallback bitmap contains only transparent pixels.
                 // Its ordinary alpha draw cannot change color, depth or masks.
                 if kind.eq_ignore_ascii_case("Sprite")
-                    && actor.raw_get::<Option<mlua::LuaString>>("Texture")?
-                        .is_some_and(|path| path.as_bytes().as_ref()
-                            == crate::lua_util::NATIVE_BLANK_TEXTURE_PATH.as_bytes())
+                    && actor
+                        .raw_get::<Option<mlua::LuaString>>("Texture")?
+                        .is_some_and(|path| {
+                            path.as_bytes().as_ref()
+                                == crate::lua_util::NATIVE_BLANK_TEXTURE_PATH.as_bytes()
+                        })
                     && local.blend == crate::SongLuaOverlayBlendMode::Alpha
-                    && !local.depth_write && !local.mask_source && !local.mask_dest
+                    && !local.depth_write
+                    && !local.mask_source
+                    && !local.mask_dest
                 {
                     return Ok(());
                 }
                 // ActorProxy::DrawPrimitives submits nothing until SetTarget.
                 // A parent's early Draw must not borrow a later On target.
-                if !external && kind.eq_ignore_ascii_case("ActorProxy")
-                    && actor.raw_get::<Option<Table>>("__songlua_proxy_target_actor")?.is_none()
+                if !external
+                    && kind.eq_ignore_ascii_case("ActorProxy")
+                    && actor
+                        .raw_get::<Option<Table>>("__songlua_proxy_target_actor")?
+                        .is_none()
                 {
                     return Ok(());
                 }
@@ -406,15 +441,7 @@ pub(crate) fn draw(lua: &Lua, actor: &Table) -> mlua::Result<()> {
                     let parents = Arc::from(&context.parents[..context.parents.len() - 1]);
                     push(
                         lua,
-                        RawOp::Draw(
-                            pointer,
-                            local,
-                            Context {
-                                parents,
-                                ..context
-                            },
-                            vertices,
-                        ),
+                        RawOp::Draw(pointer, local, Context { parents, ..context }, vertices),
                     )
                 }
             }
@@ -434,7 +461,8 @@ fn frame_second(lua: &Lua) -> mlua::Result<f32> {
     let runtime = lua.globals().get::<Table>(crate::SONG_LUA_RUNTIME_KEY)?;
     let elapsed = runtime.get::<f32>(crate::SONG_LUA_RUNTIME_SECONDS_KEY)?;
     let rate = runtime.get::<f32>(crate::SONG_LUA_RUNTIME_RATE_KEY)?;
-    let origin = lua.app_data_ref::<crate::runtime::SongLuaClock>()
+    let origin = lua
+        .app_data_ref::<crate::runtime::SongLuaClock>()
         .map_or(0.0, |clock| clock.0.get_time_for_beat_exact(0.0));
     Ok(elapsed * rate + origin)
 }
@@ -444,30 +472,48 @@ fn frame_second(lua: &Lua) -> mlua::Result<f32> {
 // using the eventual overlay pose loses its size, crop, color and draw stack.
 fn draw_immediate(lua: &Lua, actor: &Table) -> mlua::Result<()> {
     let second = frame_second(lua)?;
-    if lua.app_data_ref::<Capture>().is_none() { lua.set_app_data(Capture::default()); }
+    if lua.app_data_ref::<Capture>().is_none() {
+        lua.set_app_data(Capture::default());
+    }
     let owner = actor.to_pointer() as usize;
     let start = {
         let mut capture = lua.app_data_mut::<Capture>().expect("capture installed");
-        capture.context = Some(Context { owner, ..Context::default() });
+        capture.context = Some(Context {
+            owner,
+            ..Context::default()
+        });
         capture.calls.len()
     };
     let result = draw(lua, actor);
-    let mut capture = lua.app_data_mut::<Capture>().expect("capture retained during Draw");
+    let mut capture = lua
+        .app_data_mut::<Capture>()
+        .expect("capture retained during Draw");
     capture.context = None;
     let calls = capture.calls.split_off(start);
     if !calls.is_empty() {
         let bytes = std::mem::size_of::<RawFrame>() + std::mem::size_of::<usize>();
         if capture.bytes.saturating_add(bytes) > MAX_BYTES {
-            return Err(mlua::Error::external("custom draw capture exceeds its song budget"));
+            return Err(mlua::Error::external(
+                "custom draw capture exceeds its song budget",
+            ));
         }
         capture.bytes += bytes;
-        capture.frames.push(RawFrame { second, immediate: true, owners: vec![owner], calls });
+        capture.frames.push(RawFrame {
+            second,
+            immediate: true,
+            owners: vec![owner],
+            calls,
+        });
     }
     result
 }
 
 fn visit(lua: &Lua, actor: &Table, prior: &Context) -> mlua::Result<()> {
-    if crate::live::active(lua) && actor.raw_get::<Option<bool>>("__songlua_live_inactive")?.unwrap_or(false) {
+    if crate::live::active(lua)
+        && actor
+            .raw_get::<Option<bool>>("__songlua_live_inactive")?
+            .unwrap_or(false)
+    {
         return Ok(());
     }
     let custom = actor
@@ -528,8 +574,13 @@ pub(crate) fn run_live(lua: &Lua, root: &Table) -> mlua::Result<()> {
 
 #[cfg(test)]
 pub(crate) fn live_storage(lua: &Lua) -> (usize, usize, usize) {
-    lua.app_data_ref::<Capture>().map_or((0, 0, 0), |capture|
-        (capture.frames.len(), capture.frames.iter().map(|frame| frame.calls.len()).sum(), capture.bytes))
+    lua.app_data_ref::<Capture>().map_or((0, 0, 0), |capture| {
+        (
+            capture.frames.len(),
+            capture.frames.iter().map(|frame| frame.calls.len()).sum(),
+            capture.bytes,
+        )
+    })
 }
 
 pub(crate) fn run(lua: &Lua, root: &Table) -> mlua::Result<()> {
@@ -540,7 +591,9 @@ pub(crate) fn run(lua: &Lua, root: &Table) -> mlua::Result<()> {
         .raw_get::<Option<bool>>(DRAW_INSTALLED_KEY)?
         .unwrap_or(false)
     {
-        if let Some(mut capture) = lua.app_data_mut::<Capture>() { capture.frame_ops = 0; }
+        if let Some(mut capture) = lua.app_data_mut::<Capture>() {
+            capture.frame_ops = 0;
+        }
         return Ok(());
     }
     let screen = lua
@@ -619,17 +672,27 @@ pub(crate) fn take<Kind>(
 pub(crate) struct LiveSources(pub FxHashMap<usize, DrawSource>);
 
 pub(crate) fn take_live(lua: &Lua) -> Result<Vec<DrawFrame>, String> {
-    if lua.app_data_ref::<Capture>().is_none_or(|capture|
-        !capture.frames.iter().any(|frame| frame.immediate) || capture.context.is_some()) {
+    if lua.app_data_ref::<Capture>().is_none_or(|capture| {
+        !capture.frames.iter().any(|frame| frame.immediate) || capture.context.is_some()
+    }) {
         return Ok(Vec::new());
     }
-    if lua.app_data_ref::<LiveSources>().is_none() { return Ok(Vec::new()); }
-    let mut capture = lua.remove_app_data::<Capture>().expect("complete capture frames");
-    let immediate = capture.frames.extract_if(.., |frame| frame.immediate).collect();
+    if lua.app_data_ref::<LiveSources>().is_none() {
+        return Ok(Vec::new());
+    }
+    let mut capture = lua
+        .remove_app_data::<Capture>()
+        .expect("complete capture frames");
+    let immediate = capture
+        .frames
+        .extract_if(.., |frame| frame.immediate)
+        .collect();
     // Conversion reads labels only for errors and invokes no Lua callbacks.
     // Borrow them before restoring capture, including when conversion fails.
     let result = {
-        let sources = lua.app_data_ref::<LiveSources>().expect("live source bindings");
+        let sources = lua
+            .app_data_ref::<LiveSources>()
+            .expect("live source bindings");
         convert(immediate, &capture.labels, &sources.0)
     };
     if capture.frames.is_empty() && capture.calls.is_empty() && capture.targets.is_empty() {
@@ -742,9 +805,7 @@ fn convert(
                     source: *sources.get(&pointer).ok_or_else(|| {
                         format!(
                             "custom draw references an uncompiled actor {} at {:.6}s",
-                            labels
-                                .get(&pointer)
-                                .map_or("<unnamed>", String::as_str),
+                            labels.get(&pointer).map_or("<unnamed>", String::as_str),
                             raw.second,
                         )
                     })?,

@@ -1,5 +1,6 @@
 #[cfg(test)]
 #[allow(dead_code)] // Preserve the complete pinned production source in the test oracle.
+#[rustfmt::skip]
 #[path = "../tests/reference/mp3_before_timeline_options.rs"]
 mod original_reference;
 
@@ -730,7 +731,8 @@ mod tests {
             let fixture = TempMp3::new(bytes);
             let mut original =
                 super::original_reference::open_file(fixture.path()).expect("original decoder");
-            let mut opened = crate::open_file(fixture.path(), UNTRIMMED_INFO).expect("current decoder");
+            let mut opened =
+                crate::open_file(fixture.path(), UNTRIMMED_INFO).expect("current decoder");
             assert_eq!((opened.channels, opened.sample_rate_hz), (2, 44_100));
             assert_eq!((original.channels, original.sample_rate_hz), (2, 44_100));
             assert_eq!(opened.frames_total_hint, Some(frames));
@@ -909,7 +911,4 @@ mod tests {
             }
         }
     }
-
-
-
 }

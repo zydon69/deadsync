@@ -6,14 +6,15 @@ use std::sync::Arc;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct LoadContext {
     open_sync_offset: f64,
-    timing_steps:i32,
-    timing_difficulty:i32,
+    timing_steps: i32,
+    timing_difficulty: i32,
 }
 impl Default for LoadContext {
     fn default() -> Self {
         Self {
             open_sync_offset: crate::song_properties::DEFAULT_SYNC_OFFSET,
-            timing_steps:0,timing_difficulty:4,
+            timing_steps: 0,
+            timing_difficulty: 4,
         }
     }
 }
@@ -22,10 +23,19 @@ impl LoadContext {
         if !open_sync_offset.is_finite() {
             return Err(Error::InvalidFormat("Invalid open-song sync offset".into()));
         }
-        Ok(Self { open_sync_offset,..Default::default() })
+        Ok(Self {
+            open_sync_offset,
+            ..Default::default()
+        })
     }
-    pub(crate) fn with_timing_preferences(mut self,steps:i32,difficulty:i32)->Self{self.timing_steps=steps;self.timing_difficulty=difficulty;self}
-    pub(crate) fn timing_preferences(self)->(i32,i32){(self.timing_steps,self.timing_difficulty)}
+    pub(crate) fn with_timing_preferences(mut self, steps: i32, difficulty: i32) -> Self {
+        self.timing_steps = steps;
+        self.timing_difficulty = difficulty;
+        self
+    }
+    pub(crate) fn timing_preferences(self) -> (i32, i32) {
+        (self.timing_steps, self.timing_difficulty)
+    }
     pub fn open_sync_offset(self) -> f64 {
         self.open_sync_offset
     }

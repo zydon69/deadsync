@@ -155,7 +155,7 @@ fn dirty_keep_cancels_open_and_save_open_saves_exact_current_edits() {
     press(&mut state, KeyCode::Enter);
     assert_current(&state, &a);
     assert!(state.workspace().file().session.is_dirty());
-    let edited = state.workspace().file().session.serialize().unwrap();
+    let edited = state.workspace().file().session.serialize_for_output().unwrap();
     open(&mut state, false);
     choose_target(&mut state);
     pump(&mut state, |s| text(s).contains(&tr("FileUnsavedHelp")));

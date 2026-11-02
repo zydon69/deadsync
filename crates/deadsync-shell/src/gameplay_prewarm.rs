@@ -356,8 +356,11 @@ pub fn prewarm_gameplay_sfx<CapturedActor, StateDelta>(
             // Native compiled resources use OS path components while authored
             // Lua resources use forward slashes. Prepare both lookup spellings
             // here so gameplay needs no normalization or allocation.
-            let native_key = sound_path.components().collect::<PathBuf>()
-                .to_string_lossy().into_owned();
+            let native_key = sound_path
+                .components()
+                .collect::<PathBuf>()
+                .to_string_lossy()
+                .into_owned();
             if native_key != key {
                 song_lua.insert(native_key, sound.clone());
             }
@@ -385,23 +388,56 @@ mod editor_tick_prewarm_tests {
     fn fixed_editor_assets_prepare_without_gameplay_and_only_on_format_changes() {
         let mut sounds = GameplaySfx::default();
         let mut requested = Vec::new();
-        let mut load = |key: &str| { requested.push(key.to_owned()); None };
-        let stereo = OutputFormat { sample_rate_hz: 48000, channels: 2 };
+        let mut load = |key: &str| {
+            requested.push(key.to_owned());
+            None
+        };
+        let stereo = OutputFormat {
+            sample_rate_hz: 48000,
+            channels: 2,
+        };
         sounds.refresh_editor_ticks_for(None, &mut load);
         sounds.refresh_editor_ticks_for(Some(stereo), &mut load);
-        for _ in 0..100 { sounds.refresh_editor_ticks_for(Some(stereo), &mut load); }
-        assert_eq!(requested, [deadsync_gameplay::EDITOR_ASSIST_TICK_SFX_PATH, deadsync_gameplay::EDITOR_BEAT_TICK_SFX_PATH]);
+        for _ in 0..100 {
+            sounds.refresh_editor_ticks_for(Some(stereo), &mut load);
+        }
+        assert_eq!(
+            requested,
+            [
+                deadsync_gameplay::EDITOR_ASSIST_TICK_SFX_PATH,
+                deadsync_gameplay::EDITOR_BEAT_TICK_SFX_PATH
+            ]
+        );
         assert!(sounds.boom.is_none());
         assert!(sounds.assist_tick.is_none());
         assert!(sounds.song_lua.is_empty());
 
         let mut changed = Vec::new();
-        let mut load = |key: &str| { changed.push(key.to_owned()); None };
-        sounds.refresh_editor_ticks_for(Some(OutputFormat { channels: 4, ..stereo }), &mut load);
-        sounds.refresh_editor_ticks_for(Some(OutputFormat { sample_rate_hz: 44100, channels: 4 }), &mut load);
+        let mut load = |key: &str| {
+            changed.push(key.to_owned());
+            None
+        };
+        sounds.refresh_editor_ticks_for(
+            Some(OutputFormat {
+                channels: 4,
+                ..stereo
+            }),
+            &mut load,
+        );
+        sounds.refresh_editor_ticks_for(
+            Some(OutputFormat {
+                sample_rate_hz: 44100,
+                channels: 4,
+            }),
+            &mut load,
+        );
         sounds.refresh_editor_ticks_for(None, &mut load);
         sounds.refresh_editor_ticks_for(Some(stereo), &mut load);
-        assert_eq!(changed.len(), 6, "each new available format prepares exactly two assets");
+        assert_eq!(
+            changed.len(),
+            6,
+            "each new available format prepares exactly two assets"
+        );
         assert_eq!(sounds.editor_format, Some(stereo));
     }
 }

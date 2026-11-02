@@ -15,13 +15,18 @@ fn press(s: &mut State, code: KeyCode) {
 }
 fn open(s: &mut State) {
     press(s, KeyCode::F1);
-    press(s, KeyCode::ArrowUp);
-    press(s, KeyCode::ArrowUp);
+    // Display options is entry29, before general options and newer tools.
+    for _ in 0..29 {
+        press(s, KeyCode::ArrowDown);
+    }
     press(s, KeyCode::Enter);
 }
 #[test]
 fn keyboard_display_cancel_apply_undo_and_reopen_preserve_song_and_budgets() {
     i18n::init(deadsync_assets::language::load_for_tests(super::LANGUAGE));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let song = dir.path().join("song.ssc");
     std::fs::write(&song,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0010\n0001;").unwrap();

@@ -6,8 +6,8 @@
 use super::{Data, Document, Draft, MAX_BYTES, Prepared};
 mod deletion;
 pub mod history;
-pub use deletion::{DeleteSnapshot,DeleteOutcome,DeletionDurability};
 use deletion::PendingDeletion;
+pub use deletion::{DeleteOutcome, DeleteSnapshot, DeletionDurability};
 use std::{
     fs::{self, File, Metadata, OpenOptions},
     io::{self, Read, Write},
@@ -62,7 +62,9 @@ impl std::fmt::Display for Error {
             Self::DurabilityPending(e) => {
                 write!(f, "Pack bytes published; durability still pending: {e}")
             }
-            Self::DeletionDurabilityPending(error)=>write!(f,"Pack.ini deleted; directory durability pending: {error}"),
+            Self::DeletionDurabilityPending(error) => {
+                write!(f, "Pack.ini deleted; directory durability pending: {error}")
+            }
             Self::PendingSave => f.write_str("Finish the pending durable pack save first"),
         }
     }
@@ -251,9 +253,9 @@ pub struct FileSession {
     owner: Arc<()>,
     generation: u64,
     pending: Option<Prepared>,
-    pending_deletion:Option<PendingDeletion>,
-    deleted:bool,
-    mutation_revision:u64,
+    pending_deletion: Option<PendingDeletion>,
+    deleted: bool,
+    mutation_revision: u64,
 }
 impl FileSession {
     /// Read-only discovery: absence returns None and never creates Pack.ini.
@@ -271,7 +273,10 @@ impl FileSession {
             expected: Some(bytes.into()),
             owner: Arc::new(()),
             generation: 0,
-            pending: None,pending_deletion:None,deleted:false,mutation_revision:0,
+            pending: None,
+            pending_deletion: None,
+            deleted: false,
+            mutation_revision: 0,
         }))
     }
     /// Prepare explicit creation without publishing anything. A file appearing
@@ -287,7 +292,10 @@ impl FileSession {
             expected: None,
             owner: Arc::new(()),
             generation: 0,
-            pending: None,pending_deletion:None,deleted:false,mutation_revision:0,
+            pending: None,
+            pending_deletion: None,
+            deleted: false,
+            mutation_revision: 0,
         })
     }
     pub fn path(&self) -> &Path {
@@ -297,25 +305,68 @@ impl FileSession {
         &self.draft
     }
     pub fn replace(&mut self, data: Data) -> Result<bool, Error> {
-        if self.deleted{return Err(if self.deletion_pending(){Error::PendingSave}else{Error::StaleSnapshot});}
-        let next=self.mutation_revision.checked_add(1).ok_or_else(||io::Error::other("Pack edit revision overflow"))?;
-        let changed=self.draft.replace(data)?;if changed{self.mutation_revision=next;}Ok(changed)
+        if self.deleted {
+            return Err(if self.deletion_pending() {
+                Error::PendingSave
+            } else {
+                Error::StaleSnapshot
+            });
+        }
+        let next = self
+            .mutation_revision
+            .checked_add(1)
+            .ok_or_else(|| io::Error::other("Pack edit revision overflow"))?;
+        let changed = self.draft.replace(data)?;
+        if changed {
+            self.mutation_revision = next;
+        }
+        Ok(changed)
     }
     pub fn set_year(&mut self, year: i32) -> Result<bool, Error> {
-        if self.deleted{return Err(if self.deletion_pending(){Error::PendingSave}else{Error::StaleSnapshot});}
-        let next=self.mutation_revision.checked_add(1).ok_or_else(||io::Error::other("Pack edit revision overflow"))?;
-        let changed=self.draft.set_year(year)?;if changed{self.mutation_revision=next;}Ok(changed)
+        if self.deleted {
+            return Err(if self.deletion_pending() {
+                Error::PendingSave
+            } else {
+                Error::StaleSnapshot
+            });
+        }
+        let next = self
+            .mutation_revision
+            .checked_add(1)
+            .ok_or_else(|| io::Error::other("Pack edit revision overflow"))?;
+        let changed = self.draft.set_year(year)?;
+        if changed {
+            self.mutation_revision = next;
+        }
+        Ok(changed)
     }
     pub fn set_sync_offset(&mut self, sync_offset: i32) -> Result<bool, Error> {
-        if self.deleted{return Err(if self.deletion_pending(){Error::PendingSave}else{Error::StaleSnapshot});}
-        let next=self.mutation_revision.checked_add(1).ok_or_else(||io::Error::other("Pack edit revision overflow"))?;
-        let changed=self.draft.set_sync_offset(sync_offset)?;if changed{self.mutation_revision=next;}Ok(changed)
+        if self.deleted {
+            return Err(if self.deletion_pending() {
+                Error::PendingSave
+            } else {
+                Error::StaleSnapshot
+            });
+        }
+        let next = self
+            .mutation_revision
+            .checked_add(1)
+            .ok_or_else(|| io::Error::other("Pack edit revision overflow"))?;
+        let changed = self.draft.set_sync_offset(sync_offset)?;
+        if changed {
+            self.mutation_revision = next;
+        }
+        Ok(changed)
     }
     pub fn durability_pending(&self) -> bool {
-        self.pending.is_some()||self.pending_deletion.is_some()
+        self.pending.is_some() || self.pending_deletion.is_some()
     }
     pub fn has_external_change(&self) -> Result<bool, Error> {
-        match if self.deleted{self.check_deleted_entry()}else{self.check_expected()} {
+        match if self.deleted {
+            self.check_deleted_entry()
+        } else {
+            self.check_expected()
+        } {
             Ok(()) => Ok(false),
             Err(Error::ExternalChange) => Ok(true),
             Err(e) => Err(e),
@@ -338,7 +389,9 @@ impl FileSession {
         if self.durability_pending() {
             return Err(Error::PendingSave);
         }
-        if self.deleted{return Err(Error::StaleSnapshot);}
+        if self.deleted {
+            return Err(Error::StaleSnapshot);
+        }
         Ok(Snapshot {
             owner: self.owner.clone(),
             generation: self.generation,
@@ -401,7 +454,9 @@ impl FileSession {
         if self.durability_pending() {
             return Err(Error::PendingSave);
         }
-        if self.deleted{return Err(Error::StaleSnapshot);}
+        if self.deleted {
+            return Err(Error::StaleSnapshot);
+        }
         if !Arc::ptr_eq(&self.owner, &snapshot.owner) || snapshot.generation != self.generation {
             return Err(Error::StaleSnapshot);
         }
@@ -652,29 +707,104 @@ mod tests {
 }
 /// Immutable exact baseline for passive observation. Capturing never performs I/O.
 #[derive(Clone)]
-pub struct ExternalSnapshot { binding:Binding,expected:Option<Arc<[u8]>>,owner:Arc<()>,generation:u64,adoptable:bool }
-#[derive(Clone,Debug,PartialEq,Eq)]
-pub struct ExternalObservation{bytes:Option<Arc<[u8]>>,identity:Option<Identity>,target:Option<PathBuf>}
-impl FileSession {pub fn external_snapshot(&self)->ExternalSnapshot{ExternalSnapshot{binding:self.binding.clone(),expected:self.expected.clone(),owner:self.owner.clone(),generation:self.generation,adoptable:!self.durability_pending()&&!self.is_deleted()}}}
-impl ExternalSnapshot{
- /// Rebuild only the settled captured baseline; never open the current path.
- /// Parsing belongs to the observer worker, and a pending durability receipt is never cloned.
- pub fn rebuild_observer_baseline(&self)->Result<Option<FileSession>,Error>{
-  if !self.adoptable{return Ok(None);}let Some(bytes)=&self.expected else{return Ok(None);};
-  Ok(Some(FileSession{draft:Draft::existing(Document::parse(bytes.to_vec())?),binding:self.binding.clone(),expected:Some(bytes.clone()),owner:self.owner.clone(),generation:self.generation,pending:None,pending_deletion:None,deleted:false,mutation_revision:0}))
- }
- pub fn same_capture(&self,other:&Self)->bool{Arc::ptr_eq(&self.owner,&other.owner)&&self.generation==other.generation&&self.adoptable==other.adoptable}
- pub fn is_current(&self,file:&FileSession)->bool{Arc::ptr_eq(&self.owner,&file.owner)&&self.generation==file.generation&&self.adoptable==(!file.durability_pending()&&!file.is_deleted())}
- pub fn probe(&self,cancelled:&std::sync::atomic::AtomicBool)->Result<Option<ExternalObservation>,Error>{
-  let cancelled=||cancelled.load(std::sync::atomic::Ordering::Acquire);
-  if cancelled(){return Err(Error::StaleSnapshot);}
-  let binding_changed=match self.binding.check(){Ok(())=>false,Err(Error::ExternalChange)=>true,Err(error)=>return Err(error)};
-  let actual=match read_bounded(&self.binding.target){Ok(bytes)=>Some(bytes),Err(Error::Io(error))if error.kind()==io::ErrorKind::NotFound=>None,Err(error)=>return Err(error)};
-  if cancelled(){return Err(Error::StaleSnapshot);}
-  // Identity replacement and exact bytes are both changes, even if bytes match.
-  let identity=match fs::metadata(&self.binding.target){Ok(metadata)=>Some(Identity::of(&metadata)),Err(error)if error.kind()==io::ErrorKind::NotFound=>None,Err(error)=>return Err(error.into())};
-  let target=match self.binding.logical.canonicalize(){Ok(path)=>Some(path),Err(error)if error.kind()==io::ErrorKind::NotFound=>None,Err(error)=>return Err(error.into())};
-  if !binding_changed&&actual.as_deref()==self.expected.as_deref()&&identity==self.binding.identity{return Ok(None);}
-  Ok(Some(ExternalObservation{bytes:actual.map(Arc::from),identity,target}))
- }
+pub struct ExternalSnapshot {
+    binding: Binding,
+    expected: Option<Arc<[u8]>>,
+    owner: Arc<()>,
+    generation: u64,
+    adoptable: bool,
+}
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ExternalObservation {
+    bytes: Option<Arc<[u8]>>,
+    identity: Option<Identity>,
+    target: Option<PathBuf>,
+}
+impl FileSession {
+    pub fn external_snapshot(&self) -> ExternalSnapshot {
+        ExternalSnapshot {
+            binding: self.binding.clone(),
+            expected: self.expected.clone(),
+            owner: self.owner.clone(),
+            generation: self.generation,
+            adoptable: !self.durability_pending() && !self.is_deleted(),
+        }
+    }
+}
+impl ExternalSnapshot {
+    /// Rebuild only the settled captured baseline; never open the current path.
+    /// Parsing belongs to the observer worker, and a pending durability receipt is never cloned.
+    pub fn rebuild_observer_baseline(&self) -> Result<Option<FileSession>, Error> {
+        if !self.adoptable {
+            return Ok(None);
+        }
+        let Some(bytes) = &self.expected else {
+            return Ok(None);
+        };
+        Ok(Some(FileSession {
+            draft: Draft::existing(Document::parse(bytes.to_vec())?),
+            binding: self.binding.clone(),
+            expected: Some(bytes.clone()),
+            owner: self.owner.clone(),
+            generation: self.generation,
+            pending: None,
+            pending_deletion: None,
+            deleted: false,
+            mutation_revision: 0,
+        }))
+    }
+    pub fn same_capture(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.owner, &other.owner)
+            && self.generation == other.generation
+            && self.adoptable == other.adoptable
+    }
+    pub fn is_current(&self, file: &FileSession) -> bool {
+        Arc::ptr_eq(&self.owner, &file.owner)
+            && self.generation == file.generation
+            && self.adoptable == (!file.durability_pending() && !file.is_deleted())
+    }
+    pub fn probe(
+        &self,
+        cancelled: &std::sync::atomic::AtomicBool,
+    ) -> Result<Option<ExternalObservation>, Error> {
+        let cancelled = || cancelled.load(std::sync::atomic::Ordering::Acquire);
+        if cancelled() {
+            return Err(Error::StaleSnapshot);
+        }
+        let binding_changed = match self.binding.check() {
+            Ok(()) => false,
+            Err(Error::ExternalChange) => true,
+            Err(error) => return Err(error),
+        };
+        let actual = match read_bounded(&self.binding.target) {
+            Ok(bytes) => Some(bytes),
+            Err(Error::Io(error)) if error.kind() == io::ErrorKind::NotFound => None,
+            Err(error) => return Err(error),
+        };
+        if cancelled() {
+            return Err(Error::StaleSnapshot);
+        }
+        // Identity replacement and exact bytes are both changes, even if bytes match.
+        let identity = match fs::metadata(&self.binding.target) {
+            Ok(metadata) => Some(Identity::of(&metadata)),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => None,
+            Err(error) => return Err(error.into()),
+        };
+        let target = match self.binding.logical.canonicalize() {
+            Ok(path) => Some(path),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => None,
+            Err(error) => return Err(error.into()),
+        };
+        if !binding_changed
+            && actual.as_deref() == self.expected.as_deref()
+            && identity == self.binding.identity
+        {
+            return Ok(None);
+        }
+        Ok(Some(ExternalObservation {
+            bytes: actual.map(Arc::from),
+            identity,
+            target,
+        }))
+    }
 }

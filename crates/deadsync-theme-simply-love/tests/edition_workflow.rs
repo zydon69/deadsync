@@ -1,5 +1,7 @@
 //! Native editor shortcut -> domain command -> saved file -> reopen. No user
 //! data is touched, and no synthetic key event is described as physical input.
+#[path = "support/row_geometry.rs"]
+mod row_geometry;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::actors::Actor;
 use deadsync_editor::notes::Position;
@@ -102,6 +104,7 @@ fn participant_shortcut_edits_player_two_and_renders_both_owners() {
     let path = dir.path().join("song.ssc");
     fs::write(&path, SONG).unwrap();
     let mut screen = State::open(&path, 0).unwrap();
+    row_geometry::configure(&mut screen, dir.path());
     press(&mut screen, KeyCode::KeyP);
     press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::Digit7);
@@ -125,8 +128,14 @@ fn participant_shortcut_edits_player_two_and_renders_both_owners() {
             _ => None,
         })
         .collect();
-    assert!(arrows.contains(&[181.0/255.0,23.0/255.0,165.0/255.0,1.0]),"P1 source Routine blended quarter-note fill must be present");
-    assert!(arrows.contains(&[39.0/255.0,165.0/255.0,165.0/255.0,1.0]),"P2 source Routine blended quarter-note fill must be present");
+    assert!(
+        arrows.contains(&[181.0 / 255.0, 23.0 / 255.0, 165.0 / 255.0, 1.0]),
+        "P1 source Routine blended quarter-note fill must be present: {arrows:?}"
+    );
+    assert!(
+        arrows.contains(&[39.0 / 255.0, 165.0 / 255.0, 165.0 / 255.0, 1.0]),
+        "P2 source Routine blended quarter-note fill must be present: {arrows:?}"
+    );
     ctrl(&mut screen, KeyCode::KeyS);
     let reopened = State::open(&path, 0).unwrap();
     assert!(
@@ -226,6 +235,9 @@ fn generation_shortcut_previews_without_editing_then_applies_undoes_and_saves() 
 #[test]
 fn preview_discard_and_worker_cancel_leave_source_and_history_untouched() {
     deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     fs::write(&path, SINGLE).unwrap();
@@ -247,6 +259,9 @@ fn preview_discard_and_worker_cancel_leave_source_and_history_untouched() {
 #[test]
 fn unsupported_generation_reports_failure_without_modifying_multiplayer_chart() {
     deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     fs::write(&path, SONG).unwrap();
@@ -657,13 +672,14 @@ fn saved_pattern_shortcut_renders_markers_regenerates_exact_settings_and_preserv
     let path = dir.path().join("song.ssc");
     fs::write(&path, &before).unwrap();
     let mut screen = State::open(&path, 0).unwrap();
+    row_geometry::configure(&mut screen, dir.path());
     press(&mut screen, KeyCode::ArrowDown);
     let mut actors = Vec::new();
     screen.actors(&mut actors);
     assert_eq!(
         actors
             .iter()
-            .filter(|a| matches!(a,Actor::Text{content,z:8006,..} if content.as_ref()=="Pattern"))
+            .filter(|a| matches!(a,Actor::Text{content,z:8004,..} if content.as_ref()=="Pattern" || content.starts_with("Pattern ")))
             .count(),
         2
     );
@@ -709,6 +725,9 @@ fn saved_pattern_shortcut_renders_markers_regenerates_exact_settings_and_preserv
 #[test]
 fn saved_pattern_command_without_a_marker_is_read_only() {
     deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     fs::write(&path, SINGLE).unwrap();
@@ -874,7 +893,8 @@ fn marker_inspector_edits_all_basic_settings_undoes_saves_reopens_and_regenerate
     press(&mut screen, KeyCode::Enter);
     let after = screen.workspace().file().session.serialize().unwrap();
     assert_ne!(before, after);
-    assert_eq!(screen.workspace().row(), 48);
+    // Metadata publication preserves the current navigation position.
+    assert_eq!(screen.workspace().row(), 0);
     assert_eq!(screen.workspace().grid(), &grid);
     let data = ChartData::read(screen.workspace().file().session.document(), 0)
         .unwrap()
@@ -898,11 +918,17 @@ fn marker_inspector_edits_all_basic_settings_undoes_saves_reopens_and_regenerate
         screen.workspace().file().session.serialize().unwrap(),
         after
     );
+    let saved_output = screen
+        .workspace()
+        .file()
+        .session
+        .serialize_for_output()
+        .unwrap();
     ctrl(&mut screen, KeyCode::KeyS);
     let mut reopened = State::open(&path, 0).unwrap();
     assert_eq!(
         reopened.workspace().file().session.serialize().unwrap(),
-        after
+        saved_output
     );
     press(&mut reopened, KeyCode::ArrowDown);
     press(&mut reopened, KeyCode::F5);
@@ -984,7 +1010,7 @@ fn marker_inspector_discard_menu_delete_confirmation_and_undo_keep_notes() {
     assert!(
         !actors
             .iter()
-            .any(|a| matches!(a,Actor::Text{content,z:8006,..} if content.as_ref()=="Pattern"))
+            .any(|a| matches!(a,Actor::Text{content,z:8004,..} if content.as_ref()=="Pattern" || content.starts_with("Pattern ")))
     );
     let after = screen.workspace().file().session.serialize().unwrap();
     ctrl(&mut screen, KeyCode::KeyZ);
@@ -997,14 +1023,20 @@ fn marker_inspector_discard_menu_delete_confirmation_and_undo_keep_notes() {
         screen.workspace().file().session.serialize().unwrap(),
         after
     );
+    let saved_output = screen
+        .workspace()
+        .file()
+        .session
+        .serialize_for_output()
+        .unwrap();
     ctrl(&mut screen, KeyCode::KeyS);
-    assert_eq!(fs::read(&path).unwrap(), after);
+    assert_eq!(fs::read(&path).unwrap(), saved_output);
     // No marker is a read-only error, including after reload.
     let mut reopened = State::open(&path, 0).unwrap();
     press(&mut reopened, KeyCode::F6);
     assert_eq!(
         reopened.workspace().file().session.serialize().unwrap(),
-        after
+        saved_output
     );
 }
 
@@ -1083,7 +1115,7 @@ fn clearing_pattern_notes_previews_discards_cancels_applies_and_saves_with_marke
     assert!(
         actors
             .iter()
-            .any(|a| matches!(a,Actor::Text{content,z:8006,..} if content.as_ref()=="Pattern"))
+            .any(|a| matches!(a,Actor::Text{content,z:8004,..} if content.as_ref()=="Pattern" || content.starts_with("Pattern ")))
     );
     ctrl(&mut screen, KeyCode::KeyZ);
     assert_eq!(
@@ -1095,11 +1127,17 @@ fn clearing_pattern_notes_previews_discards_cancels_applies_and_saves_with_marke
         screen.workspace().file().session.serialize().unwrap(),
         after
     );
+    let saved_output = screen
+        .workspace()
+        .file()
+        .session
+        .serialize_for_output()
+        .unwrap();
     ctrl(&mut screen, KeyCode::KeyS);
     let reopened = State::open(&path, 0).unwrap();
     assert_eq!(
         reopened.workspace().file().session.serialize().unwrap(),
-        after
+        saved_output
     );
 }
 #[test]
@@ -1170,7 +1208,7 @@ fn choose_visible_profile(screen: &mut State, name: &str) {
         screen.actors(&mut actors);
         if actors
             .iter()
-            .any(|a| matches!(a,Actor::Text{content,z:8021,..} if content.contains(name)))
+            .any(|a| matches!(a,Actor::Text{content,z:8021,..} if content.split_whitespace().collect::<Vec<_>>().join(" ").contains(name)))
         {
             return;
         }
@@ -1187,8 +1225,8 @@ fn stage_profile_pair(screen: &mut State, pattern: &str, performed: &str) {
     press(screen, KeyCode::Enter);
 }
 fn apply_marker_from_profiles(screen: &mut State) {
-    // Profile selector returns to its inspector entry (12); save is entry 6.
-    for _ in 0..7 {
+    // The sixteen-row inspector returns at Profiles (12); Save is entry 6.
+    for _ in 0..10 {
         press(screen, KeyCode::ArrowDown);
     }
     press(screen, KeyCode::Enter);
@@ -1344,19 +1382,14 @@ fn profile_subpanel_back_discard_and_loading_cancel_preserve_prior_draft_and_sou
     assert!(!folder.exists());
 }
 #[test]
-fn missing_profile_references_are_not_substituted_until_the_user_selects_replacements() {
+fn missing_marker_profiles_are_resolved_once_on_load_without_rewriting_the_song() {
     use deadsync_editor::{
         document::{Document, Format},
-        generation::metadata::{ChartData, Registry},
+        generation::metadata::{ChartData, PATTERN_BALANCED, SIXTEENTHS},
         history::Session,
     };
     deadsync_theme_simply_love::i18n::init_for_tests();
-    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
-        854.0, 480.0,
-    ));
-    let mut source = Session::new(
-        Document::parse(std::sync::Arc::<[u8]>::from(marker_song()), Format::Ssc).unwrap(),
-    );
+    let mut source = Session::new(Document::parse(marker_song(), Format::Ssc).unwrap());
     let mut data = ChartData::read(source.document(), 0).unwrap().unwrap();
     let marker = data.patterns.as_mut().unwrap().get_mut(&0).unwrap();
     marker.pattern_config_guid = Default::default();
@@ -1367,36 +1400,24 @@ fn missing_profile_references_are_not_substituted_until_the_user_selects_replace
     let path = dir.path().join("song.ssc");
     fs::write(&path, &before).unwrap();
     let mut screen = State::open(&path, 0).unwrap();
-    inspector_action(&mut screen, 12);
-    finish_generation(&mut screen);
-    let mut actors = Vec::new();
-    screen.actors(&mut actors);
-    assert_eq!(actors.iter().filter(|a|matches!(a,Actor::Text{content,z:8021,..} if content.contains("Missing profile"))).count(),2);
-    press(&mut screen, KeyCode::ArrowDown);
-    press(&mut screen, KeyCode::ArrowDown);
-    press(&mut screen, KeyCode::ArrowDown);
-    press(&mut screen, KeyCode::Enter);
+    let file = screen.workspace().file();
+    assert_eq!(file.generation_profile_repairs().len(), 2);
+    let resolved = ChartData::read(file.session.document(), 0)
+        .unwrap()
+        .unwrap();
+    let marker = &resolved.patterns.unwrap()[&0];
+    assert_eq!(marker.pattern_config_guid, SIXTEENTHS.parse().unwrap());
     assert_eq!(
-        screen.workspace().file().session.serialize().unwrap(),
-        before
+        marker.performed_chart_config_guid,
+        PATTERN_BALANCED.parse().unwrap()
     );
-    press(&mut screen, KeyCode::ArrowUp);
-    press(&mut screen, KeyCode::ArrowUp);
-    press(&mut screen, KeyCode::ArrowUp);
-    press(&mut screen, KeyCode::ArrowRight);
-    press(&mut screen, KeyCode::ArrowDown);
-    press(&mut screen, KeyCode::ArrowRight);
-    press(&mut screen, KeyCode::ArrowDown);
-    press(&mut screen, KeyCode::ArrowDown);
-    press(&mut screen, KeyCode::Enter);
-    apply_marker_from_profiles(&mut screen);
-    assert!(
-        ChartData::read(screen.workspace().file().session.document(), 0)
-            .unwrap()
-            .unwrap()
-            .options(0, &Registry::builtin())
-            .is_ok()
-    );
+    assert_eq!(marker.extra["FutureMarker"], serde_json::json!("keep"));
+    assert_eq!(fs::read(&path).unwrap(), before);
+    press(&mut screen, KeyCode::F5);
+    finish_generation(&mut screen);
+    assert!(screen.pattern_report().is_some());
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(fs::read(&path).unwrap(), before);
 }
 
 #[test]
@@ -1514,19 +1535,14 @@ fn chart_expression_selector_is_chart_wide_and_f3_f5_use_the_saved_custom_profil
     );
 }
 #[test]
-fn missing_chart_expression_requires_replacement_and_discard_keeps_the_unknown_identity() {
+fn missing_chart_expression_resolves_to_source_default_without_publishing_until_save() {
     use deadsync_editor::{
         document::{Document, Format},
-        generation::metadata::{ChartData, Registry},
+        generation::metadata::{ChartData, DYNAMIC},
         history::Session,
     };
     deadsync_theme_simply_love::i18n::init_for_tests();
-    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
-        854.0, 480.0,
-    ));
-    let mut source = Session::new(
-        Document::parse(std::sync::Arc::<[u8]>::from(marker_song()), Format::Ssc).unwrap(),
-    );
+    let mut source = Session::new(Document::parse(marker_song(), Format::Ssc).unwrap());
     let mut data = ChartData::read(source.document(), 0).unwrap().unwrap();
     data.expressed_chart_config = Default::default();
     data.save(&mut source, 0).unwrap();
@@ -1535,50 +1551,32 @@ fn missing_chart_expression_requires_replacement_and_discard_keeps_the_unknown_i
     let path = dir.path().join("song.ssc");
     fs::write(&path, &before).unwrap();
     let mut screen = State::open(&path, 0).unwrap();
-    start_generation(&mut screen);
-    finish_generation(&mut screen);
-    assert!(screen.generation_report().is_none());
-    assert_eq!(
-        screen.workspace().file().session.serialize().unwrap(),
-        before
-    );
-    inspector_action(&mut screen, 12);
-    finish_generation(&mut screen);
-    let mut actors = Vec::new();
-    screen.actors(&mut actors);
-    assert_eq!(actors.iter().filter(|a|matches!(a,Actor::Text{content,z:8021,..} if content.contains("Missing profile"))).count(),1);
-    for _ in 0..3 {
-        press(&mut screen, KeyCode::ArrowDown);
-    }
-    press(&mut screen, KeyCode::Enter);
-    assert_eq!(
-        screen.workspace().file().session.serialize().unwrap(),
-        before
-    );
-    press(&mut screen, KeyCode::ArrowUp);
-    press(&mut screen, KeyCode::ArrowRight);
-    press(&mut screen, KeyCode::ArrowDown);
-    press(&mut screen, KeyCode::Enter);
-    press(&mut screen, KeyCode::Escape);
-    assert_eq!(
-        screen.workspace().file().session.serialize().unwrap(),
-        before
-    );
-    inspector_action(&mut screen, 12);
-    finish_generation(&mut screen);
-    press(&mut screen, KeyCode::ArrowDown);
-    press(&mut screen, KeyCode::ArrowDown);
-    press(&mut screen, KeyCode::ArrowRight);
-    press(&mut screen, KeyCode::ArrowDown);
-    press(&mut screen, KeyCode::Enter);
-    apply_marker_from_profiles(&mut screen);
-    let actual = ChartData::read(screen.workspace().file().session.document(), 0)
+    let resolved = ChartData::read(screen.workspace().file().session.document(), 0)
         .unwrap()
         .unwrap();
-    assert!(
-        Registry::builtin()
-            .expressed
-            .contains_key(&actual.expressed_chart_config)
+    assert_eq!(resolved.expressed_chart_config, DYNAMIC.parse().unwrap());
+    assert_eq!(resolved.patterns, data.patterns);
+    assert_eq!(fs::read(&path).unwrap(), before);
+    start_generation(&mut screen);
+    finish_generation(&mut screen);
+    assert!(screen.generation_report().is_some());
+    press(&mut screen, KeyCode::Escape);
+    assert_eq!(fs::read(&path).unwrap(), before);
+    let output = screen
+        .workspace()
+        .file()
+        .session
+        .serialize_for_output()
+        .unwrap();
+    ctrl(&mut screen, KeyCode::KeyS);
+    assert_eq!(fs::read(&path).unwrap(), output);
+    let reopened = State::open(&path, 0).unwrap();
+    assert_eq!(
+        ChartData::read(reopened.workspace().file().session.document(), 0)
+            .unwrap()
+            .unwrap()
+            .expressed_chart_config,
+        DYNAMIC.parse().unwrap()
     );
 }
 
@@ -1747,6 +1745,7 @@ fn chart_property_menu_noop_discard_profile_back_and_loading_cancel_preserve_dra
     let mut actors = Vec::new();
     screen.actors(&mut actors);
     assert!(actors.iter().any(|a| matches!(a, Actor::Text { content, z:8021, .. } if content.as_ref() == "Use chart music offset: No")));
+    press(&mut screen, KeyCode::ArrowRight);
     press(&mut screen, KeyCode::ArrowDown);
     key(&mut screen, KeyCode::ArrowRight, true);
     screen.raw_key(&RawKeyboardEvent {
@@ -2116,6 +2115,8 @@ fn missing_f3_profiles_require_explicit_default_and_can_override_missing_source_
     let path = dir.path().join("song.ssc");
     fs::write(&path, &before).unwrap();
     let mut screen = State::open_with_profiles(&path, 0, &folder).unwrap();
+    let original_disk = before;
+    let before = screen.workspace().file().session.serialize().unwrap();
     open_conversion_profiles(&mut screen);
     stage_conversion_profiles(&mut screen);
     press(&mut screen, KeyCode::Escape);
@@ -2159,7 +2160,9 @@ fn missing_f3_profiles_require_explicit_default_and_can_override_missing_source_
             .unwrap()
             .unwrap()
             .expressed_chart_config,
-        Guid::default()
+        deadsync_editor::generation::metadata::DYNAMIC
+            .parse()
+            .unwrap()
     );
     press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::Enter);
@@ -2167,16 +2170,20 @@ fn missing_f3_profiles_require_explicit_default_and_can_override_missing_source_
         screen.workspace().file().session.serialize().unwrap(),
         before
     );
+    assert_eq!(fs::read(&path).unwrap(), original_disk);
 }
 
 #[test]
-fn global_pattern_shortcuts_select_inspector_wrap_repeat_and_guard_pending_edits() {
+fn global_pattern_shortcuts_wrap_ignore_os_repeat_and_guard_pending_edits() {
     use deadsync_editor::{
         document::{Document, Format},
         generation::metadata::ChartData,
         history::Session,
     };
     deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let mut source = Session::new(Document::parse(marker_song(), Format::Ssc).unwrap());
     let mut data = ChartData::read(source.document(), 0).unwrap().unwrap();
     let definition = data.patterns.as_ref().unwrap()[&0].clone();
@@ -2204,12 +2211,18 @@ fn global_pattern_shortcuts_select_inspector_wrap_repeat_and_guard_pending_edits
         timestamp: Instant::now(),
         host_nanos: 0,
     };
+    // A real repeat belongs to a physically held key; start that gesture
+    // before feeding its repeat events to the evaluator.
+    key(&mut screen, KeyCode::KeyP, true);
+    assert_eq!(screen.workspace().row(), 0);
+    // OS repeats do not duplicate callbacks owned by the source timer.
     screen.raw_key(&repeat);
     assert_eq!(screen.workspace().row(), 0);
-    screen.raw_key(&repeat);
+    key(&mut screen, KeyCode::KeyP, false);
+    press(&mut screen, KeyCode::KeyP);
     assert_eq!(screen.workspace().row(), 192);
     key(&mut screen, KeyCode::ShiftLeft, true);
-    screen.raw_key(&repeat);
+    press(&mut screen, KeyCode::KeyP);
     assert_eq!(screen.workspace().row(), 0);
     key(&mut screen, KeyCode::ShiftLeft, false);
     key(&mut screen, KeyCode::ControlLeft, false);
@@ -2237,6 +2250,9 @@ fn global_pattern_shortcuts_select_inspector_wrap_repeat_and_guard_pending_edits
 fn pattern_shortcut_stops_audio_and_empty_chart_stays_in_note_view() {
     use deadsync_gameplay::GameplayAudioCommand;
     deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     let mut bytes = b"#MUSIC:music.ogg;".to_vec();
@@ -2249,9 +2265,8 @@ fn pattern_shortcut_stops_audio_and_empty_chart_stays_in_note_view() {
     screen.take_audio_commands();
     ctrl(&mut screen, KeyCode::KeyP);
     assert!(!screen.is_playing());
-    assert_eq!(
-        screen.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
+    assert!(
+        matches!(screen.take_audio_commands().as_slice(), [GameplayAudioCommand::EditorPauseMusic { owner, .. }] if *owner == screen.editor_asset_owner())
     );
     assert_eq!(
         screen.workspace().file().session.serialize().unwrap(),
@@ -2268,6 +2283,9 @@ fn pattern_shortcut_stops_audio_and_empty_chart_stays_in_note_view() {
 #[test]
 fn duplicate_shortcut_keeps_unsaved_routine_owners_and_restores_focus_through_history() {
     deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     fs::write(&path, SONG).unwrap();
@@ -2278,7 +2296,7 @@ fn duplicate_shortcut_keeps_unsaved_routine_owners_and_restores_focus_through_hi
     let before = screen.workspace().file().session.serialize().unwrap();
     ctrl(&mut screen, KeyCode::KeyD);
     assert_eq!(screen.workspace().chart(), 1);
-    assert_eq!(screen.workspace().player(), 0);
+    assert_eq!(screen.workspace().player(), 1);
     assert_eq!(screen.workspace().grid().players(), 2);
     assert!(
         screen
@@ -2299,6 +2317,7 @@ fn duplicate_shortcut_keeps_unsaved_routine_owners_and_restores_focus_through_hi
         timestamp: Instant::now(),
         host_nanos: 0,
     });
+    key(&mut screen, KeyCode::KeyD, false);
     key(&mut screen, KeyCode::SuperLeft, false);
     assert_eq!(
         screen.workspace().file().session.document().charts().len(),
@@ -2329,6 +2348,9 @@ fn duplicate_shortcut_keeps_unsaved_routine_owners_and_restores_focus_through_hi
 #[test]
 fn duplicate_menu_is_accessible_and_inspector_focus_blocks_the_shortcut() {
     deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     fs::write(&path, SINGLE).unwrap();
@@ -2368,6 +2390,9 @@ fn duplicate_menu_is_accessible_and_inspector_focus_blocks_the_shortcut() {
 fn new_chart_shortcut_creates_empty_routine_without_inheriting_saved_patterns() {
     use deadsync_editor::generation::metadata::ChartData;
     deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     let before = marker_song();
@@ -2428,6 +2453,9 @@ fn new_chart_shortcut_creates_empty_routine_without_inheriting_saved_patterns() 
 #[test]
 fn new_chart_cancel_and_other_inspector_focus_preserve_source_and_history() {
     deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     fs::write(&path, SINGLE).unwrap();
@@ -2458,8 +2486,11 @@ fn new_chart_cancel_and_other_inspector_focus_preserve_source_and_history() {
     );
 }
 #[test]
-fn new_sm_chart_explains_shared_timing_and_persists_an_empty_double() {
+fn new_sm_chart_explains_initial_timing_and_persists_an_empty_double() {
     deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.sm");
     let before = b"#OFFSET:0.25;#BPMS:0=120,4=180;#NOTES:dance-single:Existing:Hard:9::1000;";
@@ -2469,7 +2500,7 @@ fn new_sm_chart_explains_shared_timing_and_persists_an_empty_double() {
     let mut actors = Vec::new();
     screen.actors(&mut actors);
     assert!(actors.iter().any(
-        |a| matches!(a,Actor::Text{content,..} if content.contains("SM uses shared song timing"))
+        |a| matches!(a,Actor::Text{content,..} if content.contains("Independent initial timing"))
     ));
     press(&mut screen, KeyCode::ArrowRight);
     press(&mut screen, KeyCode::ArrowDown);
@@ -2495,6 +2526,9 @@ fn new_sm_chart_explains_shared_timing_and_persists_an_empty_double() {
 #[test]
 fn new_chart_reviews_legacy_timing_before_creating_local_events() {
     deadsync_theme_simply_love::i18n::init_for_tests();
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     let legacy = String::from_utf8(SINGLE.to_vec())

@@ -38,32 +38,73 @@ fn flag(p: &mut Preferences, index: usize) -> Option<&mut bool> {
         _ => None,
     }
 }
-fn enabled(p:Preferences,index:usize)->bool {
-    match index {11=>!p.placement.lock_x,12=>!p.placement.lock_x&&!p.placement.center,13=>!p.placement.lock_y,17=>!p.placement.center&&(!p.placement.lock_x||p.placement.allow_header),_=>true}
+fn enabled(p: Preferences, index: usize) -> bool {
+    match index {
+        11 => !p.placement.lock_x,
+        12 => !p.placement.lock_x && !p.placement.center,
+        13 => !p.placement.lock_y,
+        17 => !p.placement.center && (!p.placement.lock_x || p.placement.allow_header),
+        _ => true,
+    }
 }
 impl State {
-    pub(super) fn receptor_control_enabled(&self,index:usize)->bool {enabled(self.receptor_draft.unwrap_or_else(||self.receptor_preferences()),index)}
+    pub(super) fn receptor_control_enabled(&self, index: usize) -> bool {
+        enabled(
+            self.receptor_draft
+                .unwrap_or_else(|| self.receptor_preferences()),
+            index,
+        )
+    }
 
     pub(super) fn open_receptor_settings(&mut self) {
         self.minimap_release_input();
         self.receptor_views.release_input();
-        self.receptor_move=None;
+        self.receptor_move = None;
         self.receptor_draft = Some(self.receptor_preferences());
         self.panel = Some(Panel::ReceptorSettings(0));
         self.status = i18n::tr("Edition", "ReceptorSettingsHelp");
     }
     pub(super) fn sync_receptor_preferences_history(&mut self) {
         if let Some(update) = self.workspace.take_receptor_preferences_update() {
-            let mut preferences=update.preferences;
-            if update.file.is_none(){let p=&mut preferences.placement;let current=self.receptor_preferences().placement;for(i,(target,value))in [(&mut p.x,current.x),(&mut p.y,current.y)].into_iter().enumerate(){if !update.placement_changed[i]{*target=value;}}for(i,(target,value))in [(&mut p.center,current.center),(&mut p.lock_x,current.lock_x),(&mut p.lock_y,current.lock_y),(&mut p.allow_header,current.allow_header)].into_iter().enumerate(){if !update.placement_changed[i+2]{*target=value;}}
-                if let Some(file)=self.source_preferences_import.memory.as_mut(){file.set_receptors(preferences);}
+            let mut preferences = update.preferences;
+            if update.file.is_none() {
+                let p = &mut preferences.placement;
+                let current = self.receptor_preferences().placement;
+                for (i, (target, value)) in [(&mut p.x, current.x), (&mut p.y, current.y)]
+                    .into_iter()
+                    .enumerate()
+                {
+                    if !update.placement_changed[i] {
+                        *target = value;
+                    }
+                }
+                for (i, (target, value)) in [
+                    (&mut p.center, current.center),
+                    (&mut p.lock_x, current.lock_x),
+                    (&mut p.lock_y, current.lock_y),
+                    (&mut p.allow_header, current.allow_header),
+                ]
+                .into_iter()
+                .enumerate()
+                {
+                    if !update.placement_changed[i + 2] {
+                        *target = value;
+                    }
+                }
+                if let Some(file) = self.source_preferences_import.memory.as_mut() {
+                    file.set_receptors(preferences);
+                }
             }
             self.configure_receptor_preferences(preferences);
-            if let Some(file) = update.file {self.publish_application_preferences_owner(file);}
+            if let Some(file) = update.file {
+                self.publish_application_preferences_owner(file);
+            }
         }
     }
     pub(super) fn receptor_settings_key(&mut self, index: usize, code: KeyCode) {
-        if self.receptor_movement_key(index,code){return;}
+        if self.receptor_movement_key(index, code) {
+            return;
+        }
         let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
         if code == KeyCode::Escape || (index == 10 && enter) {
             self.receptor_draft = None;
@@ -78,8 +119,15 @@ impl State {
             ));
             return;
         }
-        if !self.receptor_control_enabled(index) && (enter||matches!(code,KeyCode::ArrowLeft|KeyCode::ArrowRight|KeyCode::Home)) {
-            self.status=i18n::tr("Edition","ReceptorControlUnavailable");return;
+        if !self.receptor_control_enabled(index)
+            && (enter
+                || matches!(
+                    code,
+                    KeyCode::ArrowLeft | KeyCode::ArrowRight | KeyCode::Home
+                ))
+        {
+            self.status = i18n::tr("Edition", "ReceptorControlUnavailable");
+            return;
         }
         if matches!(index, 12 | 13 | 17)
             && matches!(
@@ -189,7 +237,9 @@ impl State {
         );
         for (row, key) in KEYS.iter().enumerate().skip(first).take(visible) {
             let ui_row_start = actors.len();
-            let label = if let Some(label)=self.preference_numeric_label(row){label}else if row < 8 || matches!(row, 11 | 14 | 15 | 16) {
+            let label = if let Some(label) = self.preference_numeric_label(row) {
+                label
+            } else if row < 8 || matches!(row, 11 | 14 | 15 | 16) {
                 let enabled = *flag(&mut settings, row).unwrap();
                 i18n::tr_fmt(
                     "Edition",
@@ -219,9 +269,19 @@ impl State {
             } else {
                 i18n::tr("Edition", key)
             };
-            let active=enabled(settings,row);
-            let label=if active{label}else{i18n::tr_fmt("Edition","ReceptorControlInactive",&[("value",&label)])};
-            let color=if !active{[0.5,0.5,0.5,1.]}else if row==index{[1.,0.8,0.3,1.]}else{[1.;4]};
+            let active = enabled(settings, row);
+            let label = if active {
+                label
+            } else {
+                i18n::tr_fmt("Edition", "ReceptorControlInactive", &[("value", &label)])
+            };
+            let color = if !active {
+                [0.5, 0.5, 0.5, 1.]
+            } else if row == index {
+                [1., 0.8, 0.3, 1.]
+            } else {
+                [1.; 4]
+            };
             actors.push(act!(text:font("miso"):settext(label):xy(x,top+(row-first) as f32*30.0):zoom(0.65):maxwidth(520.0):diffuse(color[0],color[1],color[2],color[3]):z(8051)));
 
             self.ui_row(actors, ui_row_start, row == index, 31.);

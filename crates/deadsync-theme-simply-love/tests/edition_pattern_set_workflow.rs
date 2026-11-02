@@ -5,7 +5,7 @@ use deadsync_editor::{
     document::{Document, Format},
     generation::{
         config::PatternConfig,
-        metadata::{ChartData, Definition, EIGHTHS, Guid, PATTERN_BALANCED, SIXTEENTHS},
+        metadata::{ChartData, Definition, EIGHTHS, PATTERN_BALANCED, SIXTEENTHS},
         pattern_batch::Task,
         profiles::Profile,
     },
@@ -119,6 +119,13 @@ fn f9_all_markers_preview_matches_core_navigates_applies_one_history_action_and_
         .run(&AtomicBool::new(false), |_| {})
         .unwrap();
     let mut screen = State::open(&path, 0).unwrap();
+    let preferences = dir.path().join("preview-layout.json");
+    fs::write(
+        &preferences,
+        br#"{"Version":1,"Receptors":{"CenterHorizontally":true}}"#,
+    )
+    .unwrap();
+    screen.configure_audio_preferences(&preferences).unwrap();
     press(&mut screen, KeyCode::F1);
     down(&mut screen, 12);
     press(&mut screen, KeyCode::Enter);
@@ -127,8 +134,9 @@ fn f9_all_markers_preview_matches_core_navigates_applies_one_history_action_and_
     assert!(
         help_actors
             .iter()
-            .any(|actor| matches!(actor, Actor::Sprite { z: 8010, .. }))
+            .any(|actor| matches!(actor, Actor::Text { z: 8050, .. }))
     );
+    press(&mut screen, KeyCode::Escape); // Close the modal help before authoring.
     start(&mut screen);
     press(&mut screen, KeyCode::Digit1);
     finish(&mut screen);
@@ -141,6 +149,10 @@ fn f9_all_markers_preview_matches_core_navigates_applies_one_history_action_and_
         before
     );
     assert_eq!(fs::read(&path).unwrap(), before);
+    assert_eq!(screen.workspace().row(), 0); // Opening a detached preview does not seek.
+    press(&mut screen, KeyCode::ArrowRight);
+    assert_eq!(screen.workspace().row(), 120);
+    press(&mut screen, KeyCode::ArrowLeft);
     assert_eq!(screen.workspace().row(), 48);
     assert!(contains(
         &screen,
@@ -157,16 +169,17 @@ fn f9_all_markers_preview_matches_core_navigates_applies_one_history_action_and_
     );
     assert!(actors.iter().any(|actor|matches!(actor,Actor::Text{content,z:8021,wrap_width_pixels:Some(_),max_height:Some(_),..} if content.contains("Patterns:"))));
     // The larger review summary must leave a usable chart viewport.
-    for width in [854.0, 640.0] {
+    for width in [1280.0, 640.0] {
         deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
             width, 480.0,
         ));
+        screen.set_ui_dpi_viewport(width as u32, 480);
         let mut actors = Vec::new();
         screen.actors(&mut actors);
         assert!(
             !actors
                 .iter()
-                .any(|actor| matches!(actor, Actor::Sprite { z: 8010, .. }))
+                .any(|actor| matches!(actor, Actor::Text { z: 8050, .. }))
         );
         let (panel_x, panel_y, panel_width, panel_height) = actors
             .iter()
@@ -214,6 +227,7 @@ fn f9_all_markers_preview_matches_core_navigates_applies_one_history_action_and_
     deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
         854.0, 480.0,
     ));
+    screen.set_ui_dpi_viewport(854, 480);
     press(&mut screen, KeyCode::ArrowLeft);
     assert_eq!(screen.pattern_set_preview().unwrap().1, 1);
     assert_eq!(screen.workspace().row(), 120);
@@ -241,10 +255,16 @@ fn f9_all_markers_preview_matches_core_navigates_applies_one_history_action_and_
         screen.workspace().file().session.serialize().unwrap(),
         after
     );
+    let output = screen
+        .workspace()
+        .file()
+        .session
+        .serialize_for_output()
+        .unwrap();
     ctrl(&mut screen, KeyCode::KeyS);
     let reopened = State::open(&path, 0).unwrap();
     assert_eq!(reopened.workspace().grid(), expected.grid());
-    assert_eq!(fs::read(&path).unwrap(), after);
+    assert_eq!(fs::read(&path).unwrap(), output);
     let mut other = deadsync_editor::storage::FileSession::open(&path).unwrap();
     assert_eq!(
         other.session.grid(1).unwrap(),
@@ -307,6 +327,7 @@ fn selector_all_none_individual_and_selected_area_are_read_only_until_acceptance
         host_nanos: 0,
     });
     assert!(contains(&screen, "Include this marker: Yes"));
+    key(&mut screen, KeyCode::ArrowRight, false);
     down(&mut screen, 4);
     press(&mut screen, KeyCode::Enter);
     finish(&mut screen);
@@ -326,7 +347,15 @@ fn selector_all_none_individual_and_selected_area_are_read_only_until_acceptance
     press(&mut screen, KeyCode::ArrowDown); // Select beat 1 through beat 2.
     press(&mut screen, KeyCode::Space);
     press(&mut screen, KeyCode::ArrowDown);
-    assert_eq!(screen.workspace().selection(), Some((48, 96)));
+    assert_eq!(
+        screen
+            .workspace()
+            .source_row_selection_at(screen.workspace().row() as f64)
+            .unwrap(),
+        Some((48, 96)),
+        "{:?}",
+        texts(&screen)
+    );
     press(&mut screen, KeyCode::F9);
     down(&mut screen, 4);
     press(&mut screen, KeyCode::Enter);
@@ -366,13 +395,29 @@ fn partial_and_complete_failures_keep_clear_warning_visible_and_apply_one_revers
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("failed.ssc");
         let mut source = source();
+        let profiles = dir.path().join("profiles");
+        let unavailable = Profile::parse(
+            deadsync_editor::generation::profiles::Kind::Performed,
+            &serde_json::to_vec(&serde_json::json!({
+                "Guid": "12345678-9abc-4def-8123-456789abcdef",
+                "Name": "Unavailable after opening",
+                "Config": deadsync_editor::generation::config::PerformedConfig::preset(
+                    deadsync_editor::generation::config::PerformedPreset::Balanced),
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        let profile_file = unavailable.export_new(&profiles).unwrap();
         let mut data = ChartData::read(source.document(), 0).unwrap().unwrap();
         for (_, marker) in data.patterns.as_mut().unwrap().iter_mut().take(failed) {
-            marker.performed_chart_config_guid = Guid::default();
+            marker.performed_chart_config_guid = unavailable.guid().clone();
         }
         data.save(&mut source, 0).unwrap();
         let before = save(&source, &path);
-        let mut screen = State::open(&path, 0).unwrap();
+        let mut screen = State::open_with_profiles(&path, 0, &profiles).unwrap();
+        // File opening repairs missing IDs. Make the profile unavailable only
+        // after that validated open, as a real external removal can do.
+        fs::remove_file(profile_file.path()).unwrap();
         start(&mut screen);
         finish(&mut screen);
         assert_eq!(
@@ -438,7 +483,12 @@ fn submenu_preserves_single_pattern_action_and_batch_cancel_discard_and_no_area_
         screen.workspace().file().session.serialize().unwrap(),
         before
     );
-    // Preview starts at the first saved marker, so the single command can use it.
+    // Set preview preserves its entry cursor. Navigate explicitly to the first
+    // saved marker before exercising the single-pattern command.
+    press(&mut screen, KeyCode::Home);
+    ctrl(&mut screen, KeyCode::KeyP);
+    assert_eq!(screen.workspace().row(), 48);
+    press(&mut screen, KeyCode::Escape); // Close the navigated marker inspector.
     press(&mut screen, KeyCode::F1);
     down(&mut screen, 7);
     press(&mut screen, KeyCode::Enter);

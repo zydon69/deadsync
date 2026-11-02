@@ -28,22 +28,36 @@ fn pin_benchmark_thread() -> impl Drop {
     unsafe extern "system" {
         fn GetCurrentThread() -> *mut std::ffi::c_void;
         fn GetCurrentProcess() -> *mut std::ffi::c_void;
-        fn GetProcessAffinityMask(process: *mut std::ffi::c_void, process_mask: *mut usize, system_mask: *mut usize) -> i32;
+        fn GetProcessAffinityMask(
+            process: *mut std::ffi::c_void,
+            process_mask: *mut usize,
+            system_mask: *mut usize,
+        ) -> i32;
         fn SetThreadAffinityMask(thread: *mut std::ffi::c_void, mask: usize) -> usize;
     }
     struct Restore(usize);
     impl Drop for Restore {
         fn drop(&mut self) {
             // SAFETY: restore the mask returned for this live thread.
-            unsafe { SetThreadAffinityMask(GetCurrentThread(), self.0); }
+            unsafe {
+                SetThreadAffinityMask(GetCurrentThread(), self.0);
+            }
         }
     }
     let (mut allowed, mut system) = (0, 0);
     // SAFETY: valid process pseudo-handle and synchronous output pointers.
-    assert_ne!(unsafe { GetProcessAffinityMask(GetCurrentProcess(), &mut allowed, &mut system) }, 0);
+    assert_ne!(
+        unsafe { GetProcessAffinityMask(GetCurrentProcess(), &mut allowed, &mut system) },
+        0
+    );
     // Prefer the second permitted logical CPU; respect process affinity.
     let rest = allowed & (allowed - 1);
-    let mask = 1usize << if rest == 0 { allowed.trailing_zeros() } else { rest.trailing_zeros() };
+    let mask = 1usize
+        << if rest == 0 {
+            allowed.trailing_zeros()
+        } else {
+            rest.trailing_zeros()
+        };
     // SAFETY: mask selects one CPU allowed by the process affinity.
     let previous = unsafe { SetThreadAffinityMask(GetCurrentThread(), mask) };
     assert_ne!(previous, 0);
@@ -51,20 +65,43 @@ fn pin_benchmark_thread() -> impl Drop {
 }
 
 #[cfg(not(windows))]
-fn pin_benchmark_thread() -> impl Drop { Box::new(()) }
+fn pin_benchmark_thread() -> impl Drop {
+    Box::new(())
+}
 
 // Hash observations outside the timed section. Include every pose property and
 // mesh/text/texture payload, rather than just checking the final actor position.
 fn fingerprint(state: &gameplay::State, hash: &mut Fingerprint) {
     let visuals = &state.gameplay.mods.song_lua_visuals;
-    for actor in visuals.overlays.iter()
-        .chain(visuals.background_visual_layers.iter().flat_map(|layer| &layer.overlays))
-        .chain(visuals.foreground_visual_layers.iter().flat_map(|layer| &layer.overlays))
+    for actor in visuals
+        .overlays
+        .iter()
+        .chain(
+            visuals
+                .background_visual_layers
+                .iter()
+                .flat_map(|layer| &layer.overlays),
+        )
+        .chain(
+            visuals
+                .foreground_visual_layers
+                .iter()
+                .flat_map(|layer| &layer.overlays),
+        )
     {
-        write!(hash, "{:?}{:?}{:?}", actor.name, actor.initial_state, actor.kind).unwrap();
+        write!(
+            hash,
+            "{:?}{:?}{:?}",
+            actor.name, actor.initial_state, actor.kind
+        )
+        .unwrap();
     }
-    write!(hash, "{:?}{:?}{:?}", visuals.player_actors,
-        visuals.song_foreground, visuals.screen_layers).unwrap();
+    write!(
+        hash,
+        "{:?}{:?}{:?}",
+        visuals.player_actors, visuals.song_foreground, visuals.screen_layers
+    )
+    .unwrap();
 }
 
 fn snapshot(state: &gameplay::State) -> Value {
@@ -109,8 +146,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let benchmark = args.len() == 4;
     let _affinity = benchmark.then(pin_benchmark_thread);
-    let frame_count = if benchmark { args[3].parse::<usize>()? } else { 241 };
-    if frame_count <= 60 { return Err("benchmark requires more than 60 warmup frames".into()); }
+    let frame_count = if benchmark {
+        args[3].parse::<usize>()?
+    } else {
+        241
+    };
+    if frame_count <= 60 {
+        return Err("benchmark requires more than 60 warmup frames".into());
+    }
     let simfile = PathBuf::from(&args[0]).canonicalize()?;
     let bundle = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../..")
@@ -218,7 +261,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if retained_lua_vm {
         for frame in 0..frame_count {
             #[cfg(feature = "song-lua-performance")]
-            if frame == 60 { deadsync_song_lua::reset_live_profile(); }
+            if frame == 60 {
+                deadsync_song_lua::reset_live_profile();
+            }
             let seconds = frame as f64 / 60.0;
             let host = 1_000_000_000 + (seconds * 1e9).round() as u64;
             let measurement = (benchmark && frame >= 60).then(metrics::Measurement::start);
@@ -237,25 +282,47 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 || host,
                 &mut Vec::new(),
             );
-            if let Some(measurement) = measurement { samples.push(measurement.finish()); }
+            if let Some(measurement) = measurement {
+                samples.push(measurement.finish());
+            }
             let output = state.take_song_lua_output();
             errors.extend(output.errors);
             actor_sound_operations += output.actor_sounds.len();
-            if benchmark { fingerprint(&state, &mut hash); }
+            if benchmark {
+                fingerprint(&state, &mut hash);
+            }
             let current = snapshot(&state);
             changed_frames += usize::from(current != previous);
             previous = current;
             frames += 1;
         }
     }
-    let passed = retained_lua_vm && errors.is_empty() && frames == frame_count && changed_frames > 1;
+    let passed =
+        retained_lua_vm && errors.is_empty() && frames == frame_count && changed_frames > 1;
     let mut fingerprint = String::with_capacity(64);
-    for byte in hash.0.finalize() { write!(&mut fingerprint, "{byte:02x}")?; }
-    let total_seconds: f64 = samples.iter().map(|sample| sample["wall_seconds"].as_f64().unwrap()).sum();
-    let total_cycles: u64 = samples.iter().filter_map(|sample| sample["thread_cpu_cycles"].as_u64()).sum();
-    let total_allocations: u64 = samples.iter().map(|sample| sample["allocations"].as_u64().unwrap()).sum();
-    let total_reallocations: u64 = samples.iter().map(|sample| sample["reallocations"].as_u64().unwrap()).sum();
-    let total_bytes: u64 = samples.iter().map(|sample| sample["allocated_bytes"].as_u64().unwrap()).sum();
+    for byte in hash.0.finalize() {
+        write!(&mut fingerprint, "{byte:02x}")?;
+    }
+    let total_seconds: f64 = samples
+        .iter()
+        .map(|sample| sample["wall_seconds"].as_f64().unwrap())
+        .sum();
+    let total_cycles: u64 = samples
+        .iter()
+        .filter_map(|sample| sample["thread_cpu_cycles"].as_u64())
+        .sum();
+    let total_allocations: u64 = samples
+        .iter()
+        .map(|sample| sample["allocations"].as_u64().unwrap())
+        .sum();
+    let total_reallocations: u64 = samples
+        .iter()
+        .map(|sample| sample["reallocations"].as_u64().unwrap())
+        .sum();
+    let total_bytes: u64 = samples
+        .iter()
+        .map(|sample| sample["allocated_bytes"].as_u64().unwrap())
+        .sum();
     #[cfg(feature = "song-lua-performance")]
     let live_profile = Some(deadsync_song_lua::live_profile_report());
     #[cfg(not(feature = "song-lua-performance"))]

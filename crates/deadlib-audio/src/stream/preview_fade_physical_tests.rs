@@ -121,6 +121,7 @@ fn collect(
 }
 #[test]
 fn actual_prepared_preview_fades_survive_two_loops_partial_reload_and_dedicated_eof() {
+    let _audio_guard = crate::test_audio_guard();
     let directory =
         std::env::temp_dir().join(format!("physical-preview-fades-{}", std::process::id()));
     std::fs::create_dir_all(&directory).unwrap();

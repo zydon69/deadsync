@@ -1,10 +1,12 @@
-//! Shared receptor application preferences drive actual chart presentation.
+#[allow(dead_code)]
+#[path = "support/transport_host.rs"]
+mod transport_host;
+// Shared receptor application preferences drive actual chart presentation.
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
     actors::{Actor, SpriteSource},
     space::{Metrics, set_current_metrics},
 };
-use deadsync_gameplay::GameplayAudioSnapshot;
 use deadsync_theme_simply_love::{
     i18n,
     screens::edition::{
@@ -42,6 +44,7 @@ fn open(layout: &str, notes: &str) -> (tempfile::TempDir, State, Vec<u8>) {
     (d, s, source)
 }
 fn play(s: &mut State) {
+    transport_host::publish(s);
     press(s, KeyCode::Enter);
     s.bind_decoder_generation(Some(1));
     s.set_decoder_status(
@@ -52,7 +55,7 @@ fn play(s: &mut State) {
             opened: true,
         }),
     );
-    let mut snapshot = GameplayAudioSnapshot::default();
+    let mut snapshot = transport_host::host_snapshot(s);
     snapshot.stream_clock.valid_at = Instant::now();
     snapshot.stream_clock.stream_seconds = 0.25;
     snapshot.stream_clock.has_music_mapping = true;
@@ -122,7 +125,7 @@ fn body<'a>(sprites: &'a [Sprite], x: u32, y: u32, h: u32) -> Vec<&'a Sprite> {
 
 fn configure(s: &mut State, dir: &std::path::Path, hide: bool, light: bool, effects: bool) {
     let path = dir.join("receptors.json");
-    fs::write(&path,serde_json::to_vec(&serde_json::json!({"Version":1,"Receptors":{"AutoPlayHideArrows":hide,"AutoPlayLightHolds":light,"AutoPlayRimEffect":effects,"AutoPlayGlowEffect":effects,"AutoPlayShrinkEffect":effects,"TapRimEffect":effects,"TapShrinkEffect":effects,"PulseReceptorsWithTempo":effects}})).unwrap()).unwrap();
+    fs::write(&path,serde_json::to_vec(&serde_json::json!({"Version":1,"Scroll":{"SpacingMode":"ConstantRow","RowBasedPixelsPerRow":1},"Receptors":{"AutoPlayHideArrows":hide,"AutoPlayLightHolds":light,"AutoPlayRimEffect":effects,"AutoPlayGlowEffect":effects,"AutoPlayShrinkEffect":effects,"TapRimEffect":effects,"TapShrinkEffect":effects,"PulseReceptorsWithTempo":effects}})).unwrap()).unwrap();
     s.configure_audio_preferences(&path).unwrap();
 }
 fn note_count(s: &State, x: f32) -> usize {

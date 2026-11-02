@@ -72,7 +72,9 @@ impl State {
                     3 => draft.max_frames.to_string(),
                     _ => String::new(),
                 };
-                let label = if let Some(label)=self.preference_numeric_label(row){label}else if row < 4 {
+                let label = if let Some(label) = self.preference_numeric_label(row) {
+                    label
+                } else if row < 4 {
                     i18n::tr_fmt("Edition", key, &[("value", &value)])
                 } else {
                     i18n::tr("Edition", key)

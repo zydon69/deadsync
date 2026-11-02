@@ -13,6 +13,7 @@
 
 #![forbid(unsafe_code)]
 
+mod arithmetic;
 mod bytecode;
 mod compiler;
 mod error;

@@ -127,7 +127,6 @@ impl AppDirs {
         self.cache_dir.join("beginner-packs.json")
     }
 
-
     /// How many booster packs this machine has kept, which numbers the next.
     /// Save data rather than cache: clearing it would reuse pack numbers.
     #[must_use]
@@ -451,13 +450,25 @@ mod tests {
     use super::*;
     #[test]
     fn editor_configs_follow_the_application_data_root() {
-        let root=std::env::temp_dir().join("deadsync-editor-paths");
-        let dirs=AppDirs::portable_layout(root.join("portable"));
-        assert_eq!(dirs.editor_configs_dir(),dirs.data_dir.join("AutogenConfigs"));
-        assert_eq!(dirs.editor_preferences_path(),dirs.data_dir.join("editor-preferences.json"));
-        let dirs=AppDirs::isolated_layout(root.join("data"),root.join("bundle"));
-        assert_eq!(dirs.editor_configs_dir(),root.join("data").join("AutogenConfigs"));
-        assert_eq!(dirs.editor_preferences_path(),root.join("data").join("editor-preferences.json"));
+        let root = std::env::temp_dir().join("deadsync-editor-paths");
+        let dirs = AppDirs::portable_layout(root.join("portable"));
+        assert_eq!(
+            dirs.editor_configs_dir(),
+            dirs.data_dir.join("AutogenConfigs")
+        );
+        assert_eq!(
+            dirs.editor_preferences_path(),
+            dirs.data_dir.join("editor-preferences.json")
+        );
+        let dirs = AppDirs::isolated_layout(root.join("data"), root.join("bundle"));
+        assert_eq!(
+            dirs.editor_configs_dir(),
+            root.join("data").join("AutogenConfigs")
+        );
+        assert_eq!(
+            dirs.editor_preferences_path(),
+            root.join("data").join("editor-preferences.json")
+        );
     }
 
     #[test]

@@ -308,8 +308,16 @@ fn benchmark_archive_grouping() {
         assert_folders(&new, &old);
         // One-pass grouping interleaves audio allocations with map growth;
         // that changes peak live bytes while preserving allocation work.
-        assert_eq!(crate::perf::Churn { peak_bytes: 0, ..before },
-            crate::perf::Churn { peak_bytes: 0, ..after });
+        assert_eq!(
+            crate::perf::Churn {
+                peak_bytes: 0,
+                ..before
+            },
+            crate::perf::Churn {
+                peak_bytes: 0,
+                ..after
+            }
+        );
         println!("{label} churn: original {before:?}, current {after:?}");
         paired_bench::compare(&label, 20, |current| {
             black_box(if current {

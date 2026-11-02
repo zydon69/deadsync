@@ -1,3 +1,5 @@
+#[path = "support/prepared_audio.rs"]
+mod prepared_audio;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
     actors::{Actor, SizeSpec},
@@ -35,7 +37,7 @@ fn open(s: &mut State) {
     key(s, KeyCode::ShiftLeft, false);
 }
 fn mode(s: &mut State, m: SpacingMode) {
-    if m == SpacingMode::ConstantRow {
+    if s.spacing_mode() == m {
         return;
     }
     key(s, KeyCode::SuperLeft, true);
@@ -54,6 +56,9 @@ fn reverse(s: &mut State) {
 fn actors(s: &State) -> Vec<Actor> {
     let mut a = Vec::new();
     s.actors(&mut a);
+    for target in s.take_waveform_render_targets() {
+        a.extend(target.children.iter().cloned());
+    }
     a
 }
 fn has(s: &State, t: &str) -> bool {
@@ -124,6 +129,7 @@ fn setup() -> (tempfile::TempDir, State, Vec<u8>) {
     s.configure_audio_preferences(&dir.path().join("prefs.json"))
         .unwrap();
     down(&mut s, 10);
+    prepared_audio::publish_main(&mut s);
     let deadline = Instant::now() + Duration::from_secs(10);
     while !s.waveform_ready() {
         s.update();
@@ -133,9 +139,10 @@ fn setup() -> (tempfile::TempDir, State, Vec<u8>) {
     (dir, s, source)
 }
 fn select(s: &mut State, path: &Path, policy: ScrollMode) {
-    let before = fs::read(path).ok();
     let active = s.waveform_preferences().scroll_mode();
     open(s);
+    // Opening is a departure barrier for unrelated pending spacing preferences.
+    let before = fs::read(path).ok();
     down(s, 4);
     press(s, KeyCode::Home);
     for _ in 0..match policy {
@@ -147,7 +154,7 @@ fn select(s: &mut State, path: &Path, policy: ScrollMode) {
     }
     assert_eq!(s.waveform_preferences().scroll_mode(), active);
     assert_eq!(fs::read(path).ok(), before);
-    down(s, 2);
+    down(s, 10);
     press(s, KeyCode::Enter);
     assert_eq!(s.waveform_preferences().scroll_mode(), policy);
     assert_eq!(File::open(path).unwrap().waveform().scroll_mode(), policy);
@@ -164,7 +171,7 @@ fn saved_policies_move_real_waveform_in_all_modes_and_reload_without_chart_edits
         mode(&mut s, m);
         assert_eq!(s.spacing_mode(), m);
         let rates = match m {
-            SpacingMode::ConstantRow => [192.0, 192.0, 96.0],
+            SpacingMode::ConstantRow => [384.0, 384.0, 192.0],
             SpacingMode::ConstantTime => [300.0; 3],
             SpacingMode::Variable => [240.0, 960.0, 120.0],
         };
@@ -197,6 +204,7 @@ fn saved_policies_move_real_waveform_in_all_modes_and_reload_without_chart_edits
         );
         down(&mut reopened, 10);
         mode(&mut reopened, m);
+        prepared_audio::publish_main(&mut reopened);
         let deadline = Instant::now() + Duration::from_secs(10);
         while !reopened.waveform_ready() {
             reopened.update();
@@ -233,9 +241,9 @@ fn policy_cancel_conflict_and_numeric_shortcuts_keep_active_state_and_source() {
     assert!(has(&s, "Waveform scroll: Current tempo"));
     press(&mut s, KeyCode::ArrowLeft);
     assert!(has(&s, "Most common tempo"));
-    let external = b"{\"Version\":1,\"Other\":true}";
+    let external = b"{\"Version\":1,\"Other\":true,\"Waveform\":{\"RowBasedWaveFormScrollMode\":\"CurrentTempoAndRate\"}}";
     fs::write(&path, external).unwrap();
-    down(&mut s, 2);
+    down(&mut s, 10);
     press(&mut s, KeyCode::Enter);
     assert_eq!(
         s.waveform_preferences().scroll_mode(),

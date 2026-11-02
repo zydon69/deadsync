@@ -679,6 +679,7 @@ mod tests {
 
     #[test]
     fn backend_diagnostic_ids_round_trip_on_every_target() {
+        let _audio_guard = crate::test_audio_guard();
         for backend in [
             OutputTelemetryBackend::AlsaShared,
             OutputTelemetryBackend::AlsaExclusive,
@@ -700,6 +701,7 @@ mod tests {
 
     #[test]
     fn clean_callbacks_do_not_read_the_host_clock() {
+        let _audio_guard = crate::test_audio_guard();
         let clock_reads = Cell::new(0);
         report_audio_render_callback(
             RenderReport {
@@ -717,6 +719,7 @@ mod tests {
 
     #[test]
     fn diagnostics_read_the_host_clock_at_most_once_per_callback() {
+        let _audio_guard = crate::test_audio_guard();
         let clock_reads = Cell::new(0);
         report_audio_render_callback(
             RenderReport {
@@ -734,6 +737,7 @@ mod tests {
 
     #[test]
     fn untraced_underruns_do_not_read_the_host_clock() {
+        let _audio_guard = crate::test_audio_guard();
         let clock_reads = Cell::new(0);
         report_audio_render_callback(
             RenderReport {

@@ -289,14 +289,14 @@ fn saved_history_survives_catalog_reload_and_refuses_pending_edits() {
     for _ in 0..6 {
         press(&mut s, KeyCode::ArrowDown);
     }
-    assert!(has(&s, "Undo saved profile"));
+    assert!(has(&s, i18n::tr("Edition", "ProfileUndoSave").as_ref()));
     press(&mut s, KeyCode::Enter);
     finish(&mut s);
     assert_eq!(fs::read(&file).unwrap(), original);
     press(&mut s, KeyCode::KeyE);
     press(&mut s, KeyCode::F8);
     finish(&mut s);
-    assert_eq!(fs::read(&file).unwrap(), saved);
+    assert_eq!(fs::read(&file).unwrap(), saved, "{:?}", texts(&s));
     assert!(has(&s, "Saved name"));
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
     assert_eq!(fs::read(path).unwrap(), source);
@@ -319,7 +319,7 @@ fn profile_deletion_confirmation_uses_global_history_and_preserves_song_file() {
     press(&mut s, KeyCode::ArrowDown);
     press(&mut s, KeyCode::Enter);
     assert!(!file.exists());
-    assert!(has(&s, "Profile deleted."));
+    assert!(has(&s, "Profile deleted."), "{:?}", texts(&s));
     let repaired = s.workspace().file().session.serialize().unwrap();
     assert_ne!(repaired, source);
     press(&mut s, KeyCode::Digit2);
@@ -365,15 +365,22 @@ fn conversion_selection(s: &mut State, custom: bool) {
 }
 fn expression_summary(s: &mut State) -> String {
     press(s, KeyCode::F3);
-    let template = i18n::tr("Edition", "GenerationExpressionSummary");
+    for _ in 0..5 {
+        press(s, KeyCode::ArrowDown);
+    }
+    press(s, KeyCode::Enter);
+    finish(s);
+    let template = i18n::tr("Edition", "GenerationExpressionProfile");
     let prefix = template.split('{').next().unwrap();
     let summary = texts(s)
         .into_iter()
         .find(|text| text.starts_with(prefix))
-        .unwrap();
+        .expect("conversion profile inspector displays its selected interpretation");
+    press(s, KeyCode::Escape);
     press(s, KeyCode::Escape);
     summary
 }
+
 fn delete_original(s: &mut State) {
     open(s);
     press(s, KeyCode::F9);
@@ -704,7 +711,8 @@ fn save_copy_uses_global_undo_and_restores_conversion_selection_without_overwrit
     press(&mut s, KeyCode::ArrowDown);
     press(&mut s, KeyCode::Enter);
     press(&mut s, KeyCode::Escape);
-    assert!(expression_summary(&mut s).contains("Undoable"));
+    let summary = expression_summary(&mut s);
+    assert!(summary.contains("Undoable"), "{summary}; {:?}", texts(&s));
     ctrl(&mut s, KeyCode::KeyZ);
     assert!(!copy.exists());
     assert!(original.exists());
@@ -712,12 +720,21 @@ fn save_copy_uses_global_undo_and_restores_conversion_selection_without_overwrit
     assert!(!expression_summary(&mut s).contains("Undoable"));
     ctrl(&mut s, KeyCode::KeyY);
     assert_eq!(fs::read(&copy).unwrap(), bytes);
-    assert!(expression_summary(&mut s).contains("Undoable"));
+    let summary = expression_summary(&mut s);
+    assert!(summary.contains("Undoable"), "{summary}; {:?}", texts(&s));
     fs::write(&copy, b"external change").unwrap();
+    let revision = s.workspace().file().session.revision();
     ctrl(&mut s, KeyCode::KeyZ);
     assert_eq!(fs::read(&copy).unwrap(), b"external change");
-    assert!(expression_summary(&mut s).contains("Undoable"));
+    let summary = expression_summary(&mut s);
+    assert!(
+        summary.contains(i18n::tr("Edition", "ProfileMissing").as_ref()),
+        "{summary}; {:?}",
+        texts(&s)
+    );
+    assert_eq!(s.workspace().file().session.revision(), revision);
     fs::write(&copy, &bytes).unwrap();
+    assert!(expression_summary(&mut s).contains("Undoable"));
     ctrl(&mut s, KeyCode::KeyZ);
     assert!(!copy.exists());
     conversion_selection(&mut s, false);

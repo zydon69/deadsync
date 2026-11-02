@@ -21,7 +21,7 @@ fn focus(state: &mut State) {
     event(state, KeyCode::SuperLeft, false);
     assert!(state.minimap_focused());
 }
-fn setup(stop: bool) -> (tempfile::TempDir, State,u64) {
+fn setup(stop: bool) -> (tempfile::TempDir, State, u64) {
     i18n::init(deadsync_assets::language::load_for_tests(LANGUAGE));
     deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
         854.0, 480.0,
@@ -32,20 +32,31 @@ fn setup(stop: bool) -> (tempfile::TempDir, State,u64) {
     let path = directory.path().join("preferences.json");
     fs::write(
         &path,
-        format!("{{\"Version\":1,\"Scroll\":{{\"StopPlaybackWhenDraggingScrollBars\":{stop}}}}}"),
+        format!("{{\"Version\":1,\"SnapIndex\":1,\"Scroll\":{{\"StopPlaybackWhenDraggingScrollBars\":{stop}}}}}"),
     )
     .unwrap();
     let mut state = State::open(&directory.path().join("song.ssc"), 0).unwrap();
     state.configure_audio_preferences(&path).unwrap();
-    let owner=publish_audio_fixture(&mut state);
-    (directory, state,owner)
+    state.configure_spacing_preference(
+        deadsync_editor::scroll_preferences::spacing::Preference::ConstantRow,
+    );
+    let owner = publish_audio_fixture(&mut state);
+    (directory, state, owner)
 }
 #[test]
-fn keyboard_capture_preserves_note_selection_and_resumes_exact_destination_on_release() {
-    let (_dir, mut state,owner)=setup(false);
+fn keyboard_capture_extends_active_source_range_and_resumes_exact_destination_on_release() {
+    let (_dir, mut state, owner) = setup(false);
     press(&mut state, KeyCode::Space);
     press(&mut state, KeyCode::ArrowDown);
-    assert_eq!(state.workspace().selection(), Some((0, 48)));
+    assert_eq!(
+        state.workspace().row(),
+        48,
+        "explicit quarter-note fixture snap"
+    );
+    assert_eq!(
+        state.workspace().selection(),
+        Some((0, state.workspace().row()))
+    );
     press(&mut state, KeyCode::Enter);
     state.take_audio_commands();
     let mut snapshot = GameplayAudioSnapshot::default();
@@ -53,17 +64,26 @@ fn keyboard_capture_preserves_note_selection_and_resumes_exact_destination_on_re
     snapshot.stream_clock.has_music_mapping = true;
     snapshot.stream_clock.music_nanos = 626_000_000;
     state.update_audio(snapshot);
-    assert_eq!(state.workspace().selection(), Some((0, 48)));
+    assert_eq!(
+        state.workspace().selection(),
+        Some((0, state.workspace().row()))
+    );
     focus(&mut state);
     event(&mut state, KeyCode::ArrowDown, true);
     assert!(!state.is_playing());
     assert_eq!(
         state.take_audio_commands(),
-        vec![GameplayAudioCommand::EditorStopMusic{owner}]
+        vec![GameplayAudioCommand::EditorPauseMusic {
+            owner,
+            seconds: 0.626
+        }]
     );
     let destination = state.chart_focus_time().unwrap();
     assert!(destination > 0.626);
-    assert_eq!(state.workspace().selection(), Some((0, 48)));
+    assert_eq!(
+        state.workspace().selection(),
+        Some((0, state.workspace().row()))
+    );
     press(&mut state, KeyCode::Digit2);
     assert!(!state.workspace().file().session.is_dirty());
     event(&mut state, KeyCode::ArrowDown, false);
@@ -71,14 +91,17 @@ fn keyboard_capture_preserves_note_selection_and_resumes_exact_destination_on_re
     let commands = state.take_audio_commands();
     assert_eq!(commands.len(), 1);
     assert!(
-        matches!(&commands[0],GameplayAudioCommand::EditorPlayMusic {owner:actual,cut,..} if *actual==owner && (cut.start_sec-destination).abs()<1e-10)
+        matches!(&commands[0],GameplayAudioCommand::EditorResumeMusic {owner:actual,seconds,..} if *actual==owner && (*seconds-destination).abs()<1e-10)
     );
-    assert_eq!(state.workspace().selection(), Some((0, 48)));
+    assert_eq!(
+        state.workspace().selection(),
+        Some((0, state.workspace().row()))
+    );
 }
 #[test]
 fn stop_preference_and_initially_stopped_transport_never_resume_on_release() {
     for playing in [false, true] {
-        let (_dir, mut state,owner)=setup(true);
+        let (_dir, mut state, _owner) = setup(true);
         if playing {
             press(&mut state, KeyCode::Enter);
             state.take_audio_commands();
@@ -94,7 +117,7 @@ fn stop_preference_and_initially_stopped_transport_never_resume_on_release() {
 }
 #[test]
 fn focus_loss_does_not_resume_and_minimap_presentation_is_bounded() {
-    let (_dir, mut state,owner)=setup(false);
+    let (_dir, mut state, _owner) = setup(false);
     press(&mut state, KeyCode::Enter);
     state.take_audio_commands();
     focus(&mut state);
@@ -138,7 +161,7 @@ fn focus_loss_does_not_resume_and_minimap_presentation_is_bounded() {
 
 #[test]
 fn distinct_drag_preference_is_reviewable_saved_and_reloaded_without_song_changes() {
-    let (directory, mut state,owner)=setup(false);
+    let (directory, mut state, _owner) = setup(false);
     event(&mut state, KeyCode::ShiftLeft, true);
     press(&mut state, KeyCode::KeyS);
     event(&mut state, KeyCode::ShiftLeft, false);
@@ -167,7 +190,7 @@ fn distinct_drag_preference_is_reviewable_saved_and_reloaded_without_song_change
 
 #[test]
 fn exact_overview_is_complete_and_invalidates_after_note_edits() {
-    let (directory, _state,owner)=setup(false);
+    let (directory, _state, _owner) = setup(false);
     let measures = std::iter::repeat_n("1000\n".repeat(48), 125)
         .collect::<Vec<_>>()
         .join(",\n");
@@ -177,6 +200,9 @@ fn exact_overview_is_complete_and_invalidates_after_note_edits() {
     )
     .unwrap();
     let mut state = State::open(&directory.path().join("large.ssc"), 0).unwrap();
+    state.configure_spacing_preference(
+        deadsync_editor::scroll_preferences::spacing::Preference::ConstantRow,
+    );
     let render = |state: &State| {
         let mut actors = Vec::new();
         state.actors(&mut actors);
@@ -198,23 +224,43 @@ fn exact_overview_is_complete_and_invalidates_after_note_edits() {
 }
 
 #[test]
-fn leaving_preview_audition_does_not_arm_chart_resume_for_minimap_capture() {
-    let (_directory, mut state,owner)=setup(false);
+fn minimap_capture_preserves_preview_without_chart_pause_or_resume() {
+    let (_directory, mut state, owner) = setup(false);
+    // Preview commands need an acknowledged output lease as well as prepared
+    // MAIN data; silent chart navigation intentionally does not require one.
+    let mut output = GameplayAudioSnapshot::default();
+    output.editor.owner = owner;
+    output.editor.output.available = true;
+    output.editor.output.leased = true;
+    output.editor.assets = deadsync_gameplay::EditorAssetReadiness {
+        owner,
+        registration: state.editor_asset_registration(),
+        main: true,
+        dedicated_preview: false,
+    };
+    state.update_audio(output);
+    state.take_audio_commands();
     press(&mut state, KeyCode::F11);
     press(&mut state, KeyCode::F6);
     press(&mut state, KeyCode::F4);
-    assert!(matches!(
-        state.take_audio_commands().as_slice(),
-        [GameplayAudioCommand::EditorPlayMusic {owner:actual, looping: true, .. }] if *actual==owner
-    ));
+    let preview_commands = state.take_audio_commands();
+    assert!(
+        matches!(
+            preview_commands.as_slice(),
+            [GameplayAudioCommand::EditorPlayPreview {owner:actual, looping: true, .. }] if *actual==owner
+        ),
+        "{preview_commands:?}"
+    );
     press(&mut state, KeyCode::Escape);
     press(&mut state, KeyCode::Escape);
-    assert!(!state.is_playing());
-    state.take_audio_commands();
+    assert!(state.is_playing());
+    // Read-only panel closure intentionally preserves sample audition. The
+    // minimap must not treat that independent bus as chart transport.
+    assert!(state.take_audio_commands().is_empty());
     focus(&mut state);
     event(&mut state, KeyCode::ArrowDown, true);
     event(&mut state, KeyCode::ArrowDown, false);
-    assert!(!state.is_playing());
+    assert!(state.is_playing());
     assert!(state.take_audio_commands().is_empty());
 }
 fn chord(state: &mut State, code: KeyCode, shift: bool) {
@@ -231,7 +277,7 @@ fn chord(state: &mut State, code: KeyCode, shift: bool) {
 #[test]
 fn native_viewport_uses_render_bounds_focal_reverse_and_time_row_axes() {
     use deadsync_editor::minimap_viewport::Axis;
-    let (_dir, mut state,owner)=setup(false);
+    let (_dir, mut state, _owner) = setup(false);
     for reversed in [false, true] {
         if reversed {
             event(&mut state, KeyCode::ShiftLeft, true);
@@ -266,7 +312,7 @@ fn native_viewport_uses_render_bounds_focal_reverse_and_time_row_axes() {
 #[test]
 fn minimap_settings_cancel_save_reopen_and_variable_axis_are_independent() {
     use deadsync_editor::minimap_viewport::Axis;
-    let (dir, mut state,owner)=setup(false);
+    let (dir, mut state, _owner) = setup(false);
     let original = state.minimap_preferences();
     chord(&mut state, KeyCode::KeyM, true);
     press(&mut state, KeyCode::ArrowRight);
@@ -304,7 +350,7 @@ fn minimap_settings_cancel_save_reopen_and_variable_axis_are_independent() {
 fn row_drag_preserves_fractional_warp_destination_and_offsets_in_both_directions() {
     use deadsync_editor::{minimap_viewport::Axis, playback::Clock};
     for reverse in [false, true] {
-        let (dir, _,owner)=setup(false);
+        let (dir, _, _owner) = setup(false);
         let song = dir.path().join("song.ssc");
         fs::write(&song,b"#VERSION:0.83;#MUSIC:music.wav;#OFFSET:0.25;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0.1};#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#STOPS:1=1;#DELAYS:2=0.25;#WARPS:3=1;#NOTES:1000\n0100\n0010\n0001;").unwrap();
         let mut state = State::open(&song, 0).unwrap();
@@ -315,6 +361,9 @@ fn row_drag_preserves_fractional_warp_destination_and_offsets_in_both_directions
         file.set_minimap(prefs);
         file.save().unwrap();
         state.configure_audio_preferences(&path).unwrap();
+        state.configure_spacing_preference(
+            deadsync_editor::scroll_preferences::spacing::Preference::ConstantRow,
+        );
         if reverse {
             event(&mut state, KeyCode::ShiftLeft, true);
             press(&mut state, KeyCode::KeyV);
@@ -351,7 +400,10 @@ fn row_drag_preserves_fractional_warp_destination_and_offsets_in_both_directions
                     "inverse timing would lose the requested warp row"
                 );
                 assert_eq!(state.workspace().row(), row.floor() as u64);
-                assert_eq!(state.workspace().selection(), selection);
+                assert_eq!(
+                    state.workspace().selection(),
+                    Some((selection.unwrap().0, state.workspace().row()))
+                );
                 found = true;
                 break;
             }
@@ -363,7 +415,7 @@ fn row_drag_preserves_fractional_warp_destination_and_offsets_in_both_directions
 #[test]
 fn numeric_settings_accept_key_repeats_only_while_panel_is_open() {
     use deadsync_editor::minimap_viewport::Axis;
-    let (_dir, mut state,owner)=setup(false);
+    let (_dir, mut state, _owner) = setup(false);
     let repeat = |state: &mut State, code| {
         state.raw_key(&RawKeyboardEvent {
             code,
@@ -406,13 +458,32 @@ fn numeric_settings_accept_key_repeats_only_while_panel_is_open() {
     assert!(!state.workspace().file().session.is_dirty());
 }
 
-
-fn publish_audio_fixture(state:&mut State)->u64 {
-    let commands=state.take_audio_commands();
-    let owners:Vec<_>=commands.iter().filter_map(|c|match c{deadsync_gameplay::GameplayAudioCommand::EditorBeginAudio{owner,..}=>Some(*owner),_=>None}).collect();
-    assert_eq!(owners.len(),1,"one published lazy session");
-    assert_ne!(owners[0],0);
-    state.update_audio(deadsync_gameplay::GameplayAudioSnapshot::default());
-    assert!(!state.take_audio_commands().iter().any(|c|matches!(c,deadsync_gameplay::GameplayAudioCommand::EditorInitializeOutput{..})),"unavailable command-only host needs no DSP request");
+fn publish_audio_fixture(state: &mut State) -> u64 {
+    let commands = state.take_audio_commands();
+    let owners: Vec<_> = commands
+        .iter()
+        .filter_map(|c| match c {
+            deadsync_gameplay::GameplayAudioCommand::EditorBeginAudio { owner, .. } => Some(*owner),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(owners.len(), 1, "one published lazy session");
+    assert_ne!(owners[0], 0);
+    let mut snapshot = deadsync_gameplay::GameplayAudioSnapshot::default();
+    let paths = state.editor_asset_paths();
+    snapshot.editor.assets = deadsync_gameplay::EditorAssetReadiness {
+        owner: owners[0],
+        registration: state.editor_asset_registration(),
+        main: paths[0].is_some(),
+        dedicated_preview: paths[1].is_some(),
+    };
+    state.update_audio(snapshot);
+    assert!(
+        !state.take_audio_commands().iter().any(|c| matches!(
+            c,
+            deadsync_gameplay::GameplayAudioCommand::EditorInitializeOutput { .. }
+        )),
+        "unavailable command-only host needs no DSP request"
+    );
     owners[0]
 }

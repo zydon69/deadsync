@@ -110,7 +110,9 @@ impl Registry {
     /// from PreferencesKeyBinds, independently of its registered command state.
     /// Native callers normally use conflicts(), whose policy is its binding.
     pub fn conflicts_with_policy(&self, id: &str, keys: &[Key], blocks_input: bool) -> Vec<String> {
-        if !self.states.iter().any(|state|state.id==id) {return Vec::new();}
+        if !self.states.iter().any(|state| state.id == id) {
+            return Vec::new();
+        }
         let mut result = BTreeSet::new();
         for state in &self.states {
             if state.id != id

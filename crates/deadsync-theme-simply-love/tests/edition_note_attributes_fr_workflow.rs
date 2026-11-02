@@ -100,8 +100,9 @@ fn inspector_keyboard_cancel_validate_correct_undo_redo_and_save() {
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
     ctrl(&mut s, KeyCode::KeyY);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), after);
+    let output = s.workspace().file().session.serialize_for_output().unwrap();
     ctrl(&mut s, KeyCode::KeyS);
-    assert_eq!(fs::read(&path).unwrap(), after);
+    assert_eq!(fs::read(&path).unwrap(), output);
     let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
     assert_eq!(
         &*reopened.workspace().grid().get(p).unwrap().tail_attributes,
@@ -127,6 +128,9 @@ impl deadsync_editor::clipboard::TextClipboard for Clipboard {
 #[test]
 fn columns_missing_notes_pending_changes_unicode_and_stale_clipboard() {
     i18n::init(deadsync_assets::language::load_for_tests("fr"));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("song.ssc");
     let source=b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#METER:9;#NOTES:1100;";

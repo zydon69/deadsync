@@ -45,9 +45,13 @@ fn setup(hint: f64, sync: f64) -> (tempfile::TempDir, State, Vec<u8>) {
     let path = dir.path().join("hint.ssc");
     let bytes=format!("#VERSION:0.83;#BPMS:0=120;#OFFSET:0;#LASTSECONDHINT:{hint};#GASongDataVersion:1;#GASongData:{{\"SyncOffset\":{sync}}};#VENDOR:keep;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-double;#BPMS:0=60;#OFFSET:0.25;#NOTES:10000000;").into_bytes();
     fs::write(&path, &bytes).unwrap();
-    let preferences=dir.path().join("prefs.json");
-    fs::write(&preferences,r#"{"Version":1,"Scroll":{"SpacingMode":"ConstantRow","RowBasedPixelsPerRow":1.0}}"#).unwrap();
-    let state = State::open_with_preferences(&path, 0,&preferences).unwrap();
+    let preferences = dir.path().join("prefs.json");
+    fs::write(
+        &preferences,
+        r#"{"Version":1,"Scroll":{"SpacingMode":"ConstantRow","RowBasedPixelsPerRow":1.0},"Receptors":{"CenterHorizontally":true,"PositionY":110}}"#,
+    )
+    .unwrap();
+    let state = State::open_with_preferences(&path, 0, &preferences).unwrap();
     (dir, state, bytes)
 }
 fn hints(state: &State) -> Vec<(String, f32, f32)> {
@@ -55,7 +59,16 @@ fn hints(state: &State) -> Vec<(String, f32, f32)> {
         match a {
             Actor::Text {
                 content, offset, z, ..
-            } if *z == 8004 && content.as_str().starts_with(i18n::tr("Edition","ChartEndHint").split("{seconds}").next().unwrap()) => out.push((content.to_string(), offset[0], offset[1])),
+            } if *z == 8004
+                && content.as_str().starts_with(
+                    i18n::tr("Edition", "ChartEndHint")
+                        .split("{seconds}")
+                        .next()
+                        .unwrap(),
+                ) =>
+            {
+                out.push((content.to_string(), offset[0], offset[1]))
+            }
             Actor::Frame { children, .. } => {
                 for child in children {
                     walk(child, out)
@@ -91,7 +104,10 @@ fn end_hint_maps_song_seconds_through_each_chart_offset_bpm_and_sync() {
             let values = hints(&state);
             assert_eq!(values.len(), 2, "{values:?}");
             let label = i18n::tr_fmt("Edition", "ChartEndHint", &[("seconds", "0.500")]);
-            for (x, y) in [(529.0, ys[0]-9.0), (265.0, ys[1]-9.0)] {
+            // The inactive chart's hint shares the misc-widget column with
+            // its initial tempo/signature: collision resolution places it just
+            // below that stack, while the later focused-chart hint stays exact.
+            for (x, y) in [(529.0, ys[0] - 9.0), (265.0, 183.0)] {
                 assert!(
                     values.iter().any(|(text, a, b)| text == &*label
                         && (*a - x).abs() < 0.01
@@ -113,6 +129,25 @@ fn end_hint_maps_song_seconds_through_each_chart_offset_bpm_and_sync() {
             source
         );
         assert!(!state.workspace().file().session.is_dirty());
+
+        // A later hint clears the initial-widget stack. Verify both chart
+        // clocks exactly, independently of the earlier collision displacement.
+        let (_later_dir, mut later, later_source) = setup(1.0, sync);
+        pin_both_focus_single(&mut later);
+        let later_values = hints(&later);
+        assert_eq!(later_values.len(), 2);
+        for (x, y) in [(529.0, ys[0] + 48.0 - 9.0), (265.0, ys[1] + 24.0 - 9.0)] {
+            assert!(
+                later_values
+                    .iter()
+                    .any(|(_, a, b)| (*a - x).abs() < 0.01 && (*b - y).abs() < 0.01),
+                "{later_values:?} expected {x},{y}"
+            );
+        }
+        assert_eq!(
+            later.workspace().file().session.serialize().unwrap(),
+            later_source
+        );
     }
 }
 #[test]

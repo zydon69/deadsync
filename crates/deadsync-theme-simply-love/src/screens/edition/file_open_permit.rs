@@ -2,7 +2,7 @@
 //! Cancellation is cooperative: the worker, never its UI receiver, owns Permit.
 use deadsync_editor::Error;
 use std::sync::{
-    Arc, OnceLock,
+    Arc,
     atomic::{AtomicBool, Ordering},
 };
 #[derive(Default)]
@@ -26,8 +26,18 @@ impl Gate {
 }
 impl Permit {
     pub(super) fn acquire() -> Result<Self, Error> {
-        static GATE: OnceLock<Gate> = OnceLock::new();
-        GATE.get_or_init(Gate::default).acquire()
+        #[cfg(any(test, feature = "test-support"))]
+        {
+            // Each test thread models an independent app/UI owner. Workers
+            // still retain that owner's shared Arc until parsing has ended.
+            thread_local! { static GATE: Gate = Gate::default(); }
+            GATE.with(Gate::acquire)
+        }
+        #[cfg(not(any(test, feature = "test-support")))]
+        {
+            static GATE: std::sync::OnceLock<Gate> = std::sync::OnceLock::new();
+            GATE.get_or_init(Gate::default).acquire()
+        }
     }
 }
 impl Drop for Permit {

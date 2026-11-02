@@ -1,8 +1,11 @@
 use deadsync_assets::language::LanguageBundle;
 use smallvec::SmallVec;
 use std::cell::RefCell;
+#[cfg(not(test))]
+use std::sync::OnceLock;
+#[cfg(not(test))]
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Arc, OnceLock, RwLock};
+use std::sync::{Arc, RwLock};
 
 /// A reference to a localized string that resolves at render time via `tr()`.
 ///
@@ -29,7 +32,9 @@ pub const fn lookup_key(section: &'static str, key: &'static str) -> LookupKey {
     LookupKey { section, key }
 }
 
+#[cfg(not(test))]
 static LANG: OnceLock<RwLock<Arc<LanguageBundle>>> = OnceLock::new();
+#[cfg(not(test))]
 static LANG_REVISION: AtomicU64 = AtomicU64::new(0);
 
 struct LanguageSnapshot {
@@ -58,6 +63,7 @@ thread_local! {
 }
 
 /// Install shell-prepared language resources.
+#[cfg(not(test))]
 pub fn init(bundle: LanguageBundle) {
     let bundle = Arc::new(bundle);
     if let Some(lang) = LANG.get() {
@@ -66,6 +72,17 @@ pub fn init(bundle: LanguageBundle) {
         let _ = LANG.set(RwLock::new(bundle));
     }
     LANG_REVISION.fetch_add(1, Ordering::AcqRel);
+}
+
+// Unit tests deliberately switch locales while unrelated rendering tests run in
+// parallel. Each harness thread owns its language; the application still uses
+// the process-wide resource published by the shell.
+#[cfg(test)]
+pub fn init(bundle: LanguageBundle) {
+    LANG_SNAPSHOT.with_borrow_mut(|snapshot| {
+        snapshot.bundle = Some(Arc::new(bundle));
+        snapshot.revision = snapshot.revision.wrapping_add(1).max(1);
+    });
 }
 
 /// Look up a localized string by section and key.
@@ -79,8 +96,25 @@ pub fn tr(section: &str, key: &str) -> Arc<str> {
     #[cfg(any(test, feature = "test-support"))]
     ensure_test_init();
 
+    #[cfg(test)]
+    {
+        LANG_SNAPSHOT.with_borrow(|snapshot| {
+            lookup(
+                snapshot
+                    .bundle
+                    .as_deref()
+                    .expect("test language initialized"),
+                section,
+                key,
+            )
+        })
+    }
+
+    #[cfg(not(test))]
     let source = LANG.get().expect("i18n not initialized");
+    #[cfg(not(test))]
     let revision = LANG_REVISION.load(Ordering::Acquire);
+    #[cfg(not(test))]
     LANG_SNAPSHOT.with_borrow_mut(|snapshot| {
         if snapshot.revision != revision || snapshot.bundle.is_none() {
             snapshot.refresh(revision, source);
@@ -107,7 +141,7 @@ fn lookup(lang: &LanguageBundle, section: &str, key: &str) -> Arc<str> {
     Arc::from(format!("{section}.{key}"))
 }
 
-#[cfg(any(test, feature = "test-support"))]
+#[cfg(all(not(test), feature = "test-support"))]
 fn ensure_test_init() {
     use std::sync::Once;
 
@@ -116,6 +150,13 @@ fn ensure_test_init() {
         return;
     }
     INIT.call_once(|| init(deadsync_assets::language::load_for_tests("en")));
+}
+
+#[cfg(test)]
+fn ensure_test_init() {
+    if LANG_SNAPSHOT.with_borrow(|snapshot| snapshot.bundle.is_none()) {
+        init(deadsync_assets::language::load_for_tests("en"));
+    }
 }
 
 /// Look up a localized string with named placeholder substitution.
@@ -305,6 +346,7 @@ fn replace_named_placeholder(text: &mut String, start: usize, name: &str, value:
 }
 
 /// Switch to shell-prepared language resources.
+#[cfg(not(test))]
 pub fn set_locale(bundle: LanguageBundle) {
     let Some(lang_lock) = LANG.get() else {
         init(bundle);
@@ -319,10 +361,24 @@ pub fn set_locale(bundle: LanguageBundle) {
     LANG_REVISION.fetch_add(1, Ordering::AcqRel);
 }
 
+#[cfg(test)]
+pub fn set_locale(bundle: LanguageBundle) {
+    let unchanged = LANG_SNAPSHOT.with_borrow(|snapshot| {
+        snapshot
+            .bundle
+            .as_ref()
+            .is_some_and(|current| current.locale == bundle.locale)
+    });
+    if !unchanged {
+        init(bundle);
+    }
+}
+
 /// Returns the currently active locale code.
 /// # Panics
 ///
 /// Panics if an internal synchronization lock is poisoned.
+#[cfg(not(test))]
 pub fn current_locale() -> String {
     LANG.get()
         .expect("i18n not initialized")
@@ -332,6 +388,19 @@ pub fn current_locale() -> String {
         .clone()
 }
 
+#[cfg(test)]
+pub fn current_locale() -> String {
+    ensure_test_init();
+    LANG_SNAPSHOT.with_borrow(|snapshot| snapshot.bundle.as_deref().unwrap().locale.clone())
+}
+
+#[cfg(test)]
+pub fn revision() -> u64 {
+    ensure_test_init();
+    LANG_SNAPSHOT.with_borrow(|snapshot| snapshot.revision)
+}
+
+#[cfg(not(test))]
 pub fn revision() -> u64 {
     LANG_REVISION.load(Ordering::Acquire)
 }
@@ -361,6 +430,56 @@ mod tests {
             active: LanguageMap::default(),
             fallback,
             locale: locale.to_string(),
+        }
+    }
+
+    #[test]
+    fn content_browser_fragment_separators_survive_ini_whitespace_trimming() {
+        for locale in ["en", "fr"] {
+            init(deadsync_assets::language::load_for_tests(locale));
+            let songs = tr_fmt(
+                "ContentBrowser",
+                "MessageSongse409b6",
+                &[("arg0", "2"), ("separator", "  -  ")],
+            );
+            assert!(songs.ends_with("  -  "), "{locale}: {songs}");
+            let date = tr_fmt(
+                "ContentBrowser",
+                "MessageAdded7e1639",
+                &[("arg0", "date"), ("separator", "  -  ")],
+            );
+            assert!(date.starts_with("  -  "), "{locale}: {date}");
+            let choosing = tr_fmt(
+                "ContentBrowser",
+                "MessageOnlySongsMatched",
+                &[("songs", "2"), ("separator", " ")],
+            );
+            assert!(choosing.starts_with(" ("), "{locale}: {choosing}");
+            let matched = tr_fmt(
+                "ContentBrowser",
+                "MessageOnlySongsMatchedeffe01",
+                &[("songs", "2"), ("separator", "   -   ")],
+            );
+            assert!(matched.starts_with("   -   "), "{locale}: {matched}");
+        }
+    }
+
+    #[test]
+    fn parallel_locale_switches_do_not_change_another_test_thread() {
+        let barrier = Arc::new(std::sync::Barrier::new(2));
+        let handles = ["en", "fr"].map(|locale| {
+            let barrier = barrier.clone();
+            std::thread::spawn(move || {
+                init(deadsync_assets::language::load_for_tests(locale));
+                barrier.wait();
+                assert_eq!(current_locale(), locale);
+                let before = tr("Edition", "Save");
+                barrier.wait();
+                assert_eq!(tr("Edition", "Save"), before);
+            })
+        });
+        for handle in handles {
+            handle.join().unwrap();
         }
     }
 

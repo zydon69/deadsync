@@ -107,10 +107,18 @@ pub fn parse_chart_info(lua: &Lua, args: &MultiValue) -> mlua::Result<Table> {
     };
     init_sl_streams(lua, &streams)?;
     if let Some(Value::Table(steps)) = args.front() {
-        let player_number = if player == "P1" { "PlayerNumber_P1" } else { "PlayerNumber_P2" };
-        for (field, method) in [("NotesPerMeasure", "GetNotesPerMeasure"),
-            ("NPSperMeasure", "GetNpsPerMeasure"), ("PeakNPS", "GetPeakNps")] {
-            let value = steps.get::<mlua::Function>(method)?
+        let player_number = if player == "P1" {
+            "PlayerNumber_P1"
+        } else {
+            "PlayerNumber_P2"
+        };
+        for (field, method) in [
+            ("NotesPerMeasure", "GetNotesPerMeasure"),
+            ("NPSperMeasure", "GetNpsPerMeasure"),
+            ("PeakNPS", "GetPeakNps"),
+        ] {
+            let value = steps
+                .get::<mlua::Function>(method)?
                 .call::<Value>((steps.clone(), player_number))?;
             streams.raw_set(field, value)?;
         }
@@ -164,7 +172,14 @@ fn create_sl_player_mods(lua: &Lua, player: &SongLuaPlayerContext) -> mlua::Resu
     let table = lua.create_table()?;
     let (speed_type, speed_value) = song_lua_speedmod_parts(player.speedmod);
     // SL_Init.lua initializes an unmodified profile with Step Statistics.
-    table.set("DataVisualizations", if player.step_statistics_enabled { "Step Statistics" } else { "None" })?;
+    table.set(
+        "DataVisualizations",
+        if player.step_statistics_enabled {
+            "Step Statistics"
+        } else {
+            "None"
+        },
+    )?;
     table.set("ShowFaPlusWindow", false)?;
     table.set("ShowExScore", false)?;
     table.set("ShowHardEXScore", false)?;
@@ -502,9 +517,16 @@ fn create_sl_metrics(lua: &Lua, mode: &str) -> mlua::Result<Table> {
 }
 
 pub(super) fn gameplay_lead_in_seconds(group: &str, name: &str) -> Option<f64> {
-    if !group.eq_ignore_ascii_case("ScreenGameplay") { return None; }
-    [("MinSecondsToStep", 6.0), ("MinSecondsToMusic", 2.0), ("MinSecondsToStepNextSong", 4.0)]
-        .into_iter().find_map(|(metric, seconds)| name.eq_ignore_ascii_case(metric).then_some(seconds))
+    if !group.eq_ignore_ascii_case("ScreenGameplay") {
+        return None;
+    }
+    [
+        ("MinSecondsToStep", 6.0),
+        ("MinSecondsToMusic", 2.0),
+        ("MinSecondsToStepNextSong", 4.0),
+    ]
+    .into_iter()
+    .find_map(|(metric, seconds)| name.eq_ignore_ascii_case(metric).then_some(seconds))
 }
 
 pub(super) fn read_sl_metric(lua: &Lua, group: &str, name: &str) -> mlua::Result<Option<Value>> {
@@ -512,8 +534,12 @@ pub(super) fn read_sl_metric(lua: &Lua, group: &str, name: &str) -> mlua::Result
         // ThemeManager::PushMetric runs the metrics.ini Lua expression at
         // every query. Use SL's current Lua number without rate clamping or
         // float narrowing; it can differ from GAMESTATE's song options.
-        let rate = lua.globals().get::<Table>("SL")?.get::<Table>("Global")?
-            .get::<Table>("ActiveModifiers")?.get::<f64>("MusicRate")?;
+        let rate = lua
+            .globals()
+            .get::<Table>("SL")?
+            .get::<Table>("Global")?
+            .get::<Table>("ActiveModifiers")?
+            .get::<f64>("MusicRate")?;
         return Ok(Some(Value::Number(seconds * rate)));
     }
     // Simply Love metrics.ini evaluates these expressions against the active
@@ -527,7 +553,9 @@ pub(super) fn read_sl_metric(lua: &Lua, group: &str, name: &str) -> mlua::Result
     let Some(sl) = lua.globals().get::<Option<Table>>("SL")? else {
         return Ok(None);
     };
-    let mode = sl.get::<Table>("Global")?.get::<mlua::LuaString>("GameMode")?;
+    let mode = sl
+        .get::<Table>("Global")?
+        .get::<mlua::LuaString>("GameMode")?;
     let metrics = sl.get::<Table>("Metrics")?.get::<Table>(mode)?;
     let value = metrics.get::<Value>(name)?;
     Ok((!matches!(value, Value::Nil)).then_some(value))

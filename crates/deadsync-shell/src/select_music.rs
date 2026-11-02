@@ -397,9 +397,15 @@ pub(crate) fn prepare_init_view(mut view: SelectMusicInitView) -> SelectMusicIni
                 .iter()
                 .any(|p| p.show_golf_score || p.show_golf_results));
     if refresh_golf {
-        let pack_dirs: HashSet<_> = view.song_packs.iter().flat_map(|pack| pack.songs.iter())
-            .filter_map(|song| song.simfile_path.parent()?.parent()).collect();
-        for dir in pack_dirs { deadsync_simfile::golf::load_pack(dir); }
+        let pack_dirs: HashSet<_> = view
+            .song_packs
+            .iter()
+            .flat_map(|pack| pack.songs.iter())
+            .filter_map(|song| song.simfile_path.parent()?.parent())
+            .collect();
+        for dir in pack_dirs {
+            deadsync_simfile::golf::load_pack(dir);
+        }
     }
 
     view.history = history_view();

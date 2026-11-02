@@ -7,10 +7,10 @@ The only source diagnostic changes physical tail tracking; original stays intact
 """
 from pathlib import Path
 import subprocess,tempfile,wave
-import argparse
-args=argparse.ArgumentParser();args.add_argument('--native-root',type=Path,default=Path(__file__).resolve().parent.parent);opts=args.parse_args()
-ROOT=Path('/Users/zydon/Sites/feetness/deadsync')
-repo='/Users/zydon/Sites/feetness/grooveauthor';pin='48e18f71655d0f0d86144c63239331833501fda2'
+from source_reference_paths import arguments
+opts=arguments()
+ROOT=opts.native_root.resolve()
+repo=str(opts.grooveauthor_root);pin='48e18f71655d0f0d86144c63239331833501fda2'
 def ga(n):return subprocess.check_output(['git','-C',repo,'show',pin+':StepManiaEditor/Sound/'+n],text=True)
 s=ga('MusicManager.cs')
 def method(sig):
@@ -18,9 +18,10 @@ def method(sig):
  while depth:depth+=(s[b]=='{')-(s[b]=='}');b+=1
  return s[a:b]
 methods='\n'.join(method(sig)for sig in ['public void SetMusicRate(','private unsafe bool RenderMusicAndTicks(','private (float[], int, long, long, bool) UpdateTicks(','private List<long> GetNextTickTimes(','private static int GetFirstTickInRange(','private static void CheckForStartingTick(','private static void GetTickValuesForSample(','private static void Mix('])
-dll='/tmp/deadsync-grooveauthor-step-library/Fumen/Fumen/bin/Release/net10.0/Fumen.dll'
+from xml.sax.saxutils import escape
+dll=escape(str(opts.fumen_dll))
 def fumen_method(path,sig):
- text=subprocess.check_output(['git','-C','/tmp/deadsync-grooveauthor-step-library/Fumen','show','0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89:'+path],text=True)
+ text=subprocess.check_output(['git','-C',str(opts.fumen_root),'show','0fe292f9c0ef70fb77d61cb54316a7e78dbf3c89:'+path],text=True)
  a=text.index(sig);b=text.index('{',a)+1;depth=1
  while depth:depth+=(text[b]=='{')-(text[b]=='}');b+=1
  return text[a:b]
@@ -60,10 +61,10 @@ unsafe public static void Run(){foreach(var frames in new[]{257,2049,4097})forea
  cs='''using System;using System.Collections.Generic;using System.Threading;using Fumen;namespace StepManiaEditor{
 class EditorSound:IDisposable{public const string NotificationSampleDataChanged="changed";float[]data;public EditorSound(float[]pcm){data=pcm;}public(int,float[])GetSampleData()=>(2,data);public bool IsLoaded()=>data!=null;public void Dispose(){}}
 '''+loader+cls('Original',methods)+cls('CorrectedTail',fixed_methods)+master+premult+'''class P{static void Main(string[] args){for(int i=0;i<4;i++){Gains.Case=i;if(args.Length==0)Original.Run();else CorrectedTail.Run();}}}}''';(r/'Program.cs').write_text(cs)
- build=subprocess.run(['/tmp/deadsync-dotnet10/dotnet','build',str(r/'O.csproj'),'--nologo','-v:q'],capture_output=True,text=True)
+ build=subprocess.run([opts.dotnet,'build',str(r/'O.csproj'),'--nologo','-v:q'],capture_output=True,text=True)
  if build.returncode:raise RuntimeError(build.stdout+build.stderr)
- original=subprocess.check_output(['/tmp/deadsync-dotnet10/dotnet',str(r/'bin/Debug/net10.0/O.dll')],text=True).splitlines()
- corrected=subprocess.check_output(['/tmp/deadsync-dotnet10/dotnet',str(r/'bin/Debug/net10.0/O.dll'),'corrected-tail'],text=True).splitlines()
+ original=subprocess.check_output([opts.dotnet,str(r/'bin/Debug/net10.0/O.dll')],text=True).splitlines()
+ corrected=subprocess.check_output([opts.dotnet,str(r/'bin/Debug/net10.0/O.dll'),'corrected-tail'],text=True).splitlines()
  helper=(opts.native_root/'crates/deadlib-audio-decode/src/editor_ticks.rs').read_text();helper='use std::sync::atomic::{AtomicBool,Ordering};use crate::hermite::interpolate;\n'+helper[helper.index('pub fn resample_float('):];(r/'float_resample.rs').write_text(helper)
  rs='''use deadlib_audio_core::*;use std::sync::Arc;#[path="'''+str(opts.native_root/'crates/deadlib-audio-core/src/hermite.rs')+'''"]mod hermite;#[path="'''+str(r/'float_resample.rs')+'''"]mod float_resample;fn clip(path:&str)->Arc<[f32]>{let b=std::fs::read(path).unwrap();let raw:Vec<f32>=b.chunks_exact(2).map(|c|f32::from(i16::from_le_bytes([c[0],c[1]]))*(1.0f32/32768.)).collect();float_resample::resample_float(&raw,2,44100,48000,&std::sync::atomic::AtomicBool::new(false)).unwrap().into()}fn main(){for gains in [[0.61f32,0.43,0.71,0.79],[0.37,0.83,0.29,0.53],[0.7,0.,0.,0.79],[0.,0.,0.,0.]]{for frames in [257usize,2049,4097]{for rate in [0.3f64,1.1,1.35]{for start in [-3i64,0,42]{reset_music_stream_clock_state();reset_music_target_gain();activate_music_track();resume_music_track();let generation=bump_music_map_generation();let epoch=advance_music_asset_epoch();assert!(configure_editor_main(generation,epoch,start,rate));let(mut stream,handle)=music_transport(48000,2);let(mut sender,mut receiver)=sfx_transport(8);let controls=Arc::new(MixControls::new());assert!(controls.begin_editor_gain_override(17,EditorMixGains{main:gains[0],music:gains[1],assist:gains[2],beat:gains[3]}));let music:Vec<f32>=(0..80000i32).map(|m|((m*19)%89-44)as f32/32768.).collect();stream.writer.try_publish_preview_source(PreviewSource{editor_main:true,samples:music.into(),channels:2,sample_rate_hz:48000,generation,asset_epoch:epoch,initial_frame:start,looping:false}).unwrap();stream.writer.publish_preview_generation_ready(generation,epoch);let mut render=RenderState::new(handle,controls.clone(),2);render.attach_sfx_retirement(receiver.take_retirement());
 '''

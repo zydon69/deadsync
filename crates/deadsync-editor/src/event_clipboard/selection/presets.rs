@@ -125,7 +125,7 @@ impl Selection {
     /// prior identities survive; the source revision is validated before capture.
     pub fn expand_to_chart(&self, session: &mut Session) -> Result<Self, Error> {
         self.validate(session)?;
-        let mut expanded = Self::capture_inventory(session,self.chart,true)?;
+        let mut expanded = Self::capture_inventory(session, self.chart, true)?;
         if self
             .events
             .iter()

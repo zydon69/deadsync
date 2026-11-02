@@ -39,7 +39,11 @@ impl State {
                 )
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
+                )
             }
         }
         self.refresh();
@@ -49,13 +53,20 @@ impl State {
 #[cfg(test)]
 mod selection_history_tests {
     use super::*;
-    use deadsync_editor::{event_clipboard::{Event, TimingKind}, notes::Position, workspace::Command};
+    use deadsync_editor::{
+        event_clipboard::{Event, TimingKind},
+        notes::Position,
+        workspace::Command,
+    };
 
     #[test]
     fn mixed_and_note_only_paste_restore_target_selection_through_history_en_fr() {
         for fr in [false, true] {
-            if fr { crate::i18n::init(deadsync_assets::language::load_for_tests("fr")); }
-            else { crate::i18n::init_for_tests(); }
+            if fr {
+                crate::i18n::init(deadsync_assets::language::load_for_tests("fr"));
+            } else {
+                crate::i18n::init_for_tests();
+            }
             for mixed in [false, true] {
                 let root = tempfile::tempdir().unwrap();
                 let path = root.path().join("paste.ssc");
@@ -66,20 +77,57 @@ mod selection_history_tests {
                     selected.select_all(true);
                     state.workspace.copy_event_selection(&selected).unwrap();
                 } else {
-                    for command in [Command::Seek(48), Command::ToggleSelection, Command::Seek(96), Command::Copy] {
+                    for command in [
+                        Command::Seek(48),
+                        Command::ToggleSelection,
+                        Command::Seek(96),
+                        Command::Copy,
+                    ] {
                         state.workspace.execute(command).unwrap();
                     }
                 }
                 state.navigate_exact_position(384.0, true);
                 let before = state.workspace.file().session.serialize().unwrap();
-                if mixed { state.paste_selected_events(); } else { state.command(Command::Paste); }
-                let events = |state: &State| state.event_selection.as_ref().map(|settings| settings.selection.selected_events().collect::<Vec<_>>());
+                if mixed {
+                    state.paste_selected_events();
+                } else {
+                    state.command(Command::Paste);
+                }
+                let events = |state: &State| {
+                    state
+                        .event_selection
+                        .as_ref()
+                        .map(|settings| settings.selection.selected_events().collect::<Vec<_>>())
+                };
                 let mut expected = Vec::new();
-                if mixed { expected.push(Event::Timing { row: 384, kind: TimingKind::Label }); }
-                expected.push(Event::Note(Position { row: 384, lane: 1, player: 0 }));
-                if mixed { expected.push(Event::Timing { row: 432, kind: TimingKind::Tempo }); }
-                expected.push(Event::Note(Position { row: 432, lane: 2, player: 0 }));
-                assert_eq!(events(&state), Some(expected.clone()), "mixed={mixed}: {}", state.status);
+                if mixed {
+                    expected.push(Event::Timing {
+                        row: 384,
+                        kind: TimingKind::Label,
+                    });
+                }
+                expected.push(Event::Note(Position {
+                    row: 384,
+                    lane: 1,
+                    player: 0,
+                }));
+                if mixed {
+                    expected.push(Event::Timing {
+                        row: 432,
+                        kind: TimingKind::Tempo,
+                    });
+                }
+                expected.push(Event::Note(Position {
+                    row: 432,
+                    lane: 2,
+                    player: 0,
+                }));
+                assert_eq!(
+                    events(&state),
+                    Some(expected.clone()),
+                    "mixed={mixed}: {}",
+                    state.status
+                );
                 let after = state.workspace.file().session.serialize().unwrap();
                 assert_ne!(after, before);
                 state.command(Command::Undo);

@@ -1,3 +1,4 @@
+include!("support/chart_order_transport.rs");
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::actors::Actor;
 use deadsync_gameplay::GameplayAudioCommand;
@@ -28,6 +29,7 @@ fn delete(s: &mut State) {
     press(s, KeyCode::Backspace);
     key(s, KeyCode::ShiftLeft, false);
     key(s, KeyCode::SuperLeft, false);
+    complete_chart_navigation(s);
 }
 fn texts(s: &State) -> Vec<String> {
     let mut actors = Vec::new();
@@ -141,13 +143,23 @@ fn save_reopen_cached_selection_empty_file_menu_and_new_chart_are_usable() {
     press(&mut reopened, KeyCode::ArrowDown);
     press(&mut reopened, KeyCode::Enter);
     assert!(reopened.workspace().has_chart());
+    // Structural creation preserves the song's music-time anchor, which may
+    // precede row zero because of editor sync. Start note entry explicitly at zero.
+    press(&mut reopened, KeyCode::Home);
     press(&mut reopened, KeyCode::Digit2);
+    assert_eq!(
+        reopened.workspace().grid().iter().count(),
+        1,
+        "{:?}",
+        texts(&reopened)
+    );
     ctrl(&mut reopened, KeyCode::KeyS);
     let edited = State::open(&path, 0).unwrap();
     assert_eq!(edited.workspace().grid().iter().count(), 1);
 }
 #[test]
-fn deletion_stops_audio_and_selects_remaining_chart_then_restores_original_focus() {
+fn deletion_preserves_same_asset_transport_and_selects_remaining_chart_then_restores_original_focus()
+ {
     let (dir, _) = setup();
     let path = dir.path().join("music.ssc");
     let song = "#VERSION:0.83;#MUSIC:music.ogg;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-double;#DIFFICULTY:Easy;#NOTES:00001000;";
@@ -158,15 +170,20 @@ fn deletion_stops_audio_and_selects_remaining_chart_then_restores_original_focus
     assert!(s.is_playing());
     s.take_audio_commands();
     delete(&mut s);
-    assert!(!s.is_playing());
-    assert_eq!(
-        s.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
-    );
+    assert!(s.is_playing());
+    assert!(s.take_audio_commands().is_empty());
     press(&mut s, KeyCode::ArrowDown);
     press(&mut s, KeyCode::Enter);
     assert_eq!(s.workspace().chart(), 0);
     assert_eq!(s.workspace().grid().columns(), 4);
+    assert!(s.is_playing());
+    assert!(s.take_audio_commands().iter().all(|command| !matches!(
+        command,
+        GameplayAudioCommand::EditorStopMusic { .. }
+            | GameplayAudioCommand::EditorPauseMusic { .. }
+            | GameplayAudioCommand::EditorStartMusic { .. }
+            | GameplayAudioCommand::EditorPlayMusic { .. }
+    )));
     ctrl(&mut s, KeyCode::KeyZ);
     assert_eq!(s.workspace().chart(), 1);
     assert_eq!(s.workspace().grid().columns(), 8);

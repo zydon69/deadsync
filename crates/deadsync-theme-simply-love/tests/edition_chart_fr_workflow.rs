@@ -1,3 +1,6 @@
+include!("support/chart_order_transport.rs");
+#[path = "support/transport_host.rs"]
+mod transport_host;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::actors::Actor;
 use deadsync_theme_simply_love::{i18n, screens::edition::State};
@@ -136,6 +139,7 @@ fn french_last_chart_delete_empty_view_undo_and_new_chart_remain_translated() {
         });
     }
     press(&mut s, KeyCode::Backspace);
+    complete_chart_navigation(&mut s);
     for code in [KeyCode::ShiftLeft, KeyCode::SuperLeft] {
         s.raw_key(&RawKeyboardEvent {
             code,
@@ -399,15 +403,18 @@ fn french_song_properties_pages_text_music_and_cancel_use_shared_translated_cont
             .iter()
             .any(|v| v == "Textes et musique du morceau...")
     );
-    press(&mut s, KeyCode::ArrowUp);
-    press(&mut s, KeyCode::ArrowUp);
-    press(&mut s, KeyCode::ArrowUp);
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::ArrowDown);
+    press(&mut s, KeyCode::ArrowDown);
     press(&mut s, KeyCode::Enter);
     assert!(s.text_input("Été 日本語"));
     assert!(texts(&s).iter().any(|v| v == "Titre : Été 日本語|"));
     press(&mut s, KeyCode::PageDown);
     let second = texts(&s);
-    assert!(second.iter().any(|v| v.contains("Champs 2/2")));
+    assert!(
+        second.iter().any(|v| v.contains("Champs 2/3")),
+        "{second:?}"
+    );
     assert!(
         second
             .iter()
@@ -460,9 +467,12 @@ fn french_song_music_offset_and_itg_explanation_are_keyboard_accessible() {
     assert!(
         texts(&state)
             .iter()
-            .any(|s| s.contains("ITG ajoute 9 ms à chaque activation"))
+            .any(|s| s == i18n::tr("Edition", "SongPropertiesHelp").as_ref())
     );
-    press(&mut state, KeyCode::ArrowUp);
+    press(&mut state, KeyCode::Digit0);
+    for _ in 0..5 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
     press(&mut state, KeyCode::Enter);
     assert!(
         texts(&state)
@@ -498,13 +508,20 @@ fn french_end_hint_explains_song_end_in_both_formats() {
                 .iter()
                 .any(|s| s.contains("continuer après la dernière note"))
         );
-        assert!(labels.iter().any(|s|s.contains(if sm {"Indication de fin : 0.000000 s"}else{"Indication de fin : 12.500000 s"})),"{labels:?}");
-        assert!(!labels.iter().any(|s|s.contains("indisponible en SM")));
+        assert!(
+            labels.iter().any(|s| s.contains(if sm {
+                "Indication de fin : 0.000000 s"
+            } else {
+                "Indication de fin : 12.500000 s"
+            })),
+            "{labels:?}"
+        );
+        assert!(!labels.iter().any(|s| s.contains("indisponible en SM")));
     }
 }
 
 #[test]
-fn french_waveform_preferences_show_translated_controls_and_missing_path_without_song_edits() {
+fn french_waveform_preferences_show_translated_controls_and_apply_without_song_edits() {
     i18n::init(deadsync_assets::language::load_for_tests("fr"));
     deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
         854.0, 480.0,
@@ -541,20 +558,37 @@ fn french_waveform_preferences_show_translated_controls_and_missing_path_without
     ] {
         assert!(labels.contains(expected), "{expected}: {labels}");
     }
-    for _ in 0..4 { press(&mut state, KeyCode::ArrowDown); }
+    for _ in 0..4 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
     press(&mut state, KeyCode::ArrowRight);
-    assert!(texts(&state).iter().any(|line| line.contains("Défilement de la forme d’onde : Tempo courant")));
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|line| line.contains("Défilement de la forme d’onde : Tempo courant"))
+    );
     press(&mut state, KeyCode::ArrowRight);
-    assert!(texts(&state).iter().any(|line| line.contains("Tempo courant et multiplicateurs")));
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|line| line.contains("Tempo courant et multiplicateurs"))
+    );
     press(&mut state, KeyCode::Home);
-    for _ in 0..2 { press(&mut state, KeyCode::ArrowDown); }
+    for _ in 0..10 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
     press(&mut state, KeyCode::Enter);
     assert!(
         texts(&state)
             .iter()
-            .any(|line| line.contains("Emplacement des préférences indisponible"))
+            .any(|line| line == i18n::tr("Edition", "WaveformSettingsSaved").as_ref()),
+        "{:?}",
+        texts(&state)
     );
-    press(&mut state, KeyCode::Escape);
+    assert_eq!(
+        state.waveform_preferences().scroll_mode(),
+        deadsync_editor::waveform_preferences::Preferences::default().scroll_mode()
+    );
     assert_eq!(
         state.workspace().file().session.serialize().unwrap(),
         source.as_bytes()
@@ -564,29 +598,71 @@ fn french_waveform_preferences_show_translated_controls_and_missing_path_without
 #[test]
 fn french_waveform_colours_are_paginated_and_keep_edits_staged_until_parent_save() {
     i18n::init(deadsync_assets::language::load_for_tests("fr"));
-    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(854.0,480.0));
-    let dir=tempfile::tempdir().unwrap();let path=dir.path().join("song.ssc");
-    let source="#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
-    fs::write(&path,source).unwrap();let mut state=State::open(&path,0).unwrap();
-    state.raw_key(&RawKeyboardEvent {code:KeyCode::ShiftLeft,pressed:true,repeat:false,timestamp:Instant::now(),host_nanos:0});
-    press(&mut state,KeyCode::KeyW);
-    state.raw_key(&RawKeyboardEvent {code:KeyCode::ShiftLeft,pressed:false,repeat:false,timestamp:Instant::now(),host_nanos:0});
-    press(&mut state,KeyCode::F2);
-    assert!(texts(&state).iter().any(|v|v.contains("Plus sombre que la zone dense")));
-    assert!(texts(&state).iter().any(|v|v.contains("Couleurs de forme d’onde 1/2")));
-    press(&mut state,KeyCode::ArrowRight);
-    assert!(texts(&state).iter().any(|v|v.contains("Identique à la zone dense")));
-    for _ in 0..13 {press(&mut state,KeyCode::ArrowDown);}
-    assert!(texts(&state).iter().any(|v|v.contains("Couleurs de forme d’onde 2/2")));
-    assert!(texts(&state).iter().any(|v|v.contains("Fond, opacité : 0.000")));
-    press(&mut state,KeyCode::ArrowRight);press(&mut state,KeyCode::Escape);press(&mut state,KeyCode::Escape);
-    assert_eq!(state.waveform_preferences().palette(),Default::default());
-    assert_eq!(state.workspace().file().session.serialize().unwrap(),source.as_bytes());
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source = "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path, source).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    state.raw_key(&RawKeyboardEvent {
+        code: KeyCode::ShiftLeft,
+        pressed: true,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    press(&mut state, KeyCode::KeyW);
+    state.raw_key(&RawKeyboardEvent {
+        code: KeyCode::ShiftLeft,
+        pressed: false,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    press(&mut state, KeyCode::F2);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|v| v.contains("Plus sombre que la zone dense"))
+    );
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|v| v.contains("Couleurs de forme d’onde 1/2"))
+    );
+    press(&mut state, KeyCode::ArrowRight);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|v| v.contains("Identique à la zone dense"))
+    );
+    for _ in 0..13 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|v| v.contains("Couleurs de forme d’onde 2/2"))
+    );
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|v| v.contains("Fond, opacité : 0.000"))
+    );
+    press(&mut state, KeyCode::ArrowRight);
+    press(&mut state, KeyCode::Escape);
+    press(&mut state, KeyCode::Escape);
+    assert_eq!(state.waveform_preferences().palette(), Default::default());
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        source.as_bytes()
+    );
 }
 
 #[test]
 fn french_transport_messages_distinguish_pause_and_resume_without_editing_chart() {
-    use deadsync_gameplay::GameplayAudioSnapshot;
     i18n::init(deadsync_assets::language::load_for_tests("fr"));
     deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
         854.0, 480.0,
@@ -597,17 +673,14 @@ fn french_transport_messages_distinguish_pause_and_resume_without_editing_chart(
     let source = "#VERSION:0.83;#MUSIC:music.ogg;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
     fs::write(&path, source).unwrap();
     let mut state = State::open(&path, 0).unwrap();
+    transport_host::publish(&mut state);
     press(&mut state, KeyCode::Enter);
     assert!(
         texts(&state)
             .iter()
-            .any(|s| s.contains("Entrée : mettre en pause"))
+            .any(|s| s == i18n::tr("Edition", "PlaybackPlaying").as_ref())
     );
-    let mut snapshot = GameplayAudioSnapshot::default();
-    snapshot.stream_clock.has_music_mapping = true;
-    snapshot.stream_clock.valid_at = Instant::now();
-    snapshot.stream_clock.music_nanos = 126_000_000;
-    state.update_audio(snapshot);
+    state.update_audio(transport_host::snapshot(&state, 0.126));
     press(&mut state, KeyCode::Enter);
     assert!(
         texts(&state)
@@ -620,12 +693,15 @@ fn french_transport_messages_distinguish_pause_and_resume_without_editing_chart(
     assert!(
         texts(&state)
             .iter()
-            .any(|s| s.contains("Entrée : mettre en pause"))
+            .any(|s| s == i18n::tr("Edition", "PlaybackPlaying").as_ref())
     );
     press(&mut state, KeyCode::Enter);
+    state.take_audio_commands();
+    let position = state.chart_focus_time().unwrap();
     press(&mut state, KeyCode::F1);
-    assert!(texts(&state).iter().any(|s| s.contains("Lecture arrêtée")));
-    assert!(!texts(&state).iter().any(|s| s.contains("Lecture en pause")));
+    assert!(!state.is_playing());
+    assert_eq!(state.chart_focus_time().unwrap(), position);
+    assert!(state.take_audio_commands().is_empty());
     assert!(!state.workspace().file().session.is_dirty());
     assert_eq!(fs::read_to_string(&path).unwrap(), source);
 }

@@ -24,7 +24,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 );
             }
             Some("--allow-save") => allow_save = true,
-            _ => return Err("Usage: deadsync-mcp --song FILE [--allow-save]".into()),
+            _ => return Err("Usage: deadsync-mcp --song FILE [--allow-save] | --connect FILE | --connect-editor".into()),
         }
     }
     if let Some(path) = connect {

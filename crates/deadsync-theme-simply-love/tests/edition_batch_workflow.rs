@@ -169,11 +169,16 @@ fn partial_failures_are_reviewable_and_accept_all_successes_even_on_failed_entry
     let mut data = ChartData::existing_or_initial(source.document(), 0).unwrap();
     data.expressed_chart_config = Guid::default();
     data.save(&mut source, 0).unwrap();
+    // Missing profile IDs are repaired during file opening. An unsupported
+    // metadata version remains reviewable but cannot be used for generation.
+    source.set_text(Some(0), "GAChartDataVersion", "2").unwrap();
     let before = source.serialize().unwrap();
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("partial.ssc");
     fs::write(&path, &before).unwrap();
-    let mut screen = State::open(&path, 0).unwrap();
+    // Keep the editor focus on a valid chart while the batch independently
+    // reviews the unsupported peer and its successful sibling.
+    let mut screen = State::open(&path, 2).unwrap();
     start(&mut screen);
     finish(&mut screen);
     assert_eq!(screen.batch_preview().unwrap().0.report().failed, 1);
@@ -201,7 +206,9 @@ fn partial_failures_are_reviewable_and_accept_all_successes_even_on_failed_entry
     assert!(
         actors
             .iter()
-            .any(|actor| matches!(actor, Actor::Sprite { z: 8004, .. }))
+            .any(|actor| matches!(actor, Actor::Sprite { z: 8004, .. })),
+        "successful preview actors: {:?}",
+        texts(&screen)
     );
     press(&mut screen, KeyCode::ArrowLeft);
     assert!(contains(&screen, "Failed:"));
@@ -228,6 +235,9 @@ fn all_failed_preview_offers_only_discard_and_keeps_redo() {
         let mut data = ChartData::existing_or_initial(source.document(), chart).unwrap();
         data.expressed_chart_config = Guid::default();
         data.save(&mut source, chart).unwrap();
+        source
+            .set_text(Some(chart), "GAChartDataVersion", "2")
+            .unwrap();
     }
     let before = source.serialize().unwrap();
     let dir = tempfile::tempdir().unwrap();
@@ -327,7 +337,9 @@ fn batch_profiles_return_to_batch_preserve_source_metadata_and_drive_every_resul
     let interpretation_before = fs::read(interpretation.path()).unwrap();
     let mut source = Session::new(Document::parse(Arc::<[u8]>::from(SONG), Format::Ssc).unwrap());
     let mut metadata = ChartData::existing_or_initial(source.document(), 0).unwrap();
-    metadata.expressed_chart_config = Guid::default();
+    metadata.expressed_chart_config = deadsync_editor::generation::metadata::DYNAMIC
+        .parse()
+        .unwrap();
     metadata.save(&mut source, 0).unwrap();
     let before = source.serialize().unwrap();
     fs::write(&path, &before).unwrap();
@@ -390,7 +402,9 @@ fn batch_profiles_return_to_batch_preserve_source_metadata_and_drive_every_resul
             .unwrap()
             .unwrap()
             .expressed_chart_config,
-        Guid::default()
+        deadsync_editor::generation::metadata::DYNAMIC
+            .parse::<Guid>()
+            .unwrap()
     );
     assert_eq!(fs::read(&path).unwrap(), before);
     ctrl(&mut screen, KeyCode::KeyS);

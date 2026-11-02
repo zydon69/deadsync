@@ -41,8 +41,8 @@ impl MixBus {
 /// The application thread updates atomic gains and generations. The audio
 /// callback only performs bounded atomic loads; it never locks or allocates.
 pub struct MixControls {
-    editor_mix:crate::editor_mix::Cell,
-    editor_mix_owner:AtomicU64,
+    editor_mix: crate::editor_mix::Cell,
+    editor_mix_owner: AtomicU64,
     stream_gain: AtomicU32,
     override_owner: AtomicU64,
     override_gain: AtomicU32,
@@ -54,7 +54,8 @@ impl MixControls {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            editor_mix:crate::editor_mix::Cell::new(),editor_mix_owner:AtomicU64::new(0),
+            editor_mix: crate::editor_mix::Cell::new(),
+            editor_mix_owner: AtomicU64::new(0),
             stream_gain: AtomicU32::new(1.0f32.to_bits()),
             override_owner: AtomicU64::new(0),
             override_gain: AtomicU32::new(1.0f32.to_bits()),
@@ -143,7 +144,14 @@ impl MixControls {
             .store((gains.music * gains.main).to_bits(), Ordering::Release);
         true
     }
-    #[cfg(test)]pub(crate)fn editor_gain_gate(&self,enter:Arc<std::sync::Barrier>,release:Arc<std::sync::Barrier>){*self.editor_mix.gate.lock().unwrap()=Some((enter,release));}
+    #[cfg(test)]
+    pub(crate) fn editor_gain_gate(
+        &self,
+        enter: Arc<std::sync::Barrier>,
+        release: Arc<std::sync::Barrier>,
+    ) {
+        *self.editor_mix.gate.lock().unwrap() = Some((enter, release));
+    }
     pub(crate) fn editor_gain_owner(&self) -> u64 {
         let owner = self.editor_mix_owner.load(Ordering::Acquire);
         if owner != 0 && self.override_owner.load(Ordering::Acquire) == owner {
@@ -344,17 +352,54 @@ impl Drop for ActiveSfx {
 }
 
 #[inline(always)]
-pub fn push_queued_sfx(active:&mut Vec<ActiveSfx>,queued:QueuedSfx,controls:&MixControls){let result=push_queued_sfx_shared(active,queued,controls,None);debug_assert!(result.is_ok());}
-
-pub(crate)fn retire_schedule(schedule:&mut Option<crate::SfxSchedule>,retirement:&mut Option<crate::SfxScheduleRetirer>)->bool{
-    let Some(value)=schedule.take()else{return true;};
-    let Some(retirement)=retirement.as_mut()else{if value.credit().is_some(){*schedule=Some(value);return false;}drop(value);return true;};
-    match retirement.retire(value){Ok(())=>true,Err(value)=>{*schedule=Some(value);false}}
+pub fn push_queued_sfx(active: &mut Vec<ActiveSfx>, queued: QueuedSfx, controls: &MixControls) {
+    let result = push_queued_sfx_shared(active, queued, controls, None);
+    debug_assert!(result.is_ok());
 }
-pub(crate)fn push_queued_sfx_retiring(active:&mut Vec<ActiveSfx>,queued:QueuedSfx,controls:&MixControls,retirement:&mut Option<crate::SfxScheduleRetirer>)->Result<(),QueuedSfx>{push_queued_sfx_shared(active,queued,controls,Some(retirement))}
-fn push_queued_sfx_shared(active:&mut Vec<ActiveSfx>,mut queued:QueuedSfx,controls:&MixControls,mut retirement:Option<&mut Option<crate::SfxScheduleRetirer>>)->Result<(),QueuedSfx>{
+
+pub(crate) fn retire_schedule(
+    schedule: &mut Option<crate::SfxSchedule>,
+    retirement: &mut Option<crate::SfxScheduleRetirer>,
+) -> bool {
+    let Some(value) = schedule.take() else {
+        return true;
+    };
+    let Some(retirement) = retirement.as_mut() else {
+        if value.credit().is_some() {
+            *schedule = Some(value);
+            return false;
+        }
+        drop(value);
+        return true;
+    };
+    match retirement.retire(value) {
+        Ok(()) => true,
+        Err(value) => {
+            *schedule = Some(value);
+            false
+        }
+    }
+}
+pub(crate) fn push_queued_sfx_retiring(
+    active: &mut Vec<ActiveSfx>,
+    queued: QueuedSfx,
+    controls: &MixControls,
+    retirement: &mut Option<crate::SfxScheduleRetirer>,
+) -> Result<(), QueuedSfx> {
+    push_queued_sfx_shared(active, queued, controls, Some(retirement))
+}
+fn push_queued_sfx_shared(
+    active: &mut Vec<ActiveSfx>,
+    mut queued: QueuedSfx,
+    controls: &MixControls,
+    mut retirement: Option<&mut Option<crate::SfxScheduleRetirer>>,
+) -> Result<(), QueuedSfx> {
     if !controls.is_current(queued.bus, queued.generation) {
-        return if retire_optional(&mut queued.schedule,&mut retirement){Ok(())}else{Err(queued)};
+        return if retire_optional(&mut queued.schedule, &mut retirement) {
+            Ok(())
+        } else {
+            Err(queued)
+        };
     }
     if let Some(slot) = queued.restart_slot
         && queued.target_stream_frame == SfxOnset::Immediate
@@ -366,41 +411,115 @@ fn push_queued_sfx_shared(active:&mut Vec<ActiveSfx>,mut queued:QueuedSfx,contro
                 && sfx.schedule.is_some() == queued.schedule.is_some()
         })
     {
-        if !retire_optional(&mut previous.schedule,&mut retirement){return Err(queued);}
+        if !retire_optional(&mut previous.schedule, &mut retirement) {
+            return Err(queued);
+        }
         *previous = ActiveSfx::from_queued(queued);
         return Ok(());
     }
     // A bus generation reset can leave stale voices occupying the fixed
     // capacity until the next callback. Make room for current-generation SFX.
     if active.len() == MAX_ACTIVE_SFX {
-        active.retain_mut(|sfx| controls.is_current(sfx.bus,sfx.generation)||!retire_optional(&mut sfx.schedule,&mut retirement));
+        active.retain_mut(|sfx| {
+            controls.is_current(sfx.bus, sfx.generation)
+                || !retire_optional(&mut sfx.schedule, &mut retirement)
+        });
     }
     if active.len() < MAX_ACTIVE_SFX {
         active.push(ActiveSfx::from_queued(queued));
-    }else{if !retire_optional(&mut queued.schedule,&mut retirement){return Err(queued);}if let Some(voice)=queued.voice{voice.stop();}}
+    } else {
+        if !retire_optional(&mut queued.schedule, &mut retirement) {
+            return Err(queued);
+        }
+        if let Some(voice) = queued.voice {
+            voice.stop();
+        }
+    }
     Ok(())
 }
 
-
-pub fn mix_active_sfx(active:&mut Vec<ActiveSfx>,output:&mut[f32],before:u64,channels:usize,controls:&MixControls)->bool{
-    mix_active_sfx_shared(active,output,before,channels,controls,None,None,SfxMixPass::All,None)
+pub fn mix_active_sfx(
+    active: &mut Vec<ActiveSfx>,
+    output: &mut [f32],
+    before: u64,
+    channels: usize,
+    controls: &MixControls,
+) -> bool {
+    mix_active_sfx_shared(
+        active,
+        output,
+        before,
+        channels,
+        controls,
+        None,
+        None,
+        SfxMixPass::All,
+        None,
+    )
 }
 
-#[derive(Clone,Copy)]pub(crate)enum SfxMixPass{All,Assist,Beat,Others}
-impl SfxMixPass{fn accepts(self,source:bool,bus:usize)->bool{match self{Self::All=>true,Self::Assist=>source&&bus==4,Self::Beat=>source&&bus==5,Self::Others=>!source}}}
-pub(crate)fn mix_active_sfx_retiring(active:&mut Vec<ActiveSfx>,output:&mut[f32],before:u64,channels:usize,controls:&MixControls,retirement:&mut Option<crate::SfxScheduleRetirer>,clock:Option<crate::SourceTickClock>,pass:SfxMixPass,gain:Option<f32>)->bool{
-    mix_active_sfx_shared(active,output,before,channels,controls,Some(retirement),clock,pass,gain)
+#[derive(Clone, Copy)]
+pub(crate) enum SfxMixPass {
+    All,
+    Assist,
+    Beat,
+    Others,
 }
-fn retire_optional(schedule:&mut Option<crate::SfxSchedule>,retirement:&mut Option<&mut Option<crate::SfxScheduleRetirer>>)->bool{match retirement.as_deref_mut(){Some(r)=>retire_schedule(schedule,r),None=>{schedule.take();true}}}
+impl SfxMixPass {
+    fn accepts(self, source: bool, bus: usize) -> bool {
+        match self {
+            Self::All => true,
+            Self::Assist => source && bus == 4,
+            Self::Beat => source && bus == 5,
+            Self::Others => !source,
+        }
+    }
+}
+pub(crate) fn mix_active_sfx_retiring(
+    active: &mut Vec<ActiveSfx>,
+    output: &mut [f32],
+    before: u64,
+    channels: usize,
+    controls: &MixControls,
+    retirement: &mut Option<crate::SfxScheduleRetirer>,
+    clock: Option<crate::SourceTickClock>,
+    pass: SfxMixPass,
+    gain: Option<f32>,
+) -> bool {
+    mix_active_sfx_shared(
+        active,
+        output,
+        before,
+        channels,
+        controls,
+        Some(retirement),
+        clock,
+        pass,
+        gain,
+    )
+}
+fn retire_optional(
+    schedule: &mut Option<crate::SfxSchedule>,
+    retirement: &mut Option<&mut Option<crate::SfxScheduleRetirer>>,
+) -> bool {
+    match retirement.as_deref_mut() {
+        Some(r) => retire_schedule(schedule, r),
+        None => {
+            schedule.take();
+            true
+        }
+    }
+}
 fn mix_active_sfx_shared(
     active: &mut Vec<ActiveSfx>,
     mix_f32: &mut [f32],
     total_before: u64,
     device_channels: usize,
     controls: &MixControls,
-    mut retirement:Option<&mut Option<crate::SfxScheduleRetirer>>,
-    source_clock:Option<crate::SourceTickClock>,
-    pass:SfxMixPass,gain_override:Option<f32>,
+    mut retirement: Option<&mut Option<crate::SfxScheduleRetirer>>,
+    source_clock: Option<crate::SourceTickClock>,
+    pass: SfxMixPass,
+    gain_override: Option<f32>,
 ) -> bool {
     let buf_len = mix_f32.len();
     let mut mixed_sfx = false;
@@ -431,88 +550,92 @@ fn mix_active_sfx_shared(
     }
     let mut index = 0usize;
     active.retain_mut(|sfx| {
-        let keep=(||{
-        let slot = index;
-        index += 1;
-        let source_bus=sfx.schedule.as_ref().is_some_and(|s|s.source_tick_bus())&&matches!(sfx.bus.index(),4|5);
-        if !pass.accepts(source_bus,sfx.bus.index()){return true;}
-        if slot >= MAX_ACTIVE_SFX {
-            return false;
-        }
-        let stop_frame = stop_frames[slot];
-        if stop_frame <= total_before {
-            return false;
-        }
-        if !controls.is_current(sfx.bus, sfx.generation) {
-            return false;
-        }
-        if let Some(voice) = &sfx.voice {
-            if !voice.is_playing() {
-                return false;
-            }
-            if voice.paused.load(Ordering::Acquire) {
+        let keep = (|| {
+            let slot = index;
+            index += 1;
+            let source_bus = sfx.schedule.as_ref().is_some_and(|s| s.source_tick_bus())
+                && matches!(sfx.bus.index(), 4 | 5);
+            if !pass.accepts(source_bus, sfx.bus.index()) {
                 return true;
             }
-        }
-        if let Some(schedule) = &sfx.schedule {
-            mixed_sfx |= schedule.mix_with_source(
-                &sfx.data,
-                mix_f32,
+            if slot >= MAX_ACTIVE_SFX {
+                return false;
+            }
+            let stop_frame = stop_frames[slot];
+            if stop_frame <= total_before {
+                return false;
+            }
+            if !controls.is_current(sfx.bus, sfx.generation) {
+                return false;
+            }
+            if let Some(voice) = &sfx.voice {
+                if !voice.is_playing() {
+                    return false;
+                }
+                if voice.paused.load(Ordering::Acquire) {
+                    return true;
+                }
+            }
+            if let Some(schedule) = &sfx.schedule {
+                mixed_sfx |= schedule.mix_with_source(
+                    &sfx.data,
+                    mix_f32,
+                    total_before,
+                    device_channels,
+                    gain_override.unwrap_or_else(|| controls.bus_gain(sfx.bus)),
+                    source_clock,
+                    matches!(pass, SfxMixPass::Assist | SfxMixPass::Beat),
+                );
+                return true;
+            }
+            let start_sample = match exact_onset_decision(
+                sfx.target_stream_frame,
                 total_before,
                 device_channels,
-                gain_override.unwrap_or_else(||controls.bus_gain(sfx.bus)),
-                source_clock,
-                matches!(pass,SfxMixPass::Assist|SfxMixPass::Beat),
-            );
+                buf_len,
+            ) {
+                ScheduledOnset::Drop => return false,
+                ScheduledOnset::Pending => return true,
+                ScheduledOnset::StartAt(offset) => offset,
+            };
+            if sfx.restart_slot.is_some()
+                && let SfxOnset::At(target) = sfx.target_stream_frame
+                && target < total_before
+            {
+                let elapsed = total_before - target;
+                sfx.cursor = sfx.cursor.saturating_add(
+                    usize::try_from(elapsed)
+                        .unwrap_or(usize::MAX)
+                        .saturating_mul(device_channels),
+                );
+            }
+            sfx.cursor = sfx.cursor.min(sfx.data.len());
+            sfx.target_stream_frame = SfxOnset::Immediate;
+            let stop_sample = usize::try_from(stop_frame.saturating_sub(total_before))
+                .unwrap_or(usize::MAX)
+                .saturating_mul(device_channels);
+            let n = (sfx.data.len().saturating_sub(sfx.cursor))
+                .min(buf_len - start_sample)
+                .min(stop_sample.saturating_sub(start_sample));
+            mixed_sfx |= n > 0;
+            let bus_gain = controls.bus_gain(sfx.bus);
+            let src = &sfx.data[sfx.cursor..sfx.cursor + n];
+            let dst = &mut mix_f32[start_sample..start_sample + n];
+            if device_channels == 2 && sfx.pan != SfxPan::Center {
+                mix_sfx_panned_stereo(src, dst, bus_gain, sfx.pan);
+            } else {
+                mix_sfx_samples(src, dst, bus_gain);
+            }
+            sfx.cursor += n;
+            sfx.cursor < sfx.data.len() && stop_sample >= buf_len
+        })();
+        if !keep && !retire_optional(&mut sfx.schedule, &mut retirement) {
             return true;
         }
-        let start_sample = match exact_onset_decision(
-            sfx.target_stream_frame,
-            total_before,
-            device_channels,
-            buf_len,
-        ) {
-            ScheduledOnset::Drop => return false,
-            ScheduledOnset::Pending => return true,
-            ScheduledOnset::StartAt(offset) => offset,
-        };
-        if sfx.restart_slot.is_some()
-            && let SfxOnset::At(target) = sfx.target_stream_frame
-            && target < total_before
-        {
-            let elapsed = total_before - target;
-            sfx.cursor = sfx.cursor.saturating_add(
-                usize::try_from(elapsed)
-                    .unwrap_or(usize::MAX)
-                    .saturating_mul(device_channels),
-            );
-        }
-        sfx.cursor = sfx.cursor.min(sfx.data.len());
-        sfx.target_stream_frame = SfxOnset::Immediate;
-        let stop_sample = usize::try_from(stop_frame.saturating_sub(total_before))
-            .unwrap_or(usize::MAX)
-            .saturating_mul(device_channels);
-        let n = (sfx.data.len().saturating_sub(sfx.cursor))
-            .min(buf_len - start_sample)
-            .min(stop_sample.saturating_sub(start_sample));
-        mixed_sfx |= n > 0;
-        let bus_gain = controls.bus_gain(sfx.bus);
-        let src = &sfx.data[sfx.cursor..sfx.cursor + n];
-        let dst = &mut mix_f32[start_sample..start_sample + n];
-        if device_channels == 2 && sfx.pan != SfxPan::Center {
-            mix_sfx_panned_stereo(src, dst, bus_gain, sfx.pan);
-        } else {
-            mix_sfx_samples(src, dst, bus_gain);
-        }
-        sfx.cursor += n;
-        sfx.cursor < sfx.data.len() && stop_sample >= buf_len
-
-        })();
-        if !keep&&!retire_optional(&mut sfx.schedule,&mut retirement){return true;}keep
+        keep
     });
     mixed_sfx
 }
-
 
 #[inline]
 fn mix_sfx_panned_stereo(src: &[i16], dst: &mut [f32], gain: f32, pan: SfxPan) {
@@ -1007,8 +1130,38 @@ mod editor_tick_snapshot_tests {
         ));
         assert!(active.is_empty());
     }
-    #[test]fn checked_editor_gain_publication_refuses_atomically_but_terminal_release_still_cleans_owner(){
-        let controls=MixControls::new();controls.set_stream_gain(0.8);let old=crate::EditorMixGains{main:0.61,music:0.43,assist:0.71,beat:0.79};assert!(controls.begin_editor_gain_override(79,old));let before=controls.effective_stream_gain();controls.editor_mix.exhaust_for_test();assert!(!controls.can_update_editor_gain_override(79,crate::EditorMixGains{main:1.,..old}));assert!(!controls.update_editor_gain_override(79,crate::EditorMixGains{main:1.,..old}));assert_eq!(controls.effective_stream_gain(),before);assert_eq!(controls.editor_gain_snapshot().unwrap().gains,old);assert!(controls.end_stream_gain_override(79));assert_eq!(controls.editor_gain_owner(),0);assert_eq!(controls.effective_stream_gain(),0.8);assert!(!controls.begin_editor_gain_override(80,old));assert_eq!(controls.override_owner.load(std::sync::atomic::Ordering::Acquire),0);
+    #[test]
+    fn checked_editor_gain_publication_refuses_atomically_but_terminal_release_still_cleans_owner()
+    {
+        let controls = MixControls::new();
+        controls.set_stream_gain(0.8);
+        let old = crate::EditorMixGains {
+            main: 0.61,
+            music: 0.43,
+            assist: 0.71,
+            beat: 0.79,
+        };
+        assert!(controls.begin_editor_gain_override(79, old));
+        let before = controls.effective_stream_gain();
+        controls.editor_mix.exhaust_for_test();
+        assert!(
+            !controls
+                .can_update_editor_gain_override(79, crate::EditorMixGains { main: 1., ..old })
+        );
+        assert!(
+            !controls.update_editor_gain_override(79, crate::EditorMixGains { main: 1., ..old })
+        );
+        assert_eq!(controls.effective_stream_gain(), before);
+        assert_eq!(controls.editor_gain_snapshot().unwrap().gains, old);
+        assert!(controls.end_stream_gain_override(79));
+        assert_eq!(controls.editor_gain_owner(), 0);
+        assert_eq!(controls.effective_stream_gain(), 0.8);
+        assert!(!controls.begin_editor_gain_override(80, old));
+        assert_eq!(
+            controls
+                .override_owner
+                .load(std::sync::atomic::Ordering::Acquire),
+            0
+        );
     }
-
 }

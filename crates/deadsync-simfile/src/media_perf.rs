@@ -1,6 +1,6 @@
 use super::*;
-use std::hint::black_box;
 use crate::metadata_perf as allocations;
+use std::hint::black_box;
 #[path = "media_original.rs"]
 mod original;
 #[path = "../../../tests/perf/runtime_support.rs"]

@@ -15,12 +15,18 @@ fn press(s: &mut State, code: KeyCode) {
 }
 fn open(s: &mut State) {
     press(s, KeyCode::F1);
-    press(s, KeyCode::ArrowUp);
+    // General options remains menu entry30; newer tools follow it.
+    for _ in 0..30 {
+        press(s, KeyCode::ArrowDown);
+    }
     press(s, KeyCode::Enter);
 }
 #[test]
 fn full_source_restore_is_localized_atomic_and_undoes_all_owners() {
     i18n::init(deadsync_assets::language::load_for_tests(super::LANGUAGE));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let root = tempfile::tempdir().unwrap();
     let song = root.path().join("song.ssc");
     std::fs::write(&song,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0010\n0001;").unwrap();
@@ -28,7 +34,10 @@ fn full_source_restore_is_localized_atomic_and_undoes_all_owners() {
     std::fs::write(&prefs,r#"{"Version":1,"Options":{"UndoHistorySize":32,"NewSongSyncOffset":0.1,"OpenSongSyncOffset":0.25,"RenderNotes":false,"RecentFilesHistorySize":7,"StepColorMethodValue":"999","SuppressExternalSongModificationNotification":true,"MiscEventAreaWidth":123,"HideSongBackground":true,"MaxEventsToDraw":11,"ResetLayout":"Expanded","Future":17},"KeyBinds":{"Undo":[["F14"]],"Redo":[["F15"]]}}"#).unwrap();
     let mut state = State::open_with_preferences(&song, 0, &prefs).unwrap();
     let before = state.options_snapshot();
-    assert_eq!(before.recent_maximum, 7, "loaded preferences must reach the file menu cache");
+    assert_eq!(
+        before.recent_maximum, 7,
+        "loaded preferences must reach the file menu cache"
+    );
     let bytes = state.workspace().file().session.serialize().unwrap();
     let clock = deadsync_editor::playback::Clock::capture(&state.workspace().file().session, 0)
         .unwrap()
@@ -43,7 +52,9 @@ fn full_source_restore_is_localized_atomic_and_undoes_all_owners() {
             .iter()
             .any(|a| matches!(a,Actor::Text{content,..}if content.as_str()==&*label))
     );
-    press(&mut state, KeyCode::ArrowUp);
+    for _ in 0..3 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
     press(&mut state, KeyCode::Enter);
     assert_eq!(state.options_snapshot(), before.restored());
     assert!(state.render_policy().notes);

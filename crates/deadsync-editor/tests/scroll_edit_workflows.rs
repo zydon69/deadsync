@@ -127,7 +127,14 @@ fn scope_noop_history_stale_foreign_and_sm_guards_do_not_lose_data() {
         )
         .unwrap(),
     );
-    assert!(Draft::capture(&sm, 0, Scope::Song).unwrap().scrolls().values().is_empty(), "original unsupported SM tag stays ignored");
+    assert!(
+        Draft::capture(&sm, 0, Scope::Song)
+            .unwrap()
+            .scrolls()
+            .values()
+            .is_empty(),
+        "original unsupported SM tag stays ignored"
+    );
 }
 #[test]
 fn zero_reverse_late_first_rates_and_invalid_edits_preserve_reference_semantics() {

@@ -1,6 +1,7 @@
 use super::*;
 #[test]
 fn decoded_pcm_retains_both_preview_ramps_across_partial_cut_and_loop() {
+    let _audio_guard = crate::test_audio_guard();
     let root = std::env::temp_dir().join(format!("preview-fades-{}", std::process::id()));
     std::fs::create_dir_all(&root).unwrap();
     let path = root.join("constant.wav");

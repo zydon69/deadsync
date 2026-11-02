@@ -1,12 +1,20 @@
 use super::*;
-use deadsync_editor::{zoom_preferences::Preferences};
-pub(super) struct Edit{before:Preferences,session:deadsync_editor::chart_order::SessionBinding}
+use deadsync_editor::zoom_preferences::Preferences;
+pub(super) struct Edit {
+    before: Preferences,
+    session: deadsync_editor::chart_order::SessionBinding,
+}
 impl State {
     pub fn zoom_preferences(&self) -> Preferences {
         self.zoom_preferences
     }
     pub(super) fn open_zoom_settings(&mut self) {
-        self.zoom_preferences_edit=Some(Edit{before:self.zoom_preferences,session:deadsync_editor::chart_order::SessionBinding::capture(&self.workspace.file().session)});
+        self.zoom_preferences_edit = Some(Edit {
+            before: self.zoom_preferences,
+            session: deadsync_editor::chart_order::SessionBinding::capture(
+                &self.workspace.file().session,
+            ),
+        });
         self.zoom_preferences_draft = Some(self.zoom_preferences);
         self.panel = Some(Panel::ZoomSettings(0));
         self.status = i18n::tr("Edition", "ZoomSettingsHelp");
@@ -33,7 +41,7 @@ impl State {
         let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
         if code == KeyCode::Escape || (index == 6 && enter) {
             self.zoom_preferences_draft = None;
-            self.zoom_preferences_edit=None;
+            self.zoom_preferences_edit = None;
             self.panel = None;
             self.status = i18n::tr("Edition", "ZoomSettingsDiscarded");
             return;
@@ -99,7 +107,11 @@ impl State {
                 }
             };
             if let Err(error) = result {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
+                );
             }
             return;
         }
@@ -117,29 +129,40 @@ impl State {
             return;
         };
         let result = (|| -> Result<(), deadsync_editor::Error> {
-            let edit=self.zoom_preferences_edit.as_ref().ok_or(deadsync_editor::Error::ExternalChange)?;
-            if !edit.session.belongs_to(&self.workspace.file().session){return Err(deadsync_editor::Error::ExternalChange);}
-            let before=edit.before;
-            let current=self.capture_application_preferences_file()?;
-            let merged=current.zoom().merge_changes(before,settings)?;
-            let mut prepared=self.zoom.clone();merged.apply(&mut prepared)?;
-            self.workspace.apply_zoom_preferences(before,settings,&current)?;
+            let edit = self
+                .zoom_preferences_edit
+                .as_ref()
+                .ok_or(deadsync_editor::Error::ExternalChange)?;
+            if !edit.session.belongs_to(&self.workspace.file().session) {
+                return Err(deadsync_editor::Error::ExternalChange);
+            }
+            let before = edit.before;
+            let current = self.capture_application_preferences_file()?;
+            let merged = current.zoom().merge_changes(before, settings)?;
+            let mut prepared = self.zoom.clone();
+            merged.apply(&mut prepared)?;
+            self.workspace
+                .apply_zoom_preferences(before, settings, &current)?;
             self.sync_restore_scroll_history()?;
             Ok(())
         })();
         match result {
             Ok(()) => {
                 self.zoom_preferences_draft = None;
-                self.zoom_preferences_edit=None;
+                self.zoom_preferences_edit = None;
                 self.panel = None;
                 self.status = i18n::tr("Edition", "ZoomSettingsSaved");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
+                )
             }
         }
     }
 }
 #[cfg(test)]
-#[path="zoom_settings/history_tests.rs"]
+#[path = "zoom_settings/history_tests.rs"]
 mod history_tests;

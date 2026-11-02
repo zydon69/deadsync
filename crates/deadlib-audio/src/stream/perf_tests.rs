@@ -18,6 +18,7 @@ fn samples(frames: usize, channels: usize) -> Vec<i16> {
 
 #[test]
 fn reused_padding_matches_original_pcm_and_timestamps() {
+    let _audio_guard = crate::test_audio_guard();
     for channels in [1, 2, 6, 8] {
         for (input_hz, output_hz) in [
             (44_100, 48_000),
@@ -114,6 +115,7 @@ impl Drop for WavFile {
 
 #[test]
 fn sfx_loading_matches_original_for_empty_short_and_partial_clips() {
+    let _audio_guard = crate::test_audio_guard();
     for channels in [1, 2, 6] {
         for frames in [0, 1, 731, 8192] {
             let file = WavFile::new(channels, 44_100, frames);
@@ -154,6 +156,7 @@ fn finalize<T>(input: Vec<T>, current: bool) -> Arc<[T]> {
 
 #[test]
 fn direct_arc_finalization_preserves_values_and_removes_shrink() {
+    let _audio_guard = crate::test_audio_guard();
     for len in [0, 1, 4096, 100_000] {
         for extra in [0, 1, 4096] {
             let make = || {
@@ -176,6 +179,7 @@ fn direct_arc_finalization_preserves_values_and_removes_shrink() {
 
 #[test]
 fn warmed_music_tail_needs_no_allocator_work() {
+    let _audio_guard = crate::test_audio_guard();
     for channels in [1, 2, 8] {
         let mut stages = processing::MusicStages::new(channels, 44_100, 48_000);
         stages.set_rate(1.0, false).unwrap();
@@ -194,6 +198,7 @@ fn warmed_music_tail_needs_no_allocator_work() {
 #[test]
 #[ignore = "paired release benchmark"]
 fn benchmark_arc_finalization() {
+    let _audio_guard = crate::test_audio_guard();
     for (len, extra, iterations) in [
         (4096, 0, 1000),
         (4096, 4096, 1000),
@@ -218,6 +223,7 @@ fn benchmark_arc_finalization() {
 #[test]
 #[ignore = "paired release benchmark"]
 fn benchmark_audio_padding_storage() {
+    let _audio_guard = crate::test_audio_guard();
     for channels in [2, 8] {
         let (_, old) = allocations::measure(|| {
             let mut s = original_processing::MusicStages::new(channels, 44_100, 48_000);

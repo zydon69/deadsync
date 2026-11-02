@@ -106,45 +106,76 @@ static MUSIC_PAUSED: AtomicBool = AtomicBool::new(false);
 static MUSIC_PAUSE_EPOCH: AtomicU64 = AtomicU64::new(1);
 /// Revoke queued audible data without changing asset ownership or track origin.
 /// The caller separately invalidates the timeline generation before resuming.
-pub fn pause_music_track()->u64{
-    MUSIC_PAUSED.store(true,Ordering::Release);
-    MUSIC_PAUSE_EPOCH.fetch_update(Ordering::AcqRel,Ordering::Acquire,|epoch|epoch.checked_add(1)).expect("Music pause epoch exhausted")+1
+pub fn pause_music_track() -> u64 {
+    MUSIC_PAUSED.store(true, Ordering::Release);
+    MUSIC_PAUSE_EPOCH
+        .fetch_update(Ordering::AcqRel, Ordering::Acquire, |epoch| {
+            epoch.checked_add(1)
+        })
+        .expect("Music pause epoch exhausted")
+        + 1
 }
-pub fn resume_music_track(){MUSIC_PAUSED.store(false,Ordering::Release);}
-pub fn music_track_paused()->bool{MUSIC_PAUSED.load(Ordering::Acquire)}
-pub fn music_pause_epoch()->u64{MUSIC_PAUSE_EPOCH.load(Ordering::Acquire)}
+pub fn resume_music_track() {
+    MUSIC_PAUSED.store(false, Ordering::Release);
+}
+pub fn music_track_paused() -> bool {
+    MUSIC_PAUSED.load(Ordering::Acquire)
+}
+pub fn music_pause_epoch() -> u64 {
+    MUSIC_PAUSE_EPOCH.load(Ordering::Acquire)
+}
 
 // One atomic word publishes identity and its phase contract together. Readers
 // can never observe a new preview identity with the previous MAIN trim policy.
 static MUSIC_ASSET_STATE: AtomicU64 = AtomicU64::new(2);
-#[derive(Clone,Copy,Debug,Eq,PartialEq)]
-pub(crate) enum MusicAssetPhase { SourceClock, PreviewLoop }
-pub(crate) fn music_asset_state()->(u64,MusicAssetPhase) {
-    let word=MUSIC_ASSET_STATE.load(Ordering::Acquire);
-    (word>>1,if word&1==0{MusicAssetPhase::SourceClock}else{MusicAssetPhase::PreviewLoop})
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum MusicAssetPhase {
+    SourceClock,
+    PreviewLoop,
+}
+pub(crate) fn music_asset_state() -> (u64, MusicAssetPhase) {
+    let word = MUSIC_ASSET_STATE.load(Ordering::Acquire);
+    (
+        word >> 1,
+        if word & 1 == 0 {
+            MusicAssetPhase::SourceClock
+        } else {
+            MusicAssetPhase::PreviewLoop
+        },
+    )
 }
 #[inline(always)]
-pub fn music_asset_epoch()->u64{MUSIC_ASSET_STATE.load(Ordering::Acquire)>>1}
-fn advance_music_asset_with_phase(phase:MusicAssetPhase)->u64 {
-    let previous=MUSIC_ASSET_STATE.fetch_update(Ordering::AcqRel,Ordering::Acquire,|word|{
-        let epoch=(word>>1).checked_add(1)?;
-        if epoch>u64::MAX>>1{return None;}
-        Some((epoch<<1)|u64::from(phase==MusicAssetPhase::PreviewLoop))
-    }).expect("Music asset epoch exhausted");
-    (previous>>1)+1
+pub fn music_asset_epoch() -> u64 {
+    MUSIC_ASSET_STATE.load(Ordering::Acquire) >> 1
+}
+fn advance_music_asset_with_phase(phase: MusicAssetPhase) -> u64 {
+    let previous = MUSIC_ASSET_STATE
+        .fetch_update(Ordering::AcqRel, Ordering::Acquire, |word| {
+            let epoch = (word >> 1).checked_add(1)?;
+            if epoch > u64::MAX >> 1 {
+                return None;
+            }
+            Some((epoch << 1) | u64::from(phase == MusicAssetPhase::PreviewLoop))
+        })
+        .expect("Music asset epoch exhausted");
+    (previous >> 1) + 1
 }
 #[inline(always)]
-pub fn advance_music_asset_epoch()->u64{advance_music_asset_with_phase(MusicAssetPhase::SourceClock)}
+pub fn advance_music_asset_epoch() -> u64 {
+    advance_music_asset_with_phase(MusicAssetPhase::SourceClock)
+}
 /// Preview phase wraps inside its own cut. Its worker aligns the first PCM
 /// packet modulo that range; MAIN's unbounded source-clock trim is inapplicable.
-pub fn advance_music_preview_asset_epoch()->u64{advance_music_asset_with_phase(MusicAssetPhase::PreviewLoop)}
+pub fn advance_music_preview_asset_epoch() -> u64 {
+    advance_music_asset_with_phase(MusicAssetPhase::PreviewLoop)
+}
 /// Reanchor a live asset clock without resetting track start or map generation.
 /// Unlike normal preroll seeding, an exact zero is an authoritative anchor too.
 #[inline(always)]
-pub fn seed_music_asset_clock(cut_start_sec:f64,rate:f32){
-    MUSIC_CLOCK_CUT_START_BITS.store(cut_start_sec.to_bits(),Ordering::Relaxed);
-    MUSIC_CLOCK_RATE_BITS.store(normalized_music_rate(rate).to_bits(),Ordering::Relaxed);
-    MUSIC_CLOCK_SEEDED.store(cut_start_sec.is_finite(),Ordering::Release);
+pub fn seed_music_asset_clock(cut_start_sec: f64, rate: f32) {
+    MUSIC_CLOCK_CUT_START_BITS.store(cut_start_sec.to_bits(), Ordering::Relaxed);
+    MUSIC_CLOCK_RATE_BITS.store(normalized_music_rate(rate).to_bits(), Ordering::Relaxed);
+    MUSIC_CLOCK_SEEDED.store(cut_start_sec.is_finite(), Ordering::Release);
 }
 
 static MUSIC_CLOCK_SEEDED: AtomicBool = AtomicBool::new(false);
@@ -676,6 +707,7 @@ mod tests {
 
     #[test]
     fn fallback_music_position_uses_positive_cut_origin() {
+        let _audio_guard = crate::test_audio_guard();
         let (music_sec, slope) = fallback_music_position(0.25, 37.5, 1.5);
 
         assert!((music_sec - 37.875).abs() <= 0.000_01);
@@ -684,6 +716,7 @@ mod tests {
 
     #[test]
     fn fallback_music_position_rate_scales_negative_lead_in() {
+        let _audio_guard = crate::test_audio_guard();
         let (lead_music_sec, lead_slope) = fallback_music_position(0.25, -1.0, 2.0);
         let (zero_music_sec, zero_slope) = fallback_music_position(0.5, -1.0, 2.0);
         let (song_music_sec, song_slope) = fallback_music_position(0.75, -1.0, 2.0);
@@ -698,6 +731,7 @@ mod tests {
 
     #[test]
     fn fallback_music_position_sanitizes_invalid_inputs() {
+        let _audio_guard = crate::test_audio_guard();
         for stream_seconds in [-1.0, f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
             assert_eq!(
                 fallback_music_position(stream_seconds, 37.5, 1.5),
@@ -716,6 +750,7 @@ mod tests {
 
     #[test]
     fn normalized_music_rate_uses_unity_for_invalid_rate() {
+        let _audio_guard = crate::test_audio_guard();
         assert_eq!(normalized_music_rate(1.5), 1.5);
         assert_eq!(normalized_music_rate(0.0), 1.0);
         assert_eq!(normalized_music_rate(-1.0), 1.0);
@@ -724,6 +759,7 @@ mod tests {
 
     #[test]
     fn music_clock_seed_is_enabled_for_nonzero_cuts() {
+        let _audio_guard = crate::test_audio_guard();
         assert!(music_clock_seed_enabled(0.001));
         assert!(!music_clock_seed_enabled(0.0));
         assert!(music_clock_seed_enabled(-1.0));
@@ -732,6 +768,7 @@ mod tests {
 
     #[test]
     fn music_nanos_from_seconds_rounds_saturates_and_rejects_non_finite() {
+        let _audio_guard = crate::test_audio_guard();
         assert_eq!(music_nanos_from_seconds(1.25), 1_250_000_000);
         assert_eq!(music_nanos_from_seconds(-0.5), -500_000_000);
         assert_eq!(music_nanos_from_seconds(0.5e-9), 1);
@@ -745,6 +782,7 @@ mod tests {
 
     #[test]
     fn callback_position_preserves_boundary_arithmetic() {
+        let _audio_guard = crate::test_audio_guard();
         let values = [0, 1, 256, (1 << 53) - 1, 1 << 53, (1 << 53) + 1, u64::MAX];
         for sample_rate in [0, 1, 44_100, 48_000, u32::MAX] {
             for at_nanos in values {
@@ -788,6 +826,7 @@ mod tests {
 
     #[test]
     fn stream_clock_extrapolates_back_before_future_callback_anchor() {
+        let _audio_guard = crate::test_audio_guard();
         let frames = stream_position_frames_from_window(
             48_000,
             1_000,
@@ -809,6 +848,7 @@ mod tests {
 
     #[test]
     fn playback_pos_map_extrapolates_past_last_segment() {
+        let _audio_guard = crate::test_audio_guard();
         let mut map = PlaybackPosMap::default();
         map.insert(MusicMapSeg {
             stream_frame_start: 0,
@@ -827,6 +867,7 @@ mod tests {
 
     #[test]
     fn playback_pos_map_trims_large_segment_without_emptying() {
+        let _audio_guard = crate::test_audio_guard();
         let mut map = PlaybackPosMap::default();
         map.insert(MusicMapSeg {
             stream_frame_start: 0,
@@ -853,6 +894,7 @@ mod tests {
 
     #[test]
     fn playback_pos_map_invert_round_trips_within_segment() {
+        let _audio_guard = crate::test_audio_guard();
         let mut map = PlaybackPosMap::default();
         map.insert(MusicMapSeg {
             stream_frame_start: 1_000,
@@ -870,6 +912,7 @@ mod tests {
 
     #[test]
     fn playback_pos_map_invert_extrapolates_past_last_segment() {
+        let _audio_guard = crate::test_audio_guard();
         let mut map = PlaybackPosMap::default();
         map.insert(MusicMapSeg {
             stream_frame_start: 0,
@@ -884,6 +927,7 @@ mod tests {
 
     #[test]
     fn playback_pos_map_invert_rejects_empty_and_non_finite() {
+        let _audio_guard = crate::test_audio_guard();
         let empty = PlaybackPosMap::default();
         assert!(empty.invert(1.0).is_none());
 
@@ -899,6 +943,7 @@ mod tests {
 
     #[test]
     fn playback_pos_map_validates_slopes_on_insert() {
+        let _audio_guard = crate::test_audio_guard();
         let mut map = PlaybackPosMap::default();
         for slope in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
             map.insert(MusicMapSeg {

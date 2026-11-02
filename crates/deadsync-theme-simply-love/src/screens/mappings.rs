@@ -1172,11 +1172,20 @@ fn format_binding_for_display(binding: InputBinding) -> String {
     match binding {
         InputBinding::Key(code) => format!("{code:?}"),
         // Any-pad bindings
-        InputBinding::PadDir(dir) => crate::i18n::tr_fmt("UiMessages", "DirDir", &[("dir", &format!("{:?}", dir))]).to_string(),
-        // Device-specific bindings, aligned with "Pad N Btn 0x.." style.
-        InputBinding::PadDirOn { device, dir } => {
-            crate::i18n::tr_fmt("UiMessages", "PadDeviceDirDir", &[("device", &(device).to_string()), ("dir", &format!("{:?}", dir))]).to_string()
+        InputBinding::PadDir(dir) => {
+            crate::i18n::tr_fmt("UiMessages", "DirDir", &[("dir", &format!("{:?}", dir))])
+                .to_string()
         }
+        // Device-specific bindings, aligned with "Pad N Btn 0x.." style.
+        InputBinding::PadDirOn { device, dir } => crate::i18n::tr_fmt(
+            "UiMessages",
+            "PadDeviceDirDir",
+            &[
+                ("device", &(device).to_string()),
+                ("dir", &format!("{:?}", dir)),
+            ],
+        )
+        .to_string(),
         InputBinding::GamepadCode(binding) => {
             // Prefer a friendly SMX label (e.g. "SMX[40ea] R") when the binding
             // belongs to a connected StepManiaX pad; otherwise fall back to the
@@ -1196,7 +1205,12 @@ fn format_binding_for_display(binding: InputBinding) -> String {
             while hex.len() > 1 && hex.starts_with('0') {
                 hex.remove(0);
             }
-            let mut label = crate::i18n::tr_fmt("UiMessages", "PadDevBtn0xHex", &[("dev", &(dev).to_string()), ("hex", &(hex).to_string())]).to_string();
+            let mut label = crate::i18n::tr_fmt(
+                "UiMessages",
+                "PadDevBtn0xHex",
+                &[("dev", &(dev).to_string()), ("hex", &(hex).to_string())],
+            )
+            .to_string();
             // Soft max-width to avoid overflowing the column; in practice the
             // cropped code is short so this rarely triggers.
             const MAX_LABEL_CHARS: usize = 18;

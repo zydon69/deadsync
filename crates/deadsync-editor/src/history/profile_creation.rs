@@ -212,7 +212,10 @@ mod tests {
                 // distinct committed baseline so192 is a genuine pending edit.
                 let mut initial = Draft::at_cursor(&session, 0, 96).unwrap();
                 initial.definition.length = 48;
-                assert!(initial.apply(&mut session,0).unwrap(),"{format:?}/{kind:?}: fixture baseline");
+                assert!(
+                    initial.apply(&mut session, 0).unwrap(),
+                    "{format:?}/{kind:?}: fixture baseline"
+                );
                 let before = session.serialize().unwrap();
                 let mut draft = Draft::at_cursor(&session, 0, 96).unwrap();
                 draft.start = 144;
@@ -241,24 +244,46 @@ mod tests {
                     Kind::Expressed => &data.expressed_chart_config,
                 };
                 assert_eq!(id, profile.guid());
-                assert_eq!(marker.length,48,"{format:?}/{kind:?}: New must not publish pending length");
-                assert!(!marker.extra.contains_key("Opaque"),"{format:?}/{kind:?}: New must not publish pending metadata");
+                assert_eq!(
+                    marker.length, 48,
+                    "{format:?}/{kind:?}: New must not publish pending length"
+                );
+                assert!(
+                    !marker.extra.contains_key("Opaque"),
+                    "{format:?}/{kind:?}: New must not publish pending metadata"
+                );
                 assert!(!data.patterns.unwrap().contains_key(&144));
                 let published = session.serialize().unwrap();
                 let profile_bytes = std::fs::read(&file).unwrap();
                 // Apply the actual receipt-rebound parent, not merely a fresh
                 // reconstruction. Its unrelated start/length/opaque fields must
                 // remain pending and commit as the next independent action.
-                assert!(draft.apply(&mut session,0).unwrap(),"{format:?}/{kind:?}: Apply rebound parent");
-                let applied=ChartData::read(session.document(),0).unwrap().unwrap();
-                let moved=&applied.patterns.as_ref().unwrap()[&144];
-                assert_eq!(moved.length,192);assert_eq!(moved.extra["Opaque"]["kept"],true);
-                let bound=match kind{Kind::Pattern=>&moved.pattern_config_guid,Kind::Performed=>&moved.performed_chart_config_guid,Kind::Expressed=>&applied.expressed_chart_config};
-                assert_eq!(bound,profile.guid());assert!(!applied.patterns.as_ref().unwrap().contains_key(&96));
-                assert_eq!(std::fs::read(&file).unwrap(),profile_bytes);
+                assert!(
+                    draft.apply(&mut session, 0).unwrap(),
+                    "{format:?}/{kind:?}: Apply rebound parent"
+                );
+                let applied = ChartData::read(session.document(), 0).unwrap().unwrap();
+                let moved = &applied.patterns.as_ref().unwrap()[&144];
+                assert_eq!(moved.length, 192);
+                assert_eq!(moved.extra["Opaque"]["kept"], true);
+                let bound = match kind {
+                    Kind::Pattern => &moved.pattern_config_guid,
+                    Kind::Performed => &moved.performed_chart_config_guid,
+                    Kind::Expressed => &applied.expressed_chart_config,
+                };
+                assert_eq!(bound, profile.guid());
+                assert!(!applied.patterns.as_ref().unwrap().contains_key(&96));
+                assert_eq!(std::fs::read(&file).unwrap(), profile_bytes);
                 assert!(session.undo().unwrap());
-                assert_eq!(session.serialize().unwrap(),published,"{format:?}/{kind:?}: Undo pending fields");
-                assert!(file.is_file(),"Undo pending fields must keep the separately created profile");
+                assert_eq!(
+                    session.serialize().unwrap(),
+                    published,
+                    "{format:?}/{kind:?}: Undo pending fields"
+                );
+                assert!(
+                    file.is_file(),
+                    "Undo pending fields must keep the separately created profile"
+                );
                 assert!(session.undo().unwrap());
                 assert!(!file.exists());
                 assert_eq!(session.serialize().unwrap(), before);
@@ -267,10 +292,16 @@ mod tests {
                 assert_eq!(std::fs::read(&file).unwrap(), profile_bytes);
                 // A later ordinary edit uses the restored baseline length48.
                 let mut fresh = Draft::at_cursor(&session, 0, 96).unwrap();
-                assert_eq!(fresh.definition.length,48,"{format:?}/{kind:?}: Redo creation baseline");
+                assert_eq!(
+                    fresh.definition.length, 48,
+                    "{format:?}/{kind:?}: Redo creation baseline"
+                );
                 fresh.definition.length = 192;
                 assert!(fresh.has_changes());
-                assert!(fresh.apply(&mut session, 0).unwrap(),"{format:?}/{kind:?}: later ordinary Apply");
+                assert!(
+                    fresh.apply(&mut session, 0).unwrap(),
+                    "{format:?}/{kind:?}: later ordinary Apply"
+                );
                 assert!(session.undo().unwrap());
                 assert_eq!(session.serialize().unwrap(), published);
             }
@@ -384,5 +415,4 @@ mod tests {
             *next.guid()
         );
     }
-
 }

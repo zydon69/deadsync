@@ -79,7 +79,8 @@ fn effective_chart_signatures_unsaved_edits_and_undo_are_used_immediately() {
     workspace.execute(Command::NextMeasure).unwrap();
     assert_eq!(workspace.row(), 169);
     workspace.execute(Command::Save).unwrap();
-    let mut reopened = Workspace::open(workspace.file().require_existing_path().unwrap(), 0).unwrap();
+    let mut reopened =
+        Workspace::open(workspace.file().require_existing_path().unwrap(), 0).unwrap();
     reopened.execute(Command::NextMeasure).unwrap();
     assert_eq!(reopened.row(), 120);
 }

@@ -871,7 +871,8 @@ impl Actor {
             Self::Frame { children, .. } | Self::Camera { children, .. } => {
                 children.iter().all(Self::retained_static)
             }
-            Self::SharedFrame { children, .. } | Self::SharedTransform { children, .. }
+            Self::SharedFrame { children, .. }
+            | Self::SharedTransform { children, .. }
             | Self::SharedCamera { children, .. } => children.iter().all(Self::retained_static),
             Self::Shadow { child, .. } => child.retained_static(),
             Self::Mesh { .. }

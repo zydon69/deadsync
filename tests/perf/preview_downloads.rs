@@ -55,7 +55,10 @@ fn assert_original(
     let mut before = Vec::new();
     original::push_downloads_overlay(&mut before, &original, color, rows, font);
     let after = actors(state, rows, color, font);
-    assert_eq!(format!("{before:?}"), format!("{after:?}"));
+    assert_eq!(
+        crate::actor_test_support::canonical(&before),
+        crate::actor_test_support::canonical(&after)
+    );
     after
 }
 

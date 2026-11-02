@@ -1160,7 +1160,9 @@ fn create_offscreen_target(
 }
 
 fn destroy_offscreen_target(gl: &glow::Context, target: OffscreenTarget) {
-    if let Some(filtered) = target.fxaa {destroy_offscreen_target(gl, *filtered);}
+    if let Some(filtered) = target.fxaa {
+        destroy_offscreen_target(gl, *filtered);
+    }
     // SAFETY: these resources were created by this context and remain uniquely
     // owned by the target slot.
     unsafe {
@@ -1173,8 +1175,13 @@ fn destroy_offscreen_target(gl: &glow::Context, target: OffscreenTarget) {
 }
 
 fn ensure_offscreen_targets(state: &mut State, frame: &RenderFrame) -> Result<(), String> {
-    if state.fxaa.is_none() && frame.render_targets.iter().any(|pass|pass.postprocess.is_some()) {
-        state.fxaa=Some(fxaa::Resources::new(&state.gl,state.path,state.fxaa_api)?);
+    if state.fxaa.is_none()
+        && frame
+            .render_targets
+            .iter()
+            .any(|pass| pass.postprocess.is_some())
+    {
+        state.fxaa = Some(fxaa::Resources::new(&state.gl, state.path, state.fxaa_api)?);
     }
     for (index, pass) in frame.render_targets.iter().enumerate() {
         let matches = state.offscreen_targets.get(index).is_some_and(|target| {
@@ -1202,10 +1209,17 @@ fn ensure_offscreen_targets(state: &mut State, frame: &RenderFrame) -> Result<()
             state.offscreen_targets.push(target);
         }
     }
-    for (index,pass) in frame.render_targets.iter().enumerate() {
+    for (index, pass) in frame.render_targets.iter().enumerate() {
         if pass.postprocess.is_some() && state.offscreen_targets[index].fxaa.is_none() {
-            let output=create_offscreen_target(&state.gl,pass.texture_handle,pass.width,pass.height,pass.float_color,false)?;
-            state.offscreen_targets[index].fxaa=Some(Box::new(output));
+            let output = create_offscreen_target(
+                &state.gl,
+                pass.texture_handle,
+                pass.width,
+                pass.height,
+                pass.float_color,
+                false,
+            )?;
+            state.offscreen_targets[index].fxaa = Some(Box::new(output));
         }
     }
     Ok(())
@@ -1222,7 +1236,16 @@ fn resolved_texture<'a, T: TextureLookup + ?Sized>(
             .offscreen_targets
             .iter()
             .find(|target| target.handle == handle)
-            .map(|target| if target.postprocessed {target.fxaa.as_ref().map_or(&target.texture,|target|&target.texture)} else {&target.texture});
+            .map(|target| {
+                if target.postprocessed {
+                    target
+                        .fxaa
+                        .as_ref()
+                        .map_or(&target.texture, |target| &target.texture)
+                } else {
+                    &target.texture
+                }
+            });
     }
     textures.opengl_texture(handle)
 }
@@ -1304,7 +1327,11 @@ fn apply_blend(gl: &glow::Context, want: BlendMode, last: &mut Option<BlendMode>
         };
         let (src_alpha, dst_alpha) = if want == BlendMode::NoEffect {
             (glow::ZERO, glow::ONE)
-        } else if want==BlendMode::Replace {(glow::ONE,glow::ZERO)} else { (glow::ONE, glow::ONE_MINUS_SRC_ALPHA) };
+        } else if want == BlendMode::Replace {
+            (glow::ONE, glow::ZERO)
+        } else {
+            (glow::ONE, glow::ONE_MINUS_SRC_ALPHA)
+        };
         gl.blend_func_separate(src, dst, src_alpha, dst_alpha);
     }
 }
@@ -1619,12 +1646,14 @@ fn draw_modern_offscreen_pass(
                         continue;
                     };
                     apply_blend(gl, run.blend, &mut last_blend);
-                    apply_depth_test(gl,
+                    apply_depth_test(
+                        gl,
                         if frame.depth {
                             run.depth_mode()
                         } else {
                             deadlib_render_core::DepthMode::Off
-                        }, &mut last_depth,
+                        },
+                        &mut last_depth,
                     );
                     if last_prog != Some(2) {
                         gl.use_program(Some(state.tmesh_program));
@@ -1898,12 +1927,14 @@ fn draw_legacy_offscreen_pass(
                         continue;
                     };
                     apply_blend(gl, run.blend, &mut last_blend);
-                    apply_depth_test(gl,
+                    apply_depth_test(
+                        gl,
                         if frame.depth {
                             run.depth_mode()
                         } else {
                             deadlib_render_core::DepthMode::Off
-                        }, &mut last_depth,
+                        },
+                        &mut last_depth,
                     );
                     gl.use_program(Some(state.tmesh_program));
                     gl.enable_vertex_attrib_array(0);
@@ -2031,7 +2062,9 @@ pub fn draw(
     ensure_offscreen_targets(state, frame).map_err(std::io::Error::other)?;
     let offscreen_started = Instant::now();
     let mut offscreen_vertices = 0u64;
-    for target in &mut state.offscreen_targets {target.postprocessed=false;}
+    for target in &mut state.offscreen_targets {
+        target.postprocessed = false;
+    }
     for (index, target_frame) in frame.render_targets.iter().enumerate() {
         {
             let uploads = &mut state.uploads;
@@ -2083,18 +2116,38 @@ pub fn draw(
             }
         }
         state.offscreen_targets[index].initialized = true;
-        if let (Some(effect),Some(resources))=(target_frame.postprocess,state.fxaa.as_ref()) {
-            let target=&state.offscreen_targets[index];
-            let source=if let Some(handle)=effect.source {
-                let handle=render_target_base_handle(handle);
-                state.offscreen_targets[..index].iter().find(|target|target.handle==handle).map(|source| {
-                    let texture=if source.postprocessed {source.fxaa.as_ref().map_or(&source.texture,|target|&target.texture)}else{&source.texture};
-                    (texture,[source.width,source.height])
-                })
-            } else {Some((&target.texture,[target.width,target.height]))};
-            if let (Some((source,size)),Some(output))=(source,target.fxaa.as_ref()) {
-                resources.draw(&state.gl,source,size,output.framebuffer,[target.width,target.height],effect.quality,target_frame.alpha);
-                state.offscreen_targets[index].postprocessed=true;
+        if let (Some(effect), Some(resources)) = (target_frame.postprocess, state.fxaa.as_ref()) {
+            let target = &state.offscreen_targets[index];
+            let source = if let Some(handle) = effect.source {
+                let handle = render_target_base_handle(handle);
+                state.offscreen_targets[..index]
+                    .iter()
+                    .find(|target| target.handle == handle)
+                    .map(|source| {
+                        let texture = if source.postprocessed {
+                            source
+                                .fxaa
+                                .as_ref()
+                                .map_or(&source.texture, |target| &target.texture)
+                        } else {
+                            &source.texture
+                        };
+                        (texture, [source.width, source.height])
+                    })
+            } else {
+                Some((&target.texture, [target.width, target.height]))
+            };
+            if let (Some((source, size)), Some(output)) = (source, target.fxaa.as_ref()) {
+                resources.draw(
+                    &state.gl,
+                    source,
+                    size,
+                    output.framebuffer,
+                    [target.width, target.height],
+                    effect.quality,
+                    target_frame.alpha,
+                );
+                state.offscreen_targets[index].postprocessed = true;
             }
         }
     }
@@ -2221,8 +2274,10 @@ pub fn draw(
                 match op {
                     DrawOp::Sprite(run) => {
                         apply_blend(gl, run.blend, &mut last_blend);
-                        apply_depth_test(gl,
-                            deadlib_render_core::DepthMode::Off, &mut last_depth_test,
+                        apply_depth_test(
+                            gl,
+                            deadlib_render_core::DepthMode::Off,
+                            &mut last_depth_test,
                         );
 
                         if last_prog != Some(0) {
@@ -2370,8 +2425,10 @@ pub fn draw(
                         }
 
                         apply_blend(gl, run.blend, &mut last_blend);
-                        apply_depth_test(gl,
-                            deadlib_render_core::DepthMode::Off, &mut last_depth_test,
+                        apply_depth_test(
+                            gl,
+                            deadlib_render_core::DepthMode::Off,
+                            &mut last_depth_test,
                         );
 
                         if last_prog != Some(1) {
@@ -2501,8 +2558,10 @@ pub fn draw(
                 match op {
                     DrawOp::Sprite(run) => {
                         apply_blend(gl, run.blend, &mut last_blend);
-                        apply_depth_test(gl,
-                            deadlib_render_core::DepthMode::Off, &mut last_depth_test,
+                        apply_depth_test(
+                            gl,
+                            deadlib_render_core::DepthMode::Off,
+                            &mut last_depth_test,
                         );
 
                         if last_prog != Some(0) {
@@ -2622,8 +2681,10 @@ pub fn draw(
                         }
 
                         apply_blend(gl, run.blend, &mut last_blend);
-                        apply_depth_test(gl,
-                            deadlib_render_core::DepthMode::Off, &mut last_depth_test,
+                        apply_depth_test(
+                            gl,
+                            deadlib_render_core::DepthMode::Off,
+                            &mut last_depth_test,
                         );
 
                         if last_prog != Some(1) {
@@ -2918,8 +2979,12 @@ pub fn cleanup(state: &mut State) {
     // SAFETY: all GL object handles below were created by this backend and are
     // still owned by `state`, so deleting them once during cleanup is valid.
     unsafe {
-        for target in state.offscreen_targets.drain(..) {destroy_offscreen_target(&state.gl,target);}
-        if let Some(resources)=state.fxaa.take(){resources.destroy(&state.gl);}
+        for target in state.offscreen_targets.drain(..) {
+            destroy_offscreen_target(&state.gl, target);
+        }
+        if let Some(resources) = state.fxaa.take() {
+            resources.destroy(&state.gl);
+        }
         // Release the active program at teardown so deletion is immediate.
         state.gl.use_program(None);
         state.gl.delete_program(state.program);

@@ -137,7 +137,8 @@ impl State {
                     "{}: {}",
                     i18n::tr("Edition", "OutputOrderFailed"),
                     i18n::editor_error(&error)
-                ).into();
+                )
+                .into();
             }
         }
         true
@@ -314,7 +315,11 @@ mod tests {
                 let count = acknowledge(&mut state);
                 state.output_key(count, KeyCode::Enter);
             }
-            assert!(matches!(state.panel, Some(Panel::SaveAsReview(1))), "expected destination review: {}", state.status);
+            assert!(
+                matches!(state.panel, Some(Panel::SaveAsReview(1))),
+                "expected destination review: {}",
+                state.status
+            );
             i18n::init(deadsync_assets::language::load_for_tests(
                 if language == "en" { "fr" } else { "en" },
             ));

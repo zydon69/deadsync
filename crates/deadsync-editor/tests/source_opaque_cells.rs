@@ -106,28 +106,32 @@ fn opaque_cells_survive_session_transforms_duplicate_history_save_and_reopen() {
         file.session.grid(1).unwrap().clone()
     );
     // A transform onto the opaque lane is refused atomically by the actual owner.
-    assert!(transform::apply(
-        &mut reopened.session,
-        0,
-        48,
-        48,
-        None,
-        Transform::ShiftRows(-48)
-    )
-    .unwrap());
+    assert!(
+        transform::apply(
+            &mut reopened.session,
+            0,
+            48,
+            48,
+            None,
+            Transform::ShiftRows(-48)
+        )
+        .unwrap()
+    );
     let intact = reopened.session.serialize().unwrap();
-    assert!(transform::apply(
-        &mut reopened.session,
-        0,
-        0,
-        0,
-        None,
-        Transform::ShiftLanes {
-            right: false,
-            wrap: false
-        }
-    )
-    .is_err());
+    assert!(
+        transform::apply(
+            &mut reopened.session,
+            0,
+            0,
+            0,
+            None,
+            Transform::ShiftLanes {
+                right: false,
+                wrap: false
+            }
+        )
+        .is_err()
+    );
     assert_eq!(reopened.session.serialize().unwrap(), intact);
 }
 #[test]

@@ -14,7 +14,6 @@ use deadsync_online::pack_page::PagePhase;
 use deadsync_online::popular_packs::PopularPhase;
 use deadsync_online::smo_details::DetailsPhase;
 use deadsync_online::stepmaniaonline::{CatalogPhase, InstallPhase, PackInfo};
-use std::fmt::Write as _;
 
 use super::chart_window;
 use super::detail;
@@ -234,7 +233,16 @@ fn push_reload_dialog(
 
     if prompt.reloading {
         let line = match prompt.progress.as_ref() {
-            Some((done, total, pack)) => crate::i18n::tr_fmt("ContentBrowser", "MessageDoneOfTotalSongsPack", &[("done", &(done).to_string()), ("total", &(total).to_string()), ("pack", &(pack).to_string())]).to_string(),
+            Some((done, total, pack)) => crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageDoneOfTotalSongsPack",
+                &[
+                    ("done", &(done).to_string()),
+                    ("total", &(total).to_string()),
+                    ("pack", &(pack).to_string()),
+                ],
+            )
+            .to_string(),
             None => crate::i18n::tr("ContentBrowser", "MessageStarting").to_string(),
         };
         spinner::with_label(
@@ -262,19 +270,43 @@ fn push_reload_dialog(
     };
     let pack_word = if packs == 1 { "pack" } else { "packs" };
     let song_word = if songs == 1 { "song" } else { "songs" };
+    let packs_text = TextContent::inline_format(format_args!("{packs}"))
+        .unwrap_or_else(|| TextContent::Owned(packs.to_string()));
+    let songs_text = TextContent::inline_format(format_args!("{songs}"))
+        .unwrap_or_else(|| TextContent::Owned(songs.to_string()));
+    let pack_word = super::localization::text(pack_word);
+    let song_word = super::localization::text(song_word);
     let added = match (packs, songs) {
-        (0, 0) => crate::i18n::tr("ContentBrowser", "MessageLibraryChanged").to_string(),
-        (0, _) => crate::i18n::tr_fmt("ContentBrowser", "MessageSongsSongWordAdded", &[("songs", &(songs).to_string()), ("song_word", &super::localization::text(&(song_word).to_string()).to_string())]).to_string(),
-        (_, 0) => crate::i18n::tr_fmt("ContentBrowser", "MessagePacksPackWordAdded", &[("packs", &(packs).to_string()), ("pack_word", &super::localization::text(&(pack_word).to_string()).to_string())]).to_string(),
-        _ => crate::i18n::tr_fmt("ContentBrowser", "MessagePacksPackWordAndSongsSongWordAdded", &[("packs", &(packs).to_string()), ("pack_word", &super::localization::text(&(pack_word).to_string()).to_string()), ("songs", &(songs).to_string()), ("song_word", &super::localization::text(&(song_word).to_string()).to_string())]).to_string(),
+        (0, 0) => crate::i18n::tr("ContentBrowser", "MessageLibraryChanged"),
+        (0, _) => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessageSongsSongWordAdded",
+            &[("songs", songs_text.as_str()), ("song_word", &song_word)],
+        ),
+        (_, 0) => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessagePacksPackWordAdded",
+            &[("packs", packs_text.as_str()), ("pack_word", &pack_word)],
+        ),
+        _ => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessagePacksPackWordAndSongsSongWordAdded",
+            &[
+                ("packs", packs_text.as_str()),
+                ("pack_word", &pack_word),
+                ("songs", songs_text.as_str()),
+                ("song_word", &song_word),
+            ],
+        ),
     };
     actors.push(act!(text:
         font("miso"): settext(added):
         align(0.5, 0.5): xy(cx, cy - 26.0): zoom(0.6): horizalign(center):
         diffuse(1.0, 1.0, 1.0, 1.0): z(Z_MODAL_TEXT)
     ));
+    let what = super::localization::text(what);
     actors.push(act!(text:
-        font("miso"): settext(crate::i18n::tr_fmt("ContentBrowser", "MessageReloadSongsNowSoTheNewWhatShowsUp", &[("what", &super::localization::text(&(what).to_string()).to_string())]).to_string()):
+        font("miso"): settext(crate::i18n::tr_fmt("ContentBrowser", "MessageReloadSongsNowSoTheNewWhatShowsUp", &[("what", &what)])):
         align(0.5, 0.5): xy(cx, cy - 8.0): zoom(0.5): horizalign(center):
         maxwidth(panel_w - 40.0):
         diffuse(0.85, 0.85, 0.85, 1.0): z(Z_MODAL_TEXT)
@@ -380,8 +412,18 @@ fn push_sync_dialog(actors: &mut Vec<Actor>, state: &State, dialog: &SyncDialog,
 
     let title = match dialog.step {
         SyncStep::Choose => crate::i18n::tr("ContentBrowser", "MessageSYNCTHISPACK").to_string(),
-        SyncStep::ConfirmShift => crate::i18n::tr_fmt("ContentBrowser", "MessageSHIFTFromTOTo", &[("from", &(from).to_string()), ("to", &(to).to_string())]).to_string(),
-        SyncStep::Working { .. } => crate::i18n::tr_fmt("ContentBrowser", "MessageSHIFTINGFromTOTo", &[("from", &(from).to_string()), ("to", &(to).to_string())]).to_string(),
+        SyncStep::ConfirmShift => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessageSHIFTFromTOTo",
+            &[("from", &(from).to_string()), ("to", &(to).to_string())],
+        )
+        .to_string(),
+        SyncStep::Working { .. } => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessageSHIFTINGFromTOTo",
+            &[("from", &(from).to_string()), ("to", &(to).to_string())],
+        )
+        .to_string(),
     };
     actors.push(act!(text:
         font("wendy"): settext(super::localization::text(&title)):
@@ -414,7 +456,12 @@ fn push_sync_dialog(actors: &mut Vec<Actor>, state: &State, dialog: &SyncDialog,
     let songs = if dialog.songs == 1 {
         crate::i18n::tr("ContentBrowser", "Message1Song").to_string()
     } else {
-        crate::i18n::tr_fmt("ContentBrowser", "MessageSongs", &[("arg0", &(dialog.songs).to_string())]).to_string()
+        crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessageSongs",
+            &[("arg0", &(dialog.songs).to_string())],
+        )
+        .to_string()
     };
 
     match dialog.step {
@@ -431,7 +478,19 @@ fn push_sync_dialog(actors: &mut Vec<Actor>, state: &State, dialog: &SyncDialog,
             body_line(
                 actors,
                 top + 124.0,
-                crate::i18n::tr_fmt("ContentBrowser", "MessageSongsSHIFTMSMsWayEach", &[("songs", &(songs).to_string()), ("SHIFT_MS", &(SHIFT_MS).to_string()), ("way", &super::localization::text(&(way).to_string()).to_string())]).to_string(),
+                crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageSongsSHIFTMSMsWayEach",
+                    &[
+                        ("songs", &(songs).to_string()),
+                        ("SHIFT_MS", &(SHIFT_MS).to_string()),
+                        (
+                            "way",
+                            &super::localization::text(&(way).to_string()).to_string(),
+                        ),
+                    ],
+                )
+                .to_string(),
                 [0.75, 0.75, 0.75, 1.0],
             );
             return;
@@ -440,19 +499,37 @@ fn push_sync_dialog(actors: &mut Vec<Actor>, state: &State, dialog: &SyncDialog,
             body_line(
                 actors,
                 top + 82.0,
-                crate::i18n::tr_fmt("ContentBrowser", "MessageEveryOffsetInSongsMovesSHIFTMSMsWay", &[("songs", &(songs).to_string()), ("SHIFT_MS", &(SHIFT_MS).to_string()), ("way", &super::localization::text(&(way).to_string()).to_string())]).to_string(),
+                crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageEveryOffsetInSongsMovesSHIFTMSMsWay",
+                    &[
+                        ("songs", &(songs).to_string()),
+                        ("SHIFT_MS", &(SHIFT_MS).to_string()),
+                        (
+                            "way",
+                            &super::localization::text(&(way).to_string()).to_string(),
+                        ),
+                    ],
+                )
+                .to_string(),
                 [0.86, 0.86, 0.86, 1.0],
             );
             body_line(
                 actors,
                 top + 104.0,
-                crate::i18n::tr_fmt("ContentBrowser", "MessageEachSimfileKeepsAOldCopyOfItselfAnd", &[("to", &(to).to_string())]).to_string(),
+                crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageEachSimfileKeepsAOldCopyOfItselfAnd",
+                    &[("to", &(to).to_string())],
+                )
+                .to_string(),
                 [0.66, 0.66, 0.66, 1.0],
             );
             body_line(
                 actors,
                 top + 120.0,
-                crate::i18n::tr("ContentBrowser", "MessageInItsPackIniSoTheSameShiftIs").to_string(),
+                crate::i18n::tr("ContentBrowser", "MessageInItsPackIniSoTheSameShiftIs")
+                    .to_string(),
                 [0.66, 0.66, 0.66, 1.0],
             );
             hint(actors, "START shift    BACK go back");
@@ -476,7 +553,11 @@ fn push_sync_dialog(actors: &mut Vec<Actor>, state: &State, dialog: &SyncDialog,
     body_line(
         actors,
         top + 68.0,
-        format!("{songs}   -   {}   -   {}", super::localization::text(declares), super::localization::text(smo.short())),
+        format!(
+            "{songs}   -   {}   -   {}",
+            super::localization::text(declares),
+            super::localization::text(smo.short())
+        ),
         [0.7, 0.7, 0.7, 1.0],
     );
 
@@ -487,22 +568,50 @@ fn push_sync_dialog(actors: &mut Vec<Actor>, state: &State, dialog: &SyncDialog,
         let (label, blurb) = match offer {
             SyncAction::Measure => (
                 crate::i18n::tr("ContentBrowser", "MessageMEASUREWITHNULLORDIE").to_string(),
-                crate::i18n::tr("ContentBrowser", "MessageMeasureEverySongAgainstItsMusicReviewTheOffsets").to_string(),
+                crate::i18n::tr(
+                    "ContentBrowser",
+                    "MessageMeasureEverySongAgainstItsMusicReviewTheOffsets",
+                )
+                .to_string(),
             ),
             SyncAction::Shift => (
-                crate::i18n::tr_fmt("ContentBrowser", "MessageSHIFTFromTOTo01428e", &[("from", &(from).to_string()), ("to", &(to).to_string())]).to_string(),
+                crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageSHIFTFromTOTo01428e",
+                    &[("from", &(from).to_string()), ("to", &(to).to_string())],
+                )
+                .to_string(),
                 if to_null {
-                    crate::i18n::tr_fmt("ContentBrowser", "MessageMoveEveryOffsetSHIFTMSMsLaterForA", &[("SHIFT_MS", &(SHIFT_MS).to_string())]).to_string()
+                    crate::i18n::tr_fmt(
+                        "ContentBrowser",
+                        "MessageMoveEveryOffsetSHIFTMSMsLaterForA",
+                        &[("SHIFT_MS", &(SHIFT_MS).to_string())],
+                    )
+                    .to_string()
                 } else {
-                    crate::i18n::tr_fmt("ContentBrowser", "MessageMoveEveryOffsetSHIFTMSMsEarlierAndRecord", &[("SHIFT_MS", &(SHIFT_MS).to_string())]).to_string()
+                    crate::i18n::tr_fmt(
+                        "ContentBrowser",
+                        "MessageMoveEveryOffsetSHIFTMSMsEarlierAndRecord",
+                        &[("SHIFT_MS", &(SHIFT_MS).to_string())],
+                    )
+                    .to_string()
                 },
             ),
             SyncAction::PackIni => (
-                crate::i18n::tr_fmt("ContentBrowser", "MessageRECORDINPACKINIONLY", &[("arg0", &(if dialog.record == SyncPref::Itg {
-                        "< ITG >"
-                    } else {
-                        "< NULL >"
-                    }).to_string())]).to_string(),
+                crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageRECORDINPACKINIONLY",
+                    &[(
+                        "arg0",
+                        &(if dialog.record == SyncPref::Itg {
+                            "< ITG >"
+                        } else {
+                            "< NULL >"
+                        })
+                        .to_string(),
+                    )],
+                )
+                .to_string(),
                 "leave the simfiles alone; the engine applies it while Pack.ini Offsets is on"
                     .to_owned(),
             ),
@@ -542,7 +651,12 @@ fn push_sync_dialog(actors: &mut Vec<Actor>, state: &State, dialog: &SyncDialog,
     // What the choice leaves behind -- or why there is no choice at all.
     let (note, rgba) = if let PackCheck::Refused(reason) = &dialog.check {
         (
-            crate::i18n::tr_fmt("ContentBrowser", "MessageItsSyncCannotBeChangedHereReason", &[("reason", &(reason).to_string())]).to_string(),
+            crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageItsSyncCannotBeChangedHereReason",
+                &[("reason", &(reason).to_string())],
+            )
+            .to_string(),
             [0.97, 0.78, 0.30, 1.0],
         )
     } else if !dialog.usable() {
@@ -556,10 +670,15 @@ fn push_sync_dialog(actors: &mut Vec<Actor>, state: &State, dialog: &SyncDialog,
                 "Each saved simfile keeps a .old copy, and the pack is then recorded as NULL."
                     .to_owned()
             }
-            SyncAction::Shift => {
-                crate::i18n::tr_fmt("ContentBrowser", "MessageEachSimfileKeepsAOldCopyAndThePack", &[("to", &(to).to_string())]).to_string()
+            SyncAction::Shift => crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageEachSimfileKeepsAOldCopyAndThePack",
+                &[("to", &(to).to_string())],
+            )
+            .to_string(),
+            SyncAction::PackIni => {
+                crate::i18n::tr("ContentBrowser", "MessageOnlyThePackIniChanges").to_string()
             }
-            SyncAction::PackIni => crate::i18n::tr("ContentBrowser", "MessageOnlyThePackIniChanges").to_string(),
         };
         (note, [0.6, 0.6, 0.6, 1.0])
     };
@@ -699,7 +818,10 @@ fn push_search_field(actors: &mut Vec<Actor>, state: &State, asset_manager: &Ass
     let lit = blink.is_multiple_of(2);
     let max_w = field_w - 200.0;
     let (line, alpha) = if state.query.is_empty() {
-        (crate::i18n::tr("ContentBrowser", "MessageSearchPacksChartAuthorsAndSongs").to_string(), 0.5)
+        (
+            crate::i18n::tr("ContentBrowser", "MessageSearchPacksChartAuthorsAndSongs").to_string(),
+            0.5,
+        )
     } else {
         (state.query.clone(), 1.0)
     };
@@ -849,14 +971,24 @@ fn push_readout(actors: &mut Vec<Actor>, state: &State, w: f32) {
 /// The original's branches, in the original's order -- first match wins.
 fn readout_text(state: &State) -> String {
     match tab(state) {
-        Tab::Installed => crate::i18n::tr_fmt("ContentBrowser", "MessageInstalled", &[("arg0", &(state.installed.len()).to_string())]).to_string(),
+        Tab::Installed => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessageInstalled",
+            &[("arg0", &(state.installed.len()).to_string())],
+        )
+        .to_string(),
         // The rip stage has its own heading, and nothing to count or page.
         Tab::Rip => String::new(),
         // Never a status here. The year view says it is indexing with the
         // progress bar beside this line, and a second indicator that flips
         // between "indexing..." and a count reads as a glitch rather than as
         // progress.
-        Tab::Years => crate::i18n::tr_fmt("ContentBrowser", "MessagePacks", &[("arg0", &(commify(state.results.len())).to_string())]).to_string(),
+        Tab::Years => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessagePacks",
+            &[("arg0", &(commify(state.results.len())).to_string())],
+        )
+        .to_string(),
         // The doubles view is not paged and has two counts, so it reports
         // neither here; its columns say how long they are themselves.
         Tab::Doubles if state.query.is_empty() => String::new(),
@@ -872,15 +1004,37 @@ fn readout_text(state: &State) -> String {
             } else {
                 ""
             };
-            crate::i18n::tr_fmt("ContentBrowser", "MessageMoreResultsForStill", &[("arg0", &(commify(state.results.len())).to_string()), ("more", &(more).to_string()), ("arg1", &format!("{:?}", state.query)), ("still", &(still).to_string())]).to_string()
+            crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageMoreResultsForStill",
+                &[
+                    ("arg0", &(commify(state.results.len())).to_string()),
+                    ("more", &(more).to_string()),
+                    ("arg1", &format!("{:?}", state.query)),
+                    ("still", &(still).to_string()),
+                ],
+            )
+            .to_string()
         }
-        _ if state.snapshot.phase == CatalogPhase::Loading => {
-            crate::i18n::tr_fmt("ContentBrowser", "MessageLoading", &[("arg0", &(spinner::ellipsis()).to_string())]).to_string()
-        }
+        _ if state.snapshot.phase == CatalogPhase::Loading => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessageLoading",
+            &[("arg0", &(spinner::ellipsis()).to_string())],
+        )
+        .to_string(),
         // Nor a count over skeleton rows, which is a count of what is not
         // on screen yet.
         _ if state.results.is_empty() || awaiting_order(state) => String::new(),
-        _ => crate::i18n::tr_fmt("ContentBrowser", "MessagePagePacks", &[("arg0", &(list_page(state) + 1).to_string()), ("arg1", &(total_pages(state)).to_string()), ("arg2", &(commify(state.results.len())).to_string())]).to_string(),
+        _ => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessagePagePacks",
+            &[
+                ("arg0", &(list_page(state) + 1).to_string()),
+                ("arg1", &(total_pages(state)).to_string()),
+                ("arg2", &(commify(state.results.len())).to_string()),
+            ],
+        )
+        .to_string(),
     }
 }
 
@@ -935,18 +1089,43 @@ fn push_context_band(actors: &mut Vec<Actor>, state: &State, w: f32) {
     // says how many packs matched it. Two spaces before the count, as the
     // original's format string has.
     let busy = band_busy(state) || search_running(state);
+    let localized_blurb = super::localization::text(blurb);
     let subtitle = if state.query.is_empty() {
-        if busy && tab(state) == Tab::Beginner {
-            // The count matters here: the walk reads about four packs for
-            // every one it keeps, so "checking..." alone reads as stuck.
-            crate::i18n::tr_fmt("ContentBrowser", "MessageBlurbCheckingPackOf", &[("blurb", &super::localization::text(&(blurb).to_string()).to_string()), ("arg0", &(state.beginner.checked.max(1)).to_string()), ("arg1", &(state.beginner.candidates.max(1)).to_string()), ("arg2", &(spinner::ellipsis()).to_string())]).to_string()
+        let count = TextContent::inline_format(format_args!("{}", band_count(state)))
+            .unwrap_or_else(|| TextContent::Owned(band_count(state).to_string()));
+        let checked = TextContent::inline_format(format_args!("{}", state.beginner.checked.max(1)))
+            .unwrap_or_else(|| TextContent::Owned(state.beginner.checked.max(1).to_string()));
+        let candidates =
+            TextContent::inline_format(format_args!("{}", state.beginner.candidates.max(1)))
+                .unwrap_or_else(|| {
+                    TextContent::Owned(state.beginner.candidates.max(1).to_string())
+                });
+        let (key, args): (&str, &[(&str, &str)]) = if busy && tab(state) == Tab::Beginner {
+            (
+                "MessageBlurbCheckingPackOf",
+                &[
+                    ("blurb", &localized_blurb),
+                    ("arg0", checked.as_str()),
+                    ("arg1", candidates.as_str()),
+                    ("arg2", spinner::ellipsis()),
+                ],
+            )
         } else if busy {
-            crate::i18n::tr_fmt("ContentBrowser", "MessageBlurbCheckingPacks", &[("blurb", &super::localization::text(&(blurb).to_string()).to_string()), ("arg0", &(spinner::ellipsis()).to_string())]).to_string()
+            (
+                "MessageBlurbCheckingPacks",
+                &[("blurb", &localized_blurb), ("arg0", spinner::ellipsis())],
+            )
         } else {
-            crate::i18n::tr_fmt("ContentBrowser", "MessageBlurbFound", &[("blurb", &super::localization::text(&(blurb).to_string()).to_string()), ("arg0", &(band_count(state)).to_string())]).to_string()
-        }
+            (
+                "MessageBlurbFound",
+                &[("blurb", &localized_blurb), ("arg0", count.as_str())],
+            )
+        };
+        let mut text = String::new();
+        crate::i18n::tr_fmt_into(&mut text, "ContentBrowser", key, args);
+        text
     } else {
-        format!("{:?} {}", state.query, super::localization::text(blurb))
+        format!("{:?} {}", state.query, localized_blurb)
     };
     actors.push(act!(text:
         font("miso"): settext(subtitle):
@@ -1078,10 +1257,28 @@ fn push_year_strip(actors: &mut Vec<Actor>, state: &State, w: f32) {
 /// reader was trying to read it.
 fn year_header(state: &State) -> String {
     let slice = match year_at(state.year_slot) {
-        Some(year) => crate::i18n::tr_fmt("ContentBrowser", "MessagePACKSADDEDTOSMOINYear", &[("year", &(year).to_string())]).to_string(),
-        None => crate::i18n::tr_fmt("ContentBrowser", "MessagePACKSADDEDTOSMOBEFORE", &[("arg0", &(lo::YEAR_FLOOR).to_string())]).to_string(),
+        Some(year) => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessagePACKSADDEDTOSMOINYear",
+            &[("year", &(year).to_string())],
+        )
+        .to_string(),
+        None => crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessagePACKSADDEDTOSMOBEFORE",
+            &[("arg0", &(lo::YEAR_FLOOR).to_string())],
+        )
+        .to_string(),
     };
-    crate::i18n::tr_fmt("ContentBrowser", "MessageSlicePacks", &[("slice", &(slice).to_string()), ("arg0", &(commify(state.results.len())).to_string())]).to_string()
+    crate::i18n::tr_fmt(
+        "ContentBrowser",
+        "MessageSlicePacks",
+        &[
+            ("slice", &(slice).to_string()),
+            ("arg0", &(commify(state.results.len())).to_string()),
+        ],
+    )
+    .to_string()
 }
 
 /// How far through the catalogue the details walk has got.
@@ -1396,7 +1593,12 @@ fn push_more_mark(
 ) {
     let (label, rgba) = if finding {
         (
-            crate::i18n::tr_fmt("ContentBrowser", "MessageFindingMore", &[("arg0", &(spinner::ellipsis()).to_string())]).to_string(),
+            crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageFindingMore",
+                &[("arg0", &(spinner::ellipsis()).to_string())],
+            )
+            .to_string(),
             [0.6, 0.6, 0.6, 1.0],
         )
     } else {
@@ -1430,11 +1632,9 @@ fn push_empty_state(actors: &mut Vec<Actor>, state: &State, top: f32) {
         return;
     }
     if state.snapshot.phase == CatalogPhase::Error {
-        let message = state
-            .snapshot
-            .message
-            .clone()
-            .unwrap_or_else(|| crate::i18n::tr("ContentBrowser", "MessageCouldNotReachStepmaniaonlineNet").to_string());
+        let message = state.snapshot.message.clone().unwrap_or_else(|| {
+            crate::i18n::tr("ContentBrowser", "MessageCouldNotReachStepmaniaonlineNet").to_string()
+        });
         actors.push(act!(text:
             font("miso"): settext(message):
             align(0.0, 0.5): xy(lo::LIST_X, top + lo::ROW_H): zoom(0.55):
@@ -1540,12 +1740,22 @@ fn meta_line(state: &State, pack: &PackInfo) -> String {
             + why.map_or(0, |why| why.len() + "  -  ".len()),
     );
     if pack.song_count > 0 {
-        write!(line, "{}", crate::i18n::tr_fmt("ContentBrowser", "MessageSongse409b6", &[("arg0", &(pack.song_count).to_string())]).to_string()).expect("writing to String cannot fail");
+        let count = deadlib_present::actors::InlineU32Text::new(pack.song_count);
+        crate::i18n::tr_fmt_into(
+            &mut line,
+            "ContentBrowser",
+            "MessageSongse409b6",
+            &[("arg0", count.as_str()), ("separator", "  -  ")],
+        );
     }
     line.push_str(&bytes);
     if let Some(date) = date {
-        line.push(' ');
-        line.push_str(&crate::i18n::tr_fmt("ContentBrowser", "MessageAdded7e1639", &[("arg0", &date)]));
+        crate::i18n::tr_fmt_into(
+            &mut line,
+            "ContentBrowser",
+            "MessageAdded7e1639",
+            &[("arg0", &date), ("separator", "  -  ")],
+        );
     }
     // Keep an empty explanation's separator too, just as the joined fields did.
     if let Some(why) = why {
@@ -1585,7 +1795,16 @@ pub(super) fn format_date(iso: &str, short: bool) -> String {
         return iso.to_owned();
     };
     let name = if short { &name[..3] } else { name };
-    crate::i18n::tr_fmt("ContentBrowser", "MessageNameDayYear", &[("name", &super::localization::text(&(name).to_string()).to_string()), ("day", &(day).to_string()), ("year", &(year).to_string())]).to_string()
+    let name = super::localization::text(name);
+    let day = deadlib_present::actors::InlineU32Text::new(day);
+    let mut text = String::new();
+    crate::i18n::tr_fmt_into(
+        &mut text,
+        "ContentBrowser",
+        "MessageNameDayYear",
+        &[("name", &name), ("day", day.as_str()), ("year", year)],
+    );
+    text
 }
 
 /// The original's `FormatBytes`: two decimals for GB, one for MB.
@@ -1593,13 +1812,33 @@ pub(super) fn format_bytes(bytes: u64) -> String {
     const MB: f64 = 1024.0 * 1024.0;
     const GB: f64 = MB * 1024.0;
     let bytes = bytes as f64;
-    if bytes >= GB {
-        crate::i18n::tr_fmt("ContentBrowser", "Message2GB", &[("arg0", &format!("{:.2}", bytes / GB))]).to_string()
+    let (key, number) = if bytes >= GB {
+        (
+            "Message2GB",
+            TextContent::inline_format(format_args!("{:.2}", bytes / GB))
+                .unwrap_or_else(|| TextContent::Owned(format!("{:.2}", bytes / GB))),
+        )
     } else if bytes >= MB {
-        crate::i18n::tr_fmt("ContentBrowser", "Message1MB", &[("arg0", &format!("{:.1}", bytes / MB))]).to_string()
+        (
+            "Message1MB",
+            TextContent::inline_format(format_args!("{:.1}", bytes / MB))
+                .unwrap_or_else(|| TextContent::Owned(format!("{:.1}", bytes / MB))),
+        )
     } else {
-        crate::i18n::tr_fmt("ContentBrowser", "Message0KB", &[("arg0", &format!("{:.0}", bytes / 1024.0))]).to_string()
-    }
+        (
+            "Message0KB",
+            TextContent::inline_format(format_args!("{:.0}", bytes / 1024.0))
+                .unwrap_or_else(|| TextContent::Owned(format!("{:.0}", bytes / 1024.0))),
+        )
+    };
+    let mut text = String::new();
+    crate::i18n::tr_fmt_into(
+        &mut text,
+        "ContentBrowser",
+        key,
+        &[("arg0", number.as_str())],
+    );
+    text
 }
 
 /// The badge left of the status: which tab this row would otherwise have been
@@ -1651,7 +1890,10 @@ pub(super) fn push_status_badge(
     let accent = accent(state);
     let (text, rgba) = if let Some(install) = install_for(state, pack) {
         match install.phase {
-            InstallPhase::Queued => (TextContent::Shared(super::localization::text("queued")), META_RGBA),
+            InstallPhase::Queued => (
+                TextContent::Shared(super::localization::text("queued")),
+                META_RGBA,
+            ),
             InstallPhase::Downloading => {
                 let pct = if install.total_bytes > 0 {
                     (install.downloaded_bytes as f64 / install.total_bytes as f64 * 100.0) as u32
@@ -1664,12 +1906,24 @@ pub(super) fn push_status_badge(
                     accent,
                 )
             }
-            InstallPhase::Extracting => (TextContent::Shared(super::localization::text("Installing")), accent),
-            InstallPhase::Installed => (TextContent::Shared(super::localization::text("Installed")), INSTALLED_NOW),
-            InstallPhase::Error => (TextContent::Shared(super::localization::text("Error")), ERROR_RGBA),
+            InstallPhase::Extracting => (
+                TextContent::Shared(super::localization::text("Installing")),
+                accent,
+            ),
+            InstallPhase::Installed => (
+                TextContent::Shared(super::localization::text("Installed")),
+                INSTALLED_NOW,
+            ),
+            InstallPhase::Error => (
+                TextContent::Shared(super::localization::text("Error")),
+                ERROR_RGBA,
+            ),
         }
     } else if is_installed(state, pack) {
-        (TextContent::Shared(super::localization::text("In Library")), IN_LIBRARY)
+        (
+            TextContent::Shared(super::localization::text("In Library")),
+            IN_LIBRARY,
+        )
     } else {
         return;
     };
@@ -1824,10 +2078,23 @@ fn push_installed(actors: &mut Vec<Actor>, state: &State, w: f32) {
     let focused = state.zone == Zone::Installed;
     let window = installed_page(state) * lo::INST_ROWS;
 
-    let mut heading = crate::i18n::tr_fmt("ContentBrowser", "MessagePACKSINYOURLIBRARY", &[("arg0", &(state.installed.len()).to_string())]).to_string();
+    let mut heading = crate::i18n::tr_fmt(
+        "ContentBrowser",
+        "MessagePACKSINYOURLIBRARY",
+        &[("arg0", &(state.installed.len()).to_string())],
+    )
+    .to_string();
     if state.installed.len() > lo::INST_ROWS {
         heading.push_str(
-            crate::i18n::tr_fmt("ContentBrowser", "MessagePAGE", &[("arg0", &(installed_page(state) + 1).to_string()), ("arg1", &(installed_pages(state)).to_string())]).to_string()
+            crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessagePAGE",
+                &[
+                    ("arg0", &(installed_page(state) + 1).to_string()),
+                    ("arg1", &(installed_pages(state)).to_string()),
+                ],
+            )
+            .to_string()
             .as_str(),
         );
     }
@@ -1910,11 +2177,24 @@ fn push_installed(actors: &mut Vec<Actor>, state: &State, w: f32) {
         ));
 
         // What the game knows for certain, then what the catalogue adds.
-        let mut detail = crate::i18n::tr_fmt("ContentBrowser", "MessageSongs", &[("arg0", &(entry.songs).to_string())]).to_string();
+        let mut detail = crate::i18n::tr_fmt(
+            "ContentBrowser",
+            "MessageSongs",
+            &[("arg0", &(entry.songs).to_string())],
+        )
+        .to_string();
         if let Some(pack) = known {
             detail.push_str(format!("  -  {}", format_bytes(pack.size_bytes)).as_str());
             if let Some(date) = details_for(state, pack).and_then(|d| d.date_added.as_deref()) {
-                detail.push_str(crate::i18n::tr_fmt("ContentBrowser", "MessageAdded7e1639", &[("arg0", &(format_date(date, true)).to_string())]).to_string().as_str());
+                detail.push_str(
+                    crate::i18n::tr_fmt(
+                        "ContentBrowser",
+                        "MessageAdded7e1639",
+                        &[("arg0", &format_date(date, true)), ("separator", "  -  ")],
+                    )
+                    .to_string()
+                    .as_str(),
+                );
             }
         }
         actors.push(act!(text:
@@ -2040,20 +2320,48 @@ fn pane_lines(state: &State, pack: &PackInfo) -> [String; 5] {
     let details = details_for(state, pack);
     let page = page_for(state, pack);
 
-    let mut songs = crate::i18n::tr_fmt("ContentBrowser", "MessageSongs", &[("arg0", &(pack.song_count).to_string())]).to_string();
+    let mut songs = crate::i18n::tr_fmt(
+        "ContentBrowser",
+        "MessageSongs",
+        &[("arg0", &(pack.song_count).to_string())],
+    )
+    .to_string();
     if let Some(charts) = page.and_then(|p| p.chart_count.as_deref()) {
-        songs.push_str(crate::i18n::tr_fmt("ContentBrowser", "MessageChartsCharts", &[("charts", &(charts).to_string())]).to_string().as_str());
+        songs.push_str(
+            crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageChartsCharts",
+                &[("charts", &(charts).to_string())],
+            )
+            .to_string()
+            .as_str(),
+        );
     }
 
     let mut size = format_bytes(pack.size_bytes);
     if let Some((low, high)) = page.and_then(deadsync_online::pack_page::PackPage::difficulty_span)
     {
-        size.push_str(crate::i18n::tr_fmt("ContentBrowser", "MessageDifficultyLowHigh", &[("low", &(low).to_string()), ("high", &(high).to_string())]).to_string().as_str());
+        size.push_str(
+            crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageDifficultyLowHigh",
+                &[("low", &(low).to_string()), ("high", &(high).to_string())],
+            )
+            .to_string()
+            .as_str(),
+        );
     }
 
     let added = details
         .and_then(|d| d.date_added.as_deref())
-        .map(|date| crate::i18n::tr_fmt("ContentBrowser", "MessageAddedToSMOOn", &[("arg0", &(format_date(date, false)).to_string())]).to_string())
+        .map(|date| {
+            crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageAddedToSMOOn",
+                &[("arg0", &(format_date(date, false)).to_string())],
+            )
+            .to_string()
+        })
         .unwrap_or_default();
 
     let authors = match page {
@@ -2063,18 +2371,38 @@ fn pane_lines(state: &State, pack: &PackInfo) -> [String; 5] {
             if page.authors.len() > shown {
                 names.push_str(", ...");
             }
-            crate::i18n::tr_fmt("ContentBrowser", "MessageChartsByNames", &[("names", &(names).to_string())]).to_string()
+            crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageChartsByNames",
+                &[("names", &(names).to_string())],
+            )
+            .to_string()
         }
         Some(_) => String::new(),
         None if state.page.pack_id == pack.id => match state.page.phase {
-            PagePhase::Loading => crate::i18n::tr_fmt("ContentBrowser", "MessageLoadingDetails", &[("arg0", &(spinner::ellipsis()).to_string())]).to_string(),
-            PagePhase::Error => crate::i18n::tr("ContentBrowser", "MessageCouldNotLoadDetails").to_string(),
+            PagePhase::Loading => crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageLoadingDetails",
+                &[("arg0", &(spinner::ellipsis()).to_string())],
+            )
+            .to_string(),
+            PagePhase::Error => {
+                crate::i18n::tr("ContentBrowser", "MessageCouldNotLoadDetails").to_string()
+            }
             PagePhase::Idle | PagePhase::Ready => String::new(),
         },
         None => String::new(),
     };
 
-    let sync = crate::i18n::tr_fmt("ContentBrowser", "MessageSync", &[("arg0", &super::localization::text(smo_sync_of(pack).short()).to_string())]).to_string();
+    let sync = crate::i18n::tr_fmt(
+        "ContentBrowser",
+        "MessageSync",
+        &[(
+            "arg0",
+            &super::localization::text(smo_sync_of(pack).short()).to_string(),
+        )],
+    )
+    .to_string();
 
     [songs, size, added, authors, sync]
 }
@@ -2318,7 +2646,11 @@ fn footer_hint(state: &State) -> String {
         Zone::Installed => "UP/DOWN  LEFT/RIGHT browse   START sync   SELECT delete",
         Zone::List => "UP/DOWN browse   LEFT/RIGHT page   START details   SELECT reload",
     };
-    format!("{}   {}", super::localization::text(body), super::localization::text(exit))
+    format!(
+        "{}   {}",
+        super::localization::text(body),
+        super::localization::text(exit)
+    )
 }
 
 // --- transitions --------------------------------------------------------------

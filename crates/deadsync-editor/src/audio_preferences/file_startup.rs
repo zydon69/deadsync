@@ -7,7 +7,9 @@ pub enum StartupTarget {
     New,
 }
 impl File {
-    pub fn open_last_on_launch(&self)->Result<bool,Error>{Ok(self.settings.general_options.open_last)}
+    pub fn open_last_on_launch(&self) -> Result<bool, Error> {
+        Ok(self.settings.general_options.open_last)
+    }
     pub fn initial_file_directory(&self) -> Result<Option<PathBuf>, Error> {
         match self.settings.initial_file_directory.as_ref() {
             None | Some(Value::Null) => Ok(default_directory()),
@@ -18,9 +20,12 @@ impl File {
             )),
         }
     }
-    pub fn set_initial_file_directory(&mut self,directory:&Path)->Result<(),Error>{
-        let value=directory.to_str().ok_or_else(||Error::Unsupported("The initial file directory is not Unicode".into()))?;
-        self.settings.initial_file_directory=Some(Value::String(value.into()));Ok(())
+    pub fn set_initial_file_directory(&mut self, directory: &Path) -> Result<(), Error> {
+        let value = directory.to_str().ok_or_else(|| {
+            Error::Unsupported("The initial file directory is not Unicode".into())
+        })?;
+        self.settings.initial_file_directory = Some(Value::String(value.into()));
+        Ok(())
     }
     pub fn startup_target(&self, explicit: Option<&Path>) -> Result<StartupTarget, Error> {
         if let Some(path) = explicit {
@@ -91,7 +96,7 @@ mod tests {
         let (_root, file) = prefs(
             r#"{"Version":1,"Options":{"OpenLastOpenedFileOnLaunch":false},"OpenFileDialogInitialDirectory":23}"#,
         );
-        assert_eq!(file.startup_target(None).unwrap(),StartupTarget::New);
+        assert_eq!(file.startup_target(None).unwrap(), StartupTarget::New);
         assert!(file.initial_file_directory().is_err());
         assert!(matches!(
             file.startup_target(Some(Path::new("/explicit.ssc")))
@@ -101,9 +106,45 @@ mod tests {
     }
 }
 
-#[cfg(test)]mod strict_general_import {use super::*;#[test]fn malformed_launch_flag_refuses_import_without_rewriting(){let root=tempfile::tempdir().unwrap();let path=root.path().join("prefs.json");let bytes=br#"{"Version":1,"Options":{"OpenLastOpenedFileOnLaunch":"yes"}}"#;std::fs::write(&path,bytes).unwrap();assert!(File::open(&path).is_err());assert_eq!(std::fs::read(path).unwrap(),bytes);}}
+#[cfg(test)]
+mod strict_general_import {
+    use super::*;
+    #[test]
+    fn malformed_launch_flag_refuses_import_without_rewriting() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("prefs.json");
+        let bytes = br#"{"Version":1,"Options":{"OpenLastOpenedFileOnLaunch":"yes"}}"#;
+        std::fs::write(&path, bytes).unwrap();
+        assert!(File::open(&path).is_err());
+        assert_eq!(std::fs::read(path).unwrap(), bytes);
+    }
+}
 
-#[cfg(test)]mod directory_owner_tests{
- use super::*;
- #[test]fn selected_directory_is_a_real_mutation_cas_saved_and_reopened_without_touching_vendor(){let root=tempfile::tempdir().unwrap();let path=root.path().join("prefs.json");let initial=br#"{"Version":1,"Vendor":{"keep":7},"OpenFileDialogInitialDirectory":"old"}"#;std::fs::write(&path,initial).unwrap();let mut file=File::open(&path).unwrap();let chosen=root.path().join("chosen");file.set_initial_file_directory(&chosen).unwrap();assert!(file.has_changes());assert_eq!(file.initial_file_directory().unwrap(),Some(chosen.clone()));let other=br#"{"Version":1,"Vendor":{"keep":8},"OpenFileDialogInitialDirectory":"old"}"#;std::fs::write(&path,other).unwrap();assert!(matches!(file.save(),Err(Error::ExternalChange)));assert_eq!(file.initial_file_directory().unwrap(),Some(chosen.clone()));assert_eq!(std::fs::read(&path).unwrap(),other);std::fs::write(&path,initial).unwrap();file.save().unwrap();let reopened=File::open(&path).unwrap();assert_eq!(reopened.initial_file_directory().unwrap(),Some(chosen));let json:Value=serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();assert_eq!(json["Vendor"]["keep"],7);}
+#[cfg(test)]
+mod directory_owner_tests {
+    use super::*;
+    #[test]
+    fn selected_directory_is_a_real_mutation_cas_saved_and_reopened_without_touching_vendor() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("prefs.json");
+        let initial =
+            br#"{"Version":1,"Vendor":{"keep":7},"OpenFileDialogInitialDirectory":"old"}"#;
+        std::fs::write(&path, initial).unwrap();
+        let mut file = File::open(&path).unwrap();
+        let chosen = root.path().join("chosen");
+        file.set_initial_file_directory(&chosen).unwrap();
+        assert!(file.has_changes());
+        assert_eq!(file.initial_file_directory().unwrap(), Some(chosen.clone()));
+        let other = br#"{"Version":1,"Vendor":{"keep":8},"OpenFileDialogInitialDirectory":"old"}"#;
+        std::fs::write(&path, other).unwrap();
+        assert!(matches!(file.save(), Err(Error::ExternalChange)));
+        assert_eq!(file.initial_file_directory().unwrap(), Some(chosen.clone()));
+        assert_eq!(std::fs::read(&path).unwrap(), other);
+        std::fs::write(&path, initial).unwrap();
+        file.save().unwrap();
+        let reopened = File::open(&path).unwrap();
+        assert_eq!(reopened.initial_file_directory().unwrap(), Some(chosen));
+        let json: Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+        assert_eq!(json["Vendor"]["keep"], 7);
+    }
 }

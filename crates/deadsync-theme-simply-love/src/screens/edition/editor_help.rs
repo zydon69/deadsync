@@ -1,27 +1,168 @@
 //! Explicit user actions only. Original GrooveAuthor docs are identified as
 //! references: DeadSync's keyboard UI and host services differ from that GUI.
-use super::{Panel,State};use crate::{act,i18n};use deadlib_platform::input::KeyCode;use deadlib_present::{actors::Actor,space::{screen_width,screen_height}};
-#[derive(Clone,Copy,Debug,PartialEq,Eq)]pub enum ExternalOpen{Url(&'static str),LogFile}
-#[derive(Clone,Copy,Debug)]pub enum ExternalOpenRefusal{Busy,Unavailable}
-const ROOT:&str="https://github.com/PerryAsleep/GrooveAuthor";
-const DOCS:[&str;6]=[
- "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/TableOfContents.md",
- "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/PatternGeneration.md",
- "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/PatternConfigs.md",
- "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/PerformedChartConfigs.md",
- "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/ExpressedChartConfigs.md",
- "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/SongSync.md",
+use super::{Panel, State};
+use crate::{act, i18n};
+use deadlib_platform::input::KeyCode;
+use deadlib_present::{
+    actors::Actor,
+    space::{screen_height, screen_width},
+};
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ExternalOpen {
+    Url(&'static str),
+    LogFile,
+}
+#[derive(Clone, Copy, Debug)]
+pub enum ExternalOpenRefusal {
+    Busy,
+    Unavailable,
+}
+const ROOT: &str = "https://github.com/PerryAsleep/GrooveAuthor";
+const DOCS: [&str; 6] = [
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/TableOfContents.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/PatternGeneration.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/PatternConfigs.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/PerformedChartConfigs.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/ExpressedChartConfigs.md",
+    "https://github.com/PerryAsleep/GrooveAuthor/blob/48e18f71655d0f0d86144c63239331833501fda2/StepManiaEditor/docs/SongSync.md",
 ];
-impl State{
- pub fn external_open_refused(&mut self,reason:ExternalOpenRefusal){self.status=i18n::tr("Edition",match reason{ExternalOpenRefusal::Busy=>"ExternalOpenBusy",ExternalOpenRefusal::Unavailable=>"ExternalOpenUnavailable"});}
- pub fn take_editor_external_open(&mut self)->Option<ExternalOpen>{self.editor_external_open.take()}
- pub(super) fn open_editor_help(&mut self){if !matches!(self.panel,None|Some(Panel::Menu(_)|Panel::EmptyMenu(_))){return;}self.panel=Some(Panel::EditorHelp(0));self.status=i18n::tr("Edition","EditorHelpReference");}
- pub(super) fn editor_help_key(&mut self,index:usize,code:KeyCode){if code==KeyCode::Escape{self.panel=None;return;}if matches!(code,KeyCode::ArrowUp|KeyCode::ArrowDown|KeyCode::Tab){let back=code==KeyCode::ArrowUp||(code==KeyCode::Tab&&self.shift);self.panel=Some(Panel::EditorHelp((index+if back{12}else{1})%13));return;}if !matches!(code,KeyCode::Enter|KeyCode::NumpadEnter){return;}match index{0=>{self.panel=None;self.help=true;self.help_page=0;},1..=6=>self.editor_external_open=Some(ExternalOpen::Url(DOCS[index-1])),7=>self.editor_external_open=Some(ExternalOpen::Url(ROOT)),8=>self.panel=Some(Panel::EditorAbout(super::editor_about::AboutView::Menu{selected:0})),9=>self.begin_ftue(),10=>self.open_window_layout(),11=>self.open_hotbar(),_=>self.panel=None}}
- pub(super) fn editor_help_actors(&self,actors:&mut Vec<Actor>,index:usize){let width=(screen_width()-30.).min(790.);let height=(screen_height()-30.).min(510.);let x=screen_width()*0.5;let top=(screen_height()-height)*0.5;actors.push(act!(quad:xy(x,top+height*0.5):setsize(width,height):diffuse(0.04,0.06,0.1,0.97):z(8070)));let keys=["EditorHelpControls","EditorHelpDocs","EditorHelpPatternGeneration","EditorHelpPatternConfigs","EditorHelpPerformedConfigs","EditorHelpExpressedConfigs","EditorHelpSongSync","EditorHelpGitHub","EditorHelpAbout","FtueReplay","LayoutOpen","HotbarOpen","Close"];actors.push(act!(text:font("miso"):settext(i18n::tr("Edition","EditorHelpReference")):xy(x,top+24.):zoom(0.5):wrapwidthpixels((width-24.)/0.5):maxwidth(width-24.):z(8071)));for(i,key)in keys.into_iter().enumerate(){let start=actors.len();let color=if i==index{[1.,0.9,0.8,1.]}else{[0.85,0.9,0.8,1.]};actors.push(act!(text:font("miso"):settext(format!("{} {}",if i==index{">"}else{" "},i18n::tr("Edition",key))):align(0.,0.):xy(x-width*0.5+15.,top+65.+i as f32*25.):zoom(0.55):maxwidth(width-30.):diffuse(color[0],color[1],color[2],color[3]):z(8071)));self.ui_row(actors,start,i==index,25.);}actors.push(act!(text:font("miso"):settext(self.status.clone()):xy(x,top+height-70.):zoom(0.45):wrapwidthpixels((width-24.)/0.45):maxwidth(width-24.):maxheight(62.):z(8071)));}
+impl State {
+    pub fn external_open_refused(&mut self, reason: ExternalOpenRefusal) {
+        self.status = i18n::tr(
+            "Edition",
+            match reason {
+                ExternalOpenRefusal::Busy => "ExternalOpenBusy",
+                ExternalOpenRefusal::Unavailable => "ExternalOpenUnavailable",
+            },
+        );
+    }
+    pub fn take_editor_external_open(&mut self) -> Option<ExternalOpen> {
+        self.editor_external_open.take()
+    }
+    pub(super) fn open_editor_help(&mut self) {
+        if !matches!(
+            self.panel,
+            None | Some(Panel::Menu(_) | Panel::EmptyMenu(_))
+        ) {
+            return;
+        }
+        self.panel = Some(Panel::EditorHelp(0));
+        self.status = i18n::tr("Edition", "EditorHelpReference");
+    }
+    pub(super) fn editor_help_key(&mut self, index: usize, code: KeyCode) {
+        if code == KeyCode::Escape {
+            self.panel = None;
+            return;
+        }
+        if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Tab) {
+            let back = code == KeyCode::ArrowUp || (code == KeyCode::Tab && self.shift);
+            self.panel = Some(Panel::EditorHelp((index + if back { 12 } else { 1 }) % 13));
+            return;
+        }
+        if !matches!(code, KeyCode::Enter | KeyCode::NumpadEnter) {
+            return;
+        }
+        match index {
+            0 => {
+                self.panel = None;
+                self.help = true;
+                self.help_page = 0;
+            }
+            1..=6 => self.editor_external_open = Some(ExternalOpen::Url(DOCS[index - 1])),
+            7 => self.editor_external_open = Some(ExternalOpen::Url(ROOT)),
+            8 => {
+                self.panel = Some(Panel::EditorAbout(super::editor_about::AboutView::Menu {
+                    selected: 0,
+                }))
+            }
+            9 => self.begin_ftue(),
+            10 => self.open_window_layout(),
+            11 => self.open_hotbar(),
+            _ => self.panel = None,
+        }
+    }
+    pub(super) fn editor_help_actors(&self, actors: &mut Vec<Actor>, index: usize) {
+        let width = (screen_width() - 30.).min(790.);
+        let height = (screen_height() - 30.).min(510.);
+        let x = screen_width() * 0.5;
+        let top = (screen_height() - height) * 0.5;
+        actors.push(act!(quad:xy(x,top+height*0.5):setsize(width,height):diffuse(0.04,0.06,0.1,0.97):z(8070)));
+        let keys = [
+            "EditorHelpControls",
+            "EditorHelpDocs",
+            "EditorHelpPatternGeneration",
+            "EditorHelpPatternConfigs",
+            "EditorHelpPerformedConfigs",
+            "EditorHelpExpressedConfigs",
+            "EditorHelpSongSync",
+            "EditorHelpGitHub",
+            "EditorHelpAbout",
+            "FtueReplay",
+            "LayoutOpen",
+            "HotbarOpen",
+            "Close",
+        ];
+        actors.push(act!(text:font("miso"):settext(i18n::tr("Edition","EditorHelpReference")):xy(x,top+24.):zoom(0.5):wrapwidthpixels((width-24.)/0.5):maxwidth(width-24.):z(8071)));
+        for (i, key) in keys.into_iter().enumerate() {
+            let start = actors.len();
+            let color = if i == index {
+                [1., 0.9, 0.8, 1.]
+            } else {
+                [0.85, 0.9, 0.8, 1.]
+            };
+            actors.push(act!(text:font("miso"):settext(format!("{} {}",if i==index{">"}else{" "},i18n::tr("Edition",key))):align(0.,0.):xy(x-width*0.5+15.,top+65.+i as f32*25.):zoom(0.55):maxwidth(width-30.):diffuse(color[0],color[1],color[2],color[3]):z(8071)));
+            self.ui_row(actors, start, i == index, 25.);
+        }
+        actors.push(act!(text:font("miso"):settext(self.status.clone()):xy(x,top+height-70.):zoom(0.45):wrapwidthpixels((width-24.)/0.45):maxwidth(width-24.):maxheight(62.):z(8071)));
+    }
 }
-#[cfg(test)]mod tests{use super::*;
- #[test]fn no_song_help_urls_are_only_queued_by_explicit_action_en_fr(){for language in ["en","fr"]{crate::i18n::init(deadsync_assets::language::load_for_tests(language));crate::i18n::set_locale(deadsync_assets::language::load_for_tests(language));let root=tempfile::tempdir().unwrap();let mut state=State::without_song(root.path()).unwrap();state.panel=None;let before=state.workspace.file().session.serialize().unwrap();state.open_editor_help();let mut actors=Vec::new();state.editor_help_actors(&mut actors,0);assert!(state.take_editor_external_open().is_none());for index in 1..=6{state.editor_help_key(index,KeyCode::Enter);assert_eq!(state.take_editor_external_open(),Some(ExternalOpen::Url(DOCS[index-1])));}assert_eq!(state.workspace.file().session.serialize().unwrap(),before);assert!(!state.has_song());}}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn no_song_help_urls_are_only_queued_by_explicit_action_en_fr() {
+        for language in ["en", "fr"] {
+            crate::i18n::init(deadsync_assets::language::load_for_tests(language));
+            crate::i18n::set_locale(deadsync_assets::language::load_for_tests(language));
+            let root = tempfile::tempdir().unwrap();
+            let mut state = State::without_song(root.path()).unwrap();
+            state.panel = None;
+            let before = state.workspace.file().session.serialize().unwrap();
+            state.open_editor_help();
+            let mut actors = Vec::new();
+            state.editor_help_actors(&mut actors, 0);
+            assert!(state.take_editor_external_open().is_none());
+            for index in 1..=6 {
+                state.editor_help_key(index, KeyCode::Enter);
+                assert_eq!(
+                    state.take_editor_external_open(),
+                    Some(ExternalOpen::Url(DOCS[index - 1]))
+                );
+            }
+            assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
+            assert!(!state.has_song());
+        }
+    }
 }
-#[cfg(test)]mod source_reference_tests{use super::*;
- #[test]fn actual_original_documentation_pages_and_repository_are_preserved_as_pinned_references(){let original:serde_json::Value=serde_json::from_str(include_str!(concat!(env!("CARGO_MANIFEST_DIR"),"/../deadsync-editor/tests/fixtures/editor-help/expected.json"))).unwrap();for mode in ["debug","release"]{let urls=original[mode].as_array().unwrap();assert_eq!(urls.len(),DOCS.len()+1);for(index,url)in DOCS.iter().enumerate(){let filename=urls[index].as_str().unwrap().rsplit('/').next().unwrap();assert!(url.ends_with(&format!("/StepManiaEditor/docs/{filename}")));assert!(url.contains("/48e18f71655d0f0d86144c63239331833501fda2/"));}assert_eq!(urls.last().unwrap().as_str().unwrap(),ROOT);}}
+#[cfg(test)]
+mod source_reference_tests {
+    use super::*;
+    #[test]
+    fn actual_original_documentation_pages_and_repository_are_preserved_as_pinned_references() {
+        let original: serde_json::Value = serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../deadsync-editor/tests/fixtures/editor-help/expected.json"
+        )))
+        .unwrap();
+        for mode in ["debug", "release"] {
+            let urls = original[mode].as_array().unwrap();
+            assert_eq!(urls.len(), DOCS.len() + 1);
+            for (index, url) in DOCS.iter().enumerate() {
+                let filename = urls[index].as_str().unwrap().rsplit('/').next().unwrap();
+                assert!(url.ends_with(&format!("/StepManiaEditor/docs/{filename}")));
+                assert!(url.contains("/48e18f71655d0f0d86144c63239331833501fda2/"));
+            }
+            assert_eq!(urls.last().unwrap().as_str().unwrap(), ROOT);
+        }
+    }
 }

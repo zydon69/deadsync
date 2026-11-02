@@ -1,5 +1,5 @@
-//! Native shortcuts emit the actual gameplay audio commands; snapshots drive
-//! cursor movement. Synthetic tests do not claim hardware/audio-device output.
+#[path = "support/transport_host.rs"]
+mod transport_host;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadsync_gameplay::{GameplayAudioCommand, GameplayAudioSnapshot};
 use deadsync_theme_simply_love::screens::edition::State;
@@ -9,30 +9,67 @@ use std::{
 };
 const SONG: &str = "#VERSION:0.83;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};#MUSIC:music.ogg;#OFFSET:0.25;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0000\n0000\n0000;";
 fn key(state: &mut State, code: KeyCode) -> bool {
+    let modifier = matches!(
+        code,
+        KeyCode::ControlLeft
+            | KeyCode::ControlRight
+            | KeyCode::ShiftLeft
+            | KeyCode::ShiftRight
+            | KeyCode::AltLeft
+            | KeyCode::AltRight
+            | KeyCode::SuperLeft
+            | KeyCode::SuperRight
+    );
+    let mut event = RawKeyboardEvent {
+        code,
+        pressed: false,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    };
+    if !modifier {
+        state.raw_key(&event);
+    }
+    event.pressed = true;
+    let consumed = state.raw_key(&event);
+    if !modifier {
+        event.pressed = false;
+        state.raw_key(&event);
+    }
+    consumed
+}
+fn held_key(state: &mut State, code: KeyCode) -> Instant {
+    let now = Instant::now();
     state.raw_key(&RawKeyboardEvent {
         code,
         pressed: true,
         repeat: false,
-        timestamp: Instant::now(),
+        timestamp: now,
         host_nanos: 0,
-    })
+    });
+    now
 }
+fn fixture_state(path: &std::path::Path, chart: usize) -> Result<State, deadsync_editor::Error> {
+    let mut state = State::open(path, chart)?;
+    transport_host::configure_projection(
+        &mut state,
+        &path.parent().unwrap().join("prefs.json"),
+        true,
+    );
+    transport_host::publish(&mut state);
+    Ok(state)
+}
+
 fn setup() -> (tempfile::TempDir, State) {
     deadsync_theme_simply_love::i18n::init_for_tests();
     let dir = tempfile::tempdir().unwrap();
     fs::write(dir.path().join("music.ogg"), b"fixture asset").unwrap();
     let path = dir.path().join("song.ssc");
     fs::write(&path, SONG).unwrap();
-    let state = State::open(&path, 0).unwrap();
+    let state = fixture_state(&path, 0).unwrap();
     (dir, state)
 }
-fn snapshot(seconds: f64) -> GameplayAudioSnapshot {
-    let mut snapshot = GameplayAudioSnapshot::default();
-    snapshot.stream_clock.valid_at = Instant::now();
-    snapshot.stream_clock.has_music_mapping = true;
-    snapshot.stream_clock.music_nanos = (seconds * 1e9).round() as i64;
-    snapshot
-}
+
 #[test]
 fn enter_plays_real_asset_and_mapped_audio_moves_cursor_then_enter_stops() {
     let (dir, mut state) = setup();
@@ -41,41 +78,43 @@ fn enter_plays_real_asset_and_mapped_audio_moves_cursor_then_enter_stops() {
     let commands = state.take_audio_commands();
     assert_eq!(commands.len(), 1);
     match &commands[0] {
-        GameplayAudioCommand::PlayMusic {
-            path,
-            cut,
-            looping,
+        GameplayAudioCommand::EditorStartMusic {
+            path: Some(path),
+            seconds,
             rate,
+            ..
         } => {
             assert_eq!(path, &dir.path().join("music.ogg").canonicalize().unwrap());
-            assert_eq!(cut.start_sec, -0.25);
-            assert!(!looping);
+            assert_eq!(*seconds, -0.25);
             assert_eq!(*rate, 1.0);
         }
         other => panic!("unexpected command: {other:?}"),
     }
     assert!(state.take_audio_commands().is_empty());
-    state.update_audio(snapshot(0.75));
+    state.update_audio(transport_host::snapshot(&state, 0.75));
     assert_eq!(state.workspace().row(), 96);
     assert!(!state.workspace().file().session.is_dirty());
     key(&mut state, KeyCode::Enter);
     assert!(!state.is_playing());
     assert_eq!(
         state.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
+        vec![GameplayAudioCommand::EditorPauseMusic {
+            owner: state.editor_asset_owner(),
+            seconds: state.chart_focus_time().unwrap()
+        }]
     );
-    state.update_audio(snapshot(9.0));
+    state.update_audio(transport_host::snapshot(&state, 9.0));
     assert_eq!(state.workspace().row(), 96);
     key(&mut state, KeyCode::Enter);
     match &state.take_audio_commands()[0] {
-        GameplayAudioCommand::PlayMusic { cut, .. } => assert_eq!(cut.start_sec, 0.75),
+        GameplayAudioCommand::EditorResumeMusic { seconds, .. } => assert_eq!(*seconds, 0.75),
         other => panic!("unexpected resume: {other:?}"),
     }
 }
 #[test]
 fn stale_unmapped_and_negative_audio_do_not_invent_cursor_progress() {
     let (_dir, mut state) = setup();
-    let mut stale = snapshot(9.0);
+    let mut stale = transport_host::snapshot(&state, 9.0);
     stale.stream_clock.valid_at = Instant::now() - Duration::from_secs(1);
     key(&mut state, KeyCode::Enter);
     state.take_audio_commands();
@@ -84,15 +123,18 @@ fn stale_unmapped_and_negative_audio_do_not_invent_cursor_progress() {
     state.update_audio(GameplayAudioSnapshot::default());
     assert_eq!(state.workspace().row(), 0);
     assert!(state.is_playing());
-    state.update_audio(snapshot(-0.5));
+    state.update_audio(transport_host::snapshot(&state, -0.5));
     assert_eq!(state.workspace().row(), 0);
-    state.update_audio(snapshot(0.25));
+    state.update_audio(transport_host::snapshot(&state, 0.25));
     assert_eq!(state.workspace().row(), 48);
     state.update_audio(GameplayAudioSnapshot::default());
     assert!(!state.is_playing());
     assert_eq!(
         state.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
+        vec![GameplayAudioCommand::EditorPauseMusic {
+            owner: state.editor_asset_owner(),
+            seconds: state.chart_focus_time().unwrap()
+        }]
     );
 }
 #[test]
@@ -100,17 +142,25 @@ fn editing_stops_transport_before_mutating_and_close_stops_without_dirtying_file
     let (_dir, mut state) = setup();
     // Explicit Mine tool retains the legacy immediate edit/transport policy.
     // Default Tap playing input is covered separately by lane-entry workflows.
-    for _ in 0..3 {key(&mut state, KeyCode::Tab);}
-    assert_eq!(state.workspace().tool(),deadsync_editor::notes::Kind::Mine);
+    for _ in 0..3 {
+        key(&mut state, KeyCode::Tab);
+    }
+    assert_eq!(state.workspace().tool(), deadsync_editor::notes::Kind::Mine);
     key(&mut state, KeyCode::Enter);
     key(&mut state, KeyCode::Digit2);
-    state.raw_key(&RawKeyboardEvent {code:KeyCode::Digit2,pressed:false,repeat:false,timestamp:Instant::now(),host_nanos:0});
+    state.raw_key(&RawKeyboardEvent {
+        code: KeyCode::Digit2,
+        pressed: false,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
     let commands = state.take_audio_commands();
     assert!(matches!(
         commands.as_slice(),
         [
-            GameplayAudioCommand::PlayMusic { .. },
-            GameplayAudioCommand::StopMusic
+            GameplayAudioCommand::EditorStartMusic { .. },
+            GameplayAudioCommand::EditorPauseMusic { .. }
         ]
     ));
     assert!(!state.is_playing());
@@ -118,26 +168,33 @@ fn editing_stops_transport_before_mutating_and_close_stops_without_dirtying_file
     let (_dir, mut clean) = setup();
     key(&mut clean, KeyCode::Enter);
     clean.take_audio_commands();
-    assert!(key(&mut clean, KeyCode::Escape));
+    key(&mut clean, KeyCode::Escape);
     assert!(!clean.is_playing());
-    assert_eq!(
-        clean.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
+    let commands = clean.take_audio_commands();
+    assert!(
+        matches!(commands.as_slice(), [GameplayAudioCommand::EditorPauseMusic { owner, seconds }, GameplayAudioCommand::EditorRestoreOutputLease { owner: restored, id: 1 }] if *owner == clean.editor_asset_owner() && owner == restored && *seconds == -0.25),
+        "{commands:?}"
     );
     assert!(!clean.workspace().file().session.is_dirty());
 }
 #[test]
-fn missing_audio_emits_no_play_and_space_still_selects() {
+fn removed_audio_path_keeps_logical_transport_until_explicit_stop() {
     let (dir, mut state) = setup();
     fs::remove_file(dir.path().join("music.ogg")).unwrap();
     key(&mut state, KeyCode::Enter);
+    assert!(
+        state.is_playing(),
+        "source transport retains its logical clock without a pathname"
+    );
+    assert!(
+        state
+            .take_audio_commands()
+            .iter()
+            .any(|command| matches!(command, GameplayAudioCommand::EditorStartMusic { .. }))
+    );
+    key(&mut state, KeyCode::Escape);
     assert!(!state.is_playing());
-    assert!(state.take_audio_commands().is_empty());
-    key(&mut state, KeyCode::Space);
-    key(&mut state, KeyCode::ArrowDown);
-    assert_eq!(state.workspace().selection(), Some((0, 48)));
-    key(&mut state, KeyCode::Space);
-    assert_eq!(state.workspace().selection(), None);
+    assert!(!state.workspace().file().session.is_dirty());
 }
 
 #[test]
@@ -145,11 +202,17 @@ fn f11_sync_apply_changes_audio_cut_and_supports_undo_save_reopen() {
     let (dir, mut state) = setup();
     key(&mut state, KeyCode::Enter);
     state.take_audio_commands();
+    // Song Properties now leaves transport running. Explicitly pause before
+    // testing a staged sync edit and its resumed audio position.
+    key(&mut state, KeyCode::Enter);
     key(&mut state, KeyCode::F11);
     assert!(!state.is_playing());
     assert_eq!(
         state.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
+        vec![GameplayAudioCommand::EditorPauseMusic {
+            owner: state.editor_asset_owner(),
+            seconds: state.chart_focus_time().unwrap()
+        }]
     );
     key(&mut state, KeyCode::ArrowRight);
     key(&mut state, KeyCode::ArrowDown);
@@ -160,9 +223,17 @@ fn f11_sync_apply_changes_audio_cut_and_supports_undo_save_reopen() {
         0.001
     );
     assert!(state.workspace().file().session.is_dirty());
+    let apply_commands = state.take_audio_commands();
+    assert!(
+        apply_commands
+            .iter()
+            .all(|command| matches!(command, GameplayAudioCommand::EditorRetargetTicks { .. }))
+    );
     key(&mut state, KeyCode::NumpadEnter);
     match &state.take_audio_commands()[0] {
-        GameplayAudioCommand::PlayMusic { cut, .. } => assert_eq!(cut.start_sec, -0.25 + 0.001),
+        GameplayAudioCommand::EditorResumeMusic { seconds, .. } => {
+            assert_eq!(*seconds, -0.25 + 0.001)
+        }
         other => panic!("unexpected audio command {other:?}"),
     }
     fn ctrl(state: &mut State, code: KeyCode) {
@@ -177,11 +248,11 @@ fn f11_sync_apply_changes_audio_cut_and_supports_undo_save_reopen() {
         });
     }
     ctrl(&mut state, KeyCode::KeyZ);
-    assert!(!state.is_playing());
+    assert!(state.is_playing());
     assert!(!state.workspace().file().session.is_dirty());
     ctrl(&mut state, KeyCode::KeyY);
     ctrl(&mut state, KeyCode::KeyS);
-    let reopened = State::open(&dir.path().join("song.ssc"), 0).unwrap();
+    let reopened = fixture_state(&dir.path().join("song.ssc"), 0).unwrap();
     assert_eq!(
         deadsync_editor::song_properties::sync_offset(
             reopened.workspace().file().session.document()
@@ -224,7 +295,7 @@ fn label_shortcuts_wrap_repeat_stop_playback_and_do_not_edit_song() {
         SONG.replace("#BPMS:0=120;", "#BPMS:0=120;#LABELS:1=Verse,3=Chorus;"),
     )
     .unwrap();
-    let mut state = State::open(&path, 0).unwrap();
+    let mut state = fixture_state(&path, 0).unwrap();
     let bytes = state.workspace().file().session.serialize().unwrap();
     // An unmodified L is neither a note nor a navigation command.
     key(&mut state, KeyCode::KeyL);
@@ -232,29 +303,27 @@ fn label_shortcuts_wrap_repeat_stop_playback_and_do_not_edit_song() {
     key(&mut state, KeyCode::Enter);
     state.take_audio_commands();
     key(&mut state, KeyCode::ControlLeft);
-    key(&mut state, KeyCode::KeyL);
+    let held = held_key(&mut state, KeyCode::KeyL);
     assert_eq!(state.workspace().row(), 48);
     assert!(!state.is_playing());
     assert_eq!(
         state.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
+        vec![GameplayAudioCommand::EditorPauseMusic {
+            owner: state.editor_asset_owner(),
+            seconds: -0.25
+        }]
     );
-    let repeat = RawKeyboardEvent {
-        code: KeyCode::KeyL,
-        pressed: true,
-        repeat: true,
-        timestamp: Instant::now(),
-        host_nanos: 0,
-    };
-    state.raw_key(&repeat);
+    state.update_with_time(held + Duration::from_millis(501));
     assert_eq!(state.workspace().row(), 144);
-    state.raw_key(&repeat);
+    state.update_with_time(held + Duration::from_millis(1002));
     assert_eq!(state.workspace().row(), 48);
     key(&mut state, KeyCode::ShiftLeft);
     key(&mut state, KeyCode::KeyL);
     assert_eq!(state.workspace().row(), 144);
-    state.raw_key(&repeat);
+    let held = held_key(&mut state, KeyCode::KeyL);
     assert_eq!(state.workspace().row(), 48);
+    state.update_with_time(held + Duration::from_millis(501));
+    assert_eq!(state.workspace().row(), 144);
     assert_eq!(state.workspace().file().session.serialize().unwrap(), bytes);
     assert!(!state.workspace().file().session.is_dirty());
 }
@@ -268,12 +337,21 @@ fn label_shortcuts_are_scoped_to_chart_view_and_support_command_modifier() {
         SONG.replace("#BPMS:0=120;", "#BPMS:0=120;#LABELS:1=Verse,3=Chorus;"),
     )
     .unwrap();
-    let mut state = State::open(&path, 0).unwrap();
+    let mut state = fixture_state(&path, 0).unwrap();
     key(&mut state, KeyCode::F10);
     key(&mut state, KeyCode::SuperLeft);
     key(&mut state, KeyCode::KeyL);
     assert_eq!(state.workspace().row(), 0);
     key(&mut state, KeyCode::Escape);
+    key(&mut state, KeyCode::Escape);
+    state.raw_key(&RawKeyboardEvent {
+        code: KeyCode::SuperLeft,
+        pressed: false,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
+    });
+    key(&mut state, KeyCode::SuperLeft);
     key(&mut state, KeyCode::KeyL);
     assert_eq!(state.workspace().row(), 48);
     assert!(!state.workspace().file().session.is_dirty());
@@ -294,7 +372,7 @@ fn page_keys_use_departure_measure_independently_of_snap_and_keep_selection() {
         SONG.replace("#BPMS:0=120;", "#BPMS:0=120;#TIMESIGNATURES:0=3=4,4=7=8;"),
     )
     .unwrap();
-    let mut state = State::open(&path, 0).unwrap();
+    let mut state = fixture_state(&path, 0).unwrap();
     let bytes = state.workspace().file().session.serialize().unwrap();
     key(&mut state, KeyCode::PageDown);
     assert_eq!(state.workspace().row(), 144);
@@ -320,27 +398,30 @@ fn measure_shortcut_repeat_stops_audio_and_inspectors_retain_focus() {
         SONG.replace("#BPMS:0=120;", "#BPMS:0=120;#TIMESIGNATURES:0=3=4,4=7=8;"),
     )
     .unwrap();
-    let mut state = State::open(&path, 0).unwrap();
+    let mut state = fixture_state(&path, 0).unwrap();
     key(&mut state, KeyCode::Enter);
     state.take_audio_commands();
-    key(&mut state, KeyCode::PageDown);
+    let held = held_key(&mut state, KeyCode::PageDown);
     assert_eq!(state.workspace().row(), 144);
     assert!(!state.is_playing());
     assert_eq!(
         state.take_audio_commands(),
-        vec![GameplayAudioCommand::StopMusic]
+        vec![GameplayAudioCommand::EditorPauseMusic {
+            owner: state.editor_asset_owner(),
+            seconds: -0.25
+        }]
     );
-    let repeat = RawKeyboardEvent {
-        code: KeyCode::PageDown,
-        pressed: true,
-        repeat: true,
-        timestamp: Instant::now(),
-        host_nanos: 0,
-    };
-    state.raw_key(&repeat);
+    state.update_with_time(held + Duration::from_millis(501));
     assert_eq!(state.workspace().row(), 288);
-    state.raw_key(&repeat);
+    state.update_with_time(held + Duration::from_millis(1002));
     assert_eq!(state.workspace().row(), 456);
+    state.raw_key(&RawKeyboardEvent {
+        code: KeyCode::PageDown,
+        pressed: false,
+        repeat: false,
+        timestamp: held + Duration::from_millis(1003),
+        host_nanos: 0,
+    });
     key(&mut state, KeyCode::F10);
     key(&mut state, KeyCode::PageUp);
     assert_eq!(state.workspace().row(), 456);

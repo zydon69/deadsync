@@ -1,3 +1,7 @@
+#[path = "support/row_geometry.rs"]
+mod row_geometry;
+#[path = "support/source_sprite_geometry.rs"]
+mod source_sprite_geometry;
 // Actor geometry uses production keys and Session grids. It does not claim GPU QA.
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
@@ -53,7 +57,8 @@ fn setup(layout: &str) -> (tempfile::TempDir, State, Vec<u8>) {
     let path = dir.path().join("render.ssc");
     let source=format!("#VERSION:0.83;#BPMS:0=120;#OFFSET:0;#GASongDataVersion:1;#GASongData:{{\"SyncOffset\":0}};#VENDOR:keep;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:2000\n0100\n3000\n0000;#NOTEDATA:;#STEPSTYPE:dance-double;#BPMS:0=60;#OFFSET:0.25;#NOTES:00002000\n10000000\n00003000\n00000000;#NOTEDATA:;#STEPSTYPE:{layout};#NOTES:00000100\n00000000\n00000000\n00000000\n&\n00000020\n00000000\n00000030\n00000000;").into_bytes();
     fs::write(&path, &source).unwrap();
-    let state = State::open(&path, 0).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    row_geometry::configure_centered(&mut state, dir.path());
     (dir, state, source)
 }
 #[derive(Debug)]
@@ -78,8 +83,8 @@ fn glyphs(state: &State) -> Vec<Glyph> {
                 croptop,
                 ..
             } if *z == 8004 || *z == 8003 => out.push(Glyph {
-                x: offset[0],
-                y: offset[1],
+                x: source_sprite_geometry::center(actor).unwrap_or(*offset)[0],
+                y: source_sprite_geometry::center(actor).unwrap_or(*offset)[1],
                 color: *tint,
                 z: *z,
                 atlas: match source {

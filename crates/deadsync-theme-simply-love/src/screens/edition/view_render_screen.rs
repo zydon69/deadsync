@@ -5,15 +5,19 @@ use super::{
     view_render::{self, Viewport},
 };
 use crate::i18n;
-use deadsync_editor::Error;
 use deadlib_present::{
     actors::Actor,
     space::{screen_center_x, screen_height, screen_width},
 };
+use deadsync_editor::Error;
 impl State {
-    pub(super) fn visible_view_geometry(&self)->Vec<Geometry>{self.chart_geometries(false)}
-    pub(super) fn first_chart_canvas_left(&self)->Option<f32>{self.chart_geometries(true).first().map(|g|g.left)}
-    fn chart_geometries(&self,unclipped:bool) -> Vec<Geometry> {
+    pub(super) fn visible_view_geometry(&self) -> Vec<Geometry> {
+        self.chart_geometries(false)
+    }
+    pub(super) fn first_chart_canvas_left(&self) -> Option<f32> {
+        self.chart_geometries(true).first().map(|g| g.left)
+    }
+    fn chart_geometries(&self, unclipped: bool) -> Vec<Geometry> {
         if !self.workspace.has_chart() {
             return Vec::new();
         }
@@ -60,7 +64,15 @@ impl State {
         } else {
             width
         };
-        view_layout::layout(&charts, focused, center, available, if unclipped{-f32::MAX}else{0.0}, if unclipped{f32::MAX}else{right}).unwrap_or_default()
+        view_layout::layout(
+            &charts,
+            focused,
+            center,
+            available,
+            if unclipped { -f32::MAX } else { 0.0 },
+            if unclipped { f32::MAX } else { right },
+        )
+        .unwrap_or_default()
     }
 
     // Detached edit overlays retain their own bounded geometry resources.
@@ -70,9 +82,17 @@ impl State {
             .into_iter()
             .map(|view| view.source)
             .collect();
-        if let Some(source)=self.preview_source_chart(){if !charts.contains(&source){charts.push(source);}}
+        if let Some(source) = self.preview_source_chart() {
+            if !charts.contains(&source) {
+                charts.push(source);
+            }
+        }
         if let Err(error) = self.workspace.prepare_view_grids(&charts) {
-            self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
+            self.status = i18n::tr_fmt(
+                "Edition",
+                "Error",
+                &[("message", &crate::i18n::editor_error(&error))],
+            );
         }
         self.view_inputs.prepare(
             &self.workspace.file().session,
@@ -81,25 +101,88 @@ impl State {
         );
         self.prepare_waveform_draw_policy();
     }
-    pub(super) fn preserve_chart_canvas_left(&mut self,previous:Option<f32>)->Result<(),Error>{
-        let Some(previous)=previous else{return Ok(())};let Some(current)=self.first_chart_canvas_left()else{return Ok(())};let mut preferences=self.receptor_preferences();let delta=previous-current;if delta.round()==0.{return Ok(())}
-        let width=screen_width();let side=self.pattern_set_side_panel();let baseline=if side{(width-390.)*0.5}else{screen_center_x()};let right=if side{(width-390.).max(1.)}else{width.max(1.)};let destination=(self.receptor_canvas_position().0+delta).clamp(0.,right);
-        let raw=(842.+f64::from(destination-baseline)).round().clamp(i32::MIN as f64,i32::MAX as f64)as i32;
-        if raw==preferences.placement.x{return Ok(())}preferences.placement.x=raw;
+    pub(super) fn preserve_chart_canvas_left(
+        &mut self,
+        previous: Option<f32>,
+    ) -> Result<(), Error> {
+        let Some(previous) = previous else {
+            return Ok(());
+        };
+        let Some(current) = self.first_chart_canvas_left() else {
+            return Ok(());
+        };
+        let mut preferences = self.receptor_preferences();
+        let delta = previous - current;
+        if delta.round() == 0. {
+            return Ok(());
+        }
+        let width = screen_width();
+        let side = self.pattern_set_side_panel();
+        let baseline = if side {
+            (width - 390.) * 0.5
+        } else {
+            screen_center_x()
+        };
+        let right = if side {
+            (width - 390.).max(1.)
+        } else {
+            width.max(1.)
+        };
+        let destination = (self.receptor_canvas_position().0 + delta).clamp(0., right);
+        let raw = (842. + f64::from(destination - baseline))
+            .round()
+            .clamp(i32::MIN as f64, i32::MAX as f64) as i32;
+        if raw == preferences.placement.x {
+            return Ok(());
+        }
+        preferences.placement.x = raw;
         // SetChartFocused changes this application preference without an Undo
         // action and ignores user axis locks. Keep the real owner for flush and
         // preference-history authentication; never reset audio/receptor clocks.
-        if let Some(file)=self.audio_preferences_file.as_mut(){file.set_receptors(preferences);}else{if self.source_preferences_import.memory.is_none(){self.source_preferences_import.memory=Some(deadsync_editor::audio_preferences::File::memory()?);}self.source_preferences_import.memory.as_mut().unwrap().set_receptors(preferences);}
-        self.configure_receptor_preferences(preferences);Ok(())
+        if let Some(file) = self.audio_preferences_file.as_mut() {
+            file.set_receptors(preferences);
+        } else {
+            if self.source_preferences_import.memory.is_none() {
+                self.source_preferences_import.memory =
+                    Some(deadsync_editor::audio_preferences::File::memory()?);
+            }
+            self.source_preferences_import
+                .memory
+                .as_mut()
+                .unwrap()
+                .set_receptors(preferences);
+        }
+        self.configure_receptor_preferences(preferences);
+        Ok(())
     }
-    pub(super) fn receptor_canvas_position(&self)->(f32,f32){
-        let width=screen_width();let side=self.pattern_set_side_panel();let center=if side{(width-390.)*0.5}else{screen_center_x()};let right=if side{(width-390.).max(1.)}else{width.max(1.)};let top=105.;let bottom=(screen_height()-85.).max(top);
-        self.receptor_preferences().placement.project(center,0.,right,top,bottom,self.reverse_display)
+    pub(super) fn receptor_canvas_position(&self) -> (f32, f32) {
+        let width = screen_width();
+        let side = self.pattern_set_side_panel();
+        let center = if side {
+            (width - 390.) * 0.5
+        } else {
+            screen_center_x()
+        };
+        let right = if side {
+            (width - 390.).max(1.)
+        } else {
+            width.max(1.)
+        };
+        let top = 105.;
+        let bottom = (screen_height() - 85.).max(top);
+        self.receptor_preferences().placement.project(
+            center,
+            0.,
+            right,
+            top,
+            bottom,
+            self.reverse_display,
+        )
     }
     pub(super) fn chart_viewport(&self) -> Viewport {
         let top = 105.0;
         let bottom = (screen_height() - 85.0).max(top);
-        let cursor=self.receptor_canvas_position().1;
+        let cursor = self.receptor_canvas_position().1;
         Viewport {
             top,
             bottom,
@@ -149,31 +232,44 @@ impl State {
                 );
                 let policy = self.receptor_policy(geometry.source);
                 let padding = geometry.lane_width * self.zoom.size_zoom() as f32;
-                let note_ranges = projection.visible_ranges(viewport.top-padding, viewport.bottom+padding,last_row)?;
-                let source_plan=self.source_viewport_plan(geometry,viewport)?;
-                let admitted=source_plan.admission.notes().collect::<Vec<_>>();
-                self.misc_event_actors_from_plan(actors,geometry,viewport,&source_plan);
+                let note_ranges = projection.visible_ranges(
+                    viewport.top - padding,
+                    viewport.bottom + padding,
+                    last_row,
+                )?;
+                let source_plan = self.source_viewport_plan(geometry, viewport)?;
+                let admitted = source_plan.admission.notes().collect::<Vec<_>>();
+                self.misc_event_actors_from_plan(actors, geometry, viewport, &source_plan);
                 if self.render_policy().notes {
-                let mut stats = view_render::notes(
-                    actors,
-                    grid,
-                    &session.document().charts()[geometry.source].steps_type,
-                    &projection,
-                    geometry,
-                    viewport,
-                    &note_ranges,
-                    self.zoom.size_zoom() as f32,
-                    admitted.len(),
-                    policy.as_ref(),
-                    self.reverse_display,
-                    self.active_views.as_ref().and_then(|views|views.entries().iter().find(|view|view.source_index()==geometry.source)).and_then(|view|view.selection()),
-                    Some((&self.hold_colors,data.signatures.as_ref())),
-                    None,
-                    Some(&admitted),
-                    self.selected_note_positions_for_render(geometry.source).as_ref(),
-                );
-                stats.partial|=source_plan.admission.stopped_by_quota;
-                view_render::partial_notice(actors, geometry, viewport, stats);
+                    let mut stats = view_render::notes(
+                        actors,
+                        grid,
+                        &session.document().charts()[geometry.source].steps_type,
+                        &projection,
+                        geometry,
+                        viewport,
+                        &note_ranges,
+                        self.zoom.size_zoom() as f32,
+                        admitted.len(),
+                        policy.as_ref(),
+                        self.reverse_display,
+                        self.active_views
+                            .as_ref()
+                            .and_then(|views| {
+                                views
+                                    .entries()
+                                    .iter()
+                                    .find(|view| view.source_index() == geometry.source)
+                            })
+                            .and_then(|view| view.selection()),
+                        Some((&self.hold_colors, data.signatures.as_ref())),
+                        None,
+                        Some(&admitted),
+                        self.selected_note_positions_for_render(geometry.source)
+                            .as_ref(),
+                    );
+                    stats.partial |= source_plan.admission.stopped_by_quota;
+                    view_render::partial_notice(actors, geometry, viewport, stats);
                 }
                 view_render::cursor(actors, geometry, viewport);
                 Ok(())
@@ -181,7 +277,11 @@ impl State {
             if let Err(error) = result {
                 text(
                     actors,
-                    &i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]),
+                    &i18n::tr_fmt(
+                        "Edition",
+                        "Error",
+                        &[("message", &crate::i18n::editor_error(&error))],
+                    ),
                     geometry.left.max(geometry.clip_left),
                     viewport.top,
                     0.45,

@@ -80,6 +80,44 @@ fn open_movement(s: &mut State) {
     open_marker_profiles(s);
     press(s, KeyCode::ArrowDown);
     press(s, KeyCode::KeyE);
+    // The source helper is gated by this actual profile control. Activate it
+    // through the rendered keyboard field before opening the BPM helper.
+    let label = i18n::tr_fmt(
+        "Edition",
+        "ProfileFieldSpeedTighteningEnabled",
+        &[("value", "")],
+    );
+    let enabled = i18n::tr_fmt(
+        "Edition",
+        "ProfileFieldSpeedTighteningEnabled",
+        &[("value", &i18n::tr("Edition", "PatternYes"))],
+    );
+    for _ in 0..512 {
+        let mut actors = Vec::new();
+        s.actors(&mut actors);
+        let selected = actors.iter().find_map(|actor| match actor {
+            Actor::Text {
+                color,
+                content,
+                z: 8021,
+                ..
+            } if *color == [1.0, 0.85, 0.25, 1.0]
+                && content.as_str().starts_with(label.as_ref()) =>
+            {
+                Some(content.to_string())
+            }
+            _ => None,
+        });
+        if let Some(selected) = selected {
+            if selected == enabled.as_ref() {
+                return;
+            }
+            press(s, KeyCode::ArrowRight);
+        } else {
+            press(s, KeyCode::ArrowDown);
+        }
+    }
+    panic!("travel speed control unavailable: {:?}", texts(s));
 }
 fn number(s: &mut State, value: &str) {
     press(s, KeyCode::Delete);
@@ -151,7 +189,7 @@ fn bpm_helper_stages_exact_intervals_and_saves_wrapper_metadata_without_changing
         ),
         speed.intervals().unwrap()
     );
-    assert_eq!(c.step_tightening.speed_tightening_enabled, Some(false));
+    assert_eq!(c.step_tightening.speed_tightening_enabled, Some(true));
     let saved_path = loaded.profiles.values().next().unwrap().path().to_owned();
     // Update the same custom profile in place after the copy is selected.
     press(&mut s, KeyCode::ArrowDown);
@@ -190,15 +228,20 @@ fn invalid_bpm_cancels_without_losing_other_staged_settings() {
     fs::write(&path, &source).unwrap();
     let mut s = State::open_with_profiles(&path, 0, &profiles).unwrap();
     open_movement(&mut s);
+    press(&mut s, KeyCode::Home);
     press(&mut s, KeyCode::ArrowLeft);
+    let staged = texts(&s)
+        .into_iter()
+        .find(|text| text.starts_with("Maximum inward-facing proportion:"))
+        .expect("first profile field");
     press(&mut s, KeyCode::F4);
     press(&mut s, KeyCode::ArrowDown);
-    number(&mut s, "0");
+    press(&mut s, KeyCode::Delete);
     press(&mut s, KeyCode::ArrowDown);
     assert!(has(&s, "Enter an ordered BPM range"));
     press(&mut s, KeyCode::Escape);
     press(&mut s, KeyCode::Home);
-    assert!(has(&s, "Maximum inward-facing proportion: 0.000000"));
+    assert!(texts(&s).contains(&staged), "{:?}", texts(&s));
     assert!(!profiles.exists());
     assert_eq!(s.workspace().file().session.serialize().unwrap(), source);
 }

@@ -138,7 +138,11 @@ mod tests {
     fn comparable_bits(value: f32) -> u32 {
         // Preserve exact finite values, infinities and signed zero. Arithmetic
         // can select a different NaN payload without changing its meaning.
-        if value.is_nan() { f32::NAN.to_bits() } else { value.to_bits() }
+        if value.is_nan() {
+            f32::NAN.to_bits()
+        } else {
+            value.to_bits()
+        }
     }
 
     fn compare_bits(actual: TweenPose, expected: SongLuaOverlayState) {
@@ -185,8 +189,14 @@ mod tests {
                     let mut to = SongLuaOverlayState::default();
                     for target in TARGETS {
                         let values = match target {
-                            Target::Quaternion => (Value::Quaternion(crate::actor_quaternion::IDENTITY),
-                                Value::Quaternion(crate::actor_quaternion::rotate(crate::actor_quaternion::IDENTITY, 1, 45.0))),
+                            Target::Quaternion => (
+                                Value::Quaternion(crate::actor_quaternion::IDENTITY),
+                                Value::Quaternion(crate::actor_quaternion::rotate(
+                                    crate::actor_quaternion::IDENTITY,
+                                    1,
+                                    45.0,
+                                )),
+                            ),
                             Target::Diffuse | Target::Glow => {
                                 (Value::Vec4([start; 4]), Value::Vec4([end; 4]))
                             }

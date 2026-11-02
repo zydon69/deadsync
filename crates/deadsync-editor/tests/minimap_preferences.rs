@@ -29,15 +29,9 @@ fn invalid_ranges_and_external_changes_never_overwrite_preferences() {
     let path = dir.path().join("prefs.json");
     let mut file = File::open(&path).unwrap();
     let mut settings = file.minimap();
-    settings.set_visible_range(Axis::Row,0.0).unwrap();
-    assert_eq!(settings.visible_range(Axis::Row),0.0);
-    for value in [
-        -1.0,
-        0.5,
-        f64::NAN,
-        f64::INFINITY,
-        u32::MAX as f64 + 1.0,
-    ] {
+    settings.set_visible_range(Axis::Row, 0.0).unwrap();
+    assert_eq!(settings.visible_range(Axis::Row), 0.0);
+    for value in [-1.0, 0.5, f64::NAN, f64::INFINITY, u32::MAX as f64 + 1.0] {
         assert!(settings.set_visible_range(Axis::Row, value).is_err());
     }
     settings.set_quantize(true);

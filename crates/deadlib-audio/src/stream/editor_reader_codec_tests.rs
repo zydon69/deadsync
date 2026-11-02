@@ -85,6 +85,7 @@ fn tail(reader: &mut EditorDecodeReader) -> Vec<i16> {
 }
 #[test]
 fn prepared_editor_all_real_codecs_equal_full_decode_and_exact_seeks_after_unlink() {
+    let _audio_guard = crate::test_audio_guard();
     use lifecycle::DecodedCodec as C;
     let fixtures = [
         ("seek.wav", C::Wav),

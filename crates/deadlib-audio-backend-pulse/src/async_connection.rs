@@ -54,8 +54,8 @@ static API: OnceLock<Result<Api, String>> = OnceLock::new();
 fn api() -> Result<&'static Api, String> {
     API.get_or_init(|| {
         let library = load_library(&["libpulse.so.0", "libpulse.so"])?;
-        // Every pointer has its documented Pulse C signature and the library
-        // remains retained for every subsequent invocation.
+        // SAFETY: Symbol types below match the PulseAudio C API declarations.
+        // Api retains the loaded Library for the lifetime of every function pointer.
         unsafe {
             Ok(Api {
                 mainloop_new: load_symbol(&library, b"pa_mainloop_new\0")?,
@@ -110,12 +110,14 @@ impl PulseConnection {
             period_frames: 0,
             buffer_frames: 0,
         };
+        // SAFETY: mainloop_new has no arguments; its nullable owned result is checked below.
         unsafe {
             connection.mainloop = (api.mainloop_new)();
         }
         if connection.mainloop.is_null() {
             return Err("Pulse mainloop allocation failed".into());
         }
+        // SAFETY: mainloop is non-null and owned here; the static C name outlives context_new.
         unsafe {
             connection.context = (api.context_new)(
                 (api.mainloop_get_api)(connection.mainloop),
@@ -125,11 +127,13 @@ impl PulseConnection {
         if connection.context.is_null() {
             return Err("Pulse context allocation failed".into());
         }
+        // SAFETY: context is live; null server/API arguments request Pulse defaults.
         if unsafe { (api.context_connect)(connection.context, ptr::null(), 0, ptr::null()) } < 0 {
             return Err(connection.error("context connect"));
         }
         connection.wait_for(
             stop,
+            // SAFETY: the live context is confined to this mainloop worker.
             || unsafe { (api.context_get_state)(connection.context) },
             4,
             5,
@@ -139,6 +143,7 @@ impl PulseConnection {
             rate: prep.sample_rate_hz,
             channels: prep.channels as u8,
         };
+        // SAFETY: context is ready; spec is a valid borrowed sample specification copied by Pulse.
         unsafe {
             connection.stream =
                 (api.stream_new)(connection.context, c"Gameplay".as_ptr(), &spec, ptr::null());
@@ -154,6 +159,7 @@ impl PulseConnection {
             fragsize: u32::MAX,
         };
         // Auto timing + interpolation + requested latency; no global server mutation.
+        // SAFETY: stream is live, attr is valid, and null optional arguments request defaults.
         if unsafe {
             (api.stream_connect_playback)(
                 connection.stream,
@@ -169,10 +175,12 @@ impl PulseConnection {
         }
         connection.wait_for(
             stop,
+            // SAFETY: stream is live and all mainloop access is on this worker.
             || unsafe { (api.stream_get_state)(connection.stream) },
             2,
             3,
         )?;
+        // SAFETY: ready stream owns this borrowed spec until it is disconnected; no mutation intervenes.
         let actual_spec = unsafe { (api.stream_get_sample_spec)(connection.stream).as_ref() }
             .ok_or_else(|| "Pulse negotiated sample specification missing".to_string())?;
         if actual_spec.format != spec.format
@@ -181,6 +189,7 @@ impl PulseConnection {
         {
             return Err("Pulse negotiated output format changed".into());
         }
+        // SAFETY: ready stream owns these attributes; the optional pointer is checked before access.
         let actual = unsafe { (api.stream_get_buffer_attr)(connection.stream).as_ref() }
             .ok_or_else(|| "Pulse negotiated buffer attributes missing".to_string())?;
         let (period, total) = checked_attributes(actual, prep.channels)?;
@@ -189,17 +198,21 @@ impl PulseConnection {
         Ok(connection)
     }
     fn error(&self, operation: &str) -> String {
+        // SAFETY: error() is used only after a non-null context has been constructed.
         let code = unsafe { (self.api.context_errno)(self.context) };
+        // SAFETY: strerror accepts any Pulse error code and returns static or null storage.
         let text = unsafe { (self.api.strerror)(code) };
         let detail = if text.is_null() {
             "unknown error".into()
         } else {
+            // SAFETY: non-null pa_strerror strings are static, NUL-terminated C strings.
             unsafe { CStr::from_ptr(text) }.to_string_lossy()
         };
         format!("Pulse {operation} failed: {detail}")
     }
     fn iterate(&self) -> Result<(), String> {
         let mut result = 0;
+        // SAFETY: mainloop is live and worker-confined; result is valid writable storage.
         if unsafe { (self.api.mainloop_iterate)(self.mainloop, 0, &mut result) } < 0 {
             return Err(self.error("mainloop"));
         }
@@ -239,9 +252,11 @@ impl PulseConnection {
                 return Ok(());
             }
             self.iterate()?;
+            // SAFETY: self owns a live stream; mainloop access remains worker-confined.
             if unsafe { (self.api.stream_get_state)(self.stream) } != 2 {
                 return Err(self.error("write state"));
             }
+            // SAFETY: stream is ready; this query borrows it without retaining Rust pointers.
             let writable = unsafe { (self.api.stream_writable_size)(self.stream) };
             if writable == usize::MAX {
                 return Err(self.error("writable query"));
@@ -254,7 +269,8 @@ impl PulseConnection {
             }
             std::thread::sleep(Duration::from_millis(1));
         }
-        // Null free callback asks Pulse to copy these samples before returning.
+        // SAFETY: data covers exactly bytes readable bytes. A null free callback
+        // asks Pulse to copy samples before returning; no borrowed slice escapes.
         if unsafe { (self.api.stream_write)(self.stream, data.as_ptr().cast(), bytes, None, 0, 0) }
             < 0
         {
@@ -266,6 +282,7 @@ impl PulseConnection {
         self.iterate()?;
         let mut micros = 0;
         let mut negative = 0;
+        // SAFETY: stream is live; both output pointers refer to initialized writable locals.
         if unsafe { (self.api.stream_get_latency)(self.stream, &mut micros, &mut negative) } < 0 {
             return Err(self.error("latency"));
         }
@@ -279,7 +296,9 @@ impl PulseConnection {
 }
 impl Drop for PulseConnection {
     fn drop(&mut self) {
-        // All operations are on the same render worker as allocation/iteration.
+        // SAFETY: non-null handles are exclusively owned and freed once, on the
+        // allocation worker, in stream/context/mainloop dependency order. Api keeps
+        // the shared library loaded throughout every destructor call.
         unsafe {
             if !self.stream.is_null() {
                 (self.api.stream_disconnect)(self.stream);

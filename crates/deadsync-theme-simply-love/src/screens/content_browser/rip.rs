@@ -505,8 +505,16 @@ pub(super) fn sync(rip: &mut Rip, snapshot: Arc<RipSnapshot>, authors: Arc<Autho
             .iter()
             .map(|author| AuthorRow {
                 name: Arc::from(author.name.as_str()),
-                note: (author.popular > 0)
-                    .then(|| Arc::from(crate::i18n::tr_fmt("ContentBrowser", "MessagePopular", &[("arg0", &(author.popular).to_string())]).to_string())),
+                note: (author.popular > 0).then(|| {
+                    Arc::from(
+                        crate::i18n::tr_fmt(
+                            "ContentBrowser",
+                            "MessagePopular",
+                            &[("arg0", &(author.popular).to_string())],
+                        )
+                        .to_string(),
+                    )
+                }),
             })
             .collect();
         rip.authors = authors;
@@ -611,7 +619,16 @@ fn card_texts(songs: &[RipSong]) -> Vec<CardText> {
             year: year_text(song).map(Arc::from),
             bpm: bpm_text(song).map(|text| (Arc::from(text), song.bpm.pace())),
             title: Arc::from(song.title.as_str()),
-            credit: (!song.credit.is_empty()).then(|| Arc::from(crate::i18n::tr_fmt("ContentBrowser", "MessageBy", &[("arg0", &(song.credit).to_string())]).to_string())),
+            credit: (!song.credit.is_empty()).then(|| {
+                Arc::from(
+                    crate::i18n::tr_fmt(
+                        "ContentBrowser",
+                        "MessageBy",
+                        &[("arg0", &(song.credit).to_string())],
+                    )
+                    .to_string(),
+                )
+            }),
             pack: Arc::from(song.pack_name.as_str()),
             art: song.art_url.as_deref().map(|url| {
                 let key = song_art_key(url);
@@ -751,7 +768,18 @@ pub(super) fn row_value(rip: &Rip, row: Row) -> Cow<'static, str> {
         Row::Author => match rip.chosen.as_slice() {
             [one] => Cow::Owned(one.clone()),
             [a, b] => Cow::Owned(format!("{a}, {b}")),
-            [a, b, rest @ ..] => Cow::Owned(crate::i18n::tr_fmt("ContentBrowser", "MessageABMore", &[("a", &(a).to_string()), ("b", &(b).to_string()), ("arg0", &(rest.len()).to_string())]).to_string()),
+            [a, b, rest @ ..] => Cow::Owned(
+                crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageABMore",
+                    &[
+                        ("a", &(a).to_string()),
+                        ("b", &(b).to_string()),
+                        ("arg0", &(rest.len()).to_string()),
+                    ],
+                )
+                .to_string(),
+            ),
             [] if rip.author_rows.is_empty() && rip.authors.phase == AuthorsPhase::Loading => {
                 Cow::Borrowed("loading the list...")
             }
@@ -813,7 +841,14 @@ pub(super) fn recipe(rip: &Rip) -> String {
         }
         many => {
             text.push_str("  -  ");
-            text.push_str(&crate::i18n::tr_fmt("ContentBrowser", "MessageAUTHORS", &[("arg0", &(many.len()).to_string())]).to_string());
+            text.push_str(
+                &crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageAUTHORS",
+                    &[("arg0", &(many.len()).to_string())],
+                )
+                .to_string(),
+            );
         }
     }
     if rip.full {
@@ -841,50 +876,113 @@ pub(super) fn under_line(rip: &Rip) -> (Cow<'static, str>, bool) {
     let songs = rip.snapshot.songs.len();
     let short = rip.snapshot.short;
     let text = match rip.stage {
-        Stage::Searching => Cow::Owned(crate::i18n::tr_fmt("ContentBrowser", "MessageSearchingStepmaniaonlineNetForSongsThatFitS", &[("arg0", &((rip.now - rip.phase_at).max(0.0).floor()).to_string())]).to_string()),
+        Stage::Searching => Cow::Owned(
+            crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageSearchingStepmaniaonlineNetForSongsThatFitS",
+                &[(
+                    "arg0",
+                    &((rip.now - rip.phase_at).max(0.0).floor()).to_string(),
+                )],
+            )
+            .to_string(),
+        ),
         Stage::Choosing => {
             let total: u64 = rip.snapshot.songs.iter().map(|song| song.bytes).sum();
             let only = if short {
-                crate::i18n::tr_fmt("ContentBrowser", "MessageOnlySongsMatched", &[("songs", &(songs).to_string())]).to_string()
+                crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageOnlySongsMatched",
+                    &[("songs", &(songs).to_string()), ("separator", " ")],
+                )
+                .to_string()
             } else {
                 String::new()
             };
-            Cow::Owned(crate::i18n::tr_fmt("ContentBrowser", "MessageSongsSongsOnlyKEEPDownloadsThemRERIPBrings", &[("songs", &(songs).to_string()), ("arg0", &(rip_bytes(total)).to_string()), ("only", &(only).to_string())]).to_string())
+            Cow::Owned(
+                crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageSongsSongsOnlyKEEPDownloadsThemRERIPBrings",
+                    &[
+                        ("songs", &(songs).to_string()),
+                        ("arg0", &(rip_bytes(total)).to_string()),
+                        ("only", &(only).to_string()),
+                    ],
+                )
+                .to_string(),
+            )
         }
         Stage::Filling => match keep(rip) {
             Some(keep) => {
                 // Nothing in yet reads as the whole to fetch: there are no
                 // words for none.
                 let fetched = if keep.done_bytes > 0 {
-                    crate::i18n::tr_fmt("ContentBrowser", "MessageOf", &[("arg0", &(rip_bytes(keep.done_bytes)).to_string()), ("arg1", &(rip_bytes(keep.total_bytes)).to_string())]).to_string()
+                    crate::i18n::tr_fmt(
+                        "ContentBrowser",
+                        "MessageOf",
+                        &[
+                            ("arg0", &(rip_bytes(keep.done_bytes)).to_string()),
+                            ("arg1", &(rip_bytes(keep.total_bytes)).to_string()),
+                        ],
+                    )
+                    .to_string()
                 } else {
-                    crate::i18n::tr_fmt("ContentBrowser", "MessageToFetch", &[("arg0", &(rip_bytes(keep.total_bytes)).to_string())]).to_string()
+                    crate::i18n::tr_fmt(
+                        "ContentBrowser",
+                        "MessageToFetch",
+                        &[("arg0", &(rip_bytes(keep.total_bytes)).to_string())],
+                    )
+                    .to_string()
                 };
-                Cow::Owned(crate::i18n::tr_fmt("ContentBrowser", "MessageOfSongsSongsInFetched", &[("arg0", &(keep.got + keep.failed).to_string()), ("songs", &(songs).to_string()), ("fetched", &(fetched).to_string())]).to_string())
+                Cow::Owned(
+                    crate::i18n::tr_fmt(
+                        "ContentBrowser",
+                        "MessageOfSongsSongsInFetched",
+                        &[
+                            ("arg0", &(keep.got + keep.failed).to_string()),
+                            ("songs", &(songs).to_string()),
+                            ("fetched", &(fetched).to_string()),
+                        ],
+                    )
+                    .to_string(),
+                )
             }
             None => Cow::Borrowed(IDLE_LINE),
         },
         Stage::Done => {
             let got = keep(rip).map_or(0, |keep| keep.got);
             let only = if short {
-                crate::i18n::tr_fmt("ContentBrowser", "MessageOnlySongsMatchedeffe01", &[("songs", &(songs).to_string())]).to_string()
+                crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageOnlySongsMatchedeffe01",
+                    &[("songs", &(songs).to_string()), ("separator", "   -   ")],
+                )
+                .to_string()
             } else {
                 String::new()
             };
             // Every booster is NULL-synced: DeadSync reads no Pack.ini sync
             // unless the machine says to, and its single songs work this way.
-            Cow::Owned(crate::i18n::tr_fmt("ContentBrowser", "MessageGotSongsAddedSyncedNULLOnlyReloadSongsWhen", &[("got", &(got).to_string()), ("only", &(only).to_string())]).to_string())
+            Cow::Owned(
+                crate::i18n::tr_fmt(
+                    "ContentBrowser",
+                    "MessageGotSongsAddedSyncedNULLOnlyReloadSongsWhen",
+                    &[("got", &(got).to_string()), ("only", &(only).to_string())],
+                )
+                .to_string(),
+            )
         }
         Stage::Failed => {
             let message = match keep(rip) {
-                Some(keep) => Some(
-                    keep.message
-                        .clone()
-                        .unwrap_or_else(|| crate::i18n::tr("ContentBrowser", "MessageNoneOfTheSongsCouldBeDownloaded").to_string()),
-                ),
+                Some(keep) => Some(keep.message.clone().unwrap_or_else(|| {
+                    crate::i18n::tr("ContentBrowser", "MessageNoneOfTheSongsCouldBeDownloaded")
+                        .to_string()
+                })),
                 None => rip.snapshot.message.clone(),
             };
-            Cow::Owned(message.unwrap_or_else(|| crate::i18n::tr("ContentBrowser", "MessageTheRipDidNotWork").to_string()))
+            Cow::Owned(message.unwrap_or_else(|| {
+                crate::i18n::tr("ContentBrowser", "MessageTheRipDidNotWork").to_string()
+            }))
         }
         Stage::Idle => Cow::Borrowed(IDLE_LINE),
     };
@@ -906,7 +1004,17 @@ fn rip_bytes(bytes: u64) -> String {
 /// What the button says.
 pub(super) fn button_label(rip: &Rip) -> Cow<'static, str> {
     match (rip.stage, keep(rip)) {
-        (Stage::Filling, Some(keep)) => Cow::Owned(crate::i18n::tr_fmt("ContentBrowser", "MessageDOWNLOADING", &[("arg0", &(keep.got + keep.failed).to_string()), ("arg1", &(rip.snapshot.songs.len()).to_string())]).to_string()),
+        (Stage::Filling, Some(keep)) => Cow::Owned(
+            crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageDOWNLOADING",
+                &[
+                    ("arg0", &(keep.got + keep.failed).to_string()),
+                    ("arg1", &(rip.snapshot.songs.len()).to_string()),
+                ],
+            )
+            .to_string(),
+        ),
         (Stage::Searching, _) => Cow::Borrowed("RIPPING..."),
         _ => Cow::Borrowed("RIP A PACK"),
     }
@@ -925,7 +1033,20 @@ pub(super) fn fill_fraction(rip: &Rip) -> Option<f32> {
 pub(super) fn info_text(rip: &Rip) -> Cow<'static, str> {
     const WHAT: &str = "15 random songs, each from a different pack on stepmaniaonline.net, as a new pack in your library.";
     match rip.snapshot.kept_count {
-        Some(count) if count > 0 => Cow::Owned(crate::i18n::tr_fmt("ContentBrowser", "MessageWHATPacksRippedSoFarCount", &[("WHAT", &super::localization::text(&(WHAT).to_string()).to_string()), ("count", &(count).to_string())]).to_string()),
+        Some(count) if count > 0 => Cow::Owned(
+            crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageWHATPacksRippedSoFarCount",
+                &[
+                    (
+                        "WHAT",
+                        &super::localization::text(&(WHAT).to_string()).to_string(),
+                    ),
+                    ("count", &(count).to_string()),
+                ],
+            )
+            .to_string(),
+        ),
         _ => Cow::Borrowed(WHAT),
     }
 }

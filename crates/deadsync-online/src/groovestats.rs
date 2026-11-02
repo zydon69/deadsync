@@ -849,7 +849,11 @@ pub fn fetch_combined_player_leaderboards(
     let mut arrowcloud_error = None;
 
     if let Some(arrowcloud_api_key) = arrowcloud_api_key {
-        match crate::arrowcloud::fetch_leaderboard_panes(chart_hash, arrowcloud_api_key, max_entries) {
+        match crate::arrowcloud::fetch_leaderboard_panes(
+            chart_hash,
+            arrowcloud_api_key,
+            max_entries,
+        ) {
             Ok(arrowcloud_panes) => insert_arrowcloud_panes(&mut fetched, arrowcloud_panes),
             Err(error) => arrowcloud_error = Some(error),
         }
@@ -3644,69 +3648,53 @@ pub struct GrooveStatsSubmitApiAchievementReward {
     pub title_unlocked: String,
 }
 
-#[derive(Deserialize)]
-#[serde(untagged)]
-enum U32OrString {
-    U32(u32),
-    F64(f64),
-    String(String),
-}
-
-fn de_u32_from_string_or_number<'de, D>(deserializer: D) -> Result<u32, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    match Option::<U32OrString>::deserialize(deserializer)? {
-        Some(U32OrString::U32(v)) => Ok(v),
-        Some(U32OrString::F64(v)) => Ok(v as u32),
-        Some(U32OrString::String(text)) => Ok(text.trim().parse::<u32>().unwrap_or(0)),
-        None => Ok(0),
+// Value preserves JSON numbers when arbitrary_precision is enabled by another
+// workspace consumer; untagged float enums cannot deserialize its private map.
+fn de_u32_from_string_or_number<'de, D: Deserializer<'de>>(
+    deserializer: D,
+) -> Result<u32, D::Error> {
+    match serde_json::Value::deserialize(deserializer)? {
+        serde_json::Value::Null => Ok(0),
+        serde_json::Value::String(text) => Ok(text.trim().parse().unwrap_or(0)),
+        serde_json::Value::Number(value) => Ok(value
+            .as_u64()
+            .map(|v| v.min(u64::from(u32::MAX)) as u32)
+            .unwrap_or_else(|| value.as_f64().unwrap_or(0.) as u32)),
+        _ => Err(serde::de::Error::custom(
+            "expected a number, string, or null",
+        )),
     }
 }
-
-#[derive(Deserialize)]
-#[serde(untagged)]
-enum I32OrString {
-    I32(i32),
-    I64(i64),
-    F64(f64),
-    String(String),
-}
-
-fn de_i32_from_string_or_number<'de, D>(deserializer: D) -> Result<i32, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    match Option::<I32OrString>::deserialize(deserializer)? {
-        Some(I32OrString::I32(v)) => Ok(v),
-        Some(I32OrString::I64(v)) => Ok(v.clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32),
-        Some(I32OrString::F64(v)) => {
-            Ok(v.clamp(f64::from(i32::MIN), f64::from(i32::MAX)).round() as i32)
-        }
-        Some(I32OrString::String(text)) => Ok(text.trim().parse::<i32>().unwrap_or(0)),
-        None => Ok(0),
+fn de_i32_from_string_or_number<'de, D: Deserializer<'de>>(
+    deserializer: D,
+) -> Result<i32, D::Error> {
+    match serde_json::Value::deserialize(deserializer)? {
+        serde_json::Value::Null => Ok(0),
+        serde_json::Value::String(text) => Ok(text.trim().parse().unwrap_or(0)),
+        serde_json::Value::Number(value) => Ok(value
+            .as_f64()
+            .unwrap_or(0.)
+            .clamp(f64::from(i32::MIN), f64::from(i32::MAX))
+            .round() as i32),
+        _ => Err(serde::de::Error::custom(
+            "expected a number, string, or null",
+        )),
     }
 }
-
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-enum StringOrNumber {
-    String(String),
-    I64(i64),
-    U64(u64),
-    F64(f64),
-}
-
-fn de_string_from_string_or_number<'de, D>(deserializer: D) -> Result<String, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    match Option::<StringOrNumber>::deserialize(deserializer)? {
-        Some(StringOrNumber::String(text)) => Ok(text),
-        Some(StringOrNumber::I64(v)) => Ok(v.to_string()),
-        Some(StringOrNumber::U64(v)) => Ok(v.to_string()),
-        Some(StringOrNumber::F64(v)) => Ok(compact_f32_text(v as f32)),
-        None => Ok(String::new()),
+fn de_string_from_string_or_number<'de, D: Deserializer<'de>>(
+    deserializer: D,
+) -> Result<String, D::Error> {
+    match serde_json::Value::deserialize(deserializer)? {
+        serde_json::Value::Null => Ok(String::new()),
+        serde_json::Value::String(text) => Ok(text),
+        serde_json::Value::Number(value) => Ok(if value.is_i64() || value.is_u64() {
+            value.to_string()
+        } else {
+            compact_f32_text(value.as_f64().unwrap_or(0.) as f32)
+        }),
+        _ => Err(serde::de::Error::custom(
+            "expected a number, string, or null",
+        )),
     }
 }
 

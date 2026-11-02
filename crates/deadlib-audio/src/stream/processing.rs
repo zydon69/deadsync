@@ -258,6 +258,7 @@ mod tests {
 
     #[test]
     fn stretch_keeps_onset_pitch_and_duration_without_a_converter() {
+        let _audio_guard = crate::test_audio_guard();
         let input = sine(440.0, 48_000, 48_000);
         for rate in [0.5, 0.8, 1.2, 2.0] {
             let mut stages = MusicStages::new(1, 48_000, 48_000);
@@ -282,6 +283,7 @@ mod tests {
 
     #[test]
     fn short_stretched_stream_has_no_filtering_or_padded_tail() {
+        let _audio_guard = crate::test_audio_guard();
         // Above the old unity sinc cutoff: bypass intentionally preserves these
         // samples. The short source also needs SOLA's final partial-window drain.
         let input: Vec<i16> = (0..731)
@@ -296,6 +298,7 @@ mod tests {
 
     #[test]
     fn real_conversion_and_pitch_changing_rates_still_resample() {
+        let _audio_guard = crate::test_audio_guard();
         let input = sine(440.0, 44_100, 44_100);
         for (output_hz, rate, preserve_pitch) in [
             (48_000, 1.2, true),
@@ -320,6 +323,7 @@ mod tests {
 
     #[test]
     fn live_stretch_changes_keep_buffered_audio_and_rate_timestamps() {
+        let _audio_guard = crate::test_audio_guard();
         let input = sine(440.0, 48_000, 24_000);
         let mut stages = MusicStages::new(1, 48_000, 48_000);
         let mut reference = SolaStretcher::new(1, 48_000);
@@ -347,6 +351,7 @@ mod tests {
 
     #[test]
     fn stage_switches_and_loop_resets_keep_current_ratio() {
+        let _audio_guard = crate::test_audio_guard();
         let input = sine(440.0, 48_000, 24_000);
         let mut stages = MusicStages::new(1, 48_000, 48_000);
         for (rate, preserve_pitch) in [(1.2, true), (1.2, false), (0.8, false), (0.8, true)] {

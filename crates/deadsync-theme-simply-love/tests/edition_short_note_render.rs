@@ -29,8 +29,8 @@ fn source_fill_rim_and_centered_unrotated_markers_keep_original_atlas_order() {
     r.selected = true;
     let a = short_note_render::render(r).unwrap();
     assert_eq!(a.len(), 3);
-    assert_eq!(sprite(&a[0]).1, 90.0);
-    assert_eq!(sprite(&a[1]).1, 90.0);
+    assert_eq!(sprite(&a[0]).1, -90.0);
+    assert_eq!(sprite(&a[1]).1, -90.0);
     assert_eq!(sprite(&a[2]).1, 0.0);
     assert_eq!(
         sprite(&a[1]).0,

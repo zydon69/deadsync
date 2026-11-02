@@ -94,10 +94,10 @@ fn exact_mirror_requires_acknowledging_unchecked_hold_trim_then_saves_and_undoes
     assert!(s.workspace().grid().get(pos(48, 1, 0)).is_some());
     assert!(s.workspace().grid().get(pos(48, 0, 0)).is_none());
     assert!(s.workspace().grid().get(pos(48, 3, 0)).is_some());
-    let after = serialized(&s);
+    let output = s.workspace().file().session.serialize_for_output().unwrap();
     ctrl(&mut s, KeyCode::KeyS);
     let reopened = State::open(&path, 0).unwrap();
-    assert_eq!(serialized(&reopened), after);
+    assert_eq!(serialized(&reopened), output);
     ctrl(&mut s, KeyCode::KeyZ);
     assert_eq!(serialized(&s), source);
 }

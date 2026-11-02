@@ -384,7 +384,10 @@ pub fn build_course_summary_score_info(
                 }
             }
         }
-        PlayStyle::Single | PlayStyle::Double | PlayStyle::PumpSingle | PlayStyle::PumpDouble
+        PlayStyle::Single
+        | PlayStyle::Double
+        | PlayStyle::PumpSingle
+        | PlayStyle::PumpDouble
         | PlayStyle::Routine
         | PlayStyle::PumpRoutine => {
             let idx = profile_data::player_side_index(active_side);

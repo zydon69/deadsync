@@ -3167,11 +3167,8 @@ pub(super) mod tests {
                         (*generated.image).clone()
                     } else {
                         let job = deadsync_assets::textures::texture_decode_job(key, false);
-                        deadlib_assets::decode_texture_image(
-                            &job.path,
-                            &job.hints,
-                        )
-                        .unwrap_or_else(|error| panic!("{name}: native source {key}: {error}"))
+                        deadlib_assets::decode_texture_image(&job.path, &job.hints)
+                            .unwrap_or_else(|error| panic!("{name}: native source {key}: {error}"))
                     };
                     assert_eq!(
                         texture.image, source,
@@ -3186,7 +3183,10 @@ pub(super) mod tests {
                     }
                 }
                 if name.contains("bright-td-vibrant") {
-                    assert!(large_sheet_checked, "large generated arrow page must be exercised");
+                    assert!(
+                        large_sheet_checked,
+                        "large generated arrow page must be exercised"
+                    );
                 }
                 let mut first_frame = None;
                 let mut animated = false;
@@ -3417,9 +3417,10 @@ pub(super) mod tests {
                         .parent()
                         .unwrap()
                         .to_path_buf();
-                    let font = deadlib_assets::parse_font_with_asset_context(&font_path, &[asset_root])
-                        .unwrap()
-                        .font;
+                    let font =
+                        deadlib_assets::parse_font_with_asset_context(&font_path, &[asset_root])
+                            .unwrap()
+                            .font;
                     assets.register_font("miso", font);
                     apply_pane(&mut state, OptionsPane::Advanced);
                     prepare_presentation(&mut state, &assets);
@@ -3435,12 +3436,14 @@ pub(super) mod tests {
                     let split = inline_choice_line_break(row);
                     assert!(split > 0 && split < row.choices.len());
                     let left = inline_choice_left_x_for_row(&state, row_idx);
-                    let right = (widescale(13.0, 30.666) + widescale(614.0, 792.0)).min(width - 13.0);
+                    let right =
+                        (widescale(13.0, 30.666) + widescale(614.0, 792.0)).min(width - 13.0);
                     let scale = inline_choice_scale(row);
                     for i in 0..row.choices.len() {
                         let [x, y] = inline_choice_position(row, i);
                         assert!(
-                            left + x + row.choice_widths[i] * scale + INLINE_SPACING <= right + 0.001,
+                            left + x + row.choice_widths[i] * scale + INLINE_SPACING
+                                <= right + 0.001,
                             "choice {} must fit at {width}: x={x}",
                             row.choices[i].as_str()
                         );
@@ -3472,7 +3475,8 @@ pub(super) mod tests {
                                     < 0.001
                             );
                             assert!(
-                                (cursor.1 - (state.pane().row_tweens[row_idx].to_y + y)).abs() < 0.001
+                                (cursor.1 - (state.pane().row_tweens[row_idx].to_y + y)).abs()
+                                    < 0.001
                             );
                             commit_inline_focus_selection(&mut state, player, row_idx);
                             assert!(super::super::choice::toggle_bitmask_row_generic(
@@ -3582,7 +3586,9 @@ pub(super) mod tests {
             golf,
             score_counter::{ScoreCounterParams, push_score_counter},
         };
-        use deadlib_present::{actors::TextAlign, compose::build_screen_with_texture_context, space};
+        use deadlib_present::{
+            actors::TextAlign, compose::build_screen_with_texture_context, space,
+        };
         use deadlib_render_core::{BackendType, PresentModePolicy};
         use deadsync_config::theme::MachineFont;
         use winit::platform::windows::EventLoopBuilderExtWindows;
@@ -5510,7 +5516,10 @@ pub(super) mod tests {
             .choices;
 
         assert_eq!(choices.len(), 4);
-        assert_eq!(choices[3].as_ref(), crate::i18n::tr("PlayerOptions", "ResultsExtrasGolf").as_ref());
+        assert_eq!(
+            choices[3].as_ref(),
+            crate::i18n::tr("PlayerOptions", "ResultsExtrasGolf").as_ref()
+        );
         assert_eq!(
             choices[2].as_ref(),
             crate::i18n::tr("PlayerOptions", "ResultsExtrasDimPostFailScatter").as_ref()
@@ -6270,10 +6279,21 @@ pub(super) mod tests {
         let (state, _assets) = setup_state();
         for scorebox_available in [false, true] {
             let mut rows = panes::build_rows(
-                &state.song, &state.speed_mod[P1], state.chart_steps_index,
-                [0; 2], state.music_rate, OptionsPane::Advanced, &[], &[], &[], &[],
-                Screen::SelectMusic, state.fixed_stepchart.as_ref(), state.play_style,
-                state.persisted_player_idx, scorebox_available,
+                &state.song,
+                &state.speed_mod[P1],
+                state.chart_steps_index,
+                [0; 2],
+                state.music_rate,
+                OptionsPane::Advanced,
+                &[],
+                &[],
+                &[],
+                &[],
+                Screen::SelectMusic,
+                state.fixed_stepchart.as_ref(),
+                state.play_style,
+                state.persisted_player_idx,
+                scorebox_available,
                 true,
             );
             let defaults = PlayerOptionsData::default();
@@ -6282,19 +6302,55 @@ pub(super) mod tests {
             panes::apply_profile_defaults(&mut rows, &defaults, P2, &mut masks[P2]);
             let visibility = row_visibility(&rows, [true, true], masks, false);
             assert!(!visibility.show_golf_options);
-            assert!(!masks[P1].gameplay_extras.contains(GameplayExtrasMask::GOLF_SCORE));
-            let p2 = PlayerOptionsData { show_golf_score: true, golf_all_charts: true, golf_stroke_feedback: true, show_golf_results: true, ..defaults };
+            assert!(
+                !masks[P1]
+                    .gameplay_extras
+                    .contains(GameplayExtrasMask::GOLF_SCORE)
+            );
+            let p2 = PlayerOptionsData {
+                show_golf_score: true,
+                golf_all_charts: true,
+                golf_stroke_feedback: true,
+                show_golf_results: true,
+                ..defaults
+            };
             panes::apply_profile_defaults(&mut rows, &p2, P2, &mut masks[P2]);
             let visibility = row_visibility(&rows, [true, true], masks, false);
             assert!(visibility.show_golf_options);
-            assert!(!masks[P1].gameplay_extras.contains(GameplayExtrasMask::GOLF_SCORE));
-            assert!(masks[P2].gameplay_extras.contains(GameplayExtrasMask::GOLF_SCORE));
+            assert!(
+                !masks[P1]
+                    .gameplay_extras
+                    .contains(GameplayExtrasMask::GOLF_SCORE)
+            );
+            assert!(
+                masks[P2]
+                    .gameplay_extras
+                    .contains(GameplayExtrasMask::GOLF_SCORE)
+            );
             let extras = rows.get(RowId::GameplayExtras).unwrap();
-            let golf_index = extras.choices.iter().position(|choice| choice.as_str() == "Golf Score").unwrap();
-            let RowBehavior::Bitmask(BitmaskBinding::Generic { writeback, .. }) = &extras.behavior else { panic!("extras must be a bitmask") };
-            assert_eq!(writeback.bit_mapping.bit_for_choice(golf_index), Some(u32::from(GameplayExtrasMask::GOLF_SCORE.bits())));
-            assert_eq!(rows.get(RowId::GolfDisplay).unwrap().selected_choice_index, [0, 1]);
-            assert_eq!(rows.get(RowId::GolfStrokeFeedback).unwrap().selected_choice_index, [0, 1]);
+            let golf_index = extras
+                .choices
+                .iter()
+                .position(|choice| choice.as_str() == "Golf Score")
+                .unwrap();
+            let RowBehavior::Bitmask(BitmaskBinding::Generic { writeback, .. }) = &extras.behavior
+            else {
+                panic!("extras must be a bitmask")
+            };
+            assert_eq!(
+                writeback.bit_mapping.bit_for_choice(golf_index),
+                Some(u32::from(GameplayExtrasMask::GOLF_SCORE.bits()))
+            );
+            assert_eq!(
+                rows.get(RowId::GolfDisplay).unwrap().selected_choice_index,
+                [0, 1]
+            );
+            assert_eq!(
+                rows.get(RowId::GolfStrokeFeedback)
+                    .unwrap()
+                    .selected_choice_index,
+                [0, 1]
+            );
         }
     }
 

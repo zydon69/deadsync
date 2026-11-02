@@ -44,7 +44,14 @@ pub(crate) fn tag(
             }
             .into(),
         )),
-        Format::Sm if chart <= 9999 => Ok((None, if local {format!("DSAttackRowsLocalCHART{chart:04}")} else {format!("DSAttackRowsCHART{chart:04}")})),
+        Format::Sm if chart <= 9999 => Ok((
+            None,
+            if local {
+                format!("DSAttackRowsLocalCHART{chart:04}")
+            } else {
+                format!("DSAttackRowsCHART{chart:04}")
+            },
+        )),
         _ => Err(invalid(
             "Resident attack chart index exceeds SM metadata limits",
         )),
@@ -190,7 +197,9 @@ pub(crate) fn reconcile(
         }
         return Ok(());
     }
-    let source=super::property::read(session.document(),local.then_some(chart))?.unwrap_or_default().into_owned();
+    let source = super::property::read(session.document(), local.then_some(chart))?
+        .unwrap_or_default()
+        .into_owned();
     let value = Stored {
         version: 1,
         local,

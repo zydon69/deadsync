@@ -1,3 +1,5 @@
+#[path = "support/source_sprite_geometry.rs"]
+mod source_sprite_geometry;
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
     actors::{Actor, SizeSpec},
@@ -30,7 +32,15 @@ fn setup() -> (tempfile::TempDir, State) {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("zoom.ssc");
     fs::write(&path,"#VERSION:0.83;#TITLE:Zoom;#MUSIC:test.wav;#SAMPLESTART:0.5;#SAMPLELENGTH:0.5;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0010\n0001;").unwrap();
-    let state = State::open(&path, 0).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    // This fixture exercises row-space geometry independently of the user's
+    // default time-space mode.
+    shortcut(&mut state, KeyCode::KeyT, Instant::now());
+    assert_eq!(
+        state.spacing_mode(),
+        deadsync_editor::zoom::SpacingMode::ConstantRow
+    );
+    state.take_audio_commands();
     (dir, state)
 }
 fn arrows(state: &State) -> Vec<(f32, f32)> {
@@ -38,15 +48,23 @@ fn arrows(state: &State) -> Vec<(f32, f32)> {
     state.actors(&mut actors);
     actors
         .into_iter()
-        .filter_map(|actor| match actor {
-            Actor::Sprite {
-                z: 8004,
-                offset,
-                size: [SizeSpec::Px(w), _],
-                scale,
-                ..
-            } => Some((offset[1], w * scale[0])),
-            _ => None,
+        .filter_map(|actor| {
+            let center = source_sprite_geometry::center(&actor);
+            match actor {
+                Actor::Sprite {
+                    z: 8004,
+                    offset,
+                    size: [SizeSpec::Px(w), _],
+                    scale,
+                    uv_rect: Some(uv),
+                    ..
+                } if (uv[0] - 589.0 / 1280.0).abs() < 1e-6
+                    && (uv[1] - 1.0 / 1280.0).abs() < 1e-6 =>
+                {
+                    Some((center.unwrap_or(offset)[1], w * scale[0]))
+                }
+                _ => None,
+            }
         })
         .collect()
 }
@@ -80,22 +98,33 @@ fn keyboard_zoom_animates_note_positions_and_sizes_without_editing_or_moving_cur
     let time = Instant::now() + Duration::from_secs(1);
     let initial = arrows(&state);
     let sample = sample_region(&state);
-    let sample_row = (0.75 - deadsync_editor::song_properties::DEFAULT_SYNC_OFFSET) * 96.0;
-    close(sample.0 as f64, 160.0 + sample_row);
-    close(sample.1 as f64, 48.0);
-    close(initial[1].0 as f64, 208.0);
+    let mut rendered = Vec::new();
+    state.actors(&mut rendered);
+    let receptor = rendered
+        .iter()
+        .find_map(|actor| match actor {
+            Actor::Sprite {
+                z: 8005, offset, ..
+            } => Some(f64::from(offset[1])),
+            _ => None,
+        })
+        .expect("cursor line");
+    let sample_row = (0.75 - deadsync_editor::song_properties::DEFAULT_SYNC_OFFSET) * 192.0;
+    close(sample.0 as f64, receptor + sample_row);
+    close(sample.1 as f64, 96.0);
+    close(initial[1].0 as f64, receptor + 96.0);
     shortcut(&mut state, KeyCode::ArrowUp, time);
     close(state.spacing_zoom(), 1.0);
     state.update_with_time(time + Duration::from_millis(50));
     close(state.spacing_zoom(), 1.1);
-    close(arrows(&state)[1].0 as f64, 212.8);
+    close(arrows(&state)[1].0 as f64, receptor + 105.6);
     state.update_with_time(time + Duration::from_millis(200));
     close(state.spacing_zoom(), 1.2);
     let enlarged = arrows(&state);
     let sample = sample_region(&state);
-    close(sample.0 as f64, 160.0 + sample_row * 1.2);
-    close(sample.1 as f64, 57.6);
-    close(enlarged[1].0 as f64, 217.6);
+    close(sample.0 as f64, receptor + sample_row * 1.2);
+    close(sample.1 as f64, 115.2);
+    close(enlarged[1].0 as f64, receptor + 115.2);
     close(enlarged[1].1 as f64, initial[1].1 as f64);
     shortcut(
         &mut state,
@@ -111,7 +140,7 @@ fn keyboard_zoom_animates_note_positions_and_sizes_without_editing_or_moving_cur
     state.update_with_time(time + Duration::from_secs(4));
     close(state.spacing_zoom(), 1.0 / 1.2);
     let reduced = arrows(&state);
-    close(reduced[1].0 as f64, 200.0);
+    close(reduced[1].0 as f64, receptor + 80.0);
     close(reduced[1].1 as f64, initial[1].1 as f64 / 1.2);
     shortcut(&mut state, KeyCode::Digit0, time + Duration::from_secs(5));
     close(state.spacing_zoom(), 1.0);
@@ -152,8 +181,26 @@ fn zoom_limits_render_bounded_actors_and_panels_and_focus_loss_keep_input_isolat
     key(&mut state, KeyCode::Escape, true, time);
     key(&mut state, KeyCode::SuperLeft, true, time);
     state.release_input();
+    // The evaluator quarantines physically held keys after focus loss. Release
+    // those physical owners before beginning an independent new gesture.
+    key(&mut state, KeyCode::F1, false, time);
+    key(&mut state, KeyCode::Escape, false, time);
+    key(&mut state, KeyCode::SuperLeft, false, time);
     key(&mut state, KeyCode::ArrowDown, true, time);
+    key(&mut state, KeyCode::ArrowDown, false, time);
     state.update_with_time(time + Duration::from_secs(2));
     close(state.spacing_zoom(), 1.0);
-    assert!(state.workspace().row() > 0);
+    let mut rendered = Vec::new();
+    state.actors(&mut rendered);
+    assert!(
+        state.workspace().row() > 0,
+        "{:?}",
+        rendered
+            .iter()
+            .filter_map(|actor| match actor {
+                Actor::Text { content, .. } => Some(content.as_str()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+    );
 }

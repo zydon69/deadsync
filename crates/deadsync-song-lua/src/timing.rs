@@ -43,13 +43,20 @@ pub fn timing_window_name(value: Value) -> Option<&'static str> {
     // GameConstantsAndTypes::TimingWindow is zero-based. GetDisabledTimingWindows
     // only lists W1..W5, but the native bitset accepts every TimingWindow.
     const NAMES: [&str; 10] = [
-        "TimingWindow_W1", "TimingWindow_W2", "TimingWindow_W3",
-        "TimingWindow_W4", "TimingWindow_W5", "TimingWindow_Mine",
-        "TimingWindow_Attack", "TimingWindow_Hold", "TimingWindow_Roll",
+        "TimingWindow_W1",
+        "TimingWindow_W2",
+        "TimingWindow_W3",
+        "TimingWindow_W4",
+        "TimingWindow_W5",
+        "TimingWindow_Mine",
+        "TimingWindow_Attack",
+        "TimingWindow_Hold",
+        "TimingWindow_Roll",
         "TimingWindow_Checkpoint",
     ];
     crate::song_tables::option_enum(Some(&value), &NAMES, "TimingWindow")
-        .ok().map(|index| NAMES[index])
+        .ok()
+        .map(|index| NAMES[index])
 }
 
 #[must_use]
@@ -129,8 +136,14 @@ mod tests {
             timing_window_name(Value::String(lua.create_string("TimingWindow_W5").unwrap())),
             Some("TimingWindow_W5")
         );
-        assert_eq!(timing_window_name(Value::Integer(0)), Some("TimingWindow_W1"));
-        assert_eq!(timing_window_name(Value::Integer(8)), Some("TimingWindow_Roll"));
+        assert_eq!(
+            timing_window_name(Value::Integer(0)),
+            Some("TimingWindow_W1")
+        );
+        assert_eq!(
+            timing_window_name(Value::Integer(8)),
+            Some("TimingWindow_Roll")
+        );
         assert_eq!(timing_window_name(Value::Integer(10)), None);
     }
 }

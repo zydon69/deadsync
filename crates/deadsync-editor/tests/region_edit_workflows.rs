@@ -401,11 +401,25 @@ fn legacy_ssc_still_uses_shared_regions_but_sm_authors_independent_resident_regi
         b"#BPMS:0=120;#NOTES:dance-single::Hard:9::1000;",
         Format::Sm,
     );
-    let mut draft=Draft::capture(&sm,0,Scope::Chart).unwrap();
-    draft.set(Kind::Warp,48,48).unwrap();draft.apply(&mut sm,0).unwrap();
-    assert_eq!(sm.document().format,Format::Sm);
-    assert!(sm.document().raw_property(None,"WARPS").is_none());
-    assert_eq!(Draft::capture(&sm,0,Scope::Chart).unwrap().regions(Kind::Warp).values().get(&48),Some(&48));
-    assert!(Draft::capture(&sm, 0, Scope::Song).unwrap().regions(Kind::Warp).values().is_empty());
+    let mut draft = Draft::capture(&sm, 0, Scope::Chart).unwrap();
+    draft.set(Kind::Warp, 48, 48).unwrap();
+    draft.apply(&mut sm, 0).unwrap();
+    assert_eq!(sm.document().format, Format::Sm);
+    assert!(sm.document().raw_property(None, "WARPS").is_none());
+    assert_eq!(
+        Draft::capture(&sm, 0, Scope::Chart)
+            .unwrap()
+            .regions(Kind::Warp)
+            .values()
+            .get(&48),
+        Some(&48)
+    );
+    assert!(
+        Draft::capture(&sm, 0, Scope::Song)
+            .unwrap()
+            .regions(Kind::Warp)
+            .values()
+            .is_empty()
+    );
     assert!(Draft::capture(&sm, 999, Scope::Song).is_err());
 }

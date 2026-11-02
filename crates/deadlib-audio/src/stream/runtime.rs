@@ -16,21 +16,76 @@ pub enum StreamCommand {
     /// token and invalidated the previous asset epoch. No timeline reset here.
     ReplaceEditorPrepared {
         source: std::sync::Arc<deadlib_audio_decode::prepared::PreparedAudioSource>,
-        path: PathBuf, cut: Cut, looping: bool, rate: f32, preserve_pitch: bool,
-        generation: u64, asset_epoch: u64, follow_live_phase: bool, preview_phase: Option<(f64,u64)>,
+        path: PathBuf,
+        cut: Cut,
+        looping: bool,
+        rate: f32,
+        preserve_pitch: bool,
+        generation: u64,
+        asset_epoch: u64,
+        follow_live_phase: bool,
+        preview_phase: Option<(f64, u64)>,
     },
-    ReplaceEditorMainPrepared{source:std::sync::Arc<deadlib_audio_decode::prepared::PreparedAudioSource>,path:PathBuf,generation:u64,asset_epoch:u64},
-    ReplaceEditorPreviewPrepared{source:std::sync::Arc<deadlib_audio_decode::prepared::PreparedAudioSource>,path:PathBuf,cut:Cut,looping:bool,generation:u64,asset_epoch:u64,preview_phase:Option<(f64,u64)>},
-    EditorPreparedFailed { asset_epoch:u64, generation:u64, message:String },
+    ReplaceEditorMainPrepared {
+        source: std::sync::Arc<deadlib_audio_decode::prepared::PreparedAudioSource>,
+        path: PathBuf,
+        generation: u64,
+        asset_epoch: u64,
+    },
+    ReplaceEditorPreviewPrepared {
+        source: std::sync::Arc<deadlib_audio_decode::prepared::PreparedAudioSource>,
+        path: PathBuf,
+        cut: Cut,
+        looping: bool,
+        generation: u64,
+        asset_epoch: u64,
+        preview_phase: Option<(f64, u64)>,
+    },
+    EditorPreparedFailed {
+        asset_epoch: u64,
+        generation: u64,
+        message: String,
+    },
     /// Source editor music starts its logical clock before asynchronous decode.
-    StartMusic{path:Option<PathBuf>,seconds:f64,rate:f32,preserve_pitch:bool,decode_options:deadlib_audio_decode::DecodeOptions,generation:u64,asset_epoch:u64},
-    ClearMusicAsset{asset_epoch:u64},
-    PauseMusic{generation:u64,asset_epoch:u64},
-    ResumeMusic{seconds:f64,rate:f32,preserve_pitch:bool,generation:u64,asset_epoch:u64},
-    SetMusicRateAt{rate:f32,seconds:f64,generation:u64,asset_epoch:u64},
-    SwapMusicAsset { decode_options:deadlib_audio_decode::DecodeOptions,path:PathBuf,rate:f32,preserve_pitch:bool,generation:u64,asset_epoch:u64 },
+    StartMusic {
+        path: Option<PathBuf>,
+        seconds: f64,
+        rate: f32,
+        preserve_pitch: bool,
+        decode_options: deadlib_audio_decode::DecodeOptions,
+        generation: u64,
+        asset_epoch: u64,
+    },
+    ClearMusicAsset {
+        asset_epoch: u64,
+    },
+    PauseMusic {
+        generation: u64,
+        asset_epoch: u64,
+    },
+    ResumeMusic {
+        seconds: f64,
+        rate: f32,
+        preserve_pitch: bool,
+        generation: u64,
+        asset_epoch: u64,
+    },
+    SetMusicRateAt {
+        rate: f32,
+        seconds: f64,
+        generation: u64,
+        asset_epoch: u64,
+    },
+    SwapMusicAsset {
+        decode_options: deadlib_audio_decode::DecodeOptions,
+        path: PathBuf,
+        rate: f32,
+        preserve_pitch: bool,
+        generation: u64,
+        asset_epoch: u64,
+    },
     PlayMusic {
-        asset_epoch:u64,
+        asset_epoch: u64,
         decode_options: deadlib_audio_decode::DecodeOptions,
         path: PathBuf,
         cut: Cut,
@@ -40,7 +95,9 @@ pub enum StreamCommand {
         generation: u64,
     },
     /// Stops the worker after the caller invalidates the shared timeline generation.
-    StopMusic {asset_epoch:u64},
+    StopMusic {
+        asset_epoch: u64,
+    },
     /// Manager-only termination; acknowledgment follows native stop and join.
     Shutdown {
         acknowledged: Sender<Result<(), String>>,
@@ -85,53 +142,289 @@ impl MusicStreamRuntime {
 
     pub fn handle(&mut self, command: StreamCommand) {
         match command {
-            StreamCommand::ReplaceEditorMainPrepared{source,path,generation,asset_epoch}=>{
+            StreamCommand::ReplaceEditorMainPrepared {
+                source,
+                path,
+                generation,
+                asset_epoch,
+            } => {
                 // Bytes are immutable asset authority; an intervening seek/rate
                 // must not install the command's obsolete origin or readiness.
-                if asset_epoch!=deadlib_audio_core::music_asset_epoch()||!deadlib_audio_core::music_track_active(){return;}
-                let current=deadlib_audio_core::editor_main_configuration().filter(|c|c.asset_epoch==asset_epoch);
-                let Some(current)=current else{return;};let _=generation;
-                self.stop_decoder();let Some(writer)=self.writer.take()else{return;};
-                self.music_stream=Some(super::spawn_prepared_preview_thread(source,path,Cut::default(),false,writer,MusicDecodeContext{decode_options:deadlib_audio_decode::DecodeOptions::STEP_MANIA_TIMELINE,output:self.output,generation:current.generation},asset_epoch,None,true));
-                if let Some(stream)=&self.music_stream{self.decoder_status.set(stream.status_reader());}
-            },
-            StreamCommand::ReplaceEditorPreviewPrepared{source,path,cut,looping,generation,asset_epoch,preview_phase}=>{
-                if asset_epoch!=deadlib_audio_core::music_asset_epoch()||generation!=deadlib_audio_core::music_map_generation()||!deadlib_audio_core::music_track_active(){return;}
-                self.stop_decoder();let Some(writer)=self.writer.take()else{return;};
-                self.music_stream=Some(super::spawn_prepared_preview_thread(source,path,cut,looping,writer,MusicDecodeContext{decode_options:deadlib_audio_decode::DecodeOptions::STEP_MANIA_TIMELINE,output:self.output,generation},asset_epoch,preview_phase,false));
-                if let Some(stream)=&self.music_stream{self.decoder_status.set(stream.status_reader());}
-            },
-            StreamCommand::EditorPreparedFailed { asset_epoch,generation,message }=>{
-                if asset_epoch!=deadlib_audio_core::music_asset_epoch() || !deadlib_audio_core::music_track_active(){return;}
-                self.stop_decoder();let status=super::lifecycle::DecoderStatusReader::new_asset(generation,0.,asset_epoch);
-                status.publish(generation,super::lifecycle::DecoderPhase::Failed,None,Some(&message));self.decoder_status.set(status);
-            },
-            StreamCommand::ReplaceEditorPrepared { source, path, cut, looping, rate, preserve_pitch, generation, asset_epoch, follow_live_phase, preview_phase } => {
-                if asset_epoch != deadlib_audio_core::music_asset_epoch() || !deadlib_audio_core::music_track_active() { return; }
-                self.stop_decoder();
-                let Some(writer) = self.writer.take() else { return; };
-                self.music_stream = Some(super::spawn_music_decoder_thread_with_source(path, cut, looping, rate, preserve_pitch, writer, MusicDecodeContext { decode_options: deadlib_audio_decode::DecodeOptions::STEP_MANIA_TIMELINE, output: self.output, generation }, true, asset_epoch, follow_live_phase, Some(source), preview_phase));
-                if let Some(stream) = &self.music_stream { self.decoder_status.set(stream.status_reader()); }
-            },
-            StreamCommand::StartMusic{path,seconds,rate,preserve_pitch,decode_options,generation,asset_epoch}=>{
-                if asset_epoch!=deadlib_audio_core::music_asset_epoch()||!deadlib_audio_core::music_track_active(){return;}
-                self.stop_decoder();
-                if let Some(path)=path{let Some(writer)=self.writer.take()else{return;};
-                    self.music_stream=Some(super::spawn_music_decoder_thread_for_asset(path,Cut{start_sec:seconds,..Default::default()},false,rate,preserve_pitch,writer,MusicDecodeContext{decode_options,output:self.output,generation},true,asset_epoch,true));
-                    if let Some(stream)=&self.music_stream{self.decoder_status.set(stream.status_reader());}
+                if asset_epoch != deadlib_audio_core::music_asset_epoch()
+                    || !deadlib_audio_core::music_track_active()
+                {
+                    return;
                 }
-            },
-            StreamCommand::ClearMusicAsset{asset_epoch}=>{if asset_epoch==deadlib_audio_core::music_asset_epoch(){self.stop_decoder();}},
-            StreamCommand::PauseMusic{generation,asset_epoch}=>{if asset_epoch==deadlib_audio_core::music_asset_epoch(){if let Some(stream)=&self.music_stream{stream.control.paused.store(true,Ordering::Release);stream.control.status.begin(generation,None);stream.control.generation.store(generation,Ordering::SeqCst);stream.wake_command(generation);}}},
-            StreamCommand::ResumeMusic{seconds,rate,preserve_pitch,generation,asset_epoch}=>{if asset_epoch==deadlib_audio_core::music_asset_epoch(){if let Some(stream)=&self.music_stream{stream.control.rate_bits.store(rate.to_bits(),Ordering::Release);stream.control.preserve_pitch.store(preserve_pitch,Ordering::Release);stream.control.paused.store(false,Ordering::Release);}self.seek_mode(seconds,generation,true);}},
-            StreamCommand::SetMusicRateAt{rate,seconds,generation,asset_epoch}=>{if asset_epoch==deadlib_audio_core::music_asset_epoch(){if let Some(stream)=&self.music_stream{stream.control.rate_bits.store(rate.to_bits(),Ordering::Release);}self.seek_mode(seconds,generation,true);}},
-            StreamCommand::SwapMusicAsset{decode_options,path,rate,preserve_pitch,generation,asset_epoch}=>{
-                if !deadlib_audio_core::music_track_active() || asset_epoch!=deadlib_audio_core::music_asset_epoch(){return;}
+                let current = deadlib_audio_core::editor_main_configuration()
+                    .filter(|c| c.asset_epoch == asset_epoch);
+                let Some(current) = current else {
+                    return;
+                };
+                let _ = generation;
                 self.stop_decoder();
-                let Some(writer)=self.writer.take()else{return;};
-                self.music_stream=Some(super::spawn_music_decoder_thread_for_asset(path,Cut::default(),false,rate,preserve_pitch,writer,MusicDecodeContext{decode_options,output:self.output,generation},true,asset_epoch,true));
-                if let Some(stream)=&self.music_stream{self.decoder_status.set(stream.status_reader());}
-            },
+                let Some(writer) = self.writer.take() else {
+                    return;
+                };
+                self.music_stream = Some(super::spawn_prepared_preview_thread(
+                    source,
+                    path,
+                    Cut::default(),
+                    false,
+                    writer,
+                    MusicDecodeContext {
+                        decode_options: deadlib_audio_decode::DecodeOptions::STEP_MANIA_TIMELINE,
+                        output: self.output,
+                        generation: current.generation,
+                    },
+                    asset_epoch,
+                    None,
+                    true,
+                ));
+                if let Some(stream) = &self.music_stream {
+                    self.decoder_status.set(stream.status_reader());
+                }
+            }
+            StreamCommand::ReplaceEditorPreviewPrepared {
+                source,
+                path,
+                cut,
+                looping,
+                generation,
+                asset_epoch,
+                preview_phase,
+            } => {
+                if asset_epoch != deadlib_audio_core::music_asset_epoch()
+                    || generation != deadlib_audio_core::music_map_generation()
+                    || !deadlib_audio_core::music_track_active()
+                {
+                    return;
+                }
+                self.stop_decoder();
+                let Some(writer) = self.writer.take() else {
+                    return;
+                };
+                self.music_stream = Some(super::spawn_prepared_preview_thread(
+                    source,
+                    path,
+                    cut,
+                    looping,
+                    writer,
+                    MusicDecodeContext {
+                        decode_options: deadlib_audio_decode::DecodeOptions::STEP_MANIA_TIMELINE,
+                        output: self.output,
+                        generation,
+                    },
+                    asset_epoch,
+                    preview_phase,
+                    false,
+                ));
+                if let Some(stream) = &self.music_stream {
+                    self.decoder_status.set(stream.status_reader());
+                }
+            }
+            StreamCommand::EditorPreparedFailed {
+                asset_epoch,
+                generation,
+                message,
+            } => {
+                if asset_epoch != deadlib_audio_core::music_asset_epoch()
+                    || !deadlib_audio_core::music_track_active()
+                {
+                    return;
+                }
+                self.stop_decoder();
+                let status =
+                    super::lifecycle::DecoderStatusReader::new_asset(generation, 0., asset_epoch);
+                status.publish(
+                    generation,
+                    super::lifecycle::DecoderPhase::Failed,
+                    None,
+                    Some(&message),
+                );
+                self.decoder_status.set(status);
+            }
+            StreamCommand::ReplaceEditorPrepared {
+                source,
+                path,
+                cut,
+                looping,
+                rate,
+                preserve_pitch,
+                generation,
+                asset_epoch,
+                follow_live_phase,
+                preview_phase,
+            } => {
+                if asset_epoch != deadlib_audio_core::music_asset_epoch()
+                    || !deadlib_audio_core::music_track_active()
+                {
+                    return;
+                }
+                self.stop_decoder();
+                let Some(writer) = self.writer.take() else {
+                    return;
+                };
+                self.music_stream = Some(super::spawn_music_decoder_thread_with_source(
+                    path,
+                    cut,
+                    looping,
+                    rate,
+                    preserve_pitch,
+                    writer,
+                    MusicDecodeContext {
+                        decode_options: deadlib_audio_decode::DecodeOptions::STEP_MANIA_TIMELINE,
+                        output: self.output,
+                        generation,
+                    },
+                    true,
+                    asset_epoch,
+                    follow_live_phase,
+                    Some(source),
+                    preview_phase,
+                ));
+                if let Some(stream) = &self.music_stream {
+                    self.decoder_status.set(stream.status_reader());
+                }
+            }
+            StreamCommand::StartMusic {
+                path,
+                seconds,
+                rate,
+                preserve_pitch,
+                decode_options,
+                generation,
+                asset_epoch,
+            } => {
+                if asset_epoch != deadlib_audio_core::music_asset_epoch()
+                    || !deadlib_audio_core::music_track_active()
+                {
+                    return;
+                }
+                self.stop_decoder();
+                if let Some(path) = path {
+                    let Some(writer) = self.writer.take() else {
+                        return;
+                    };
+                    self.music_stream = Some(super::spawn_music_decoder_thread_for_asset(
+                        path,
+                        Cut {
+                            start_sec: seconds,
+                            ..Default::default()
+                        },
+                        false,
+                        rate,
+                        preserve_pitch,
+                        writer,
+                        MusicDecodeContext {
+                            decode_options,
+                            output: self.output,
+                            generation,
+                        },
+                        true,
+                        asset_epoch,
+                        true,
+                    ));
+                    if let Some(stream) = &self.music_stream {
+                        self.decoder_status.set(stream.status_reader());
+                    }
+                }
+            }
+            StreamCommand::ClearMusicAsset { asset_epoch } => {
+                if asset_epoch == deadlib_audio_core::music_asset_epoch() {
+                    self.stop_decoder();
+                }
+            }
+            StreamCommand::PauseMusic {
+                generation,
+                asset_epoch,
+            } => {
+                if asset_epoch == deadlib_audio_core::music_asset_epoch() {
+                    if let Some(stream) = &self.music_stream {
+                        stream.control.paused.store(true, Ordering::Release);
+                        stream.control.status.begin(generation, None);
+                        stream
+                            .control
+                            .generation
+                            .store(generation, Ordering::SeqCst);
+                        stream.wake_command(generation);
+                    }
+                }
+            }
+            StreamCommand::ResumeMusic {
+                seconds,
+                rate,
+                preserve_pitch,
+                generation,
+                asset_epoch,
+            } => {
+                if asset_epoch == deadlib_audio_core::music_asset_epoch() {
+                    if let Some(stream) = &self.music_stream {
+                        stream
+                            .control
+                            .rate_bits
+                            .store(rate.to_bits(), Ordering::Release);
+                        stream
+                            .control
+                            .preserve_pitch
+                            .store(preserve_pitch, Ordering::Release);
+                        stream.control.paused.store(false, Ordering::Release);
+                    }
+                    self.seek_mode(seconds, generation, true);
+                }
+            }
+            StreamCommand::SetMusicRateAt {
+                rate,
+                seconds,
+                generation,
+                asset_epoch,
+            } => {
+                if asset_epoch == deadlib_audio_core::music_asset_epoch() {
+                    if let Some(stream) = &self.music_stream {
+                        stream
+                            .control
+                            .rate_bits
+                            .store(rate.to_bits(), Ordering::Release);
+                    }
+                    self.seek_mode(seconds, generation, true);
+                }
+            }
+            StreamCommand::SwapMusicAsset {
+                decode_options,
+                path,
+                rate,
+                preserve_pitch,
+                generation,
+                asset_epoch,
+            } => {
+                if !deadlib_audio_core::music_track_active()
+                    || asset_epoch != deadlib_audio_core::music_asset_epoch()
+                {
+                    return;
+                }
+                self.stop_decoder();
+                let Some(writer) = self.writer.take() else {
+                    return;
+                };
+                self.music_stream = Some(super::spawn_music_decoder_thread_for_asset(
+                    path,
+                    Cut::default(),
+                    false,
+                    rate,
+                    preserve_pitch,
+                    writer,
+                    MusicDecodeContext {
+                        decode_options,
+                        output: self.output,
+                        generation,
+                    },
+                    true,
+                    asset_epoch,
+                    true,
+                ));
+                if let Some(stream) = &self.music_stream {
+                    self.decoder_status.set(stream.status_reader());
+                }
+            }
             StreamCommand::PlayMusic {
                 asset_epoch,
                 decode_options,
@@ -141,17 +434,26 @@ impl MusicStreamRuntime {
                 rate,
                 preserve_pitch,
                 generation,
-            } => {if asset_epoch==deadlib_audio_core::music_asset_epoch(){self.play(
-                path,
-                cut,
-                looping,
-                rate,
-                preserve_pitch,
-                generation,
-                decode_options,
-                asset_epoch,
-            )}},
-            StreamCommand::StopMusic{asset_epoch}=>{if asset_epoch==deadlib_audio_core::music_asset_epoch(){self.stop_decoder();stop_music_track();}},
+            } => {
+                if asset_epoch == deadlib_audio_core::music_asset_epoch() {
+                    self.play(
+                        path,
+                        cut,
+                        looping,
+                        rate,
+                        preserve_pitch,
+                        generation,
+                        decode_options,
+                        asset_epoch,
+                    )
+                }
+            }
+            StreamCommand::StopMusic { asset_epoch } => {
+                if asset_epoch == deadlib_audio_core::music_asset_epoch() {
+                    self.stop_decoder();
+                    stop_music_track();
+                }
+            }
             // The outer manager intercepts this variant while it owns the device.
             // A detached decoder runtime cannot acknowledge device shutdown.
             StreamCommand::Shutdown { .. } => self.stop(),
@@ -177,7 +479,7 @@ impl MusicStreamRuntime {
         preserve_pitch: bool,
         generation: u64,
         decode_options: deadlib_audio_decode::DecodeOptions,
-        asset_epoch:u64,
+        asset_epoch: u64,
     ) {
         self.stop_decoder();
         activate_music_track();
@@ -199,7 +501,9 @@ impl MusicStreamRuntime {
                 output: self.output,
                 generation,
             },
-            true,asset_epoch,false,
+            true,
+            asset_epoch,
+            false,
         ));
         if let Some(stream) = &self.music_stream {
             self.decoder_status.set(stream.status_reader());
@@ -211,8 +515,10 @@ impl MusicStreamRuntime {
         stop_music_track();
     }
 
-    fn seek(&self,seconds:f64,generation:u64){self.seek_mode(seconds,generation,false)}
-    fn seek_mode(&self, seconds: f64, generation: u64,follow_live_phase:bool) {
+    fn seek(&self, seconds: f64, generation: u64) {
+        self.seek_mode(seconds, generation, false)
+    }
+    fn seek_mode(&self, seconds: f64, generation: u64, follow_live_phase: bool) {
         if !seconds.is_finite() {
             return;
         }
@@ -440,6 +746,7 @@ mod manager_shutdown_tests {
 
     #[test]
     fn shutdown_waits_for_ack_and_join_despite_retained_senders() {
+        let _audio_guard = crate::test_audio_guard();
         let (sender, receiver) = channel();
         let retained = sender.clone();
         let trace = Arc::new(Mutex::new(Vec::new()));
@@ -462,12 +769,19 @@ mod manager_shutdown_tests {
             *trace.lock().unwrap(),
             ["native-stopped", "decoder-dropped", "thread-return"]
         );
-        assert!(retained.send(StreamCommand::StopMusic{asset_epoch:deadlib_audio_core::music_asset_epoch()}).is_err());
+        assert!(
+            retained
+                .send(StreamCommand::StopMusic {
+                    asset_epoch: deadlib_audio_core::music_asset_epoch()
+                })
+                .is_err()
+        );
         manager.shutdown().unwrap();
     }
 
     #[test]
     fn acknowledgment_does_not_hide_manager_panic() {
+        let _audio_guard = crate::test_audio_guard();
         let (sender, receiver) = channel();
         let thread = thread::spawn(move || {
             let StreamCommand::Shutdown { acknowledged } = receiver.recv().unwrap() else {
@@ -486,6 +800,7 @@ mod manager_shutdown_tests {
 
     #[test]
     fn native_shutdown_error_is_not_an_acknowledged_success() {
+        let _audio_guard = crate::test_audio_guard();
         let (sender, receiver) = channel();
         let thread = thread::spawn(move || {
             let StreamCommand::Shutdown { acknowledged } = receiver.recv().unwrap() else {
@@ -504,6 +819,7 @@ mod manager_shutdown_tests {
 
     #[test]
     fn vanished_manager_is_not_reported_as_completed_shutdown() {
+        let _audio_guard = crate::test_audio_guard();
         let (sender, receiver) = channel();
         let thread = thread::spawn(move || drop(receiver));
         let mut manager = StreamManager {

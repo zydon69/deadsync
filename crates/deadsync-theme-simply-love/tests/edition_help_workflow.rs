@@ -61,7 +61,9 @@ fn every_help_entry_is_keyboard_reachable_and_bounded_in_english_and_french() {
             let (_dir, mut state) = setup(language, width, height);
             let mut pages = BTreeSet::new();
             let mut entries = BTreeSet::new();
-            for _ in 0..64 {
+            // One help row per configurable action can exceed64 pages on a
+            // compact viewport; retain the wrap/end guard with a catalog bound.
+            for _ in 0..deadsync_editor::key_binding_preferences::Action::ALL.len() + 64 {
                 if !pages.insert(title(&state)) {
                     break;
                 }

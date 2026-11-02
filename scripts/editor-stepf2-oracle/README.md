@@ -7,8 +7,8 @@ owners, kinds, hold endpoints and source flags; it does not run GrooveAuthor UI.
 Using the same prepared .NET 10 reference checkout as the main editor oracle:
 
 ```sh
-/tmp/deadsync-dotnet10/dotnet build scripts/editor-stepf2-oracle/StepF2Oracle.csproj -c Release -p:ReferenceRoot=/tmp/deadsync-grooveauthor-step-library
-/tmp/deadsync-dotnet10/dotnet scripts/editor-stepf2-oracle/bin/Release/net10.0/StepF2Oracle.dll crates/deadsync-editor/tests/fixtures/grooveauthor/stepf2-notes.request.json
+dotnet build scripts/editor-stepf2-oracle/StepF2Oracle.csproj -c Release -p:ReferenceRoot=/path/to/grooveauthor
+dotnet scripts/editor-stepf2-oracle/bin/Release/net10.0/StepF2Oracle.dll crates/deadsync-editor/tests/fixtures/grooveauthor/stepf2-notes.request.json
 ```
 
 The JSON contains 24 cases (SM/SSC, Pump Double/Routine, six note streams).

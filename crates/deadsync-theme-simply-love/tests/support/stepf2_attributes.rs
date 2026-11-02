@@ -140,8 +140,9 @@ fn typed_head_and_tail_share_one_raw_draft_and_one_reversible_saved_gesture() {
         );
         ctrl(&mut s, KeyCode::KeyY);
         assert_eq!(s.workspace().file().session.serialize().unwrap(), after);
+        let output = s.workspace().file().session.serialize_for_output().unwrap();
         ctrl(&mut s, KeyCode::KeyS);
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), output);
         let reopened = State::open_selected(&path, "pump-routine", "Hard", "", 9).unwrap();
         assert_eq!(
             &*reopened
@@ -355,8 +356,9 @@ fn legacy_double_conversion_is_explicit_localized_reversible_and_saved_as_routin
             original.as_bytes()
         );
         ctrl(&mut s, KeyCode::KeyY);
+        let output = s.workspace().file().session.serialize_for_output().unwrap();
         ctrl(&mut s, KeyCode::KeyS);
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), output);
         let reopened = State::open_selected(&path, "pump-routine", "Hard", "", 9).unwrap();
         assert_eq!(reopened.workspace().grid().players(), 2);
     }

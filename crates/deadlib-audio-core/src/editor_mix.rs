@@ -49,7 +49,10 @@ impl Cell {
             beat: AtomicU32::new(1f32.to_bits()),
         }
     }
-    #[cfg(test)]pub(crate)fn exhaust_for_test(&self){self.sequence.store(u64::MAX-1,Ordering::SeqCst);}
+    #[cfg(test)]
+    pub(crate) fn exhaust_for_test(&self) {
+        self.sequence.store(u64::MAX - 1, Ordering::SeqCst);
+    }
     pub fn can_publish(&self) -> bool {
         let n = self.sequence.load(Ordering::SeqCst);
         n & 1 == 0 && n.checked_add(2).is_some()

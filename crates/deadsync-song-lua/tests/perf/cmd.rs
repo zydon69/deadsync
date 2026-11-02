@@ -1,6 +1,8 @@
 use super::*;
 use std::borrow::Cow;
 
+// Keep the pre-optimization oracle unchanged, including its historical loop form.
+#[allow(clippy::while_immutable_condition)]
 #[path = "cmd_before.rs"]
 mod before;
 

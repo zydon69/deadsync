@@ -72,6 +72,7 @@ fn assert_same(old: &PlaybackPosMap, new: &PlaybackPosMap) {
 }
 #[test]
 fn short_circuit_insert_preserves_mapping_bits() {
+    let _audio_guard = crate::test_audio_guard();
     for kind in ["contiguous", "gap", "rate", "rate-sparse", "music-gap"] {
         let mut old = PlaybackPosMap::default();
         let mut new = PlaybackPosMap::default();
@@ -114,6 +115,7 @@ fn short_circuit_insert_preserves_mapping_bits() {
 }
 #[test]
 fn mixed_insertions_preserve_coalescing_thresholds_and_cleanup() {
+    let _audio_guard = crate::test_audio_guard();
     let mut old = PlaybackPosMap::default();
     let mut new = PlaybackPosMap::default();
     let mut seed = 17_u64;
@@ -156,6 +158,7 @@ fn mixed_insertions_preserve_coalescing_thresholds_and_cleanup() {
 #[test]
 #[ignore = "paired release benchmark"]
 fn benchmark_runtime_audio_insert() {
+    let _audio_guard = crate::test_audio_guard();
     for kind in ["contiguous", "gap", "rate", "rate-sparse", "music-gap"] {
         for count in [1, 128, 1024] {
             let input = segments(kind, count);

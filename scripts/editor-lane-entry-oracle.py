@@ -51,7 +51,7 @@ static void Main(){var requests=JsonDocument.Parse(Console.In.ReadToEnd()).RootE
   d=Path(folder);(d/'oracle.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>');(d/'Program.cs').write_text(program)
   b=subprocess.run([str(a.dotnet),'build',str(d/'oracle.csproj'),'--nologo','-v','q'],capture_output=True,text=True)
   if b.returncode:
-   Path('/tmp/deadsync-lane-entry-Program.cs').write_text(program);raise SystemExit(b.stdout+b.stderr)
+   a.output.parent.mkdir(parents=True,exist_ok=True);a.output.with_suffix('.failed.cs').write_text(program);raise SystemExit(b.stdout+b.stderr)
   o=subprocess.run([str(a.dotnet),str(d/'bin/Debug/net10.0/oracle.dll')],input=json.dumps(cases),capture_output=True,text=True,check=True)
  doc=dict(reference_commit=PIN,source_bytes_verified_against_git=True,source_sha256={str(p.relative_to(r)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths.values()},method_sha256={k:hashlib.sha256(v.encode()).hexdigest() for k,v in m.items()},scope='Original OnLaneInputDown, SetLaneInputDownNote, UpdateLaneEditStatesFromPosition, CancelLaneInput, GetNearestRow and MoveLaterInChart. Adapted LaneEditState event/action storage and release recorder: does not execute original undo actions, overlap resolution, timing or full chart tree.',cases=[dict(**c,expected=e) for c,e in zip(cases,json.loads(o.stdout))])
  a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(doc,indent=2)+'\n');print(len(cases),'original lane input control-flow sequences')

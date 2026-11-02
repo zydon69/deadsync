@@ -351,8 +351,18 @@ pub(super) fn push_window(actors: &mut Vec<Actor>, state: &State, w: f32) {
             accent,
         ));
         let label = match progress {
-            Some(fraction) => crate::i18n::tr_fmt("ContentBrowser", "MessageLoadingSample0", &[("arg0", &format!("{:.0}", fraction * 100.0))]).to_string(),
-            None => crate::i18n::tr_fmt("ContentBrowser", "MessageLoadingSample", &[("arg0", &(spinner::ellipsis()).to_string())]).to_string(),
+            Some(fraction) => crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageLoadingSample0",
+                &[("arg0", &format!("{:.0}", fraction * 100.0))],
+            )
+            .to_string(),
+            None => crate::i18n::tr_fmt(
+                "ContentBrowser",
+                "MessageLoadingSample",
+                &[("arg0", &(spinner::ellipsis()).to_string())],
+            )
+            .to_string(),
         };
         actors.push(act!(text:
             font("miso"): settext(label):
@@ -411,7 +421,11 @@ fn glow_white(actors: &mut [Actor], amount: f32) {
 /// a line that carries it is built in one buffer.
 fn write_chart_label(out: &mut String, chart: &PreviewChart) {
     if chart.difficulty.is_empty() {
-        out.push_str(&super::localization::text(if chart.lanes == 8 { "DOUBLES" } else { "SINGLES" }));
+        out.push_str(&super::localization::text(if chart.lanes == 8 {
+            "DOUBLES"
+        } else {
+            "SINGLES"
+        }));
     } else {
         out.extend(chart.difficulty.chars().flat_map(char::to_uppercase));
     }
@@ -639,7 +653,15 @@ pub(super) fn push_song_menu(actors: &mut Vec<Actor>, state: &State, w: f32, h: 
         diffuse(0.7, 0.7, 0.7, 1.0): z(Z_MENU_TEXT)
     ));
     let mut line_y = top + 66.0 + LINE_H;
-    let size = crate::i18n::tr_fmt("ContentBrowser", "MessageSongs32b9e2", &[("arg0", &(format_bytes(pack.size_bytes)).to_string()), ("arg1", &(pack.song_count).to_string())]).to_string();
+    let size = crate::i18n::tr_fmt(
+        "ContentBrowser",
+        "MessageSongs32b9e2",
+        &[
+            ("arg0", &(format_bytes(pack.size_bytes)).to_string()),
+            ("arg1", &(pack.song_count).to_string()),
+        ],
+    )
+    .to_string();
     for (show, line) in [
         (true, size.as_str()),
         (
@@ -677,9 +699,13 @@ pub(super) fn push_song_menu(actors: &mut Vec<Actor>, state: &State, w: f32, h: 
     const CHOICE_W: f32 = 170.0;
     const CHOICE_H: f32 = 34.0;
     let choice_y = top + 112.0 + body_h;
-    for (index, label) in [preview_label, crate::i18n::tr("ContentBrowser", "MessageGetThisSong").to_string(), pack_label]
-        .into_iter()
-        .enumerate()
+    for (index, label) in [
+        preview_label,
+        crate::i18n::tr("ContentBrowser", "MessageGetThisSong").to_string(),
+        pack_label,
+    ]
+    .into_iter()
+    .enumerate()
     {
         let picked = menu.choice == index;
         let x = cx + (index as f32 - 1.0) * (CHOICE_W + 12.0);

@@ -222,7 +222,11 @@ fn nonleading_chart_normalization_and_undo_after_save_preserve_identity_and_both
         // Native lossless output retains physical order: leading source0 is
         // per-type index0. Source-compatible sorted output would use index1.
         assert_eq!(file.session.song_timing_chart().unwrap(), Some(0));
-        let context = source_output_context::Context { sync_offset: 0.009, chart_type: "dance_single", chart_index: 0 };
+        let context = source_output_context::Context {
+            sync_offset: 0.009,
+            chart_type: "dance_single",
+            chart_index: 0,
+        };
         source_output_context::assert_context(&after, &published_after, format, context);
         assert!(!file.session.is_dirty());
         file.session.undo().unwrap();

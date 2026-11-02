@@ -1,5 +1,7 @@
 use super::*;
 
+// Keep the pre-optimization oracle unchanged, including its historical loop form.
+#[allow(clippy::while_immutable_condition)]
 #[path = "cmd_dispatch_before.rs"]
 mod before;
 

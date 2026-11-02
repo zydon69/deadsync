@@ -227,7 +227,7 @@ impl AssetManager {
                             self.texture_store.set_source_dims(handle, source_size);
                         }
                         continue;
-                    },
+                    }
                     Err(error) => warn!(
                         "Failed to update queued GPU texture for key '{}': {error}",
                         self.texture_store.texture_key(handle)
@@ -265,11 +265,16 @@ impl AssetManager {
     ) -> Result<(), AssetError> {
         self.texture_store
             .reserve_initial_textures(jobs.len().saturating_add(2));
-        let mut load = |key: String, image: &RgbaImage, source_size: [u32; 2], sampler: SamplerDesc| {
+        let mut load = |key: String,
+                        image: &RgbaImage,
+                        source_size: [u32; 2],
+                        sampler: SamplerDesc| {
             let texture = backend.create_texture(image, sampler)?;
             register_texture_dims(&key, source_size[0], source_size[1]);
             debug!("Loaded texture: {key}");
-            let (handle, old) = self.texture_store.set_texture_for_key(key, texture, image.width(), image.height());
+            let (handle, old) =
+                self.texture_store
+                    .set_texture_for_key(key, texture, image.width(), image.height());
             self.texture_store.set_source_dims(handle, source_size);
             if let Some(old) = old {
                 backend.retire_texture(old);
@@ -313,7 +318,8 @@ impl AssetManager {
         let decoded = decode_texture(&job.path, &job.hints)?;
         self.update_texture_for_key_with_sampler(backend, &job.key, &decoded.image, job.sampler)?;
         let handle = self.texture_store.texture_handle(&job.key);
-        self.texture_store.set_source_dims(handle, decoded.source_size);
+        self.texture_store
+            .set_source_dims(handle, decoded.source_size);
         register_texture_dims(&job.key, decoded.source_size[0], decoded.source_size[1]);
         Ok(())
     }
@@ -493,40 +499,100 @@ mod tests {
         for (file, native_source) in [("tiny.png", (3, 2)), ("source (res 53x12).png", (53, 12))] {
             let path = root.join("bitmap-sprite-preparation").join(file);
             let key = path.to_string_lossy().into_owned();
-            let job = TextureDecodeJob { key: key.clone(), path,
-                sampler: SamplerDesc::default(), hints: crate::TextureHints {
-                    min_size: Some(8), max_size: Some(2048), ..Default::default()
-                }};
-            assets.load_texture(&mut backend, &job).expect("native tiny upload");
-            let bound = assets.texture_context().bind_texture(&key).expect("native source binding");
+            let job = TextureDecodeJob {
+                key: key.clone(),
+                path,
+                sampler: SamplerDesc::default(),
+                hints: crate::TextureHints {
+                    min_size: Some(8),
+                    max_size: Some(2048),
+                    ..Default::default()
+                },
+            };
+            assets
+                .load_texture(&mut backend, &job)
+                .expect("native tiny upload");
+            let bound = assets
+                .texture_context()
+                .bind_texture(&key)
+                .expect("native source binding");
             let dimensions = bound.dimensions.expect("logical source size");
             assert_eq!((dimensions.w, dimensions.h), native_source);
             assert_eq!(software_image(&assets, &key).dimensions(), (8, 8));
-            let expected = std::fs::read(root.join("tiny.rgba")).expect("native prepared tiny pixels");
+            let expected =
+                std::fs::read(root.join("tiny.rgba")).expect("native prepared tiny pixels");
             assert_eq!(software_image(&assets, &key).as_raw(), &expected);
         }
 
         // Parallel startup workers retain original sizing too.
         let key = "native-startup-tiny.png";
-        assets.load_textures(&mut backend, vec![TextureDecodeJob {
-            key: key.into(), path: root.join("bitmap-sprite-preparation/tiny.png"),
-            sampler: SamplerDesc::default(), hints: crate::TextureHints {
-                min_size: Some(8), max_size: Some(2048), ..Default::default()
-            }}]).expect("startup native tiny upload");
-        let dims = assets.texture_context().bind_texture(key).expect("startup binding").dimensions.expect("source");
+        assets
+            .load_textures(
+                &mut backend,
+                vec![TextureDecodeJob {
+                    key: key.into(),
+                    path: root.join("bitmap-sprite-preparation/tiny.png"),
+                    sampler: SamplerDesc::default(),
+                    hints: crate::TextureHints {
+                        min_size: Some(8),
+                        max_size: Some(2048),
+                        ..Default::default()
+                    },
+                }],
+            )
+            .expect("startup native tiny upload");
+        let dims = assets
+            .texture_context()
+            .bind_texture(key)
+            .expect("startup binding")
+            .dimensions
+            .expect("source");
         assert_eq!((dims.w, dims.h), (3, 2));
-        assert_eq!(software_image(&assets, key).as_raw(), &std::fs::read(root.join("tiny.rgba")).expect("native pixels"));
+        assert_eq!(
+            software_image(&assets, key).as_raw(),
+            &std::fs::read(root.join("tiny.rgba")).expect("native pixels")
+        );
 
         let key = "prepared-generated-native-blank.png";
-        crate::register_prepared_generated_texture(key, blank_rgba(8, 8), [4, 2], SamplerDesc::default());
-        assert!(assets.load_generated_texture(&mut backend, key, None).expect("prepared memory bitmap"));
-        let dims = assets.texture_context().bind_texture(key).unwrap().dimensions.unwrap();
+        crate::register_prepared_generated_texture(
+            key,
+            blank_rgba(8, 8),
+            [4, 2],
+            SamplerDesc::default(),
+        );
+        assert!(
+            assets
+                .load_generated_texture(&mut backend, key, None)
+                .expect("prepared memory bitmap")
+        );
+        let dims = assets
+            .texture_context()
+            .bind_texture(key)
+            .unwrap()
+            .dimensions
+            .unwrap();
         assert_eq!((dims.w, dims.h), (4, 2));
         assert_eq!(software_image(&assets, key).dimensions(), (8, 8));
-        crate::register_prepared_generated_texture(key, blank_rgba(16, 8), [3, 2], SamplerDesc::default());
+        crate::register_prepared_generated_texture(
+            key,
+            blank_rgba(16, 8),
+            [3, 2],
+            SamplerDesc::default(),
+        );
         assets.queue_pending_generated_textures();
-        assets.drain_texture_uploads(&mut backend, TextureUploadBudget { max_uploads: usize::MAX, max_bytes: usize::MAX });
-        let dims = assets.texture_context().bind_texture(key).unwrap().dimensions.unwrap();
+        assets.drain_texture_uploads(
+            &mut backend,
+            TextureUploadBudget {
+                max_uploads: usize::MAX,
+                max_bytes: usize::MAX,
+            },
+        );
+        let dims = assets
+            .texture_context()
+            .bind_texture(key)
+            .unwrap()
+            .dimensions
+            .unwrap();
         assert_eq!((dims.w, dims.h), (3, 2));
         assert_eq!(software_image(&assets, key).dimensions(), (16, 8));
 

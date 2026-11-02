@@ -11,7 +11,7 @@ use std::{
 };
 
 pub struct Preview {
-    has_music:bool,
+    has_music: bool,
     music: PathBuf,
     clock: Clock,
 }
@@ -24,13 +24,25 @@ pub struct Clock {
 }
 impl Preview {
     pub fn capture(session: &Session, chart: usize, simfile: &Path) -> Result<Self, Error> {
-        Self::capture_at_directory(session,chart,simfile.parent().unwrap_or(Path::new(".")))
+        Self::capture_at_directory(session, chart, simfile.parent().unwrap_or(Path::new(".")))
     }
-    pub fn capture_from_directory(session:&Session,chart:usize,directory:&Path)->Result<Self,Error> {
-        if !directory.is_absolute(){return Err(Error::InvalidEdit("Playback requires an absolute resource directory".into()));}
-        Self::capture_at_directory(session,chart,directory)
+    pub fn capture_from_directory(
+        session: &Session,
+        chart: usize,
+        directory: &Path,
+    ) -> Result<Self, Error> {
+        if !directory.is_absolute() {
+            return Err(Error::InvalidEdit(
+                "Playback requires an absolute resource directory".into(),
+            ));
+        }
+        Self::capture_at_directory(session, chart, directory)
     }
-    fn capture_at_directory(session:&Session,chart:usize,directory:&Path)->Result<Self,Error> {
+    fn capture_at_directory(
+        session: &Session,
+        chart: usize,
+        directory: &Path,
+    ) -> Result<Self, Error> {
         let document = session.document();
         if chart >= document.charts().len() {
             return Err(Error::InvalidEdit("Invalid playback chart".into()));
@@ -56,7 +68,7 @@ impl Preview {
             )));
         }
         Ok(Self {
-            has_music:true,
+            has_music: true,
             music,
             clock: Clock::capture(session, chart)?,
         })
@@ -64,27 +76,70 @@ impl Preview {
     /// Rebind the immutable chart clock of an already open asset without any
     /// filesystem IO. Source Fumen Path.ArePathsEqual compares path spelling
     /// after slash normalization, not inode identity or canonicalization.
-    pub fn rebind_same_music(&self, session: &Session, chart: usize, directory: &Path) -> Result<Option<Self>, Error> {
+    pub fn rebind_same_music(
+        &self,
+        session: &Session,
+        chart: usize,
+        directory: &Path,
+    ) -> Result<Option<Self>, Error> {
         let text = crate::chart_text::Text::read(session.document(), chart)?;
         let local = text.get(crate::chart_text::Field::Music);
         let inherited = session.document().text(None, "MUSIC").unwrap_or_default();
-        let name = if local.is_empty() { inherited.as_str() } else { local };
-        if name.is_empty(){return if self.has_music{Ok(None)}else{Ok(Some(Self{has_music:false,music:directory.to_path_buf(),clock:Clock::capture(session,chart)?}))};}
+        let name = if local.is_empty() {
+            inherited.as_str()
+        } else {
+            local
+        };
+        if name.is_empty() {
+            return if self.has_music {
+                Ok(None)
+            } else {
+                Ok(Some(Self {
+                    has_music: false,
+                    music: directory.to_path_buf(),
+                    clock: Clock::capture(session, chart)?,
+                }))
+            };
+        }
         let target = directory.join(name.replace('\\', "/"));
-        if !source_music_paths_equal(&target.to_string_lossy(), &self.music.to_string_lossy()) { return Ok(None); }
-        Ok(Some(Self {has_music:true, music: self.music.clone(), clock: Clock::capture(session, chart)? }))
+        if !source_music_paths_equal(&target.to_string_lossy(), &self.music.to_string_lossy()) {
+            return Ok(None);
+        }
+        Ok(Some(Self {
+            has_music: true,
+            music: self.music.clone(),
+            clock: Clock::capture(session, chart)?,
+        }))
     }
-    pub fn rebind_chart_asset(session:&Session,chart:usize,directory:&Path)->Result<Self,Error>{
-        let text=crate::chart_text::Text::read(session.document(),chart)?;
-        let local=text.get(crate::chart_text::Field::Music);
-        let inherited=session.document().text(None,"MUSIC").unwrap_or_default();
-        let name=if local.is_empty(){inherited.as_str()}else{local};
-        Ok(Self{has_music:!name.is_empty(),music:directory.join(name.replace('\\',"/")),clock:Clock::capture(session,chart)?})
+    pub fn rebind_chart_asset(
+        session: &Session,
+        chart: usize,
+        directory: &Path,
+    ) -> Result<Self, Error> {
+        let text = crate::chart_text::Text::read(session.document(), chart)?;
+        let local = text.get(crate::chart_text::Field::Music);
+        let inherited = session.document().text(None, "MUSIC").unwrap_or_default();
+        let name = if local.is_empty() {
+            inherited.as_str()
+        } else {
+            local
+        };
+        Ok(Self {
+            has_music: !name.is_empty(),
+            music: directory.join(name.replace('\\', "/")),
+            clock: Clock::capture(session, chart)?,
+        })
     }
-    pub fn music_asset(&self)->Option<&Path>{self.has_music.then_some(self.music.as_path())}
+    pub fn music_asset(&self) -> Option<&Path> {
+        self.has_music.then_some(self.music.as_path())
+    }
     /// Source Fumen spelling equality; performs no IO or dot/case normalization.
-    pub fn paths_equal(a:&Path,b:&Path)->bool{source_music_paths_equal(&a.to_string_lossy(),&b.to_string_lossy())}
-    pub fn has_music_path(&self,path:&Path)->bool{self.has_music&&Self::paths_equal(&self.music,path)}
+    pub fn paths_equal(a: &Path, b: &Path) -> bool {
+        source_music_paths_equal(&a.to_string_lossy(), &b.to_string_lossy())
+    }
+    pub fn has_music_path(&self, path: &Path) -> bool {
+        self.has_music && Self::paths_equal(&self.music, path)
+    }
     pub fn music(&self) -> &Path {
         &self.music
     }
@@ -134,7 +189,10 @@ impl Clock {
         let grid = if let Some(grid) = session.loaded_grid(chart) {
             grid
         } else {
-            parsed = Grid::parse_layout(document.value(descriptor.notes.clone()), &descriptor.steps_type)?;
+            parsed = Grid::parse_layout(
+                document.value(descriptor.notes.clone()),
+                &descriptor.steps_type,
+            )?;
             &parsed
         };
         let offset = chart_properties::Draft::capture(session, chart)?.effective_music_offset();
@@ -151,14 +209,20 @@ impl Clock {
     }
     /// Ordered chart-time rate snapshots for visual spacing. Use
     /// chart_time_to_music when converting these times to audio-file seconds.
-    pub fn rate_mappings(&self) -> impl Iterator<Item = (u8, crate::rate_mapping::RateMapping)> + '_ {
+    pub fn rate_mappings(
+        &self,
+    ) -> impl Iterator<Item = (u8, crate::rate_mapping::RateMapping)> + '_ {
         self.timeline.rate_mappings()
     }
-    pub fn spacing_sections(&self) -> impl Iterator<Item = crate::generation::editor_timing::SpacingSection> + '_ {
+    pub fn spacing_sections(
+        &self,
+    ) -> impl Iterator<Item = crate::generation::editor_timing::SpacingSection> + '_ {
         self.timeline.spacing_sections()
     }
     /// Chart time of a speed event at its original ordering phase, not audio-file time.
-    pub(crate) fn event_phase_time(&self,row:u64,phase:u8)->Result<f64,Error>{self.timeline.query(row,Some(phase))}
+    pub(crate) fn event_phase_time(&self, row: u64, phase: u8) -> Result<f64, Error> {
+        self.timeline.query(row, Some(phase))
+    }
     pub fn speed_event_time(&self, row: u64) -> Result<f64, Error> {
         self.timeline.speed_event_time(row)
     }
@@ -207,26 +271,37 @@ fn finite(value: f64) -> Result<f64, Error> {
     }
 }
 
-impl Clock {pub(crate) fn tick_mapping_end(&self,row:i64)->Result<i64,Error>{self.timeline.tick_mapping_end(row)}}
+impl Clock {
+    pub(crate) fn tick_mapping_end(&self, row: i64) -> Result<i64, Error> {
+        self.timeline.tick_mapping_end(row)
+    }
+}
 
 /// Exact Fumen.Path.ArePathsEqual contract (pin 0fe292f9). Intentionally
 /// retains case and dot components, strips only the Win32 device prefix before
 /// replacing backslashes; performs no filesystem canonicalization.
-fn source_music_paths_equal(a:&str,b:&str)->bool {
-    if a==b{return true;}
-    let strip=|path:&str|path.strip_prefix(r"\\?\").unwrap_or(path).replace('\\',"/");
-    strip(a)==strip(b)
+fn source_music_paths_equal(a: &str, b: &str) -> bool {
+    if a == b {
+        return true;
+    }
+    let strip = |path: &str| {
+        path.strip_prefix(r"\\?\")
+            .unwrap_or(path)
+            .replace('\\', "/")
+    };
+    strip(a) == strip(b)
 }
 #[cfg(test)]
 mod source_music_path_tests {
     use super::source_music_paths_equal as equal;
-    #[test]fn source_path_spelling_contract(){
-        assert!(equal(r"C:\Music\song.ogg","C:/Music/song.ogg"));
-        assert!(equal(r"\\?\C:\Music\song.ogg","C:/Music/song.ogg"));
-        assert!(equal(r"\\?\C:\Music\song.ogg",r"\\?\C:\Music\song.ogg"));
-        assert!(!equal("C:/Music/song.ogg","c:/Music/song.ogg"));
-        assert!(!equal("C:/Music/./song.ogg","C:/Music/song.ogg"));
-        assert!(!equal("//?/C:/Music/song.ogg","C:/Music/song.ogg"));
+    #[test]
+    fn source_path_spelling_contract() {
+        assert!(equal(r"C:\Music\song.ogg", "C:/Music/song.ogg"));
+        assert!(equal(r"\\?\C:\Music\song.ogg", "C:/Music/song.ogg"));
+        assert!(equal(r"\\?\C:\Music\song.ogg", r"\\?\C:\Music\song.ogg"));
+        assert!(!equal("C:/Music/song.ogg", "c:/Music/song.ogg"));
+        assert!(!equal("C:/Music/./song.ogg", "C:/Music/song.ogg"));
+        assert!(!equal("//?/C:/Music/song.ogg", "C:/Music/song.ogg"));
     }
 }
 
@@ -235,13 +310,15 @@ mod public_preview_path_equality_tests {
     use super::Preview;
     use std::path::Path;
     #[test]
-    fn public_boundary_preserves_exact_source_spelling_rules_without_path_eq_normalization(){
-        for (a,b,expected) in [
-            (r"C:\Music\song.ogg","C:/Music/song.ogg",true),
-            (r"\\?\C:\Music\song.ogg","C:/Music/song.ogg",true),
-            ("a/./b.ogg","a/b.ogg",false),
-            ("A/b.ogg","a/b.ogg",false),
-            ("//?/C:/Music/song.ogg","C:/Music/song.ogg",false),
-        ] {assert_eq!(Preview::paths_equal(Path::new(a),Path::new(b)),expected);}
+    fn public_boundary_preserves_exact_source_spelling_rules_without_path_eq_normalization() {
+        for (a, b, expected) in [
+            (r"C:\Music\song.ogg", "C:/Music/song.ogg", true),
+            (r"\\?\C:\Music\song.ogg", "C:/Music/song.ogg", true),
+            ("a/./b.ogg", "a/b.ogg", false),
+            ("A/b.ogg", "a/b.ogg", false),
+            ("//?/C:/Music/song.ogg", "C:/Music/song.ogg", false),
+        ] {
+            assert_eq!(Preview::paths_equal(Path::new(a), Path::new(b)), expected);
+        }
     }
 }

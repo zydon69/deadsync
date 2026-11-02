@@ -64,8 +64,8 @@ impl State {
         });
     }
     pub fn process_chart_order(&mut self, orderer: &mut impl Orderer) -> bool {
-        let copy_processed=self.process_chart_event_copy_order(orderer);
-        let autogen_processed = self.process_autogen_source_order(orderer)||copy_processed;
+        let copy_processed = self.process_chart_event_copy_order(orderer);
+        let autogen_processed = self.process_autogen_source_order(orderer) || copy_processed;
         let output_processed = self.process_source_output_order(orderer) || autogen_processed;
         let timing_processed = self.process_song_timing_order(orderer) || output_processed;
         let Some(request) = self.chart_order_request.take() else {

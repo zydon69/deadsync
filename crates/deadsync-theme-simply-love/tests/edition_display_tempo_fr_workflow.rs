@@ -52,7 +52,7 @@ fn french_sm_scope_invalid_input_and_cancel_are_keyboard_accessible() {
     let mut s = State::open(&path, 0).unwrap();
     open(&mut s);
     assert!(has(&s, "Mode d'affichage : Tempo réel"));
-    assert!(has(&s, "SM : concerne toutes les partitions"));
+    assert!(has(&s, i18n::tr("Edition", "DisplayTempoHelpSm").as_ref()));
     press(&mut s, KeyCode::ArrowLeft);
     assert!(has(&s, "Mode d'affichage : Personnalisé"));
     press(&mut s, KeyCode::ArrowDown);

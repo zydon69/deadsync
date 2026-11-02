@@ -95,6 +95,7 @@ mod tests {
     };
     #[test]
     fn prepared_editor_transport_uses_original_pcm_and_codec_after_unlink() {
+        let _audio_guard = crate::test_audio_guard();
         let path =
             std::env::temp_dir().join(format!("prepared-transport-{}.wav", std::process::id()));
         let frames = 48_000u32;

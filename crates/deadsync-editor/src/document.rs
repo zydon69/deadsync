@@ -1,6 +1,6 @@
-pub mod metadata;
 pub mod load_context;
-pub use load_context::{LoadContext,Snapshot};
+pub mod metadata;
+pub use load_context::{LoadContext, Snapshot};
 pub mod chart_type;
 mod layout_token;
 pub(crate) mod media_relocation;
@@ -42,7 +42,7 @@ pub struct Chart {
 /// another chart's identity or an unknown property. Reading is lazy for notes.
 #[derive(Clone, Debug)]
 pub struct Document {
-    load_context:LoadContext,
+    load_context: LoadContext,
     source: Arc<[u8]>,
     pub format: Format,
     tags: Vec<Tag>,
@@ -96,7 +96,13 @@ fn parse_parts(
         let value_start = pos + 1;
         pos = delimiter(&source, value_start, b';')
             .ok_or_else(|| Error::InvalidFormat(format!("Unterminated {name} tag")))?;
-        let value = value_start..pos;
+        let mut value_end = pos;
+        if source.get(pos) == Some(&b'#') {
+            while value_end > value_start && source[value_end - 1].is_ascii_whitespace() {
+                value_end -= 1;
+            }
+        }
+        let value = value_start..value_end;
         if format == Format::Ssc && name == "NOTEDATA" {
             chart = Some(charts.len());
             if limits.is_some_and(|(charts_limit, _)| charts.len() >= charts_limit) {
@@ -124,7 +130,9 @@ fn parse_parts(
                 return Err(Error::Unsupported("Metadata chart limit exceeded".into()));
             }
             charts.push(Chart {
-                steps_type: chart_type::canonical(&fields[0]).unwrap_or(&fields[0]).to_owned(),
+                steps_type: chart_type::canonical(&fields[0])
+                    .unwrap_or(&fields[0])
+                    .to_owned(),
                 description: fields[1].clone(),
                 difficulty: fields[2].clone(),
                 meter: fields[3].clone(),
@@ -141,9 +149,12 @@ fn parse_parts(
                 match name.as_str() {
                     "STEPSTYPE" => {
                         let value = decode(&source[value.clone()]);
-                        current.steps_type = chart_type::canonical(&value).unwrap_or(&value).to_owned();
-                    },
-                    "DESCRIPTION" => current.description = decode_value(&source[value.clone()], false),
+                        current.steps_type =
+                            chart_type::canonical(&value).unwrap_or(&value).to_owned();
+                    }
+                    "DESCRIPTION" => {
+                        current.description = decode_value(&source[value.clone()], false)
+                    }
                     "DIFFICULTY" => current.difficulty = decode(&source[value.clone()]),
                     "METER" => current.meter = decode(&source[value.clone()]),
                     "NOTES" | "NOTES2" => current.notes = value.clone(),
@@ -152,7 +163,9 @@ fn parse_parts(
             }
             tags.push(Tag { name, value, chart });
         }
-        pos += 1;
+        if source.get(pos) == Some(&b';') {
+            pos += 1;
+        }
     }
     Ok(Parts {
         source,
@@ -181,7 +194,7 @@ impl Document {
             replacements: BTreeMap::new(),
             added: BTreeMap::new(),
             added_spelling: BTreeMap::new(),
-            load_context:Default::default(),
+            load_context: Default::default(),
         })
     }
 
@@ -244,7 +257,8 @@ impl Document {
     }
 
     pub fn text(&self, chart: Option<usize>, name: &str) -> Option<String> {
-        self.raw_property(chart, name).map(|value| decode_property(value, self.format, chart.is_some(), name))
+        self.raw_property(chart, name)
+            .map(|value| decode_property(value, self.format, chart.is_some(), name))
     }
 
     pub fn raw_property(&self, chart: Option<usize>, name: &str) -> Option<&[u8]> {
@@ -545,14 +559,17 @@ pub fn escape_text(text: &str) -> Vec<u8> {
 // Fumen's literal string schema is shared with read-only previews. Structural
 // values and SM headers retain their independent normalized contracts.
 fn decode_property(source: &[u8], format: Format, chart: bool, name: &str) -> String {
-        let literal = if !chart {
-            crate::song_text::Field::ALL.iter().any(|field| field.tag().eq_ignore_ascii_case(name))
-        } else {
-            format == Format::Ssc
-                && ["CHARTNAME", "DESCRIPTION", "CREDIT", "CHARTSTYLE", "MUSIC"]
-                    .iter().any(|tag| tag.eq_ignore_ascii_case(name))
-        };
-        decode_value(source, !literal)
+    let literal = if !chart {
+        crate::song_text::Field::ALL
+            .iter()
+            .any(|field| field.tag().eq_ignore_ascii_case(name))
+    } else {
+        format == Format::Ssc
+            && ["CHARTNAME", "DESCRIPTION", "CREDIT", "CHARTSTYLE", "MUSIC"]
+                .iter()
+                .any(|tag| tag.eq_ignore_ascii_case(name))
+    };
+    decode_value(source, !literal)
 }
 
 fn decode(source: &[u8]) -> String {
@@ -595,29 +612,63 @@ fn skip_comment(source: &[u8], pos: usize) -> usize {
 }
 
 fn delimiter(source: &[u8], mut pos: usize, needle: u8) -> Option<usize> {
+    let line_start = source[..pos]
+        .iter()
+        .rposition(|&byte| matches!(byte, b'\r' | b'\n'))
+        .map_or(0, |index| index + 1);
+    let mut first_on_line = source[line_start..pos]
+        .iter()
+        .all(|byte| matches!(byte, b' ' | b'\t'));
     while pos < source.len() {
-        if source[pos] == b'\\' {
+        let byte = source[pos];
+        if byte == b'\\' {
+            first_on_line = match source.get(pos + 1) {
+                Some(b'\r' | b'\n') => true,
+                Some(b' ' | b'\t') => first_on_line,
+                _ => false,
+            };
             pos += 2;
             continue;
         }
         if source[pos..].starts_with(b"//") {
             pos = skip_comment(source, pos);
+            first_on_line = true;
             continue;
         }
-        if source[pos] == needle {
+        if byte == needle {
             return Some(pos);
         }
-        // A new tag cannot begin inside an unterminated value.
-        if source[pos] == b'#' {
-            return None;
+        if byte == b'#' {
+            // MSD recovers a missing semicolon before the first non-space
+            // character on a CR or LF line, but retains hashes inside values.
+            if first_on_line {
+                return (needle == b';').then_some(pos);
+            }
         }
+        first_on_line = match byte {
+            b'\r' | b'\n' => true,
+            b' ' | b'\t' => first_on_line,
+            _ => false,
+        };
         pos += 1;
     }
     None
 }
 
 impl Document {
-    pub fn load_context(&self)->LoadContext{self.load_context}
-    pub fn parse_with_context(source:impl Into<Arc<[u8]>>,format:Format,context:LoadContext)->Result<Self,Error>{let mut document=Self::parse(source,format)?;document.load_context=context;Ok(document)}
-    pub fn reparse(&self,source:impl Into<Arc<[u8]>>)->Result<Self,Error>{Self::parse_with_context(source,self.format,self.load_context)}
+    pub fn load_context(&self) -> LoadContext {
+        self.load_context
+    }
+    pub fn parse_with_context(
+        source: impl Into<Arc<[u8]>>,
+        format: Format,
+        context: LoadContext,
+    ) -> Result<Self, Error> {
+        let mut document = Self::parse(source, format)?;
+        document.load_context = context;
+        Ok(document)
+    }
+    pub fn reparse(&self, source: impl Into<Arc<[u8]>>) -> Result<Self, Error> {
+        Self::parse_with_context(source, self.format, self.load_context)
+    }
 }

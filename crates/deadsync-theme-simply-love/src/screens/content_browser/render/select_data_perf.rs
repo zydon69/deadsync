@@ -195,7 +195,7 @@ fn visible_queued_and_numeric_badges_need_no_temporary_allocations() {
         assert!(actors.iter().all(|actor| matches!(
             actor,
             Actor::Text {
-                content: TextContent::Static(_) | TextContent::Inline(_),
+                content: TextContent::Static(_) | TextContent::Shared(_) | TextContent::Inline(_),
                 ..
             }
         )));

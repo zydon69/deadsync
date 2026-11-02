@@ -244,8 +244,18 @@ fn normalize_enums(
     for &spec in specs {
         if let Some(raw) = fields.get(spec.field).cloned() {
             let (value, fallback, unknown) = enum_value(&raw, spec);
-            let accumulation_unknown = unknown && matches!(group, "PreferencesDensityGraph" | "PreferencesStream") && spec.field == "AccumulationType";
-            let supported_unknown = accumulation_unknown || (group=="PreferencesDark"&&matches!(spec.field,"Size"|"DarkBgDrawOrder")) || (group == "PreferencesScroll" && spec.field == "SpacingMode") || (group=="PreferencesWaveForm" && matches!(spec.field,"WaveFormSparseColorOption"|"WaveFormDrawLocation")) || (group=="PreferencesMiniMap" && spec.field=="MiniMapSpacingModeForVariable");
+            let accumulation_unknown = unknown
+                && matches!(group, "PreferencesDensityGraph" | "PreferencesStream")
+                && spec.field == "AccumulationType";
+            let supported_unknown = accumulation_unknown
+                || (group == "PreferencesDark" && matches!(spec.field, "Size" | "DarkBgDrawOrder"))
+                || (group == "PreferencesScroll" && spec.field == "SpacingMode")
+                || (group == "PreferencesWaveForm"
+                    && matches!(
+                        spec.field,
+                        "WaveFormSparseColorOption" | "WaveFormDrawLocation"
+                    ))
+                || (group == "PreferencesMiniMap" && spec.field == "MiniMapSpacingModeForVariable");
             if fallback || unknown || raw != value {
                 report.push(Item{source_token:None,path:if group.is_empty(){spec.field.into()}else{format!("{group}.{}",spec.field)},disposition:if accumulation_unknown && group == "PreferencesStream" {Disposition::Adapted}else if unknown&&!supported_unknown{Disposition::Retained}else if fallback{Disposition::EnumFallback}else{Disposition::Normalized},raw:Some(raw),effective:if unknown&&!supported_unknown{None}else{Some(value.clone())},reason:if accumulation_unknown && group == "PreferencesStream" {"Unknown accumulation uses Row on reference rebuild; native recomputes Row consistently after edits instead of retaining reference stale incremental streams"}else if unknown&&!supported_unknown{"Representable source enum has no implemented native consumer; raw value retained"}else{"Original permissive enum normalization"}.into()});
             }
@@ -275,13 +285,17 @@ fn decode_source(
             .and_then(Value::as_object)
             .cloned()
             .unwrap_or_default();
-        if source_name=="PreferencesMultiplayer"{
-            if let Some(value)=shape.remove("ColorMultiplayerHoldsAndRolls"){shape.insert("ColorHoldsAndRolls".into(),value);}
+        if source_name == "PreferencesMultiplayer" {
+            if let Some(value) = shape.remove("ColorMultiplayerHoldsAndRolls") {
+                shape.insert("ColorHoldsAndRolls".into(), value);
+            }
         }
         if source_name == "PreferencesPerformance" {
             crate::performance::preferences::Preferences::default().write(&mut shape)?;
         }
-        if source_name == "PreferencesWaveForm" {shape.remove("RowBasedWaveFormScrollMode");}
+        if source_name == "PreferencesWaveForm" {
+            shape.remove("RowBasedWaveFormScrollMode");
+        }
         if source_name == "PreferencesScroll" {
             shape.extend(
                 schema["Zoom"]
@@ -361,7 +375,12 @@ fn decode_source(
                     } else {
                         decode_known(value, template, &path, report)?
                     };
-                    let native_key=if source_name=="PreferencesMultiplayer"&&key=="ColorHoldsAndRolls"{"ColorMultiplayerHoldsAndRolls".into()}else{key};
+                    let native_key =
+                        if source_name == "PreferencesMultiplayer" && key == "ColorHoldsAndRolls" {
+                            "ColorMultiplayerHoldsAndRolls".into()
+                        } else {
+                            key
+                        };
                     result.insert(native_key, decoded);
                 } else {
                     report_retained(
@@ -752,9 +771,14 @@ impl Draft {
         let mut schema = defaults.projected_root()?;
         // Change-aware serialization can omit a constructor-default field.
         // The source input schema must still recognize that field on import.
-        schema.get_mut("Options").and_then(Value::as_object_mut)
+        schema
+            .get_mut("Options")
+            .and_then(Value::as_object_mut)
             .expect("typed Options schema")
-            .insert("SuppressExternalSongModificationNotification".into(), Value::Bool(false));
+            .insert(
+                "SuppressExternalSongModificationNotification".into(),
+                Value::Bool(false),
+            );
         let source = decode_source(&raw_root, &schema, &mut report)?;
         let mut target = current.projected_root()?;
         let mut normalized = Map::new();
@@ -769,26 +793,45 @@ impl Draft {
             // ValidDenominators with this value and throws. Refuse before any publication.
             if source_name == "PreferencesStream" {
                 if let Some(raw) = fields.get("NoteType") {
-                    let spec = specs(source_name).into_iter().find(|s| s.field == "NoteType").expect("stream NoteType schema");
+                    let spec = specs(source_name)
+                        .into_iter()
+                        .find(|s| s.field == "NoteType")
+                        .expect("stream NoteType schema");
                     let (value, _, unknown) = enum_value(raw, spec);
                     if unknown {
-                        return Err(Error::Unsupported(format!("Unsafe source stream NoteType: {}", value.as_str().unwrap_or("?"))));
+                        return Err(Error::Unsupported(format!(
+                            "Unsafe source stream NoteType: {}",
+                            value.as_str().unwrap_or("?")
+                        )));
                     }
                 }
             }
             normalize_enums(&mut fields, source_name, &specs(source_name), &mut report);
-            if source_name=="PreferencesWaveForm" && fields.get("WaveFormLoadingMaxParallelism").and_then(Value::as_i64)==Some(0){
-                let value=schema["Waveform"]["WaveFormLoadingMaxParallelism"].clone();
-                fields.insert("WaveFormLoadingMaxParallelism".into(),value.clone());
-                report.push(Item{source_token:None,path:"PreferencesWaveForm.WaveFormLoadingMaxParallelism".into(),disposition:Disposition::Normalized,raw:Some(0.into()),effective:Some(value),reason:"Source PostLoad replaces zero with the initialized runtime default".into()});
+            if source_name == "PreferencesWaveForm"
+                && fields
+                    .get("WaveFormLoadingMaxParallelism")
+                    .and_then(Value::as_i64)
+                    == Some(0)
+            {
+                let value = schema["Waveform"]["WaveFormLoadingMaxParallelism"].clone();
+                fields.insert("WaveFormLoadingMaxParallelism".into(), value.clone());
+                report.push(Item {
+                    source_token: None,
+                    path: "PreferencesWaveForm.WaveFormLoadingMaxParallelism".into(),
+                    disposition: Disposition::Normalized,
+                    raw: Some(0.into()),
+                    effective: Some(value),
+                    reason: "Source PostLoad replaces zero with the initialized runtime default"
+                        .into(),
+                });
             }
             if source_name == "PreferencesReceptors" {
-                for key in ["PositionX","PositionY"] {
-                    if let Some(value)=fields.get(key).and_then(Value::as_i64) {
+                for key in ["PositionX", "PositionY"] {
+                    if let Some(value) = fields.get(key).and_then(Value::as_i64) {
                         // Int32 JSON conversion precedes the source setter.
                         // Never turn an overflowing source integer into valid0.
-                        if i32::try_from(value).is_ok() && value<0 {
-                            fields.insert(key.into(),Value::from(0));
+                        if i32::try_from(value).is_ok() && value < 0 {
+                            fields.insert(key.into(), Value::from(0));
                             report.push(Item{source_token:None,path:format!("{source_name}.{key}"),disposition:Disposition::Normalized,raw:Some(value.into()),effective:Some(0.into()),reason:"Original receptor constructor clamps negative coordinates to zero before Editor binding".into()});
                         }
                     }
@@ -832,10 +875,18 @@ impl Draft {
                 .cloned()
                 .unwrap_or_default();
             for (key, default) in &native_defaults {
-                if source_name=="PreferencesWaveForm"&&key=="RowBasedWaveFormScrollMode"{continue;}
+                if source_name == "PreferencesWaveForm" && key == "RowBasedWaveFormScrollMode" {
+                    continue;
+                }
                 let mut value = fields.get(key).cloned().unwrap_or_else(|| default.clone());
                 vector_defaults(&mut value, default);
-                let source_key=if source_name=="PreferencesMultiplayer"&&key=="ColorMultiplayerHoldsAndRolls"{"ColorHoldsAndRolls"}else{key.as_str()};
+                let source_key = if source_name == "PreferencesMultiplayer"
+                    && key == "ColorMultiplayerHoldsAndRolls"
+                {
+                    "ColorHoldsAndRolls"
+                } else {
+                    key.as_str()
+                };
                 report.push(Item {
                     source_token: None,
                     path: format!("{source_name}.{source_key}"),
@@ -936,7 +987,27 @@ impl Draft {
             .get("RowBasedWaveFormScrollMode")
             .cloned()
             .unwrap_or(Value::String("MostCommonTempo".into()));
-        report.push(Item{source_token:None,path:"PreferencesScroll.RowBasedWaveFormScrollMode".into(),disposition:if scroll.contains_key("RowBasedWaveFormScrollMode"){Disposition::Applied}else if source.get("PreferencesScroll").and_then(|g|g.get("RowBasedWaveFormScrollMode")).is_some(){Disposition::Adapted}else{Disposition::Defaulted},raw:source.get("PreferencesScroll").and_then(|g|g.get("RowBasedWaveFormScrollMode")).cloned(),effective:Some(wave_mode.clone()),reason:"Source Scroll property consumed by native Waveform owner".into()});
+        report.push(Item {
+            source_token: None,
+            path: "PreferencesScroll.RowBasedWaveFormScrollMode".into(),
+            disposition: if scroll.contains_key("RowBasedWaveFormScrollMode") {
+                Disposition::Applied
+            } else if source
+                .get("PreferencesScroll")
+                .and_then(|g| g.get("RowBasedWaveFormScrollMode"))
+                .is_some()
+            {
+                Disposition::Adapted
+            } else {
+                Disposition::Defaulted
+            },
+            raw: source
+                .get("PreferencesScroll")
+                .and_then(|g| g.get("RowBasedWaveFormScrollMode"))
+                .cloned(),
+            effective: Some(wave_mode.clone()),
+            reason: "Source Scroll property consumed by native Waveform owner".into(),
+        });
         target
             .get_mut("Waveform")
             .and_then(Value::as_object_mut)
@@ -972,14 +1043,16 @@ impl Draft {
         ] {
             consumed.insert(key.into());
             let value = source.get(key).cloned().unwrap_or(default);
-            let value=if key=="RecentFiles"{
+            let value = if key == "RecentFiles" {
                 // Source SavedSongInformation.PostLoad runs once at import. A
                 // later native File::open must preserve intentional chartless
                 // ActiveCharts=[] rather than synthesize a phantom chart.
-                let mut root=Map::from_iter([("RecentFiles".into(),value)]);
+                let mut root = Map::from_iter([("RecentFiles".into(), value)]);
                 crate::recent_song_preferences::Preferences::read_source(&root)?.write(&mut root);
                 root.remove("RecentFiles").expect("serialized recent owner")
-            }else{value};
+            } else {
+                value
+            };
             report.push(Item {
                 source_token: None,
                 path: key.into(),

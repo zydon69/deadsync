@@ -637,7 +637,10 @@ pub(in crate::screens::options) const SELECT_MUSIC_OPTIONS_ITEMS: &[Item] = &[
         id: ItemId::SmScoreboxCycle,
         name: lookup_key("OptionsSelectMusic", "GSBoxLeaderboards"),
         help: &[
-            HelpEntry::Paragraph(lookup_key("OptionsSelectMusicHelp", "GsBoxLeaderboardsHelp")),
+            HelpEntry::Paragraph(lookup_key(
+                "OptionsSelectMusicHelp",
+                "GsBoxLeaderboardsHelp",
+            )),
             HelpEntry::Paragraph(lookup_key("OptionsSelectMusicHelp", "GolfLeaderboardHelp")),
         ],
     },

@@ -1552,11 +1552,33 @@ mod golf_tests {
     use super::*;
     #[test]
     fn golf_rows_format_raw_strokes_without_percent_clamping() {
-        let entry = score_data::LeaderboardEntry { rank: 1, name: "Golf Player".into(), machine_tag: None, score: 123456.0, date: String::new(), is_rival: false, is_self: false, is_fail: false };
-        let row = gameplay_row_from_entry(&entry, PaneKind::Golf, color::SIMPLY_LOVE_JUDGMENT_PALETTE, false);
+        let entry = score_data::LeaderboardEntry {
+            rank: 1,
+            name: "Golf Player".into(),
+            machine_tag: None,
+            score: 123456.0,
+            date: String::new(),
+            is_rival: false,
+            is_self: false,
+            is_fail: false,
+        };
+        let row = gameplay_row_from_entry(
+            &entry,
+            PaneKind::Golf,
+            color::SIMPLY_LOVE_JUDGMENT_PALETTE,
+            false,
+        );
         assert_eq!(row.score.as_ref(), "123.46");
-        let ace = score_data::LeaderboardEntry { score: 0.0, ..entry };
-        let row = gameplay_row_from_entry(&ace, PaneKind::Golf, color::SIMPLY_LOVE_JUDGMENT_PALETTE, false);
+        let ace = score_data::LeaderboardEntry {
+            score: 0.0,
+            ..entry
+        };
+        let row = gameplay_row_from_entry(
+            &ace,
+            PaneKind::Golf,
+            color::SIMPLY_LOVE_JUDGMENT_PALETTE,
+            false,
+        );
         assert_eq!(row.score.as_ref(), "0.00");
     }
 }

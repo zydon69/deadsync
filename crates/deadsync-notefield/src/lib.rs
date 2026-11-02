@@ -2162,12 +2162,20 @@ mod tests {
             let expected_x = (-96.0 + expected) * 0.5 + 32.0;
             for actual_x in [
                 note_x_offset(
-                    0, y, 0.0, 0.0, &columns, &inverse, &tornado,
-                    &[0.5; 4], x_params, 1.0,
+                    0, y, 0.0, 0.0, &columns, &inverse, &tornado, &[0.5; 4], x_params, 1.0,
                 ),
                 super::note_x_offset_cached(
-                    0, y, 0.0, 0.0, &columns, &inverse, &tornado,
-                    &[], &[32.0; 4], x_params, 0.5,
+                    0,
+                    y,
+                    0.0,
+                    0.0,
+                    &columns,
+                    &inverse,
+                    &tornado,
+                    &[],
+                    &[32.0; 4],
+                    x_params,
+                    0.5,
                 ),
             ] {
                 assert!(
@@ -2176,8 +2184,14 @@ mod tests {
                 );
             }
             assert!(!super::fill_static_note_x_offsets(
-                4, &columns, &inverse, &tornado, &[0.0; 4],
-                x_params, 1.0, &mut [0.0; 4],
+                4,
+                &columns,
+                &inverse,
+                &tornado,
+                &[0.0; 4],
+                x_params,
+                1.0,
+                &mut [0.0; 4],
             ));
             let params = VisualEffectParams {
                 zigzag_z: amount,
@@ -4713,31 +4727,67 @@ mod tests {
     #[test]
     fn notefield_view_proj_rejects_invalid_screen_sizes() {
         assert!(
-            notefield_camera(0.0, 480.0, 320.0, 240.0, 0.0, 0.0, false, glam::Mat4::IDENTITY)
-                .map(|(projection, _)| projection)
-                .is_none()
+            notefield_camera(
+                0.0,
+                480.0,
+                320.0,
+                240.0,
+                0.0,
+                0.0,
+                false,
+                glam::Mat4::IDENTITY
+            )
+            .map(|(projection, _)| projection)
+            .is_none()
         );
         assert!(
-            notefield_camera(640.0, f32::NAN, 320.0, 240.0, 0.0, 0.0, false, glam::Mat4::IDENTITY)
-                .map(|(projection, _)| projection)
-                .is_none()
+            notefield_camera(
+                640.0,
+                f32::NAN,
+                320.0,
+                240.0,
+                0.0,
+                0.0,
+                false,
+                glam::Mat4::IDENTITY
+            )
+            .map(|(projection, _)| projection)
+            .is_none()
         );
     }
 
     #[test]
     fn notefield_view_proj_returns_finite_matrix_for_flat_field() {
-        let matrix = notefield_camera(640.0, 480.0, 320.0, 240.0, 0.0, 0.0, false, glam::Mat4::IDENTITY)
-            .map(|(projection, _)| projection)
-            .expect("valid notefield projection");
+        let matrix = notefield_camera(
+            640.0,
+            480.0,
+            320.0,
+            240.0,
+            0.0,
+            0.0,
+            false,
+            glam::Mat4::IDENTITY,
+        )
+        .map(|(projection, _)| projection)
+        .expect("valid notefield projection");
 
         assert!(matrix.to_cols_array().into_iter().all(f32::is_finite));
     }
 
     #[test]
     fn notefield_view_proj_maps_centered_world_coords_to_clip_space() {
-        let matrix = notefield_camera(640.0, 480.0, 320.0, 240.0, 0.0, 0.0, false, glam::Mat4::IDENTITY)
-            .map(|(projection, _)| projection)
-            .expect("valid notefield projection");
+        let matrix = notefield_camera(
+            640.0,
+            480.0,
+            320.0,
+            240.0,
+            0.0,
+            0.0,
+            false,
+            glam::Mat4::IDENTITY,
+        )
+        .map(|(projection, _)| projection)
+        .expect("valid notefield projection");
         let center = matrix.project_point3(glam::Vec3::ZERO);
         let top_right = matrix.project_point3(glam::Vec3::new(320.0, 240.0, 0.0));
 
@@ -4749,15 +4799,42 @@ mod tests {
 
     #[test]
     fn notefield_view_proj_changes_with_tilt_skew_and_reverse() {
-        let flat = notefield_camera(640.0, 480.0, 320.0, 240.0, 0.0, 0.0, false, glam::Mat4::IDENTITY)
-            .map(|(projection, _)| projection)
-            .expect("flat projection");
-        let tilted = notefield_camera(640.0, 480.0, 320.0, 240.0, 0.5, 0.3, false, glam::Mat4::IDENTITY)
-            .map(|(projection, _)| projection)
-            .expect("tilted projection");
-        let reverse = notefield_camera(640.0, 480.0, 320.0, 240.0, 0.5, 0.3, true, glam::Mat4::IDENTITY)
-            .map(|(projection, _)| projection)
-            .expect("reverse projection");
+        let flat = notefield_camera(
+            640.0,
+            480.0,
+            320.0,
+            240.0,
+            0.0,
+            0.0,
+            false,
+            glam::Mat4::IDENTITY,
+        )
+        .map(|(projection, _)| projection)
+        .expect("flat projection");
+        let tilted = notefield_camera(
+            640.0,
+            480.0,
+            320.0,
+            240.0,
+            0.5,
+            0.3,
+            false,
+            glam::Mat4::IDENTITY,
+        )
+        .map(|(projection, _)| projection)
+        .expect("tilted projection");
+        let reverse = notefield_camera(
+            640.0,
+            480.0,
+            320.0,
+            240.0,
+            0.5,
+            0.3,
+            true,
+            glam::Mat4::IDENTITY,
+        )
+        .map(|(projection, _)| projection)
+        .expect("reverse projection");
 
         assert_ne!(flat.to_cols_array(), tilted.to_cols_array());
         assert_ne!(tilted.to_cols_array(), reverse.to_cols_array());

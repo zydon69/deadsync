@@ -3,10 +3,10 @@ Real nonempty assist/beat PCM and authored source onsets; physical tails are dia
 """
 from pathlib import Path
 import subprocess,tempfile
-import argparse
-args=argparse.ArgumentParser();args.add_argument('--native-root',type=Path,default=Path(__file__).resolve().parent.parent);opts=args.parse_args()
-ROOT=Path('/Users/zydon/Sites/feetness/deadsync')
-repo='/Users/zydon/Sites/feetness/grooveauthor';pin='48e18f71655d0f0d86144c63239331833501fda2'
+from source_reference_paths import arguments
+opts=arguments()
+ROOT=opts.native_root.resolve()
+repo=str(opts.grooveauthor_root);pin='48e18f71655d0f0d86144c63239331833501fda2'
 def ga(n):return subprocess.check_output(['git','-C',repo,'show',pin+':StepManiaEditor/Sound/'+n],text=True)
 s=ga('MusicManager.cs')
 def method(sig):
@@ -14,7 +14,8 @@ def method(sig):
  while depth:depth+=(s[b]=='{')-(s[b]=='}');b+=1
  return s[a:b]
 methods='\n'.join(method(sig)for sig in ['public void SetMusicRate(','private unsafe bool RenderMusicAndTicks(','private (float[], int, long, long, bool) UpdateTicks(','private List<long> GetNextTickTimes(','private static int GetFirstTickInRange(','private static void CheckForStartingTick(','private static void GetTickValuesForSample(','private static void Mix('])
-dll='/tmp/deadsync-grooveauthor-step-library/Fumen/Fumen/bin/Release/net10.0/Fumen.dll'
+from xml.sax.saxutils import escape
+dll=escape(str(opts.fumen_dll))
 assist=[0,17,300,1000,2253,2254,2765,3001,5000,6000,10000,14000]
 beat=[0,31,301,700,2253,2766,4000,8000,12000,16000]
 render=method('private unsafe bool RenderMusicAndTicks(')
@@ -39,10 +40,10 @@ unsafe public static void Run(){foreach(var frames in new[]{257,2049,4097})forea
  cs='''using System;using System.Collections.Generic;using System.Threading;using Fumen;namespace StepManiaEditor{
 class EditorSound:IDisposable{public const string NotificationSampleDataChanged="changed";float[]data;public EditorSound(float[]pcm){data=pcm;}public(int,float[])GetSampleData()=>(2,data);public bool IsLoaded()=>data!=null;public void Dispose(){}}
 '''+cls('Original',methods)+cls('CorrectedTail',fixed_methods)+master+premult+'''class P{static void Main(string[] args){if(args.Length==0)Original.Run();else if(args[0]=="master")SourceMaster.Run();else if(args[0]=="premult")PremultipliedMaster.Run();else CorrectedTail.Run();}}}''';(r/'Program.cs').write_text(cs)
- build=subprocess.run(['/tmp/deadsync-dotnet10/dotnet','build',str(r/'O.csproj'),'--nologo','-v:q'],capture_output=True,text=True)
+ build=subprocess.run([opts.dotnet,'build',str(r/'O.csproj'),'--nologo','-v:q'],capture_output=True,text=True)
  if build.returncode:raise RuntimeError(build.stdout+build.stderr)
- original=subprocess.check_output(['/tmp/deadsync-dotnet10/dotnet',str(r/'bin/Debug/net10.0/O.dll')],text=True).splitlines()
- corrected=subprocess.check_output(['/tmp/deadsync-dotnet10/dotnet',str(r/'bin/Debug/net10.0/O.dll'),'corrected-tail'],text=True).splitlines()
+ original=subprocess.check_output([opts.dotnet,str(r/'bin/Debug/net10.0/O.dll')],text=True).splitlines()
+ corrected=subprocess.check_output([opts.dotnet,str(r/'bin/Debug/net10.0/O.dll'),'corrected-tail'],text=True).splitlines()
  rs='''use deadlib_audio_core::*;use std::sync::Arc;fn main(){for frames in [257usize,2049,4097]{for rate in [0.3f64,1.1,1.35]{for start in [-3i64,0,42]{reset_music_stream_clock_state();reset_music_target_gain();activate_music_track();resume_music_track();let generation=bump_music_map_generation();let epoch=advance_music_asset_epoch();assert!(configure_editor_main(generation,epoch,start,rate));let(stream,handle)=music_transport(48000,2);let(mut sender,mut receiver)=sfx_transport(8);let controls=Arc::new(MixControls::new());controls.set_bus_gain(MixBus::new(4),0.7);controls.set_bus_gain(MixBus::new(5),0.75);let mut render=RenderState::new(handle,controls.clone(),2);render.attach_sfx_retirement(receiver.take_retirement());
 '''
  for index,values in enumerate([assist,beat]):
@@ -58,8 +59,8 @@ class EditorSound:IDisposable{public const string NotificationSampleDataChanged=
  changed=sum(a!=b for a,b in zip(original,corrected));assert changed>0
  print(f'Original real assist+beat PCM/nonempty lists:81 actual callbacks, all fresh callbacks originalexact; all81 corrected-tail diagnostic exact; {changed} original tail-repeat differences explicit')
 
- master_source=subprocess.check_output(['/tmp/deadsync-dotnet10/dotnet',str(r/'bin/Debug/net10.0/O.dll'),'master'],text=True).splitlines()
- premult_source=subprocess.check_output(['/tmp/deadsync-dotnet10/dotnet',str(r/'bin/Debug/net10.0/O.dll'),'premult'],text=True).splitlines()
+ master_source=subprocess.check_output([opts.dotnet,str(r/'bin/Debug/net10.0/O.dll'),'master'],text=True).splitlines()
+ premult_source=subprocess.check_output([opts.dotnet,str(r/'bin/Debug/net10.0/O.dll'),'premult'],text=True).splitlines()
  assert len(master_source)==81 and len(premult_source)==81
  master_differences=sum(a!=b for a,b in zip(master_source,premult_source));assert master_differences>0
  print(f'Known separate gain-order gap witnessed in original full callback: {master_differences}/81 master-after-sum vs bus-premultiplication differences (nonunit music+assist+beat, signed cancellation)')

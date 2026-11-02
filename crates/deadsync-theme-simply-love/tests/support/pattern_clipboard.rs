@@ -122,12 +122,25 @@ fn texts(s: &State) -> String {
 fn tr(en: &str, fr: &str) -> String {
     if LANGUAGE == "fr" { fr } else { en }.into()
 }
-fn select(s: &mut State, mixed: bool) {
+fn open_event_picker(s: &mut State) {
+    if texts(s).lines().any(|line| {
+        line == i18n::tr("Edition", "EventSelectionTitle").as_ref()
+            || line == i18n::tr("Edition", "MarkerSave").as_ref()
+    }) {
+        press(s, KeyCode::Escape);
+    }
     control(s, KeyCode::KeyE, true);
+}
+fn select(s: &mut State, mixed: bool) {
+    open_event_picker(s);
     control(s, KeyCode::KeyA, true);
     press(s, KeyCode::End);
     press(s, KeyCode::Space);
-    assert!(texts(s).contains(&tr("Pattern marker", "Marqueur de pattern")));
+    assert!(
+        texts(s).contains(&tr("Pattern marker", "Marqueur de pattern")),
+        "{}",
+        texts(s)
+    );
     if mixed {
         press(s, KeyCode::ArrowUp);
         press(s, KeyCode::Space);
@@ -167,8 +180,9 @@ fn marker_only_keyboard_copy_paste_save_and_one_step_undo_redo_preserve_notes() 
     assert_eq!(s.workspace().file().session.serialize().unwrap(), baseline);
     control(&mut s, KeyCode::KeyY, false);
     assert_eq!(s.workspace().file().session.serialize().unwrap(), after);
+    let output = s.workspace().file().session.serialize_for_output().unwrap();
     control(&mut s, KeyCode::KeyS, false);
-    assert_eq!(fs::read(&path).unwrap(), after);
+    assert_eq!(fs::read(&path).unwrap(), output);
     let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
     assert_eq!(
         ChartData::read(reopened.workspace().file().session.document(), 0)
@@ -200,7 +214,7 @@ fn marker_cut_delete_and_empty_copy_preserve_generated_notes_and_the_previous_cl
     press(&mut s, KeyCode::Delete);
     assert!(s.workspace().grid().get(p(0, 0)).is_some());
     control(&mut s, KeyCode::KeyZ, false);
-    control(&mut s, KeyCode::KeyE, true);
+    open_event_picker(&mut s);
     control(&mut s, KeyCode::KeyA, true);
     control(&mut s, KeyCode::KeyC, false);
     assert!(texts(&s).contains(&tr(

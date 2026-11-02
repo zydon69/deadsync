@@ -1,8 +1,8 @@
 //! GrooveAuthor editor timing/dependency pass and rate queries, 48e18f71 (MIT).
 //! Engine generation keeps Fumen's clock; editor density uses these distinct
 //! rules, including time signatures inside warps and retroactive fake flags.
-mod insertion;
 mod density;
+mod insertion;
 
 use super::{
     context::ContextEvent,
@@ -108,8 +108,12 @@ struct Rate {
 impl Rate {
     fn position_time(self, row: u64) -> f64 {
         crate::rate_mapping::rate_time(
-            self.row as f64, self.time, self.warp as f64,
-            self.stop, self.seconds_per_row, row as f64,
+            self.row as f64,
+            self.time,
+            self.warp as f64,
+            self.stop,
+            self.seconds_per_row,
+            row as f64,
         )
     }
 }
@@ -730,26 +734,47 @@ impl EditorTimeline {
     }
     /// Ordered rate snapshots for spacing traversal. The order byte preserves
     /// distinct timing events at the same row. Constructed only after validation.
-    pub fn rate_mappings(&self) -> impl Iterator<Item = (u8, crate::rate_mapping::RateMapping)> + '_ {
+    pub fn rate_mappings(
+        &self,
+    ) -> impl Iterator<Item = (u8, crate::rate_mapping::RateMapping)> + '_ {
         self.rates.iter().map(|rate| {
             let mapping = crate::rate_mapping::RateMapping::new(
-                rate.row as f64, rate.time, rate.warp as f64,
-                rate.stop, rate.seconds_per_row,
-            ).expect("validated editor timing rate");
+                rate.row as f64,
+                rate.time,
+                rate.warp as f64,
+                rate.stop,
+                rate.seconds_per_row,
+            )
+            .expect("validated editor timing rate");
             (rate.order, mapping)
         })
     }
     /// Ordered initialized tempo/scroll state, including original backfill of
     /// events preceding the first tempo or first constant-scroll event.
     pub fn spacing_sections(&self) -> impl Iterator<Item = SpacingSection> + '_ {
-        self.rates.iter().zip(self.rate_mappings()).map(|(rate, (order, mapping))| {
-            SpacingSection { order, mapping, tempo: rate.tempo, scroll: rate.scroll }
-        })
+        self.rates
+            .iter()
+            .zip(self.rate_mappings())
+            .map(|(rate, (order, mapping))| SpacingSection {
+                order,
+                mapping,
+                tempo: rate.tempo,
+                scroll: rate.scroll,
+            })
     }
     /// A SPEEDS event follows delays/notes/SCROLLS and precedes ordinary stops
     /// and warps at the same row. Plain position_time uses a different phase.
     pub fn speed_event_time(&self, row: u64) -> Result<f64, Error> {
-        self.query(row, Some(Event { row: row as i64, kind: EventKind::TrailingMarker }.order()))
+        self.query(
+            row,
+            Some(
+                Event {
+                    row: row as i64,
+                    kind: EventKind::TrailingMarker,
+                }
+                .order(),
+            ),
+        )
     }
     /// Note heads and hold tails follow same-row delays, before scroll/speed,
     /// ordinary stops and warps. All note phases share this rate-event boundary.
@@ -764,13 +789,20 @@ impl EditorTimeline {
     pub fn fractional_position_time(&self, row: f64) -> Result<f64, Error> {
         finite(row)?;
         let index = self.rates.partition_point(|rate| (rate.row as f64) < row);
-        let rate = index.checked_sub(1)
+        let rate = index
+            .checked_sub(1)
             .and_then(|index| self.rates.get(index))
             .or_else(|| self.rates.first());
-        let time = rate.map_or(0.0, |rate| crate::rate_mapping::rate_time(
-            rate.row as f64, rate.time, rate.warp as f64,
-            rate.stop, rate.seconds_per_row, row,
-        ));
+        let time = rate.map_or(0.0, |rate| {
+            crate::rate_mapping::rate_time(
+                rate.row as f64,
+                rate.time,
+                rate.warp as f64,
+                rate.stop,
+                rate.seconds_per_row,
+                row,
+            )
+        });
         finite(time)?;
         Ok(time)
     }
@@ -791,8 +823,14 @@ impl EditorTimeline {
         let Some(rate) = rate else {
             return invalid("Cannot locate playback without a timing rate");
         };
-        let row = crate::rate_mapping::rate_position(rate.row as f64, rate.time,
-            rate.warp as f64, rate.stop, 1.0 / rate.seconds_per_row, time);
+        let row = crate::rate_mapping::rate_position(
+            rate.row as f64,
+            rate.time,
+            rate.warp as f64,
+            rate.stop,
+            1.0 / rate.seconds_per_row,
+            time,
+        );
         finite(row)?;
         Ok(row)
     }

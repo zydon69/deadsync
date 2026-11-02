@@ -80,8 +80,14 @@ fn f10_reviews_local_timing_then_converts_once_undoes_redoes_saves_and_reopens()
     ctrl(&mut screen, KeyCode::KeyZ);
     key(&mut screen, KeyCode::ShiftLeft, false);
     assert_eq!(serialized(&screen), after);
+    let output = screen
+        .workspace()
+        .file()
+        .session
+        .serialize_for_output()
+        .unwrap();
     ctrl(&mut screen, KeyCode::KeyS);
-    assert_eq!(fs::read(&path).unwrap(), after);
+    assert_eq!(fs::read(&path).unwrap(), output);
     let mut reopened = State::open(&path, 0).unwrap();
     press(&mut reopened, KeyCode::F10);
     assert!(contains(&reopened, "Timing: this chart"));

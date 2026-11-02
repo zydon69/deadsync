@@ -72,7 +72,12 @@ pub fn handle_raw_key_event(state: &mut State, key_event: &RawKeyboardEvent) -> 
         if matches!(code, KeyCode::F4 | KeyCode::Escape) {
             return ThemeEffect::Navigate(Screen::Menu);
         }
-        let key_str = crate::i18n::tr_fmt("UiMessages", "KeyboardKeyCodeCode", &[("code", &format!("{:?}", code))]).to_string();
+        let key_str = crate::i18n::tr_fmt(
+            "UiMessages",
+            "KeyboardKeyCodeCode",
+            &[("code", &format!("{:?}", code))],
+        )
+        .to_string();
         state.last_inputs.push_front((key_str, Instant::now()));
         if state.last_inputs.len() > INPUT_LOG_MAX_ITEMS {
             state.last_inputs.pop_back();

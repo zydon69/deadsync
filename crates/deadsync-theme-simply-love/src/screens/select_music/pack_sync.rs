@@ -45,7 +45,8 @@ pub(super) fn handle_input(state: &mut State, ev: &InputEvent, effects: &mut Vec
 const fn preferred_difficulty_index(state: &State) -> usize {
     match (state.session.play_style, state.session.player_side) {
         (
-            profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
+            profile_data::PlayStyle::Versus
+            | profile_data::PlayStyle::PumpVersus
             | profile_data::PlayStyle::Couple
             | profile_data::PlayStyle::PumpCouple,
             profile_data::PlayerSide::P2,

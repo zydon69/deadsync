@@ -3,4 +3,4 @@
 pub mod options;
 mod preflight;
 pub use options::Options;
-pub use preflight::{Output, Issue, IssueKind, Limits, Plan, Severity};
+pub use preflight::{Issue, IssueKind, Limits, Output, Plan, Severity};

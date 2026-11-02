@@ -61,7 +61,8 @@ fn all_sixteen_fields_and_restore_history_match_whole_original_preferences_oracl
     for c in oracle.as_array().unwrap() {
         let d = tempfile::tempdir().unwrap();
         let path = d.path().join("prefs.json");
-        let input = serde_json::to_vec(&serde_json::json!({"Version":1,"Audio":c["Input"]})).unwrap();
+        let input =
+            serde_json::to_vec(&serde_json::json!({"Version":1,"Audio":c["Input"]})).unwrap();
         std::fs::write(&path, &input).unwrap();
         let mut f = File::open(&path).unwrap();
         project(f.audio(), &c["Normalized"]);
@@ -154,8 +155,7 @@ fn raw_import_is_preserved_but_effective_runtime_values_follow_music_manager_cla
     assert_eq!(e.fade_out, -2.);
     assert_eq!(p.mix_gains().main, 0.);
     assert_eq!(p.mix_gains().music, 1.);
-    let raw: serde_json::Value =
-        serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    let raw: serde_json::Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
     assert_eq!(raw["Audio"]["MainVolume"], -2);
     assert_eq!(raw["Audio"]["PreviewFadeInTime"], -0.5);
     assert_eq!(raw["Audio"]["PreviewFadeOutTime"], -2);

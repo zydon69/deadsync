@@ -489,7 +489,8 @@ impl<S> PreparedNotefield<'_, S> {
     }
 
     pub(crate) fn spline_offsets(&self, col: usize, beat: f32) -> ([f32; 3], [f32; 3]) {
-        if !self.column_position_splines[col].enabled && self.column_position_blends[col].is_none() {
+        if !self.column_position_splines[col].enabled && self.column_position_blends[col].is_none()
+        {
             return ([0.0; 3], [0.0; 3]);
         }
         let (position, derivative) = self.spline_sample(col, beat);
@@ -565,10 +566,10 @@ pub fn prepare_notefield<'a, S>(
                 // Sparse constant intervals and enable/disable boundaries keep
                 // their authored step instead of anticipating a later change.
                 if span > 0.0 && span <= request.chart.music_rate / 60.0 + 0.0001 {
-                    let elapsed = (current_time_s - track.time_offset - frame.second).clamp(0.0, span);
-                    let adjacent = |span: f32| {
-                        span > 0.0 && span <= request.chart.music_rate / 60.0 + 0.0001
-                    };
+                    let elapsed =
+                        (current_time_s - track.time_offset - frame.second).clamp(0.0, span);
+                    let adjacent =
+                        |span: f32| span > 0.0 && span <= request.chart.music_rate / 60.0 + 0.0001;
                     let previous = index
                         .checked_sub(2)
                         .map(|at| &track.frames[at])
@@ -582,30 +583,41 @@ pub fn prepare_notefield<'a, S>(
                     // plateau and the other components' prior slope until the
                     // new sample. Blending across the jump leaks the new bend
                     // into incoming notes and hold caps a frame early.
-                    let point_step = previous.zip(following).is_some_and(|(previous, following)| {
-                        let (Some(a), Some(b), Some(c), Some(d)) = (
-                            &previous.position, &frame.position,
-                            &next.position, &following.position,
-                        ) else {
-                            return false;
-                        };
-                        let compatible = |other: &deadsync_gameplay::SongLuaSplineData| {
-                            b.beats_per_t == other.beats_per_t
-                                && b.receptor_t == other.receptor_t
-                                && b.subtract_song_beat == other.subtract_song_beat
-                                && b.looping == other.looping
-                                && b.coefficients.len() == other.coefficients.len()
-                        };
-                        [a, c, d].into_iter().all(compatible)
-                            && (0..3).any(|axis| {
-                                a.coefficients.iter().zip(b.coefficients.iter())
-                                    .all(|(a, b)| a[axis] == b[axis])
-                                    && c.coefficients.iter().zip(d.coefficients.iter())
-                                        .all(|(c, d)| c[axis] == d[axis])
-                                    && b.coefficients.iter().zip(c.coefficients.iter())
-                                        .any(|(b, c)| b[axis] != c[axis])
-                            })
-                    });
+                    let point_step =
+                        previous
+                            .zip(following)
+                            .is_some_and(|(previous, following)| {
+                                let (Some(a), Some(b), Some(c), Some(d)) = (
+                                    &previous.position,
+                                    &frame.position,
+                                    &next.position,
+                                    &following.position,
+                                ) else {
+                                    return false;
+                                };
+                                let compatible = |other: &deadsync_gameplay::SongLuaSplineData| {
+                                    b.beats_per_t == other.beats_per_t
+                                        && b.receptor_t == other.receptor_t
+                                        && b.subtract_song_beat == other.subtract_song_beat
+                                        && b.looping == other.looping
+                                        && b.coefficients.len() == other.coefficients.len()
+                                };
+                                [a, c, d].into_iter().all(compatible)
+                                    && (0..3).any(|axis| {
+                                        a.coefficients
+                                            .iter()
+                                            .zip(b.coefficients.iter())
+                                            .all(|(a, b)| a[axis] == b[axis])
+                                            && c.coefficients
+                                                .iter()
+                                                .zip(d.coefficients.iter())
+                                                .all(|(c, d)| c[axis] == d[axis])
+                                            && b.coefficients
+                                                .iter()
+                                                .zip(c.coefficients.iter())
+                                                .any(|(b, c)| b[axis] != c[axis])
+                                    })
+                            });
                     let (other, fraction) = if point_step {
                         let previous = previous.unwrap();
                         (previous, -elapsed / (frame.second - previous.second))

@@ -231,17 +231,59 @@ fn native_version_one_stays_strict_and_source_known_nonfinite_float_rejects_befo
 }
 
 #[test]
-fn source_recent_postload_runs_once_at_import_and_native_reopen_keeps_chartless(){
- let root=tempfile::tempdir().unwrap();let mut ws=workspace(root.path());let path=root.path().join("recent.json");std::fs::write(&path,b"{\"Version\":1}").unwrap();let file=File::open(&path).unwrap();
- let raw=br#"{"RecentFiles":[{"FileName":"empty.ssc","ActiveCharts":[],"FocusedChartIndex":-1},{"FileName":"old.ssc","LastChartType":"dance_double","LastChartDifficultyType":"Hard"}]}"#;
- let draft=ws.prepare_source_preferences(&file,raw,Platform::Mac).unwrap();
- assert_eq!(draft.target().recent_songs().entries[0].song().unwrap().active.len(),1);
- assert_eq!(draft.target().recent_songs().entries[0].song().unwrap().focused,Some(0));
- assert_eq!(draft.target().recent_songs().entries[1].song().unwrap().active[0].steps_type,"dance-double");
- ws.import_source_preferences(draft,&file,true).unwrap();let current=ws.take_source_preferences_update().unwrap().snapshot().file().clone();
- let mut song=current.recent_songs().entries[0].song().unwrap();song.active.clear();song.focused=None;let mut current=current;current.record_recent_song(&song).unwrap();current.save().unwrap();
- let reopened=File::open(&path).unwrap();let native=reopened.recent_songs().entries[0].song().unwrap();assert!(native.active.is_empty());assert_eq!(native.focused,None);
- let raw:serde_json::Value=serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();assert_eq!(raw["RecentFiles"][0]["ActiveCharts"],serde_json::json!([]));assert_eq!(raw["RecentFiles"][0]["FocusedChartIndex"],-1);
+fn source_recent_postload_runs_once_at_import_and_native_reopen_keeps_chartless() {
+    let root = tempfile::tempdir().unwrap();
+    let mut ws = workspace(root.path());
+    let path = root.path().join("recent.json");
+    std::fs::write(&path, b"{\"Version\":1}").unwrap();
+    let file = File::open(&path).unwrap();
+    let raw=br#"{"RecentFiles":[{"FileName":"empty.ssc","ActiveCharts":[],"FocusedChartIndex":-1},{"FileName":"old.ssc","LastChartType":"dance_double","LastChartDifficultyType":"Hard"}]}"#;
+    let draft = ws
+        .prepare_source_preferences(&file, raw, Platform::Mac)
+        .unwrap();
+    assert_eq!(
+        draft.target().recent_songs().entries[0]
+            .song()
+            .unwrap()
+            .active
+            .len(),
+        1
+    );
+    assert_eq!(
+        draft.target().recent_songs().entries[0]
+            .song()
+            .unwrap()
+            .focused,
+        Some(0)
+    );
+    assert_eq!(
+        draft.target().recent_songs().entries[1]
+            .song()
+            .unwrap()
+            .active[0]
+            .steps_type,
+        "dance-double"
+    );
+    ws.import_source_preferences(draft, &file, true).unwrap();
+    let current = ws
+        .take_source_preferences_update()
+        .unwrap()
+        .snapshot()
+        .file()
+        .clone();
+    let mut song = current.recent_songs().entries[0].song().unwrap();
+    song.active.clear();
+    song.focused = None;
+    let mut current = current;
+    current.record_recent_song(&song).unwrap();
+    current.save().unwrap();
+    let reopened = File::open(&path).unwrap();
+    let native = reopened.recent_songs().entries[0].song().unwrap();
+    assert!(native.active.is_empty());
+    assert_eq!(native.focused, None);
+    let raw: serde_json::Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    assert_eq!(raw["RecentFiles"][0]["ActiveCharts"], serde_json::json!([]));
+    assert_eq!(raw["RecentFiles"][0]["FocusedChartIndex"], -1);
 }
 
 #[test]
@@ -250,13 +292,23 @@ fn imported_window_visibility_requires_explicit_native_panel_adaptation_review()
     let root = tempfile::tempdir().unwrap();
     let mut ws = workspace(root.path());
     let file = File::memory().unwrap();
-    let draft = ws.prepare_source_preferences(
-        &file,
-        br#"{"ShowLogWindow":true,"PreferencesPerformance":{"ShowPerformanceWindow":true}}"#,
-        Platform::Mac,
-    ).unwrap();
-    for path in ["ShowLogWindow", "PreferencesPerformance.ShowPerformanceWindow"] {
-        let item = draft.report().items.iter().find(|item| item.path == path).unwrap();
+    let draft = ws
+        .prepare_source_preferences(
+            &file,
+            br#"{"ShowLogWindow":true,"PreferencesPerformance":{"ShowPerformanceWindow":true}}"#,
+            Platform::Mac,
+        )
+        .unwrap();
+    for path in [
+        "ShowLogWindow",
+        "PreferencesPerformance.ShowPerformanceWindow",
+    ] {
+        let item = draft
+            .report()
+            .items
+            .iter()
+            .find(|item| item.path == path)
+            .unwrap();
         assert_eq!(item.disposition, Disposition::Adapted);
         assert_eq!(item.effective, Some(serde_json::Value::Bool(true)));
         assert!(item.reason.starts_with("Source window visibility retained"));
@@ -266,4 +318,37 @@ fn imported_window_visibility_requires_explicit_native_panel_adaptation_review()
     assert!(ws.import_source_preferences(draft, &file, false).is_err());
 }
 
-#[test]fn source_receptor_placement_is_consumed_and_coordinate_adaptation_is_reported(){let root=tempfile::tempdir().unwrap();let mut ws=workspace(root.path());let file=File::memory().unwrap();let draft=ws.prepare_source_preferences(&file,br#"{"PreferencesReceptors":{"PositionX":900,"PositionY":123,"CenterHorizontally":false,"LockPositionX":true,"LockPositionY":true,"AllowChartMoveWhenPositionLocked":true}}"#,Platform::Mac).unwrap();let p=draft.target().receptors().placement;assert_eq!((p.x,p.y),(900,123));assert!(p.lock_x&&p.lock_y&&p.allow_header);for field in ["PositionX","PositionY","AllowChartMoveWhenPositionLocked"]{assert!(draft.report().items.iter().any(|item|item.path==format!("PreferencesReceptors.{field}")&&matches!(item.disposition,deadsync_editor::audio_preferences::source_import::Disposition::Adapted)));}let raw=draft.raw_source().to_vec();ws.import_source_preferences(draft,&file,true).unwrap();let installed=ws.take_source_preferences_update().unwrap().snapshot().file().clone();assert_eq!(installed.receptors().placement,p);assert_eq!(installed.source_archive().unwrap()["RawUtf8"].as_str().unwrap().as_bytes(),raw);}
+#[test]
+fn source_receptor_placement_is_consumed_and_coordinate_adaptation_is_reported() {
+    let root = tempfile::tempdir().unwrap();
+    let mut ws = workspace(root.path());
+    let file = File::memory().unwrap();
+    let draft=ws.prepare_source_preferences(&file,br#"{"PreferencesReceptors":{"PositionX":900,"PositionY":123,"CenterHorizontally":false,"LockPositionX":true,"LockPositionY":true,"AllowChartMoveWhenPositionLocked":true}}"#,Platform::Mac).unwrap();
+    let p = draft.target().receptors().placement;
+    assert_eq!((p.x, p.y), (900, 123));
+    assert!(p.lock_x && p.lock_y && p.allow_header);
+    for field in ["PositionX", "PositionY", "AllowChartMoveWhenPositionLocked"] {
+        assert!(draft.report().items.iter().any(|item| item.path
+            == format!("PreferencesReceptors.{field}")
+            && matches!(
+                item.disposition,
+                deadsync_editor::audio_preferences::source_import::Disposition::Adapted
+            )));
+    }
+    let raw = draft.raw_source().to_vec();
+    ws.import_source_preferences(draft, &file, true).unwrap();
+    let installed = ws
+        .take_source_preferences_update()
+        .unwrap()
+        .snapshot()
+        .file()
+        .clone();
+    assert_eq!(installed.receptors().placement, p);
+    assert_eq!(
+        installed.source_archive().unwrap()["RawUtf8"]
+            .as_str()
+            .unwrap()
+            .as_bytes(),
+        raw
+    );
+}

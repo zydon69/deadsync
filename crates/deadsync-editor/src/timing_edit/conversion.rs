@@ -32,21 +32,53 @@ pub struct Report {
     pub selection_after: Vec<u64>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Refusal { ZeroDurationStop, TargetFormat, CollisionReview, Stale, Invalid }
-#[derive(Debug)]
-pub struct Failure { kind: Refusal, error: Error }
-impl Failure {
-    pub fn kind(&self) -> Refusal { self.kind }
-    pub(crate) fn stale() -> Self { Self::new(Refusal::Stale, "Timing conversion belongs to another active chart") }
-    fn new(kind: Refusal, message: &str) -> Self { Self { kind, error: invalid(message) } }
+pub enum Refusal {
+    ZeroDurationStop,
+    TargetFormat,
+    CollisionReview,
+    Stale,
+    Invalid,
 }
-impl From<Error> for Failure { fn from(error: Error) -> Self { Self { kind: Refusal::Invalid, error } } }
-impl From<Failure> for Error { fn from(failure: Failure) -> Self { failure.error } }
+#[derive(Debug)]
+pub struct Failure {
+    kind: Refusal,
+    error: Error,
+}
+impl Failure {
+    pub fn kind(&self) -> Refusal {
+        self.kind
+    }
+    pub(crate) fn stale() -> Self {
+        Self::new(
+            Refusal::Stale,
+            "Timing conversion belongs to another active chart",
+        )
+    }
+    fn new(kind: Refusal, message: &str) -> Self {
+        Self {
+            kind,
+            error: invalid(message),
+        }
+    }
+}
+impl From<Error> for Failure {
+    fn from(error: Error) -> Self {
+        Self {
+            kind: Refusal::Invalid,
+            error,
+        }
+    }
+}
+impl From<Failure> for Error {
+    fn from(failure: Failure) -> Self {
+        failure.error
+    }
+}
 pub struct Plan {
     target: Target,
     chart: usize,
-    originals:Vec<crate::event_clipboard::Event>,
-    direction:Direction,
+    originals: Vec<crate::event_clipboard::Event>,
+    direction: Direction,
     stops: String,
     warps: String,
     report: Report,
@@ -62,12 +94,27 @@ impl Plan {
     ) -> Result<Self, Error> {
         Self::prepare_detailed(session, chart, direction, selected).map_err(Into::into)
     }
-    pub fn prepare_detailed(session: &Session, chart: usize, direction: Direction, selected: Option<&[u64]>) -> Result<Self, Failure> {
+    pub fn prepare_detailed(
+        session: &Session,
+        chart: usize,
+        direction: Direction,
+        selected: Option<&[u64]>,
+    ) -> Result<Self, Failure> {
         let mut reason = None;
-        Self::prepare_inner(session, chart, direction, selected, &mut reason)
-            .map_err(|error| Failure { kind: reason.unwrap_or(Refusal::Invalid), error })
+        Self::prepare_inner(session, chart, direction, selected, &mut reason).map_err(|error| {
+            Failure {
+                kind: reason.unwrap_or(Refusal::Invalid),
+                error,
+            }
+        })
     }
-    fn prepare_inner(session: &Session, chart: usize, direction: Direction, selected: Option<&[u64]>, reason: &mut Option<Refusal>) -> Result<Self, Error> {
+    fn prepare_inner(
+        session: &Session,
+        chart: usize,
+        direction: Direction,
+        selected: Option<&[u64]>,
+        reason: &mut Option<Refusal>,
+    ) -> Result<Self, Error> {
         let document = session.document();
         let scope = if super::supports_resident_chart_timing(document) {
             Scope::Chart
@@ -78,11 +125,11 @@ impl Plan {
         let origin = target.origin();
         let mut stops = Pauses::parse(
             PauseKind::Stop,
-            &super::resident::text(document,origin,"STOPS")?,
+            &super::resident::text(document, origin, "STOPS")?,
         )?;
         let mut warps = Regions::parse(
             RegionKind::Warp,
-            &super::resident::text(document,origin,"WARPS")?,
+            &super::resident::text(document, origin, "WARPS")?,
         )?;
         let timing = GenerationTiming::from_document(document, chart)?;
         let original = timeline(&timing)?;
@@ -117,7 +164,16 @@ impl Plan {
                 .filter(|row| eligible.contains_key(row) && seen.insert(*row))
                 .collect(),
         };
-        let originals=rows.iter().map(|&row|crate::event_clipboard::Event::Timing{row,kind:match direction {Direction::WarpsToNegativeStops=>crate::event_clipboard::TimingKind::Warp,Direction::NegativeStopsToWarps=>crate::event_clipboard::TimingKind::Stop}}).collect();
+        let originals = rows
+            .iter()
+            .map(|&row| crate::event_clipboard::Event::Timing {
+                row,
+                kind: match direction {
+                    Direction::WarpsToNegativeStops => crate::event_clipboard::TimingKind::Warp,
+                    Direction::NegativeStopsToWarps => crate::event_clipboard::TimingKind::Stop,
+                },
+            })
+            .collect();
         let chosen: BTreeSet<_> = rows.iter().copied().collect();
         let mut events: Vec<_> = timing
             .editor_events()
@@ -199,7 +255,9 @@ impl Plan {
             report,
         })
     }
-    pub fn chart(&self) -> usize { self.chart }
+    pub fn chart(&self) -> usize {
+        self.chart
+    }
     pub fn report(&self) -> &Report {
         &self.report
     }
@@ -208,18 +266,34 @@ impl Plan {
         session: &mut Session,
         acknowledged_collisions: &BTreeSet<u64>,
     ) -> Result<bool, Error> {
-        self.apply_detailed(session, acknowledged_collisions).map_err(Into::into)
+        self.apply_detailed(session, acknowledged_collisions)
+            .map_err(Into::into)
     }
-    pub fn apply_detailed(&self, session: &mut Session, acknowledged_collisions: &BTreeSet<u64>) -> Result<bool, Failure> {
+    pub fn apply_detailed(
+        &self,
+        session: &mut Session,
+        acknowledged_collisions: &BTreeSet<u64>,
+    ) -> Result<bool, Failure> {
         if acknowledged_collisions != &self.report.deleted_on_collision {
-            return Err(Failure::new(Refusal::CollisionReview, "Review every collision deletion before applying"));
+            return Err(Failure::new(
+                Refusal::CollisionReview,
+                "Review every collision deletion before applying",
+            ));
         }
         if !session.accepts_token(&self.target.token) {
-            return Err(Failure::new(Refusal::Stale, "Timing review belongs to another session or revision"));
+            return Err(Failure::new(
+                Refusal::Stale,
+                "Timing review belongs to another session or revision",
+            ));
         }
-        self.apply_inner(session, acknowledged_collisions).map_err(Into::into)
+        self.apply_inner(session, acknowledged_collisions)
+            .map_err(Into::into)
     }
-    fn apply_inner(&self, session: &mut Session, acknowledged_collisions: &BTreeSet<u64>) -> Result<bool, Error> {
+    fn apply_inner(
+        &self,
+        session: &mut Session,
+        acknowledged_collisions: &BTreeSet<u64>,
+    ) -> Result<bool, Error> {
         if acknowledged_collisions != &self.report.deleted_on_collision {
             return Err(invalid(
                 "Review every timing original deleted by an opposite-kind collision before applying",
@@ -231,7 +305,7 @@ impl Plan {
         // Typed equality avoids canonicalizing untouched formatting on no-op.
         if Pauses::parse(
             PauseKind::Stop,
-            &super::resident::text(document,origin,"STOPS")?,
+            &super::resident::text(document, origin, "STOPS")?,
         )?
         .serialize()
             != self.stops
@@ -240,23 +314,38 @@ impl Plan {
         }
         if Regions::parse(
             RegionKind::Warp,
-            &super::resident::text(document,origin,"WARPS")?,
+            &super::resident::text(document, origin, "WARPS")?,
         )?
         .serialize()
             != self.warps
         {
             changes.push(("WARPS", self.warps.clone()));
         }
-        let before=crate::history::SelectionEffect::capture(session,self.chart,self.originals.clone());
-        let changed=self.target.apply(
+        let before =
+            crate::history::SelectionEffect::capture(session, self.chart, self.originals.clone());
+        let changed = self.target.apply(
             session,
             self.chart,
             &changes,
             "Convert Warps and negative Stops",
         )?;
-        let events=self.report.selection_after.iter().map(|&row|crate::event_clipboard::Event::Timing {row,kind:match self.direction {Direction::WarpsToNegativeStops=>crate::event_clipboard::TimingKind::Stop,Direction::NegativeStopsToWarps=>crate::event_clipboard::TimingKind::Warp}}).collect();
-        let after=crate::history::SelectionEffect::capture(session,self.chart,events);
-        session.record_event_selection(crate::history::selection_effect::SelectionHistory{before,after},changed);
+        let events = self
+            .report
+            .selection_after
+            .iter()
+            .map(|&row| crate::event_clipboard::Event::Timing {
+                row,
+                kind: match self.direction {
+                    Direction::WarpsToNegativeStops => crate::event_clipboard::TimingKind::Stop,
+                    Direction::NegativeStopsToWarps => crate::event_clipboard::TimingKind::Warp,
+                },
+            })
+            .collect();
+        let after = crate::history::SelectionEffect::capture(session, self.chart, events);
+        session.record_event_selection(
+            crate::history::selection_effect::SelectionHistory { before, after },
+            changed,
+        );
         Ok(changed)
     }
 }

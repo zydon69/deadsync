@@ -1,4 +1,11 @@
-//! Production keyboard/transport/actor flow; synthetic snapshots do not certify PCM or GPU output.
+#[path = "support/row_geometry.rs"]
+mod row_geometry;
+#[path = "support/source_sprite_geometry.rs"]
+mod source_sprite_geometry;
+#[allow(dead_code)]
+#[path = "support/transport_host.rs"]
+mod transport_host;
+// Production keyboard/transport/actor flow; synthetic snapshots do not certify PCM or GPU output.
 use deadlib_platform::input::{KeyCode, RawKeyboardEvent};
 use deadlib_present::{
     actors::{Actor, SpriteSource},
@@ -8,7 +15,6 @@ use deadsync_editor::{
     Error,
     chart_order::{Orderer, Snapshot},
 };
-use deadsync_gameplay::GameplayAudioSnapshot;
 use deadsync_theme_simply_love::{
     i18n,
     screens::edition::{
@@ -57,7 +63,8 @@ fn setup() -> (tempfile::TempDir, State, Vec<u8>) {
     fs::write(dir.path().join("music.wav"), b"command-only fixture").unwrap();
     let source=b"#VERSION:0.83;#MUSIC:music.wav;#SAMPLESTART:0;#SAMPLELENGTH:1;#BPMS:0=120;#OFFSET:0;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:20F0\n0100\n3000\n0000;#NOTEDATA:;#STEPSTYPE:dance-double;#BPMS:0=60;#OFFSET:0.25;#NOTES:00002000\n10000000\n00003000\n00000000;".to_vec();
     fs::write(dir.path().join("song.ssc"), &source).unwrap();
-    let state = State::open(&dir.path().join("song.ssc"), 0).unwrap();
+    let mut state = State::open(&dir.path().join("song.ssc"), 0).unwrap();
+    row_geometry::configure_centered(&mut state, dir.path());
     (dir, state, source)
 }
 fn both(state: &mut State) {
@@ -69,6 +76,16 @@ fn both(state: &mut State) {
     assert_eq!(state.workspace().chart(), 0);
 }
 fn snapshot(state: &mut State, generation: u64, phase: Phase, stream: f32, music: Option<f64>) {
+    snapshot_at(state, generation, phase, stream, music, Instant::now());
+}
+fn snapshot_at(
+    state: &mut State,
+    generation: u64,
+    phase: Phase,
+    stream: f32,
+    music: Option<f64>,
+    at: Instant,
+) {
     state.set_decoder_status(
         generation,
         Some(Ack {
@@ -77,8 +94,11 @@ fn snapshot(state: &mut State, generation: u64, phase: Phase, stream: f32, music
             opened: !matches!(phase, Phase::Pending | Phase::Failed),
         }),
     );
-    let mut s = GameplayAudioSnapshot::default();
-    s.stream_clock.valid_at = Instant::now();
+    let mut s = transport_host::host_snapshot(state);
+    if phase == Phase::Pending || phase == Phase::Failed {
+        s.editor.assets.main = false;
+    }
+    s.stream_clock.valid_at = at;
     s.stream_clock.stream_seconds = stream;
     s.stream_clock.has_music_mapping = music.is_some();
     s.stream_clock.music_nanos = (music.unwrap_or_default() * 1e9).round() as i64;
@@ -108,8 +128,8 @@ fn sprites(state: &State) -> Vec<Sprite> {
                 source,
                 ..
             } => out.push(Sprite {
-                x: offset[0],
-                y: offset[1],
+                x: source_sprite_geometry::center(a).unwrap_or(*offset)[0],
+                y: source_sprite_geometry::center(a).unwrap_or(*offset)[1],
                 z: *z,
                 tint: *tint,
                 receptor: match source {
@@ -150,6 +170,7 @@ fn pending_generations_show_idle_receptors_without_consuming_chart_notes() {
         initial.iter().filter(|s| s.receptor && s.z == 8001).count(),
         4
     );
+    transport_host::publish(&mut state);
     press(&mut state, KeyCode::Enter);
     state.take_audio_commands();
     state.bind_decoder_generation(Some(1));
@@ -171,11 +192,13 @@ fn all_resident_charts_use_their_own_validated_clock_for_receptors_and_hold_cuto
     let _guard = SERIAL.lock().unwrap();
     let (_dir, mut state, source) = setup();
     both(&mut state);
+    transport_host::publish(&mut state);
     press(&mut state, KeyCode::Enter);
     state.take_audio_commands();
     state.bind_decoder_generation(Some(1));
-    snapshot(&mut state, 1, Phase::Producing, 1.0, Some(0.5));
-    let now = Instant::now() + Duration::from_secs(1);
+    // Keep the render frame exactly at the acknowledged 0.5s musical sample.
+    let now = Instant::now();
+    snapshot_at(&mut state, 1, Phase::Producing, 1.0, Some(0.5), now);
     state.update_with_time(now);
     let values = sprites(&state);
     assert!(
@@ -198,11 +221,17 @@ fn all_resident_charts_use_their_own_validated_clock_for_receptors_and_hold_cuto
         .unwrap();
     assert!((focused.tint[0] - 1.0).abs() < 0.001);
     assert!((inactive.tint[0] - 0.8).abs() < 0.001);
+    // Preserve the mapped transport snapshot when pausing; publication of a
+    // synthetic unmapped zero clock would change the position being tested.
     press(&mut state, KeyCode::Enter);
     state.update_with_time(now + Duration::from_millis(100));
     let paused = sprites(&state);
     assert!(!paused.iter().any(|s| s.receptor && s.z == 8010));
-    assert!(has(&paused, 355.0, 112.0, 8004));
+    assert!(
+        has(&paused, 355.0, 112.0, 8004),
+        "paused heads: {:?}",
+        paused.iter().filter(|s| s.z == 8004).collect::<Vec<_>>()
+    );
     assert!(has(&paused, 91.0, 124.0, 8004));
     assert_eq!(
         state.workspace().file().session.serialize().unwrap(),
@@ -214,6 +243,7 @@ fn passed_taps_trigger_hit_feedback_while_fake_notes_remain_visible_and_pause_do
  {
     let _guard = SERIAL.lock().unwrap();
     let (_dir, mut state, _source) = setup();
+    transport_host::publish(&mut state);
     press(&mut state, KeyCode::Enter);
     state.take_audio_commands();
     state.bind_decoder_generation(Some(1));
@@ -233,15 +263,26 @@ fn passed_taps_trigger_hit_feedback_while_fake_notes_remain_visible_and_pause_do
             .iter()
             .any(|s| s.z == 8004 && (s.x - 403.0).abs() < 0.01)
     );
-    fn has_fake_marker(actor:&Actor)->bool {
+    fn has_fake_marker(actor: &Actor) -> bool {
         match actor {
-            Actor::Sprite{z:8004,uv_rect:Some(uv),visible:true,..} =>
-                uv.iter().zip([523u32,1239,563,1279]).all(|(a,b)|(*a-b as f32/1280.0).abs()<1e-6),
-            Actor::Frame{children,..}=>children.iter().any(has_fake_marker),
-            _=>false,
+            Actor::Sprite {
+                z: 8004,
+                uv_rect: Some(uv),
+                visible: true,
+                ..
+            } => uv
+                .iter()
+                .zip([523u32, 1239, 563, 1279])
+                .all(|(a, b)| (*a - b as f32 / 1280.0).abs() < 1e-6),
+            Actor::Frame { children, .. } => children.iter().any(has_fake_marker),
+            _ => false,
         }
     }
-    assert!(actors(&state).iter().any(has_fake_marker),"fake note survives consumption with its original source marker");
+    assert!(
+        actors(&state).iter().any(has_fake_marker),
+        "fake note survives consumption with its original source marker"
+    );
+    transport_host::publish(&mut state);
     press(&mut state, KeyCode::Enter);
     let time = state.chart_focus_time().unwrap();
     state.update_with_time(now + Duration::from_secs(5));
@@ -300,7 +341,9 @@ fn held_lane_releases_through_panel_help_or_focus_loss_and_only_focus_receives_e
             &inactive
         );
         if boundary == "focus_loss" {
-            // Focus loss clears a modifier whose key-up was never delivered.
+            // Release the physical modifier quarantined by focus loss before
+            // starting a fresh lane gesture.
+            key(&mut state, KeyCode::AltLeft, false);
             key(&mut state, KeyCode::Digit4, true);
             state.update_with_time(now + Duration::from_millis(310));
             assert!(has(&sprites(&state), 499.0, 160.0, 8009));

@@ -11,11 +11,11 @@
 //! Nothing here re-implements the runtime — it binds to it, so the two views
 //! can never disagree about what is downloading.
 
-mod localization;
 mod chart_window;
 mod detail;
 mod input;
 mod layout;
+mod localization;
 mod preview;
 mod render;
 mod rip;

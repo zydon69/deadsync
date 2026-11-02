@@ -53,14 +53,19 @@ impl PreviewFade {
 mod tests {
     use super::*;
     #[test]
-    fn source_partial_preview_quantizes_absolute_positions_before_subtraction(){
-        let start=frames(1.9/48000.,48000);let current=frames(3.01/48000.,48000);let full=frames(5.9/48000.,48000);
-        assert_eq!((start,current,full),(1,3,5));
-        let offset=current.saturating_sub(start);let remaining=full.saturating_sub(offset);
-        assert_eq!((offset,remaining,offset+remaining),(2,3,5));
+    fn source_partial_preview_quantizes_absolute_positions_before_subtraction() {
+        let _audio_guard = crate::test_audio_guard();
+        let start = frames(1.9 / 48000., 48000);
+        let current = frames(3.01 / 48000., 48000);
+        let full = frames(5.9 / 48000., 48000);
+        assert_eq!((start, current, full), (1, 3, 5));
+        let offset = current.saturating_sub(start);
+        let remaining = full.saturating_sub(offset);
+        assert_eq!((offset, remaining, offset + remaining), (2, 3, 5));
     }
     #[test]
     fn both_ramps_and_strict_overlap_boundary() {
+        let _audio_guard = crate::test_audio_guard();
         assert_eq!(frames(1.9 / 48000., 48000), 1);
         let fade = PreviewFade::new(8, 8, Some(10)).unwrap();
         assert_eq!(
@@ -72,6 +77,7 @@ mod tests {
     }
     #[test]
     fn chunk_boundaries_partial_reload_offset_and_loop_reset() {
+        let _audio_guard = crate::test_audio_guard();
         let fade = PreviewFade::new(4, 4, Some(12)).unwrap();
         let mut whole = vec![10000; 24];
         fade.apply(&mut whole, 2, 0);

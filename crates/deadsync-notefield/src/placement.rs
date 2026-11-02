@@ -311,12 +311,18 @@ impl NotefieldCameraCache {
     #[must_use]
     pub fn wrapper_model(&self) -> Option<Matrix4> {
         let key = self.key?;
-        if self.wrapper == Matrix4::IDENTITY { return None; }
+        if self.wrapper == Matrix4::IDENTITY {
+            return None;
+        }
         let x = f32::from_bits(key.playfield_center_x) - 0.5 * f32::from_bits(key.screen_w);
         let flip = Matrix4::from_scale(Vector3::new(1.0, -1.0, 1.0));
-        Some(Matrix4::from_translation(Vector3::new(x, 0.0, 0.0))
-            * flip * self.wrapper * flip
-            * Matrix4::from_translation(Vector3::new(-x, 0.0, 0.0)))
+        Some(
+            Matrix4::from_translation(Vector3::new(x, 0.0, 0.0))
+                * flip
+                * self.wrapper
+                * flip
+                * Matrix4::from_translation(Vector3::new(-x, 0.0, 0.0)),
+        )
     }
 
     #[must_use]
@@ -374,7 +380,9 @@ pub(crate) fn notefield_camera(
 
     let flip = Matrix4::from_scale(Vector3::new(1.0, -1.0, 1.0));
     let wrapper = Matrix4::from_translation(Vector3::new(pivot_x, 0.0, 0.0))
-        * flip * wrapper * flip
+        * flip
+        * wrapper
+        * flip
         * Matrix4::from_translation(Vector3::new(-pivot_x, 0.0, 0.0));
     let eye = view * world_to_screen * wrapper * field;
     Some((proj * eye, eye))
@@ -759,8 +767,17 @@ mod tests {
     #[test]
     fn field_camera_cache_reuses_exact_inputs() {
         let mut cache = NotefieldCameraCache::default();
-        let expected = notefield_camera(640.0, 480.0, 213.5, 240.0, 0.35, -0.2, false, glam::Mat4::IDENTITY)
-            .map(|(projection, _)| projection);
+        let expected = notefield_camera(
+            640.0,
+            480.0,
+            213.5,
+            240.0,
+            0.35,
+            -0.2,
+            false,
+            glam::Mat4::IDENTITY,
+        )
+        .map(|(projection, _)| projection);
 
         let first = cache.resolve(640.0, 480.0, 213.5, 240.0, 0.35, -0.2, false);
         let second = cache.resolve(640.0, 480.0, 213.5, 240.0, 0.35, -0.2, false);
@@ -780,12 +797,16 @@ mod tests {
         let changed = cache.resolve(854.0, 480.0, 213.5, 240.0, 0.35, 0.0, false);
         assert_ne!(matrix_bits(original), matrix_bits(changed));
         assert_eq!(cache.generation(), 2);
-        assert_eq!(matrix_bits(changed), matrix_bits(cache.resolve(
-            854.0, 480.0, 213.5, 240.0, 0.35, 0.0, false)));
+        assert_eq!(
+            matrix_bits(changed),
+            matrix_bits(cache.resolve(854.0, 480.0, 213.5, 240.0, 0.35, 0.0, false))
+        );
         assert_eq!(cache.generation(), 2);
         cache.set_wrapper(glam::Mat4::IDENTITY);
-        assert_eq!(matrix_bits(original), matrix_bits(cache.resolve(
-            854.0, 480.0, 213.5, 240.0, 0.35, 0.0, false)));
+        assert_eq!(
+            matrix_bits(original),
+            matrix_bits(cache.resolve(854.0, 480.0, 213.5, 240.0, 0.35, 0.0, false))
+        );
         assert_eq!(cache.generation(), 3);
     }
 
@@ -807,9 +828,17 @@ mod tests {
             let (screen_w, screen_h, center_x, center_y, tilt, skew, reverse) = request;
             let resolved =
                 cache.resolve(screen_w, screen_h, center_x, center_y, tilt, skew, reverse);
-            let expected =
-                notefield_camera(screen_w, screen_h, center_x, center_y, tilt, skew, reverse, glam::Mat4::IDENTITY)
-                    .map(|(projection, _)| projection);
+            let expected = notefield_camera(
+                screen_w,
+                screen_h,
+                center_x,
+                center_y,
+                tilt,
+                skew,
+                reverse,
+                glam::Mat4::IDENTITY,
+            )
+            .map(|(projection, _)| projection);
             assert_eq!(matrix_bits(resolved), matrix_bits(expected));
             assert_eq!(cache.stats().rebuilds, index as u64 + 1);
             assert_eq!(cache.stats().hits, 0);

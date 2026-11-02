@@ -15,12 +15,18 @@ fn press(s: &mut State, code: KeyCode) {
 }
 fn open(s: &mut State) {
     press(s, KeyCode::F1);
-    press(s, KeyCode::ArrowUp);
+    // General options remains menu entry30; newer tools follow it.
+    for _ in 0..30 {
+        press(s, KeyCode::ArrowDown);
+    }
     press(s, KeyCode::Enter);
 }
 #[test]
 fn keyboard_general_controls_resize_history_and_persist_future_new_open_preferences_with_undo() {
     i18n::init(deadsync_assets::language::load_for_tests(super::LANGUAGE));
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
+    ));
     let root = tempfile::tempdir().unwrap();
     let song = root.path().join("song.ssc");
     std::fs::write(&song,"#VERSION:0.83;#BPMS:0=120;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0.25};#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0010\n0001;").unwrap();

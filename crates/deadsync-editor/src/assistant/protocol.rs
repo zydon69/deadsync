@@ -23,7 +23,7 @@ pub fn tools() -> Value {
         (
             "inspect_chart",
             "Read a bounded page of note heads with attributes",
-            json!({"type":"object","properties":{"chart":{"type":"integer","minimum":0},"start_row":{"type":"integer","minimum":0},"limit":{"type":"integer","minimum":1,"maximum":1000}},"additionalProperties":false}),
+            json!({"type":"object","properties":{"chart":{"type":"integer","minimum":0},"start_row":{"type":"integer","minimum":0},"cursor":{"type":"object","properties":{"row":{"type":"integer","minimum":0},"lane":{"type":"integer","minimum":0,"maximum":65535},"player":{"type":"integer","minimum":0,"maximum":4294967295u64}},"required":["row","lane","player"],"additionalProperties":false},"limit":{"type":"integer","minimum":1,"maximum":1000}},"additionalProperties":false}),
             true,
         ),
         (

@@ -69,10 +69,15 @@ fn frame_updates_write_recoverable_drafts_and_preserve_foreign_drafts_in_both_la
             assert!(
                 Instant::now() < deadline,
                 "Localized recovery conflict was not shown ({language}): {:?}",
-                actors.iter().filter_map(|actor| match actor {
-                    Actor::Text { content, z: 8006, .. } => Some(content.as_ref()),
-                    _ => None,
-                }).collect::<Vec<_>>()
+                actors
+                    .iter()
+                    .filter_map(|actor| match actor {
+                        Actor::Text {
+                            content, z: 8006, ..
+                        } => Some(content.as_ref()),
+                        _ => None,
+                    })
+                    .collect::<Vec<_>>()
             );
             std::thread::sleep(Duration::from_millis(1));
         }

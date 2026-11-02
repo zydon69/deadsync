@@ -92,7 +92,8 @@ fn advanced_policy_keeps_target_codec_when_undo_restores_unrepresentable_source(
     // No new edit/revision lifetime was created, so this review remains safe.
     assert!(prepared.is_current(&s));
     assert!(output.is_current(&s));
-    s.set_text(None, "TITLE", "new edit after approval").unwrap();
+    s.set_text(None, "TITLE", "new edit after approval")
+        .unwrap();
     s.undo().unwrap();
     assert_eq!(s.serialize().unwrap(), approved);
     // A new edit followed by Undo has a different monotone lifetime.

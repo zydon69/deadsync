@@ -10,15 +10,40 @@ impl State {
         self.ftue_preferences().completed()
     }
     fn save_ftue(&mut self, value: deadsync_editor::ftue::Preferences) -> bool {
-        let result=(||->Result<_,deadsync_editor::Error>{
-            let current=self.capture_application_preferences_file()?;let before=self.ftue_preferences();
-            let mut owner=Some(current.clone());
-            let merged=deadsync_editor::audio_preferences::publication::publish(&mut owner,Some(&current),value.clone(),|current|{
-                let mut file=current.clone();let merged=file.ftue().merge_changes(&before,&value)?;
-                file.set_ftue(merged.clone());Ok((merged,file))
-            })?;Ok((owner,merged))
+        let result = (|| -> Result<_, deadsync_editor::Error> {
+            let current = self.capture_application_preferences_file()?;
+            let before = self.ftue_preferences();
+            let mut owner = Some(current.clone());
+            let merged = deadsync_editor::audio_preferences::publication::publish(
+                &mut owner,
+                Some(&current),
+                value.clone(),
+                |current| {
+                    let mut file = current.clone();
+                    let merged = file.ftue().merge_changes(&before, &value)?;
+                    file.set_ftue(merged.clone());
+                    Ok((merged, file))
+                },
+            )?;
+            Ok((owner, merged))
         })();
-        match result{Ok((owner,merged))=>{if let Some(file)=owner{self.publish_application_preferences_owner(file);}self.ftue=merged;true},Err(error)=>{self.status=i18n::tr_fmt("Edition","Error",&[("message",&crate::i18n::editor_error(&error))]);false}}
+        match result {
+            Ok((owner, merged)) => {
+                if let Some(file) = owner {
+                    self.publish_application_preferences_owner(file);
+                }
+                self.ftue = merged;
+                true
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
+                );
+                false
+            }
+        }
     }
 
     pub(super) fn begin_ftue(&mut self) {
@@ -285,10 +310,46 @@ mod tests {
 }
 #[cfg(test)]
 mod memory_ftue_publication {
- use super::*;
- #[test]
- fn imported_ftue_progress_is_saved_without_path_or_history(){
-  i18n::init_for_tests();let dir=tempfile::tempdir().unwrap();let mut state=State::without_song(dir.path()).unwrap();let file=state.capture_application_preferences_file().unwrap();let draft=state.workspace.prepare_source_preferences(&file,br#"{"FtueIndex":2,"VendorPreserved":7}"#,deadsync_editor::key_binding_preferences::source_profile::Platform::Mac).unwrap();state.workspace.import_source_preferences(draft,&file,true).unwrap();state.sync_source_preferences_history().unwrap();
-  let label=state.workspace.file().session.undo_label().map(str::to_owned);let mut value=state.ftue_preferences();value.next();assert!(state.save_ftue(value.clone()));assert_eq!(state.ftue_preferences(),value);assert_eq!(state.application_preferences_owner().unwrap().ftue(),&value);assert!(!state.application_preferences_owner().unwrap().has_changes());assert!(state.audio_preferences_file.is_none());assert!(state.audio_preferences_path.is_none());assert_eq!(state.workspace.file().session.undo_label(),label.as_deref());
- }
+    use super::*;
+    #[test]
+    fn imported_ftue_progress_is_saved_without_path_or_history() {
+        i18n::init_for_tests();
+        let dir = tempfile::tempdir().unwrap();
+        let mut state = State::without_song(dir.path()).unwrap();
+        let file = state.capture_application_preferences_file().unwrap();
+        let draft = state
+            .workspace
+            .prepare_source_preferences(
+                &file,
+                br#"{"FtueIndex":2,"VendorPreserved":7}"#,
+                deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
+            )
+            .unwrap();
+        state
+            .workspace
+            .import_source_preferences(draft, &file, true)
+            .unwrap();
+        state.sync_source_preferences_history().unwrap();
+        let label = state
+            .workspace
+            .file()
+            .session
+            .undo_label()
+            .map(str::to_owned);
+        let mut value = state.ftue_preferences();
+        value.next();
+        assert!(state.save_ftue(value.clone()));
+        assert_eq!(state.ftue_preferences(), value);
+        assert_eq!(
+            state.application_preferences_owner().unwrap().ftue(),
+            &value
+        );
+        assert!(!state.application_preferences_owner().unwrap().has_changes());
+        assert!(state.audio_preferences_file.is_none());
+        assert!(state.audio_preferences_path.is_none());
+        assert_eq!(
+            state.workspace.file().session.undo_label(),
+            label.as_deref()
+        );
+    }
 }

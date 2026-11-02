@@ -547,10 +547,12 @@ mod tests {
             let root = fixtures.join(folder);
             let control: serde_json::Value = serde_json::from_slice(
                 &fs::read(root.join("control.json")).expect("native bitmap request"),
-            ).expect("native bitmap request JSON");
+            )
+            .expect("native bitmap request JSON");
             let native: serde_json::Value = serde_json::from_slice(
                 &fs::read(root.join("native.json")).expect("current native bitmap capture"),
-            ).expect("native bitmap capture JSON");
+            )
+            .expect("native bitmap capture JSON");
             let specs = control["texture_files"].as_array().unwrap();
             let cases = native["cases"].as_array().unwrap();
             assert_eq!(specs.len(), cases.len(), "retain every native bitmap case");
@@ -561,19 +563,41 @@ mod tests {
                 let job = texture_decode_job(&key, false);
                 let actual = deadlib_assets::decode_texture_image(&job.path, &job.hints)
                     .unwrap_or_else(|error| panic!("{folder}/{name}: {error}"));
-                assert_eq!(serde_json::json!([actual.width(), actual.height()]),
-                    case["dimensions"]["image"], "{folder}/{name}: prepared dimensions");
+                assert_eq!(
+                    serde_json::json!([actual.width(), actual.height()]),
+                    case["dimensions"]["image"],
+                    "{folder}/{name}: prepared dimensions"
+                );
                 dimensions += 1;
                 if case["upload"]["pixels_captured"] == true {
-                    let expected: Vec<u8> = case["upload"]["pixels"].as_array().unwrap().iter()
-                        .flat_map(|pixel| pixel.as_array().unwrap().iter()
-                            .map(|value| u8::try_from(value.as_u64().unwrap()).unwrap()))
+                    let expected: Vec<u8> = case["upload"]["pixels"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .flat_map(|pixel| {
+                            pixel
+                                .as_array()
+                                .unwrap()
+                                .iter()
+                                .map(|value| u8::try_from(value.as_u64().unwrap()).unwrap())
+                        })
                         .collect();
-                    assert_eq!(actual.as_raw().len(), expected.len(), "{folder}/{name}: byte count");
-                    if let Some(index) = actual.as_raw().iter().zip(&expected)
-                        .position(|(actual, expected)| actual != expected) {
-                        panic!("{folder}/{name}: byte {index}, actual={}, native={}",
-                            actual.as_raw()[index], expected[index]);
+                    assert_eq!(
+                        actual.as_raw().len(),
+                        expected.len(),
+                        "{folder}/{name}: byte count"
+                    );
+                    if let Some(index) = actual
+                        .as_raw()
+                        .iter()
+                        .zip(&expected)
+                        .position(|(actual, expected)| actual != expected)
+                    {
+                        panic!(
+                            "{folder}/{name}: byte {index}, actual={}, native={}",
+                            actual.as_raw()[index],
+                            expected[index]
+                        );
                     }
                     images += 1;
                     bytes += expected.len();
@@ -595,16 +619,24 @@ mod tests {
             .join("../../tests/fixtures/itgmania-song-lua-micro/texture-sprite-preparation");
         let control: serde_json::Value = serde_json::from_slice(
             &fs::read(root.join("control.json")).expect("native Sprite controls"),
-        ).expect("Sprite control JSON");
+        )
+        .expect("Sprite control JSON");
         let native: serde_json::Value = serde_json::from_slice(
             &fs::read(root.join("native.json")).expect("native Sprite pixels"),
-        ).expect("native Sprite JSON");
+        )
+        .expect("native Sprite JSON");
         let mut failures = Vec::new();
         let mut checked = 0;
-        for (spec, case) in control["texture_files"].as_array().expect("controls").iter()
-            .zip(native["cases"].as_array().expect("native cases")) {
+        for (spec, case) in control["texture_files"]
+            .as_array()
+            .expect("controls")
+            .iter()
+            .zip(native["cases"].as_array().expect("native cases"))
+        {
             // The production headless profile resolves high-resolution textures on.
-            if spec["high_resolution"] == false { continue; }
+            if spec["high_resolution"] == false {
+                continue;
+            }
             let name = case["name"].as_str().expect("case name");
             let source = root.join(spec["file"].as_str().expect("source file"));
             let key = canonical_texture_key(&source);
@@ -613,14 +645,32 @@ mod tests {
                 .unwrap_or_else(|error| panic!("{name}: {error}"));
             checked += 1;
             if serde_json::json!([image.width(), image.height()]) != case["dimensions"]["image"] {
-                failures.push(format!("{name}: actual {:?}, native {}", image.dimensions(), case["dimensions"]["image"]));
+                failures.push(format!(
+                    "{name}: actual {:?}, native {}",
+                    image.dimensions(),
+                    case["dimensions"]["image"]
+                ));
                 continue;
             }
             if case["upload"]["pixels_captured"] == true {
-                let expected: Vec<u8> = case["upload"]["pixels"].as_array().expect("native pixels").iter()
-                    .flat_map(|pixel| pixel.as_array().expect("RGBA").iter().map(|byte| byte.as_u64().expect("byte") as u8)).collect();
+                let expected: Vec<u8> = case["upload"]["pixels"]
+                    .as_array()
+                    .expect("native pixels")
+                    .iter()
+                    .flat_map(|pixel| {
+                        pixel
+                            .as_array()
+                            .expect("RGBA")
+                            .iter()
+                            .map(|byte| byte.as_u64().expect("byte") as u8)
+                    })
+                    .collect();
                 if image.as_raw() != &expected {
-                    let difference = image.as_raw().iter().zip(&expected).position(|(actual, expected)| actual != expected);
+                    let difference = image
+                        .as_raw()
+                        .iter()
+                        .zip(&expected)
+                        .position(|(actual, expected)| actual != expected);
                     failures.push(format!("{name}: native pixel difference at {difference:?}"));
                 }
             }
@@ -632,12 +682,12 @@ mod tests {
     #[test]
     fn native_indexed_bitmap_pixels() {
         crate::init_asset_paths();
-        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../..");
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
         let capture: serde_json::Value = serde_json::from_slice(
             &fs::read(root.join("tests/fixtures/itgmania-primary-bitmaps/capture.json"))
                 .expect("current primary bitmap capture"),
-        ).expect("primary bitmap JSON");
+        )
+        .expect("primary bitmap JSON");
         let cases = capture["cases"].as_array().unwrap();
         assert_eq!(cases.len(), 35);
         let mut failures = Vec::new();
@@ -673,12 +723,24 @@ mod tests {
                 continue;
             }
             if native["upload"]["pixels_captured"] != true {
-                assert_ne!(native["dimensions"]["image"], native["dimensions"]["texture"]);
+                assert_ne!(
+                    native["dimensions"]["image"],
+                    native["dimensions"]["texture"]
+                );
                 continue;
             }
-            let native: Vec<u8> = native["upload"]["pixels"].as_array().unwrap().iter()
-                .flat_map(|pixel| pixel.as_array().unwrap().iter().map(|value|
-                    u8::try_from(value.as_u64().unwrap()).unwrap())).collect();
+            let native: Vec<u8> = native["upload"]["pixels"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .flat_map(|pixel| {
+                    pixel
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|value| u8::try_from(value.as_u64().unwrap()).unwrap())
+                })
+                .collect();
             uploads += 1;
             if let Some((index, (actual, expected))) = image
                 .as_raw()
@@ -711,7 +773,10 @@ mod tests {
                 deadlib_assets::decode_texture_image(&job.path, &job.hints).is_err(),
                 "palette indices outside the table must be rejected"
             );
-            assert_eq!(deadlib_assets::texture_source_size(&source).unwrap(), (8, 8));
+            assert_eq!(
+                deadlib_assets::texture_source_size(&source).unwrap(),
+                (8, 8)
+            );
         }
     }
 
@@ -734,12 +799,26 @@ mod tests {
         let capture: serde_json::Value = serde_json::from_slice(
             &fs::read(root.join("../../itgmania-primary-bitmaps/capture.json"))
                 .expect("primary GIF Model capture"),
-        ).expect("primary GIF Model JSON");
-        let native = capture["cases"].as_array().unwrap().iter()
-            .find(|case| case["request"]["name"] == "gif-offset-model").unwrap();
-        let native: Vec<u8> = native["native"]["upload"]["pixels"].as_array().unwrap().iter()
-            .flat_map(|pixel| pixel.as_array().unwrap().iter().map(|value|
-                u8::try_from(value.as_u64().unwrap()).unwrap())).collect();
+        )
+        .expect("primary GIF Model JSON");
+        let native = capture["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|case| case["request"]["name"] == "gif-offset-model")
+            .unwrap();
+        let native: Vec<u8> = native["native"]["upload"]["pixels"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .flat_map(|pixel| {
+                pixel
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|value| u8::try_from(value.as_u64().unwrap()).unwrap())
+            })
+            .collect();
         assert_eq!(image.dimensions(), (16, 32));
         assert_eq!(image.as_raw(), &native);
     }

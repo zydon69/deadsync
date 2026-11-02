@@ -130,7 +130,7 @@ fn external_changes_refuse_save_and_keep_reviewable_draft_without_applying() {
     let (_dir, mut state, path, _) = setup();
     open(&mut state);
     press(&mut state, KeyCode::ArrowRight);
-    let external = r#"{"Version":1,"Zoom":{"ZoomMultiplier":2}}"#;
+    let external = r#"{"Version":1,"Zoom":{"ScrollInterpolationDuration":0.5}}"#;
     fs::write(&path, external).unwrap();
     down(&mut state, 5);
     press(&mut state, KeyCode::Enter);

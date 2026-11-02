@@ -273,7 +273,10 @@ pub fn register_generated_texture(key: &str, image: RgbaImage, sampler: SamplerD
 /// Register prepared pixels with their original bitmap dimensions.
 /// Source dimensions remain independent of the GPU upload dimensions.
 pub fn register_prepared_generated_texture(
-    key: &str, image: RgbaImage, source_size: [u32; 2], sampler: SamplerDesc,
+    key: &str,
+    image: RgbaImage,
+    source_size: [u32; 2],
+    sampler: SamplerDesc,
 ) {
     GENERATED_TEXTURES.write().unwrap().register(
         key,

@@ -20,7 +20,7 @@ pub(crate) fn literals(ast: &Ast) -> Vec<Option<f64>> {
                         Kind::Minus => x - y,
                         Kind::Star => x * y,
                         Kind::Slash if y != 0.0 => x / y,
-                        Kind::Percent if y != 0.0 => x - (x / y).floor() * y,
+                        Kind::Percent if y != 0.0 => crate::arithmetic::modulo(x, y),
                         Kind::Caret => x.powf(y),
                         _ => return None,
                     })

@@ -108,7 +108,8 @@ impl Review {
     /// Same local field baseline, including owner and reversible logical token.
     pub fn same_capture(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.owner.0, &other.owner.0)
-            && Arc::ptr_eq(&self.token, &other.token) && self.data == other.data
+            && Arc::ptr_eq(&self.token, &other.token)
+            && self.data == other.data
     }
     pub fn data(&self) -> &Data {
         &self.data

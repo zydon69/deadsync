@@ -191,7 +191,7 @@ fn unselected_invalid_peer_is_reported_and_preserved_without_blocking_default() 
     let (_root, source, target, mut state) = fixture(None, false);
     let before_source = fs::read(&source).unwrap();
     let mut bytes = fs::read_to_string(&target).unwrap();
-    bytes.push_str("#NOTEDATA:;#STEPSTYPE:dance-double;#DIFFICULTY:Hard;#METER:8;#VENDOR:keep-bad-peer;#NOTES:oops;");
+    bytes.push_str("#NOTEDATA:;#STEPSTYPE:dance-double;#DIFFICULTY:Hard;#METER:8;#VENDOR:keep-bad-peer;#NOTES:100;");
     fs::write(&target, &bytes).unwrap();
     open_target(&mut state);
     pump(&mut state, NativeFake, |s| {
@@ -219,9 +219,9 @@ fn unavailable_preferred_chart_falls_back_to_loadable_hard_without_erasing_peer(
     let (_root, _source, target, mut state) = fixture(None, false);
     let bytes = fs::read_to_string(&target).unwrap().replace(
         "#DIFFICULTY:Challenge;#METER:13;#NOTES:1000;",
-        "#DIFFICULTY:Challenge;#METER:13;#NOTES:oops;",
+        "#DIFFICULTY:Challenge;#METER:13;#NOTES:100;",
     );
-    assert!(bytes.contains("#NOTES:oops;"));
+    assert!(bytes.contains("#NOTES:100;"));
     fs::write(&target, &bytes).unwrap();
     open_target(&mut state);
     pump(&mut state, NativeFake, |s| {
@@ -241,7 +241,7 @@ fn no_loadable_chart_opens_unfocused_with_diagnostics_and_original_blocks() {
     let (_root, _source, target, mut state) = fixture(None, false);
     let mut bytes = fs::read_to_string(&target).unwrap();
     for notes in ["1000", "10000", "10000000", "1000000000"] {
-        bytes = bytes.replace(&format!("#NOTES:{notes};"), "#NOTES:oops;");
+        bytes = bytes.replace(&format!("#NOTES:{notes};"), "#NOTES:100;");
     }
     fs::write(&target, &bytes).unwrap();
     open_target(&mut state);

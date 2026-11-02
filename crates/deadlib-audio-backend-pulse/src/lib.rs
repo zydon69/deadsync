@@ -1,4 +1,4 @@
-#![cfg(target_os = "linux")]
+#![cfg(any(target_os = "linux", test))]
 
 use deadlib_audio_core::{
     AudioOutputMode, CallbackClockSource, CallbackInfo, OutputBackendReady, OutputBufferMut,
@@ -83,7 +83,11 @@ impl PulseOutputPrep {
             backend_name: "pulse-shared",
             requested_output_mode: AudioOutputMode::Shared,
             fallback_from_native: false,
+            #[cfg(target_os = "linux")]
             timing_clock: OutputTelemetryClock::Monotonic,
+            // Other hosts compile only the pure unit-test contract, not a live backend.
+            #[cfg(not(target_os = "linux"))]
+            timing_clock: OutputTelemetryClock::Unknown,
             timing_quality: OutputTimingQuality::Trusted,
         }
     }
