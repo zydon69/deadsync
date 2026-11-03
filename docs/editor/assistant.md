@@ -54,6 +54,15 @@ apps, multi-agent and web search tools are disabled; repository instructions and
 other configured MCP servers are not inherited. This authentication adapter
 requires a file-backed Codex login. It reports an error if that login is unavailable. No credentials are embedded in the game.
 
+The authentication lease lasts for the entire Codex request: the CLI can refresh
+credentials at any point, so two DeadSync assistants cannot use the same login
+concurrently. A second instance reports that the login is in use. If retaining
+refreshed credentials fails after a request, the panel shows a warning and keeps
+the completed proposal. It never overwrites a concurrently changed login.
+Raw child-process stderr is consumed but never displayed or retained; a failed
+request reports only that diagnostic output was emitted. Opaque credentials and
+keywords split across reads therefore cannot leak through a stderr filter.
+
 Prompts, chart metadata, note data returned by tools, and analysis summaries are
 sent to the configured Codex service. Audio decoding and onset analysis run
 locally; the audio file is not uploaded. Each assistant keeps at most one rhythm
@@ -135,6 +144,13 @@ This standalone mode operates on its own in-memory session. Add `--allow-save`
 only when you want the `save_chart` tool to be allowed to persist that song. It
 does not provide live editor synchronization. Without that flag, saves fail.
 The helper emits newline-delimited JSON-RPC only on stdout; diagnostics use stderr.
+
+In `--connect-editor` mode, initialization, ping and tool discovery work even
+before F4 is enabled. Tool calls report a recoverable error while the editor is
+unavailable; enabling F4 allows the same helper to retry without restarting.
+An oversized input line receives parse error `-32700`; the rest of that line is
+discarded with bounded memory, and subsequent requests remain usable. A saturated
+bridge reports that its eight request slots are busy so clients can retry.
 
 ## Tools
 

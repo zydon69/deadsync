@@ -209,9 +209,9 @@ fn run(
         .read(true)
         .open(auth.with_extension("deadsync-lock"))
         .map_err(|e| e.to_string())?;
-    lock.try_lock().map_err(
-        |_| "Another DeadSync assistant is refreshing authentication; retry after it finishes",
-    )?;
+    lock.try_lock().map_err(|_| {
+        "Another DeadSync assistant is using this Codex login; retry after its request finishes"
+    })?;
     let original = std::fs::read(&auth).map_err(|e| e.to_string())?;
     let isolated = home.path().join("auth.json");
     let mut copy = std::fs::OpenOptions::new();
@@ -224,7 +224,7 @@ fn run(
     copy.open(&isolated)
         .and_then(|mut f| f.write_all(&original))
         .map_err(|e| e.to_string())?;
-    let diagnostics = Arc::new(Mutex::new(String::new()));
+    let diagnostics = Arc::new(AtomicBool::new(false));
     let result = run_process(
         workspace,
         token,
@@ -242,19 +242,59 @@ fn run(
             let _ = process.wait();
         }
     }
-    retain_refreshed_auth(&auth, &isolated, &original)?;
+    let result = finish_request(
+        result,
+        retain_refreshed_auth(&auth, &isolated, &original),
+        events,
+    );
     drop(lock);
     result.map_err(|error| {
         if cancelled.load(Ordering::Acquire) {
             return "Assistant cancelled".into();
         }
-        let tail = diagnostics.lock().map(|d| d.clone()).unwrap_or_default();
-        if tail.is_empty() {
-            error
-        } else {
-            format!("{error}\nCodex diagnostics:\n{tail}")
-        }
+        diagnostic_error(error, &diagnostics)
     })
+}
+
+fn finish_request(
+    mut result: Result<Draft, String>,
+    authentication: Result<(), String>,
+    events: &SyncSender<Event>,
+) -> Result<Draft, String> {
+    if let Err(error) = authentication {
+        let warning = format!("\n[Codex authentication warning] {error}\n");
+        if let Ok(draft) = &mut result {
+            draft.message.push_str(&warning);
+        }
+        // Refresh failure is secondary: never replace a completed proposal or
+        // the actual request error with an authentication persistence error.
+        let _ = events.send(Event::Text(warning));
+    }
+    result
+}
+
+fn diagnostic_error(error: String, diagnostics: &AtomicBool) -> String {
+    if diagnostics.load(Ordering::Acquire) {
+        format!(
+            "{error}\nCodex emitted diagnostic output; raw diagnostics are hidden to protect credentials."
+        )
+    } else {
+        error
+    }
+}
+
+fn drain_diagnostics(mut reader: impl std::io::Read, diagnostics: &AtomicBool) {
+    // Arbitrary stderr is not a trusted display channel. Consume it to avoid a
+    // blocked child, but retain no raw bytes or partially redacted credentials.
+    let mut chunk = [0u8; 2048];
+    loop {
+        match reader.read(&mut chunk) {
+            Ok(0) => break,
+            Ok(_) => diagnostics.store(true, Ordering::Release),
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+            Err(_) => break,
+        }
+    }
 }
 fn retain_refreshed_auth(auth: &Path, isolated: &Path, original: &[u8]) -> Result<(), String> {
     // Caller holds the DeadSync refresh lease and has reaped the child.
@@ -286,7 +326,7 @@ fn run_process(
     events: &SyncSender<Event>,
     home: &Path,
     executable: &Path,
-    diagnostics: &Arc<Mutex<String>>,
+    diagnostics: &Arc<AtomicBool>,
 ) -> Result<Draft, String> {
     let cwd = home.join("work");
     std::fs::create_dir(&cwd).map_err(|e| e.to_string())?;
@@ -341,35 +381,7 @@ fn run_process(
         std::thread::Builder::new()
             .name("deadsync-codex-diagnostics".into())
             .spawn(move || {
-                // Bounded bytes and line sizes, even when the child emits no newline.
-                use std::io::Read;
-                let mut reader = stderr;
-                let mut chunk = [0u8; 2048];
-                while let Ok(n) = reader.read(&mut chunk) {
-                    if n == 0 {
-                        break;
-                    }
-                    let text = String::from_utf8_lossy(&chunk[..n]);
-                    // Do not expose authentication diagnostics containing credentials.
-                    let text = if ["token", "authorization", "api_key"]
-                        .iter()
-                        .any(|s| text.to_ascii_lowercase().contains(s))
-                    {
-                        "[authentication diagnostic redacted]"
-                    } else {
-                        &text
-                    };
-                    if let Ok(mut tail) = diagnostics.lock() {
-                        tail.push_str(text);
-                        if tail.len() > 8192 {
-                            let mut start = tail.len() - 8192;
-                            while !tail.is_char_boundary(start) {
-                                start += 1;
-                            }
-                            tail.drain(..start);
-                        }
-                    }
-                }
+                drain_diagnostics(stderr, &diagnostics);
             })
             .map_err(|e| e.to_string())?;
     }
@@ -567,6 +579,75 @@ fn response_id(frame: &Value, id: u64) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn authentication_persistence_failure_keeps_completed_work_and_warns() {
+        let home = tempfile::tempdir().unwrap();
+        let auth = home.path().join("auth.json");
+        let isolated = home.path().join("isolated.json");
+        let original = br#"{"token":"original-test-fixture"}"#;
+        let another = br#"{"token":"another-test-login"}"#;
+        let refreshed = br#"{"token":"refreshed-test-fixture"}"#;
+        for (current, updated) in [
+            (another.as_slice(), refreshed.as_slice()),
+            (original.as_slice(), b"broken".as_slice()),
+        ] {
+            std::fs::write(&auth, current).unwrap();
+            std::fs::write(&isolated, updated).unwrap();
+            let mut host = workspace();
+            let mut shadow = workspace();
+            shadow.execute(Command::DuplicateChart).unwrap();
+            let bytes = shadow.file().session.serialize().unwrap();
+            let draft = Draft::from_bytes_for_test(&host, bytes.clone());
+            let (sender, receiver) = mpsc::sync_channel(1);
+            let result = finish_request(
+                Ok(draft),
+                retain_refreshed_auth(&auth, &isolated, original),
+                &sender,
+            )
+            .unwrap();
+            assert_eq!(result.bytes(), bytes);
+            assert!(result.message.contains("authentication warning"));
+            assert!(
+                matches!(receiver.try_recv().unwrap(), Event::Text(warning) if warning.contains("authentication warning"))
+            );
+            result.apply(&mut host).unwrap();
+            assert_eq!(host.file().session.document().charts().len(), 2);
+            assert_eq!(std::fs::read(&auth).unwrap(), current);
+        }
+    }
+    #[test]
+    fn authentication_warning_does_not_replace_the_actual_request_error() {
+        let (sender, receiver) = mpsc::sync_channel(1);
+        let error = finish_request(
+            Err("request failed".into()),
+            Err("refresh failed".into()),
+            &sender,
+        )
+        .err()
+        .unwrap();
+        assert_eq!(error, "request failed");
+        assert!(
+            matches!(receiver.try_recv().unwrap(), Event::Text(warning) if warning.contains("refresh failed"))
+        );
+    }
+    #[test]
+    fn raw_diagnostics_never_enter_display_errors_even_across_read_boundaries() {
+        let mut bytes = vec![b'x'; 2046];
+        bytes.extend_from_slice(b"token=secret-fixture\nBearer eyJ-opaque-fixture\nauthorization: secret\napi_key=fixture\n");
+        let diagnostics = AtomicBool::new(false);
+        drain_diagnostics(std::io::Cursor::new(bytes), &diagnostics);
+        let error = diagnostic_error("request failed".into(), &diagnostics);
+        assert!(error.contains("raw diagnostics are hidden"));
+        for forbidden in ["secret", "Bearer", "eyJ", "api_key", "authorization"] {
+            assert!(!error.contains(forbidden));
+        }
+        let empty = AtomicBool::new(false);
+        drain_diagnostics(std::io::empty(), &empty);
+        assert_eq!(
+            diagnostic_error("request failed".into(), &empty),
+            "request failed"
+        );
+    }
     #[test]
     fn atomic_auth_refresh_is_retained_but_never_overwrites_another_login() {
         let home = tempfile::tempdir().unwrap();

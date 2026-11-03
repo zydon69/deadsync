@@ -336,7 +336,7 @@ impl Server {
     fn listen(self, listener: TcpListener) {
         let server = Arc::new(self);
         while !server.cancelled.load(Ordering::Acquire) {
-            let (stream, _) = match listener.accept() {
+            let (mut stream, _) = match listener.accept() {
                 Ok(pair) => pair,
                 Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
                     std::thread::sleep(Duration::from_millis(25));
@@ -349,6 +349,7 @@ impl Server {
                 }
             };
             if server.active.load(Ordering::Acquire) >= 8 {
+                let _ = reject_busy(&mut stream);
                 continue;
             }
             // Keep a descriptor for an allocation/thread-pressure fallback.
@@ -585,6 +586,43 @@ fn read_frame(input: &mut impl BufRead) -> Result<Value, String> {
     }
     serde_json::from_slice(&bytes).map_err(|e| e.to_string())
 }
+fn reject_busy(stream: &mut TcpStream) -> Result<(), String> {
+    // Consume the bounded request before closing: dropping a TCP socket with
+    // unread request bytes can reset it and discard the useful busy response.
+    // Admission itself remains bounded even for a peer sending no data.
+    stream.set_nonblocking(false).map_err(|e| e.to_string())?;
+    stream
+        .set_write_timeout(Some(Duration::from_millis(100)))
+        .map_err(|e| e.to_string())?;
+    let deadline = std::time::Instant::now() + Duration::from_millis(100);
+    let mut remaining_bytes = protocol::MAX_FRAME + 1;
+    let mut chunk = [0u8; 2048];
+    while remaining_bytes > 0 {
+        let remaining_time = deadline.saturating_duration_since(std::time::Instant::now());
+        if remaining_time.is_zero() {
+            break;
+        }
+        stream
+            .set_read_timeout(Some(remaining_time))
+            .map_err(|e| e.to_string())?;
+        let bound = chunk.len().min(remaining_bytes);
+        match std::io::Read::read(stream, &mut chunk[..bound]) {
+            Ok(0) => break,
+            Ok(count) => {
+                remaining_bytes -= count;
+                if chunk[..count].contains(&b'\n') {
+                    break;
+                }
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+            Err(_) => break,
+        }
+    }
+    write_frame(
+        stream,
+        &json!({"bridge_error":"MCP bridge is busy (8 active requests); retry shortly"}),
+    )
+}
 fn write_frame(output: &mut impl Write, value: &Value) -> Result<(), String> {
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?;
     if bytes.len() > protocol::MAX_FRAME {
@@ -607,7 +645,18 @@ pub fn connect(path: &Path, mut input: impl BufRead, mut output: impl Write) -> 
             .read_until(b'\n', &mut frame)
             .map_err(|e| e.to_string())?;
         if frame.len() > protocol::MAX_FRAME {
-            return Err("Invalid bridge frame size".into());
+            // Discard the rest of this line without retaining unbounded input.
+            // A newline already read belongs to this frame, not the next one.
+            if frame.last() != Some(&b'\n') {
+                input.skip_until(b'\n').map_err(|e| e.to_string())?;
+            }
+            write_frame(
+                &mut output,
+                &json!({"jsonrpc":"2.0","id":null,"error":{
+                    "code":-32700,"message":"MCP frame exceeds 1 MiB"
+                }}),
+            )?;
+            continue;
         }
         if frame.iter().all(u8::is_ascii_whitespace) {
             continue;
@@ -625,7 +674,10 @@ pub fn connect(path: &Path, mut input: impl BufRead, mut output: impl Write) -> 
                 continue;
             }
         };
-        if request.get("id").is_none() {
+        if let Some(response) = protocol::response_without_workspace(&request) {
+            if let Some(response) = response {
+                write_frame(&mut output, &response)?;
+            }
             continue;
         }
         let result = (|| -> Result<Value, String> {
@@ -688,6 +740,156 @@ pub fn default_connection_path() -> Result<PathBuf, Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn connected_responses(
+        path: &Path,
+        input: Vec<u8>,
+        after_response: impl FnMut(usize),
+    ) -> Vec<Value> {
+        struct Output<F> {
+            bytes: Vec<u8>,
+            responses: usize,
+            after_response: F,
+        }
+        impl<F: FnMut(usize)> Write for Output<F> {
+            fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+                self.bytes.extend_from_slice(bytes);
+                Ok(bytes.len())
+            }
+            fn flush(&mut self) -> std::io::Result<()> {
+                self.responses += 1;
+                (self.after_response)(self.responses);
+                Ok(())
+            }
+        }
+        let mut output = Output {
+            bytes: Vec::new(),
+            responses: 0,
+            after_response,
+        };
+        connect(path, std::io::Cursor::new(input), &mut output).unwrap();
+        output
+            .bytes
+            .split(|b| *b == b'\n')
+            .filter(|line| !line.is_empty())
+            .map(|line| serde_json::from_slice(line).unwrap())
+            .collect()
+    }
+    #[test]
+    fn connected_helper_initializes_before_f4_and_recovers_without_restarting() {
+        let home = tempfile::tempdir().unwrap();
+        let path = home.path().join("connection.json");
+        let host = workspace();
+        let mut bridge = None;
+        let requests = [
+            json!({"jsonrpc":"2.0","id":1,"method":"initialize"}),
+            json!({"jsonrpc":"2.0","id":2,"method":"ping"}),
+            json!({"jsonrpc":"2.0","id":3,"method":"tools/list"}),
+            json!({"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"inspect_song"}}),
+            json!({"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"inspect_song"}}),
+        ];
+        let mut input = Vec::new();
+        for request in requests {
+            write_frame(&mut input, &request).unwrap();
+        }
+        let responses = connected_responses(&path, input, |count| {
+            if count == 4 {
+                // Simulate enabling F4 after the helper was already initialized.
+                let enabled = Bridge::start_at(&host, path.clone()).unwrap();
+                enabled.host.requested.store(true, Ordering::Release);
+                enabled.synchronize(&host).unwrap();
+                bridge = Some(enabled);
+            }
+        });
+        assert_eq!(responses.len(), 5);
+        assert_eq!(
+            responses[0]["result"]["serverInfo"]["name"],
+            "deadsync-editor"
+        );
+        assert_eq!(responses[1]["result"], json!({}));
+        assert!(responses[2]["result"]["tools"].as_array().unwrap().len() > 1);
+        assert_eq!(responses[3]["result"]["isError"], true);
+        assert_eq!(responses[4]["id"], 5);
+        assert_eq!(responses[4]["result"]["isError"], false);
+        drop(bridge);
+    }
+    #[test]
+    fn oversized_connected_input_is_drained_and_following_requests_survive() {
+        let home = tempfile::tempdir().unwrap();
+        for excess in [1, 8192] {
+            let mut input = vec![b'x'; protocol::MAX_FRAME + excess - 1];
+            input.push(b'\n');
+            write_frame(&mut input, &json!({"jsonrpc":"2.0","id":9,"method":"ping"})).unwrap();
+            let responses = connected_responses(&home.path().join("absent.json"), input, |_| {});
+            assert_eq!(responses.len(), 2);
+            assert_eq!(responses[0]["error"]["code"], -32700);
+            assert!(responses[0]["id"].is_null());
+            assert_eq!(responses[1]["id"], 9);
+            assert_eq!(responses[1]["result"], json!({}));
+        }
+    }
+    #[test]
+    fn saturated_bridge_returns_busy_and_the_same_helper_can_retry() {
+        let home = tempfile::tempdir().unwrap();
+        let path = home.path().join("connection.json");
+        let host = workspace();
+        let mut snapshot = Snapshot::capture(&host).unwrap();
+        snapshot.document = Some(Arc::new(DeferredDocument {
+            source: Mutex::new(Some(Box::new(host.file().session.deferred_snapshot()))),
+            document: OnceLock::new(),
+        }));
+        let active = Arc::new(AtomicUsize::new(8));
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let secret = "busy-test-fixture".to_string();
+        std::fs::write(
+            &path,
+            json!({"address":listener.local_addr().unwrap().to_string(),"token":secret})
+                .to_string(),
+        )
+        .unwrap();
+        let server = Server {
+            registry: path.clone(),
+            secret,
+            host: Arc::new(Host {
+                state: Mutex::new(snapshot),
+                requested: AtomicBool::new(false),
+                invalidated: AtomicBool::new(false),
+                discard: AtomicBool::new(false),
+                ready: Condvar::new(),
+            }),
+            draft: Arc::new(Mutex::new(None)),
+            failure: Arc::new(Mutex::new(None)),
+            cancelled: cancelled.clone(),
+            clients: Mutex::new(HashMap::new()),
+            active: active.clone(),
+            before_publish: Mutex::new(None),
+        };
+        let worker = std::thread::spawn(move || server.listen(listener));
+        let mut input = Vec::new();
+        for id in [1, 2] {
+            write_frame(&mut input, &json!({"jsonrpc":"2.0","id":id,"method":"tools/call","params":{"name":"inspect_song"}})).unwrap();
+        }
+        let responses = connected_responses(&path, input, |count| {
+            if count == 1 {
+                active.store(0, Ordering::Release);
+            }
+        });
+        cancelled.store(true, Ordering::Release);
+        worker.join().unwrap();
+        assert_eq!(responses.len(), 2);
+        assert_eq!(responses[0]["result"]["isError"], true);
+        assert!(
+            responses[0]["result"]["content"][0]["text"]
+                .as_str()
+                .unwrap()
+                .contains("busy"),
+            "{}",
+            responses[0]
+        );
+        assert_eq!(responses[1]["id"], 2);
+        assert_eq!(responses[1]["result"]["isError"], false);
+    }
     fn workspace() -> Workspace {
         let document=crate::document::Document::parse(Arc::<[u8]>::from(b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Edit;#METER:1;#NOTES:1000;".as_slice()),crate::document::Format::Ssc).unwrap();
         let file = crate::storage::FileSession::from_new(crate::file_origin::NewSong {
